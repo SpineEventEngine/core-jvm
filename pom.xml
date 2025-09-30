@@ -158,7 +158,7 @@ all modules and does not describe the project structure per-subproject.
   <dependency>
     <groupId>io.grpc</groupId>
     <artifactId>grpc-netty-shaded</artifactId>
-    <version>1.72.0</version>
+    <version>1.75.0</version>
     <scope>test</scope>
   </dependency>
   <dependency>
