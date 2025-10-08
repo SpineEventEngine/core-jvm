@@ -30,11 +30,13 @@ import io.spine.dependency.boms.BomsPlugin
 import io.spine.dependency.build.ErrorProne
 import io.spine.dependency.lib.Grpc
 import io.spine.dependency.lib.Guava
+import io.spine.dependency.lib.Jackson
 import io.spine.dependency.lib.Kotlin
 import io.spine.dependency.lib.KotlinPoet
 import io.spine.dependency.local.Base
 import io.spine.dependency.local.BaseTypes
 import io.spine.dependency.local.Change
+import io.spine.dependency.local.Compiler
 import io.spine.dependency.local.CoreJava
 import io.spine.dependency.local.Logging
 import io.spine.dependency.local.ProtoData
@@ -70,8 +72,8 @@ buildscript {
             resolutionStrategy {
                 val logging = io.spine.dependency.local.Logging
                 force(
+                    io.spine.dependency.lib.Jackson.bom,
                     io.spine.dependency.lib.Guava.lib,
-                    "${protoData.module}:${protoData.dogfoodingVersion}",
                     io.spine.dependency.local.Base.lib,
                     io.spine.dependency.local.ToolBase.lib,
                     io.spine.dependency.local.CoreJava.server,
@@ -88,7 +90,7 @@ buildscript {
     dependencies {
         classpath(enforcedPlatform(io.spine.dependency.lib.Grpc.bom))
         classpath(enforcedPlatform(io.spine.dependency.kotlinx.Coroutines.bom))
-        classpath(mcJava.pluginLib)
+        classpath(coreJvmCompiler.pluginLib)
     }
 }
 
@@ -98,7 +100,7 @@ plugins {
     idea
     protobuf
     errorprone
-    `gradle-doctor`
+    //`gradle-doctor`
 }
 apply<BomsPlugin>()
 
@@ -182,7 +184,7 @@ fun Subproject.applyPlugins() {
         plugin("maven-publish")
         plugin("pmd-settings")
         plugin("dokka-for-java")
-        plugin("io.spine.mc-java")
+        plugin("io.spine.core-jvm")
         plugin("module-testing")
     }
     apply<BomsPlugin>()
@@ -327,7 +329,13 @@ fun Subproject.forceConfigurations() {
                     substitute(module("io.spine.tools:spine-tool-base")).using(module(ToolBase.lib))
                 }
 
+                Jackson.forceArtifacts(project, this@all, this@resolutionStrategy)
+                Jackson.DataFormat.forceArtifacts(project, this@all, this@resolutionStrategy)
+                Jackson.DataType.forceArtifacts(project, this@all, this@resolutionStrategy)
+
                 force(
+                    Jackson.bom,
+                    Jackson.annotations,
                     JUnit.bom,
                     Kotlin.bom,
                     Guava.lib,
@@ -339,10 +347,14 @@ fun Subproject.forceConfigurations() {
                     Logging.libJvm,
                     Logging.grpcContext,
                     BaseTypes.lib,
+                    Compiler.api,
                     Change.lib,
                     Reflect.lib,
                     TestLib.lib,
                     ToolBase.lib,
+                    ToolBase.jvmTools,
+                    ToolBase.gradlePluginApi,
+                    ToolBase.psiJava,
                     ToolBase.pluginBase,
                     ToolBase.intellijPlatform,
                     ToolBase.intellijPlatformJava,

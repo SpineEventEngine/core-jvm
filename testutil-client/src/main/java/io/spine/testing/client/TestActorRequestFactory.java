@@ -26,8 +26,8 @@
 
 package io.spine.testing.client;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.Timestamp;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.CommandMessage;
 import io.spine.client.ActorRequestFactory;
 import io.spine.core.Command;

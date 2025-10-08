@@ -26,12 +26,12 @@
 
 package io.spine.testing.server.query;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.truth.FailureMetadata;
 import com.google.common.truth.Subject;
 import com.google.common.truth.extensions.proto.IterableOfProtosSubject;
 import com.google.common.truth.extensions.proto.ProtoSubject;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.EntityState;
 import io.spine.client.QueryResponse;
 import io.spine.core.Status;

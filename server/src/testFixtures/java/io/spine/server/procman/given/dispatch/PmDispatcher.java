@@ -25,9 +25,9 @@
  */
 package io.spine.server.procman.given.dispatch;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.EntityState;
 import io.spine.core.Event;
 import io.spine.server.dispatch.DispatchOutcome;

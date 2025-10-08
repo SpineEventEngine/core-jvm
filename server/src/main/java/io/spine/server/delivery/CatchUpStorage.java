@@ -26,11 +26,11 @@
 
 package io.spine.server.delivery;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import io.spine.annotation.SPI;
-import io.spine.server.storage.RecordSpec;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.server.storage.MessageStorage;
+import io.spine.server.storage.RecordSpec;
 import io.spine.server.storage.StorageFactory;
 import io.spine.type.TypeUrl;
 

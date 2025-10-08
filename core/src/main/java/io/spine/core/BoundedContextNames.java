@@ -26,8 +26,8 @@
 
 package io.spine.core;
 
-import com.google.common.annotations.VisibleForTesting;
 import io.spine.annotation.Internal;
+import io.spine.annotation.VisibleForTesting;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.util.Preconditions2.checkNotEmptyOrBlank;

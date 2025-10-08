@@ -33,11 +33,12 @@ import io.spine.dependency.local.McJava
 import io.spine.dependency.local.TestLib
 import io.spine.dependency.local.Time
 import io.spine.dependency.local.Validation
-import io.spine.protodata.gradle.plugin.LaunchProtoData
+import io.spine.tools.compiler.gradle.plugin.LaunchSpineCompiler
 
 plugins {
     `java-test-fixtures`
     `detekt-code-analysis`
+    id("io.spine.core-jvm")
 }
 
 dependencies {
@@ -79,7 +80,7 @@ dependencies {
 
 afterEvaluate {
     tasks.named("kspTestFixturesKotlin") {
-        dependsOn("launchTestFixturesProtoData")
+        dependsOn("launchTestFixturesSpineCompiler")
     }
 }
 
@@ -101,9 +102,9 @@ tasks.javadoc {
  *
  * @see remoteDebug
  */
-fun Project.testFixturesProtoDataRemoteDebug(enabled: Boolean = false) {
-    val taskName = "launchTestFixturesProtoData"
-    val tasks = tasks.withType<LaunchProtoData>()
+fun Project.testFixturesSpineCompilerDebug(enabled: Boolean = false) {
+    val taskName = "launchTestFixturesSpineCompiler"
+    val tasks = tasks.withType<LaunchSpineCompiler>()
     tasks.configureEach {
         if (this.name == taskName) {
             println("Configuring `$taskName` with the remote debug: $enabled.")
@@ -113,10 +114,18 @@ fun Project.testFixturesProtoDataRemoteDebug(enabled: Boolean = false) {
 }
 
 afterEvaluate {
-    testProtoDataRemoteDebug(false)
-    testFixturesProtoDataRemoteDebug(false)
+//    testSpineCompilerRemoteDebug(false)
+//    testFixturesSpineCompilerRemoteDebug(false)
 
     tasks.named("testJar").configure { this as Jar
         from(sourceSets.testFixtures.get().output)
+    }
+}
+
+spine {
+    coreJvm {
+        grpc {
+            enabled.set(true)
+        }
     }
 }

@@ -26,7 +26,7 @@
 
 package io.spine.server.commandbus;
 
-import com.google.common.annotations.VisibleForTesting;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.core.Command;
 import io.spine.logging.WithLogging;
 

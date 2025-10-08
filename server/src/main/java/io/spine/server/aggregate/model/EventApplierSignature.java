@@ -26,17 +26,17 @@
 
 package io.spine.server.aggregate.model;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.Immutable;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.EventMessage;
 import io.spine.server.aggregate.Apply;
 import io.spine.server.model.AccessModifier;
 import io.spine.server.model.AllowedParams;
 import io.spine.server.model.ExtractedArguments;
 import io.spine.server.model.MethodParams;
-import io.spine.server.model.ReceptorSignature;
 import io.spine.server.model.ParameterSpec;
+import io.spine.server.model.ReceptorSignature;
 import io.spine.server.model.ReturnTypes;
 import io.spine.server.type.EventEnvelope;
 

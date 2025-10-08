@@ -25,11 +25,11 @@
  */
 package io.spine.server.stand;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.grpc.stub.StreamObserver;
 import io.spine.annotation.Internal;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.client.EntityStateWithVersion;
 import io.spine.client.Query;
 import io.spine.client.QueryResponse;
@@ -39,7 +39,6 @@ import io.spine.client.Topic;
 import io.spine.core.Origin;
 import io.spine.core.Response;
 import io.spine.core.Responses;
-import io.spine.protobuf.AnyPacker;
 import io.spine.server.Closeable;
 import io.spine.server.EventProducer;
 import io.spine.server.Identity;

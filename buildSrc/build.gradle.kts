@@ -24,6 +24,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 /**
  * This script uses two declarations of the constant [licenseReportVersion] because
  * currently there is no way to define a constant _before_ a build script of `buildSrc`.
@@ -140,7 +142,7 @@ val koverVersion = "0.9.1"
  *
  * `7.1.2` is the last version compatible with Gradle 7.x. Newer versions require Gradle v8.x.
  *
- * @see <a href="https://github.com/johnrengelman/shadow/releases">Shadow Plugin releases</a>
+ * @see <a href="https://github.com/GradleUp/shadow">Shadow Plugin releases</a>
  */
 val shadowVersion = "8.3.6"
 
@@ -155,6 +157,17 @@ configurations.all {
             "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinEmbeddedVersion",
             "org.jetbrains.kotlin:kotlin-reflect:$kotlinEmbeddedVersion"
         )
+    }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
     }
 }
 

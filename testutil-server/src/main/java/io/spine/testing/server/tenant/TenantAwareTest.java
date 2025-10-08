@@ -26,8 +26,8 @@
 
 package io.spine.testing.server.tenant;
 
-import com.google.common.annotations.VisibleForTesting;
 import io.spine.annotation.Internal;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.core.TenantId;
 import io.spine.environment.Environment;
 import io.spine.environment.Tests;

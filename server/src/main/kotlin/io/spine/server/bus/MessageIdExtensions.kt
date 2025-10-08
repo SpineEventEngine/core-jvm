@@ -28,8 +28,8 @@
 
 package io.spine.server.bus
 
-import com.google.common.annotations.VisibleForTesting
 import com.google.protobuf.Message
+import io.spine.annotation.VisibleForTesting
 import io.spine.base.Error
 import io.spine.base.RejectionThrowable
 import io.spine.core.Ack

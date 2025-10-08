@@ -26,11 +26,12 @@
 
 package io.spine.server.route
 
-import com.google.common.annotations.VisibleForTesting
 import com.google.errorprone.annotations.CanIgnoreReturnValue
+import io.spine.annotation.VisibleForTesting
 import io.spine.base.EventMessage
 import io.spine.core.EventContext
 import io.spine.server.route.EventRoute.Companion.withId
+import io.spine.server.route.EventRouting.Companion.withDefault
 import io.spine.server.route.EventRouting.Companion.withDefaultByProducerId
 import io.spine.system.server.event.EntityStateChanged
 

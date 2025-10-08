@@ -24,17 +24,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.dependency.local
+package io.spine.dependency.lib
+
+import io.spine.dependency.Dependency
 
 /**
- * Spine TestLib library.
+ * Palantir Java Format.
  *
- * @see <a href="https://github.com/SpineEventEngine/testlib">spine-testlib</a>
+ * @see <a href="https://github.com/palantir/palantir-java-format">GitHub Repo</a>
  */
-@Suppress("ConstPropertyName")
-object TestLib {
-    const val version = "2.0.0-SNAPSHOT.210"
-    const val group = ToolBase.group
-    const val artifact = "spine-testlib"
-    const val lib = "$group:$artifact:$version"
+object PalantirJavaFormat : Dependency() {
+
+    override val group = "com.palantir.javaformat"
+    override val version = "2.75.0"
+    override val modules: List<String> = listOf("$group:palantir-java-format")
+
+    val lib = artifact(modules[0])
 }

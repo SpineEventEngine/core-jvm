@@ -26,9 +26,9 @@
 
 package io.spine.server.model;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import io.spine.annotation.Internal;
+import io.spine.annotation.VisibleForTesting;
 import org.jspecify.annotations.NonNull;
 
 import java.lang.reflect.Method;

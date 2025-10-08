@@ -16,6 +16,6 @@ buildSrc/
 build.gradle.kts # Kotlin-based build configuration
 settings.gradle.kts # Project structure and settings
 README.md # Project overview
-AGENTS.md # LLM agent instructions (this file)
+AGENTS.md # Entry point for LLM agent instructions
 version.gradle.kts # Declares the project version. 
 ```

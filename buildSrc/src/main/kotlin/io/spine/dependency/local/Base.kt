@@ -38,7 +38,7 @@ object Base {
     const val group = Spine.group
     const val artifact = "spine-base"
     const val lib = "$group:$artifact:$version"
-    const val annotations = "$group:spine-annotations:$version"
     const val format = "$group:spine-format:$version"
     const val libForBuildScript = "$group:$artifact:$versionForBuildScript"
+    const val annotations = "$group:spine-annotations:$version"
 }

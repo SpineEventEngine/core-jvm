@@ -25,8 +25,8 @@
  */
 package io.spine.server.procman;
 
-import com.google.common.annotations.VisibleForTesting;
 import io.spine.annotation.Internal;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.EntityState;
 import io.spine.core.Version;
 import io.spine.server.command.DispatchCommand;

@@ -159,7 +159,7 @@ class UpdateGitHubPages : Plugin<Project> {
         includedInputs = extension.includedInputs()
 
         if (!allowInternalJavadoc) {
-            val doclet = ExcludeInternalDoclet(extension.excludeInternalDocletVersion)
+            val doclet = ExcludeInternalDoclet()
             doclet.registerTaskIn(this)
         }
 

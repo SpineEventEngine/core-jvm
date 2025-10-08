@@ -25,7 +25,7 @@
  */
 package io.spine.server.projection.given.dispatch;
 
-import com.google.common.annotations.VisibleForTesting;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.EntityState;
 import io.spine.base.EventMessage;
 import io.spine.core.Event;

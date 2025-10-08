@@ -26,7 +26,7 @@
 
 package io.spine.server.given.context.sorting
 
-import com.google.common.annotations.VisibleForTesting
+import io.spine.annotation.VisibleForTesting
 import io.spine.base.EventMessage
 import io.spine.core.EventContext
 import io.spine.core.Subscribe

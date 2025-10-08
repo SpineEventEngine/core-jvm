@@ -26,8 +26,8 @@
 
 package io.spine.server.route
 
-import com.google.common.annotations.VisibleForTesting
 import com.google.errorprone.annotations.CanIgnoreReturnValue
+import io.spine.annotation.VisibleForTesting
 import io.spine.base.Routable
 import io.spine.core.SignalContext
 import java.util.Collections.synchronizedMap

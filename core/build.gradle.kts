@@ -48,9 +48,9 @@ dependencies {
     testImplementation(Time.testLib)
 }
 
-modelCompiler {
-    java {
-        codegen {
+spine {
+    coreJvm {
+        compiler {
             forMessage("spine.core.Event") {
                 // Describe the `Event` fields to allow non-reflective and strongly-typed access.
                 markFieldsAs("io.spine.core.EventField")

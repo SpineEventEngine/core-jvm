@@ -69,11 +69,17 @@ fun DependencyHandlerScope.useDokkaWithSpineExtensions() {
 private fun DependencyHandler.dokkaPlugin(dependencyNotation: Any): Dependency? =
     add("dokkaPlugin", dependencyNotation)
 
+/**
+ * Resolves the directory where Dokka outputs HTML documentation for the given language.
+ */
 internal fun Project.dokkaOutput(language: String): File {
     val lng = language.titleCaseFirstChar()
     return layout.buildDirectory.dir("docs/dokka$lng").get().asFile
 }
 
+/**
+ * Locates a Dokka configuration file under the `buildSrc` resources.
+ */
 fun Project.dokkaConfigFile(file: String): File {
     val dokkaConfDir = project.rootDir.resolve("buildSrc/src/main/resources/dokka")
     return dokkaConfDir.resolve(file)

@@ -59,7 +59,7 @@ fun KotlinCommonCompilerOptions.setFreeCompilerArgs() {
             "-Xjvm-default=all",
             "-Xinline-classes",
             "-Xexpect-actual-classes",
-            "-Xcontext-receivers",
+            "-Xcontext-parameters",
             "-opt-in=" +
                     "kotlin.contracts.ExperimentalContracts," +
                     "kotlin.io.path.ExperimentalPathApi," +

@@ -26,12 +26,12 @@
 
 package io.spine.client;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.protobuf.Message;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.Identifier;
 import io.spine.client.grpc.SubscriptionServiceGrpc;
 import io.spine.client.grpc.SubscriptionServiceGrpc.SubscriptionServiceBlockingStub;

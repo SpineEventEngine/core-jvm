@@ -26,13 +26,15 @@
 
 package io.spine.server.given.context.fizzbuzz
 
-import com.google.common.annotations.VisibleForTesting
+import io.spine.annotation.VisibleForTesting
 import io.spine.server.BoundedContext
 import io.spine.server.BoundedContext.singleTenant
 import io.spine.server.command.Assign
 import io.spine.server.entity.alter
 import io.spine.server.event.NoReaction
 import io.spine.server.event.React
+import io.spine.server.given.context.fizzbuzz.NumberQualification.Companion.qualify
+import io.spine.server.given.context.fizzbuzz.NumberQualification.Companion.routeEvent
 import io.spine.server.given.context.fizzbuzz.Qualifier.BUZZ
 import io.spine.server.given.context.fizzbuzz.Qualifier.COMMON
 import io.spine.server.given.context.fizzbuzz.Qualifier.FIZZ

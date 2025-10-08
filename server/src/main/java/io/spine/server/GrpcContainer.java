@@ -25,7 +25,6 @@
  */
 package io.spine.server;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -37,6 +36,7 @@ import io.grpc.ServerBuilder;
 import io.grpc.ServerServiceDefinition;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.spine.annotation.Experimental;
+import io.spine.annotation.VisibleForTesting;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;

@@ -26,8 +26,8 @@
 
 package io.spine.testing.server.blackbox.probe;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.Error;
 import io.spine.core.CommandValidationError;
 import io.spine.server.dispatch.DispatchOutcome;
