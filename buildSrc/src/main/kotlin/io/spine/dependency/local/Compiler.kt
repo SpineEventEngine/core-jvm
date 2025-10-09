@@ -26,13 +26,6 @@
 
 package io.spine.dependency.local
 
-import io.spine.dependency.local.Compiler.DF_VERSION_ENV
-import io.spine.dependency.local.Compiler.VERSION_ENV
-import io.spine.dependency.local.Compiler.dogfoodingVersion
-import io.spine.dependency.local.Compiler.pluginLib
-import io.spine.dependency.local.Compiler.version
-
-
 /**
  * Dependencies on the Spine Compiler modules.
  *
