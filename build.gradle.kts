@@ -100,7 +100,7 @@ plugins {
     idea
     protobuf
     errorprone
-    //`gradle-doctor`
+    `gradle-doctor`
 }
 apply<BomsPlugin>()
 
