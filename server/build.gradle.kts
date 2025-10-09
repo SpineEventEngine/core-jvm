@@ -111,8 +111,8 @@ fun Project.testFixturesSpineCompilerDebug(enabled: Boolean = false) {
 }
 
 afterEvaluate {
-//    testSpineCompilerRemoteDebug(false)
-//    testFixturesSpineCompilerRemoteDebug(false)
+    testSpineCompilerRemoteDebug(false)
+    testFixturesSpineCompilerDebug(false)
 
     tasks.named("testJar").configure { this as Jar
         from(sourceSets.testFixtures.get().output)
