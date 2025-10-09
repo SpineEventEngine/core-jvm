@@ -1,4 +1,4 @@
-# Welcome to Spine Event Engine
+# Welcome to Spine CoreJvm Library
 
 [![Ubuntu build][ubuntu-build-badge]][gh-actions]
 [![codecov.io](https://codecov.io/github/SpineEventEngine/core-java/coverage.svg?branch=master)](https://codecov.io/github/SpineEventEngine/core-java?branch=master) &nbsp;
@@ -7,8 +7,9 @@
 [gh-actions]: https://github.com/SpineEventEngine/core-java/actions
 [ubuntu-build-badge]: https://github.com/SpineEventEngine/core-java/actions/workflows/build-on-ubuntu.yml/badge.svg
 
-[Spine Event Engine][spine-site] is a Java framework for building Event Sourcing and CQRS
-applications that are accessed by clients built with JavaScript, Java Nano (Android), Dart, and Java.
+[Spine Event Engine][spine-site] is a Java/Kotlin framework for building Event Sourcing and CQRS
+applications that are accessed by clients built with TypeStript, JavaScript, Java Nano (Android),
+Dart, and Java/Kotlin.
 
 ## Releases
 
@@ -37,21 +38,23 @@ the [Spine Examples][spine-examples] GitHub organization.
 ## Building from sources
 
 Starting version `2.0.0-SNAPSHOT.210` building Spine modules requires JDK 17.
+
 Versions of the v1.x family could be built with JDK 8.
 
 Gradle is used as a build and dependency management system.
 
-This repository uses [configuration files][config] shared across several Spine libs. They are
-plugged in as a Git submodule. Please use the following command to initialize it:
+This repository uses [configuration files][config] shared across several Spine libs.
+They are plugged in as a Git submodule. Use the following command to initialize it:
 
 ```sh
 git submodule update --init --recursive
 ```  
 
-Also, a `pull` script is located in the root of `core-java` repository. Use it to update to the 
-latest version of the configuration files.
+Also, a script called `pull` in the root of the `core-jvm` project which can be used
+to update to the latest version of the configuration files.
 
 ## Important warnings
+
 * The code annotated with `@Internal` are not parts of public API of the framework. 
   Therefore, such API should not be used from the outside of the framework.
 
