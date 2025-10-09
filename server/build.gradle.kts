@@ -67,8 +67,6 @@ dependencies {
     testImplementation(TestLib.lib)
     testImplementation(BaseTypes.lib)
 
-    kspTestFixtures(McJava.pluginLib)
-
     testFixturesImplementation(TestLib.lib)
     testFixturesImplementation(Time.testLib)
     testFixturesImplementation(AutoService.annotations)
