@@ -69,10 +69,11 @@ dependencies {
     testFixturesImplementation(TestLib.lib)
     testFixturesImplementation(Time.testLib)
     testFixturesImplementation(AutoService.annotations)
-    testFixturesImplementation(project(":testutil-server"))
+    val serverTestLib = project(":server-testlib")
+    testFixturesImplementation(serverTestLib)
 
     testImplementation(Time.testLib)
-    testImplementation(project(":testutil-server"))
+    testImplementation(serverTestLib)
 }
 
 afterEvaluate {

@@ -107,18 +107,11 @@ apply<BomsPlugin>()
 repositories.standardToSpineSdk()
 
 spinePublishing {
-    modules = setOf(
-        "core",
-        "client",
-        "server",
-        "testutil-core",
-        "testutil-client",
-        "testutil-server",
-    )
+    modules = productionModules.map { it.name }.toSet()
 
     destinations = with(PublishingRepos) {
         setOf(
-            gitHub("core-java"),
+            gitHub("core-jvm"),
             cloudArtifactRegistry
         )
     }

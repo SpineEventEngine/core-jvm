@@ -44,7 +44,7 @@ dependencies {
     api(Logging.lib)
     api(Coroutines.core)
 
-    testImplementation(project(":testutil-core"))
+    testImplementation(project(":core-testlib"))
     testImplementation(Time.testLib)
 }
 

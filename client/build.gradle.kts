@@ -51,7 +51,7 @@ dependencies {
     implementation(Logging.grpcContext)
 
     testImplementation(Time.testLib)
-    testImplementation(project(":testutil-client"))
+    testImplementation(project(":client-testlib"))
 }
 
 spine {
