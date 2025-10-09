@@ -31,7 +31,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = "spine-core-java"
+rootProject.name = "spine-core-jvm"
 
 include(
     "core",
