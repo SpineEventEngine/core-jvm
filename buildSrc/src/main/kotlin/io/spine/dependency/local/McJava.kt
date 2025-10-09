@@ -26,10 +26,6 @@
 
 package io.spine.dependency.local
 
-import io.spine.dependency.local.McJava.dogfoodingVersion
-import io.spine.dependency.local.McJava.version
-
-
 /**
  * Dependencies on Spine Model Compiler for Java.
  *
@@ -41,7 +37,7 @@ import io.spine.dependency.local.McJava.version
     "unused"
 )
 object McJava {
-    const val group = ToolBase.group
+    const val group = Spine.toolsGroup
 
     /**
      * The version used to in the build classpath.
