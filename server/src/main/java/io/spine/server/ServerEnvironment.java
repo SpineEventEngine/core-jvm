@@ -26,14 +26,14 @@
 
 package io.spine.server;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.annotation.Internal;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.Identifier;
 import io.spine.environment.CustomEnvironmentType;
+import io.spine.environment.DefaultMode;
 import io.spine.environment.Environment;
 import io.spine.environment.EnvironmentType;
-import io.spine.environment.DefaultMode;
 import io.spine.environment.Tests;
 import io.spine.server.commandbus.CommandScheduler;
 import io.spine.server.commandbus.ExecutorCommandScheduler;

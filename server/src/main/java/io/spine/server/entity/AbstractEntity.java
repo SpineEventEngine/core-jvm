@@ -26,7 +26,6 @@
 
 package io.spine.server.entity;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
@@ -34,6 +33,7 @@ import com.google.errorprone.annotations.concurrent.LazyInit;
 import com.google.protobuf.Message;
 import com.google.protobuf.Timestamp;
 import io.spine.annotation.Internal;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.EntityState;
 import io.spine.base.Identifier;
 import io.spine.core.Version;

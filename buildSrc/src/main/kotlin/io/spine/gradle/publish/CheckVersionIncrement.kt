@@ -30,6 +30,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PRO
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import io.spine.gradle.repo.Repository
 import java.io.FileNotFoundException
+import java.net.URI
 import java.net.URL
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -84,7 +85,7 @@ open class CheckVersionIncrement : DefaultTask() {
     }
 
     private fun fetch(repository: String, artifact: String): MavenMetadata? {
-        val url = URL("$repository/$artifact")
+        val url = URI.create("$repository/$artifact").toURL()
         return MavenMetadata.fetchAndParse(url)
     }
 

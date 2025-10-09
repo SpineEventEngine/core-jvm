@@ -114,3 +114,19 @@ private fun ResolutionStrategy.forceWithLogging(
     force(artifact)
     project.log { "Forced the version of `$artifact` in " + configuration.diagSuffix(project) }
 }
+
+/**
+ * Obtains full Maven coordinates for the requested [module].
+ *
+ * This extension allows referencing properties of the [Dependency],
+ * upon which it is invoked.
+ *
+ * An example usage:
+ *
+ * ```
+ * // Supposing there is `Ksp.symbolProcessingApi: String` property declared.
+ * Ksp.artifact { symbolProcessingApi }
+ * ```
+ */
+fun <T : Dependency> T.artifact(module: T.() -> String): String =
+    artifact(module())

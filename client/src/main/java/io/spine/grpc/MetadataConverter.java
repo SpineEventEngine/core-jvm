@@ -26,10 +26,10 @@
 
 package io.spine.grpc;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.grpc.Metadata;
 import io.spine.annotation.Internal;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.Error;
 import io.spine.util.Exceptions;
 

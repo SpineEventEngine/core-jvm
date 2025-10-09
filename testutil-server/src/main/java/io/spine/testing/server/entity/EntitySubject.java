@@ -26,12 +26,12 @@
 
 package io.spine.testing.server.entity;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.truth.BooleanSubject;
 import com.google.common.truth.FailureMetadata;
 import com.google.common.truth.Subject;
 import com.google.common.truth.extensions.proto.ProtoSubject;
 import com.google.protobuf.Empty;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.core.Version;
 import io.spine.server.entity.Entity;
 import io.spine.server.entity.LifecycleFlags;

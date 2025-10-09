@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+package io.spine.dependency.lib
+
+import io.spine.dependency.Dependency
+
 /**
- *  The version of this library.
+ * Palantir Java Format.
  *
- * For versions of Spine-based dependencies, please see [io.spine.dependency.local.Spine].
+ * @see <a href="https://github.com/palantir/palantir-java-format">GitHub Repo</a>
  */
-val versionToPublish: String by extra("2.0.0-SNAPSHOT.331")
+object PalantirJavaFormat : Dependency() {
+
+    override val group = "com.palantir.javaformat"
+    override val version = "2.75.0"
+    override val modules: List<String> = listOf("$group:palantir-java-format")
+
+    val lib = artifact(modules[0])
+}

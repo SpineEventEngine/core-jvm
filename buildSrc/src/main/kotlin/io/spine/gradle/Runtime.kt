@@ -53,7 +53,7 @@ class Cli(private val workingFolder: File) {
      * [Executes][Runtime.exec] the given `String` array as a CLI command.
      *
      * If the execution is successful, returns the command output.
-     * Throws an {@link IllegalStateException} otherwise.
+     * Throws an [IllegalStateException] otherwise.
      *
      * @param command the command to execute.
      * @return the command line output.

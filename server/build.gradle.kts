@@ -29,15 +29,15 @@ import io.spine.dependency.lib.Grpc
 import io.spine.dependency.lib.Kotlin
 import io.spine.dependency.local.BaseTypes
 import io.spine.dependency.local.Change
-import io.spine.dependency.local.McJava
 import io.spine.dependency.local.TestLib
 import io.spine.dependency.local.Time
 import io.spine.dependency.local.Validation
-import io.spine.protodata.gradle.plugin.LaunchProtoData
+import io.spine.tools.compiler.gradle.plugin.LaunchSpineCompiler
 
 plugins {
     `java-test-fixtures`
     `detekt-code-analysis`
+    id("io.spine.core-jvm")
 }
 
 dependencies {
@@ -66,8 +66,6 @@ dependencies {
     testImplementation(TestLib.lib)
     testImplementation(BaseTypes.lib)
 
-    kspTestFixtures(McJava.pluginLib)
-
     testFixturesImplementation(TestLib.lib)
     testFixturesImplementation(Time.testLib)
     testFixturesImplementation(AutoService.annotations)
@@ -79,7 +77,7 @@ dependencies {
 
 afterEvaluate {
     tasks.named("kspTestFixturesKotlin") {
-        dependsOn("launchTestFixturesProtoData")
+        dependsOn("launchTestFixturesSpineCompiler")
     }
 }
 
@@ -101,9 +99,9 @@ tasks.javadoc {
  *
  * @see remoteDebug
  */
-fun Project.testFixturesProtoDataRemoteDebug(enabled: Boolean = false) {
-    val taskName = "launchTestFixturesProtoData"
-    val tasks = tasks.withType<LaunchProtoData>()
+fun Project.testFixturesSpineCompilerDebug(enabled: Boolean = false) {
+    val taskName = "launchTestFixturesSpineCompiler"
+    val tasks = tasks.withType<LaunchSpineCompiler>()
     tasks.configureEach {
         if (this.name == taskName) {
             println("Configuring `$taskName` with the remote debug: $enabled.")
@@ -113,10 +111,18 @@ fun Project.testFixturesProtoDataRemoteDebug(enabled: Boolean = false) {
 }
 
 afterEvaluate {
-    testProtoDataRemoteDebug(false)
-    testFixturesProtoDataRemoteDebug(false)
+    testSpineCompilerRemoteDebug(false)
+    testFixturesSpineCompilerDebug(false)
 
     tasks.named("testJar").configure { this as Jar
         from(sourceSets.testFixtures.get().output)
+    }
+}
+
+spine {
+    coreJvm {
+        grpc {
+            enabled.set(true)
+        }
     }
 }

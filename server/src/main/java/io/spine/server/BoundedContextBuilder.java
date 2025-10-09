@@ -26,10 +26,10 @@
 
 package io.spine.server;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.annotation.Internal;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.core.BoundedContextName;
 import io.spine.logging.WithLogging;
 import io.spine.server.aggregate.AggregateRootDirectory;

@@ -24,9 +24,31 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- *  The version of this library.
- *
- * For versions of Spine-based dependencies, please see [io.spine.dependency.local.Spine].
- */
-val versionToPublish: String by extra("2.0.0-SNAPSHOT.331")
+import io.spine.dependency.local.Base
+import io.spine.dependency.local.Validation
+
+plugins {
+    java
+    `java-test-fixtures`
+}
+
+dependencies {
+    arrayOf(
+        Base.lib,
+        Validation.runtime
+    ).forEach {
+        testFixturesImplementation(it)?.because(
+            """
+            We do not apply CoreJvm Compiler Gradle plugin which adds
+            the `implementation` dependency on Validation runtime automatically 
+            (see `Project.configureValidation()` function in `CompilerConfigPlugin.kt`).
+            
+            In a test module we use vanilla `protoc` (via ProtoTap) and then run codegen
+            using the Spine Compiler `Pipeline` and the plugins of the module under the test.
+
+            Because of this we need to add the dependencies above explicitly for the
+            generated code of test fixtures to compile.                
+            """.trimIndent()
+        )
+    }
+}

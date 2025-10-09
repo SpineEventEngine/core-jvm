@@ -26,7 +26,7 @@
 
 package io.spine.server.bus;
 
-import com.google.common.annotations.VisibleForTesting;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.server.type.SignalEnvelope;
 
 import java.util.HashSet;

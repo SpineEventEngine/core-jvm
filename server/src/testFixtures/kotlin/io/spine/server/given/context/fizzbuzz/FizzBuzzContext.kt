@@ -26,7 +26,7 @@
 
 package io.spine.server.given.context.fizzbuzz
 
-import com.google.common.annotations.VisibleForTesting
+import io.spine.annotation.VisibleForTesting
 import io.spine.server.BoundedContext
 import io.spine.server.BoundedContext.singleTenant
 import io.spine.server.command.Assign

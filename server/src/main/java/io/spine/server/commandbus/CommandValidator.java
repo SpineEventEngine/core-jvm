@@ -26,9 +26,9 @@
 
 package io.spine.server.commandbus;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import io.spine.annotation.Internal;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.core.CommandId;
 import io.spine.server.MessageInvalid;
 import io.spine.server.bus.EnvelopeValidator;

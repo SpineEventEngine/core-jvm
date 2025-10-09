@@ -26,11 +26,11 @@
 
 package io.spine.server.entity;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Iterators;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import io.spine.annotation.Internal;
 import io.spine.annotation.SPI;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.Identifier;
 import io.spine.base.Routable;
 import io.spine.core.SignalContext;
@@ -48,9 +48,9 @@ import io.spine.server.type.SignalEnvelope;
 import io.spine.system.server.RoutingFailed;
 import io.spine.type.TypeUrl;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.dataflow.qual.Pure;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.checkerframework.dataflow.qual.Pure;
 
 import java.util.Iterator;
 import java.util.Optional;

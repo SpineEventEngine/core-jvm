@@ -25,12 +25,12 @@
  */
 package io.spine.server;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Ordering;
 import com.google.errorprone.annotations.CompileTimeConstant;
 import io.grpc.BindableService;
 import io.grpc.stub.StreamObserver;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.client.Subscription;
 import io.spine.client.SubscriptionUpdate;
 import io.spine.client.Subscriptions;

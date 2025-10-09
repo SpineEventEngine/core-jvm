@@ -26,7 +26,7 @@
 
 package io.spine.testing.server.blackbox;
 
-import com.google.common.annotations.VisibleForTesting;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.Time;
 import io.spine.core.TenantId;
 import io.spine.core.UserId;

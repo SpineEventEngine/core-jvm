@@ -26,9 +26,9 @@
 
 package io.spine.client;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.Any;
 import io.spine.annotation.Internal;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.CommandMessage;
 import io.spine.core.Command;
 import io.spine.core.CommandContext;

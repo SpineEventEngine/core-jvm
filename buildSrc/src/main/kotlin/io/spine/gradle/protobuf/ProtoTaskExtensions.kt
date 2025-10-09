@@ -109,9 +109,7 @@ private fun GenerateProtoTask.generatedDir(language: String = ""): File {
 fun GenerateProtoTask.setup() {
     builtins.maybeCreate("kotlin")
     setupDescriptorSetFileCreation()
-    doFirst {
-        excludeProtocOutput()
-    }
+    excludeProtocOutput()
     doLast {
         copyGeneratedFiles()
     }
@@ -231,21 +229,34 @@ private fun GenerateProtoTask.deleteComGoogle(language: String) {
  */
 fun GenerateProtoTask.excludeProtocOutput() {
     val protocOutputDir = File(outputBaseDir).parentFile
+
+    /**
+     * Filter out directories belonging to `build/generated/source/proto`.
+     */
+    fun filterFor(directorySet: SourceDirectorySet) {
+        val newSourceDirectories = directorySet.sourceDirectories
+            .filter { !it.residesIn(protocOutputDir) }
+            .toSet()
+        // Make sure we start from scratch.
+        // Not doing this failed the following, real, assignment sometimes.
+        directorySet.setSrcDirs(listOf<String>())
+        directorySet.srcDirs(newSourceDirectories)
+    }
+
     val java: SourceDirectorySet = sourceSet.java
-
-    // Filter out directories belonging to `build/generated/source/proto`.
-    val newSourceDirectories = java.sourceDirectories
-        .filter { !it.residesIn(protocOutputDir) }
-        .toSet()
-    // Make sure we start from scratch.
-    // Not doing this failed the following, real, assignment sometimes.
-    java.setSrcDirs(listOf<String>())
-    java.srcDirs(newSourceDirectories)
-
+    filterFor(java)
     // Add copied files to the Java source set.
     java.srcDir(generatedDir("java"))
-    java.srcDir(generatedDir("kotlin"))
+
+    val kotlin = sourceSet.kotlin
+    filterFor(kotlin)
+    // Add copied files to the Kotlin source set.
+    kotlin.srcDir(generatedDir("kotlin"))
 }
+
+private val SourceSet.kotlin: SourceDirectorySet get() =
+    (this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("kotlin")
+            as SourceDirectorySet
 
 /**
  * Make sure Kotlin compilation explicitly depends on this `GenerateProtoTask` to avoid racing.

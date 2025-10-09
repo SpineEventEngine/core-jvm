@@ -25,9 +25,9 @@
  */
 package io.spine.client;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.annotation.Internal;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.Time;
 import io.spine.core.ActorContext;
 import io.spine.core.CommandContext;

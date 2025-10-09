@@ -25,10 +25,10 @@
  */
 package io.spine.server.stand;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.client.Subscription;
 import io.spine.client.SubscriptionUpdate;
 import io.spine.server.type.EventEnvelope;

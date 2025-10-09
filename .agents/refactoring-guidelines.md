@@ -1,3 +1,3 @@
 # ⚙️ Refactoring guidelines
 
-- Do not replace Kotest assertions with standard Kotlin's Built-In Test Assertions.
+- Do NOT replace Kotest assertions with standard Kotlin's built-in test assertions.

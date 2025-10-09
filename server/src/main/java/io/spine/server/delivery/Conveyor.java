@@ -26,10 +26,10 @@
 
 package io.spine.server.delivery;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Sets;
 import com.google.protobuf.Duration;
 import com.google.protobuf.util.Timestamps;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.Time;
 
 import java.util.ArrayList;

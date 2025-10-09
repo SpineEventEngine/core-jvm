@@ -26,7 +26,7 @@
 
 package io.spine.server.command.model.given.handler;
 
-import com.google.common.annotations.VisibleForTesting;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.EventMessage;
 import io.spine.server.command.Assign;
 import io.spine.test.reflect.command.RefCreateProject;

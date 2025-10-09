@@ -26,7 +26,7 @@
 
 package io.spine.server;
 
-import com.google.common.annotations.VisibleForTesting;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.environment.EnvironmentType;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 

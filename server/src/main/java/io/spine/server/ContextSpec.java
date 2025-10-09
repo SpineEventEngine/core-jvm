@@ -26,10 +26,10 @@
 
 package io.spine.server;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import io.spine.annotation.Internal;
 import io.spine.annotation.SPI;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.core.BoundedContextName;
 
 import static com.google.common.base.Preconditions.checkNotNull;

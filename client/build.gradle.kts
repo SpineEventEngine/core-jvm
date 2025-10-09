@@ -53,3 +53,11 @@ dependencies {
     testImplementation(Time.testLib)
     testImplementation(project(":testutil-client"))
 }
+
+spine {
+    coreJvm {
+        grpc {
+            enabled.set(true)
+        }
+    }
+}

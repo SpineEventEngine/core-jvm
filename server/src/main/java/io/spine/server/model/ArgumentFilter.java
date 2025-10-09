@@ -26,10 +26,10 @@
 
 package io.spine.server.model;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.errorprone.annotations.Immutable;
 import com.google.protobuf.Empty;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.Field;
 import io.spine.base.FieldPath;
 import io.spine.base.SignalMessage;

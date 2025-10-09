@@ -26,7 +26,7 @@
 
 package io.spine.server.event.model;
 
-import com.google.common.annotations.VisibleForTesting;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.server.model.ReceptorSignature;
 
 /**

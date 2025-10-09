@@ -26,8 +26,8 @@
 
 package io.spine.server.projection.given.dispatch;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.EntityState;
 import io.spine.core.Version;
 import io.spine.server.entity.EntityBuilder;

@@ -92,7 +92,7 @@ internal object PomFormatting {
      * Writes the specified lines using the specified [destination], dividing them
      * by platform-specific line separator.
      *
-     * The written lines are also padded with the platform's line separator from both sides.
+     * Each written line is followed by two platform-specific line separators.
      */
     internal fun writeBlocks(destination: StringWriter, vararg lines: String) {
         lines.iterator().forEach {

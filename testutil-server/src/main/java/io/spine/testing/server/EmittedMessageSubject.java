@@ -26,7 +26,6 @@
 
 package io.spine.testing.server;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.truth.FailureMetadata;
@@ -34,6 +33,7 @@ import com.google.common.truth.Subject;
 import com.google.common.truth.extensions.proto.ProtoSubject;
 import com.google.common.truth.extensions.proto.ProtoTruth;
 import com.google.protobuf.Empty;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.core.Signal;
 import io.spine.protobuf.AnyPacker;
 import io.spine.type.SerializableMessage;

@@ -26,10 +26,10 @@
 
 package io.spine.server.procman;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import io.spine.annotation.Internal;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.EntityState;
 import io.spine.core.Command;
 import io.spine.server.BoundedContext;

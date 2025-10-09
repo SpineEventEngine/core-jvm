@@ -25,10 +25,10 @@
  */
 package io.spine.server.entity;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.annotation.Internal;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.EntityState;
 import io.spine.base.Error;
 import io.spine.base.Identifier;

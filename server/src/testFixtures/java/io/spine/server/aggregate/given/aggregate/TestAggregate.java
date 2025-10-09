@@ -26,8 +26,8 @@
 
 package io.spine.server.aggregate.given.aggregate;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.core.Command;
 import io.spine.core.CommandContext;
 import io.spine.server.aggregate.Aggregate;

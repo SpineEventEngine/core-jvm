@@ -33,6 +33,6 @@ package io.spine.dependency.build
  */
 @Suppress("unused", "ConstPropertyName")
 object GradleDoctor {
-    const val version = "0.10.0"
+    const val version = "0.12.0"
     const val pluginId = "com.osacky.doctor"
 }

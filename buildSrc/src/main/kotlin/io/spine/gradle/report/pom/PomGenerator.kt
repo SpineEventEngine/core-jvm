@@ -69,7 +69,7 @@ object PomGenerator {
     fun applyTo(project: Project) {
 
         /**
-         * In some cases, the `base` plugin, which by default is added by e.g., `java`,
+         * In some cases, the `base` plugin, which by default is added by e.g. `java`,
          * is not yet added.
          *
          * The `base` plugin defines the `build` task.
