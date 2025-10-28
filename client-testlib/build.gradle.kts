@@ -31,6 +31,7 @@ import io.spine.gradle.testing.exposeTestConfiguration
 group = "io.spine.tools"
 
 plugins {
+    module
     `detekt-code-analysis`
 }
 

@@ -32,7 +32,9 @@ import io.spine.dependency.local.Time
 import io.spine.dependency.local.Validation
 
 plugins {
+    module
     `detekt-code-analysis`
+    id("io.spine.core-jvm")
 }
 
 dependencies {
