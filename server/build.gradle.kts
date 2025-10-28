@@ -76,12 +76,6 @@ dependencies {
     testImplementation(serverTestLib)
 }
 
-afterEvaluate {
-    tasks.named("kspTestFixturesKotlin") {
-        dependsOn("launchTestFixturesSpineCompiler")
-    }
-}
-
 // Copies the documentation files to the Javadoc output folder.
 // Inspired by https://discuss.gradle.org/t/do-doc-files-work-with-gradle-javadoc/4673
 tasks.javadoc {

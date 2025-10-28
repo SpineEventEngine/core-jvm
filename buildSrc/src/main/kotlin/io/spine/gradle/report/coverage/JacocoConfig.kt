@@ -144,7 +144,7 @@ class JacocoConfig(
 
     private fun registerRootReport(
         tasks: TaskContainer,
-        copyReports: TaskProvider<Copy>?
+        copyReports: TaskProvider<Copy>
     ): TaskProvider<JacocoReport> {
         val allSourceSets = Projects(projects).sourceSets()
         val mainJavaSrcDirs = allSourceSets.mainJavaSrcDirs()

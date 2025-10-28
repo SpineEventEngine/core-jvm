@@ -34,7 +34,8 @@ package io.spine.dependency.local
 @Suppress("ConstPropertyName", "unused")
 object ToolBase {
     const val group = Spine.toolsGroup
-    const val version = "2.0.0-SNAPSHOT.361"
+    const val version = "2.0.0-SNAPSHOT.369"
+    const val dogfoodingVersion = "2.0.0-SNAPSHOT.369"
 
     const val lib = "$group:tool-base:$version"
     const val classicCodegen = "$group:classic-codegen:$version"
@@ -45,14 +46,18 @@ object ToolBase {
     const val intellijPlatformJava = "$group:intellij-platform-java:$version"
 
     const val psi = "$group:psi:$version"
-    const val psiJava = "$group:psi-java:$version"
+    const val psiJavaArtifactName = "psi-java"
+    const val psiJava = "$group:$psiJavaArtifactName:$version"
 
-    const val gradleRootPlugin = "$group:gradle-root-plugin:$version"
+    const val rootGradlePlugins = "$group:root-gradle-plugins:$version"
     const val gradlePluginApi = "$group:gradle-plugin-api:$version"
     const val gradlePluginApiTestFixtures = "$group:gradle-plugin-api-test-fixtures:$version"
 
     const val jvmTools = "$group:jvm-tools:$version"
-    const val jvmToolPlugins = "$group:jvm-tool-all-plugins:$version"
+    const val jvmToolPluginDogfooding = "$group:jvm-tool-plugins-all:$dogfoodingVersion"
+    const val jvmToolPlugins = "$group:jvm-tool-plugins-all:$version"
+
+    const val protobufSetupPlugins = "$group:protobuf-setup-plugins:$version"
 
     object JavadocFilter {
         const val group = ToolBase.group

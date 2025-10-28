@@ -69,7 +69,6 @@ val about = ""
 plugins {
     kotlin("multiplatform")
     id("detekt-code-analysis")
-    id("io.kotest.multiplatform")
     id("org.jetbrains.kotlinx.kover")
     `project-report`
 }

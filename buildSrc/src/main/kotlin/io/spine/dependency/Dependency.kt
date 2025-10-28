@@ -58,16 +58,22 @@ abstract class Dependency {
     /**
      * The [modules] given with the [version].
      */
-    final val artifacts: Map<String, String> by lazy {
+    val artifacts: Map<String, String> by lazy {
         modules.associateWith { "$it:$version" }
     }
 
     /**
-     * Obtains full Maven coordinates for the requested [module].
+     * Obtains full Maven coordinates for the requested [module] and [version].
      */
-    fun artifact(module: String): String = artifacts[module] ?: error(
-        "The dependency `${this::class.simpleName}` does not declare a module `$module`."
-    )
+    fun artifact(module: String, version: String = ""): String {
+        return if (version.isEmpty()) {
+            artifacts[module] ?: error(
+                "The dependency `${this::class.simpleName}` does not declare a module `$module`."
+            )
+        } else {
+           "$module:$version"
+        }
+    }
 
     /**
      * Forces all artifacts of this dependency using the given resolution strategy.

@@ -46,7 +46,6 @@ import io.spine.dependency.local.Time
 import io.spine.dependency.local.ToolBase
 import io.spine.dependency.local.Validation
 import io.spine.dependency.test.JUnit
-import io.spine.gradle.VersionWriter
 import io.spine.gradle.checkstyle.CheckStyleConfig
 import io.spine.gradle.github.pages.updateGitHubPages
 import io.spine.gradle.javac.configureErrorProne
@@ -74,6 +73,7 @@ buildscript {
                 force(
                     io.spine.dependency.lib.Jackson.bom,
                     io.spine.dependency.lib.Guava.lib,
+                    io.spine.dependency.local.Base.annotations,
                     io.spine.dependency.local.Base.lib,
                     io.spine.dependency.local.ToolBase.lib,
                     io.spine.dependency.local.CoreJava.server,
@@ -182,7 +182,6 @@ fun Subproject.applyPlugins() {
     }
     apply<BomsPlugin>()
     apply<IncrementGuard>()
-    apply<VersionWriter>()
 
     LicenseReporter.generateReportIn(project)
     JavadocConfig.applyTo(project)
@@ -327,32 +326,33 @@ fun Subproject.forceConfigurations() {
                 Jackson.DataType.forceArtifacts(project, this@all, this@resolutionStrategy)
 
                 force(
-                    Jackson.bom,
-                    Jackson.annotations,
-                    JUnit.bom,
-                    Kotlin.bom,
-                    Guava.lib,
-                    KotlinPoet.lib,
+                    Base.annotations,
                     Base.lib,
-                    Validation.runtime,
-                    Time.lib,
+                    BaseTypes.lib,
+                    Change.lib,
+                    Compiler.api,
+                    CoreJava.server,
+                    Guava.lib,
+                    JUnit.bom,
+                    Jackson.annotations,
+                    Jackson.bom,
+                    Kotlin.bom,
+                    KotlinPoet.lib,
+                    Logging.grpcContext,
                     Logging.lib,
                     Logging.libJvm,
-                    Logging.grpcContext,
-                    BaseTypes.lib,
-                    Compiler.api,
-                    Change.lib,
                     Reflect.lib,
                     TestLib.lib,
-                    ToolBase.lib,
-                    ToolBase.jvmTools,
+                    Time.lib,
                     ToolBase.gradlePluginApi,
-                    ToolBase.psiJava,
-                    ToolBase.pluginBase,
                     ToolBase.intellijPlatform,
                     ToolBase.intellijPlatformJava,
-                    CoreJava.server,
-                    ProtoData.api,
+                    ToolBase.jvmTools,
+                    ToolBase.lib,
+                    ToolBase.pluginBase,
+                    ToolBase.protobufSetupPlugins,
+                    ToolBase.psiJava,
+                    Validation.runtime,
                 )
             }
         }

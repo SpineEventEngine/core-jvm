@@ -40,7 +40,9 @@ import io.spine.dependency.test.Kover
 import io.spine.gradle.repo.standardToSpineSdk
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.tasks.JavaExec
+import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.ScriptHandlerScope
 import org.gradle.plugin.use.PluginDependenciesSpec
 import org.gradle.plugin.use.PluginDependencySpec
@@ -154,15 +156,15 @@ val PluginDependenciesSpec.`gradle-doctor`: PluginDependencySpec
     get() = id(GradleDoctor.pluginId).version(GradleDoctor.version)
 
 val PluginDependenciesSpec.kotest: PluginDependencySpec
-    get() = Kotest.MultiplatformGradlePlugin.let {
-        return id(it.id).version(it.version)
+    get() = Kotest.let {
+        return id(it.gradlePluginId).version(it.version)
     }
 
 val PluginDependenciesSpec.kover: PluginDependencySpec
     get() = id(Kover.id).version(Kover.version)
 
 val PluginDependenciesSpec.ksp: PluginDependencySpec
-    get() = id(Ksp.id).version(Ksp.version)
+    get() = id(Ksp.id).version(Ksp.dogfoodingVersion)
 
 val PluginDependenciesSpec.`plugin-publish`: PluginDependencySpec
     get() = id(PluginPublishPlugin.id).version(PluginPublishPlugin.version)
@@ -347,3 +349,15 @@ val buildToolConfigurations: Array<String> = arrayOf(
     "ksp",
     "dokka",
 )
+
+/**
+ * Make the `sourcesJar` task accept duplicated input which seems to occur
+ * somewhere inside Protobuf Gradle Plugin.
+ */
+fun Project.allowDuplicationInSourcesJar() {
+    tasks.withType(Jar::class.java).configureEach {
+        if (name == "sourcesJar") {
+            duplicatesStrategy = DuplicatesStrategy.INCLUDE
+        }
+    }
+}

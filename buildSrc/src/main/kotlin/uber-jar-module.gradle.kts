@@ -33,7 +33,7 @@ import io.spine.gradle.publish.spinePublishing
 import io.spine.gradle.report.license.LicenseReporter
 
 plugins {
-    `java-library`
+    id("module")
     `maven-publish`
     id("com.gradleup.shadow")
     id("write-manifest")

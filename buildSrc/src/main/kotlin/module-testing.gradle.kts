@@ -65,7 +65,6 @@ dependencies {
 
     testImplementation(TestLib.lib)
     testImplementation(Kotest.assertions)
-    testImplementation(Kotest.datatest)
 
     testRuntimeOnly(Jupiter.engine)
 }
