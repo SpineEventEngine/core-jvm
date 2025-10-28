@@ -33,7 +33,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
  */
 fun ShadowJar.handleMergingServiceFiles() {
     ServiceFiles.all.forEach {
-        mergeServiceFiles(it)
+        append(it)
     }
 }
 

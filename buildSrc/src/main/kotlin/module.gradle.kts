@@ -24,17 +24,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.dependency.local
-
-/**
- * Spine Reflect library.
- *
- * @see <a href="https://github.com/SpineEventEngine/text">spine-text</a>
- */
-@Suppress("ConstPropertyName")
-object Text {
-    const val version = "2.0.0-SNAPSHOT.6"
-    const val group = Spine.group
-    const val artifact = "spine-text"
-    const val lib = "$group:$artifact:$version"
-}
+// This is a template file for an actual script which should be
+// defined by a project to which `config` is applied.
+//
+// The reason for having this file is that it is referenced as
+// a plugin in `uber-jar-module.gradle.kts`

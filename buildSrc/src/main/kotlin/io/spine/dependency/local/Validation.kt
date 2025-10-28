@@ -36,12 +36,12 @@ object Validation {
     /**
      * The version of the Validation library artifacts.
      */
-    const val version = "2.0.0-SNAPSHOT.351"
+    const val version = "2.0.0-SNAPSHOT.354"
 
     /**
      * The last version of Validation compatible with ProtoData.
      */
-    const val pdCompatibleVersion = "2.0.0-SNAPSHOT.342"
+    const val pdCompatibleVersion = "2.0.0-SNAPSHOT.344"
 
     const val group = "io.spine.validation"
     private const val prefix = "spine-validation"

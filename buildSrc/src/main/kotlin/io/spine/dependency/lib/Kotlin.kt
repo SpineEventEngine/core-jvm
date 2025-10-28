@@ -39,7 +39,7 @@ object Kotlin : DependencyWithBom() {
      * depend on Gradle and the version of embedded Kotlin.
      */
     @Suppress("MemberVisibilityCanBePrivate") // used directly from the outside.
-    const val runtimeVersion = "2.1.21"
+    const val runtimeVersion = "2.2.21"
 
     override val version = runtimeVersion
     override val group = "org.jetbrains.kotlin"
@@ -49,7 +49,7 @@ object Kotlin : DependencyWithBom() {
      * This is the version of
      * [Kotlin embedded into Gradle](https://docs.gradle.org/current/userguide/compatibility.html#kotlin).
      */
-    const val embeddedVersion = "2.1.21"
+    const val embeddedVersion = "2.2.21"
 
     /**
      * The version of the JetBrains annotations library, which is a transitive

@@ -121,11 +121,8 @@ fun Project.dependencies(): SortedSet<ScopedDependency> {
 private fun Project.depsFromAllConfigurations(): Set<ModuleDependency> {
     val result = mutableSetOf<ModuleDependency>()
     this.configurations.forEach { configuration ->
-        if (configuration.isCanBeResolved) {
-            // Force resolution of the configuration.
-            configuration.resolvedConfiguration
-        }
-        configuration.dependencies.filter { it.isExternal() }
+        configuration.dependencies
+            .filter { it.isExternal() }
             .forEach { dependency ->
                 val forcedVersion = configuration.forcedVersionOf(dependency)
                 val moduleDependency =
