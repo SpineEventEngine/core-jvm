@@ -29,11 +29,11 @@ package io.spine.dependency.test
 import io.spine.dependency.Dependency
 import io.spine.dependency.DependencyWithBom
 
-// https://junit.org/junit5/
+// https://junit.org/
 @Suppress("unused", "ConstPropertyName")
 object JUnit : DependencyWithBom() {
 
-    override val version = "5.13.2"
+    override val version = "6.0.0"
     override val group: String = "org.junit"
 
     /**
@@ -63,19 +63,6 @@ object JUnit : DependencyWithBom() {
 
     const val legacy = "junit:junit:$legacyVersion"
 
-    @Deprecated("Use JUnit.Jupiter.api instead", ReplaceWith("JUnit.Jupiter.api"))
-    val api = listOf(
-        "org.apiguardian:apiguardian-api:$apiGuardianVersion",
-        "org.junit.jupiter:junit-jupiter-api:$version",
-        "org.junit.jupiter:junit-jupiter-params:$version"
-    )
-
-    @Deprecated("Use JUnit.Jupiter.engine instead", ReplaceWith("JUnit.Jupiter.engine"))
-    val runner = "org.junit.jupiter:junit-jupiter-engine:$version"
-
-    @Deprecated("Use JUnit.Jupiter.params instead", ReplaceWith("JUnit.Jupiter.params"))
-    val params = "org.junit.jupiter:junit-jupiter-params:$version"
-
     object Jupiter : Dependency() {
         override val version = JUnit.version
         override val group = "org.junit.jupiter"
@@ -85,9 +72,6 @@ object JUnit : DependencyWithBom() {
         val api = "$group:$infix-api"
         val params = "$group:$infix-params"
         val engine = "$group:$infix-engine"
-
-        @Deprecated("Please use `[Jupiter.run { artifacts[api] }` instead.")
-        val apiArtifact = "$api:$version"
 
         override val modules = listOf(api, params, engine)
     }
@@ -105,7 +89,7 @@ object JUnit : DependencyWithBom() {
          * So when we use JUnit as a platform, this property should be picked up
          * for the dependencies automatically.
          */
-        override val version: String = "1.13.2"
+        override val version: String = "6.0.0"
         override val group = "org.junit.platform"
 
         private const val infix = "junit-platform"
