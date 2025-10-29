@@ -31,7 +31,8 @@ import io.spine.dependency.local.Reflect
 import io.spine.dependency.local.Time
 
 plugins {
-    `detekt-code-analysis`
+    module
+    id("io.spine.core-jvm")
 }
 
 dependencies {

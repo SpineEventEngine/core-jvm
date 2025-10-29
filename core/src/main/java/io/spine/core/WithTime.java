@@ -27,6 +27,7 @@
 package io.spine.core;
 
 import com.google.protobuf.Timestamp;
+import io.spine.time.java.JavaTimeExtensions;
 import io.spine.time.TimestampExtensions;
 
 import java.time.Instant;
@@ -82,7 +83,7 @@ public interface WithTime {
      * @see #timestamp()
      */
     default Instant instant() {
-        return TimestampExtensions.toInstant(timestamp());
+        return JavaTimeExtensions.toInstant(timestamp());
     }
 
     /**

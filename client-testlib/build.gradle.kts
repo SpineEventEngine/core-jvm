@@ -26,12 +26,12 @@
 
 import io.spine.dependency.lib.Grpc
 import io.spine.dependency.local.Time
-import io.spine.gradle.testing.exposeTestConfiguration
 
 group = "io.spine.tools"
 
 plugins {
-    `detekt-code-analysis`
+    module
+    id("io.spine.core-jvm")
 }
 
 dependencies {

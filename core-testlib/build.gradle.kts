@@ -30,7 +30,7 @@ import io.spine.dependency.test.JUnit
 group = "io.spine.tools"
 
 plugins {
-    `detekt-code-analysis`
+    module
 }
 
 dependencies {

@@ -35,8 +35,8 @@ import io.spine.dependency.local.Validation
 import io.spine.tools.compiler.gradle.plugin.LaunchSpineCompiler
 
 plugins {
+    module
     `java-test-fixtures`
-    `detekt-code-analysis`
     id("io.spine.core-jvm")
 }
 

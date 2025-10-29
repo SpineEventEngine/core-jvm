@@ -29,7 +29,8 @@ import io.spine.dependency.lib.Grpc
 group = "io.spine.tools"
 
 plugins {
-    `detekt-code-analysis`
+    module
+    id("io.spine.core-jvm")
 }
 
 dependencies {
