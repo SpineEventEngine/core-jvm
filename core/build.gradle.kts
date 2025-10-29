@@ -33,18 +33,18 @@ import io.spine.dependency.local.Validation
 
 plugins {
     module
-    `detekt-code-analysis`
     id("io.spine.core-jvm")
 }
 
 dependencies {
     api(Base.lib)
-    api(Time.lib)
     api(BaseTypes.lib)
+    api(Coroutines.core)
+    api(Logging.lib)
     api(Time.lib)
     api(Validation.runtime)
-    api(Logging.lib)
-    api(Coroutines.core)
+
+    implementation(Time.javaExtensions)
 
     testImplementation(project(":core-testlib"))
     testImplementation(Time.testLib)

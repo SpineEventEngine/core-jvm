@@ -31,7 +31,6 @@ group = "io.spine.tools"
 
 plugins {
     module
-    `detekt-code-analysis`
 }
 
 dependencies {

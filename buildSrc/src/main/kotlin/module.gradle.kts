@@ -65,6 +65,7 @@ plugins {
     id("pmd-settings")
     id("dokka-for-java")
     id("module-testing")
+    id("detekt-code-analysis")
     idea
 }
 apply<BomsPlugin>()
@@ -234,6 +235,7 @@ fun Module.forceConfigurations() {
                     Change.lib,
                     Compiler.api,
                     CoreJava.server,
+                    Grpc.bom,
                     Guava.lib,
                     JUnit.bom,
                     Jackson.annotations,
