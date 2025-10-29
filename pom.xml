@@ -26,19 +26,19 @@ all modules and does not describe the project structure per-subproject.
   <dependency>
     <groupId>io.grpc</groupId>
     <artifactId>grpc-bom</artifactId>
-    <version>1.72.0</version>
+    <version>1.76.0</version>
     <scope>compile</scope>
   </dependency>
   <dependency>
     <groupId>io.grpc</groupId>
     <artifactId>grpc-core</artifactId>
-    <version>1.72.0</version>
+    <version>1.76.0</version>
     <scope>compile</scope>
   </dependency>
   <dependency>
     <groupId>io.grpc</groupId>
     <artifactId>grpc-inprocess</artifactId>
-    <version>1.72.0</version>
+    <version>1.76.0</version>
     <scope>compile</scope>
   </dependency>
   <dependency>
@@ -50,13 +50,13 @@ all modules and does not describe the project structure per-subproject.
   <dependency>
     <groupId>io.grpc</groupId>
     <artifactId>grpc-protobuf</artifactId>
-    <version>1.72.0</version>
+    <version>1.76.0</version>
     <scope>compile</scope>
   </dependency>
   <dependency>
     <groupId>io.grpc</groupId>
     <artifactId>grpc-stub</artifactId>
-    <version>1.72.0</version>
+    <version>1.76.0</version>
     <scope>compile</scope>
   </dependency>
   <dependency>
@@ -98,13 +98,19 @@ all modules and does not describe the project structure per-subproject.
   <dependency>
     <groupId>io.spine</groupId>
     <artifactId>spine-time</artifactId>
-    <version>2.0.0-SNAPSHOT.204</version>
+    <version>2.0.0-SNAPSHOT.211</version>
+    <scope>compile</scope>
+  </dependency>
+  <dependency>
+    <groupId>io.spine</groupId>
+    <artifactId>spine-time-java</artifactId>
+    <version>2.0.0-SNAPSHOT.211</version>
     <scope>compile</scope>
   </dependency>
   <dependency>
     <groupId>io.spine.validation</groupId>
     <artifactId>spine-validation-java-runtime</artifactId>
-    <version>2.0.0-SNAPSHOT.354</version>
+    <version>2.0.0-SNAPSHOT.352</version>
     <scope>compile</scope>
   </dependency>
   <dependency>
@@ -152,19 +158,19 @@ all modules and does not describe the project structure per-subproject.
   <dependency>
     <groupId>com.google.guava</groupId>
     <artifactId>guava-testlib</artifactId>
-    <version>33.4.8-jre</version>
+    <version>33.5.0-jre</version>
     <scope>test</scope>
   </dependency>
   <dependency>
     <groupId>io.grpc</groupId>
     <artifactId>grpc-netty</artifactId>
-    <version>1.72.0</version>
+    <version>1.76.0</version>
     <scope>test</scope>
   </dependency>
   <dependency>
     <groupId>io.grpc</groupId>
     <artifactId>grpc-netty-shaded</artifactId>
-    <version>1.72.0</version>
+    <version>1.76.0</version>
     <scope>test</scope>
   </dependency>
   <dependency>
@@ -182,13 +188,13 @@ all modules and does not describe the project structure per-subproject.
   <dependency>
     <groupId>io.spine.tools</groupId>
     <artifactId>spine-time-testlib</artifactId>
-    <version>2.0.0-SNAPSHOT.204</version>
+    <version>2.0.0-SNAPSHOT.211</version>
     <scope>test</scope>
   </dependency>
   <dependency>
     <groupId>org.junit</groupId>
     <artifactId>junit-bom</artifactId>
-    <version>5.13.2</version>
+    <version>6.0.0</version>
     <scope>test</scope>
   </dependency>
   <dependency>
@@ -200,19 +206,19 @@ all modules and does not describe the project structure per-subproject.
   <dependency>
     <groupId>org.junit.jupiter</groupId>
     <artifactId>junit-jupiter-api</artifactId>
-    <version>5.13.2</version>
+    <version>6.0.0</version>
     <scope>test</scope>
   </dependency>
   <dependency>
     <groupId>org.junit.jupiter</groupId>
     <artifactId>junit-jupiter-engine</artifactId>
-    <version>5.13.2</version>
+    <version>6.0.0</version>
     <scope>test</scope>
   </dependency>
   <dependency>
     <groupId>org.junit.jupiter</groupId>
     <artifactId>junit-jupiter-params</artifactId>
-    <version>5.13.2</version>
+    <version>6.0.0</version>
     <scope>test</scope>
   </dependency>
   <dependency>
@@ -259,7 +265,7 @@ all modules and does not describe the project structure per-subproject.
   <dependency>
     <groupId>io.grpc</groupId>
     <artifactId>protoc-gen-grpc-java</artifactId>
-    <version>1.72.0</version>
+    <version>1.76.0</version>
   </dependency>
   <dependency>
     <groupId>io.grpc</groupId>
