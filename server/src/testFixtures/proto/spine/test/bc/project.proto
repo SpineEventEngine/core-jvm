@@ -65,7 +65,6 @@ message ProjectView {
     string name = 2;
 }
 
-
 message ProjectCreation {
     option (entity) = {kind: PROCESS_MANAGER visibility: FULL};
     ProjectId id = 1;
