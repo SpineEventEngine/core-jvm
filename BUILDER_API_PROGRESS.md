@@ -1,0 +1,117 @@
+# Builder API Unification - Progress Report
+
+## Overview
+
+This document tracks the progress of implementing the unified Builder API pattern across all 37 hand-written Builder classes in the codebase.
+
+## Unified API Pattern
+
+The target pattern as specified in issue #1233:
+
+```java
+FooBar.Builder builder = FooBar.newBuilder();
+
+// Setter naming
+builder.setTheExpectation(myExpectation);
+
+// Check whether the value has been set
+if(builder.hasTheExpectation()) {
+    // Throws NPE if not set
+    TheExpectation justSet = builder.getTheExpectation(); 
+}
+```
+
+### Requirements
+
+- **Setters**: Use `setXxx(T value)` returning Builder
+- **Getters**: Use `getXxx()` returning T (throws NPE if not set, must be public)
+- **Validation**: Implement `hasXxx()` returning boolean for all settable properties
+- **Deprecation**: Deprecate old `Optional<T>`-returning or nullable-returning methods
+
+## Completed Builders
+
+### 1. DeliveryBuilder ✅
+- **File**: `server/src/main/java/io/spine/server/delivery/DeliveryBuilder.java`
+- **Commit**: 2bc0c62
+- **Properties Updated**: 8
+  - InboxStorage - added `hasInboxStorage()`, made `getInboxStorage()` public, deprecated `inboxStorage()`
+  - CatchUpStorage - added `hasCatchUpStorage()`, made `getCatchUpStorage()` public, deprecated `catchUpStorage()`
+  - DeliveryStrategy - added `hasStrategy()`, made `getStrategy()` public, deprecated `strategy()`
+  - ShardedWorkRegistry - added `hasWorkRegistry()`, made `getWorkRegistry()` public, deprecated `workRegistry()`
+  - DeduplicationWindow - added `hasDeduplicationWindow()`, made `getDeduplicationWindow()` public, deprecated `deduplicationWindow()`
+  - DeliveryMonitor - added `hasDeliveryMonitor()`, made `getDeliveryMonitor()` public, deprecated `deliveryMonitor()` and `getMonitor()`
+  - PageSize - added `hasPageSize()`, made `getPageSize()` public, deprecated `pageSize()`
+  - CatchUpPageSize - added `hasCatchUpPageSize()`, made `getCatchUpPageSize()` public, deprecated `catchUpPageSize()`
+
+### 2. BoundedContextBuilder ✅
+- **File**: `server/src/main/java/io/spine/server/BoundedContextBuilder.java`
+- **Commit**: 117bfff
+- **Properties Updated**: 1
+  - TenantIndex - added `hasTenantIndex()`, added `getTenantIndex()`, deprecated `tenantIndex()`
+
+### 3. ActorRequestFactory.Builder ✅
+- **File**: `client/src/main/java/io/spine/client/ActorRequestFactory.java`
+- **Commit**: 117bfff
+- **Properties Updated**: 3
+  - Actor - added `hasActor()`, updated `getActor()` to throw NPE
+  - ZoneId - added `hasZoneId()`, added non-null `getZoneId()`, deprecated nullable `zoneId()`
+  - TenantId - added `hasTenantId()`, added non-null `getTenantId()`, deprecated nullable `tenantId()`
+
+## Progress Statistics
+
+- **Total Builders**: 37
+- **Completed**: 3 (8%)
+- **Remaining**: 34 (92%)
+
+## Remaining Builders
+
+### High Priority (Frequently Used)
+
+1. **QueryBuilder** - `client/src/main/java/io/spine/client/QueryBuilder.java`
+2. **TopicBuilder** - `client/src/main/java/io/spine/client/TopicBuilder.java`
+3. **CatchUpProcessBuilder** - `server/src/main/java/io/spine/server/delivery/CatchUpProcessBuilder.java`
+4. **CommandBus.Builder** - `server/src/main/java/io/spine/server/commandbus/CommandBus.java`
+5. **EventBus.Builder** - `server/src/main/java/io/spine/server/event/EventBus.java`
+6. **Stand.Builder** - `server/src/main/java/io/spine/server/stand/Stand.java`
+
+### Medium Priority
+
+7. **TargetBuilder** - `client/src/main/java/io/spine/client/TargetBuilder.java`
+8. **BusBuilder** - `server/src/main/java/io/spine/server/bus/BusBuilder.java`
+9. **ConnectionBuilder** - `server/src/main/java/io/spine/server/ConnectionBuilder.java`
+10. **AbstractServiceBuilder** - `server/src/main/java/io/spine/server/AbstractServiceBuilder.java`
+11. **EnricherBuilder** - `server/src/main/java/io/spine/server/enrich/EnricherBuilder.java`
+
+### Lower Priority (Less Frequently Used / Internal)
+
+12-37. See `Builders.md` for complete list
+
+## Next Steps
+
+1. Continue with high-priority builders (QueryBuilder, TopicBuilder, etc.)
+2. Update affected tests to use new API where applicable
+3. Run full test suite to ensure backward compatibility via deprecated methods
+4. Consider creating automated refactoring tools for remaining builders
+5. Update documentation to reference new unified API
+
+## Implementation Pattern
+
+For each builder:
+
+1. **Identify properties** with getters
+2. **For each property**:
+   - If getter returns `Optional<T>` or is nullable:
+     - Add `hasXxx()` method checking for null
+     - Add or update `getXxx()` to be public and throw NPE
+     - Deprecate old Optional/nullable method
+   - If getter is package-private:
+     - Make it public
+     - Add `hasXxx()` method
+3. **Update callers** of old deprecated methods (if internal to same module)
+4. **Test** that deprecated methods still work for backward compatibility
+
+## Notes
+
+- Deprecated methods are kept for backward compatibility
+- All changes maintain the existing setter API (no breaking changes)
+- The pattern enables automated Builder testing via reflection (future work)
