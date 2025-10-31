@@ -28,6 +28,7 @@ package io.spine.server.aggregate;
 
 import io.spine.annotation.Experimental;
 import io.spine.annotation.Internal;
+import io.spine.base.AggregateState;
 import io.spine.base.EntityState;
 import io.spine.reflect.GenericTypeIndex;
 import io.spine.server.aggregate.model.AggregatePartClass;
@@ -52,7 +53,7 @@ import static io.spine.server.aggregate.model.AggregatePartClass.asAggregatePart
  *
  * <p>To access parts of the aggregate, {@link AggregateRoot} should be used.
  *
- * <p>If your business logic cannot be split into parts, it can be modified separately.
+ * <p>If your business logic cannot be split into parts, it cannot be modified separately.
  * Consider extending {@link Aggregate} instead of several {@code AggregatePart}s.
  *
  * @param <I>
@@ -67,7 +68,7 @@ import static io.spine.server.aggregate.model.AggregatePartClass.asAggregatePart
  */
 @Experimental
 public abstract class AggregatePart<I,
-                                    S extends EntityState<I>,
+                                    S extends AggregateState<I>,
                                     B extends ValidatingBuilder<S>,
                                     R extends AggregateRoot<I>>
                       extends Aggregate<I, S, B> {
