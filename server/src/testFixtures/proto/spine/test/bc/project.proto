@@ -57,6 +57,25 @@ message Project {
     Status status = 4;
 }
 
+message ProjectView {
+    option (entity) = {kind: PROJECTION visibility: FULL};
+
+    ProjectId id = 1;
+
+    string name = 2;
+}
+
+
+message ProjectCreation {
+    option (entity) = {kind: PROCESS_MANAGER visibility: FULL};
+    ProjectId id = 1;
+}
+
+message ProjectRemoval {
+    option (entity) = {kind: PROCESS_MANAGER visibility: FULL};
+    ProjectId id = 1;
+}
+
 message TaskId {
     int32 id = 1;
 }

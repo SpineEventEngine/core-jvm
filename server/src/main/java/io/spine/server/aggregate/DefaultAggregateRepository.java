@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -27,7 +27,7 @@
 package io.spine.server.aggregate;
 
 import io.spine.annotation.Internal;
-import io.spine.base.EntityState;
+import io.spine.base.AggregateState;
 import io.spine.server.DefaultRepository;
 import io.spine.server.aggregate.model.AggregateClass;
 
@@ -47,7 +47,7 @@ import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
 @Internal
 public final class DefaultAggregateRepository<I,
                                               A extends Aggregate<I, S, ?>,
-                                              S extends EntityState<I>>
+                                              S extends AggregateState<I>>
         extends AggregateRepository<I, A, S>
         implements DefaultRepository {
 

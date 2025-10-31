@@ -28,7 +28,7 @@ package io.spine.server.procman.given.dispatch;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.annotation.VisibleForTesting;
-import io.spine.base.EntityState;
+import io.spine.base.ProcessManagerState;
 import io.spine.core.Version;
 import io.spine.server.entity.EntityBuilder;
 import io.spine.server.procman.ProcessManager;
@@ -47,13 +47,13 @@ import io.spine.validate.ValidatingBuilder;
 @VisibleForTesting
 public class ProcessManagerBuilder<P extends ProcessManager<I, S, B>,
                                    I,
-                                   S extends EntityState<I>,
+                                   S extends ProcessManagerState<I>,
                                    B extends ValidatingBuilder<S>>
         extends EntityBuilder<P, I, S> {
 
     public static <P extends ProcessManager<I, S, B>,
                    I,
-                   S extends EntityState<I>,
+                   S extends ProcessManagerState<I>,
                    B extends ValidatingBuilder<S>>
     ProcessManagerBuilder<P, I, S, B> newInstance() {
         return new ProcessManagerBuilder<>();

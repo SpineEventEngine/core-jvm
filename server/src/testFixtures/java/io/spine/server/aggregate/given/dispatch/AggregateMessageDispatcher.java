@@ -28,7 +28,7 @@ package io.spine.server.aggregate.given.dispatch;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.annotation.VisibleForTesting;
-import io.spine.base.EntityState;
+import io.spine.base.AggregateState;
 import io.spine.core.Command;
 import io.spine.core.Event;
 import io.spine.server.aggregate.Aggregate;
@@ -59,8 +59,8 @@ public class AggregateMessageDispatcher {
      * @return the list of event messages.
      */
     @CanIgnoreReturnValue
-    public static DispatchOutcome
-    dispatchCommand(Aggregate<?, ?, ?> aggregate, CommandEnvelope command) {
+    public static
+    DispatchOutcome dispatchCommand(Aggregate<?, ?, ?> aggregate, CommandEnvelope command) {
         checkNotNull(aggregate);
         checkNotNull(command);
         return AggregateTestSupport
@@ -74,8 +74,10 @@ public class AggregateMessageDispatcher {
      * @return the list of event messages.
      */
     @CanIgnoreReturnValue
-    public static <I, A extends Aggregate<I, S, ?>, S extends EntityState<I>> DispatchOutcome
-    dispatchCommand(A aggregate, AggregateRepository<I, A, S> repository, CommandEnvelope command) {
+    public static <I, A extends Aggregate<I, S, ?>, S extends AggregateState<I>>
+    DispatchOutcome dispatchCommand(A aggregate,
+                                    AggregateRepository<I, A, S> repository,
+                                    CommandEnvelope command) {
         checkNotNull(aggregate);
         checkNotNull(command);
         return AggregateTestSupport.dispatchCommand(repository, aggregate, command);
@@ -88,8 +90,8 @@ public class AggregateMessageDispatcher {
      * @return the list of event messages.
      */
     @CanIgnoreReturnValue
-    public static DispatchOutcome
-    dispatchCommand(Aggregate<?, ?, ?> aggregate, Command command) {
+    public static
+    DispatchOutcome dispatchCommand(Aggregate<?, ?, ?> aggregate, Command command) {
         checkNotNull(aggregate);
         checkNotNull(command);
         var ce = CommandEnvelope.of(command);
@@ -104,8 +106,8 @@ public class AggregateMessageDispatcher {
      * @return the list of event messages.
      */
     @CanIgnoreReturnValue
-    public static DispatchOutcome
-    dispatchEvent(Aggregate<?, ?, ?> aggregate, EventEnvelope event) {
+    public static
+    DispatchOutcome dispatchEvent(Aggregate<?, ?, ?> aggregate, EventEnvelope event) {
         checkNotNull(aggregate);
         checkNotNull(event);
         return AggregateTestSupport
@@ -119,8 +121,8 @@ public class AggregateMessageDispatcher {
      * @return the list of event messages.
      */
     @CanIgnoreReturnValue
-    public static DispatchOutcome
-    dispatchEvent(Aggregate<?, ?, ?> aggregate, Event event) {
+    public static
+    DispatchOutcome dispatchEvent(Aggregate<?, ?, ?> aggregate, Event event) {
         checkNotNull(aggregate);
         checkNotNull(event);
         var env = EventEnvelope.of(event);
@@ -132,7 +134,7 @@ public class AggregateMessageDispatcher {
      */
     private static class TestAggregateRepository<I,
                                                  A extends Aggregate<I, S, ?>,
-                                                 S extends EntityState<I>>
+                                                 S extends AggregateState<I>>
             extends AggregateRepository<I, A, S> {
 
         @Override

@@ -26,7 +26,7 @@
 
 package io.spine.server.aggregate.given.aggregate;
 
-import io.spine.base.EntityState;
+import io.spine.base.AggregateState;
 import io.spine.core.TenantId;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.AggregateRepository;
@@ -47,7 +47,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  */
 public class AbstractAggregateTestRepository<I,
                                              A extends Aggregate<I, S, ?>,
-                                             S extends EntityState<I>>
+                                             S extends AggregateState<I>>
         extends AggregateRepository<I, A, S> {
 
     public A loadAggregate(I id) {

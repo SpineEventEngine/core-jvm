@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -33,7 +33,7 @@ import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import com.google.protobuf.Timestamp;
 import io.spine.annotation.Internal;
 import io.spine.annotation.VisibleForTesting;
-import io.spine.base.EntityState;
+import io.spine.base.ProjectionState;
 import io.spine.base.Time;
 import io.spine.core.Event;
 import io.spine.server.BoundedContext;
@@ -114,7 +114,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  */
 public abstract class ProjectionRepository<I,
                                            P extends Projection<I, S, ?>,
-                                           S extends EntityState<I>>
+                                           S extends ProjectionState<I>>
         extends EventDispatchingRepository<I, P, S> {
 
     private @MonotonicNonNull Inbox<I> inbox;

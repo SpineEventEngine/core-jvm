@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -27,7 +27,7 @@
 package io.spine.server.migration.mirror;
 
 import io.spine.annotation.VisibleForTesting;
-import io.spine.base.EntityState;
+import io.spine.base.AggregateState;
 import io.spine.server.ContextSpec;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.model.AggregateClass;
@@ -96,7 +96,7 @@ import java.util.Iterator;
  *         the aggregate's class
  */
 @Immutable
-public final class MirrorMigration<I, S extends EntityState<I>, A extends Aggregate<I, S, ?>> {
+public final class MirrorMigration<I, S extends AggregateState<I>, A extends Aggregate<I, S, ?>> {
 
     private final MirrorStorage mirrorStorage;
     private final EntityRecordStorage<I, S> entityRecordStorage;

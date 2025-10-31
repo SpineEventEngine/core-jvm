@@ -28,7 +28,7 @@ package io.spine.server.projection.given.dispatch;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.annotation.VisibleForTesting;
-import io.spine.base.EntityState;
+import io.spine.base.ProjectionState;
 import io.spine.core.Version;
 import io.spine.server.entity.EntityBuilder;
 import io.spine.server.projection.Projection;
@@ -48,11 +48,11 @@ import io.spine.validate.ValidatingBuilder;
 @VisibleForTesting
 public class ProjectionBuilder<P extends Projection<I, S, B>,
                                I,
-                               S extends EntityState<I>,
+                               S extends ProjectionState<I>,
                                B extends ValidatingBuilder<S>>
         extends EntityBuilder<P, I, S> {
 
-    /** Creates new instance. */
+    /** Creates a new instance. */
     public ProjectionBuilder() {
         super();
         // Have the constructor for easier location of usages.

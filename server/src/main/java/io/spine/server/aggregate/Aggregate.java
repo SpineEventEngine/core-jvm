@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,13 +23,14 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package io.spine.server.aggregate;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.Empty;
 import io.spine.annotation.Internal;
 import io.spine.annotation.VisibleForTesting;
-import io.spine.base.EntityState;
+import io.spine.base.AggregateState;
 import io.spine.core.Event;
 import io.spine.core.Version;
 import io.spine.protobuf.AnyPacker;
@@ -133,9 +134,8 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * @param <B>
  *         the type of the aggregate state builder
  */
-@SuppressWarnings("OverlyCoupledClass")
 public abstract class Aggregate<I,
-                                S extends EntityState<I>,
+                                S extends AggregateState<I>,
                                 B extends ValidatingBuilder<S>>
         extends AssigneeEntity<I, S, B>
         implements EventPlayer, EventReactor, HasLifecycleColumns<I, S> {
