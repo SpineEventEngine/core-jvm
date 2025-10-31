@@ -1,13 +1,35 @@
 # Hand-Written Builders in core-jvm
 
 This document lists all hand-written Builder classes found in the repository,
-excluding generated code.
+excluding generated code. It was created as part of the effort to unify the Builder API naming conventions.
+
+## Purpose
+
+This documentation serves as:
+1. A comprehensive inventory of all Builder classes in the codebase
+2. Analysis of current naming patterns and conventions
+3. Identification of inconsistencies that need to be addressed
+4. Reference for implementing the unified Builder API pattern
+
+## Quick Stats
 
 **Total Builders Found:** 37
+- **Standalone Builders:** 14
+- **Nested Builders:** 23
+- **Builders with build() method:** 21
 
 **Generated:** Fri Oct 31 20:49:41 UTC 2025
 
+## Table of Contents
+
+- [Client Module Builders](#client-module-builders)
+- [Server Module Builders](#server-module-builders)
+- [Observations and Patterns](#observations-and-patterns)
+- [Summary](#summary)
+
 ---
+
+## Client Module Builders
 
 ## io.spine.client.ActorRequestFactory.Builder
 
@@ -106,6 +128,9 @@ excluding generated code.
 *No public setter/getter methods found (may have package-private or protected methods)*
 
 ---
+
+
+## Server Module Builders
 
 ## io.spine.server.AbstractServiceBuilder
 
@@ -494,6 +519,7 @@ excluding generated code.
 - **Standalone Builders:** 14
 - **Nested Builders:** 23
 - **Builders with build() method:** 21
+
 
 ## Observations and Patterns
 
