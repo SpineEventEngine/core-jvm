@@ -321,7 +321,7 @@ public final class Delivery implements WithLogging {
         this.inboxStorage = builder.getInboxStorage();
         this.catchUpStorage = builder.getCatchUpStorage();
         this.catchUpPageSize = builder.getCatchUpPageSize();
-        this.monitor = builder.getMonitor();
+        this.monitor = builder.getDeliveryMonitor();
         this.pageSize = builder.getPageSize();
         this.deliveries = new InboxDeliveries();
         this.shardObservers = synchronizedList(new ArrayList<>());

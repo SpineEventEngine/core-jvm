@@ -73,111 +73,252 @@ public final class DeliveryBuilder {
     /**
      * Returns the value of the configured {@code InboxStorage} or {@code Optional.empty()} if no
      * such value was configured.
+     *
+     * @deprecated Use {@link #getInboxStorage()} and {@link #hasInboxStorage()} instead.
      */
+    @Deprecated
     public Optional<InboxStorage> inboxStorage() {
         return Optional.ofNullable(inboxStorage);
     }
 
     /**
-     * Returns the non-{@code null} value of the configured {@code InboxStorage}.
+     * Checks whether the {@code InboxStorage} has been configured.
+     *
+     * @return {@code true} if the inbox storage was set, {@code false} otherwise
      */
-    InboxStorage getInboxStorage() {
+    public boolean hasInboxStorage() {
+        return inboxStorage != null;
+    }
+
+    /**
+     * Returns the configured {@code InboxStorage}.
+     *
+     * @return the inbox storage
+     * @throws NullPointerException if the inbox storage was not set
+     */
+    public InboxStorage getInboxStorage() {
         return checkNotNull(inboxStorage);
     }
 
     /**
      * Returns the value of the configured {@code CatchUpStorage} or {@code Optional.empty()} if no
      * such value was configured.
+     *
+     * @deprecated Use {@link #getCatchUpStorage()} and {@link #hasCatchUpStorage()} instead.
      */
+    @Deprecated
     public Optional<CatchUpStorage> catchUpStorage() {
         return Optional.ofNullable(catchUpStorage);
     }
 
     /**
-     * Returns the non-{@code null} value of the configured {@code CatchUpStorage}.
+     * Checks whether the {@code CatchUpStorage} has been configured.
+     *
+     * @return {@code true} if the catch-up storage was set, {@code false} otherwise
      */
-    CatchUpStorage getCatchUpStorage() {
+    public boolean hasCatchUpStorage() {
+        return catchUpStorage != null;
+    }
+
+    /**
+     * Returns the configured {@code CatchUpStorage}.
+     *
+     * @return the catch-up storage
+     * @throws NullPointerException if the catch-up storage was not set
+     */
+    public CatchUpStorage getCatchUpStorage() {
         return checkNotNull(catchUpStorage);
     }
 
     /**
      * Returns the value of the configured {@code DeliveryStrategy} or {@code Optional.empty()}
      * if no such value was configured.
+     *
+     * @deprecated Use {@link #getStrategy()} and {@link #hasStrategy()} instead.
      */
+    @Deprecated
     public Optional<DeliveryStrategy> strategy() {
         return Optional.ofNullable(strategy);
     }
 
     /**
-     * Returns the non-{@code null} value of the configured {@code DeliveryStrategy}.
+     * Checks whether the {@code DeliveryStrategy} has been configured.
+     *
+     * @return {@code true} if the strategy was set, {@code false} otherwise
      */
-    DeliveryStrategy getStrategy() {
+    public boolean hasStrategy() {
+        return strategy != null;
+    }
+
+    /**
+     * Returns the configured {@code DeliveryStrategy}.
+     *
+     * @return the delivery strategy
+     * @throws NullPointerException if the strategy was not set
+     */
+    public DeliveryStrategy getStrategy() {
         return checkNotNull(strategy);
     }
 
     /**
      * Returns the value of the configured {@code ShardedWorkRegistry} or {@code Optional.empty()}
      * if no such value was configured.
+     *
+     * @deprecated Use {@link #getWorkRegistry()} and {@link #hasWorkRegistry()} instead.
      */
+    @Deprecated
     public Optional<ShardedWorkRegistry> workRegistry() {
         return Optional.ofNullable(workRegistry);
     }
 
     /**
-     * Returns the non-{@code null} value of the configured {@code ShardedWorkRegistry}.
+     * Checks whether the {@code ShardedWorkRegistry} has been configured.
+     *
+     * @return {@code true} if the work registry was set, {@code false} otherwise
      */
-    ShardedWorkRegistry getWorkRegistry() {
+    public boolean hasWorkRegistry() {
+        return workRegistry != null;
+    }
+
+    /**
+     * Returns the configured {@code ShardedWorkRegistry}.
+     *
+     * @return the work registry
+     * @throws NullPointerException if the work registry was not set
+     */
+    public ShardedWorkRegistry getWorkRegistry() {
         return checkNotNull(workRegistry);
     }
 
     /**
      * Returns the value of the configured deduplication window or {@code Optional.empty()}
      * if no such value was configured.
+     *
+     * @deprecated Use {@link #getDeduplicationWindow()} and {@link #hasDeduplicationWindow()} instead.
      */
+    @Deprecated
     public Optional<Duration> deduplicationWindow() {
         return Optional.ofNullable(deduplicationWindow);
     }
 
     /**
-     * Returns the non-{@code null} value of the configured deduplication window.
+     * Checks whether the deduplication window has been configured.
+     *
+     * @return {@code true} if the deduplication window was set, {@code false} otherwise
      */
-    Duration getDeduplicationWindow() {
+    public boolean hasDeduplicationWindow() {
+        return deduplicationWindow != null;
+    }
+
+    /**
+     * Returns the configured deduplication window.
+     *
+     * @return the deduplication window
+     * @throws NullPointerException if the deduplication window was not set
+     */
+    public Duration getDeduplicationWindow() {
         return checkNotNull(deduplicationWindow);
     }
 
     /**
      * Returns the value of the configured {@code DeliveryMonitor} or {@code Optional.empty()}
      * if no such value was configured.
+     *
+     * @deprecated Use {@link #getDeliveryMonitor()} and {@link #hasDeliveryMonitor()} instead.
      */
+    @Deprecated
     public Optional<DeliveryMonitor> deliveryMonitor() {
         return Optional.ofNullable(deliveryMonitor);
     }
 
-    DeliveryMonitor getMonitor() {
+    /**
+     * Checks whether the {@code DeliveryMonitor} has been configured.
+     *
+     * @return {@code true} if the delivery monitor was set, {@code false} otherwise
+     */
+    public boolean hasDeliveryMonitor() {
+        return deliveryMonitor != null;
+    }
+
+    /**
+     * Returns the configured {@code DeliveryMonitor}.
+     *
+     * @return the delivery monitor
+     * @throws NullPointerException if the delivery monitor was not set
+     */
+    public DeliveryMonitor getDeliveryMonitor() {
         return checkNotNull(deliveryMonitor);
+    }
+
+    /**
+     * Returns the configured {@code DeliveryMonitor}.
+     *
+     * @return the delivery monitor
+     * @throws NullPointerException if the delivery monitor was not set
+     * @deprecated Use {@link #getDeliveryMonitor()} instead.
+     */
+    @Deprecated
+    DeliveryMonitor getMonitor() {
+        return getDeliveryMonitor();
     }
 
     /**
      * Returns the value of the configured page size or {@code Optional.empty()}
      * if no such value was configured.
+     *
+     * @deprecated Use {@link #getPageSize()} and {@link #hasPageSize()} instead.
      */
+    @Deprecated
     public Optional<Integer> pageSize() {
         return Optional.ofNullable(pageSize);
     }
 
-    Integer getPageSize() {
+    /**
+     * Checks whether the page size has been configured.
+     *
+     * @return {@code true} if the page size was set, {@code false} otherwise
+     */
+    public boolean hasPageSize() {
+        return pageSize != null;
+    }
+
+    /**
+     * Returns the configured page size.
+     *
+     * @return the page size
+     * @throws NullPointerException if the page size was not set
+     */
+    public Integer getPageSize() {
         return checkNotNull(pageSize);
     }
 
     /**
      * Returns the value of the configured catch-up page size or {@code Optional.empty()}
      * if no such value was configured.
+     *
+     * @deprecated Use {@link #getCatchUpPageSize()} and {@link #hasCatchUpPageSize()} instead.
      */
+    @Deprecated
     public Optional<Integer> catchUpPageSize() {
         return Optional.ofNullable(catchUpPageSize);
     }
 
-    Integer getCatchUpPageSize() {
+    /**
+     * Checks whether the catch-up page size has been configured.
+     *
+     * @return {@code true} if the catch-up page size was set, {@code false} otherwise
+     */
+    public boolean hasCatchUpPageSize() {
+        return catchUpPageSize != null;
+    }
+
+    /**
+     * Returns the configured catch-up page size.
+     *
+     * @return the catch-up page size
+     * @throws NullPointerException if the catch-up page size was not set
+     */
+    public Integer getCatchUpPageSize() {
         return checkNotNull(catchUpPageSize);
     }
 
