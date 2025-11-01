@@ -31,6 +31,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Abstract base for builders of objects that depend on or expose server-side gRPC objects.
@@ -75,7 +76,8 @@ public abstract class ConnectionBuilder {
      * @return the port
      * @throws NullPointerException if the port was not set (in-process connection)
      */
-    public final Integer getPort() {
+    public final int getPort() {
+        checkNotNull(port);
         return port;
     }
 

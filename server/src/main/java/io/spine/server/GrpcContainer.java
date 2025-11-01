@@ -120,7 +120,8 @@ public final class GrpcContainer {
      * @return the port
      * @throws NullPointerException if the port was not set (in-process container)
      */
-    public Integer getPort() {
+    public int getPort() {
+        checkNotNull(port);
         return port;
     }
 
