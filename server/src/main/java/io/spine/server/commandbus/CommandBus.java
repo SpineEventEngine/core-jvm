@@ -120,8 +120,7 @@ public final class CommandBus
                            ? builder.multitenant
                            : false;
         this.scheduler = checkNotNull(builder.commandScheduler);
-        this.systemWriteSide = builder.system()
-                                      .orElseThrow(systemNotSet());
+        this.systemWriteSide = builder.getSystem();
         this.tenantConsumer = checkNotNull(builder.tenantConsumer);
         this.watcher = checkNotNull(builder.watcher);
     }
@@ -332,8 +331,7 @@ public final class CommandBus
             commandScheduler =
                     ServerEnvironment.instance()
                                      .newCommandScheduler();
-            @SuppressWarnings("OptionalGetWithoutIsPresent") // ensured by checkFieldsSet()
-            var writeSide = system().get();
+            var writeSide = getSystem();
 
             if (watcher == null) {
                 watcher = new FlightRecorder(
@@ -342,7 +340,7 @@ public final class CommandBus
             }
             commandScheduler.setWatcher(watcher);
 
-            var tenantIndex = tenantIndex().orElseThrow(tenantIndexNotSet());
+            var tenantIndex = getTenantIndex();
             tenantConsumer = tenantIndex::keep;
 
             var commandBus = createCommandBus();

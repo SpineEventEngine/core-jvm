@@ -74,6 +74,15 @@ public final class CatchUpProcessBuilder<I> {
     }
 
     /**
+     * Checks whether the {@code CatchUpStorage} has been configured.
+     *
+     * @return {@code true} if the storage was set, {@code false} otherwise
+     */
+    boolean hasStorage() {
+        return storage != null;
+    }
+
+    /**
      * Returns the configured {@code CatchUpStorage}.
      *
      * @throws NullPointerException
@@ -96,6 +105,15 @@ public final class CatchUpProcessBuilder<I> {
     }
 
     /**
+     * Checks whether the page size has been configured.
+     *
+     * @return {@code true} if the page size was set, {@code false} otherwise
+     */
+    boolean hasPageSize() {
+        return pageSize > 0;
+    }
+
+    /**
      * Obtains the value of the maximum page size for the {@code EventStore} reads.
      */
     int getPageSize() {
@@ -109,6 +127,15 @@ public final class CatchUpProcessBuilder<I> {
     public CatchUpProcessBuilder<I> setDispatchOp(DispatchCatchingUp<I> operation) {
         this.dispatchOp = checkNotNull(operation);
         return this;
+    }
+
+    /**
+     * Checks whether the dispatch operation has been configured.
+     *
+     * @return {@code true} if the dispatch operation was set, {@code false} otherwise
+     */
+    boolean hasDispatchOp() {
+        return dispatchOp != null;
     }
 
     /**

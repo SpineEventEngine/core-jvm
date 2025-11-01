@@ -57,30 +57,55 @@ if(builder.hasTheExpectation()) {
   - ZoneId - added `hasZoneId()`, added non-null `getZoneId()`, deprecated nullable `zoneId()`
   - TenantId - added `hasTenantId()`, added non-null `getTenantId()`, deprecated nullable `tenantId()`
 
+### 4. BusBuilder ✅
+- **File**: `server/src/main/java/io/spine/server/bus/BusBuilder.java`
+- **Commit**: TBD
+- **Properties Updated**: 2
+  - SystemWriteSide - added `hasSystem()`, added `getSystem()`, deprecated `system()`
+  - TenantIndex - added `hasTenantIndex()`, added `getTenantIndex()`, deprecated `tenantIndex()`
+
+### 5. EventBus.Builder ✅
+- **File**: `server/src/main/java/io/spine/server/event/EventBus.java`
+- **Commit**: TBD
+- **Properties Updated**: 2
+  - EventEnricher - added `hasEnricher()`, added `getEnricher()`, deprecated `enricher()`
+  - StreamObserver<Ack> - added `hasObserver()`, added `getObserver()`, deprecated `observer()`
+
+### 6. EventBus ✅
+- **File**: `server/src/main/java/io/spine/server/event/EventBus.java`
+- **Commit**: TBD
+- **Properties Updated**: 1
+  - EventEnricher - added `hasEnricher()`, added `getEnricher()`, deprecated `enricher()`
+
+### 7. CatchUpProcessBuilder ✅
+- **File**: `server/src/main/java/io/spine/server/delivery/CatchUpProcessBuilder.java`
+- **Commit**: TBD
+- **Properties Updated**: 3
+  - CatchUpStorage - added `hasStorage()`
+  - PageSize - added `hasPageSize()`
+  - DispatchCatchingUp - added `hasDispatchOp()`
+
 ## Progress Statistics
 
 - **Total Builders**: 37
-- **Completed**: 3 (8%)
-- **Remaining**: 34 (92%)
+- **Completed**: 7 (19%)
+- **Remaining**: 30 (81%)
 
 ## Remaining Builders
 
 ### High Priority (Frequently Used)
 
-1. **QueryBuilder** - `client/src/main/java/io/spine/client/QueryBuilder.java`
-2. **TopicBuilder** - `client/src/main/java/io/spine/client/TopicBuilder.java`
-3. **CatchUpProcessBuilder** - `server/src/main/java/io/spine/server/delivery/CatchUpProcessBuilder.java`
-4. **CommandBus.Builder** - `server/src/main/java/io/spine/server/commandbus/CommandBus.java`
-5. **EventBus.Builder** - `server/src/main/java/io/spine/server/event/EventBus.java`
-6. **Stand.Builder** - `server/src/main/java/io/spine/server/stand/Stand.java`
+1. **QueryBuilder** - `client/src/main/java/io/spine/client/QueryBuilder.java` - No changes needed (no public Optional/nullable getters)
+2. **TopicBuilder** - `client/src/main/java/io/spine/client/TopicBuilder.java` - No changes needed (no public Optional/nullable getters)
+3. **CommandBus.Builder** - `server/src/main/java/io/spine/server/commandbus/CommandBus.java` - No changes needed (inherits from BusBuilder, which is now completed)
+4. **Stand.Builder** - `server/src/main/java/io/spine/server/stand/Stand.java` - No changes needed (no public Optional/nullable getters)
 
 ### Medium Priority
 
-7. **TargetBuilder** - `client/src/main/java/io/spine/client/TargetBuilder.java`
-8. **BusBuilder** - `server/src/main/java/io/spine/server/bus/BusBuilder.java`
-9. **ConnectionBuilder** - `server/src/main/java/io/spine/server/ConnectionBuilder.java`
-10. **AbstractServiceBuilder** - `server/src/main/java/io/spine/server/AbstractServiceBuilder.java`
-11. **EnricherBuilder** - `server/src/main/java/io/spine/server/enrich/EnricherBuilder.java`
+5. **TargetBuilder** - `client/src/main/java/io/spine/client/TargetBuilder.java` - No changes needed (no public Optional/nullable getters)
+6. **ConnectionBuilder** - `server/src/main/java/io/spine/server/ConnectionBuilder.java`
+7. **AbstractServiceBuilder** - `server/src/main/java/io/spine/server/AbstractServiceBuilder.java`
+8. **EnricherBuilder** - `server/src/main/java/io/spine/server/enrich/EnricherBuilder.java`
 
 ### Lower Priority (Less Frequently Used / Internal)
 

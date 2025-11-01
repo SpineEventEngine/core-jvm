@@ -88,8 +88,7 @@ public final class ImportBus
 
     private ImportBus(Builder builder) {
         super(builder);
-        this.tenantIndex = builder.tenantIndex()
-                                  .orElseThrow(tenantIndexNotSet());
+        this.tenantIndex = builder.getTenantIndex();
     }
 
     /**

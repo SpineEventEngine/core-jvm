@@ -188,16 +188,64 @@ public abstract class BusBuilder<B extends BusBuilder<B, T, E, C, D>,
     }
 
     /**
-     * Obtains a {@link SystemWriteSide} set in the builder.
+     * Checks whether the {@link SystemWriteSide} has been set.
+     *
+     * @return {@code true} if the system write side was set, {@code false} otherwise
      */
+    @Internal
+    public boolean hasSystem() {
+        return systemWriteSide != null;
+    }
+
+    /**
+     * Obtains the {@link SystemWriteSide} set in the builder.
+     *
+     * @return the system write side
+     * @throws NullPointerException if the system write side was not set
+     */
+    @Internal
+    public SystemWriteSide getSystem() {
+        return checkNotNull(systemWriteSide);
+    }
+
+    /**
+     * Obtains a {@link SystemWriteSide} set in the builder.
+     *
+     * @deprecated Use {@link #getSystem()} and {@link #hasSystem()} instead.
+     */
+    @Deprecated
     @Internal
     public Optional<SystemWriteSide> system() {
         return ofNullable(systemWriteSide);
     }
 
     /**
-     * Obtains a {@link TenantIndex} set in the builder.
+     * Checks whether the {@link TenantIndex} has been set.
+     *
+     * @return {@code true} if the tenant index was set, {@code false} otherwise
      */
+    @Internal
+    public boolean hasTenantIndex() {
+        return tenantIndex != null;
+    }
+
+    /**
+     * Obtains the {@link TenantIndex} set in the builder.
+     *
+     * @return the tenant index
+     * @throws NullPointerException if the tenant index was not set
+     */
+    @Internal
+    public TenantIndex getTenantIndex() {
+        return checkNotNull(tenantIndex);
+    }
+
+    /**
+     * Obtains a {@link TenantIndex} set in the builder.
+     *
+     * @deprecated Use {@link #getTenantIndex()} and {@link #hasTenantIndex()} instead.
+     */
+    @Deprecated
     @Internal
     public Optional<TenantIndex> tenantIndex() {
         return ofNullable(tenantIndex);
