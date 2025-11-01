@@ -38,6 +38,7 @@ import io.spine.server.tenant.TenantIndex;
 import io.spine.server.type.SignalEnvelope;
 import io.spine.system.server.SystemWriteSide;
 import io.spine.type.MessageClass;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -50,6 +51,7 @@ import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static io.spine.server.bus.BusBuilder.FieldCheck.tenantIndexNotSet;
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 
@@ -79,7 +81,7 @@ public abstract class BusBuilder<B extends BusBuilder<B, T, E, C, D>,
 
     private @Nullable SystemWriteSide systemWriteSide;
     private @Nullable TenantIndex tenantIndex;
-    private BoundedContext context;
+    private @MonotonicNonNull BoundedContext context;
 
     /**
      * Creates a new instance of the bus builder.
@@ -185,6 +187,17 @@ public abstract class BusBuilder<B extends BusBuilder<B, T, E, C, D>,
     public B injectTenantIndex(TenantIndex index) {
         this.tenantIndex = checkNotNull(index);
         return self();
+    }
+
+    /**
+     * Similar to {@link #getTenantIndex} but throws custom exception instead
+     * of the {@code NullPointerException} if the tenant index is not set.
+     */
+    public TenantIndex ensureTenantIndex() {
+        if (!hasTenantIndex()) {
+            throw tenantIndexNotSet().get();
+        }
+        return getTenantIndex();
     }
 
     /**
