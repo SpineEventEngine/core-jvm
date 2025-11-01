@@ -26,7 +26,7 @@
 
 package io.spine.server.procman.given.dispatch;
 
-import io.spine.base.EntityState;
+import io.spine.base.ProcessManagerState;
 import io.spine.core.Version;
 import io.spine.server.procman.PmTransaction;
 import io.spine.server.procman.ProcessManager;
@@ -36,7 +36,7 @@ import io.spine.validate.ValidatingBuilder;
  * A test-only implementation of a {@link PmTransaction} that can set the given
  * {@code state} and {@code version} as a starting point for the transaction.
  */
-final class TestPmTransaction<I, S extends EntityState<I>, B extends ValidatingBuilder<S>>
+final class TestPmTransaction<I, S extends ProcessManagerState<I>, B extends ValidatingBuilder<S>>
         extends PmTransaction<I, S, B> {
 
     TestPmTransaction(ProcessManager<I, S, B> processManager) {

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -27,7 +27,6 @@
 package io.spine.server.aggregate;
 
 import com.google.common.testing.NullPointerTester;
-import io.spine.base.EntityState;
 import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.server.aggregate.given.AggregateRootTestEnv;
@@ -78,10 +77,10 @@ class AggregateRootTest {
     @Test
     @DisplayName("obtain part state by its class")
     void returnPartStateByClass() {
-        EntityState<?> definitionPart = aggregateRoot.partState(ProjectDefinition.class);
+        var definitionPart = aggregateRoot.partState(ProjectDefinition.class);
         assertNotNull(definitionPart);
 
-        EntityState<?> lifeCyclePart = aggregateRoot.partState(ProjectLifecycle.class);
+        var lifeCyclePart = aggregateRoot.partState(ProjectLifecycle.class);
         assertNotNull(lifeCyclePart);
     }
 }

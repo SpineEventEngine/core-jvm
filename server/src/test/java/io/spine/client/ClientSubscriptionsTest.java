@@ -57,7 +57,7 @@ import static java.time.Duration.ofSeconds;
 final class ClientSubscriptionsTest extends AbstractClientTest {
 
     @Override
-    protected ImmutableList<BoundedContextBuilder> contexts() {
+    protected List<BoundedContextBuilder> contexts() {
         return ImmutableList.of(tasks());
     }
 

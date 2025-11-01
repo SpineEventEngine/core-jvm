@@ -42,7 +42,7 @@ message StgProjectId {
 }
 
 message StgProject {
-    option (entity).kind = PROJECTION;
+    option (entity).kind = AGGREGATE;
 
     StgProjectId id = 1;
     string name = 2;

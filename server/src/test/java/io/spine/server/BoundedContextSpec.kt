@@ -28,8 +28,6 @@ package io.spine.server
 
 import com.example.ForeignClass
 import com.example.ForeignContextConfig
-import com.google.common.collect.ImmutableSet
-import com.google.common.collect.Sets
 import com.google.common.testing.EqualsTester
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
@@ -52,19 +50,15 @@ import io.spine.option.EntityOption.Visibility.FULL
 import io.spine.server.BoundedContext.multitenant
 import io.spine.server.BoundedContext.singleTenant
 import io.spine.server.BoundedContextBuilder.assumingTests
-import io.spine.server.bc.given.AnotherProjectAggregate
 import io.spine.server.bc.given.FinishedProjectProjection
 import io.spine.server.bc.given.ProjectAggregate
-import io.spine.server.bc.given.ProjectCreationRepository
 import io.spine.server.bc.given.ProjectProcessManager
 import io.spine.server.bc.given.ProjectProjection
-import io.spine.server.bc.given.ProjectRemovalProcman
 import io.spine.server.bc.given.ProjectReport
 import io.spine.server.bc.given.SecretProjectRepository
 import io.spine.server.bc.given.TestEventSubscriber
 import io.spine.server.bus.Listener
 import io.spine.server.entity.Entity
-import io.spine.server.entity.Repository
 import io.spine.server.event.EventDispatcher
 import io.spine.server.event.Policy
 import io.spine.server.event.React
@@ -82,7 +76,6 @@ import io.spine.testing.logging.Interceptor
 import io.spine.testing.server.model.ModelTests
 import java.util.function.BooleanSupplier
 import java.util.logging.Level
-import java.util.stream.Stream
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
@@ -92,16 +85,13 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.function.Executable
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.Arguments
-import org.junit.jupiter.params.provider.MethodSource
 
 /**
  * Tests of [BoundedContext].
  *
  * Messages used in this test suite are defined in:
  *
- *  * `spine/test/bc/project.proto` - data types
+ *  * `spine/test/bc/project.proto` — data types
  *  * `spine/test/bc/commands.proto` — commands
  *  * `spine/test/bc/events.proto` — events.
  */
@@ -295,11 +285,11 @@ internal class BoundedContextSpec {
         stand.exposedTypes() shouldContain stateType
     }
 
-    @ParameterizedTest
-    @MethodSource("sameStateRepositories")
-    fun `not allow two entity repositories with entities of same state`(
-        firstRepo: Repository<*, *>, secondRepo: Repository<*, *>
-    ) {
+    @Test
+    fun `not allow two entity repositories with entities of same state`() {
+        val firstRepo = DefaultRepository.of(FinishedProjectProjection::class.java)
+        val secondRepo = DefaultRepository.of(ProjectProjection::class.java)
+
         context.register(firstRepo)
         assertThrows<IllegalStateException> {
             context.register(secondRepo)
@@ -577,52 +567,6 @@ internal class BoundedContextSpec {
             it.close()
         }
         called shouldBe true
-    }
-
-    companion object {
-
-        /**
-         * Returns all combinations of repositories that manage entities of the same state.
-         *
-         *
-         * To check whether a [io.spine.server.BoundedContext] really throws
-         * an `IllegalStateException` upon an attempt to register a repository that manages an
-         * entity of a state that a registered entity repository is already managing,
-         * all combinations of entities that take state as a type parameter need to be checked.
-         *
-         * This method returns a stream of pairs of all such combinations, which is a Cartesian
-         * product of:
-         *
-         *  * [Process Manager][io.spine.server.procman.ProcessManagerRepository];
-         *  * [Aggregate][io.spine.server.aggregate.AggregateRepository];
-         *  * [Projection][io.spine.server.projection.ProjectionRepository].
-         *
-         * All the returned repositories manage entities of the same state type.
-         */
-        @Suppress("unused") /* A method source. */
-        @JvmStatic
-        fun sameStateRepositories(): Stream<Arguments> {
-            val repositories: Set<Repository<*, *>> =
-                ImmutableSet.of<Repository<*, *>>(
-                    DefaultRepository.of(ProjectAggregate::class.java),
-                    DefaultRepository.of(ProjectProjection::class.java),
-                    ProjectCreationRepository()
-                )
-
-            val sameStateRepositories: Set<Repository<*, *>> =
-                ImmutableSet.of<Repository<*, *>>(
-                    DefaultRepository.of(AnotherProjectAggregate::class.java),
-                    DefaultRepository.of(FinishedProjectProjection::class.java),
-                    DefaultRepository.of(ProjectRemovalProcman::class.java)
-                )
-
-            val cartesianProduct = Sets.cartesianProduct(repositories, sameStateRepositories)
-            val result = cartesianProduct.stream()
-                .map { repos: List<Repository<*, *>> ->
-                    Arguments.of(repos[0], repos[1])
-                }
-            return result
-        }
     }
 }
 

@@ -26,7 +26,9 @@
 
 package io.spine.server.entity.given;
 
-import io.spine.base.EntityState;
+import io.spine.base.AggregateState;
+import io.spine.base.ProcessManagerState;
+import io.spine.base.ProjectionState;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.given.dispatch.AggregateBuilder;
 import io.spine.server.procman.ProcessManager;
@@ -47,9 +49,9 @@ public class Given {
     }
 
     /**
-     * Creates dynamic builder for building an {@code Aggregate}.
+     * Creates a dynamic builder for building an {@code Aggregate}.
      */
-    public static <A extends Aggregate<I, S, ?>, I, S extends EntityState<I>>
+    public static <A extends Aggregate<I, S, ?>, I, S extends AggregateState<I>>
     AggregateBuilder<A, I, S> aggregateOfClass(Class<A> aggregateClass) {
         checkNotNull(aggregateClass);
         var result = new AggregateBuilder<A, I, S>();
@@ -62,7 +64,7 @@ public class Given {
      */
     public static <P extends Projection<I, S, B>,
                    I,
-                   S extends EntityState<I>,
+                   S extends ProjectionState<I>,
                    B extends ValidatingBuilder<S>>
     ProjectionBuilder<P, I, S, B> projectionOfClass(Class<P> projectionClass) {
         checkNotNull(projectionClass);
@@ -76,7 +78,7 @@ public class Given {
      */
     public static <P extends ProcessManager<I, S, B>,
                    I,
-                   S extends EntityState<I>,
+                   S extends ProcessManagerState<I>,
                    B extends ValidatingBuilder<S>>
     ProcessManagerBuilder<P, I, S, B> processManagerOfClass(Class<P> pmClass) {
         checkNotNull(pmClass);

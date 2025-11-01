@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -31,6 +31,7 @@ import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
 import io.spine.annotation.Internal;
 import io.spine.annotation.SPI;
+import io.spine.base.AggregateState;
 import io.spine.base.EntityState;
 import io.spine.client.ResponseFormat;
 import io.spine.client.TargetFilters;
@@ -123,7 +124,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  *
  */
 @SPI
-public class AggregateStorage<I, S extends EntityState<I>>
+public class AggregateStorage<I, S extends AggregateState<I>>
         extends AbstractStorage<I, AggregateHistory> {
 
     private static final String TRUNCATE_ON_WRONG_SNAPSHOT_MESSAGE =

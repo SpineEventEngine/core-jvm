@@ -40,7 +40,7 @@ message ProjectId {
 message Project {
 
     // Keep the message generic. It is used both as an aggregate and a projection state.
-    option (entity).kind = ENTITY;
+    option (entity).kind = PROJECTION;
     option (entity).visibility = FULL;
 
     ProjectId id = 1 [(required) = false];

@@ -70,7 +70,7 @@ object Compiler {
      * The version of ProtoData dependencies.
      */
     val version: String
-    private const val fallbackVersion = "2.0.0-SNAPSHOT.029"
+    private const val fallbackVersion = "2.0.0-SNAPSHOT.030"
 
     /**
      * The distinct version of ProtoData used by other build tools.
@@ -79,7 +79,7 @@ object Compiler {
      * transitional dependencies, this is the version used to build the project itself.
      */
     val dogfoodingVersion: String
-    private const val fallbackDfVersion = "2.0.0-SNAPSHOT.029"
+    private const val fallbackDfVersion = "2.0.0-SNAPSHOT.030"
 
     /**
      * The artifact for the ProtoData Gradle plugin.

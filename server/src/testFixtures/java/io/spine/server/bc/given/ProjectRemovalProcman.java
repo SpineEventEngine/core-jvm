@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -28,12 +28,13 @@ package io.spine.server.bc.given;
 
 import io.spine.server.command.Command;
 import io.spine.server.procman.ProcessManager;
-import io.spine.test.bc.Project;
 import io.spine.test.bc.ProjectId;
+import io.spine.test.bc.ProjectRemoval;
 import io.spine.test.event.command.ProceedToProjectRemoval;
 import io.spine.test.event.command.RemoveProject;
 
-public class ProjectRemovalProcman extends ProcessManager<ProjectId, Project, Project.Builder> {
+public class ProjectRemovalProcman
+        extends ProcessManager<ProjectId, ProjectRemoval, ProjectRemoval.Builder> {
 
     protected ProjectRemovalProcman(ProjectId id) {
         super(id);

@@ -33,6 +33,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static com.google.common.truth.Truth.assertThat;
 
 @DisplayName("`Client` should pass error handlers to `ClientRequest` for")
@@ -49,7 +51,7 @@ public class ClientErrorHandlersTest extends AbstractClientTest {
     private ClientRequest request;
 
     @Override
-    protected ImmutableList<BoundedContextBuilder> contexts() {
+    protected List<BoundedContextBuilder> contexts() {
         return ImmutableList.of(ClientTestContext.users());
     }
 
