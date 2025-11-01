@@ -43,6 +43,7 @@ import static java.util.concurrent.Executors.newSingleThreadExecutor;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -66,7 +67,8 @@ class GrpcContainerTest {
         var port = 60;
         var builder = GrpcContainer.atPort(port);
 
-        assertThat(builder.port()).hasValue(port);
+        assertTrue(builder.hasPort());
+        assertThat(builder.getPort()).isEqualTo(port);
 
         var count = 3;
         for (var i = 0; i < count; i++) {

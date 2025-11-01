@@ -97,8 +97,8 @@ public final class GrpcContainer {
     }
 
     private GrpcContainer(Builder builder) {
-        this.port = builder.port().orElse(null);
-        this.serverName = builder.serverName().orElse(null);
+        this.port = builder.hasPort() ? builder.getPort() : null;
+        this.serverName = builder.hasServerName() ? builder.getServerName() : null;
         this.services = builder.services();
         this.configureServer = builder.configureServer == null
                                ? doNothing()
@@ -106,21 +106,63 @@ public final class GrpcContainer {
     }
 
     /**
+     * Checks whether the port has been configured.
+     *
+     * @return {@code true} if the port was set, {@code false} otherwise
+     */
+    public boolean hasPort() {
+        return port != null;
+    }
+
+    /**
+     * Obtains the port at which the container is exposed.
+     *
+     * @return the port
+     * @throws NullPointerException if the port was not set (in-process container)
+     */
+    public Integer getPort() {
+        return port;
+    }
+
+    /**
      * Obtains the port at which the container is exposed, or empty {@code Optional} if this
      * is an in-process container.
      *
+     * @deprecated Use {@link #getPort()} and {@link #hasPort()} instead.
      * @see #serverName()
      */
+    @Deprecated
     public Optional<Integer> port() {
         return Optional.ofNullable(port);
+    }
+
+    /**
+     * Checks whether the server name has been configured.
+     *
+     * @return {@code true} if the server name was set, {@code false} otherwise
+     */
+    public boolean hasServerName() {
+        return serverName != null;
+    }
+
+    /**
+     * Obtains the name of the in-process server.
+     *
+     * @return the server name
+     * @throws NullPointerException if the server name was not set (port-based container)
+     */
+    public String getServerName() {
+        return serverName;
     }
 
     /**
      * Obtains the name of the in-process server, or empty {@code Optinal} if the container is
      * exposed at a port.
      *
+     * @deprecated Use {@link #getServerName()} and {@link #hasServerName()} instead.
      * @see #port()
      */
+    @Deprecated
     public Optional<String> serverName() {
         return Optional.ofNullable(serverName);
     }

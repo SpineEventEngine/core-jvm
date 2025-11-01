@@ -85,11 +85,25 @@ if(builder.hasTheExpectation()) {
   - PageSize - added `hasPageSize()`
   - DispatchCatchingUp - added `hasDispatchOp()`
 
+### 8. ConnectionBuilder ✅
+- **File**: `server/src/main/java/io/spine/server/ConnectionBuilder.java`
+- **Commit**: TBD
+- **Properties Updated**: 2
+  - Port - added `hasPort()`, added `getPort()`, deprecated `port()`
+  - ServerName - added `hasServerName()`, added `getServerName()`, deprecated `serverName()`
+
+### 9. GrpcContainer ✅
+- **File**: `server/src/main/java/io/spine/server/GrpcContainer.java`
+- **Commit**: TBD
+- **Properties Updated**: 2
+  - Port - added `hasPort()`, added `getPort()`, deprecated `port()`
+  - ServerName - added `hasServerName()`, added `getServerName()`, deprecated `serverName()`
+
 ## Progress Statistics
 
 - **Total Builders**: 37
-- **Completed**: 7 (19%)
-- **Remaining**: 30 (81%)
+- **Completed**: 9 (24%)
+- **Remaining**: 28 (76%)
 
 ## Remaining Builders
 
@@ -103,9 +117,8 @@ if(builder.hasTheExpectation()) {
 ### Medium Priority
 
 5. **TargetBuilder** - `client/src/main/java/io/spine/client/TargetBuilder.java` - No changes needed (no public Optional/nullable getters)
-6. **ConnectionBuilder** - `server/src/main/java/io/spine/server/ConnectionBuilder.java`
-7. **AbstractServiceBuilder** - `server/src/main/java/io/spine/server/AbstractServiceBuilder.java`
-8. **EnricherBuilder** - `server/src/main/java/io/spine/server/enrich/EnricherBuilder.java`
+6. **AbstractServiceBuilder** - `server/src/main/java/io/spine/server/AbstractServiceBuilder.java` - No changes needed
+7. **EnricherBuilder** - `server/src/main/java/io/spine/server/enrich/EnricherBuilder.java` - No changes needed
 
 ### Lower Priority (Less Frequently Used / Internal)
 
