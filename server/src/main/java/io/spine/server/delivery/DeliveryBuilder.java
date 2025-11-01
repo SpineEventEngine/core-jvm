@@ -27,6 +27,7 @@
 package io.spine.server.delivery;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.errorprone.annotations.InlineMe;
 import com.google.protobuf.Duration;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.delivery.memory.InMemoryShardedWorkRegistry;
@@ -258,6 +259,7 @@ public final class DeliveryBuilder {
      * @deprecated Use {@link #getDeliveryMonitor()} instead.
      */
     @Deprecated
+    @InlineMe(replacement = "this.getDeliveryMonitor()")
     DeliveryMonitor getMonitor() {
         return getDeliveryMonitor();
     }

@@ -117,24 +117,24 @@ class DeliveryBuilderTest {
         @DisplayName("delivery strategy")
         void strategy() {
             var strategy = UniformAcrossAllShards.forNumber(42);
-            assertThat(builder().setStrategy(strategy).strategy())
-                  .hasValue(strategy);
+            assertThat(builder().setStrategy(strategy).getStrategy())
+                  .isEqualTo(strategy);
         }
 
         @Test
         @DisplayName("Inbox storage")
         void inboxStorage() {
             var storage = new InboxStorage(factory, false);
-            assertThat(builder().setInboxStorage(storage).inboxStorage())
-                  .hasValue(storage);
+            assertThat(builder().setInboxStorage(storage).getInboxStorage())
+                  .isEqualTo(storage);
         }
 
         @Test
         @DisplayName("Catch-up storage")
         void catchUpStorage() {
             var storage = new CatchUpStorage(factory, false);
-            assertThat(builder().setCatchUpStorage(storage).catchUpStorage())
-                  .hasValue(storage);
+            assertThat(builder().setCatchUpStorage(storage).getCatchUpStorage())
+                  .isEqualTo(storage);
         }
 
         @Test
@@ -142,40 +142,40 @@ class DeliveryBuilderTest {
         void workRegistry() {
             var registry = new InMemoryShardedWorkRegistry();
             assertThat(builder().setWorkRegistry(registry)
-                                       .workRegistry())
-                  .hasValue(registry);
+                                       .getWorkRegistry())
+                  .isEqualTo(registry);
         }
 
         @Test
         @DisplayName("deduplication window")
         void deduplicationWindow() {
             var duration = fromMinutes(123);
-            assertThat(builder().setDeduplicationWindow(duration).deduplicationWindow())
-                    .hasValue(duration);
+            assertThat(builder().setDeduplicationWindow(duration).getDeduplicationWindow())
+                    .isEqualTo(duration);
         }
 
         @Test
         @DisplayName("delivery monitor")
         void deliveryMonitor() {
             var monitor = DeliveryMonitor.alwaysContinue();
-            assertThat(builder().setMonitor(monitor).deliveryMonitor())
-                    .hasValue(monitor);
+            assertThat(builder().setMonitor(monitor).getDeliveryMonitor())
+                    .isEqualTo(monitor);
         }
 
         @Test
         @DisplayName("page size")
         void pageSize() {
             var pageSize = 42;
-            assertThat(builder().setPageSize(pageSize).pageSize())
-                    .hasValue(pageSize);
+            assertThat(builder().setPageSize(pageSize).getPageSize())
+                    .isEqualTo(pageSize);
         }
 
         @Test
         @DisplayName("catch-up page size")
         void catchUpPageSize() {
             var catchUpPageSize = 499;
-            assertThat(builder().setCatchUpPageSize(catchUpPageSize).catchUpPageSize())
-                    .hasValue(catchUpPageSize);
+            assertThat(builder().setCatchUpPageSize(catchUpPageSize).getCatchUpPageSize())
+                    .isEqualTo(catchUpPageSize);
         }
     }
 
@@ -216,7 +216,7 @@ class DeliveryBuilderTest {
         @Test
         @DisplayName("delivery monitor")
         void deliveryMonitor() {
-            assertNpe(() -> builder().getMonitor());
+            assertNpe(() -> builder().getDeliveryMonitor());
         }
 
         @Test
