@@ -47,11 +47,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-import static io.spine.server.bus.BusBuilder.FieldCheck.tenantIndexNotSet;
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 
@@ -190,12 +187,12 @@ public abstract class BusBuilder<B extends BusBuilder<B, T, E, C, D>,
     }
 
     /**
-     * Similar to {@link #getTenantIndex} but throws custom exception instead
-     * of the {@code NullPointerException} if the tenant index is not set.
+     * Similar to {@link #getTenantIndex} but throws custom exception, instead
+     * of the {@code NullPointerException}, if the tenant index is not set.
      */
     public TenantIndex ensureTenantIndex() {
         if (!hasTenantIndex()) {
-            throw tenantIndexNotSet().get();
+            throw Exceptions.tenantIndexNotSet();
         }
         return getTenantIndex();
     }
@@ -219,6 +216,18 @@ public abstract class BusBuilder<B extends BusBuilder<B, T, E, C, D>,
     @Internal
     public SystemWriteSide getSystem() {
         return checkNotNull(systemWriteSide);
+    }
+
+    /**
+     * Same as {@link #getSystem()} but throws custom exception, instead of
+     * {@code NullPointerException} if the system is not set.
+     */
+    @Internal
+    public SystemWriteSide ensureSystem() throws IllegalStateException {
+        if (!hasSystem()) {
+            throw Exceptions.systemNotSet();
+        }
+        return getSystem();
     }
 
     /**
@@ -275,10 +284,6 @@ public abstract class BusBuilder<B extends BusBuilder<B, T, E, C, D>,
     @CheckReturnValue
     public abstract Bus<?, E, ?, ?> build();
 
-    protected void checkFieldsSet() {
-        FieldCheck.check(this);
-    }
-
     /**
      * Returns {@code this} reference to avoid redundant casts.
      */
@@ -287,37 +292,27 @@ public abstract class BusBuilder<B extends BusBuilder<B, T, E, C, D>,
     /**
      * Verifies if required fields of a {@link BusBuilder} are set.
      */
-    public static final class FieldCheck {
+    private static final class Exceptions {
 
         private static final String SYSTEM_METHOD = "injectSystem";
         private static final String TENANT_INDEX_METHOD = "injectTenantIndex";
-        private static final String ERROR_FORMAT = "`%s` must be set. Please call `%s()`.";
 
         /** Prevents instantiation of this utility class. */
-        private FieldCheck() {
+        private Exceptions() {
         }
 
-        private static void check(BusBuilder<?, ?, ?, ?, ?> builder) {
-            checkSet(builder.systemWriteSide, SystemWriteSide.class, SYSTEM_METHOD);
-            checkSet(builder.tenantIndex, TenantIndex.class, TENANT_INDEX_METHOD);
+        private static IllegalStateException systemNotSet() {
+            return newException(SystemWriteSide.class, SYSTEM_METHOD);
         }
 
-        public static void checkSet(@Nullable Object field,
-                                    Class<?> fieldType,
-                                    String setterName) {
-            checkState(field != null, ERROR_FORMAT, fieldType.getSimpleName(), setterName);
-        }
-
-        public static Supplier<IllegalStateException> systemNotSet() {
-            return () -> newException(SystemWriteSide.class, SYSTEM_METHOD);
-        }
-
-        public static Supplier<IllegalStateException> tenantIndexNotSet() {
-            return () -> newException(TenantIndex.class, TENANT_INDEX_METHOD);
+        private static IllegalStateException tenantIndexNotSet() {
+            return newException(TenantIndex.class, TENANT_INDEX_METHOD);
         }
 
         private static IllegalStateException newException(Class<?> fieldClass, String setterName) {
-            var errorMessage = format(ERROR_FORMAT, fieldClass.getSimpleName(), setterName);
+            var errorMessage = format(
+                    "`%s` must be set. Please call `%s()`.", fieldClass.getSimpleName(), setterName
+            );
             return new IllegalStateException(errorMessage);
         }
     }

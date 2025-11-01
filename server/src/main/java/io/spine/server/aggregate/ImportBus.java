@@ -42,8 +42,6 @@ import io.spine.server.type.EventEnvelope;
 
 import java.util.Optional;
 
-import static io.spine.server.bus.BusBuilder.FieldCheck.tenantIndexNotSet;
-
 /**
  * Dispatches events to repositories of aggregates that
  * {@linkplain io.spine.server.aggregate.Apply#allowImport() import} these events.
