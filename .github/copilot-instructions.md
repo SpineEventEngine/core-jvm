@@ -18,14 +18,14 @@
 
 ## Detailed Documentation
 
-For comprehensive guidance, please refer to the [`.agents` directory](./../.agents/_TOC.md) which contains:
-- [Quick Reference Card](./../.agents/quick-reference-card.md)
-- [Project Overview](./../.agents/project-overview.md)
-- [Coding Guidelines](./../.agents/coding-guidelines.md)
-- [Testing Guidelines](./../.agents/testing.md)
-- [Running Builds](./../.agents/running-builds.md)
-- [Version Policy](./../.agents/version-policy.md)
-- [Safety Rules](./../.agents/safety-rules.md)
+For comprehensive guidance, please refer to the [`.agents` directory](../.agents/_TOC.md) which contains:
+- [Quick Reference Card](../.agents/quick-reference-card.md)
+- [Project Overview](../.agents/project-overview.md)
+- [Coding Guidelines](../.agents/coding-guidelines.md)
+- [Testing Guidelines](../.agents/testing.md)
+- [Running Builds](../.agents/running-builds.md)
+- [Version Policy](../.agents/version-policy.md)
+- [Safety Rules](../.agents/safety-rules.md)
 
 ## Coding Standards & Conventions
 
@@ -133,7 +133,7 @@ This project follows [Semantic Versioning 2.0.0](https://semver.org/).
 - **Adding a new dependency**: Update relevant files in `buildSrc` directory
 - **Creating a new module**: Follow existing module structure patterns
 - **Documentation**: Use KDoc style for public and internal APIs
-- **Refactoring**: Consult [Refactoring Guidelines](./../.agents/refactoring-guidelines.md)
+- **Refactoring**: Consult [Refactoring Guidelines](../.agents/refactoring-guidelines.md)
 
 ## Important Annotations
 
@@ -150,4 +150,4 @@ This project follows [Semantic Versioning 2.0.0](https://semver.org/).
 
 ---
 
-*For more detailed information on specific topics, please refer to the comprehensive documentation in the [`.agents` directory](./../.agents/_TOC.md).*
+*For more detailed information on specific topics, please refer to the comprehensive documentation in the [`.agents` directory](../.agents/_TOC.md).*
