@@ -85,6 +85,7 @@ public final class CommandBus
      */
     private final boolean multitenant;
 
+    @SuppressWarnings("FieldMayBeStatic") // It's better to keep instance, e.g., for tests.
     private final DeadCommandHandler deadCommandHandler = new DeadCommandHandler();
 
     /**
