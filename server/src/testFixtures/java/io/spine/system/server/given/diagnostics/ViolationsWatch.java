@@ -40,6 +40,7 @@ import io.spine.system.server.test.WatchId;
 import static com.google.common.base.Preconditions.checkArgument;
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.server.route.EventRoute.withId;
+import static io.spine.validate.TemplateStrings.format;
 
 /**
  * A projection which stores contents of invalid {@link TextValidated} events.
@@ -72,7 +73,7 @@ public final class ViolationsWatch extends Projection<WatchId, InvalidText, Inva
         var violations = event.getViolationList();
         checkArgument(violations.size() == 1);
         var violation = violations.get(0);
-        builder().setErrorMessage(violation.getMsgFormat());
+        builder().setErrorMessage(format(violation.getMessage()));
     }
 
     public static final class Repository
