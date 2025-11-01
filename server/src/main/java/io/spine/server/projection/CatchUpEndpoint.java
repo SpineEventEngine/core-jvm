@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -26,7 +26,7 @@
 
 package io.spine.server.projection;
 
-import io.spine.base.EntityState;
+import io.spine.base.ProjectionState;
 import io.spine.server.delivery.event.CatchUpStarted;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.Repository;
@@ -48,7 +48,7 @@ import static io.spine.server.dispatch.DispatchOutcomes.successfulOutcome;
  * @param <S>
  *         the type of projection states
  */
-final class CatchUpEndpoint<I, P extends Projection<I, S, ?>, S extends EntityState<I>>
+final class CatchUpEndpoint<I, P extends Projection<I, S, ?>, S extends ProjectionState<I>>
         extends ProjectionEndpoint<I, P, S> {
 
     private static final TypeName CATCH_UP_STARTED =
@@ -58,7 +58,7 @@ final class CatchUpEndpoint<I, P extends Projection<I, S, ?>, S extends EntitySt
         super(repository, event);
     }
 
-    static <I, P extends Projection<I, S, ?>, S extends EntityState<I>>
+    static <I, P extends Projection<I, S, ?>, S extends ProjectionState<I>>
     CatchUpEndpoint<I, P, S> of(ProjectionRepository<I, P, ?> repository, EventEnvelope event) {
         return new CatchUpEndpoint<>(repository, event);
     }

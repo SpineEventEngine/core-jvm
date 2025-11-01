@@ -10,7 +10,7 @@ all modules and does not describe the project structure per-subproject.
  -->
 <groupId>io.spine</groupId>
 <artifactId>spine-core-jvm</artifactId>
-<version>2.0.0-SNAPSHOT.334</version>
+<version>2.0.0-SNAPSHOT.340</version>
 
 <inceptionYear>2015</inceptionYear>
 
@@ -62,7 +62,7 @@ all modules and does not describe the project structure per-subproject.
   <dependency>
     <groupId>io.spine</groupId>
     <artifactId>spine-base</artifactId>
-    <version>2.0.0-SNAPSHOT.364</version>
+    <version>2.0.0-SNAPSHOT.366</version>
     <scope>compile</scope>
   </dependency>
   <dependency>
@@ -245,7 +245,7 @@ all modules and does not describe the project structure per-subproject.
   <dependency>
     <groupId>com.google.protobuf</groupId>
     <artifactId>protoc</artifactId>
-    <version>4.31.1</version>
+    <version>4.33.0</version>
   </dependency>
   <dependency>
     <groupId>com.puppycrawl.tools</groupId>
@@ -275,22 +275,22 @@ all modules and does not describe the project structure per-subproject.
   <dependency>
     <groupId>io.spine.tools</groupId>
     <artifactId>compiler-cli-all</artifactId>
-    <version>2.0.0-SNAPSHOT.028</version>
+    <version>2.0.0-SNAPSHOT.030</version>
   </dependency>
   <dependency>
     <groupId>io.spine.tools</groupId>
     <artifactId>compiler-protoc-plugin</artifactId>
-    <version>2.0.0-SNAPSHOT.028</version>
+    <version>2.0.0-SNAPSHOT.030</version>
   </dependency>
   <dependency>
     <groupId>io.spine.tools</groupId>
     <artifactId>core-jvm-gradle-plugins</artifactId>
-    <version>2.0.0-SNAPSHOT.024</version>
+    <version>2.0.0-SNAPSHOT.028</version>
   </dependency>
   <dependency>
     <groupId>io.spine.tools</groupId>
     <artifactId>core-jvm-routing</artifactId>
-    <version>2.0.0-SNAPSHOT.024</version>
+    <version>2.0.0-SNAPSHOT.028</version>
   </dependency>
   <dependency>
     <groupId>io.spine.tools</groupId>
@@ -300,7 +300,7 @@ all modules and does not describe the project structure per-subproject.
   <dependency>
     <groupId>io.spine.validation</groupId>
     <artifactId>spine-validation-java-bundle</artifactId>
-    <version>2.0.0-SNAPSHOT.352</version>
+    <version>2.0.0-SNAPSHOT.354</version>
   </dependency>
   <dependency>
     <groupId>net.sourceforge.pmd</groupId>

@@ -1,11 +1,11 @@
 /*
- * Copyright 2023, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -30,7 +30,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.protobuf.Any;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Durations;
-import io.spine.base.EntityState;
+import io.spine.base.AggregateState;
 import io.spine.base.Time;
 import io.spine.core.ActorContext;
 import io.spine.core.Event;
@@ -163,7 +163,7 @@ public class AggregateStorageTest
      *         the type of aggregate IDs
      * @return a new storage instance
      */
-    <I, S extends EntityState<I>> AggregateStorage<I, S>
+    <I, S extends AggregateState<I>> AggregateStorage<I, S>
     newStorage(Class<? extends Aggregate<I, S, ?>> aggregateClass) {
         var spec = ContextSpec.singleTenant("`AggregateStorage` tests");
         var result =

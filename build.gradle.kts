@@ -27,39 +27,12 @@
 @file:Suppress("RemoveRedundantQualifierName")
 
 import io.spine.dependency.boms.BomsPlugin
-import io.spine.dependency.build.ErrorProne
-import io.spine.dependency.lib.Grpc
-import io.spine.dependency.lib.Guava
-import io.spine.dependency.lib.Jackson
-import io.spine.dependency.lib.Kotlin
-import io.spine.dependency.lib.KotlinPoet
-import io.spine.dependency.local.Base
-import io.spine.dependency.local.BaseTypes
-import io.spine.dependency.local.Change
-import io.spine.dependency.local.Compiler
-import io.spine.dependency.local.CoreJava
-import io.spine.dependency.local.Logging
-import io.spine.dependency.local.ProtoData
-import io.spine.dependency.local.Reflect
-import io.spine.dependency.local.TestLib
-import io.spine.dependency.local.Time
-import io.spine.dependency.local.ToolBase
-import io.spine.dependency.local.Validation
-import io.spine.dependency.test.JUnit
-import io.spine.gradle.checkstyle.CheckStyleConfig
-import io.spine.gradle.github.pages.updateGitHubPages
-import io.spine.gradle.javac.configureErrorProne
-import io.spine.gradle.javac.configureJavac
-import io.spine.gradle.javadoc.JavadocConfig
-import io.spine.gradle.kotlin.setFreeCompilerArgs
-import io.spine.gradle.publish.IncrementGuard
 import io.spine.gradle.publish.PublishingRepos
 import io.spine.gradle.publish.spinePublishing
 import io.spine.gradle.repo.standardToSpineSdk
 import io.spine.gradle.report.coverage.JacocoConfig
 import io.spine.gradle.report.license.LicenseReporter
 import io.spine.gradle.report.pom.PomGenerator
-import org.gradle.jvm.tasks.Jar
 
 buildscript {
     standardSpineSdkRepositories()
@@ -69,10 +42,18 @@ buildscript {
             exclude(group = "io.spine", module = "spine-flogger-api")
             exclude(group = "io.spine", module = "spine-logging-backend")
             resolutionStrategy {
+                val jackson = io.spine.dependency.lib.Jackson
+                val cfg = this@all
+                val rs = this@resolutionStrategy
+                jackson.forceArtifacts(project, cfg, rs)
+                io.spine.dependency.lib.Jackson.DataType.forceArtifacts(project, cfg, rs)
+
                 val logging = io.spine.dependency.local.Logging
                 force(
-                    io.spine.dependency.lib.Jackson.bom,
+                    jackson.annotations,
+                    jackson.bom,
                     io.spine.dependency.lib.Guava.lib,
+                    io.spine.dependency.lib.Kotlin.bom,
                     io.spine.dependency.local.Base.annotations,
                     io.spine.dependency.local.Base.lib,
                     io.spine.dependency.local.ToolBase.lib,
@@ -81,6 +62,7 @@ buildscript {
                     logging.lib,
                     logging.libJvm,
                     logging.grpcContext,
+                    io.spine.dependency.local.Time.lib,
                     io.spine.dependency.local.Validation.runtime,
                 )
             }
@@ -90,6 +72,7 @@ buildscript {
     dependencies {
         classpath(enforcedPlatform(io.spine.dependency.lib.Grpc.bom))
         classpath(enforcedPlatform(io.spine.dependency.kotlinx.Coroutines.bom))
+        classpath(spineCompiler.pluginLib)
         classpath(coreJvmCompiler.pluginLib)
     }
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -28,7 +28,7 @@ package io.spine.server.aggregate;
 
 import io.spine.annotation.Experimental;
 import io.spine.annotation.Internal;
-import io.spine.base.EntityState;
+import io.spine.base.AggregateState;
 import io.spine.reflect.GenericTypeIndex;
 import io.spine.server.aggregate.model.AggregatePartClass;
 import io.spine.validate.ValidatingBuilder;
@@ -52,7 +52,7 @@ import static io.spine.server.aggregate.model.AggregatePartClass.asAggregatePart
  *
  * <p>To access parts of the aggregate, {@link AggregateRoot} should be used.
  *
- * <p>If your business logic cannot be split into parts, it can be modified separately.
+ * <p>If your business logic cannot be split into parts, it cannot be modified separately.
  * Consider extending {@link Aggregate} instead of several {@code AggregatePart}s.
  *
  * @param <I>
@@ -67,7 +67,7 @@ import static io.spine.server.aggregate.model.AggregatePartClass.asAggregatePart
  */
 @Experimental
 public abstract class AggregatePart<I,
-                                    S extends EntityState<I>,
+                                    S extends AggregateState<I>,
                                     B extends ValidatingBuilder<S>,
                                     R extends AggregateRoot<I>>
                       extends Aggregate<I, S, B> {
@@ -108,7 +108,7 @@ public abstract class AggregatePart<I,
      *                               or the ID type of the part state does not match
      *                               the ID type of the {@code root}
      */
-    protected <P extends EntityState<I>> P partState(Class<P> partStateClass) {
+    protected <P extends AggregateState<I>> P partState(Class<P> partStateClass) {
         var partState = root.partState(partStateClass);
         return partState;
     }

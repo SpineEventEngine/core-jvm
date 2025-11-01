@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@
 
 package io.spine.server.aggregate
 
-import io.spine.base.EntityState
+import io.spine.base.AggregateState
 import io.spine.logging.WithLogging
 import io.spine.server.dispatch.DispatchOutcome
 import io.spine.server.type.CommandEnvelope
@@ -46,7 +46,7 @@ object AggregateTestSupport : WithLogging {
      * @return the list of produced event messages.
      */
     @JvmStatic
-    fun <I : Any, A : Aggregate<I, S, *>, S : EntityState<I>> dispatchCommand(
+    fun <I : Any, A : Aggregate<I, S, *>, S : AggregateState<I>> dispatchCommand(
         repository: AggregateRepository<I, A, S>,
         aggregate: A,
         command: CommandEnvelope
@@ -67,7 +67,7 @@ object AggregateTestSupport : WithLogging {
      * @return the list of produced event messages.
      */
     @JvmStatic
-    fun <I : Any, A : Aggregate<I, S, *>, S : EntityState<I>> dispatchEvent(
+    fun <I : Any, A : Aggregate<I, S, *>, S : AggregateState<I>> dispatchEvent(
         repository: AggregateRepository<I, A, S>,
         aggregate: A,
         event: EventEnvelope

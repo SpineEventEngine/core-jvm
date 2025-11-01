@@ -30,7 +30,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import io.spine.annotation.Internal;
 import io.spine.annotation.VisibleForTesting;
-import io.spine.base.EntityState;
+import io.spine.base.AggregateState;
 import io.spine.base.EventMessage;
 import io.spine.client.ResponseFormat;
 import io.spine.client.TargetFilters;
@@ -97,7 +97,9 @@ import static java.util.Objects.requireNonNull;
  * @see Aggregate
  */
 @SuppressWarnings("ClassWithTooManyMethods")
-public abstract class AggregateRepository<I, A extends Aggregate<I, S, ?>, S extends EntityState<I>>
+public abstract class AggregateRepository<I,
+                                          A extends Aggregate<I, S, ?>,
+                                          S extends AggregateState<I>>
         extends Repository<I, A>
         implements CommandDispatcher, EventProducingRepository,
                    EventDispatcherDelegate, QueryableRepository<I, S> {
