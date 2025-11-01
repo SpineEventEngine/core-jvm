@@ -179,9 +179,31 @@ public final class BoundedContextBuilder implements WithLogging {
 
     /**
      * Obtains {@code TenantIndex} implementation associated with the Bounded Context.
+     *
+     * @deprecated Use {@link #getTenantIndex()} and {@link #hasTenantIndex()} instead.
      */
+    @Deprecated
     public Optional<? extends TenantIndex> tenantIndex() {
         return Optional.ofNullable(tenantIndex);
+    }
+
+    /**
+     * Checks whether the {@code TenantIndex} has been configured.
+     *
+     * @return {@code true} if the tenant index was set, {@code false} otherwise
+     */
+    public boolean hasTenantIndex() {
+        return tenantIndex != null;
+    }
+
+    /**
+     * Returns the configured {@code TenantIndex}.
+     *
+     * @return the tenant index
+     * @throws NullPointerException if the tenant index was not set
+     */
+    public TenantIndex getTenantIndex() {
+        return checkNotNull(tenantIndex);
     }
 
     /**

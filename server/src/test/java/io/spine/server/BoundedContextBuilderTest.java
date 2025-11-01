@@ -144,8 +144,8 @@ class BoundedContextBuilderTest {
                 .assumingTests()
                 .setTenantIndex(tenantIndex);
 
-        assertThat(builder.tenantIndex())
-                .hasValue(tenantIndex);
+        assertThat(builder.getTenantIndex())
+                .isEqualTo(tenantIndex);
     }
 
     /**

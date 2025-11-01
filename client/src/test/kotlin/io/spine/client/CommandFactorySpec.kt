@@ -99,7 +99,7 @@ internal class CommandFactorySpec {
         fun `with own tenant ID`() {
             val tenantId = tenantId { value = javaClass.simpleName }
             val mtFactory = requestFactoryBuilder().also { f ->
-                f.tenantId = tenantId
+                f.setTenantId(tenantId)
                 f.actor = ACTOR
             }.build()
 

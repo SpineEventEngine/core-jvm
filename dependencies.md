@@ -1,6 +1,6 @@
 
 
-# Dependencies of `io.spine:spine-client:2.0.0-SNAPSHOT.340`
+# Dependencies of `io.spine:spine-client:2.0.0-SNAPSHOT.341`
 
 ## Runtime
 1.  **Group** : com.google.android. **Name** : annotations. **Version** : 4.1.1.4.
@@ -1085,14 +1085,14 @@
 
 The dependencies distributed under several licenses, are used according their commercial-use-friendly license.
 
-This report was generated on **Fri Oct 31 19:11:37 WET 2025** using 
+This report was generated on **Sat Nov 01 16:39:15 WET 2025** using 
 [Gradle-License-Report plugin](https://github.com/jk1/Gradle-License-Report) by Evgeny Naumenko, licensed under 
 [Apache 2.0 License](https://github.com/jk1/Gradle-License-Report/blob/master/LICENSE).
 
 
 
 
-# Dependencies of `io.spine.tools:spine-client-testlib:2.0.0-SNAPSHOT.340`
+# Dependencies of `io.spine.tools:spine-client-testlib:2.0.0-SNAPSHOT.341`
 
 ## Runtime
 1.  **Group** : com.google.android. **Name** : annotations. **Version** : 4.1.1.4.
@@ -2273,14 +2273,14 @@ This report was generated on **Fri Oct 31 19:11:37 WET 2025** using
 
 The dependencies distributed under several licenses, are used according their commercial-use-friendly license.
 
-This report was generated on **Fri Oct 31 19:11:37 WET 2025** using 
+This report was generated on **Sat Nov 01 16:39:15 WET 2025** using 
 [Gradle-License-Report plugin](https://github.com/jk1/Gradle-License-Report) by Evgeny Naumenko, licensed under 
 [Apache 2.0 License](https://github.com/jk1/Gradle-License-Report/blob/master/LICENSE).
 
 
 
 
-# Dependencies of `io.spine:spine-core:2.0.0-SNAPSHOT.340`
+# Dependencies of `io.spine:spine-core:2.0.0-SNAPSHOT.341`
 
 ## Runtime
 1.  **Group** : com.google.code.findbugs. **Name** : jsr305. **Version** : 3.0.2.
@@ -3301,14 +3301,14 @@ This report was generated on **Fri Oct 31 19:11:37 WET 2025** using
 
 The dependencies distributed under several licenses, are used according their commercial-use-friendly license.
 
-This report was generated on **Fri Oct 31 19:11:37 WET 2025** using 
+This report was generated on **Sat Nov 01 16:39:15 WET 2025** using 
 [Gradle-License-Report plugin](https://github.com/jk1/Gradle-License-Report) by Evgeny Naumenko, licensed under 
 [Apache 2.0 License](https://github.com/jk1/Gradle-License-Report/blob/master/LICENSE).
 
 
 
 
-# Dependencies of `io.spine.tools:spine-core-testlib:2.0.0-SNAPSHOT.340`
+# Dependencies of `io.spine.tools:spine-core-testlib:2.0.0-SNAPSHOT.341`
 
 ## Runtime
 1.  **Group** : com.google.android. **Name** : annotations. **Version** : 4.1.1.4.
@@ -4375,14 +4375,14 @@ This report was generated on **Fri Oct 31 19:11:37 WET 2025** using
 
 The dependencies distributed under several licenses, are used according their commercial-use-friendly license.
 
-This report was generated on **Fri Oct 31 19:11:37 WET 2025** using 
+This report was generated on **Sat Nov 01 16:39:15 WET 2025** using 
 [Gradle-License-Report plugin](https://github.com/jk1/Gradle-License-Report) by Evgeny Naumenko, licensed under 
 [Apache 2.0 License](https://github.com/jk1/Gradle-License-Report/blob/master/LICENSE).
 
 
 
 
-# Dependencies of `io.spine:spine-server:2.0.0-SNAPSHOT.340`
+# Dependencies of `io.spine:spine-server:2.0.0-SNAPSHOT.341`
 
 ## Runtime
 1.  **Group** : com.google.android. **Name** : annotations. **Version** : 4.1.1.4.
@@ -5479,14 +5479,14 @@ This report was generated on **Fri Oct 31 19:11:37 WET 2025** using
 
 The dependencies distributed under several licenses, are used according their commercial-use-friendly license.
 
-This report was generated on **Fri Oct 31 19:11:37 WET 2025** using 
+This report was generated on **Sat Nov 01 16:39:15 WET 2025** using 
 [Gradle-License-Report plugin](https://github.com/jk1/Gradle-License-Report) by Evgeny Naumenko, licensed under 
 [Apache 2.0 License](https://github.com/jk1/Gradle-License-Report/blob/master/LICENSE).
 
 
 
 
-# Dependencies of `io.spine.tools:spine-server-testlib:2.0.0-SNAPSHOT.340`
+# Dependencies of `io.spine.tools:spine-server-testlib:2.0.0-SNAPSHOT.341`
 
 ## Runtime
 1.  **Group** : com.google.android. **Name** : annotations. **Version** : 4.1.1.4.
@@ -6719,6 +6719,6 @@ This report was generated on **Fri Oct 31 19:11:37 WET 2025** using
 
 The dependencies distributed under several licenses, are used according their commercial-use-friendly license.
 
-This report was generated on **Fri Oct 31 19:11:37 WET 2025** using 
+This report was generated on **Sat Nov 01 16:39:15 WET 2025** using 
 [Gradle-License-Report plugin](https://github.com/jk1/Gradle-License-Report) by Evgeny Naumenko, licensed under 
 [Apache 2.0 License](https://github.com/jk1/Gradle-License-Report/blob/master/LICENSE).

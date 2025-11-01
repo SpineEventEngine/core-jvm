@@ -48,13 +48,14 @@ import static com.google.common.truth.Truth.assertThat;
 import static io.spine.server.commandbus.CommandValidator.inspect;
 import static io.spine.server.commandbus.Given.CommandMessage.createProjectMessage;
 import static io.spine.testing.core.given.GivenCommandContext.withRandomActor;
+import static io.spine.validate.TemplateStrings.format;
 
 @DisplayName("`CommandValidator` violation check should")
 class CommandValidatorViolationCheckTest {
 
     private static final Correspondence<@NonNull ConstraintViolation, @NonNull String>
             messageFormatContains = Correspondence.from(
-                    (actual, expected) -> actual.getMsgFormat().contains(expected),
+                    (actual, expected) -> format(actual.getMessage()).contains(expected),
                     "has message format"
             );
 
