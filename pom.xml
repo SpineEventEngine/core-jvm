@@ -243,11 +243,6 @@ all modules and does not describe the project structure per-subproject.
     <version>2.36.0</version>
   </dependency>
   <dependency>
-    <groupId>com.google.errorprone</groupId>
-    <artifactId>javac</artifactId>
-    <version>9+181-r4173-1</version>
-  </dependency>
-  <dependency>
     <groupId>com.google.protobuf</groupId>
     <artifactId>protoc</artifactId>
     <version>4.33.0</version>
@@ -318,16 +313,6 @@ all modules and does not describe the project structure per-subproject.
     <version>7.12.0</version>
   </dependency>
   <dependency>
-    <groupId>org.bouncycastle</groupId>
-    <artifactId>bcpg-jdk18on</artifactId>
-    <version>1.80</version>
-  </dependency>
-  <dependency>
-    <groupId>org.bouncycastle</groupId>
-    <artifactId>bcpkix-jdk18on</artifactId>
-    <version>1.80</version>
-  </dependency>
-  <dependency>
     <groupId>org.jacoco</groupId>
     <artifactId>org.jacoco.agent</artifactId>
     <version>0.8.13</version>
@@ -369,11 +354,6 @@ all modules and does not describe the project structure per-subproject.
   </dependency>
   <dependency>
     <groupId>org.jetbrains.kotlin</groupId>
-    <artifactId>abi-tools</artifactId>
-    <version>2.2.21</version>
-  </dependency>
-  <dependency>
-    <groupId>org.jetbrains.kotlin</groupId>
     <artifactId>kotlin-build-tools-impl</artifactId>
     <version>2.2.21</version>
   </dependency>
@@ -384,17 +364,7 @@ all modules and does not describe the project structure per-subproject.
   </dependency>
   <dependency>
     <groupId>org.jetbrains.kotlin</groupId>
-    <artifactId>kotlin-klib-commonizer-embeddable</artifactId>
-    <version>2.2.21</version>
-  </dependency>
-  <dependency>
-    <groupId>org.jetbrains.kotlin</groupId>
     <artifactId>kotlin-scripting-compiler-embeddable</artifactId>
-    <version>2.2.21</version>
-  </dependency>
-  <dependency>
-    <groupId>org.jetbrains.kotlin</groupId>
-    <artifactId>swift-export-embeddable</artifactId>
     <version>2.2.21</version>
   </dependency>
 </dependencies>
