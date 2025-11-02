@@ -42,13 +42,11 @@ import io.spine.server.type.EventEnvelope;
 
 import java.util.Optional;
 
-import static io.spine.server.bus.BusBuilder.FieldCheck.tenantIndexNotSet;
-
 /**
  * Dispatches events to repositories of aggregates that
  * {@linkplain io.spine.server.aggregate.Apply#allowImport() import} these events.
  *
- * <h1>Usage Scenarios</h1>
+ * <h2>Usage Scenarios</h2>
  *
  * <p>Importing events may be used for registering facts occurred in a legacy or a third-party
  * system, which the Bounded Context translates into facts (events) of its history.
@@ -69,7 +67,7 @@ import static io.spine.server.bus.BusBuilder.FieldCheck.tenantIndexNotSet;
  * {@linkplain AggregateRepository#setupImportRouting(io.spine.server.route.EventRouting) routing}
  * allows to store aggregate events without having intermediate messages.
  *
- * <h1>Temporal Logic</h1>
+ * <h2>Temporal Logic</h2>
  *
  * <p>Importing events through dispatching
  * {@linkplain #post(io.spine.core.Signal, io.grpc.stub.StreamObserver) one} or
@@ -88,8 +86,7 @@ public final class ImportBus
 
     private ImportBus(Builder builder) {
         super(builder);
-        this.tenantIndex = builder.tenantIndex()
-                                  .orElseThrow(tenantIndexNotSet());
+        this.tenantIndex = builder.ensureTenantIndex();
     }
 
     /**
@@ -148,7 +145,7 @@ public final class ImportBus
 
     /**
      * Creates {@link UnsupportedImportEventException} in response to an event message
-     * of unsupported type.
+     * of an unsupported type.
      */
     private static class DeadImportEventHandler implements DeadMessageHandler<EventEnvelope> {
 
@@ -161,7 +158,7 @@ public final class ImportBus
     /**
      * The registry of import dispatchers.
      */
-    private static final class Registry
+    protected static final class Registry
             extends DispatcherRegistry<EventClass, EventEnvelope, EventImportDispatcher<?>> {
 
         @Override

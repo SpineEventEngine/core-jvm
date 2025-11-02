@@ -39,6 +39,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static io.spine.util.Exceptions.newIllegalStateException;
 import static io.spine.util.Preconditions2.checkNotEmptyOrBlank;
 import static java.lang.String.format;
@@ -98,10 +99,14 @@ public final class Server implements WithLogging {
         grpcContainer.start();
         grpcContainer.addShutdownHook();
         var info = logger().atInfo();
-        grpcContainer.port().ifPresent(
-                p -> info.log(() -> format("Server started, listening to the port %d.", p)));
-        grpcContainer.serverName().ifPresent(
-                n -> info.log(() -> format("In-process server started with the name `%s`.", n)));
+        if (grpcContainer.hasPort()) {
+            var p = grpcContainer.getPort();
+            info.log(() -> format("Server started, listening to the port %d.", p));
+        }
+        if (grpcContainer.hasServerName()) {
+            var n = grpcContainer.getServerName();
+            info.log(() -> format("In-process server started with the name `%s`.", n));
+        }
     }
 
     /**
@@ -249,12 +254,11 @@ public final class Server implements WithLogging {
 
         private GrpcContainer.Builder createContainerBuilder() {
             GrpcContainer.Builder result;
-            if (serverName().isPresent()) {
-                result = GrpcContainer.inProcess(serverName().get());
+            if (hasServerName()) {
+                result = GrpcContainer.inProcess(getServerName());
             } else {
-                int port = port().orElseThrow(() -> newIllegalStateException(
-                        "Neither `port` nor `serverName` assigned."));
-                result = GrpcContainer.atPort(port);
+                checkState(hasPort(), "Neither `port` nor `serverName` assigned.");
+                result = GrpcContainer.atPort(getPort());
             }
             return result;
         }

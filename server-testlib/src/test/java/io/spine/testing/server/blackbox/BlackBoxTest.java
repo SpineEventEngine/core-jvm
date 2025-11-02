@@ -570,8 +570,8 @@ abstract class BlackBoxTest<T extends BlackBox> {
         }
 
         private void assertEnricher() {
-            assertThat(eventBus().enricher())
-                  .hasValue(enricher);
+            assertThat(eventBus().getEnricher())
+                  .isEqualTo(enricher);
         }
 
         private void assertTenantIndex() {
