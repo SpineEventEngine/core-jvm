@@ -227,8 +227,32 @@ public final class EventBus
     }
 
     /**
-     * Obtains the {@code EventEnricher} used by this Event Bus.
+     * Checks whether the {@code EventEnricher} is used by this Event Bus.
+     *
+     * @return {@code true} if the enricher is set, {@code false} otherwise
      */
+    @VisibleForTesting
+    public boolean hasEnricher() {
+        return enricher != null;
+    }
+
+    /**
+     * Obtains the {@code EventEnricher} used by this Event Bus.
+     *
+     * @return the enricher
+     * @throws NullPointerException if the enricher was not set
+     */
+    @VisibleForTesting
+    public EventEnricher getEnricher() {
+        return checkNotNull(enricher);
+    }
+
+    /**
+     * Obtains the {@code EventEnricher} used by this Event Bus.
+     *
+     * @deprecated Use {@link #getEnricher()} and {@link #hasEnricher()} instead.
+     */
+    @Deprecated
     @VisibleForTesting
     public Optional<EventEnricher> enricher() {
         return Optional.ofNullable(enricher);
@@ -327,8 +351,30 @@ public final class EventBus
         }
 
         /**
-         * Obtains {@code Enricher} assigned to the bus to be built.
+         * Checks whether the {@code EventEnricher} has been set.
+         *
+         * @return {@code true} if the enricher was set, {@code false} otherwise
          */
+        public boolean hasEnricher() {
+            return enricher != null;
+        }
+
+        /**
+         * Obtains the {@code EventEnricher} assigned to the bus to be built.
+         *
+         * @return the enricher
+         * @throws NullPointerException if the enricher was not set
+         */
+        public EventEnricher getEnricher() {
+            return checkNotNull(enricher);
+        }
+
+        /**
+         * Obtains {@code Enricher} assigned to the bus to be built.
+         *
+         * @deprecated Use {@link #getEnricher()} and {@link #hasEnricher()} instead.
+         */
+        @Deprecated
         public Optional<EventEnricher> enricher() {
             return Optional.ofNullable(enricher);
         }
@@ -342,7 +388,31 @@ public final class EventBus
             return this;
         }
 
-        /** Obtains {@code StreamObserver} assigned to the bus. */
+        /**
+         * Checks whether the {@code StreamObserver} has been set.
+         *
+         * @return {@code true} if the observer was set, {@code false} otherwise
+         */
+        public boolean hasObserver() {
+            return observer != null;
+        }
+
+        /**
+         * Obtains the {@code StreamObserver} assigned to the bus.
+         *
+         * @return the observer
+         * @throws NullPointerException if the observer was not set
+         */
+        public StreamObserver<Ack> getObserver() {
+            return checkNotNull(observer);
+        }
+
+        /** 
+         * Obtains {@code StreamObserver} assigned to the bus. 
+         *
+         * @deprecated Use {@link #getObserver()} and {@link #hasObserver()} instead.
+         */
+        @Deprecated
         public Optional<StreamObserver<Ack>> observer() {
             return Optional.ofNullable(observer);
         }

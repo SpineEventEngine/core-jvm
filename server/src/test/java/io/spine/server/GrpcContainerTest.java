@@ -66,7 +66,8 @@ class GrpcContainerTest {
         var port = 60;
         var builder = GrpcContainer.atPort(port);
 
-        assertThat(builder.port()).hasValue(port);
+        assertTrue(builder.hasPort());
+        assertThat(builder.getPort()).isEqualTo(port);
 
         var count = 3;
         for (var i = 0; i < count; i++) {

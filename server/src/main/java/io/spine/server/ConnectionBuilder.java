@@ -31,6 +31,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Abstract base for builders of objects that depend on or expose server-side gRPC objects.
@@ -61,20 +62,63 @@ public abstract class ConnectionBuilder {
     }
 
     /**
+     * Checks whether the port has been configured.
+     *
+     * @return {@code true} if the port was set, {@code false} otherwise
+     */
+    public final boolean hasPort() {
+        return port != null;
+    }
+
+    /**
+     * Obtains the port of the connection.
+     *
+     * @return the port
+     * @throws NullPointerException if the port was not set (in-process connection)
+     */
+    public final int getPort() {
+        checkNotNull(port);
+        return port;
+    }
+
+    /**
      * Obtains the port of the connection, or empty {@code Optional} for in-process connection.
      *
+     * @deprecated Use {@link #getPort()} and {@link #hasPort()} instead.
      * @see #serverName()
      */
+    @Deprecated
     public final Optional<Integer> port() {
         return Optional.ofNullable(port);
+    }
+
+    /**
+     * Checks whether the server name has been configured.
+     *
+     * @return {@code true} if the server name was set, {@code false} otherwise
+     */
+    public final boolean hasServerName() {
+        return serverName != null;
+    }
+
+    /**
+     * Obtains the name of the in-process connection.
+     *
+     * @return the server name
+     * @throws NullPointerException if the server name was not set (port-based connection)
+     */
+    public final String getServerName() {
+        return serverName;
     }
 
     /**
      * Obtains the name of the in-process connection, or empty {@code Optional} if the connection
      * is made via a port.
      *
+     * @deprecated Use {@link #getServerName()} and {@link #hasServerName()} instead.
      * @see #port()
      */
+    @Deprecated
     public final Optional<String> serverName() {
         return Optional.ofNullable(serverName);
     }

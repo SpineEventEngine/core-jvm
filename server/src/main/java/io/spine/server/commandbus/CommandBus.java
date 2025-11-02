@@ -58,8 +58,6 @@ import java.util.function.Consumer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.grpc.StreamObservers.noOpObserver;
-import static io.spine.server.bus.BusBuilder.FieldCheck.systemNotSet;
-import static io.spine.server.bus.BusBuilder.FieldCheck.tenantIndexNotSet;
 import static io.spine.system.server.WriteSideFunction.delegatingTo;
 
 /**
@@ -87,6 +85,7 @@ public final class CommandBus
      */
     private final boolean multitenant;
 
+    @SuppressWarnings("FieldMayBeStatic") // It's better to keep instance, e.g., for tests.
     private final DeadCommandHandler deadCommandHandler = new DeadCommandHandler();
 
     /**
@@ -107,7 +106,7 @@ public final class CommandBus
      * {@linkplain #initObservers(EventBus) injected} into this command bus instance, the observer
      * will start publishing the rejections to the said event bus.
      *
-     * <p>This observer can stay NO-OP in test environment for the simplicity of tests.
+     * <p>This observer can stay NO-OP in a test environment for the simplicity of tests.
      */
     private StreamObserver<Ack> immediateRejectionObserver = noOpObserver();
 
@@ -120,8 +119,7 @@ public final class CommandBus
                            ? builder.multitenant
                            : false;
         this.scheduler = checkNotNull(builder.commandScheduler);
-        this.systemWriteSide = builder.system()
-                                      .orElseThrow(systemNotSet());
+        this.systemWriteSide = builder.ensureSystem();
         this.tenantConsumer = checkNotNull(builder.tenantConsumer);
         this.watcher = checkNotNull(builder.watcher);
     }
@@ -291,9 +289,9 @@ public final class CommandBus
          * {@code BoundedContext}.
          */
         private @Nullable Boolean multitenant;
-        private CommandFlowWatcher watcher;
-        private Consumer<TenantId> tenantConsumer;
-        private CommandScheduler commandScheduler;
+        private @Nullable CommandFlowWatcher watcher;
+        private @MonotonicNonNull Consumer<TenantId> tenantConsumer;
+        private @MonotonicNonNull CommandScheduler commandScheduler;
 
         /** Prevents direct instantiation. */
         private Builder() {
@@ -328,12 +326,12 @@ public final class CommandBus
         @Override
         @CheckReturnValue
         public CommandBus build() {
-            checkFieldsSet();
+            var writeSide = ensureSystem();
+            var tenantIndex = ensureTenantIndex();
+
             commandScheduler =
                     ServerEnvironment.instance()
                                      .newCommandScheduler();
-            @SuppressWarnings("OptionalGetWithoutIsPresent") // ensured by checkFieldsSet()
-            var writeSide = system().get();
 
             if (watcher == null) {
                 watcher = new FlightRecorder(
@@ -342,7 +340,6 @@ public final class CommandBus
             }
             commandScheduler.setWatcher(watcher);
 
-            var tenantIndex = tenantIndex().orElseThrow(tenantIndexNotSet());
             tenantConsumer = tenantIndex::keep;
 
             var commandBus = createCommandBus();

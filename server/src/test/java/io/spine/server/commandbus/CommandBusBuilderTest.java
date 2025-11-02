@@ -125,9 +125,8 @@ class CommandBusBuilderTest
         void system() {
             SystemWriteSide systemWriteSide = NoOpSystemWriteSide.INSTANCE;
             var builder = builder().injectSystem(systemWriteSide);
-            var actual = builder.system();
-            assertTrue(actual.isPresent());
-            assertSame(systemWriteSide, actual.get());
+            assertTrue(builder.hasSystem());
+            assertSame(systemWriteSide, builder.getSystem());
         }
 
         @Test
@@ -135,9 +134,8 @@ class CommandBusBuilderTest
         void tenantIndex() {
             var index = TenantIndex.singleTenant();
             var builder = builder().injectTenantIndex(index);
-            var actual = builder.tenantIndex();
-            assertTrue(actual.isPresent());
-            assertSame(index, actual.get());
+            assertTrue(builder.hasTenantIndex());
+            assertSame(index, builder.getTenantIndex());
         }
     }
 }
