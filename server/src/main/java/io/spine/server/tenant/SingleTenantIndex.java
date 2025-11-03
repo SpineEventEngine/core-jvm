@@ -49,6 +49,8 @@ enum SingleTenantIndex implements TenantIndex {
 
     private static final ImmutableSet<TenantId> index = ImmutableSet.of(singleTenant);
 
+    private volatile boolean closed = false;
+
     /**
      * Returns a constant for single-tenant applications.
      */
@@ -68,11 +70,11 @@ enum SingleTenantIndex implements TenantIndex {
 
     @Override
     public boolean isOpen() {
-        return true;
+        return !closed;
     }
 
     @Override
     public void close() {
-        // Do nothing.
+        closed = true;
     }
 }

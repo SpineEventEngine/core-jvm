@@ -346,25 +346,24 @@ public final class ServerEnvironment implements Closeable {
             return;
         }
         closed = true;
-        tracerFactory.apply(factory -> {
+        closeFactory("TracerFactory", tracerFactory);
+        closeFactory("TransportFactory", transportFactory);
+        closeFactory("StorageFactory", storageFactory);
+    }
+
+    /**
+     * Closes a factory from an environment setting, wrapping any exceptions.
+     */
+    private <T extends Closeable> void closeFactory(
+            String factoryName,
+            EnvSetting<T> setting
+    ) {
+        setting.apply(factory -> {
             try {
                 factory.close();
             } catch (Exception e) {
-                throw new IllegalStateException("Failed to close TracerFactory", e);
-            }
-        });
-        transportFactory.apply(factory -> {
-            try {
-                factory.close();
-            } catch (Exception e) {
-                throw new IllegalStateException("Failed to close TransportFactory", e);
-            }
-        });
-        storageFactory.apply(factory -> {
-            try {
-                factory.close();
-            } catch (Exception e) {
-                throw new IllegalStateException("Failed to close StorageFactory", e);
+                throw new IllegalStateException(
+                        "Failed to close " + factoryName, e);
             }
         });
     }

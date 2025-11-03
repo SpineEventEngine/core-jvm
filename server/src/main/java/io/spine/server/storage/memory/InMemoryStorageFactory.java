@@ -36,6 +36,8 @@ import io.spine.server.storage.StorageFactory;
  */
 public final class InMemoryStorageFactory implements StorageFactory {
 
+    private volatile boolean closed = false;
+
     /**
      * Creates new instance of the factory which would serve the specified context.
      *
@@ -56,11 +58,11 @@ public final class InMemoryStorageFactory implements StorageFactory {
 
     @Override
     public boolean isOpen() {
-        return true;
+        return !closed;
     }
 
     @Override
     public void close() {
-        // NOP
+        closed = true;
     }
 }
