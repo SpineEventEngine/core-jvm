@@ -125,10 +125,9 @@ public abstract class AbstractChannelObserver
         if (this == o) {
             return true;
         }
-        if (!(o instanceof AbstractChannelObserver)) {
+        if (!(o instanceof AbstractChannelObserver that)) {
             return false;
         }
-        var that = (AbstractChannelObserver) o;
         return Objects.equals(boundedContextName, that.boundedContextName) &&
                 Objects.equals(messageClass, that.messageClass);
     }
