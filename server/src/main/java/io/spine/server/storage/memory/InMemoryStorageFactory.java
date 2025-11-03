@@ -55,6 +55,11 @@ public final class InMemoryStorageFactory implements StorageFactory {
     }
 
     @Override
+    public boolean isOpen() {
+        return true;
+    }
+
+    @Override
     public void close() {
         // NOP
     }

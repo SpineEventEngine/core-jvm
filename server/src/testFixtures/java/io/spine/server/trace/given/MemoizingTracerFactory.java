@@ -55,6 +55,11 @@ public final class MemoizingTracerFactory implements TracerFactory {
     }
 
     @Override
+    public boolean isOpen() {
+        return !closed;
+    }
+
+    @Override
     public void close() {
         closed = true;
         tracers.clear();

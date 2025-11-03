@@ -27,6 +27,7 @@
 package io.spine.server.tenant;
 
 import io.spine.core.TenantId;
+import io.spine.server.Closeable;
 import io.spine.server.ServerEnvironment;
 
 import java.util.Set;
@@ -34,7 +35,7 @@ import java.util.Set;
 /**
  * The index of tenant IDs in a multi-tenant application.
  */
-public interface TenantIndex extends io.spine.server.Closeable {
+public interface TenantIndex extends Closeable {
 
     /**
      * Stores the passed tenant ID in the index.

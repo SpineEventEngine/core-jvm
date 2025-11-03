@@ -28,6 +28,7 @@ package io.spine.server.trace;
 
 import io.spine.annotation.SPI;
 import io.spine.core.Signal;
+import io.spine.server.Closeable;
 import io.spine.server.ContextSpec;
 
 /**
@@ -40,7 +41,7 @@ import io.spine.server.ContextSpec;
  * tracing data produced, however, implementations may ignore some signals.
  */
 @SPI
-public interface TracerFactory extends io.spine.server.Closeable {
+public interface TracerFactory extends Closeable {
 
     /**
      * Creates a new instance of {@link Tracer} for the given signal.

@@ -67,6 +67,11 @@ enum SingleTenantIndex implements TenantIndex {
     }
 
     @Override
+    public boolean isOpen() {
+        return true;
+    }
+
+    @Override
     public void close() {
         // Do nothing.
     }

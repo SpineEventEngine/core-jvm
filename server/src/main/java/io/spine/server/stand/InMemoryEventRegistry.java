@@ -82,6 +82,11 @@ final class InMemoryEventRegistry implements EventRegistry {
     }
 
     @Override
+    public boolean isOpen() {
+        return true;
+    }
+
+    @Override
     public void close() {
         eventClasses.clear();
     }

@@ -29,6 +29,7 @@ package io.spine.server.bus;
 import io.spine.annotation.SPI;
 import io.spine.base.Error;
 import io.spine.core.Ack;
+import io.spine.server.Closeable;
 import io.spine.server.type.MessageEnvelope;
 
 import java.util.Optional;
@@ -47,7 +48,7 @@ import static io.spine.server.bus.MessageIdExtensions.causedError;
  */
 @SPI
 @FunctionalInterface
-public interface BusFilter<E extends MessageEnvelope<?, ?, ?>> extends io.spine.server.Closeable {
+public interface BusFilter<E extends MessageEnvelope<?, ?, ?>> extends Closeable {
 
     /**
      * Accepts or rejects a passed message.

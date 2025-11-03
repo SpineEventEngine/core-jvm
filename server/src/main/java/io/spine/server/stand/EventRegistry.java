@@ -27,6 +27,7 @@
 package io.spine.server.stand;
 
 import com.google.common.collect.ImmutableSet;
+import io.spine.server.Closeable;
 import io.spine.server.EventProducer;
 import io.spine.server.entity.Repository;
 import io.spine.server.type.EventClass;
@@ -35,7 +36,7 @@ import io.spine.type.TypeUrl;
 /**
  * Manages the event types exposed by the associated instance of {@link Stand}.
  */
-interface EventRegistry extends io.spine.server.Closeable {
+interface EventRegistry extends Closeable {
 
     /**
      * Registers the repository as an event producer.
