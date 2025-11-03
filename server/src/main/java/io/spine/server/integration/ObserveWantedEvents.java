@@ -30,6 +30,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import io.spine.core.BoundedContextName;
+import io.spine.server.Closeable;
 
 import java.util.Collection;
 import java.util.Set;
@@ -43,18 +44,19 @@ import static io.spine.protobuf.AnyPacker.unpack;
  *
  * @see #handle(ExternalMessage)
  */
-final class ObserveWantedEvents extends AbstractChannelObserver {
+final class ObserveWantedEvents extends AbstractChannelObserver implements Closeable {
 
     private final BoundedContextName boundedContextName;
     private final BusAdapter bus;
+    private volatile boolean closed = false;
 
     /**
      * Current set of message type URLs, requested by other parties via sending the
-     * {@linkplain ExternalEventsWanted configuration messages}, mapped to IDs of their origin
-     * bounded contexts.
+     * {@linkplain ExternalEventsWanted configuration messages}, mapped to IDs of
+     * their origin bounded contexts.
      *
-     * <p>This instance is potentially accessed from different threads,
-     * therefore it's made concurrency-friendly.
+     * <p>This instance is potentially accessed from different threads.
+     * Therefore, it is made concurrency-friendly.
      */
     private final Multimap<ExternalEventType, BoundedContextName> requestedTypes =
             synchronizedSetMultimap(HashMultimap.create());
@@ -135,7 +137,7 @@ final class ObserveWantedEvents extends AbstractChannelObserver {
                     !types.contains(previouslyRequestedType)) {
 
                 // The `previouslyRequestedType` item is no longer requested
-                // by the bounded context with `origin` name.
+                // by the bounded context with the `origin` name.
                 result.add(previouslyRequestedType);
             }
         }
@@ -149,13 +151,23 @@ final class ObserveWantedEvents extends AbstractChannelObserver {
                 boundedContextName.getValue());
     }
 
+    @Override
+    public synchronized boolean isOpen() {
+        return !closed;
+    }
+
     /**
      * Removes all the current subscriptions from the local buses.
      */
-    void close() {
+    @Override
+    public synchronized void close() {
+        if (closed) {
+            return;
+        }
         for (var currentlyRequestedMessage : requestedTypes.keySet()) {
             unregisterInAdapter(currentlyRequestedMessage);
         }
         requestedTypes.clear();
+        closed = true;
     }
 }
