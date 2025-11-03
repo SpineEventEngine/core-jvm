@@ -39,9 +39,23 @@ option java_outer_classname = "CommandServiceProto";
 import "spine/core/command.proto";
 import "spine/core/ack.proto";
 
-// A service for sending commands from clients.
+// A service for posting commands to the application backend.
 service CommandService {
 
-    // Request to handle a command.
+    // Posts the given command to the application backend.
+    //
+    // When the command is successfully received by the application, it responds with
+    // an acknowledgement. The received `Ack` may have one of the following statuses:
+    //
+    //    1. `Status.ok`— the command is accepted for further processing.
+    //    2. `Status.error` — there has been an error receiving the command. No further
+    //        processing would occur.
+    //    3. `Status.rejection` — business rules do not allow the execution of the command.
+    //        E.g., a user who made a request do not have the required permission.
+    //
+    // In case of internal gRPC errors or issues on a transport layer, an `Ack`
+    // would not be received. All errors which occur on the side of gRPC should
+    // be handled by the means of the chosen client stub.
+    //
     rpc Post(core.Command) returns (core.Ack);
 }
