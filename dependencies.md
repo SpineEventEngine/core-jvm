@@ -1,6 +1,6 @@
 
 
-# Dependencies of `io.spine:spine-client:2.0.0-SNAPSHOT.343`
+# Dependencies of `io.spine:spine-client:2.0.0-SNAPSHOT.344`
 
 ## Runtime
 1.  **Group** : com.google.android. **Name** : annotations. **Version** : 4.1.1.4.
@@ -1092,7 +1092,7 @@ This report was generated on **Sun Nov 02 17:04:25 WET 2025** using
 
 
 
-# Dependencies of `io.spine.tools:spine-client-testlib:2.0.0-SNAPSHOT.343`
+# Dependencies of `io.spine.tools:spine-client-testlib:2.0.0-SNAPSHOT.344`
 
 ## Runtime
 1.  **Group** : com.google.android. **Name** : annotations. **Version** : 4.1.1.4.
@@ -2280,7 +2280,7 @@ This report was generated on **Sun Nov 02 17:04:25 WET 2025** using
 
 
 
-# Dependencies of `io.spine:spine-core:2.0.0-SNAPSHOT.343`
+# Dependencies of `io.spine:spine-core:2.0.0-SNAPSHOT.344`
 
 ## Runtime
 1.  **Group** : com.google.code.findbugs. **Name** : jsr305. **Version** : 3.0.2.
@@ -3308,7 +3308,7 @@ This report was generated on **Sun Nov 02 17:04:25 WET 2025** using
 
 
 
-# Dependencies of `io.spine.tools:spine-core-testlib:2.0.0-SNAPSHOT.343`
+# Dependencies of `io.spine.tools:spine-core-testlib:2.0.0-SNAPSHOT.344`
 
 ## Runtime
 1.  **Group** : com.google.android. **Name** : annotations. **Version** : 4.1.1.4.
@@ -4382,7 +4382,7 @@ This report was generated on **Sun Nov 02 17:04:25 WET 2025** using
 
 
 
-# Dependencies of `io.spine:spine-server:2.0.0-SNAPSHOT.343`
+# Dependencies of `io.spine:spine-server:2.0.0-SNAPSHOT.344`
 
 ## Runtime
 1.  **Group** : com.google.android. **Name** : annotations. **Version** : 4.1.1.4.
@@ -5486,7 +5486,7 @@ This report was generated on **Sun Nov 02 17:04:25 WET 2025** using
 
 
 
-# Dependencies of `io.spine.tools:spine-server-testlib:2.0.0-SNAPSHOT.343`
+# Dependencies of `io.spine.tools:spine-server-testlib:2.0.0-SNAPSHOT.344`
 
 ## Runtime
 1.  **Group** : com.google.android. **Name** : annotations. **Version** : 4.1.1.4.
