@@ -32,14 +32,19 @@ import static com.google.common.base.Preconditions.checkState;
  * Base interface for server-side objects that may hold resources that need to be released
  * at the end of the lifecycle of the object.
  *
- * <p>A class will benefit from implementing <em>this</em> interface instead of
- * {@link AutoCloseable} if it needs to see if the instance is {@linkplain #isOpen() open}
- * prior to making other calls.
+ * <p>Unlike {@link AutoCloseable}, this interface is designed for long-lived objects
+ * that are not expected to be used in try-with-resources statements.
+ * Examples include {@link BoundedContext},
+ * {@link io.spine.server.storage.StorageFactory StorageFactory}, and other
+ * infrastructure components that typically live for the duration of the application.
+ *
+ * <p>A class will benefit from implementing <em>this</em> interface if it needs to
+ * see if the instance is {@linkplain #isOpen() open} prior to making other calls.
  *
  * @see #isOpen()
  * @see #checkOpen()
  */
-public interface Closeable extends AutoCloseable {
+public interface Closeable extends java.io.Closeable {
 
     /**
      * Tells if the object is still open.
@@ -49,9 +54,9 @@ public interface Closeable extends AutoCloseable {
     boolean isOpen();
 
     /**
-     * {@inheritDoc}
+     * Releases the resources held by this object.
      *
-     * <p>Overrides to remove the checked exception from the signature.
+     * <p>Unlike {@link AutoCloseable#close()}, this method does not throw a checked exception.
      */
     @Override
     void close();

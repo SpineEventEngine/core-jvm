@@ -37,6 +37,8 @@ import java.util.Set;
  */
 public final class StubTenantIndex implements TenantIndex {
 
+    private boolean closed = false;
+
     /**
      * Does nothing.
      */
@@ -52,10 +54,16 @@ public final class StubTenantIndex implements TenantIndex {
         return ImmutableSet.of();
     }
 
+    @Override
+    public boolean isOpen() {
+        return closed;
+    }
+
     /**
      * Does nothing.
      */
     @Override
     public void close() {
+        closed = true;
     }
 }

@@ -48,24 +48,35 @@ public final class PreparedStorageFactory {
      * Returns in-memory {@code StorageFactory} with the custom {@code EntityRecordStorage}.
      */
     public static StorageFactory with(EntityRecordStorage<?, ?> entityRecordStorage) {
-        return new StorageFactory() {
-            @Override
-            public void close() {
-                // It's an in-memory storage, no action required.
-            }
+        return new InMemStorageFactory(entityRecordStorage);
+    }
 
-            @Override
-            public <I, R extends Message> RecordStorage<I, R> createRecordStorage(
-                    ContextSpec context, RecordSpec<I, R> recordSpec) {
-                return InMemoryStorageFactory.newInstance().createRecordStorage(context, recordSpec);
-            }
+    private record InMemStorageFactory(
+            EntityRecordStorage<?, ?> entityRecordStorage
+    ) implements StorageFactory {
 
-            @Override
-            @SuppressWarnings("unchecked")
-            public <I, S extends EntityState<I>> EntityRecordStorage<I, S> createEntityRecordStorage(
-                    ContextSpec context, Class<? extends Entity<I, S>> entityClass) {
-                return (EntityRecordStorage<I, S>) entityRecordStorage;
-            }
-        };
+        @Override
+        public boolean isOpen() {
+            return entityRecordStorage.isOpen();
+        }
+
+        @Override
+        public void close() {
+            entityRecordStorage.close();
+        }
+
+        @Override
+        public <I, R extends Message> RecordStorage<I, R> createRecordStorage(
+                ContextSpec context, RecordSpec<I, R> recordSpec) {
+            return InMemoryStorageFactory.newInstance()
+                                         .createRecordStorage(context, recordSpec);
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public <I, S extends EntityState<I>> EntityRecordStorage<I, S> createEntityRecordStorage(
+                ContextSpec context, Class<? extends Entity<I, S>> entityClass) {
+            return (EntityRecordStorage<I, S>) entityRecordStorage;
+        }
     }
 }

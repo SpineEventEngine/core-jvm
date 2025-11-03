@@ -155,7 +155,6 @@ class ClientFactory implements Closeable {
      * Closes all created clients and shuts down the associated {@code GrpcContainer}.
      */
     @Override
-    @SuppressWarnings("TestOnlyProblems" /* Calling the production-level method. */)
     public void close() {
         if (!isOpen() || isNull(grpcContainer)) {
             return;
