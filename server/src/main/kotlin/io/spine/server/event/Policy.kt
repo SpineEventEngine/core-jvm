@@ -36,7 +36,7 @@ import io.spine.server.type.EventClass
 import io.spine.string.joinBackticked
 
 /**
- * A policy converts <em>one</em> event into zero to many other events.
+ * A policy converts <em>one</em> event into zero to many messages (events or commands).
  *
  * As a rule of thumb, a policy should read:
  * ```markdown
@@ -46,7 +46,7 @@ import io.spine.string.joinBackticked
  * ```markdown
  *     Whenever a field option is discovered, a validation rule must be added.
  * ```
- * To implement the policy, override the [whenever] method to return events produced in response
+ * To implement the policy, override the [whenever] method to return messages produced in response
  * to the incoming event.
  *
  * For the policy rule in the example above, the code would look like this:
@@ -59,20 +59,21 @@ import io.spine.string.joinBackticked
  *     }
  * }
  * ```
- * ### Returning zero events
- * The contract of the [whenever] method requires returning an `Iterable` of event messages.
- * To return no events, declare the return type as `Just<Nothing>`, where `Nothing` is
+ * ### Returning zero messages
+ * The contract of the [whenever] method requires returning an `Iterable` of messages.
+ * To return no messages, declare the return type as `Just<Nothing>`, where `Nothing` is
  * the type from the `io.spine.server.model` package. Return the value of `Just.nothing` property
  * from your Kotlin method, or `Just.nothing()` from Java.
  *
  * If you need to avoid the naming collision with [kotlin.Nothing], consider using
  * the [NoReaction][io.spine.server.event.NoReaction] type alias.
  *
- * ### Returning one event
- * To return one event, declare `Just<MyEvent>` as the return type of the [whenever] method.
+ * ### Returning one message
+ * To return one message, declare `Just<MyEvent>` or `Just<MyCommand>` as the return type 
+ * of the [whenever] method.
  * Use the [Just] constructor from Kotlin or [Just.just]`()` static method from Java.
  *
- * ### Returning more than one event
+ * ### Returning more than one message
  * To make your return type more readable, consider using the following classes from
  * the `io.spine.server.tuple` package:
  *  [Pair][io.spine.server.tuple.Pair],
@@ -80,7 +81,7 @@ import io.spine.string.joinBackticked
  *  [Quintet][io.spine.server.tuple.Quintet], with the corresponding number of elements declared
  *  in the return type of the [whenever] method. For example, `Pair<MyEvent, MyOtherEvent>`.
  *
- *  For returning more than five events, please use `Iterable<EventMessage>`, as usually.
+ *  For returning more than five messages, please use `Iterable<Message>`, as usually.
  *
  * @param E the type of the event handled by this policy.
  *
@@ -105,7 +106,9 @@ public abstract class Policy<E : EventMessage> : AbstractEventReactor(), WithLog
     }
 
     /**
-     * Handles an event and produces some number of events in response.
+     * Handles an event and produces zero or more messages in response.
+     *
+     * The produced messages can be either events or commands.
      *
      * ### API NOTE
      *
@@ -147,9 +150,9 @@ public abstract class Policy<E : EventMessage> : AbstractEventReactor(), WithLog
     private fun checkReceptors(events: Iterable<EventClass>) {
         val classes = events.toList()
         check(classes.size == 1) {
-            "A policy should handle only one event." +
-                    " `${javaClass.name}` attempts to handle ${classes.size}:" +
-                    " [${classes.joinBackticked()}]."
+            "The policy `${javaClass.name}` should react on only one event." +
+                    " Now it handles too many (${classes.size}): [${classes.joinBackticked()}]." +
+                    " Please use only `whenever()` method for producing outgoing messages."
         }
     }
 }
