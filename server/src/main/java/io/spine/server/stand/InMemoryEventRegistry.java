@@ -54,8 +54,7 @@ final class InMemoryEventRegistry implements EventRegistry {
 
     @Override
     public void register(Repository<?, ?> repository) {
-        if (repository instanceof EventProducingRepository) {
-            var repo = (EventProducingRepository) repository;
+        if (repository instanceof EventProducingRepository repo) {
             repo.outgoingEvents()
                 .forEach(this::putIntoMap);
         }
@@ -89,8 +88,8 @@ final class InMemoryEventRegistry implements EventRegistry {
 
     @Override
     public void close() {
-        closed = true;
         eventClasses.clear();
+        closed = true;
     }
 
     private void putIntoMap(EventClass eventClass) {
