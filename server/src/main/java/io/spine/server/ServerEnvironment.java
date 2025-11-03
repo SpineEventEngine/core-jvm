@@ -55,7 +55,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
 /**
  * The server conditions and configuration under which the application operates.
  *
- * <h3>Configuration</h3>
+ * <h2>Configuration</h2>
  *
  * <p>Some parts of the {@code ServerEnvironment} can be customized based on the {@code
  * EnvironmentType}. To do so, one of the overloads of the {@code use} method can be called.
@@ -345,27 +345,24 @@ public final class ServerEnvironment implements Closeable {
         if (closed) {
             return;
         }
-        closed = true;
         closeFactory("TracerFactory", tracerFactory);
         closeFactory("TransportFactory", transportFactory);
         closeFactory("StorageFactory", storageFactory);
+        closed = true;
     }
 
     /**
      * Closes a factory from an environment setting, wrapping any exceptions.
      */
-    private <T extends Closeable> void closeFactory(
+    private static <T extends Closeable> void closeFactory(
             String factoryName,
             EnvSetting<T> setting
     ) {
-        setting.apply(factory -> {
-            try {
-                factory.close();
-            } catch (Exception e) {
-                throw new IllegalStateException(
-                        "Failed to close " + factoryName, e);
-            }
-        });
+        try {
+            setting.apply(Closeable::close);
+        } catch (Exception e) {
+            throw newIllegalStateException(e, "Failed to close `%s`.", factoryName);
+        }
     }
 
     /**
@@ -386,6 +383,8 @@ public final class ServerEnvironment implements Closeable {
 
         private TypeConfigurator(Class<? extends EnvironmentType<?>> type) {
             this.se = instance();
+            // Clear the flag for the case of unit tests that closed the singleton before.
+            this.se.closed = false;
             if (CustomEnvironmentType.class.isAssignableFrom(type)) {
                 registerCustomType(type);
             }

@@ -26,6 +26,7 @@
 
 package io.spine.server.integration;
 
+import io.spine.server.Closeable;
 import io.spine.server.transport.ChannelId;
 import io.spine.type.TypeUrl;
 
@@ -39,7 +40,9 @@ import static io.spine.server.transport.MessageChannel.channelIdFor;
  * Tells other Bounded Contexts about the {@code external} domain events requested for subscription
  * in this Bounded Context, and listens to similar messages from other Bounded Contexts.
  */
-final class ConfigExchange extends SingleChannelExchange {
+final class ConfigExchange extends SingleChannelExchange implements Closeable {
+
+    private boolean closed = false;
 
     /**
      * ID of the channel used to exchange the {@code ExternalEventsWanted} messages.
@@ -114,12 +117,18 @@ final class ConfigExchange extends SingleChannelExchange {
                 .build();
     }
 
+    @Override
+    public boolean isOpen() {
+        return !closed;
+    }
+
     /**
      * Closes all the observers previously created within this exchange, and notifies other
      * Bounded Contexts that no more {@code external} events are requested by the current
      * Bounded Context.
      */
-    void close() {
+    @Override
+    public void close() {
         observers.forEach(ObserveWantedEvents::close);
         notifyTypesChanged();
     }

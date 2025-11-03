@@ -94,5 +94,6 @@ public interface Storage<I, M extends Message> extends Closeable {
      *
      * @return {@code true} if the storage is open, {@code false} otherwise
      */
+    @Override
     boolean isOpen();
 }

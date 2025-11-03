@@ -35,6 +35,8 @@ import java.util.Set;
  * A null-object implementation of {@code TenantIndex} for being used in single-tenant
  * execution context.
  */
+@SuppressWarnings("ImmutableEnumChecker") /* This enum implements the Singleton pattern here,
+   and the mutable `closed` field is its state. */
 enum SingleTenantIndex implements TenantIndex {
 
     INSTANCE;

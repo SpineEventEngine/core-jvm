@@ -72,11 +72,11 @@ import io.spine.server.migration.mirror.MirrorStorage;
  * the properties of the Bounded Context (such as its name) in their low-level I/O with
  * the database. Only two of the storage types do not follow this concept: {@link InboxStorage}
  * and {@link CatchUpStorage}. The reason for that is that they are a part of
- * a {@link io.spine.server.delivery.Delivery} which is shared across all domain Bounded Contexts.
+ * a {@link io.spine.server.delivery.Delivery} which is shared across all Bounded Contexts.
  * One more storage which stands apart from this idea is
  * a {@link io.spine.server.tenant.TenantStorage}. While it uses a {@code StorageFactory}
  * for an initialization, it is a part of a special {@code Tenants} context, which is also shared
- * between domain Bounded Contexts of an application.
+ * between Bounded Contexts of an application.
  *
  * <p>See the package-level documentation of {@code io.spine.query} for more details on
  * record specification and querying.

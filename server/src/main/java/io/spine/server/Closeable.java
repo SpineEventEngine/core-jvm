@@ -33,8 +33,9 @@ import static com.google.common.base.Preconditions.checkState;
  * at the end of the lifecycle of the object.
  *
  * <p>Unlike {@link AutoCloseable}, this interface is designed for long-lived objects
- * that are not expected to be used in try-with-resources statements. Examples include
- * {@link BoundedContext}, {@link io.spine.server.storage.StorageFactory}, and other
+ * that are not expected to be used in try-with-resources statements.
+ * Examples include {@link BoundedContext},
+ * {@link io.spine.server.storage.StorageFactory StorageFactory}, and other
  * infrastructure components that typically live for the duration of the application.
  *
  * <p>A class will benefit from implementing <em>this</em> interface if it needs to
@@ -43,7 +44,7 @@ import static com.google.common.base.Preconditions.checkState;
  * @see #isOpen()
  * @see #checkOpen()
  */
-public interface Closeable {
+public interface Closeable extends java.io.Closeable {
 
     /**
      * Tells if the object is still open.
@@ -57,6 +58,7 @@ public interface Closeable {
      *
      * <p>Unlike {@link AutoCloseable#close()}, this method does not throw a checked exception.
      */
+    @Override
     void close();
 
     /**

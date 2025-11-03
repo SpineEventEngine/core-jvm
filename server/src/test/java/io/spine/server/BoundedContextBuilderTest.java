@@ -153,6 +153,8 @@ class BoundedContextBuilderTest {
      */
     private static class StubTenantIndex implements TenantIndex {
 
+        private boolean closed = false;
+
         @Override
         public void keep(TenantId id) {
             // Do nothing.
@@ -164,8 +166,13 @@ class BoundedContextBuilderTest {
         }
 
         @Override
+        public boolean isOpen() {
+            return !closed;
+        }
+
+        @Override
         public void close() {
-            // Do nothing.
+            closed = true;
         }
     }
 

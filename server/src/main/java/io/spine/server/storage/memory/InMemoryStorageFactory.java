@@ -36,12 +36,12 @@ import io.spine.server.storage.StorageFactory;
  */
 public final class InMemoryStorageFactory implements StorageFactory {
 
-    private volatile boolean closed = false;
+    private boolean closed = false;
 
     /**
-     * Creates new instance of the factory which would serve the specified context.
+     * Creates a new instance of the factory which would serve the specified context.
      *
-     * @return new instance of the factory
+     * @return a new instance of the factory
      */
     public static InMemoryStorageFactory newInstance() {
         return new InMemoryStorageFactory();

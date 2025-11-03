@@ -62,12 +62,4 @@ interface EventRegistry extends Closeable {
      * Retrieves all stored event types as {@link EventClass} instances.
      */
     ImmutableSet<EventClass> eventClasses();
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>Overrides to remove the checked exception from the signature.
-     */
-    @Override
-    void close();
 }
