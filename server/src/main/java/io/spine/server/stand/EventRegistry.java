@@ -27,6 +27,7 @@
 package io.spine.server.stand;
 
 import com.google.common.collect.ImmutableSet;
+import io.spine.server.Closeable;
 import io.spine.server.EventProducer;
 import io.spine.server.entity.Repository;
 import io.spine.server.type.EventClass;
@@ -35,7 +36,7 @@ import io.spine.type.TypeUrl;
 /**
  * Manages the event types exposed by the associated instance of {@link Stand}.
  */
-interface EventRegistry extends AutoCloseable {
+interface EventRegistry extends Closeable {
 
     /**
      * Registers the repository as an event producer.
@@ -61,12 +62,4 @@ interface EventRegistry extends AutoCloseable {
      * Retrieves all stored event types as {@link EventClass} instances.
      */
     ImmutableSet<EventClass> eventClasses();
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>Overrides to remove the checked exception from the signature.
-     */
-    @Override
-    void close();
 }

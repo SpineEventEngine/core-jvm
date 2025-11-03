@@ -55,7 +55,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
 /**
  * The server conditions and configuration under which the application operates.
  *
- * <h3>Configuration</h3>
+ * <h2>Configuration</h2>
  *
  * <p>Some parts of the {@code ServerEnvironment} can be customized based on the {@code
  * EnvironmentType}. To do so, one of the overloads of the {@code use} method can be called.
@@ -95,7 +95,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * of the respective {@code ServerEnvironment} for those Bounded Contexts. In this way,
  * the Contexts would reside in their own JVMs and not overlap on interacting with this singleton.
  */
-public final class ServerEnvironment implements AutoCloseable {
+public final class ServerEnvironment implements Closeable {
 
     private static final ServerEnvironment INSTANCE = new ServerEnvironment();
 
@@ -152,6 +152,11 @@ public final class ServerEnvironment implements AutoCloseable {
      * Provides schedulers used by all {@code CommandBus} instances of this environment.
      */
     private Supplier<CommandScheduler> commandScheduler;
+
+    /**
+     * Flag indicating whether this environment has been closed.
+     */
+    private volatile boolean closed = false;
 
     private ServerEnvironment() {
         nodeId = NodeId.newBuilder()
@@ -325,13 +330,39 @@ public final class ServerEnvironment implements AutoCloseable {
     }
 
     /**
+     * Tells if the environment is still open.
+     */
+    @Override
+    public boolean isOpen() {
+        return !closed;
+    }
+
+    /**
      * Releases resources associated with this instance.
      */
     @Override
-    public void close() throws Exception {
-        tracerFactory.apply(AutoCloseable::close);
-        transportFactory.apply(AutoCloseable::close);
-        storageFactory.apply(AutoCloseable::close);
+    public void close() {
+        if (closed) {
+            return;
+        }
+        closeFactory("TracerFactory", tracerFactory);
+        closeFactory("TransportFactory", transportFactory);
+        closeFactory("StorageFactory", storageFactory);
+        closed = true;
+    }
+
+    /**
+     * Closes a factory from an environment setting, wrapping any exceptions.
+     */
+    private static <T extends Closeable> void closeFactory(
+            String factoryName,
+            EnvSetting<T> setting
+    ) {
+        try {
+            setting.apply(Closeable::close);
+        } catch (Exception e) {
+            throw newIllegalStateException(e, "Failed to close `%s`.", factoryName);
+        }
     }
 
     /**
@@ -352,6 +383,8 @@ public final class ServerEnvironment implements AutoCloseable {
 
         private TypeConfigurator(Class<? extends EnvironmentType<?>> type) {
             this.se = instance();
+            // Clear the flag for the case of unit tests that closed the singleton before.
+            this.se.closed = false;
             if (CustomEnvironmentType.class.isAssignableFrom(type)) {
                 registerCustomType(type);
             }

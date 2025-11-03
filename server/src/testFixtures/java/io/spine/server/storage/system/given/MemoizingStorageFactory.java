@@ -89,6 +89,11 @@ public final class MemoizingStorageFactory implements StorageFactory {
     }
 
     @Override
+    public boolean isOpen() {
+        return !closed;
+    }
+
+    @Override
     public void close() {
         closed = true;
     }

@@ -27,6 +27,7 @@
 package io.spine.server.storage;
 
 import com.google.protobuf.Message;
+import io.spine.server.Closeable;
 
 import java.util.Iterator;
 import java.util.Optional;
@@ -39,7 +40,7 @@ import java.util.Optional;
  * @param <M>
  *         the type of records
  */
-public interface Storage<I, M extends Message> extends AutoCloseable {
+public interface Storage<I, M extends Message> extends Closeable {
 
     /**
      * Verifies whether the storage is multitenant.
@@ -93,5 +94,6 @@ public interface Storage<I, M extends Message> extends AutoCloseable {
      *
      * @return {@code true} if the storage is open, {@code false} otherwise
      */
+    @Override
     boolean isOpen();
 }
