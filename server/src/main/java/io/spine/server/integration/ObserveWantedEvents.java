@@ -43,7 +43,7 @@ import static io.spine.protobuf.AnyPacker.unpack;
  *
  * @see #handle(ExternalMessage)
  */
-final class ObserveWantedEvents extends AbstractChannelObserver implements AutoCloseable {
+final class ObserveWantedEvents extends AbstractChannelObserver {
 
     private final BoundedContextName boundedContextName;
     private final BusAdapter bus;
@@ -152,8 +152,7 @@ final class ObserveWantedEvents extends AbstractChannelObserver implements AutoC
     /**
      * Removes all the current subscriptions from the local buses.
      */
-    @Override
-    public void close() {
+    void close() {
         for (var currentlyRequestedMessage : requestedTypes.keySet()) {
             unregisterInAdapter(currentlyRequestedMessage);
         }

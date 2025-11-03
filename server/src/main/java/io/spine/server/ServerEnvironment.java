@@ -95,7 +95,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * of the respective {@code ServerEnvironment} for those Bounded Contexts. In this way,
  * the Contexts would reside in their own JVMs and not overlap on interacting with this singleton.
  */
-public final class ServerEnvironment implements AutoCloseable {
+public final class ServerEnvironment implements Closeable {
 
     private static final ServerEnvironment INSTANCE = new ServerEnvironment();
 
@@ -152,6 +152,11 @@ public final class ServerEnvironment implements AutoCloseable {
      * Provides schedulers used by all {@code CommandBus} instances of this environment.
      */
     private Supplier<CommandScheduler> commandScheduler;
+
+    /**
+     * Flag indicating whether this environment has been closed.
+     */
+    private volatile boolean closed = false;
 
     private ServerEnvironment() {
         nodeId = NodeId.newBuilder()
@@ -325,13 +330,43 @@ public final class ServerEnvironment implements AutoCloseable {
     }
 
     /**
+     * Tells if the environment is still open.
+     */
+    @Override
+    public boolean isOpen() {
+        return !closed;
+    }
+
+    /**
      * Releases resources associated with this instance.
      */
     @Override
-    public void close() throws Exception {
-        tracerFactory.apply(AutoCloseable::close);
-        transportFactory.apply(AutoCloseable::close);
-        storageFactory.apply(AutoCloseable::close);
+    public void close() {
+        if (closed) {
+            return;
+        }
+        closed = true;
+        tracerFactory.apply(factory -> {
+            try {
+                factory.close();
+            } catch (Exception e) {
+                throw new IllegalStateException("Failed to close TracerFactory", e);
+            }
+        });
+        transportFactory.apply(factory -> {
+            try {
+                factory.close();
+            } catch (Exception e) {
+                throw new IllegalStateException("Failed to close TransportFactory", e);
+            }
+        });
+        storageFactory.apply(factory -> {
+            try {
+                factory.close();
+            } catch (Exception e) {
+                throw new IllegalStateException("Failed to close StorageFactory", e);
+            }
+        });
     }
 
     /**

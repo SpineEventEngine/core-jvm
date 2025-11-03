@@ -39,7 +39,7 @@ import static io.spine.server.transport.MessageChannel.channelIdFor;
  * Tells other Bounded Contexts about the {@code external} domain events requested for subscription
  * in this Bounded Context, and listens to similar messages from other Bounded Contexts.
  */
-final class ConfigExchange extends SingleChannelExchange implements AutoCloseable {
+final class ConfigExchange extends SingleChannelExchange {
 
     /**
      * ID of the channel used to exchange the {@code ExternalEventsWanted} messages.
@@ -119,8 +119,7 @@ final class ConfigExchange extends SingleChannelExchange implements AutoCloseabl
      * Bounded Contexts that no more {@code external} events are requested by the current
      * Bounded Context.
      */
-    @Override
-    public void close() {
+    void close() {
         observers.forEach(ObserveWantedEvents::close);
         notifyTypesChanged();
     }

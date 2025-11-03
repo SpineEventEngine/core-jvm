@@ -35,7 +35,7 @@ import io.spine.type.TypeUrl;
 /**
  * Manages the event types exposed by the associated instance of {@link Stand}.
  */
-interface EventRegistry extends AutoCloseable {
+interface EventRegistry extends io.spine.server.Closeable {
 
     /**
      * Registers the repository as an event producer.

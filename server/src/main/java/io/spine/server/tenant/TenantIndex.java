@@ -34,7 +34,7 @@ import java.util.Set;
 /**
  * The index of tenant IDs in a multi-tenant application.
  */
-public interface TenantIndex extends AutoCloseable {
+public interface TenantIndex extends io.spine.server.Closeable {
 
     /**
      * Stores the passed tenant ID in the index.

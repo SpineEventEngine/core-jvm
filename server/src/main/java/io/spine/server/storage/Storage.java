@@ -39,7 +39,7 @@ import java.util.Optional;
  * @param <M>
  *         the type of records
  */
-public interface Storage<I, M extends Message> extends AutoCloseable {
+public interface Storage<I, M extends Message> extends io.spine.server.Closeable {
 
     /**
      * Verifies whether the storage is multitenant.

@@ -40,7 +40,7 @@ import io.spine.server.ContextSpec;
  * tracing data produced, however, implementations may ignore some signals.
  */
 @SPI
-public interface TracerFactory extends AutoCloseable {
+public interface TracerFactory extends io.spine.server.Closeable {
 
     /**
      * Creates a new instance of {@link Tracer} for the given signal.

@@ -80,7 +80,7 @@ import io.spine.server.migration.mirror.MirrorStorage;
  * <p>See the package-level documentation of {@code io.spine.query} for more details on
  * record specification and querying.
  */
-public interface StorageFactory extends AutoCloseable {
+public interface StorageFactory extends io.spine.server.Closeable {
 
     /**
      * Creates a new {@link RecordStorage}.
