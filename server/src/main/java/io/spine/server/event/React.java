@@ -136,7 +136,6 @@ import java.lang.annotation.Target;
  * {@literal EitherOf3<ProjectCompleted, ProjectEstimateUpdated, NoReaction>} on(TaskCompleted event) { ... }
  *  </pre>
  *
- *
  *  <h3>An {@code Iterable} of event messages</h3>
  *  
  *  <pre>
