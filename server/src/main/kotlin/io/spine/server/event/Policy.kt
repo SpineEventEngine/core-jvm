@@ -43,28 +43,41 @@ import io.spine.string.joinBackticked
  * ### Spine-specific extension of the contract for Policies
  *
  * Traditionally a Policy is a business rule that reads like this:
+ *
  * ```markdown
- *     Whenever <something happens>, then do <something about it>.
+ * Whenever <something happens>, then do <what you need about it>.
  * ```
- * implying that the Policy generates a command in response to an incoming event.
+ * implying that the Policy generates a command in response to an incoming event, and
+ * handling the command generates one or more events. The canonical flow looks like this:
  *
- *
- *
- * As a rule of thumb, a policy should read:
  * ```markdown
- *     Whenever <something happens>, then <something else must happen>.
+ * Event → Policy → Command → (Aggregate or ProcessManager, or Command Handler handles) → Event(s).
+ * ```
+ * Oftentimes, the experience of applying this pattern to various business domains shows that
+ * the command merely bears the same information from the incoming event, and
+ * the command handler simply converts this information into another event.
+ *
+ * Moreover, the presence of the "intermediate" command in relatively simple scenarios does
+ * not add any business value because information of an event-sourced  application is stored
+ * in events, not commands.
+ *
+ * That's why we suggest extending the Policy pattern to read:
+ *
+ * ```markdown
+ * Whenever <something happens>, then <something else must happen>.
  * ```
  * For example,
  * ```markdown
- *     Whenever a field option is discovered, a validation rule must be added.
+ * Whenever a field option is discovered, a validation rule must be added.
  * ```
  *
  * ### Implementing a Policy
  *
- * To implement the policy, override the [whenever] method to return messages produced in response
- * to the incoming event.
+ * To implement the policy, override the [whenever] method to return messages produced
+ * in response to the incoming event.
  *
  * For the policy rule in the example above, the code would look like this:
+ *
  * ```kotlin
  * class ValidationRulePolicy : Policy<FieldOptionDiscovered>() {
  *
