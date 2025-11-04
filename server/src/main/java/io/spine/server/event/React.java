@@ -116,7 +116,7 @@ import java.lang.annotation.Target;
  *  TaskReassigned on(UserDeactivated event) { ... }
  *  </pre>
  *
- *  <h2>An {@code Optional} event message</h2>
+ *  <h3>An {@code Optional} event message</h3>
  *
  *  <pre>
  *
@@ -124,7 +124,7 @@ import java.lang.annotation.Target;
  * {@literal Optional<PersonAllowedToBuyAlcohol>} on(PersonAgeChanged event) { ... }
  *  </pre>
  *
- *  <h2>One of particular events</h2>
+ *  <h3>One of particular events</h3>
  *
  *  <p>Use one of the {@link io.spine.server.tuple.Either Either} types to explicitly tell
  *  alternatives returned by the function.
