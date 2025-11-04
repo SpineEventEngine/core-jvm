@@ -53,14 +53,14 @@ import java.lang.annotation.Target;
  * of the Bounded Context-level API. See the {@link io.spine.core.BoundedContext
  * BoundedContext} description on how the packages and Bounded Contexts relate.
  *
- * <h1>Accepted Parameters</h1>
+ * <h2>Accepted Parameters</h2>
  *
  * <p>Each reacting method <strong>must</strong> accept an event message derived
  * from {@link io.spine.base.EventMessage EventMessage} as the first parameter.
  * Optionally, one may pass some additional parameters and put the incoming message into
  * some perspective. Available sets of parameters are described below.
  *
- * <h2>Single event message</h2>
+ * <h3>Single event message</h3>
  * 
  * <pre>
  *
@@ -79,7 +79,7 @@ import java.lang.annotation.Target;
  *  ProjectOwnerAssigned on(ProjectCreated event, EventContext context) { ... }
  * </pre>
  *
- * <h2>Rejection message with an original command message</h2>
+ * <h3>Rejection message with an original command message</h3>
  *
  * <p>If an event is a {@linkplain io.spine.base.RejectionMessage rejection},
  * one may additionally specify <strong>the command message, which led to this rejection.</strong>
@@ -99,7 +99,7 @@ import java.lang.annotation.Target;
  *  ProjectRenameFailed on(ProjectAlreadyCompleted event, RenameProject command, CommandContext ctx) { ... }
  * </pre>
  *
- * <h1>Return Types</h1>
+ * <h2>Return Types</h2>
  *
  * <p>The essence of a reacting method is an emission of one or several events in a reaction to
  * the dispatched event.
@@ -108,7 +108,7 @@ import java.lang.annotation.Target;
  * the {@code React}-marked methods allow a variety of options for the returned types.
  * A reacting method must return one of the following.
  *
- * <h2>An event message</h2>
+ * <h3>An event message</h3>
  * 
  *  <pre>
  *
@@ -137,7 +137,7 @@ import java.lang.annotation.Target;
  *  </pre>
  *
  *
- *  <h2>An {@code Iterable} of event messages</h2>
+ *  <h3>An {@code Iterable} of event messages</h3>
  *  
  *  <pre>
  *
@@ -146,7 +146,7 @@ import java.lang.annotation.Target;
  *  </pre>
  *
  *
- *  <h2>A {@link io.spine.server.tuple.Tuple tuple} of event messages</h2>
+ *  <h3>A {@link io.spine.server.tuple.Tuple tuple} of event messages</h3>
  *
  *  <p>Being similar to {@code Iterable}, tuples allow declaring the exact types of returning
  *  values, including {@code Optional} values:
@@ -159,7 +159,7 @@ import java.lang.annotation.Target;
  * {@literal Pair<TaskAssigned, Optional<TaskStarted>>} on(TaskAdded event) { ... }
  *  </pre>
  *
- * <h1>Handling Incorrect Signatures</h1>
+ * <h2>Handling Incorrect Signatures</h2>
  *
  * <p>If the annotation is applied to a method which does not satisfy either of these requirements,
  * this method will not be registering for receiving events.
