@@ -48,13 +48,11 @@ private val unknownProducer: Any = Identifier.pack("Unknown")
  * If the ID of the actor generating the rejection was not [set][RejectionThrowable.initProducer],
  * in the rejection, a placeholder with the string `"Unknown"` will be used as the producer ID.
  *
- * @param command
- *          the command to be rejected
- * @param throwable
- *          the reason for the command to be rejected, must implement [RejectionThrowable],
- *          or have its cause implementing this interface
- * @throws IllegalArgumentException
- *          if neither the passed throwable nor its cause implement [RejectionThrowable]
+ * @param command The command to be rejected.
+ * @param throwable The reason for the command to be rejected, must implement [RejectionThrowable],
+ *   or have its cause implementing this interface.
+ * @throws IllegalArgumentException if neither the passed throwable nor its cause
+ *   implement [RejectionThrowable].
  */
 public fun reject(command: Command, throwable: Throwable): Event {
     val rt = unwrap(throwable)
