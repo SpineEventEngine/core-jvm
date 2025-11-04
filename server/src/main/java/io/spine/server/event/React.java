@@ -68,7 +68,7 @@ import java.lang.annotation.Target;
  *  EngineStopped on(CarStopped event) { ... }
  * </pre>
  *
- * <h2>An event message along with its {@link io.spine.core.EventContext context}</h2>
+ * <h3>An event message along with its {@link io.spine.core.EventContext context}</h3>
  *
  * <p>The context brings some properties related to the event, such as
  * the {@link io.spine.core.EventContext#actor actor ID} or
