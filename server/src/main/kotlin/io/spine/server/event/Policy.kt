@@ -36,7 +36,19 @@ import io.spine.server.type.EventClass
 import io.spine.string.joinBackticked
 
 /**
- * A policy converts <em>one</em> event into zero to many messages (events or commands).
+ * A policy converts <em>one</em> event into zero to many messages (commands or events).
+ *
+ * Events?
+ *
+ * ### Spine-specific extension of the contract for Policies
+ *
+ * Traditionally a Policy is a business rule that reads like this:
+ * ```markdown
+ *     Whenever <something happens>, then do <something about it>.
+ * ```
+ * implying that the Policy generates a command in response to an incoming event.
+ *
+ *
  *
  * As a rule of thumb, a policy should read:
  * ```markdown
@@ -46,6 +58,9 @@ import io.spine.string.joinBackticked
  * ```markdown
  *     Whenever a field option is discovered, a validation rule must be added.
  * ```
+ *
+ * ### Implementing a Policy
+ *
  * To implement the policy, override the [whenever] method to return messages produced in response
  * to the incoming event.
  *
