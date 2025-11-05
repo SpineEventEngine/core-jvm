@@ -146,7 +146,7 @@ public abstract class Reaction<E : EventMessage> :
      * For implementation examples and return type options, see the class-level documentation.
      */
     @ContractFor(handler = React::class)
-    abstract override fun whenever(event: E): Iterable<Message>
+    protected abstract fun whenever(event: E): Iterable<Message>
 
     final override fun registerWith(context: BoundedContext) {
         super.registerWith(context)

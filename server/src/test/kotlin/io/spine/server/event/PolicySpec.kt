@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,8 @@
 package io.spine.server.event
 
 import io.kotest.matchers.shouldBe
-import io.spine.core.External
+import io.spine.server.command.Command
+import io.spine.server.command.DoNothing
 import io.spine.server.tuple.EitherOf2
 import io.spine.test.shared.event.SomethingHappened
 import io.spine.testing.logging.mute.MuteLogging
@@ -35,38 +36,40 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-@DisplayName("`Reaction` should")
-internal class ReactionSpec {
+@DisplayName("`Policy` should")
+internal class PolicySpec {
 
     @Test
-    fun `do not allow adding more react methods`() {
+    fun `do not allow adding more command methods`() {
         assertThrows<IllegalStateException> {
-            GreedyReaction()
+            GreedyPolicy()
         }
     }
 
     @Test
     @MuteLogging(WHY_MUTE)
-    fun `allow using 'Just' in return value`() {
-        val reaction = object : Reaction<SomethingHappened>() {
-            @React
-            public override fun whenever(event: SomethingHappened): Just<NoReaction> {
-                return Just.noReaction
-            }
+    fun `allow returning a single command as Iterable`() {
+        val doNothing = DoNothing.getDefaultInstance()
+        val policy = object : Policy<SomethingHappened>() {
+            @Command
+            public override fun whenever(event: SomethingHappened): List<DoNothing> =
+                listOf(doNothing)
         }
-        reaction.whenever(somethingHappened) shouldBe Just.noReaction
+        policy.whenever(somethingHappened) shouldBe listOf(doNothing)
     }
 
     @Test
     @MuteLogging(WHY_MUTE)
     fun `allow using 'Either' in return value`() {
-        object : Reaction<SomethingHappened>() {
-            @React
+        val doNothing = DoNothing.getDefaultInstance()
+        object : Policy<SomethingHappened>() {
+            @Command
             public override fun whenever(
                 event: SomethingHappened
-            ): EitherOf2<NoReaction, NoReaction> = noReaction().asA()
+            ): EitherOf2<DoNothing, DoNothing> =
+                EitherOf2.withA(doNothing)
         }.let {
-            it.whenever(somethingHappened) shouldBe EitherOf2.withA(noReaction)
+            it.whenever(somethingHappened) shouldBe EitherOf2.withA(doNothing)
         }
     }
 
@@ -76,21 +79,23 @@ internal class ReactionSpec {
             A `public` reacting method causes a warning because of unnecessary exposure.
         """
         val somethingHappened: SomethingHappened = SomethingHappened.getDefaultInstance()
-        val noReaction: NoReaction = NoReaction.getDefaultInstance()
     }
 }
 
 /**
- * The policy which attempts to define a `@React` receptor to handle more than one
- * event type, as required by the `Policy` contract.
+ * A policy which attempts to define two `@Command` receptors to handle more than one
+ * event type, which is not allowed by the `Policy` contract.
  */
-private class GreedyReaction : Reaction<NoReaction>() {
+private class GreedyPolicy : Policy<SomethingHappened>() {
 
-    @React
-    override fun whenever(@External event: NoReaction): Just<NoReaction> =
-        Just.noReaction
+    @Command
+    override fun whenever(event: SomethingHappened): List<DoNothing> =
+        listOf(DoNothing.getDefaultInstance())
 
-    @React
-    fun on(@Suppress("UNUSED_PARAMETER") e: SomethingHappened): Just<NoReaction> =
-        Just.noReaction
+    /**
+     * In reality `NoReaction` is never dispatched, but that's OK for this stub receptor.
+     */
+    @Command
+    fun on(@Suppress("UNUSED_PARAMETER") e: NoReaction): List<DoNothing> =
+        listOf(DoNothing.getDefaultInstance())
 }

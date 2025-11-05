@@ -26,7 +26,6 @@
 
 package io.spine.server.event
 
-import com.google.protobuf.Message
 import io.spine.base.EventMessage
 import io.spine.server.bus.MessageDispatcher
 import io.spine.string.joinBackticked
@@ -35,22 +34,24 @@ import io.spine.string.joinBackticked
  * An interface common to classes that produce zero or more messages in response
  * to an incoming event.
  *
+ * The interface does not define functions to allow `protected abstract`
+ * methods in the implementing abstract classes to avoid overexposure of
+ * the message processing.
+ *
  * @param E the type of the event to be processed.
  */
-public interface Whenever<E : EventMessage> : EventReceiver {
-
-    /**
-     * Produces zero or more messages in response to the [event].
-     */
-    public fun whenever(event: E): Iterable<Message>
-}
+public interface Whenever<E : EventMessage> : EventReceiver
 
 context(dispatcher: MessageDispatcher<*, *>)
 internal fun Whenever<*>.checkAcceptsOneEvent() {
-    val classes = dispatcher.messageClasses()
-    check(classes.size == 1) {
-        "The class `${this::class.qualifiedName}` should accept on only one event." +
-                " Now it handles too many (${classes.size}): [${classes.joinBackticked()}]." +
+    val events = if (dispatcher is EventDispatcherDelegate) {
+        dispatcher.events()
+    } else {
+        dispatcher.messageClasses()
+    }
+    check(events.size == 1) {
+        "The class `${this::class.qualifiedName}` should accept exactly one event." +
+                " Now it handles too many (${events.size}): [${events.joinBackticked()}]." +
                 " Please use only `whenever()` method for producing outgoing messages."
     }
 }
