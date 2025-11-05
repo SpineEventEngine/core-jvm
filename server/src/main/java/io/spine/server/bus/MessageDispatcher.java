@@ -49,7 +49,7 @@ public interface MessageDispatcher<C extends MessageClass<?>, E extends MessageE
     ImmutableSet<C> messageClasses();
 
     /**
-     * Dispatches the message contained in passed envelope
+     * Dispatches the message contained in the given envelope
      * and returns the outcome.
      *
      * @param envelope
