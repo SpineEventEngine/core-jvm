@@ -29,7 +29,6 @@ package io.spine.server.event
 import com.google.protobuf.Message
 import io.spine.base.EventMessage
 import io.spine.core.ContractFor
-import io.spine.logging.WithLogging
 import io.spine.server.BoundedContext
 
 /**
@@ -118,8 +117,7 @@ import io.spine.server.BoundedContext
  */
 public abstract class Reaction<E : EventMessage> :
     AbstractEventReactor(),
-    Whenever<E>,
-    WithLogging {
+    Whenever<E> {
 
     protected lateinit var context: BoundedContext
 
