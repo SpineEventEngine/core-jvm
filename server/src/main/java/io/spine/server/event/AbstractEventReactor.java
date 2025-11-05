@@ -106,12 +106,12 @@ public abstract class AbstractEventReactor
     }
 
     @Override
-    public boolean isRegistered() {
+    public final boolean isRegistered() {
         return eventBus != null;
     }
 
     @Override
-    public ImmutableSet<EventClass> messageClasses() {
+    public final ImmutableSet<EventClass> messageClasses() {
         return thisClass.events();
     }
 
@@ -154,30 +154,34 @@ public abstract class AbstractEventReactor
         system.postEvent(systemEvent, event.asMessageOrigin());
     }
 
-    /** Obtains the name of this reactor, {@linkplain TypeConverter#toAny(Object) packed to Any}. */
+    /**
+     * Obtains the name of this reactor, {@linkplain TypeConverter#toAny(Object) packed to Any}.
+     */
     @Override
     public Any producerId() {
         return producerId.get();
     }
 
-    /** Returns a {@linkplain Versions#zero() zero version}. */
+    /**
+     * Returns a {@linkplain Versions#zero() zero version}.
+     */
     @Override
     public Version version() {
         return Versions.zero();
     }
 
     @Override
-    public ImmutableSet<EventClass> externalEventClasses() {
+    public final ImmutableSet<EventClass> externalEventClasses() {
         return thisClass.externalEvents();
     }
 
     @Override
-    public ImmutableSet<EventClass> domesticEventClasses() {
+    public final ImmutableSet<EventClass> domesticEventClasses() {
         return thisClass.domesticEvents();
     }
 
     @Override
-    public ImmutableSet<EventClass> producedEvents() {
+    public final ImmutableSet<EventClass> producedEvents() {
         return thisClass.reactionOutput();
     }
 }

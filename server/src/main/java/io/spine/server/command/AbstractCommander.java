@@ -76,12 +76,12 @@ public abstract class AbstractCommander
     }
 
     @Override
-    public ImmutableSet<CommandClass> messageClasses() {
+    public final ImmutableSet<CommandClass> messageClasses() {
         return thisClass.commands();
     }
 
     @Override
-    public DispatchOutcome dispatch(CommandEnvelope command) {
+    public final DispatchOutcome dispatch(CommandEnvelope command) {
         var method = thisClass.receptorOf(command);
         var outcome = method.invoke(this, command);
         DispatchOutcomeHandler
@@ -93,23 +93,23 @@ public abstract class AbstractCommander
     }
 
     @Override
-    public ImmutableSet<EventClass> events() {
+    public final ImmutableSet<EventClass> events() {
         return thisClass.events();
     }
 
     @Override
-    public ImmutableSet<EventClass> externalEvents() {
+    public final ImmutableSet<EventClass> externalEvents() {
         return thisClass.externalEvents();
     }
 
     @Override
-    public ImmutableSet<EventClass> domesticEvents() {
+    public final ImmutableSet<EventClass> domesticEvents() {
         return thisClass.domesticEvents();
     }
 
     @Override
-    @SuppressWarnings("FloggerLogString" /* Re-using the logged message. */)
-    public DispatchOutcome dispatchEvent(EventEnvelope event) {
+    @SuppressWarnings("FloggerLogString" /* Using the same message for log and the outcome. */)
+    public final DispatchOutcome dispatchEvent(EventEnvelope event) {
         var method = thisClass.commanderOn(event);
         if (method.isPresent()) {
             var outcome = method.get().invoke(this, event);
@@ -134,7 +134,7 @@ public abstract class AbstractCommander
      * <p>Always returns a version with number {@code 0} and current time.
      */
     @Override
-    public Version version() {
+    public final Version version() {
         return Versions.zero();
     }
 
@@ -144,7 +144,7 @@ public abstract class AbstractCommander
      * <p>Always returns an empty set.
      */
     @Override
-    public ImmutableSet<EventClass> producedEvents() {
+    public final ImmutableSet<EventClass> producedEvents() {
         return ImmutableSet.of();
     }
 
