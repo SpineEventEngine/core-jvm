@@ -35,8 +35,8 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-@DisplayName("`Policy` should")
-internal class PolicySpec {
+@DisplayName("`Reaction` should")
+internal class ReactionSpec {
 
     @Test
     fun `do not allow adding more react methods`() {
@@ -50,7 +50,7 @@ internal class PolicySpec {
     fun `allow using 'Just' in return value`() {
         val reaction = object : Reaction<SomethingHappened>() {
             @React
-            public override fun whenever(event: SomethingHappened): Just<NoReaction> {
+            override fun whenever(event: SomethingHappened): Just<NoReaction> {
                 return Just.noReaction
             }
         }
@@ -62,7 +62,7 @@ internal class PolicySpec {
     fun `allow using 'Either' in return value`() {
         object : Reaction<SomethingHappened>() {
             @React
-            public override fun whenever(
+            override fun whenever(
                 event: SomethingHappened
             ): EitherOf2<NoReaction, NoReaction> = noReaction().asA()
         }.let {
