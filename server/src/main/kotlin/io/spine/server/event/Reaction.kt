@@ -33,20 +33,21 @@ import io.spine.logging.WithLogging
 import io.spine.server.BoundedContext
 
 /**
- * A reaction converts <em>one</em> event into zero to many messages events.
+ * A reaction is a simplified pattern for event handling that converts <em>one</em> incoming event
+ * directly into zero or more output events, without intermediate commands.
  *
- * ## Addition to the Policy pattern
+ * ## Comparison with the Policy Pattern
  *
- * Traditionally a Policy is a business rule that reads like this:
+ * Traditionally, the Policy pattern follows this structure:
  *
  * ```markdown
  * Whenever <something happens>, then do <what you need about it>.
  * ```
- * implying that the Policy generates a command in response to an incoming event, and
- * handling the command generates one or more events. The canonical flow looks like this:
+ * In this approach, a Policy generates a command in response to an incoming event, and
+ * handling that command generates one or more events. The flow is:
  *
  * ```markdown
- * Event → Policy → Command → (Aggregate or ProcessManager, or Command Handler handles) → Event(s).
+ * Event → Policy → Command → (Aggregate/ProcessManager/Command Handler) → Event(s).
  * ```
  * Oftentimes, the experience of applying this pattern to various business domains shows that
  * the command merely bears the same information from the incoming event, and the handler merely
@@ -61,17 +62,18 @@ import io.spine.server.BoundedContext
  * ```markdown
  * Whenever <something happens>, then <something else happened>.
  * ```
- * For example,
+ * For example, a Reaction rule can be expressed as:
+ *
  * ```markdown
- * Whenever a field option is discovered, a validation rule added.
+ * Whenever a field option is discovered, a validation rule is added.
  * ```
  *
- * ## Implementing a Reaction
+ * ## Implementation Guide
  *
- * To implement the policy, override the [whenever] method to return messages produced
- * in response to the incoming event.
+ * To implement a reaction, override the [whenever] method to define what messages should be
+ * produced in response to the incoming event.
  *
- * For the policy rule in the example above, the code would look like this:
+ * Here's how the example above would be implemented:
  *
  * ```kotlin
  * class ValidationRuleReaction : Reaction<FieldOptionDiscovered>() {
@@ -82,23 +84,19 @@ import io.spine.server.BoundedContext
  *     }
  * }
  * ```
- * ### Returning zero messages
+ * ### Return zero events
  *
- * The contract of the [whenever] method requires returning an `Iterable` of messages.
- * To return no messages, declare the return type as `Just<Nothing>`, where `Nothing` is
- * the type from the `io.spine.server.model` package. Return the value of `Just.nothing` property
- * from your Kotlin method, or `Just.nothing()` from Java.
+ * In rare cases, when no events need to be returned:
+ * - Declare return type as `Just<[NoReaction][io.spine.server.event.NoReaction]>`:
+ * - In Kotlin: return [Just.noReaction] property
+ * - In Java: return [Just.noReaction()][Just.noReaction].
  *
- * If you need to avoid the naming collision with [kotlin.Nothing], consider using
- * the [NoReaction][io.spine.server.event.NoReaction] type alias.
+ * ### Returning one event
  *
- * ### Returning one message
- *
- * To return one message, declare `Just<MyEvent>` or `Just<MyCommand>` as the return type 
- * of the [whenever] method.
+ * To return one message, declare `Just<MyEvent>` as the return type of the [whenever] method.
  * Use the [Just] constructor from Kotlin or [Just.just]`()` static method from Java.
  *
- * ### Returning more than one message
+ * ### Returning more than one event
  *
  * To make your return type more readable, consider using the following classes from
  * the `io.spine.server.tuple` package:
@@ -107,7 +105,7 @@ import io.spine.server.BoundedContext
  *  [Quintet][io.spine.server.tuple.Quintet], with the corresponding number of elements declared
  *  in the return type of the [whenever] method. For example, `Pair<MyEvent, MyOtherEvent>`.
  *
- *  For returning more than five messages, use `Iterable<Message>`, as usually.
+ *  For returning more than five events, use `Iterable<Message>`, as usually.
  *
  * @param E the type of the event handled by this reaction.
  *
