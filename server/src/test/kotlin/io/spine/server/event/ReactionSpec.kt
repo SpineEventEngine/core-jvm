@@ -72,7 +72,7 @@ internal class ReactionSpec {
 
     companion object {
         const val WHY_MUTE = """
-            We make the method `whenever()` `public` to be able to call it from outside a policy.
+            The method `whenever()` `public`.
             A `public` reacting method causes a warning because of unnecessary exposure.
         """
         val somethingHappened: SomethingHappened = SomethingHappened.getDefaultInstance()

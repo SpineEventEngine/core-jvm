@@ -30,7 +30,6 @@ import com.google.protobuf.Message
 import io.spine.base.EventMessage
 import io.spine.server.bus.MessageDispatcher
 import io.spine.string.joinBackticked
-import kotlin.jvm.javaClass
 
 /**
  * An interface common to classes that produce zero or more messages in response
@@ -50,7 +49,7 @@ context(dispatcher: MessageDispatcher<*, *>)
 internal fun Whenever<*>.checkAcceptsOneEvent() {
     val classes = dispatcher.messageClasses()
     check(classes.size == 1) {
-        "The class `${javaClass.name}` should accept on only one event." +
+        "The class `${this::class.qualifiedName}` should accept on only one event." +
                 " Now it handles too many (${classes.size}): [${classes.joinBackticked()}]." +
                 " Please use only `whenever()` method for producing outgoing messages."
     }

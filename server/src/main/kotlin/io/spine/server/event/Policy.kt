@@ -109,7 +109,7 @@ public abstract class Policy<E : EventMessage> : AbstractCommander(), Whenever<E
      * For implementation examples and return type options, see the class-level documentation.
      */
     @ContractFor(handler = Command::class)
-    public abstract override fun whenever(event: E): Iterable<Message>
+    abstract override fun whenever(event: E): Iterable<Message>
 
     final override fun registerWith(context: BoundedContext) {
         super.registerWith(context)
