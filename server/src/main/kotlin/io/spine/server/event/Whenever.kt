@@ -28,6 +28,7 @@ package io.spine.server.event
 
 import com.google.protobuf.Message
 import io.spine.base.EventMessage
+import io.spine.server.bus.MessageDispatcher
 import io.spine.string.joinBackticked
 import kotlin.jvm.javaClass
 
@@ -37,16 +38,17 @@ import kotlin.jvm.javaClass
  *
  * @param E the type of the event to be processed.
  */
-public interface Whenever<E : EventMessage> : EventDispatcher {
+public interface Whenever<E : EventMessage> : EventReceiver {
 
     /**
-     * Produces zero or more messages in response to the event [E].
+     * Produces zero or more messages in response to the [event].
      */
     public fun whenever(event: E): Iterable<Message>
 }
 
+context(dispatcher: MessageDispatcher<*, *>)
 internal fun Whenever<*>.checkAcceptsOneEvent() {
-    val classes = messageClasses()
+    val classes = dispatcher.messageClasses()
     check(classes.size == 1) {
         "The class `${javaClass.name}` should accept on only one event." +
                 " Now it handles too many (${classes.size}): [${classes.joinBackticked()}]." +
