@@ -50,7 +50,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * assertThat(storageFactory.optionalValue(Tests.class)).isEmpty();
  * </pre>
  *
- * <h1>Fallback</h1>
+ * <h2>Fallback</h2>
  * <p>{@code EnvSetting} allows to configure a default value for an environment type. It is used
  * when the value for the environment hasn't been {@linkplain #use(Object, Class) set explicitly}.
  * <pre>
@@ -94,10 +94,10 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  */
 final class EnvSetting<V> {
 
-    private final Map<Class<? extends EnvironmentType>, Value<V>> environmentValues =
+    private final Map<Class<? extends EnvironmentType<?>>, Value<V>> environmentValues =
             new HashMap<>();
 
-    private final Map<Class<? extends EnvironmentType>, Supplier<V>> fallbacks =
+    private final Map<Class<? extends EnvironmentType<?>>, Supplier<V>> fallbacks =
             new HashMap<>();
 
     /**
@@ -112,7 +112,7 @@ final class EnvSetting<V> {
      * <p>If a value for {@code type} is not {@linkplain #use(Object, Class) set explicitly},
      * {@link #value(Class)} and {@link #optionalValue(Class)} return the {@code fallback} result.
      */
-    EnvSetting(Class<? extends EnvironmentType> type, Supplier<V> fallback) {
+    EnvSetting(Class<? extends EnvironmentType<?>> type, Supplier<V> fallback) {
         this.fallbacks.put(type, fallback);
     }
 
@@ -120,7 +120,7 @@ final class EnvSetting<V> {
      * If the value for the specified environment has been configured, returns it. Returns an
      * empty {@code Optional} otherwise.
      */
-    Optional<V> optionalValue(Class<? extends EnvironmentType> type) {
+    Optional<V> optionalValue(Class<? extends EnvironmentType<?>> type) {
         var result = valueFor(type);
         return result;
     }
@@ -135,7 +135,7 @@ final class EnvSetting<V> {
      * @param operation
      *         operation to run
      */
-    void ifPresentForEnvironment(Class<? extends EnvironmentType> type,
+    void ifPresentForEnvironment(Class<? extends EnvironmentType<?>> type,
                                  SettingOperation<V> operation) throws Exception {
         var value = valueFor(type);
         if (value.isPresent()) {
@@ -144,7 +144,7 @@ final class EnvSetting<V> {
     }
 
     /**
-     * Applies the passed operation to this setting regardless of current environment.
+     * Applies the passed operation to this setting regardless of the current environment.
      *
      * <p>This means the operation is applied to all passed setting {@linkplain #environmentValues
      * values} on a per-environment basis.
@@ -167,7 +167,7 @@ final class EnvSetting<V> {
      * <p>If it is not set, returns a fallback value. If no fallback was configured, an
      * {@code IllegalStateException} is thrown.
      */
-    V value(Class<? extends EnvironmentType> type) {
+    V value(Class<? extends EnvironmentType<?>> type) {
         checkNotNull(type);
         var result = valueFor(type);
         return result.orElseThrow(
@@ -194,7 +194,7 @@ final class EnvSetting<V> {
      * @param type
      *         the type of the environment
      */
-    void use(V value, Class<? extends EnvironmentType> type) {
+    void use(V value, Class<? extends EnvironmentType<?>> type) {
         checkNotNull(value);
         checkNotNull(type);
         this.environmentValues.put(type, new Value<>(value));
@@ -212,13 +212,13 @@ final class EnvSetting<V> {
      * @param type
      *         the type of the environment
      */
-    void lazyUse(Supplier<V> value, Class<? extends EnvironmentType> type) {
+    void lazyUse(Supplier<V> value, Class<? extends EnvironmentType<?>> type) {
         checkNotNull(value);
         checkNotNull(type);
         this.environmentValues.put(type, new Value<>(value));
     }
 
-    private Optional<V> valueFor(Class<? extends EnvironmentType> type) {
+    private Optional<V> valueFor(Class<? extends EnvironmentType<?>> type) {
         checkNotNull(type);
         var value = this.environmentValues.get(type);
         if (value == null) {

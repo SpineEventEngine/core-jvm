@@ -42,6 +42,7 @@ import java.util.concurrent.ConcurrentMap;
 final class InMemoryEventRegistry implements EventRegistry {
 
     private final ConcurrentMap<TypeUrl, EventClass> eventClasses = new ConcurrentHashMap<>();
+    private volatile boolean closed = false;
 
     /** Prevents instantiation of this class from outside. */
     private InMemoryEventRegistry() {
@@ -53,8 +54,7 @@ final class InMemoryEventRegistry implements EventRegistry {
 
     @Override
     public void register(Repository<?, ?> repository) {
-        if (repository instanceof EventProducingRepository) {
-            var repo = (EventProducingRepository) repository;
+        if (repository instanceof EventProducingRepository repo) {
             repo.outgoingEvents()
                 .forEach(this::putIntoMap);
         }
@@ -82,8 +82,14 @@ final class InMemoryEventRegistry implements EventRegistry {
     }
 
     @Override
+    public boolean isOpen() {
+        return !closed;
+    }
+
+    @Override
     public void close() {
         eventClasses.clear();
+        closed = true;
     }
 
     private void putIntoMap(EventClass eventClass) {

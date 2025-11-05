@@ -47,8 +47,15 @@ import static io.spine.server.bus.MessageIdExtensions.causedError;
 import static java.lang.String.format;
 
 /**
- * The service which accepts a command from a client application and posts it to
- * a command bus of the bounded context which handles the command.
+ * The {@code CommandService} provides a synchronous way to post commands
+ * to the application backend.
+ *
+ * <p>This class is an implementation of a corresponding gRPC service.
+ * Hence, the public API of this class is dictated by
+ * the {@linkplain CommandServiceGrpc generated code}.
+ *
+ * <p>Commands are sent to the application backend by an instance
+ * of the {@linkplain io.spine.client.Client Client} class.
  */
 public final class CommandService
         extends CommandServiceGrpc.CommandServiceImplBase
@@ -57,8 +64,7 @@ public final class CommandService
     private final CommandServiceImpl impl;
 
     /**
-     * Constructs new instance using the map from a {@code CommandClass} to
-     * a {@code BoundedContext} instance which handles the command.
+     * Creates a new instance using the given {@link TypeDictionary}.
      */
     @SuppressWarnings("ThisEscapedInObjectConstruction") // Safe, injected at the end of the ctor.
     private CommandService(TypeDictionary types) {
@@ -74,7 +80,9 @@ public final class CommandService
     }
 
     /**
-     * Builds the service with a single Bounded Context.
+     * Creates a service with the single given Bounded Context.
+     *
+     * @see #newBuilder()
      */
     public static CommandService withSingle(BoundedContext context) {
         checkNotNull(context);
@@ -82,6 +90,14 @@ public final class CommandService
         return result;
     }
 
+    /**
+     * Posts the command to {@code CommandBus}.
+     *
+     * @param command
+     *         The command to post
+     * @param observer
+     *         The observer for the acknowledgement for the command.
+     */
     @Override
     public void post(Command command, StreamObserver<Ack> observer) {
         impl.serve(command, observer, null);
@@ -89,7 +105,7 @@ public final class CommandService
 
     private static final class CommandServiceImpl extends ServiceDelegate<Command, Ack> {
 
-        CommandServiceImpl(BindableService service, TypeDictionary types) {
+        private CommandServiceImpl(BindableService service, TypeDictionary types) {
             super(service, types);
         }
 

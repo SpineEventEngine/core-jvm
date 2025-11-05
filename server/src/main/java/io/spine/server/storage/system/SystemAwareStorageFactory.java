@@ -120,11 +120,16 @@ public final class SystemAwareStorageFactory implements StorageFactory {
         return delegate.createRecordStorage(context, recordSpec);
     }
 
+    @Override
+    public boolean isOpen() {
+        return delegate.isOpen();
+    }
+
     /**
      * Closes the associated delegate factory.
      */
     @Override
-    public void close() throws Exception {
+    public void close() {
         delegate.close();
     }
 }
