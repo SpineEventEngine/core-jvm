@@ -1,11 +1,11 @@
 /*
- * Copyright 2023, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -26,14 +26,11 @@
 
 package io.spine.server.event
 
-import com.google.common.collect.ImmutableSet
 import com.google.protobuf.Message
 import io.spine.base.EventMessage
 import io.spine.core.ContractFor
 import io.spine.logging.WithLogging
 import io.spine.server.BoundedContext
-import io.spine.server.type.EventClass
-import io.spine.string.joinBackticked
 
 /**
  * A reaction converts <em>one</em> event into zero to many messages events.
@@ -131,7 +128,7 @@ public abstract class Reaction<E : EventMessage> :
         // Doing it earlier, here, in the constructor without waiting until
         // the dispatching schema is built (thus gathering the message classes),
         // allows failing faster and avoiding delayed debugging.
-        messageClasses()
+        checkAcceptsOneEvent()
     }
 
     /**
@@ -162,25 +159,5 @@ public abstract class Reaction<E : EventMessage> :
     final override fun registerWith(context: BoundedContext) {
         super.registerWith(context)
         this.context = context
-    }
-
-    /**
-     * Ensures that there is only one event receptor defined in the derived class.
-     *
-     * @throws IllegalStateException if the derived class defines more than one event receptor
-     */
-    final override fun messageClasses(): ImmutableSet<EventClass> {
-        val classes = super.messageClasses()
-        checkReceptors(classes)
-        return classes
-    }
-
-    private fun checkReceptors(events: Iterable<EventClass>) {
-        val classes = events.toList()
-        check(classes.size == 1) {
-            "The reaction `${javaClass.name}` should accept on only one event." +
-                    " Now it handles too many (${classes.size}): [${classes.joinBackticked()}]." +
-                    " Please use only `whenever()` method for producing outgoing messages."
-        }
     }
 }
