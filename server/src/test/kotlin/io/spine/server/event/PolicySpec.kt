@@ -41,26 +41,26 @@ internal class PolicySpec {
     @Test
     fun `do not allow adding more react methods`() {
         assertThrows<IllegalStateException> {
-            GreedyPolicy()
+            GreedyReaction()
         }
     }
 
     @Test
     @MuteLogging(WHY_MUTE)
     fun `allow using 'Just' in return value`() {
-        val policy = object : Policy<SomethingHappened>() {
+        val reaction = object : Reaction<SomethingHappened>() {
             @React
             public override fun whenever(event: SomethingHappened): Just<NoReaction> {
                 return Just.noReaction
             }
         }
-        policy.whenever(somethingHappened) shouldBe Just.noReaction
+        reaction.whenever(somethingHappened) shouldBe Just.noReaction
     }
 
     @Test
     @MuteLogging(WHY_MUTE)
     fun `allow using 'Either' in return value`() {
-        object : Policy<SomethingHappened>() {
+        object : Reaction<SomethingHappened>() {
             @React
             public override fun whenever(
                 event: SomethingHappened
@@ -84,7 +84,7 @@ internal class PolicySpec {
  * The policy which attempts to define a `@React` receptor to handle more than one
  * event type, as required by the `Policy` contract.
  */
-private class GreedyPolicy : Policy<NoReaction>() {
+private class GreedyReaction : Reaction<NoReaction>() {
 
     @React
     override fun whenever(@External event: NoReaction): Just<NoReaction> =

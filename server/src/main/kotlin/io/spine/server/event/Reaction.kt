@@ -36,11 +36,9 @@ import io.spine.server.type.EventClass
 import io.spine.string.joinBackticked
 
 /**
- * A policy converts <em>one</em> event into zero to many messages (commands or events).
+ * A reaction converts <em>one</em> event into zero to many messages events.
  *
- * Events?
- *
- * ### Spine-specific extension of the contract for Policies
+ * ### Addition to the Policy pattern
  *
  * Traditionally a Policy is a business rule that reads like this:
  *
@@ -61,17 +59,17 @@ import io.spine.string.joinBackticked
  * not add any business value because information of an event-sourced  application is stored
  * in events, not commands.
  *
- * That's why we suggest extending the Policy pattern to read:
+ * That's why we suggest adding the Reaction which reads like:
  *
  * ```markdown
- * Whenever <something happens>, then <something else must happen>.
+ * Whenever <something happens>, then <something else happened>.
  * ```
  * For example,
  * ```markdown
- * Whenever a field option is discovered, a validation rule must be added.
+ * Whenever a field option is discovered, a validation rule added.
  * ```
  *
- * ### Implementing a Policy
+ * ### Implementing a Reaction
  *
  * To implement the policy, override the [whenever] method to return messages produced
  * in response to the incoming event.
@@ -79,7 +77,7 @@ import io.spine.string.joinBackticked
  * For the policy rule in the example above, the code would look like this:
  *
  * ```kotlin
- * class ValidationRulePolicy : Policy<FieldOptionDiscovered>() {
+ * class ValidationRuleReaction : Reaction<FieldOptionDiscovered>() {
  *
  *     @React
  *     override fun whenever(event: FieldOptionDiscovered): Just<ValidationRuleAdded> {
@@ -111,7 +109,7 @@ import io.spine.string.joinBackticked
  *
  *  For returning more than five messages, please use `Iterable<Message>`, as usually.
  *
- * @param E the type of the event handled by this policy.
+ * @param E the type of the event handled by this reaction.
  *
  * @see Just
  * @see [io.spine.server.tuple.Pair]
@@ -120,7 +118,10 @@ import io.spine.string.joinBackticked
  * @see [io.spine.server.tuple.Quintet]
  * @see [io.spine.server.event.NoReaction]
  */
-public abstract class Policy<E : EventMessage> : AbstractEventReactor(), WithLogging {
+public abstract class Reaction<E : EventMessage> :
+    AbstractEventReactor(),
+    Whenever<E>,
+    WithLogging {
 
     protected lateinit var context: BoundedContext
 
@@ -150,13 +151,13 @@ public abstract class Policy<E : EventMessage> : AbstractEventReactor(), WithLog
      * the overridden methods because `Iterable<EventMessage>` will not be
      * a super type for them.
      *
-     * Policy authors should declare return types of the overridden methods as described
-     * in the [class documentation][Policy].
+     * Reaction authors should declare return types of the overridden methods as described
+     * in the [class documentation][Reaction].
      *
-     * @see Policy
+     * @see Reaction
      */
     @ContractFor(handler = React::class)
-    protected abstract fun whenever(event: E): Iterable<Message>
+    public abstract override fun whenever(event: E): Iterable<Message>
 
     final override fun registerWith(context: BoundedContext) {
         super.registerWith(context)
@@ -166,8 +167,7 @@ public abstract class Policy<E : EventMessage> : AbstractEventReactor(), WithLog
     /**
      * Ensures that there is only one event receptor defined in the derived class.
      *
-     * @throws IllegalStateException
-     *          if the derived class defines more than one event receptor
+     * @throws IllegalStateException if the derived class defines more than one event receptor
      */
     final override fun messageClasses(): ImmutableSet<EventClass> {
         val classes = super.messageClasses()
@@ -178,7 +178,7 @@ public abstract class Policy<E : EventMessage> : AbstractEventReactor(), WithLog
     private fun checkReceptors(events: Iterable<EventClass>) {
         val classes = events.toList()
         check(classes.size == 1) {
-            "The policy `${javaClass.name}` should react on only one event." +
+            "The reaction `${javaClass.name}` should accept on only one event." +
                     " Now it handles too many (${classes.size}): [${classes.joinBackticked()}]." +
                     " Please use only `whenever()` method for producing outgoing messages."
         }
