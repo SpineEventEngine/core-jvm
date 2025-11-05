@@ -83,6 +83,7 @@ import io.spine.server.BoundedContext
  * }
  * ```
  * ### Returning zero messages
+ *
  * The contract of the [whenever] method requires returning an `Iterable` of messages.
  * To return no messages, declare the return type as `Just<Nothing>`, where `Nothing` is
  * the type from the `io.spine.server.model` package. Return the value of `Just.nothing` property
@@ -92,11 +93,13 @@ import io.spine.server.BoundedContext
  * the [NoReaction][io.spine.server.event.NoReaction] type alias.
  *
  * ### Returning one message
+ *
  * To return one message, declare `Just<MyEvent>` or `Just<MyCommand>` as the return type 
  * of the [whenever] method.
  * Use the [Just] constructor from Kotlin or [Just.just]`()` static method from Java.
  *
  * ### Returning more than one message
+ *
  * To make your return type more readable, consider using the following classes from
  * the `io.spine.server.tuple` package:
  *  [Pair][io.spine.server.tuple.Pair],
@@ -104,7 +107,7 @@ import io.spine.server.BoundedContext
  *  [Quintet][io.spine.server.tuple.Quintet], with the corresponding number of elements declared
  *  in the return type of the [whenever] method. For example, `Pair<MyEvent, MyOtherEvent>`.
  *
- *  For returning more than five messages, please use `Iterable<Message>`, as usually.
+ *  For returning more than five messages, use `Iterable<Message>`, as usually.
  *
  * @param E the type of the event handled by this reaction.
  *
