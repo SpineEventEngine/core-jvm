@@ -35,6 +35,7 @@ import io.spine.core.Commands;
 import io.spine.type.MessageClass;
 import io.spine.type.TypeUrl;
 
+import java.io.Serial;
 import java.util.Arrays;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -44,6 +45,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public final class CommandClass extends MessageClass<CommandMessage> {
 
+    @Serial
     private static final long serialVersionUID = 0L;
 
     private CommandClass(Class<? extends CommandMessage> value) {
