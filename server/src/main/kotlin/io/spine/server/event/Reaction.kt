@@ -53,7 +53,7 @@ import io.spine.server.BoundedContext
  * converts the command data into another event.
  *
  * Moreover, the presence of the "intermediate" command in relatively simple scenarios does
- * not add any business value because information of an event-sourced  application is stored
+ * not add any business value because information of an event-sourced application is stored
  * in events, not commands.
  *
  * That's why we suggest adding the Reaction pattern which reads like:
@@ -69,8 +69,8 @@ import io.spine.server.BoundedContext
  *
  * ## Implementation Guide
  *
- * To implement a reaction, override the [whenever] method to define what messages should be
- * produced in response to the incoming event.
+ * To implement a reaction, override the [whenever] method to define what event messages
+ * should be produced in response to the incoming event.
  *
  * Here's how the example above would be implemented:
  *
@@ -85,10 +85,10 @@ import io.spine.server.BoundedContext
  * ```
  * ### Return zero events
  *
- * In rare cases, when no events need to be returned:
- * - Declare return type as `Just<[NoReaction][io.spine.server.event.NoReaction]>`:
- * - In Kotlin: return [Just.noReaction] property
- * - In Java: return [Just.noReaction()][Just.noReaction].
+ * When you need to indicate that no events should be produced:
+ * - Declare the return type as `Just<[NoReaction][io.spine.server.event.NoReaction]>`
+ * - In Kotlin: return the [Just.noReaction] property
+ * - In Java: call [Just.noReaction()][Just.noReaction]
  *
  * ### Returning one event
  *
@@ -122,24 +122,20 @@ public abstract class Reaction<E : EventMessage> :
     protected lateinit var context: BoundedContext
 
     init {
-        // This call would check that there is only one event receptor
-        // defined in the derived class.
-        // Doing it earlier, here, in the constructor without waiting until
-        // the dispatching schema is built (thus gathering the message classes),
-        // allows failing faster and avoiding delayed debugging.
+        // Ensure there is only one event receptor defined in a derived class.
+        // Doing it here allows failing faster, before the dispatching schema is built.
         checkAcceptsOneEvent()
     }
 
+    
     /**
-     * Handles an event and produces zero or more messages in response.
-     *
-     * The produced messages can be either events or commands.
+     * Handles an event and produces zero or more events in response.
      *
      * ### API NOTE
      *
-     * This method returns `Iterable<Message>` instead of `Iterable<EventMessage>`,
-     * to allow implementing classes declare the return types using classes descending from
-     * [Either][io.spine.server.tuple.Either]. For example, `EitherOf2<Event1, Event2>`.
+     * This method returns `Iterable<Message>` instead of `Iterable<EventMessage>`
+     * to allow implementing classes to declare return types using classes that descend from
+     * [Either][io.spine.server.tuple.Either], such as `EitherOf2<Event1, Event2>`.
      *
      * `Either` implements `Iterable<Message>`. Classes extending `Either` have two or
      * more generic parameters bounded by `Message`, not `EventMessage`.
@@ -147,10 +143,7 @@ public abstract class Reaction<E : EventMessage> :
      * the overridden methods because `Iterable<EventMessage>` will not be
      * a super type for them.
      *
-     * Reaction authors should declare return types of the overridden methods as described
-     * in the [class documentation][Reaction].
-     *
-     * @see Reaction
+     * For implementation examples and return type options, see the class-level documentation.
      */
     @ContractFor(handler = React::class)
     public abstract override fun whenever(event: E): Iterable<Message>
