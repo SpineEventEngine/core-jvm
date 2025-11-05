@@ -35,7 +35,7 @@ import io.spine.server.BoundedContext
 /**
  * A reaction converts <em>one</em> event into zero to many messages events.
  *
- * ### Addition to the Policy pattern
+ * ## Addition to the Policy pattern
  *
  * Traditionally a Policy is a business rule that reads like this:
  *
@@ -49,14 +49,14 @@ import io.spine.server.BoundedContext
  * Event → Policy → Command → (Aggregate or ProcessManager, or Command Handler handles) → Event(s).
  * ```
  * Oftentimes, the experience of applying this pattern to various business domains shows that
- * the command merely bears the same information from the incoming event, and
- * the command handler simply converts this information into another event.
+ * the command merely bears the same information from the incoming event, and the handler merely
+ * converts the command data into another event.
  *
  * Moreover, the presence of the "intermediate" command in relatively simple scenarios does
  * not add any business value because information of an event-sourced  application is stored
  * in events, not commands.
  *
- * That's why we suggest adding the Reaction which reads like:
+ * That's why we suggest adding the Reaction pattern which reads like:
  *
  * ```markdown
  * Whenever <something happens>, then <something else happened>.
@@ -66,7 +66,7 @@ import io.spine.server.BoundedContext
  * Whenever a field option is discovered, a validation rule added.
  * ```
  *
- * ### Implementing a Reaction
+ * ## Implementing a Reaction
  *
  * To implement the policy, override the [whenever] method to return messages produced
  * in response to the incoming event.
