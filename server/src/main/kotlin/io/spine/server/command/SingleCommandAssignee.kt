@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,14 +23,13 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package io.spine.server.command
 
-import com.google.common.collect.ImmutableSet
 import io.spine.base.CommandMessage
 import io.spine.base.EventMessage
 import io.spine.core.ContractFor
 import io.spine.server.BoundedContext
-import io.spine.server.type.CommandClass
 
 /**
  * Abstract base for [Assignee] classes that handle only one command specified by
@@ -45,6 +44,15 @@ public abstract class SingleCommandAssignee<C : CommandMessage> : AbstractAssign
      */
     protected lateinit var context: BoundedContext
 
+    init {
+        // This call would check that there is only one command handler
+        // defined in the derived class.
+        // Doing it earlier, here, in the constructor without waiting until
+        // the dispatching schema is built (thus gathering the message classes),
+        // allows failing faster and avoiding delayed debugging.
+        checkReceivesOneCommand()
+    }
+
     @Assign
     @ContractFor(handler = Assign::class)
     protected abstract fun handle(command: C): Iterable<EventMessage>
@@ -54,20 +62,8 @@ public abstract class SingleCommandAssignee<C : CommandMessage> : AbstractAssign
         this.context = context
     }
 
-    /**
-     * Ensures that there is only one command receptor defined in the derived class.
-     *
-     * @throws IllegalStateException
-     *          if the derived class defines more than one command receptor
-     */
-    final override fun messageClasses(): ImmutableSet<CommandClass> {
-        val commands = super.messageClasses()
-        checkReceptors(commands)
-        return commands
-    }
-
-    private fun checkReceptors(events: Iterable<CommandClass>) {
-        val classes = events.toList()
+    private fun checkReceivesOneCommand() {
+        val classes = messageClasses()
         if (classes.size > 1) {
             throw IllegalStateException(
                 "`${javaClass.name}` handles too many commands: [${classes.joinToString()}]." +
