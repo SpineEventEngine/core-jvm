@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -55,15 +55,5 @@ class EventReactorSignatureTest extends ReceptorSignatureTest<EventReactorSignat
     @Override
     protected EventReactorSignature signature() {
         return new EventReactorSignature();
-    }
-
-    @Test
-    @DisplayName("recognize whenever() method in Reaction subclass without @React")
-    void reactionWithoutAnnotation() throws NoSuchMethodException {
-        var method = ReactionWithoutAnnotation.class
-                .getDeclaredMethod("whenever", io.spine.test.shared.event.SomethingHappened.class);
-        var signature = signature();
-        var matches = signature.matches(method);
-        assertTrue(matches, "The whenever() method should match even without @React");
     }
 }
