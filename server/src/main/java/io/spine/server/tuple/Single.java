@@ -34,7 +34,10 @@ import java.io.Serial;
 import static io.spine.server.tuple.Element.value;
 
 /**
- * A tupe containing only one element.
+ * A tuple containing only one element.
+ *
+ * <p>Used when returning an {@code Iterable} with a single element from a receptor
+ * method, for better readability over {@code Iterable<E>} or {@code List<E>}.
  *
  * @param <A> the type of the element
  */
@@ -43,7 +46,7 @@ public class Single<A extends Message> extends Tuple implements AValue<A> {
     @Serial
     private static final long serialVersionUID = 0L;
 
-    private Single(A a) {
+    protected Single(A a) {
         super(a);
     }
 
