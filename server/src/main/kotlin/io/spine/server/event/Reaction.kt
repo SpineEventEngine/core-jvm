@@ -83,13 +83,6 @@ import io.spine.server.BoundedContext
  * }
  * ```
  *
- * ### Note on @React Annotation
- *
- * The {@code @React} annotation is optional for the {@code whenever()} method in
- * {@code Reaction} subclasses. The framework automatically recognizes this method
- * without requiring the annotation. However, you may still use {@code @React}
- * if you prefer to make the contract explicit.
- *
  * ### Return zero events
  *
  * When you need to indicate that no events should be produced:

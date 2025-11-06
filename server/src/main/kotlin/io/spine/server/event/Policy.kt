@@ -53,13 +53,6 @@ import io.spine.server.command.Command
  * }
  * ```
  *
- * ### Note on @Command Annotation
- *
- * The {@code @Command} annotation is optional for the {@code whenever()} method in
- * {@code Policy} subclasses. The framework automatically recognizes this method
- * without requiring the annotation. However, you may still use {@code @Command}
- * if you prefer to make the contract explicit.
- *
  * ### Returning one command
  *
  * To return one message, declare `Just<MyCommand>` as the return type of the [whenever] method.
