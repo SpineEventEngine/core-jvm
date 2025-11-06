@@ -56,8 +56,8 @@ import io.spine.server.command.Command
  *
  * ### Returning one command
  *
- * To return one message, declare `Just<MyCommand>` as the return type of the [whenever] method.
- * Use the [Just] constructor from Kotlin or [Just.just]`()` static method from Java.
+ * To return one message, declare `Single<MyCommand>` as the return type of the [whenever] method.
+ * Use the [Single.of][io.spine.server.tuple.Single.of] static factory.
  * 
  * ### Returning more than one command
  *
