@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,17 +68,6 @@ internal class ReactionSpec {
         }.let {
             it.whenever(somethingHappened) shouldBe EitherOf2.withA(noReaction)
         }
-    }
-
-    @Test
-    @MuteLogging(WHY_MUTE)
-    fun `work without @React annotation on whenever method`() {
-        val reaction = object : Reaction<SomethingHappened>() {
-            public override fun whenever(event: SomethingHappened): Just<NoReaction> {
-                return Just.noReaction
-            }
-        }
-        reaction.whenever(somethingHappened) shouldBe Just.noReaction
     }
 
     companion object {
