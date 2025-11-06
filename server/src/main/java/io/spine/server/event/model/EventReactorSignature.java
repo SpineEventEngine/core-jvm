@@ -85,17 +85,15 @@ final class EventReactorSignature extends EventAcceptingSignature<EventReactorMe
      */
     @Override
     protected boolean skipMethod(Method method) {
-        // Check if method is annotated with @React
-        if (method.isAnnotationPresent(annotation())) {
-            return false;
+        // First check the standard annotation-based matching
+        var hasAnnotation = method.isAnnotationPresent(annotation());
+        if (hasAnnotation) {
+            return false; // Don't skip annotated methods
         }
         
         // For Reaction subclasses, assume @React on the whenever() method
-        if (Reaction.class.isAssignableFrom(method.getDeclaringClass()) &&
-            "whenever".equals(method.getName())) {
-            return false;
-        }
-        
-        return true;
+        var isReactionWhenever = Reaction.class.isAssignableFrom(method.getDeclaringClass()) &&
+                                 "whenever".equals(method.getName());
+        return !isReactionWhenever; // Don't skip if it's Reaction.whenever()
     }
 }

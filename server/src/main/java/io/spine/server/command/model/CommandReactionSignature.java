@@ -106,15 +106,14 @@ public class CommandReactionSignature
     @Override
     @SuppressWarnings("PMD.SimplifyBooleanReturns" /* Keep this way for better readability. */ )
     protected boolean skipMethod(Method method) {
-        // Check if method is annotated with @Command
+        // Check if method has @Command annotation or is Policy.whenever()
         var hasAnnotation = method.isAnnotationPresent(annotation());
-        
-        // For Policy subclasses, assume @Command on the whenever() method
         var isPolicyWhenever = Policy.class.isAssignableFrom(method.getDeclaringClass()) &&
                                "whenever".equals(method.getName());
         
-        if (hasAnnotation || isPolicyWhenever) {
-            // Don't skip if it's a command-transforming method (first param is a command)
+        var shouldConsider = hasAnnotation || isPolicyWhenever;
+        if (shouldConsider) {
+            // Skip if it's a command-transforming method (first param is a command)
             return MethodParams.firstIsCommand(method);
         }
         
