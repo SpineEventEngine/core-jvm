@@ -77,6 +77,7 @@ import io.spine.server.BoundedContext
  * ```kotlin
  * class ValidationRuleReaction : Reaction<FieldOptionDiscovered>() {
  *
+ *     @React
  *     override fun whenever(event: FieldOptionDiscovered): Just<ValidationRuleAdded> {
  *         // Produce the event.
  *     }

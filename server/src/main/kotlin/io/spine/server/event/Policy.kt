@@ -47,7 +47,8 @@ import io.spine.server.command.Command
  * ```kotlin
  * class NotifyOwnerPolicy : Policy<ItemOutOfStock>() {
  *
- *     override fun whenever(event: ItemOutOfStock): Just<NotifyOwner> {
+ *     @Command
+ *     override fun whenever(event: ItemOutOfStock): Single<NotifyOwner> {
  *         // Produce a command.
  *     }
  * }
