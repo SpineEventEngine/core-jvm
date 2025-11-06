@@ -1,11 +1,11 @@
 /*
- * Copyright 2023, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -26,130 +26,93 @@
 
 package io.spine.server.event
 
-import com.google.common.collect.ImmutableSet
 import com.google.protobuf.Message
 import io.spine.base.EventMessage
 import io.spine.core.ContractFor
-import io.spine.logging.WithLogging
 import io.spine.server.BoundedContext
-import io.spine.server.type.EventClass
-import io.spine.string.joinBackticked
+import io.spine.server.command.AbstractCommander
+import io.spine.server.command.Command
 
 /**
- * A policy converts <em>one</em> event into zero to many other events.
+ * A Policy is a pattern for handling an incoming event and producing
+ * one or more commands in response.
  *
- * As a rule of thumb, a policy should read:
- * ```markdown
- *     Whenever <something happens>, then <something else must happen>.
- * ```
- * For example,
- * ```markdown
- *     Whenever a field option is discovered, a validation rule must be added.
- * ```
- * To implement the policy, override the [whenever] method to return events produced in response
- * to the incoming event.
+ * ## Implementation Guide
  *
- * For the policy rule in the example above, the code would look like this:
+ * To implement a reaction, override the [whenever] method to define what command messages
+ * should be produced in response to the incoming event.
+ *
+ * For example:
+ *
  * ```kotlin
- * class ValidationRulePolicy : Policy<FieldOptionDiscovered>() {
+ * class NotifyOwnerPolicy : Policy<ItemOutOfStock>() {
  *
- *     @React
- *     override fun whenever(event: FieldOptionDiscovered): Just<ValidationRuleAdded> {
- *         // Produce the event.
+ *     @Command
+ *     override fun whenever(event: ItemOutOfStock): Just<NotifyOwner> {
+ *         // Produce a command.
  *     }
  * }
  * ```
- * ### Returning zero events
- * The contract of the [whenever] method requires returning an `Iterable` of event messages.
- * To return no events, declare the return type as `Just<Nothing>`, where `Nothing` is
- * the type from the `io.spine.server.model` package. Return the value of `Just.nothing` property
- * from your Kotlin method, or `Just.nothing()` from Java.
  *
- * If you need to avoid the naming collision with [kotlin.Nothing], consider using
- * the [NoReaction][io.spine.server.event.NoReaction] type alias.
+ * ### Returning one command
  *
- * ### Returning one event
- * To return one event, declare `Just<MyEvent>` as the return type of the [whenever] method.
+ * To return one message, declare `Just<MyCommand>` as the return type of the [whenever] method.
  * Use the [Just] constructor from Kotlin or [Just.just]`()` static method from Java.
+ * 
+ * ### Returning more than one command
  *
- * ### Returning more than one event
  * To make your return type more readable, consider using the following classes from
  * the `io.spine.server.tuple` package:
  *  [Pair][io.spine.server.tuple.Pair],
  *  [Triplet][io.spine.server.tuple.Triplet], [Quartet][io.spine.server.tuple.Quartet],
  *  [Quintet][io.spine.server.tuple.Quintet], with the corresponding number of elements declared
- *  in the return type of the [whenever] method. For example, `Pair<MyEvent, MyOtherEvent>`.
+ *  in the return type of the [whenever] method. For example, `Pair<MyCommand, MyOtherCommand>`.
  *
- *  For returning more than five events, please use `Iterable<EventMessage>`, as usually.
+ *  For returning more than five commands, use `Iterable<Message>`, as usually.
  *
  * @param E the type of the event handled by this policy.
- *
- * @see Just
- * @see [io.spine.server.tuple.Pair]
- * @see [io.spine.server.tuple.Triplet]
- * @see [io.spine.server.tuple.Quartet]
- * @see [io.spine.server.tuple.Quintet]
- * @see [io.spine.server.event.NoReaction]
  */
-public abstract class Policy<E : EventMessage> : AbstractEventReactor(), WithLogging {
+public abstract class Policy<E : EventMessage> : AbstractCommander(), Whenever<E> {
 
     protected lateinit var context: BoundedContext
 
     init {
-        // This call would check that there is only one event receptor
-        // defined in the derived class.
-        // Doing it earlier, here, in the constructor without waiting until
-        // the dispatching schema is built (thus gathering the message classes),
-        // allows failing faster and avoiding delayed debugging.
-        messageClasses()
+        // Ensure there is only one event receptor defined in a derived class.
+        // Doing it here allows failing faster, before the dispatching schema is built.
+        checkAcceptsOneEvent()
     }
 
+    
     /**
-     * Handles an event and produces some number of events in response.
+     * Handles an event and produces zero or more command messages in response.
      *
      * ### API NOTE
      *
-     * This method returns `Iterable<Message>` instead of `Iterable<EventMessage>`,
-     * to allow implementing classes declare the return types using classes descending from
-     * [Either][io.spine.server.tuple.Either]. For example, `EitherOf2<Event1, Event2>`.
+     * This method uses `Iterable<Message>` as the return type to support flexible command
+     * response patterns. While policy implementations typically return command messages,
+     * the broader `Message` type allows use of utility classes like
+     * [Either][io.spine.server.tuple.Either]:
      *
-     * `Either` implements `Iterable<Message>`. Classes extending `Either` have two or
-     * more generic parameters bounded by `Message`, not `EventMessage`.
-     * Therefore, these classes will not be accepted as return types of
-     * the overridden methods because `Iterable<EventMessage>` will not be
-     * a super type for them.
+     * ```
+     * // Returning alternative commands:
+     * EitherOf2<CreateOrder, UpdateInventory>
      *
-     * Policy authors should declare return types of the overridden methods as described
-     * in the [class documentation][Policy].
+     * // Multiple commands:
+     * Pair<NotifyCustomer, UpdateStatus>
+     * ```
      *
-     * @see Policy
+     * The [Either][io.spine.server.tuple.Either] hierarchy and tuple classes
+     * ([Pair][io.spine.server.tuple.Pair], [Triplet][io.spine.server.tuple.Triplet], etc.)
+     * implement `Iterable<Message>` rather than `Iterable<CommandMessage>`.
+     * `Iterable<Message>` is the common supertype for them.
+     *
+     * For implementation examples and return type options, see the class-level documentation.
      */
-    @ContractFor(handler = React::class)
+    @ContractFor(handler = Command::class)
     protected abstract fun whenever(event: E): Iterable<Message>
 
     final override fun registerWith(context: BoundedContext) {
         super.registerWith(context)
         this.context = context
-    }
-
-    /**
-     * Ensures that there is only one event receptor defined in the derived class.
-     *
-     * @throws IllegalStateException
-     *          if the derived class defines more than one event receptor
-     */
-    final override fun messageClasses(): ImmutableSet<EventClass> {
-        val classes = super.messageClasses()
-        checkReceptors(classes)
-        return classes
-    }
-
-    private fun checkReceptors(events: Iterable<EventClass>) {
-        val classes = events.toList()
-        check(classes.size == 1) {
-            "A policy should handle only one event." +
-                    " `${javaClass.name}` attempts to handle ${classes.size}:" +
-                    " [${classes.joinBackticked()}]."
-        }
     }
 }

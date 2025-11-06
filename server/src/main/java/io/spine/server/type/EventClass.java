@@ -38,6 +38,7 @@ import io.spine.system.server.event.EntityStateChanged;
 import io.spine.type.MessageClass;
 import io.spine.type.TypeUrl;
 
+import java.io.Serial;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
@@ -51,6 +52,7 @@ import static io.spine.util.Exceptions.illegalStateWithCauseOf;
  */
 public final class EventClass extends MessageClass<EventMessage> {
 
+    @Serial
     private static final long serialVersionUID = 0L;
     
     /**

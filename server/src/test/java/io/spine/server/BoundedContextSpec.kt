@@ -60,7 +60,7 @@ import io.spine.server.bc.given.TestEventSubscriber
 import io.spine.server.bus.Listener
 import io.spine.server.entity.Entity
 import io.spine.server.event.EventDispatcher
-import io.spine.server.event.Policy
+import io.spine.server.event.Reaction
 import io.spine.server.event.React
 import io.spine.server.type.CommandEnvelope
 import io.spine.server.type.EventEnvelope
@@ -579,16 +579,16 @@ private class EmptyProbe : BoundedContext.Probe {
     override fun commandListener(): Listener<CommandEnvelope> = Listener { _ -> }
     override fun eventListener(): Listener<EventEnvelope> = Listener { _ -> }
     override fun eventDispatchers(): Set<EventDispatcher> = mutableSetOf(
-            StubPolicy1(), StubPolicy2(), StubPolicy3()
+            StubReaction1(), StubReaction2(), StubReaction3()
         )
 }
 
-private class StubPolicy1: Policy<SomethingHappened>() {
+private class StubReaction1: Reaction<SomethingHappened>() {
     @React
     override fun whenever(event: SomethingHappened): Iterable<EventMessage> = setOf()
 }
 
-private class StubPolicy2: Policy<SomethingElseHappened>() {
+private class StubReaction2: Reaction<SomethingElseHappened>() {
     @React
     override fun whenever(event: SomethingElseHappened): Iterable<EventMessage> = setOf()
 }
@@ -596,7 +596,7 @@ private class StubPolicy2: Policy<SomethingElseHappened>() {
 /**
  * A policy which reacts to an external event.
  */
-private class StubPolicy3: Policy<ConstraintViolated>() {
+private class StubReaction3: Reaction<ConstraintViolated>() {
     @React
     override fun whenever(@External event: ConstraintViolated): Iterable<EventMessage> = setOf()
 

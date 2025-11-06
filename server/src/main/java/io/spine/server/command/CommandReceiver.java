@@ -29,7 +29,7 @@ package io.spine.server.command;
 import io.spine.server.EventProducer;
 
 /**
- * Common interface for all objects that receive commands in the end of the dispatching.
+ * Common interface for all objects that receive commands at the end of the dispatching.
  *
  * <p>Any command receiver may reject commands by producing rejection events. Thus, any command
  * receiver is an {@link EventProducer}.

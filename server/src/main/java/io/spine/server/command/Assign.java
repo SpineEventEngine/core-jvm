@@ -57,7 +57,7 @@ import java.lang.annotation.Target;
  * of the Bounded Context-level API. See the {@link io.spine.core.BoundedContext
  * BoundedContext} description on how the packages and Bounded Contexts relate.
  *
- * <h1>Accepted Parameters</h1>
+ * <h2>Accepted Parameters</h2>
  *
  * <p>The first parameter of the method always declares a type of the handled command.
  *
@@ -85,7 +85,7 @@ import java.lang.annotation.Target;
  * this method is not considered a command assignee and is <strong>not</strong> registered for
  * command dispatching.
  *
- * <h1>Returning Values</h1>
+ * <h2>Returning Values</h2>
  *
  * <p>As a command is an imperative, it must lead to some outcome. Typically, a command results
  * in an emission of one or more events. Each of them must derive
@@ -131,7 +131,7 @@ import java.lang.annotation.Target;
  *  </pre>
  * </ul>
  *
- * <h1>One Handler per Command</h1>
+ * <h2>One Handler per Command</h2>
  *
  * <p>An application must have one and only one handler per command message class.
  * This includes {@linkplain io.spine.server.command.Command the case} of transforming an incoming

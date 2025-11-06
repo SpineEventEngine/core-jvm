@@ -39,7 +39,7 @@ import java.lang.reflect.Method;
  * <p>Derived classes must declare a method called {@linkplain #METHOD_NAME commandOn} so that
  * the method can be {@linkplain #getMethod() obtained} from the code of tests.
  */
-public class TestCommandReactor implements EventReceiver {
+public abstract class TestCommandReactor implements EventReceiver {
 
     @SuppressWarnings("WeakerAccess") // it's part of the API.
     public static final String METHOD_NAME = "commandOn";

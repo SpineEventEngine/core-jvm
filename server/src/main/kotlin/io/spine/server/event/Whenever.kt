@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,34 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+package io.spine.server.event
+
+import io.spine.base.EventMessage
+import io.spine.server.bus.MessageDispatcher
+import io.spine.string.joinBackticked
+
 /**
- *  The version of this library.
+ * An interface common to classes that produce zero or more messages in response
+ * to an incoming event.
  *
- * For versions of Spine-based dependencies, please see [io.spine.dependency.local.Spine].
+ * The interface does not define functions to allow `protected abstract`
+ * methods in the implementing abstract classes to avoid overexposure of
+ * the message processing.
+ *
+ * @param E the type of the event to be processed.
  */
-val versionToPublish: String by extra("2.0.0-SNAPSHOT.347")
+public interface Whenever<E : EventMessage> : EventReceiver
+
+context(dispatcher: MessageDispatcher<*, *>)
+internal fun Whenever<*>.checkAcceptsOneEvent() {
+    val events = if (dispatcher is EventDispatcherDelegate) {
+        dispatcher.events()
+    } else {
+        dispatcher.messageClasses()
+    }
+    check(events.size == 1) {
+        "The class `${this::class.qualifiedName}` should accept exactly one event." +
+                " Now it handles too many (${events.size}): [${events.joinBackticked()}]." +
+                " Please use only `whenever()` method for producing outgoing messages."
+    }
+}
