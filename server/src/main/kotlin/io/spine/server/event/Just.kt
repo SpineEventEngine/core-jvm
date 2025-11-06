@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ package io.spine.server.event
 
 import io.spine.base.EventMessage
 import io.spine.server.tuple.Tuple
+import java.io.Serial
 
 /**
  * A tuple of one event.
@@ -41,7 +42,7 @@ public class Just<E : EventMessage>(event: E) : Tuple(event) {
 
     public companion object {
 
-        @Suppress("ConstPropertyName") // Following Java conventions.
+        @Serial
         private const val serialVersionUID: Long = 0L
 
         /**

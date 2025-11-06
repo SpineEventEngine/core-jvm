@@ -24,24 +24,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+@CheckReturnValue
+@NullMarked
 package io.spine.server.command.model.given;
 
-import io.spine.server.command.DoNothing;
-import io.spine.server.event.Policy;
-import io.spine.server.tuple.Single;
-import io.spine.test.shared.event.SomethingHappened;
-
-/**
- * A test {@link Policy} that does not use the {@code @Command} annotation
- * on its {@code whenever()} method.
- *
- * <p>This verifies that the framework automatically assumes the annotation
- * for {@code Policy} subclasses.
- */
-public final class PolicyWithoutAnnotation extends Policy<SomethingHappened> {
-
-    @Override
-    protected Single<DoNothing> whenever(SomethingHappened event) {
-        return Single.of(DoNothing.getDefaultInstance());
-    }
-}
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jspecify.annotations.NullMarked;

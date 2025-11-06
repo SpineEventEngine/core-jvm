@@ -24,24 +24,50 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.server.command.model.given;
+package io.spine.server.tuple;
 
-import io.spine.server.command.DoNothing;
-import io.spine.server.event.Policy;
-import io.spine.server.tuple.Single;
-import io.spine.test.shared.event.SomethingHappened;
+import com.google.protobuf.Message;
+import io.spine.server.tuple.Element.AValue;
+
+import java.io.Serial;
+
+import static io.spine.server.tuple.Element.value;
 
 /**
- * A test {@link Policy} that does not use the {@code @Command} annotation
- * on its {@code whenever()} method.
+ * A tupe containing only one element.
  *
- * <p>This verifies that the framework automatically assumes the annotation
- * for {@code Policy} subclasses.
+ * @param <A> the type of the element
  */
-public final class PolicyWithoutAnnotation extends Policy<SomethingHappened> {
+public class Single<A extends Message> extends Tuple implements AValue<A> {
 
+    @Serial
+    private static final long serialVersionUID = 0L;
+
+    private Single(A a) {
+        super(a);
+    }
+
+    /**
+     * Creates a new {@code Single} instance containing the specified value.
+     */
+    public static <A extends Message> Single<A> of(A a) {
+        checkNotNullOrEmpty(Single.class, a);
+        return new Single<>(a);
+    }
+
+    /**
+     * Returns the contained value.
+     */
     @Override
-    protected Single<DoNothing> whenever(SomethingHappened event) {
-        return Single.of(DoNothing.getDefaultInstance());
+    public A getA() {
+        return value(this, IndexOf.A);
+    }
+
+    /**
+     * Always returns {@code true}.
+     */
+    @Override
+    public boolean hasA() {
+        return true;
     }
 }
