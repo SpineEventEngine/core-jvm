@@ -29,15 +29,11 @@ package io.spine.server.event.model;
 import io.spine.server.event.React;
 import io.spine.server.event.given.InvalidReactor;
 import io.spine.server.event.given.ValidReactor;
-import io.spine.server.event.model.given.ReactionWithoutAnnotation;
 import io.spine.server.model.ReceptorSignatureTest;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayName("`EventReactorSignature` should")
 class EventReactorSignatureTest extends ReceptorSignatureTest<EventReactorSignature> {
