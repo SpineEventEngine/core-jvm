@@ -27,13 +27,17 @@
 package io.spine.server.command.model;
 
 import io.spine.server.command.Command;
+import io.spine.server.command.model.given.PolicyWithoutAnnotation;
 import io.spine.server.command.model.given.reaction.InvalidCommander;
 import io.spine.server.command.model.given.reaction.ValidCommander;
 import io.spine.server.model.ReceptorSignatureTest;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayName("`CommandReactionSignature` should")
 class CommandReactionSignatureTest extends ReceptorSignatureTest<CommandReactionSignature> {
@@ -51,5 +55,15 @@ class CommandReactionSignatureTest extends ReceptorSignatureTest<CommandReaction
     @Override
     protected CommandReactionSignature signature() {
         return new CommandReactionSignature();
+    }
+
+    @Test
+    @DisplayName("recognize whenever() method in Policy subclass without @Command")
+    void policyWithoutAnnotation() throws NoSuchMethodException {
+        var method = PolicyWithoutAnnotation.class
+                .getDeclaredMethod("whenever", io.spine.test.shared.event.SomethingHappened.class);
+        var signature = signature();
+        var matches = signature.matches(method);
+        assertTrue(matches, "The whenever() method should match even without @Command");
     }
 }
