@@ -73,6 +73,17 @@ internal class PolicySpec {
         }
     }
 
+    @Test
+    @MuteLogging(WHY_MUTE)
+    fun `work without @Command annotation on whenever method`() {
+        val doNothing = DoNothing.getDefaultInstance()
+        val policy = object : Policy<SomethingHappened>() {
+            public override fun whenever(event: SomethingHappened): List<DoNothing> =
+                listOf(doNothing)
+        }
+        policy.whenever(somethingHappened) shouldBe listOf(doNothing)
+    }
+
     companion object {
         const val WHY_MUTE = """
             We make the method `whenever()` `public` to be able to call it from outside.

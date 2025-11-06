@@ -70,6 +70,17 @@ internal class ReactionSpec {
         }
     }
 
+    @Test
+    @MuteLogging(WHY_MUTE)
+    fun `work without @React annotation on whenever method`() {
+        val reaction = object : Reaction<SomethingHappened>() {
+            public override fun whenever(event: SomethingHappened): Just<NoReaction> {
+                return Just.noReaction
+            }
+        }
+        reaction.whenever(somethingHappened) shouldBe Just.noReaction
+    }
+
     companion object {
         const val WHY_MUTE = """
             We make the method `whenever()` `public` to be able to call it from outside.

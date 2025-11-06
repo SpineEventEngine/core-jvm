@@ -35,6 +35,7 @@ import io.spine.base.RejectionMessage;
 import io.spine.core.CommandContext;
 import io.spine.core.EventContext;
 import io.spine.server.command.Command;
+import io.spine.server.event.Policy;
 import io.spine.server.model.AllowedParams;
 import io.spine.server.model.ExtractedArguments;
 import io.spine.server.model.MethodParams;
@@ -97,14 +98,26 @@ public class CommandReactionSignature
      * one from another, as they use the same annotation, but have a different parameter list.
      * It skips the methods which first parameter
      * {@linkplain MethodParams#firstIsCommand(Method) is} a {@code Command} message.
+     *
+     * <p>For {@link Policy} subclasses, the {@code whenever()} method is assumed to have
+     * the {@code @Command} annotation even if it's not explicitly present, making it unnecessary
+     * for users to add the annotation.
      */
     @Override
     @SuppressWarnings("PMD.SimplifyBooleanReturns" /* Keep this way for better readability. */ )
     protected boolean skipMethod(Method method) {
-        var parentResult = !super.skipMethod(method);
-        if (parentResult) {
+        // Check if method is annotated with @Command
+        var hasAnnotation = method.isAnnotationPresent(annotation());
+        
+        // For Policy subclasses, assume @Command on the whenever() method
+        var isPolicyWhenever = Policy.class.isAssignableFrom(method.getDeclaringClass()) &&
+                               "whenever".equals(method.getName());
+        
+        if (hasAnnotation || isPolicyWhenever) {
+            // Don't skip if it's a command-transforming method (first param is a command)
             return MethodParams.firstIsCommand(method);
         }
+        
         return true;
     }
 
