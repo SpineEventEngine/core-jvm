@@ -35,12 +35,11 @@ import io.spine.base.RejectionMessage;
 import io.spine.core.CommandContext;
 import io.spine.core.EventContext;
 import io.spine.server.command.Command;
-import io.spine.server.event.Policy;
 import io.spine.server.model.AllowedParams;
 import io.spine.server.model.ExtractedArguments;
 import io.spine.server.model.MethodParams;
-import io.spine.server.model.ReceptorSignature;
 import io.spine.server.model.ParameterSpec;
+import io.spine.server.model.ReceptorSignature;
 import io.spine.server.model.ReturnTypes;
 import io.spine.server.model.TypeMatcher;
 import io.spine.server.type.EventEnvelope;
@@ -98,25 +97,14 @@ public class CommandReactionSignature
      * one from another, as they use the same annotation, but have a different parameter list.
      * It skips the methods which first parameter
      * {@linkplain MethodParams#firstIsCommand(Method) is} a {@code Command} message.
-     *
-     * <p>For {@link Policy} subclasses, the {@code whenever()} method is assumed to have
-     * the {@code @Command} annotation even if it's not explicitly present, making it unnecessary
-     * for users to add the annotation.
      */
     @Override
     @SuppressWarnings("PMD.SimplifyBooleanReturns" /* Keep this way for better readability. */ )
     protected boolean skipMethod(Method method) {
-        // Check if method has @Command annotation or is Policy.whenever()
-        var hasAnnotation = method.isAnnotationPresent(annotation());
-        var isPolicyWhenever = Policy.class.isAssignableFrom(method.getDeclaringClass()) &&
-                               "whenever".equals(method.getName());
-        
-        var shouldConsider = hasAnnotation || isPolicyWhenever;
-        if (shouldConsider) {
-            // Skip if it's a command-transforming method (first param is a command)
+        var parentResult = !super.skipMethod(method);
+        if (parentResult) {
             return MethodParams.firstIsCommand(method);
         }
-        
         return true;
     }
 

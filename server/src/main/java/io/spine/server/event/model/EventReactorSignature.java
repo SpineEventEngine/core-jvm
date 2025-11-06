@@ -30,7 +30,6 @@ import com.google.common.reflect.TypeToken;
 import io.spine.base.EventMessage;
 import io.spine.base.RejectionMessage;
 import io.spine.server.event.React;
-import io.spine.server.event.Reaction;
 import io.spine.server.model.ParameterSpec;
 import io.spine.server.model.ReturnTypes;
 import io.spine.server.type.EventEnvelope;
@@ -74,26 +73,5 @@ final class EventReactorSignature extends EventAcceptingSignature<EventReactorMe
     @Override
     public boolean mayReturnIgnored() {
         return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>For {@link Reaction} subclasses, the {@code whenever()} method is assumed to have
-     * the {@code @React} annotation even if it's not explicitly present, making it unnecessary
-     * for users to add the annotation.
-     */
-    @Override
-    protected boolean skipMethod(Method method) {
-        // First check the standard annotation-based matching
-        var hasAnnotation = method.isAnnotationPresent(annotation());
-        if (hasAnnotation) {
-            return false; // Don't skip annotated methods
-        }
-        
-        // For Reaction subclasses, assume @React on the whenever() method
-        var isReactionWhenever = Reaction.class.isAssignableFrom(method.getDeclaringClass()) &&
-                                 "whenever".equals(method.getName());
-        return !isReactionWhenever; // Don't skip if it's Reaction.whenever()
     }
 }
