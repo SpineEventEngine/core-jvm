@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,21 +27,24 @@
 package io.spine.server.event
 
 import io.spine.base.EventMessage
-import io.spine.server.tuple.Tuple
+import io.spine.server.event.Just.Companion.noReaction
+import io.spine.server.event.Just.Companion.nothing
+import io.spine.server.tuple.Single
+import java.io.Serial
 
 /**
  * A tuple of one event.
  *
- * Used when returning an `Iterable` from a handler method for better readability over
- * `Iterable<E>` or `List<E>`.
+ * Used when returning an `Iterable` with a single element from a receptor method,
+ * for better readability over `Iterable<E>` or `List<E>`.
  *
  * @param E The type of the event.
  */
-public class Just<E : EventMessage>(event: E) : Tuple(event) {
+public class Just<E : EventMessage>(event: E) : Single<E>(event) {
 
     public companion object {
 
-        @Suppress("ConstPropertyName") // Following Java conventions.
+        @Serial
         private const val serialVersionUID: Long = 0L
 
         /**

@@ -83,6 +83,7 @@ import io.spine.server.BoundedContext
  *     }
  * }
  * ```
+ *
  * ### Return zero events
  *
  * When you need to indicate that no events should be produced:

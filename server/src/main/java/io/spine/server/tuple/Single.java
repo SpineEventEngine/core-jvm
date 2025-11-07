@@ -24,32 +24,53 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.server.command.model;
+package io.spine.server.tuple;
 
-import io.spine.server.command.Command;
-import io.spine.server.command.model.given.reaction.InvalidCommander;
-import io.spine.server.command.model.given.reaction.ValidCommander;
-import io.spine.server.model.ReceptorSignatureTest;
-import org.junit.jupiter.api.DisplayName;
+import com.google.protobuf.Message;
+import io.spine.server.tuple.Element.AValue;
 
-import java.lang.reflect.Method;
-import java.util.stream.Stream;
+import java.io.Serial;
 
-@DisplayName("`CommandReactionSignature` should")
-class CommandReactionSignatureTest extends ReceptorSignatureTest<CommandReactionSignature> {
+import static io.spine.server.tuple.Element.value;
 
-    @Override
-    protected Stream<Method> validMethods() {
-        return methodsAnnotatedWith(Command.class, ValidCommander.class).stream();
+/**
+ * A tuple containing only one element.
+ *
+ * <p>Used when returning an {@code Iterable} with a single element from a receptor
+ * method, for better readability over {@code Iterable<E>} or {@code List<E>}.
+ *
+ * @param <A> the type of the element
+ */
+public class Single<A extends Message> extends Tuple implements AValue<A> {
+
+    @Serial
+    private static final long serialVersionUID = 0L;
+
+    protected Single(A a) {
+        super(a);
     }
 
-    @Override
-    protected Stream<Method> invalidMethods() {
-        return methodsAnnotatedWith(Command.class, InvalidCommander.class).stream();
+    /**
+     * Creates a new {@code Single} instance containing the specified value.
+     */
+    public static <A extends Message> Single<A> of(A a) {
+        checkNotNullOrEmpty(Single.class, a);
+        return new Single<>(a);
     }
 
+    /**
+     * Returns the contained value.
+     */
     @Override
-    protected CommandReactionSignature signature() {
-        return new CommandReactionSignature();
+    public A getA() {
+        return value(this, IndexOf.A);
+    }
+
+    /**
+     * Always returns {@code true}.
+     */
+    @Override
+    public boolean hasA() {
+        return true;
     }
 }
