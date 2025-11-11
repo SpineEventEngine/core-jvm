@@ -96,6 +96,7 @@ class CommandBusBuilderTest
     void neverOmitCommandStore() {
         assertThrows(IllegalStateException.class,
                      () -> CommandBus.newBuilder()
+                             .injectContextSpec(context.spec())
                              .injectSystem(SYSTEM_WRITE_SIDE)
                              .build());
     }
@@ -105,6 +106,17 @@ class CommandBusBuilderTest
     void neverOmitSystem() {
         assertThrows(IllegalStateException.class,
                      () -> CommandBus.newBuilder()
+                             .injectContextSpec(context.spec())
+                             .injectTenantIndex(tenantIndex)
+                             .build());
+    }
+
+    @Test
+    @DisplayName("not allow to omit setting `ContextSpec`")
+    void neverOmitContextSpec() {
+        assertThrows(IllegalStateException.class,
+                     () -> CommandBus.newBuilder()
+                             .injectSystem(SYSTEM_WRITE_SIDE)
                              .injectTenantIndex(tenantIndex)
                              .build());
     }

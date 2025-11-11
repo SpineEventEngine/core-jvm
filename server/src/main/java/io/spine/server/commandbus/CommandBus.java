@@ -116,7 +116,7 @@ public final class CommandBus
      */
     private CommandBus(Builder builder) {
         super(builder);
-        this.multitenant = builder.contextSpec.isMultitenant();
+        this.multitenant = builder.ensureContextSpec().isMultitenant();
         this.scheduler = checkNotNull(builder.commandScheduler);
         this.systemWriteSide = builder.ensureSystem();
         this.tenantConsumer = checkNotNull(builder.tenantConsumer);
@@ -297,6 +297,21 @@ public final class CommandBus
         Builder injectContextSpec(ContextSpec spec) {
             this.contextSpec = checkNotNull(spec);
             return this;
+        }
+
+        /**
+         * Obtains the {@link ContextSpec} set in the builder.
+         *
+         * @return the context spec
+         * @throws IllegalStateException if the context spec was not set
+         */
+        private ContextSpec ensureContextSpec() throws IllegalStateException {
+            if (contextSpec == null) {
+                throw new IllegalStateException(
+                        "`ContextSpec` must be set. Please call `injectContextSpec()`."
+                );
+            }
+            return contextSpec;
         }
 
         @Internal
