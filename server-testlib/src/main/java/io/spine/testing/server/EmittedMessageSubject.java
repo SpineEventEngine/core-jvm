@@ -59,13 +59,14 @@ import static java.util.Objects.requireNonNull;
  * a Bounded Context under the test.
  *
  * @param <S>
- *         the self-type for return type covariance
+ *         the type of the concrete subject implementation (e.g., {@link EventSubject} or
+ *         {@link CommandSubject}), which enables method chaining with the correct return type
  * @param <T>
  *         the type of the outer objects of the checked messages,
  *         such as {@link io.spine.core.Command Command} or {@link io.spine.core.Event Event}
  * @param <M>
  *         the type of emitted messages, such as {@link io.spine.base.CommandMessage CommandMessage}
- *         or {@link io.spine.base.EventMessage EventMessage}.
+ *         or {@link io.spine.base.EventMessage EventMessage}
  */
 public abstract class EmittedMessageSubject<S extends EmittedMessageSubject<S, T, M>,
                                             T extends Signal<?, ?, ?>,
