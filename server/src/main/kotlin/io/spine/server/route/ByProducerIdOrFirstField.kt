@@ -53,10 +53,7 @@ internal class ByProducerIdOrFirstField<I : Any>(idClass: Class<I>) : EventRoute
      * @param context The context of the event message.
      * @return A set of entity identifiers determined by the routing strategy.
      */
-    override fun invoke(
-        message: EventMessage,
-        context: EventContext
-    ): Set<I> {
+    override fun invoke(message: EventMessage, context: EventContext): Set<I> {
         var ids = byProducerId(message, context)
         if (ids.isEmpty()) {
             ids = byFirstField(message, context)
