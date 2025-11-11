@@ -232,7 +232,7 @@ public sealed class MessageRouting<
     }
 
     /**
-     * Obtains a route for the passed message class.
+     * Obtains a route for the given message class.
      *
      * @param msgCls the class of the messages.
      * @return optionally available route.

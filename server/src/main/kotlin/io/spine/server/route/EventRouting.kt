@@ -32,7 +32,7 @@ import io.spine.base.EventMessage
 import io.spine.core.EventContext
 import io.spine.server.route.EventRoute.Companion.withId
 import io.spine.server.route.EventRouting.Companion.withDefault
-import io.spine.server.route.EventRouting.Companion.withDefaultByProducerId
+import io.spine.server.route.EventRouting.Companion.withDefaultByProducerIdOrFirstField
 import io.spine.system.server.event.EntityStateChanged
 
 /**
@@ -52,7 +52,7 @@ import io.spine.system.server.event.EntityStateChanged
  *
  * By default, the `EventRouting` schema uses the producer's ID from
  * the [EventContext][EventContext.getProducerId] to determine the route.
- * This behavior is specified when `EventRouting` is [created][withDefaultByProducerId]
+ * This behavior is specified when `EventRouting` is [created][withDefaultByProducerIdOrFirstField]
  * by a repository.
  *
  * To override the default routing, use [replaceDefault] in
@@ -143,11 +143,10 @@ public class EventRouting<I : Any> private constructor(
          * Creates a new event routing with the passed default route.
          *
          * @param defaultRoute The default route.
-         * @param I The type of entity identifiers returned by new routing.
+         * @param I The type of entity identifiers returned by the given routing.
          * @return new routing instance.
          */
         @JvmStatic
-        @CanIgnoreReturnValue
         @VisibleForTesting
         public fun <I : Any> withDefault(
             defaultRoute: EventRoute<I, EventMessage>
@@ -160,8 +159,23 @@ public class EventRouting<I : Any> private constructor(
          * @see EventRoute.byProducerId
          */
         @JvmStatic
-        @CanIgnoreReturnValue
         public fun <I : Any> withDefaultByProducerId(): EventRouting<I> =
             EventRouting(EventRoute.byProducerId())
+
+        /**
+         * Creates a new event routing that attempts to route by producer ID first,
+         * and if that's not available, falls back to routing by the first message field.
+         *
+         * @param idClass The class of entity identifiers to which events will be routed.
+         * @param I The type of entity identifiers returned by the routing.
+         * @return new routing instance with the combined producer ID and
+         *   first field routing strategy.
+         * @see EventRoute.byProducerId
+         * @see EventRoute.byFirstMessageField
+         */
+        @JvmStatic
+        public fun <I : Any> withDefaultByProducerIdOrFirstField(
+            idClass: Class<I>
+        ): EventRouting<I> = EventRouting(EventRoute.byProducerIdOrFirstField(idClass))
     }
 }
