@@ -667,8 +667,8 @@ public final class BoundedContextBuilder implements WithLogging {
     }
 
     private void initCommandBus(SystemWriteSide systemWriteSide) {
-        commandBus.setMultitenant(isMultitenant());
-        commandBus.injectSystem(systemWriteSide)
+        commandBus.injectContextSpec(spec)
+                  .injectSystem(systemWriteSide)
                   .injectTenantIndex(checkNotNull(tenantIndex, "Tenant index is not set."));
     }
 

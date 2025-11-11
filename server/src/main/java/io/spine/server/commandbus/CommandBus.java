@@ -40,6 +40,7 @@ import io.spine.core.Command;
 import io.spine.core.TenantId;
 import io.spine.grpc.CompositeObserver;
 import io.spine.server.BoundedContextBuilder;
+import io.spine.server.ContextSpec;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.bus.BusBuilder;
 import io.spine.server.bus.BusFilter;
@@ -115,9 +116,7 @@ public final class CommandBus
      */
     private CommandBus(Builder builder) {
         super(builder);
-        this.multitenant = builder.multitenant != null
-                           ? builder.multitenant
-                           : false;
+        this.multitenant = builder.contextSpec.isMultitenant();
         this.scheduler = checkNotNull(builder.commandScheduler);
         this.systemWriteSide = builder.ensureSystem();
         this.tenantConsumer = checkNotNull(builder.tenantConsumer);
@@ -278,17 +277,7 @@ public final class CommandBus
                                                    CommandClass,
                                                    CommandDispatcher> {
 
-        /**
-         * The multi-tenancy flag for the {@code CommandBus} to build.
-         *
-         * <p>The value of this field should be equal to that of corresponding
-         * {@linkplain BoundedContextBuilder BoundedContext.Builder} and is not
-         * supposed to be {@linkplain #setMultitenant(Boolean) set directly}.
-         *
-         * <p>If set directly, the value would be matched to the multi-tenancy flag of
-         * {@code BoundedContext}.
-         */
-        private @Nullable Boolean multitenant;
+        private @MonotonicNonNull ContextSpec contextSpec;
         private @Nullable CommandFlowWatcher watcher;
         private @MonotonicNonNull Consumer<TenantId> tenantConsumer;
         private @MonotonicNonNull CommandScheduler commandScheduler;
@@ -305,8 +294,8 @@ public final class CommandBus
 
         @Internal
         @CanIgnoreReturnValue
-        public Builder setMultitenant(@Nullable Boolean multitenant) {
-            this.multitenant = multitenant;
+        Builder injectContextSpec(ContextSpec spec) {
+            this.contextSpec = checkNotNull(spec);
             return this;
         }
 

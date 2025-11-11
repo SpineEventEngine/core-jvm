@@ -53,17 +53,19 @@ class CommandBusBuilderTest
     private static final SystemWriteSide SYSTEM_WRITE_SIDE = NoOpSystemWriteSide.INSTANCE;
 
     private TenantIndex tenantIndex;
+    private BoundedContext context;
 
     @Override
     protected CommandBus.Builder builder() {
         return CommandBus.newBuilder()
+                         .injectContextSpec(context.spec())
                          .injectSystem(SYSTEM_WRITE_SIDE)
                          .injectTenantIndex(tenantIndex);
     }
 
     @BeforeEach
     void setUp() {
-        var context =
+        context =
                 BoundedContext.multitenant(getClass().getSimpleName())
                               .build();
         tenantIndex = context.internalAccess()
@@ -74,10 +76,12 @@ class CommandBusBuilderTest
     @DisplayName("create new `CommandBus` instance")
     void createNewInstance() {
         var commandBus = CommandBus.newBuilder()
+                .injectContextSpec(context.spec())
                 .injectTenantIndex(tenantIndex)
                 .injectSystem(SYSTEM_WRITE_SIDE)
                 .build();
         assertNotNull(commandBus);
+    }
     }
 
     @Test
@@ -110,17 +114,6 @@ class CommandBusBuilderTest
     class AllowToSpecify {
 
         @Test
-        @DisplayName("if `CommandBus` is multitenant")
-        void ifIsMultitenant() {
-            assertTrue(builder().setMultitenant(true)
-                                .build()
-                                .isMultitenant());
-            assertFalse(builder().setMultitenant(false)
-                                 .build()
-                                 .isMultitenant());
-        }
-
-        @Test
         @DisplayName("system write side")
         void system() {
             SystemWriteSide systemWriteSide = NoOpSystemWriteSide.INSTANCE;
@@ -136,6 +129,37 @@ class CommandBusBuilderTest
             var builder = builder().injectTenantIndex(index);
             assertTrue(builder.hasTenantIndex());
             assertSame(index, builder.getTenantIndex());
+        }
+    }
+
+    @Nested
+    @DisplayName("inherit multitenancy from context spec")
+    class InheritMultitenancy {
+
+        @Test
+        @DisplayName("when context is multitenant")
+        void multitenantContext() {
+            var mtContext = BoundedContext.multitenant("MultitenantTest").build();
+            var mtTenantIndex = mtContext.internalAccess().tenantIndex();
+            var commandBus = CommandBus.newBuilder()
+                    .injectContextSpec(mtContext.spec())
+                    .injectTenantIndex(mtTenantIndex)
+                    .injectSystem(SYSTEM_WRITE_SIDE)
+                    .build();
+            assertTrue(commandBus.isMultitenant());
+        }
+
+        @Test
+        @DisplayName("when context is single-tenant")
+        void singleTenantContext() {
+            var stContext = BoundedContext.singleTenant("SingleTenantTest").build();
+            var stTenantIndex = stContext.internalAccess().tenantIndex();
+            var commandBus = CommandBus.newBuilder()
+                    .injectContextSpec(stContext.spec())
+                    .injectTenantIndex(stTenantIndex)
+                    .injectSystem(SYSTEM_WRITE_SIDE)
+                    .build();
+            assertFalse(commandBus.isMultitenant());
         }
     }
 }

@@ -180,7 +180,7 @@ abstract class AbstractCommandBusTestSuite {
         eventBus = context.eventBus();
         watcher = new MemoizingCommandFlowWatcher();
         commandBus = CommandBus.newBuilder()
-                .setMultitenant(this.multitenant)
+                .injectContextSpec(context.spec())
                 .injectContext(context)
                 .injectSystem(systemWriteSide)
                 .injectTenantIndex(tenantIndex)
