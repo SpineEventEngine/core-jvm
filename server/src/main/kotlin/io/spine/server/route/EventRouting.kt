@@ -143,7 +143,7 @@ public class EventRouting<I : Any> private constructor(
          * Creates a new event routing with the passed default route.
          *
          * @param defaultRoute The default route.
-         * @param I The type of entity identifiers returned by new routing.
+         * @param I The type of entity identifiers returned by the given routing.
          * @return new routing instance.
          */
         @JvmStatic

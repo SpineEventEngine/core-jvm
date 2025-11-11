@@ -52,7 +52,7 @@ public fun interface EventRoute<I : Any, M : EventMessage> : Multicast<I, M, Eve
 
         /**
          * Creates an event route that obtains target entity ID from an event message and
-         * returns it as a sole element of the immutable set.
+         * returns it as a sole element of the returned [EventRoute].
          *
          * @param I The type of the IDs of entities to which the event would be routed.
          * @param idClass The class of identifiers.
@@ -60,9 +60,19 @@ public fun interface EventRoute<I : Any, M : EventMessage> : Multicast<I, M, Eve
          */
         @JvmStatic
         public fun <I : Any, E : EventMessage> byFirstMessageField(
-            idClass: Class<I>, eventClass: Class<E>
+            idClass: Class<I>,
+            eventClass: Class<E>
         ): EventRoute<I, E> = ByFirstEventField(idClass, eventClass)
 
+
+        /**
+         * Creates an event route that obtains target entity ID from an event message and
+         * returns it as a sole element of the returned [EventRoute].
+         *
+         * @param I The type of the IDs of entities to which the event would be routed.
+         * @param idClass The class of identifiers.
+         * @return new route that routes events based on the first matching ID field.
+         */
         @JvmStatic
         public fun <I : Any> byFirstMessageField(
             idClass: Class<I>
@@ -71,16 +81,16 @@ public fun interface EventRoute<I : Any, M : EventMessage> : Multicast<I, M, Eve
         /**
          * Returns the empty immutable set.
          *
-         * @apiNote This is a convenience method for ignoring a type of messages when building
+         * This is a convenience method for ignoring a type of messages when building
          * a routing schema in a repository.
          */
         @JvmStatic
         public fun <I : Any> noTargets(): Set<I> = ImmutableSet.of()
 
         /**
-         * Creates an immutable singleton set with the passed ID.
+         * Creates an immutable singleton set with the given ID.
          *
-         * @apiNote This is a convenience method for customizing routing schemas when the target is
+         * This is a convenience method for customizing routing schemas when the target is
          * only one entity.
          */
         @JvmStatic
