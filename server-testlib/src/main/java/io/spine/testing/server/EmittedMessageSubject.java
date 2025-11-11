@@ -106,7 +106,14 @@ public abstract class EmittedMessageSubject<S extends EmittedMessageSubject<S, T
     /**
      * Obtains the subject for the message at the given index.
      *
+     * <p>Extracts the message of type {@code M} from the outer object of type {@code T}
+     * at the specified index and returns a subject for asserting on it.
+     *
      * <p>Fails if the index is out of the range of the generated message sequence.
+     *
+     * @param index
+     *         the zero-based index of the message to retrieve
+     * @return a subject for asserting on the unpacked message
      */
     public final ProtoSubject message(int index) {
         if (messages() == null) {
@@ -177,7 +184,7 @@ public abstract class EmittedMessageSubject<S extends EmittedMessageSubject<S, T
     /**
      * Obtains the list of messages under assertion.
      *
-     * @return an immutable copy of the {@code actual} messages
+     * @return an immutable copy of the outer message objects of type {@code T}
      */
     public @NonNull ImmutableList<@NonNull T> actual() {
         var messages = requireNonNull(actual);
