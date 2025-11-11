@@ -130,11 +130,22 @@ public abstract class EmittedMessageSubject<S extends EmittedMessageSubject<S, T
 
     /**
      * Provides factory for creating the same type of subject on a subset of messages.
+     *
+     * <p>Implementations should return a factory that creates instances of the concrete subject
+     * type {@code S} for the given iterable of outer message objects of type {@code T}.
      */
     protected abstract Subject.Factory<S, Iterable<T>> factory();
 
     /**
      * Obtains the subject over outer objects that contain messages of the passed class.
+     *
+     * <p>Filters the outer objects of type {@code T} to only include those that contain
+     * messages of the specified type {@code M}, and returns a subject of type {@code S}
+     * for asserting on the filtered messages.
+     *
+     * @param messageClass
+     *         the class of messages to filter by
+     * @return a subject of the same concrete type for asserting on the filtered messages
      */
     public final S withType(Class<? extends M> messageClass) {
         @Nullable Iterable<T> actual = messages();
