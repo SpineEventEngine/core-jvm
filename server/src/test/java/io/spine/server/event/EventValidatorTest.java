@@ -30,7 +30,6 @@ import io.spine.core.Event;
 import io.spine.core.EventValidationError;
 import io.spine.server.type.EventEnvelope;
 import io.spine.test.event.ProjectCreated;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -42,7 +41,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class EventValidatorTest {
 
     @Test
-    @Disabled("Until new Validation adds placeholders for a newly created `TemplateString`.")
     @DisplayName("validate event messages")
     void validateEventMessages() {
         var eventWithDefaultMessage = Event.newBuilder()
