@@ -82,7 +82,6 @@ class CommandBusBuilderTest
                 .build();
         assertNotNull(commandBus);
     }
-    }
 
     @Test
     @DisplayName("not accept `null` `CommandStore`")
