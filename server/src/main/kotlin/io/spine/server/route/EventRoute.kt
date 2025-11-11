@@ -78,6 +78,12 @@ public fun interface EventRoute<I : Any, M : EventMessage> : Multicast<I, M, Eve
             idClass: Class<I>
         ): EventRoute<I, EventMessage> = byFirstMessageField(idClass, EventMessage::class.java)
 
+        @JvmStatic
+        public fun <I : Any> byProducerIdOrFirstField(
+            idClass: Class<I>
+        ): EventRoute<I, EventMessage> =
+            ByProducerIdOrFirstField(idClass)
+
         /**
          * Returns the empty immutable set.
          *

@@ -111,13 +111,13 @@ public abstract class AggregateRepository<I,
     private final Supplier<CommandRouting<I>> commandRouting;
 
     /** The routing schema for events to which aggregates react. */
-    private final EventRouting<I> eventRouting;
+    private final Supplier<EventRouting<I>> eventRouting;
 
     /**
      * The routing for event import, which by default obtains the target aggregate ID as the
      * {@linkplain io.spine.core.EventContext#getProducerId() producer ID} of the event.
      */
-    private final EventRouting<I> eventImportRouting;
+    private final Supplier<EventRouting<I>> eventImportRouting;
 
     /**
      * The {@link Inbox} for the messages, which are sent to the instances managed by this
@@ -134,8 +134,12 @@ public abstract class AggregateRepository<I,
     protected AggregateRepository() {
         super();
         this.commandRouting = memoize(() -> CommandRouting.newInstance(idClass()));
-        this.eventRouting = EventRouting.withDefaultByProducerId();
-        this.eventImportRouting = EventRouting.withDefaultByProducerId();
+        this.eventRouting = memoize(
+                () -> EventRouting.withDefaultByProducerIdOrFirstField(idClass())
+        );
+        this.eventImportRouting = memoize(
+                () -> EventRouting.withDefaultByProducerIdOrFirstField(idClass())
+        );
     }
 
     /**
@@ -174,7 +178,7 @@ public abstract class AggregateRepository<I,
     private void setupRouting() {
         doSetupCommandRouting();
         doSetupEventRouting();
-        setupImportRouting(eventImportRouting);
+        setupImportRouting(eventImportRouting.get());
     }
 
     private void doSetupCommandRouting() {
@@ -185,8 +189,8 @@ public abstract class AggregateRepository<I,
     }
 
     private void doSetupEventRouting() {
-        EventRoutingSetup.apply(entityClass(), eventRouting);
-        setupEventRouting(eventRouting);
+        EventRoutingSetup.apply(entityClass(), eventRouting.get());
+        setupEventRouting(eventRouting.get());
     }
 
     @Override
@@ -478,7 +482,7 @@ public abstract class AggregateRepository<I,
      *          if {@link #eventImportRouting} returns more than one ID
      */
     private I idForImported(EventMessage message, EventContext context) {
-        var ids = eventImportRouting.invoke(message, context);
+        var ids = eventImportRouting.get().invoke(message, context);
         var numberOfTargets = ids.size();
         var messageType = message.getClass()
                                  .getName();
@@ -515,7 +519,7 @@ public abstract class AggregateRepository<I,
      * Obtains event routing instance used by this repository.
      */
     private EventRouting<I> eventRouting() {
-        return eventRouting;
+        return eventRouting.get();
     }
 
     /**
