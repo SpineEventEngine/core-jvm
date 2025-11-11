@@ -78,6 +78,16 @@ public fun interface EventRoute<I : Any, M : EventMessage> : Multicast<I, M, Eve
             idClass: Class<I>
         ): EventRoute<I, EventMessage> = byFirstMessageField(idClass, EventMessage::class.java)
 
+
+        /**
+         * Creates an event route that first attempts to obtain the ID from the event producer,
+         * and if that's not available, falls back to obtaining it from the first matching ID field
+         * in the event message.
+         *
+         * @param I The type of the IDs of entities to which the event would be routed.
+         * @param idClass The class of identifiers.
+         * @return new route that combines producer ID and first field routing strategies.
+         */
         @JvmStatic
         public fun <I : Any> byProducerIdOrFirstField(
             idClass: Class<I>
