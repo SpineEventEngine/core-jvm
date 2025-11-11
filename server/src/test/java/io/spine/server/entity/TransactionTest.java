@@ -40,7 +40,6 @@ import io.spine.server.entity.given.tx.event.TxStateErrorRequested;
 import io.spine.testing.server.model.ModelTests;
 import io.spine.validate.ValidatingBuilder;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -337,7 +336,6 @@ public abstract class TransactionTest<I,
         }
 
         @Test
-        @Disabled("Until new Validation adds placeholders for a newly created `TemplateString`.")
         @DisplayName("`InvalidEntityStateException` on state transition failure")
         void onCommitFailure() {
             var entity = createEntity();
