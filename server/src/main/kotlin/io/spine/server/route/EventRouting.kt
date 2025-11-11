@@ -162,7 +162,6 @@ public class EventRouting<I : Any> private constructor(
         public fun <I : Any> withDefaultByProducerId(): EventRouting<I> =
             EventRouting(EventRoute.byProducerId())
 
-
         /**
          * Creates a new event routing that attempts to route by producer ID first,
          * and if that's not available, falls back to routing by the first message field.

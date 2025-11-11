@@ -41,7 +41,7 @@ import io.spine.core.EventContext
  * @param idClass The class object representing the type of entity identifiers.
  */
 internal class ByProducerIdOrFirstField<I : Any>(idClass: Class<I>) : EventRoute<I, EventMessage> {
-    
+
     private val byProducerId = ByProducerId<I>()
     private val byFirstField = ByFirstEventField(idClass, EventMessage::class.java)
 

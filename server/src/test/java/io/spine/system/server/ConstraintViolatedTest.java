@@ -96,7 +96,7 @@ class ConstraintViolatedTest {
             assertErrorMessage.contains("spine.test.diagnostics.Verification.email");
             // Assert the type of the field.
             assertErrorMessage.contains("spine.net.EmailAddress");
-            // Asser the text of the error.
+            // Assert the text of the error.
             assertErrorMessage.contains("must have a non-default value.");
         }
     }
