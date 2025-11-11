@@ -54,9 +54,8 @@ internal class ByFirstField<I : Any, M : Routable, C : SignalContext>(
     /**
      * Obtains a descriptor of the first field of the passed.
      *
-     * @throws IllegalStateException
-     * if the passed message does not declare fields, or
-     * the field is a repeated field or a map
+     * @throws IllegalStateException if the passed message does not declare fields, or
+     *   the field is a repeated field or a map.
      */
     @Suppress("ThrowsCount")
     private fun fieldIn(message: M): FieldDescriptor {
