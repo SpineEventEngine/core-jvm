@@ -87,6 +87,8 @@ public fun interface EventRoute<I : Any, M : EventMessage> : Multicast<I, M, Eve
          * @param I The type of the IDs of entities to which the event would be routed.
          * @param idClass The class of identifiers.
          * @return new route that combines producer ID and first field routing strategies.
+         * @see byProducerId
+         * @see byFirstMessageField
          */
         @JvmStatic
         public fun <I : Any> byProducerIdOrFirstField(

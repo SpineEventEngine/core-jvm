@@ -35,7 +35,7 @@ import io.spine.core.EventContext
  *
  * This routing combines two strategies:
  *  1. [ByProducerId] — attempts to route using the producer ID from event context.
- *  2. [ByFirstEventField] — falls back to using the first matching field of the event message.
+ *  2. [ByFirstEventField] — falls back to using the first field of the event message.
  *
  * @param I The type of entity identifiers this route produces.
  * @param idClass The class object representing the type of entity identifiers.
