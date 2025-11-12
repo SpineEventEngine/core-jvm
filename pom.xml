@@ -10,7 +10,7 @@ all modules and does not describe the project structure per-subproject.
  -->
 <groupId>io.spine</groupId>
 <artifactId>spine-core-jvm</artifactId>
-<version>2.0.0-SNAPSHOT.348</version>
+<version>2.0.0-SNAPSHOT.349</version>
 
 <inceptionYear>2015</inceptionYear>
 
