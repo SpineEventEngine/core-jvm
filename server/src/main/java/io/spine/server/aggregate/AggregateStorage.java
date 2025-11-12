@@ -121,7 +121,6 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  *         the type of IDs of aggregates served by this storage
  * @param <S>
  *         the type of states of aggregates served by this storage
- *
  */
 @SPI
 public class AggregateStorage<I, S extends AggregateState<I>>
