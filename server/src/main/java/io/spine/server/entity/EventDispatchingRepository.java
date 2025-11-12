@@ -37,8 +37,10 @@ import io.spine.server.route.setup.EventRoutingSetup;
 import io.spine.server.type.EventEnvelope;
 
 import java.util.Set;
+import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Suppliers.memoize;
 
 /**
  * Abstract base for repositories that deliver events to entities they manage.
@@ -56,11 +58,13 @@ public abstract class EventDispatchingRepository<I,
         extends DefaultRecordBasedRepository<I, E, S>
         implements EventDispatcher {
 
-    private final EventRouting<I> eventRouting;
+    private final Supplier<EventRouting<I>> eventRouting;
 
     protected EventDispatchingRepository() {
         super();
-        this.eventRouting = EventRouting.withDefaultByProducerId();
+        this.eventRouting = memoize(
+                () -> EventRouting.withDefaultByProducerIdOrFirstField(idClass())
+        );
     }
 
     /**
@@ -76,8 +80,8 @@ public abstract class EventDispatchingRepository<I,
         context.internalAccess()
                .registerEventDispatcher(this);
 
-        EventRoutingSetup.apply(entityClass(), eventRouting);
-        setupEventRouting(eventRouting);
+        EventRoutingSetup.apply(entityClass(), eventRouting.get());
+        setupEventRouting(eventRouting.get());
     }
 
     /**
@@ -129,7 +133,7 @@ public abstract class EventDispatchingRepository<I,
      * @return a set of IDs of projections to dispatch the given event to
      */
     protected Set<I> route(EventEnvelope event) {
-        var targets = route(eventRouting, event);
+        var targets = route(eventRouting.get(), event);
         @SuppressWarnings("unchecked")
         var result = (Set<I>) targets.orElse(ImmutableSet.of());
         return result;

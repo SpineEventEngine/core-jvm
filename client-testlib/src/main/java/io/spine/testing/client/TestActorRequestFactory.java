@@ -53,6 +53,14 @@ import java.time.Instant;
 })
 public class TestActorRequestFactory extends ActorRequestFactory {
 
+    /**
+     * Creates a new factory with the specified actor and time zone.
+     *
+     * @param actor
+     *         the ID of the user who performs operations
+     * @param zoneId
+     *         the time zone in which the actor operates
+     */
     public TestActorRequestFactory(UserId actor, ZoneId zoneId) {
         super(ActorRequestFactory.newBuilder()
                       .setActor(actor)
@@ -60,6 +68,16 @@ public class TestActorRequestFactory extends ActorRequestFactory {
         );
     }
 
+    /**
+     * Creates a new factory with the specified tenant, actor and time zone.
+     *
+     * @param tenantId
+     *         the ID of the tenant in a multi-tenant application
+     * @param actor
+     *         the ID of the user who performs operations
+     * @param zoneId
+     *         the time zone in which the actor operates
+     */
     public TestActorRequestFactory(@Nullable TenantId tenantId, UserId actor, ZoneId zoneId) {
         super(ActorRequestFactory.newBuilder()
                       .setTenantId(tenantId)
@@ -68,29 +86,74 @@ public class TestActorRequestFactory extends ActorRequestFactory {
         );
     }
 
+    /**
+     * Creates a new factory with an actor ID created from the string and specified time zone.
+     *
+     * @param actor
+     *         the string to create actor ID from
+     * @param zoneId
+     *         the time zone in which the actor operates
+     */
     public TestActorRequestFactory(String actor, ZoneId zoneId) {
         this(GivenUserId.of(actor), zoneId);
     }
 
+    /**
+     * Creates a new factory using the test class name as the actor ID and system default time zone.
+     *
+     * @param testClass
+     *         the class whose name will be used as the actor ID
+     */
     public TestActorRequestFactory(Class<?> testClass) {
         this(testClass.getName(), ZoneIds.systemDefault());
     }
 
+    /**
+     * Creates a new factory with the specified actor and system default time zone.
+     *
+     * @param actor
+     *         the ID of the user who performs operations
+     */
     public TestActorRequestFactory(UserId actor) {
         this(actor, ZoneIds.systemDefault());
     }
 
+    /**
+     * Creates a new factory with the specified actor, tenant and system default time zone.
+     *
+     * @param actor
+     *         the ID of the user who performs operations
+     * @param tenantId
+     *         the ID of the tenant in a multi-tenant application
+     */
     public TestActorRequestFactory(UserId actor, TenantId tenantId) {
         this(tenantId, actor, ZoneIds.systemDefault());
     }
 
+    /**
+     * Creates a new factory using the test class name as the actor ID,
+     * specified tenant and system default time zone.
+     *
+     * @param testClass
+     *         the class whose name will be used as the actor ID
+     * @param tenantId
+     *         the ID of the tenant in a multi-tenant application
+     */
     public TestActorRequestFactory(Class<?> testClass, TenantId tenantId) {
         this(tenantId,
              GivenUserId.of(testClass.getName()),
              ZoneIds.systemDefault());
     }
 
-    /** Creates new command with the passed timestamp. */
+    /**
+     * Creates a new command with the given message and timestamp.
+     *
+     * @param message
+     *         the command message
+     * @param timestamp
+     *         the time when the command was created
+     * @return new command instance with the specified timestamp
+     */
     public Command createCommand(CommandMessage message, Timestamp timestamp) {
         var command = command().create(message);
         return withTimestamp(command, timestamp);
@@ -111,6 +174,13 @@ public class TestActorRequestFactory extends ActorRequestFactory {
         return result;
     }
 
+    /**
+     * Creates a new command with the given message.
+     *
+     * @param message
+     *         the command message
+     * @return new command instance
+     */
     public Command createCommand(CommandMessage message) {
         var command = command().create(message);
         return command;

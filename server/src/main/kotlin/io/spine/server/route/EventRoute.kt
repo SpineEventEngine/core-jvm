@@ -52,7 +52,7 @@ public fun interface EventRoute<I : Any, M : EventMessage> : Multicast<I, M, Eve
 
         /**
          * Creates an event route that obtains target entity ID from an event message and
-         * returns it as a sole element of the immutable set.
+         * returns it as a sole element of the returned [EventRoute].
          *
          * @param I The type of the IDs of entities to which the event would be routed.
          * @param idClass The class of identifiers.
@@ -60,27 +60,55 @@ public fun interface EventRoute<I : Any, M : EventMessage> : Multicast<I, M, Eve
          */
         @JvmStatic
         public fun <I : Any, E : EventMessage> byFirstMessageField(
-            idClass: Class<I>, eventClass: Class<E>
+            idClass: Class<I>,
+            eventClass: Class<E>
         ): EventRoute<I, E> = ByFirstEventField(idClass, eventClass)
 
+
+        /**
+         * Creates an event route that obtains target entity ID from an event message and
+         * returns it as a sole element of the returned [EventRoute].
+         *
+         * @param I The type of the IDs of entities to which the event would be routed.
+         * @param idClass The class of identifiers.
+         * @return new route that routes events based on the first matching ID field.
+         */
         @JvmStatic
         public fun <I : Any> byFirstMessageField(
             idClass: Class<I>
         ): EventRoute<I, EventMessage> = byFirstMessageField(idClass, EventMessage::class.java)
 
+
+        /**
+         * Creates an event route that first attempts to obtain the ID from the event producer,
+         * and if that's not available, falls back to obtaining it from the first matching ID field
+         * in the event message.
+         *
+         * @param I The type of the IDs of entities to which the event would be routed.
+         * @param idClass The class of identifiers.
+         * @return new route that combines producer ID and first field routing strategies.
+         * @see byProducerId
+         * @see byFirstMessageField
+         */
+        @JvmStatic
+        public fun <I : Any> byProducerIdOrFirstField(
+            idClass: Class<I>
+        ): EventRoute<I, EventMessage> =
+            ByProducerIdOrFirstField(idClass)
+
         /**
          * Returns the empty immutable set.
          *
-         * @apiNote This is a convenience method for ignoring a type of messages when building
+         * This is a convenience method for ignoring a type of messages when building
          * a routing schema in a repository.
          */
         @JvmStatic
         public fun <I : Any> noTargets(): Set<I> = ImmutableSet.of()
 
         /**
-         * Creates an immutable singleton set with the passed ID.
+         * Creates an immutable singleton set with the given ID.
          *
-         * @apiNote This is a convenience method for customizing routing schemas when the target is
+         * This is a convenience method for customizing routing schemas when the target is
          * only one entity.
          */
         @JvmStatic
