@@ -46,7 +46,6 @@ public final class NoOpLifecycle extends EntityLifecycle {
 
     private static final NoOpLifecycle INSTANCE = new NoOpLifecycle();
 
-    @SuppressWarnings("TestOnlyProblems") // OK for a test utility.
     private NoOpLifecycle() {
         super(NoOpLifecycle.class.getSimpleName(),
               TypeUrl.of(Any.class),
