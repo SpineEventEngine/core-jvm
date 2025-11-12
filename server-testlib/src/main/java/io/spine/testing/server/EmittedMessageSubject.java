@@ -34,9 +34,9 @@ import com.google.common.truth.extensions.proto.ProtoSubject;
 import com.google.common.truth.extensions.proto.ProtoTruth;
 import com.google.protobuf.Empty;
 import io.spine.annotation.VisibleForTesting;
+import io.spine.base.SignalMessage;
 import io.spine.core.Signal;
 import io.spine.protobuf.AnyPacker;
-import io.spine.type.SerializableMessage;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -70,7 +70,7 @@ import static java.util.Objects.requireNonNull;
  */
 public abstract class EmittedMessageSubject<S extends EmittedMessageSubject<S, T, M>,
                                             T extends Signal<?, ?, ?>,
-                                            M extends SerializableMessage>
+                                            M extends SignalMessage>
         extends Subject {
 
     private final @Nullable Iterable<T> actual;
@@ -155,7 +155,7 @@ public abstract class EmittedMessageSubject<S extends EmittedMessageSubject<S, T
      * @return a subject of the same concrete type for asserting on the filtered messages
      */
     public final S withType(Class<? extends M> messageClass) {
-        @Nullable Iterable<T> actual = messages();
+        var actual = messages();
         if (actual == null) {
             failWithActual(fact(ACTUAL.value, null));
             return ignoreCheck().about(factory())
@@ -164,7 +164,7 @@ public abstract class EmittedMessageSubject<S extends EmittedMessageSubject<S, T
             List<T> filtered = stream(actual)
                     .filter(m -> {
                         @SuppressWarnings({"unchecked", "RedundantSuppression"})
-                               /* avoid `unchecked` warning when calling raw instance
+                               /* Avoid `unchecked` warning when calling a raw instance
                                of `Signal` when filtering. This warning is given only
                                when compiling. Hence, the second suppression. */
                         var match = m.is(messageClass);
@@ -186,7 +186,7 @@ public abstract class EmittedMessageSubject<S extends EmittedMessageSubject<S, T
      *
      * @return an immutable copy of the outer message objects of type {@code T}
      */
-    public @NonNull ImmutableList<@NonNull T> actual() {
+    public @NonNull ImmutableList<T> actual() {
         var messages = requireNonNull(actual);
         return ImmutableList.copyOf(messages);
     }

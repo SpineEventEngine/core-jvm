@@ -28,9 +28,9 @@ package io.spine.testing.server;
 
 import com.google.common.collect.ImmutableList;
 import com.google.protobuf.Any;
+import io.spine.base.SignalMessage;
 import io.spine.core.Signal;
 import io.spine.testing.SubjectTest;
-import io.spine.type.SerializableMessage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -46,7 +46,7 @@ import static java.util.stream.Stream.generate;
 
 abstract class EmittedMessageSubjectTest<S extends EmittedMessageSubject<S, W, M>,
                                          W extends Signal<?, ?, ?>,
-                                         M extends SerializableMessage>
+                                         M extends SignalMessage>
         extends SubjectTest<S, Iterable<W>> {
 
     abstract W createMessage();
