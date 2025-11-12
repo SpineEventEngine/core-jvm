@@ -66,7 +66,18 @@ abstract class MessageCollector<I extends SignalId,
     private final Map<I, Message> messages = synchronizedMap(new HashMap<>());
 
     /**
-     * Looks up the command message by the command ID.
+     * Looks up a message by its signal identifier.
+     *
+     * <p>Searches for a message of type {@code M} that matches the given identifier of type
+     * {@code I}. The message is extracted from the envelope of type {@code E}.
+     *
+     * @param messageId
+     *         the identifier of the signal to look up
+     * @param messageClass
+     *         the expected class of the message
+     * @param <M>
+     *         the type of the message to return
+     * @return an optional containing the message if found, or empty if not found
      */
     public final <M extends Message> Optional<M> find(I messageId, Class<M> messageClass) {
         var commandMessage = messages.get(messageId);
@@ -78,7 +89,13 @@ abstract class MessageCollector<I extends SignalId,
     }
 
     /**
-     * Remembers the passed message and accepts its, returning empty {@code Optional}.
+     * Remembers the passed message envelope and accepts it.
+     *
+     * <p>Extracts the message and its identifier from the envelope of type {@code E},
+     * and stores both the outer object of type {@code T} and the message.
+     *
+     * @param envelope
+     *         the message envelope to accept and store
      */
     @Override
     public final void accept(E envelope) {
@@ -88,6 +105,8 @@ abstract class MessageCollector<I extends SignalId,
 
     /**
      * Obtains an immutable list with outer objects of messages collected so far.
+     *
+     * @return all collected outer objects of type {@code T}
      */
     public final ImmutableList<T> all() {
         return ImmutableList.copyOf(outerObjects);
@@ -95,6 +114,10 @@ abstract class MessageCollector<I extends SignalId,
 
     /**
      * Obtains an immutable list with outer objects of messages belonging to the passed tenant.
+     *
+     * @param tenantId
+     *         the tenant ID to filter by
+     * @return outer objects of type {@code T} that belong to the specified tenant
      */
     public final ImmutableList<T> ofTenant(TenantId tenantId) {
         checkNotNull(tenantId);

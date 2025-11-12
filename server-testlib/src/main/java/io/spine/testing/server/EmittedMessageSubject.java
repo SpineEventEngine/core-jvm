@@ -34,9 +34,9 @@ import com.google.common.truth.extensions.proto.ProtoSubject;
 import com.google.common.truth.extensions.proto.ProtoTruth;
 import com.google.protobuf.Empty;
 import io.spine.annotation.VisibleForTesting;
+import io.spine.base.SignalMessage;
 import io.spine.core.Signal;
 import io.spine.protobuf.AnyPacker;
-import io.spine.type.SerializableMessage;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -59,17 +59,18 @@ import static java.util.Objects.requireNonNull;
  * a Bounded Context under the test.
  *
  * @param <S>
- *         the self-type for return type covariance
+ *         the type of the concrete subject implementation (e.g., {@link EventSubject} or
+ *         {@link CommandSubject}), which enables method chaining with the correct return type
  * @param <T>
  *         the type of the outer objects of the checked messages,
  *         such as {@link io.spine.core.Command Command} or {@link io.spine.core.Event Event}
  * @param <M>
  *         the type of emitted messages, such as {@link io.spine.base.CommandMessage CommandMessage}
- *         or {@link io.spine.base.EventMessage EventMessage}.
+ *         or {@link io.spine.base.EventMessage EventMessage}
  */
 public abstract class EmittedMessageSubject<S extends EmittedMessageSubject<S, T, M>,
                                             T extends Signal<?, ?, ?>,
-                                            M extends SerializableMessage>
+                                            M extends SignalMessage>
         extends Subject {
 
     private final @Nullable Iterable<T> actual;
@@ -105,7 +106,14 @@ public abstract class EmittedMessageSubject<S extends EmittedMessageSubject<S, T
     /**
      * Obtains the subject for the message at the given index.
      *
+     * <p>Extracts the message of type {@code M} from the outer object of type {@code T}
+     * at the specified index and returns a subject for asserting on it.
+     *
      * <p>Fails if the index is out of the range of the generated message sequence.
+     *
+     * @param index
+     *         the zero-based index of the message to retrieve
+     * @return a subject for asserting on the unpacked message
      */
     public final ProtoSubject message(int index) {
         if (messages() == null) {
@@ -129,14 +137,25 @@ public abstract class EmittedMessageSubject<S extends EmittedMessageSubject<S, T
 
     /**
      * Provides factory for creating the same type of subject on a subset of messages.
+     *
+     * <p>Implementations should return a factory that creates instances of the concrete subject
+     * type {@code S} for the given iterable of outer message objects of type {@code T}.
      */
     protected abstract Subject.Factory<S, Iterable<T>> factory();
 
     /**
      * Obtains the subject over outer objects that contain messages of the passed class.
+     *
+     * <p>Filters the outer objects of type {@code T} to only include those that contain
+     * messages of the specified type {@code M}, and returns a subject of type {@code S}
+     * for asserting on the filtered messages.
+     *
+     * @param messageClass
+     *         the class of messages to filter by
+     * @return a subject of the same concrete type for asserting on the filtered messages
      */
     public final S withType(Class<? extends M> messageClass) {
-        @Nullable Iterable<T> actual = messages();
+        var actual = messages();
         if (actual == null) {
             failWithActual(fact(ACTUAL.value, null));
             return ignoreCheck().about(factory())
@@ -145,7 +164,7 @@ public abstract class EmittedMessageSubject<S extends EmittedMessageSubject<S, T
             List<T> filtered = stream(actual)
                     .filter(m -> {
                         @SuppressWarnings({"unchecked", "RedundantSuppression"})
-                               /* avoid `unchecked` warning when calling raw instance
+                               /* Avoid `unchecked` warning when calling a raw instance
                                of `Signal` when filtering. This warning is given only
                                when compiling. Hence, the second suppression. */
                         var match = m.is(messageClass);
@@ -165,9 +184,9 @@ public abstract class EmittedMessageSubject<S extends EmittedMessageSubject<S, T
     /**
      * Obtains the list of messages under assertion.
      *
-     * @return an immutable copy of the {@code actual} messages
+     * @return an immutable copy of the outer message objects of type {@code T}
      */
-    public @NonNull ImmutableList<@NonNull T> actual() {
+    public @NonNull ImmutableList<T> actual() {
         var messages = requireNonNull(actual);
         return ImmutableList.copyOf(messages);
     }

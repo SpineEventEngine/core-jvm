@@ -30,7 +30,6 @@ import com.google.errorprone.annotations.CheckReturnValue;
 import com.google.protobuf.Any;
 import com.google.protobuf.Message;
 import com.google.protobuf.Timestamp;
-import io.spine.annotation.VisibleForTesting;
 import io.spine.base.EventMessage;
 import io.spine.base.Identifier;
 import io.spine.core.Event;
@@ -48,7 +47,6 @@ import static io.spine.protobuf.AnyPacker.pack;
 /**
  * The factory or producing events for tests.
  */
-@VisibleForTesting
 @CheckReturnValue
 public class TestEventFactory extends EventFactory {
 
