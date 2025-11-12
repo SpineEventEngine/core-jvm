@@ -70,7 +70,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  *     its further querying.
  * </ol>
  *
- * <h1>Storing Aggregate events</h1>
+ * <h2>Storing Aggregate events</h2>
  *
  * <p>Each Aggregate is an event-sourced Entity. To load an Aggregate instance, one plays all
  * the events emitted by it, eventually obtaining the last known state. While the Event Store
@@ -92,7 +92,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * created. It persists data as Protobuf message records in its pre-configured
  * {@link io.spine.server.storage.RecordStorage RecordStorage}.
  *
- * <h1>Storing and querying the latest Aggregate states</h1>
+ * <h2>Storing and querying the latest Aggregate states</h2>
  *
  * <p>End-users of the framework are able to set the visibility level for each Aggregate state
  * by using an {@linkplain io.spine.server.entity.EntityVisibility (entity).visibility} option
