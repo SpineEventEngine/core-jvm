@@ -37,15 +37,15 @@ import "spine/test/aggregate/employee/employee.proto";
 
 message PersonEmployed {
     EmployeeId employee = 1 [(required) = true];
-    int32 salary = 2 [(required) = true];
+    int32 salary = 2;
 }
 
 message SalaryIncreased {
     EmployeeId employee = 1 [(required) = true];
-    int32 amount = 2 [(required) = true];
+    int32 amount = 2;
 }
 
 message SalaryDecreased {
     EmployeeId employee = 1 [(required) = true];
-    int32 amount = 2 [(required) = true];
+    int32 amount = 2;
 }
