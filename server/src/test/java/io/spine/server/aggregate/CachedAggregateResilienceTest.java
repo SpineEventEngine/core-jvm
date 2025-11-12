@@ -80,9 +80,7 @@ final class CachedAggregateResilienceTest extends AbstractAggregateResilienceTes
     }
 
     /**
-     * @inheritDoc
-     *
-     * <p>This method fills the custom {@linkplain PreparedInboxStorage InboxStorage} with the passed
+     * This method fills the custom {@linkplain PreparedInboxStorage InboxStorage} with the passed
      * commands and then runs delivery. The commands, dispatched this way, will be processed
      * withing a single "batch" which would cause an {@code Aggregate} to be cached.
      */

@@ -44,9 +44,7 @@ import java.util.List;
 final class AggregateResilienceTest extends AbstractAggregateResilienceTest {
 
     /**
-     * @inheritDoc
-     *
-     * <p>This method dispatches the passed commands directly to the context's
+     * This method dispatches the passed commands directly to the context's
      * {@code CommandBus} <i>one by one</i>.
      */
     @Override
