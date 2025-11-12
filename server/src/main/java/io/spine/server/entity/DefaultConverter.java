@@ -33,9 +33,12 @@ import io.spine.type.TypeUrl;
 /**
  * Default implementation of {@code EntityStorageConverter} for {@code AbstractEntity}.
  *
- * @param <I> the type of entity IDs
- * @param <E> the type of entities
- * @param <S> the type of entity states
+ * @param <I>
+ *         the type of entity IDs
+ * @param <E>
+ *         the type of entities
+ * @param <S>
+ *         the type of entity states
  */
 final class DefaultConverter<I, E extends AbstractEntity<I, S>, S extends EntityState<I>>
         extends StorageConverter<I, E, S> {
@@ -59,19 +62,9 @@ final class DefaultConverter<I, E extends AbstractEntity<I, S>, S extends Entity
         return new DefaultConverter<>(stateType, factory, fieldMask);
     }
 
-    /**
-     * Sets lifecycle flags in the builder from the entity.
-     *
-     * @param builder
-     *         the entity builder to update
-     * @param entity
-     *         the entity which data is passed to the {@link EntityRecord} we are building
-     */
-    @SuppressWarnings("CheckReturnValue") // calling builder
     @Override
     protected void updateBuilder(EntityRecord.Builder builder, E entity) {
-        builder.setVersion(entity.version())
-               .setLifecycleFlags(entity.lifecycleFlags());
+        // Do nothing here.
     }
 
     /**

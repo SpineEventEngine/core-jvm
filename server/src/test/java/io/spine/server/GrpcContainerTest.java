@@ -25,7 +25,6 @@
  */
 package io.spine.server;
 
-import io.grpc.BindableService;
 import io.grpc.ServerServiceDefinition;
 import io.spine.server.given.transport.TestGrpcServer;
 import io.spine.testing.logging.mute.MuteLogging;
@@ -38,7 +37,7 @@ import java.io.IOException;
 import java.util.Set;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth8.assertThat;
+import static io.spine.server.given.service.GivenCommandService.noOpCommandService;
 import static io.spine.testing.TestValues.randomString;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -61,16 +60,18 @@ class GrpcContainerTest {
 
     @SuppressWarnings("MagicNumber")
     @Test
+    @MuteLogging
     @DisplayName("add and remove parameters from builder")
     void setParamsInBuilder() {
         var port = 60;
         var builder = GrpcContainer.atPort(port);
 
-        assertThat(builder.port()).hasValue(port);
+        assertTrue(builder.hasPort());
+        assertThat(builder.getPort()).isEqualTo(port);
 
         var count = 3;
         for (var i = 0; i < count; i++) {
-            var service = CommandService.newBuilder().build();
+            var service = noOpCommandService();
             builder.addService(service);
         }
 
@@ -102,6 +103,39 @@ class GrpcContainerTest {
 
         assertThat(grpcContainer.grpcServer())
                 .isNotNull();
+    }
+
+    @Test
+    @MuteLogging
+    @DisplayName("configure underlying gRPC server")
+    void configureUnderlyingGrpcServer() {
+        var port = 1654;
+        var service = noOpCommandService();
+        var container = GrpcContainer
+                .atPort(port)
+                .withServer((server) -> server.addService(service))
+                .build();
+        try {
+            container.start();
+            var server = container.grpcServer();
+            assertThat(server)
+                    .isNotNull();
+
+            var deployedServices = server.getServices();
+            assertThat(deployedServices)
+                    .hasSize(1);
+
+            var actualName = deployedServices
+                    .get(0)
+                    .getServiceDescriptor()
+                    .getName();
+            assertThat(actualName).contains(service.getClass()
+                                                   .getSimpleName());
+        } catch (IOException e) {
+            fail(e);
+        } finally {
+            container.shutdown();
+        }
     }
 
     @Test

@@ -38,7 +38,7 @@ import io.spine.test.entity.UserSignIn;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static com.google.common.truth.Truth8.assertThat;
+import static com.google.common.truth.Truth.assertThat;
 import static io.spine.option.EntityOption.Visibility.FULL;
 import static io.spine.option.EntityOption.Visibility.NONE;
 import static io.spine.option.EntityOption.Visibility.QUERY;

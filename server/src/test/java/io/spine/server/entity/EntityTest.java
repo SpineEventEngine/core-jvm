@@ -148,7 +148,7 @@ class EntityTest {
         void ofMessageType() {
             var messageId = ProjectId.newBuilder()
                     .setId("messageId")
-                    .vBuild();
+                    .build();
             var entityWithMessageID = new TestEntityWithIdMessage(messageId);
 
             assertEquals(messageId, entityWithMessageID.id());
@@ -187,6 +187,10 @@ class EntityTest {
         assertEquals(state, entityNew.state());
     }
 
+    /**
+     * Tests that an entity state transition honors the {@code (set_once)}
+     * validation constraint.
+     */
     @MuteLogging
     @Test
     @DisplayName("check `(set_once)` on state update")
@@ -199,27 +203,30 @@ class EntityTest {
                 .build();
         var signUpUser = SignUpUser.newBuilder()
                 .setId(id)
-                .vBuild();
+                .build();
         var chooseInitial = ChooseDayOfBirth.newBuilder()
                 .setId(id)
                 .setDayOfBirth(LocalDates.of(2000, JANUARY, 1))
-                .vBuild();
+                .build();
         var chooseAgain = ChooseDayOfBirth.newBuilder()
                 .setId(id)
                 .setDayOfBirth(LocalDates.of(1988, FEBRUARY, 29))
-                .vBuild();
+                .build();
         var bbc = BlackBox
                 .from(context)
                 .receivesCommand(signUpUser)
                 .receivesCommand(chooseInitial)
                 .tolerateFailures();
         bbc.receivesCommand(chooseAgain);
+
+        var expected = User.newBuilder()
+                .setDateOfBirth(chooseInitial.getDayOfBirth())
+                .buildPartial();
+
         bbc.assertEntity(id, UserAggregate.class)
            .hasStateThat()
            .comparingExpectedFieldsOnly()
-           .isEqualTo(User.newBuilder()
-                          .setDateOfBirth(chooseInitial.getDayOfBirth())
-                          .buildPartial());
+           .isEqualTo(expected);
     }
 
     @Test
@@ -295,6 +302,8 @@ class EntityTest {
 
         @Test
         @DisplayName("entity is equal to itself")
+        @SuppressWarnings("EqualsWithItself") /* is the purpose of the test.
+            We should probably rewrite these tests using `EqualsTester` from Guava. */
         void equalToItself() {
             assertEquals(entityWithState, entityWithState);
         }

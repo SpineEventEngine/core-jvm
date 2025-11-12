@@ -30,13 +30,13 @@ import com.google.protobuf.Message;
 import com.google.protobuf.util.Timestamps;
 import io.spine.annotation.SPI;
 import io.spine.base.CommandMessage;
-import io.spine.protobuf.Messages;
 import io.spine.string.Stringifier;
 import io.spine.string.StringifierRegistry;
 
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static io.spine.protobuf.Messages.ensureUnpacked;
 
 /**
  * Client-side utilities for working with commands.
@@ -64,7 +64,7 @@ public final class Commands {
         if (commandOrMessage instanceof Command) {
             return ((Command) commandOrMessage).enclosedMessage();
         }
-        var unpacked = (CommandMessage) Messages.ensureMessage(commandOrMessage);
+        var unpacked = (CommandMessage) ensureUnpacked(commandOrMessage);
         return unpacked;
     }
 

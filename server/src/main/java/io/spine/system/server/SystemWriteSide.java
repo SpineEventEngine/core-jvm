@@ -84,4 +84,9 @@ public interface SystemWriteSide {
         checkNotNull(system);
         return new DefaultSystemWriteSide(system);
     }
+
+    /**
+     * Returns the original set of features enabled for the parent {@code SystemContext}.
+     */
+    SystemFeatures features();
 }

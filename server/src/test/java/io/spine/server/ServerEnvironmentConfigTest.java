@@ -27,10 +27,9 @@
 package io.spine.server;
 
 import com.google.common.testing.NullPointerTester;
-import com.google.common.truth.Truth8;
+import io.spine.environment.DefaultMode;
 import io.spine.environment.Environment;
 import io.spine.environment.EnvironmentType;
-import io.spine.environment.Production;
 import io.spine.environment.Tests;
 import io.spine.server.delivery.Delivery;
 import io.spine.server.delivery.UniformAcrossAllShards;
@@ -46,7 +45,7 @@ import io.spine.server.transport.Publisher;
 import io.spine.server.transport.Subscriber;
 import io.spine.server.transport.TransportFactory;
 import io.spine.server.transport.memory.InMemoryTransportFactory;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -98,7 +97,7 @@ class ServerEnvironmentConfigTest {
 
             @BeforeEach
             void turnToProduction() {
-                environment.setTo(Production.class);
+                environment.setTo(DefaultMode.class);
             }
 
             @Test
@@ -110,7 +109,7 @@ class ServerEnvironmentConfigTest {
             @DisplayName("return configured instance in Production")
             void productionValue() {
                 TransportFactory factory = new StubTransportFactory();
-                when(Production.class).use(factory);
+                when(DefaultMode.class).use(factory);
                 assertValue(factory);
             }
         }
@@ -178,7 +177,7 @@ class ServerEnvironmentConfigTest {
     @DisplayName("`Delivery`")
     class OfDelivery {
 
-        private Class<? extends EnvironmentType> currentType;
+        private Class<? extends EnvironmentType<?>> currentType;
         private Delivery currentDelivery;
 
         private void assertValue(Delivery delivery) {
@@ -241,7 +240,7 @@ class ServerEnvironmentConfigTest {
      */
     static final class ReturnValue<R> implements ServerEnvironment.Fn<R> {
 
-        private @Nullable Class<? extends EnvironmentType> typePassed;
+        private @Nullable Class<? extends EnvironmentType<?>> typePassed;
 
         private final R value;
 
@@ -250,12 +249,12 @@ class ServerEnvironmentConfigTest {
         }
 
         @Override
-        public R apply(Class<? extends EnvironmentType> type) {
+        public R apply(Class<? extends EnvironmentType<?>> type) {
             typePassed = type;
             return value;
         }
 
-        @Nullable Class<? extends EnvironmentType> typePassed() {
+        @Nullable Class<? extends EnvironmentType<?>> typePassed() {
             return typePassed;
         }
     }
@@ -267,10 +266,10 @@ class ServerEnvironmentConfigTest {
         @Test
         @DisplayName("returning an instance for the production environment")
         void forProduction() {
-            environment.setTo(Production.class);
+            environment.setTo(DefaultMode.class);
 
             TracerFactory factory = new MemoizingTracerFactory();
-            when(Production.class).use(factory);
+            when(DefaultMode.class).use(factory);
 
             assertTracer(factory);
         }
@@ -295,8 +294,8 @@ class ServerEnvironmentConfigTest {
             assertTracer(factory);
         }
 
-        private void assertTracer(TracerFactory expected) {
-            Truth8.assertThat(serverEnvironment.tracing())
+        private static void assertTracer(TracerFactory expected) {
+            assertThat(serverEnvironment.tracing())
                   .hasValue(expected);
         }
 
@@ -308,7 +307,7 @@ class ServerEnvironmentConfigTest {
             TracerFactory factory = new MemoizingTracerFactory();
             when(Local.class).use(factory);
 
-            Truth8.assertThat(serverEnvironment.tracing())
+            assertThat(serverEnvironment.tracing())
                   .isEmpty();
         }
 
@@ -345,7 +344,7 @@ class ServerEnvironmentConfigTest {
 
             @BeforeEach
             void turnToProduction() {
-                environment.setTo(Production.class);
+                environment.setTo(DefaultMode.class);
             }
 
             @Test
@@ -358,7 +357,7 @@ class ServerEnvironmentConfigTest {
             @DisplayName("return configured `StorageFactory`")
             void productionFactory() {
                 StorageFactory factory = InMemoryStorageFactory.newInstance();
-                when(Production.class).use(factory);
+                when(DefaultMode.class).use(factory);
                 assertDelegateIs(factory);
             }
 
@@ -453,7 +452,7 @@ class ServerEnvironmentConfigTest {
         }
 
         @Override
-        public void close() throws Exception {
+        public void close() {
             delegate.close();
         }
     }

@@ -26,6 +26,7 @@
 package io.spine.server.stand;
 
 import com.google.common.collect.ImmutableSet;
+import io.spine.server.Closeable;
 import io.spine.server.entity.Entity;
 import io.spine.server.entity.QueryableRepository;
 import io.spine.server.entity.RecordBasedRepository;
@@ -40,7 +41,7 @@ import java.util.Optional;
  * <p>In addition to types, manages the information about the {@linkplain Repository repositories}
  * for the objects of known types.
  */
-interface TypeRegistry extends AutoCloseable {
+interface TypeRegistry extends Closeable {
 
     /**
      * Registers a {@linkplain Repository repository} of objects and

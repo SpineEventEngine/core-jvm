@@ -68,7 +68,7 @@ final class BatchDispatch {
             var outcome = DispatchOutcome.newBuilder()
                     .setPropagatedSignal(event.messageId())
                     .setInterrupted(interruption)
-                    .vBuild();
+                    .build();
             propagation.addOutcome(outcome);
         }
     }
@@ -79,6 +79,6 @@ final class BatchDispatch {
     BatchDispatchOutcome summary() {
         return propagation
                 .setSuccessful(successful)
-                .vBuild();
+                .build();
     }
 }

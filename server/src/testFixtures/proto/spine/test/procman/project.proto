@@ -1,0 +1,90 @@
+/*
+ * Copyright 2022, TeamDev. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Redistribution and use in source and/or binary forms, with or without
+ * modification, must retain the above copyright notice and the following
+ * disclaimer.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+syntax = "proto3";
+
+package spine.test.procman;
+
+import "google/protobuf/any.proto";
+
+import "spine/options.proto";
+
+option (type_url_prefix) = "type.spine.io";
+option java_package="io.spine.test.procman";
+option java_multiple_files = true;
+
+message ProjectId {
+    string id = 1;
+}
+
+message Project {
+    option (entity).kind = PROCESS_MANAGER;
+
+    // The ID of the procman.
+    //
+    // Allow empty ID to avoid verbose test set up.
+    //
+    ProjectId id = 1 [(required) = false];
+    string name = 2 [(column) = true];
+    repeated Task task = 3;
+
+    enum Status {
+        UNDEFINED = 0;
+        CREATED = 1;
+        STARTED = 2;
+        DONE = 3;
+        CANCELLED = 4;
+    }
+    Status status = 4;
+
+    string id_string = 5 [(column) = true];
+}
+
+message TaskId {
+    int32 id = 1;
+}
+
+message Task {
+    option (entity).kind = PROCESS_MANAGER;
+
+    TaskId task_id = 1;
+    string title = 2;
+    string description = 3;
+}
+
+// Remembers the commands and events.
+//
+// They say that elephants never forget.
+// Our process remembers only the last handled signal.
+//
+message ElephantProcess {
+
+    option (entity).kind = PROCESS_MANAGER;
+
+    ProjectId id = 1;
+
+    // The last handled signal.
+    google.protobuf.Any any = 2;
+}

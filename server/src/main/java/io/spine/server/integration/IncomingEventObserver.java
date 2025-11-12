@@ -28,6 +28,7 @@ package io.spine.server.integration;
 import io.spine.core.BoundedContextName;
 import io.spine.core.Event;
 import io.spine.protobuf.AnyPacker;
+import io.spine.server.tenant.TenantAwareRunner;
 import io.spine.server.type.EventClass;
 
 import static io.spine.grpc.StreamObservers.noOpObserver;
@@ -59,6 +60,7 @@ final class IncomingEventObserver extends AbstractChannelObserver {
     @Override
     protected void handle(ExternalMessage message) {
         var event = AnyPacker.unpack(message.getOriginalMessage(), Event.class);
-        bus.dispatch(event, noOpObserver());
+        TenantAwareRunner.with(event.tenant())
+                         .run(() -> bus.dispatch(event, noOpObserver()));
     }
 }

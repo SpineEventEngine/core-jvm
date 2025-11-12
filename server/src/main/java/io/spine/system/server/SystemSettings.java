@@ -26,11 +26,19 @@
 
 package io.spine.system.server;
 
-import com.google.common.base.Objects;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.annotation.Internal;
 import io.spine.environment.Environment;
 import io.spine.environment.Tests;
+
+import org.jspecify.annotations.Nullable;
+import java.util.Objects;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ForkJoinPool;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.hash;
 
 /**
  * A configuration of features of a system context.
@@ -40,9 +48,20 @@ import io.spine.environment.Tests;
  */
 public final class SystemSettings implements SystemFeatures {
 
+    /**
+     * A default executor for parallel posting of system events.
+     */
+    private static final Executor defaultExecutor = ForkJoinPool.commonPool();
+
+    /**
+     * A custom executor for parallel posting of system events.
+     */
+    private @Nullable Executor customExecutor;
+
     private boolean commandLog;
     private boolean storeEvents;
     private boolean parallelPosting;
+
 
     /**
      * Prevents direct instantiation.
@@ -86,7 +105,7 @@ public final class SystemSettings implements SystemFeatures {
     }
 
     /**
-     * Disables {@linkplain io.spine.system.server.CommandLog CommandLog}.
+     * Disables {@link io.spine.system.server.CommandLog CommandLog}.
      *
      * <p>This is the default setting.
      *
@@ -100,9 +119,10 @@ public final class SystemSettings implements SystemFeatures {
     }
 
     /**
-     * Configures the the system context to store system events.
+     * Configures the system context to store system events.
      *
      * @return self for method chaining
+     * @see #forgetEvents()
      */
     @CanIgnoreReturnValue
     public SystemSettings persistEvents() {
@@ -111,11 +131,12 @@ public final class SystemSettings implements SystemFeatures {
     }
 
     /**
-     * Configures the the system context NOT to store system events for better performance.
+     * Configures the system context NOT to store system events for better performance.
      *
      * <p>This is the default setting.
      *
      * @return self for method chaining
+     * @see #persistEvents()
      */
     @CanIgnoreReturnValue
     public SystemSettings forgetEvents() {
@@ -124,32 +145,76 @@ public final class SystemSettings implements SystemFeatures {
     }
 
     /**
-     * Configures the system context clients to post system events in parallel.
+     * Configures the system context to post system events in parallel.
      *
-     * <p>The events are posted using {@link java.util.concurrent.ForkJoinPool#commonPool()}.
+     * <p>The events are posted using the {@link ForkJoinPool#commonPool() common pool}.
      *
      * <p>This is the default setting in production environment.
      *
      * @return self for method chaining
+     *
+     * @see #useCustomPostingExecutor(Executor)
+     * @see #disableParallelPosting()
      */
     @CanIgnoreReturnValue
     public SystemSettings enableParallelPosting() {
         this.parallelPosting = true;
+        this.customExecutor = defaultExecutor;
         return this;
     }
 
     /**
-     * Configures the system context clients NOT to post system events in parallel.
+     * Configures the system context NOT to post system events in parallel.
      *
-     * <p>Choosing this configuration option may effect performance.
+     * <p>Choosing this configuration option may affect performance.
      *
      * <p>This is the default setting in test environment.
      *
      * @return self for method chaining
+     * @see #enableParallelPosting()
      */
     @CanIgnoreReturnValue
     public SystemSettings disableParallelPosting() {
         this.parallelPosting = false;
+        this.customExecutor = null;
+        return this;
+    }
+
+    /**
+     * Configures the system context to post system events using the given {@code Executor}.
+     *
+     * <p>Please note, this setting can be configured only if {@link #postEventsInParallel()} is
+     * enabled.
+     *
+     * @return self for method chaining
+     *
+     * @see #enableParallelPosting()
+     * @see #useDefaultPostingExecutor()
+     */
+    @CanIgnoreReturnValue
+    public SystemSettings useCustomPostingExecutor(Executor executor) {
+        checkNotNull(executor);
+        checkState(parallelPosting);
+        this.customExecutor = executor;
+        return this;
+    }
+
+    /**
+     * Configures the system context to post system events using
+     * the {@link ForkJoinPool#commonPool() common pool}.
+     *
+     * <p>Please note, this setting can be configured only if parallel posting of events
+     * {@linkplain #postEventsInParallel() is enabled}.
+     *
+     * @return self for method chaining
+     *
+     * @see #enableParallelPosting()
+     * @see #useCustomPostingExecutor(Executor)
+     */
+    @CanIgnoreReturnValue
+    public SystemSettings useDefaultPostingExecutor() {
+        checkState(parallelPosting);
+        this.customExecutor = defaultExecutor;
         return this;
     }
 
@@ -175,7 +240,7 @@ public final class SystemSettings implements SystemFeatures {
      * Copies these settings into an immutable feature set.
      */
     SystemConfig freeze() {
-        return new SystemConfig(commandLog, storeEvents, parallelPosting);
+        return new SystemConfig(commandLog, storeEvents, customExecutor);
     }
 
     @SuppressWarnings("NonFinalFieldReferenceInEquals")
@@ -190,12 +255,13 @@ public final class SystemSettings implements SystemFeatures {
         var settings = (SystemSettings) o;
         return commandLog == settings.commandLog &&
                 storeEvents == settings.storeEvents &&
-                parallelPosting == settings.parallelPosting;
+                parallelPosting == settings.parallelPosting &&
+                Objects.equals(customExecutor, settings.customExecutor);
     }
 
     @SuppressWarnings("NonFinalFieldReferencedInHashCode")
     @Override
     public int hashCode() {
-        return Objects.hashCode(commandLog, storeEvents, parallelPosting);
+        return hash(commandLog, storeEvents, parallelPosting);
     }
 }

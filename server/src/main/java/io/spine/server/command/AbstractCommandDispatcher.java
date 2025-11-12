@@ -120,7 +120,7 @@ public abstract class AbstractCommandDispatcher implements CommandDispatcher, Co
                 .setEntity(eventAnchor.get())
                 .setHandledSignal(signal.messageId())
                 .setError(error)
-                .vBuild();
+                .build();
         var origin = signal.asMessageOrigin();
         system.postEvent(systemEvent, origin);
     }
@@ -130,7 +130,7 @@ public abstract class AbstractCommandDispatcher implements CommandDispatcher, Co
                 .setId(signal.messageId()
                              .asCommandId())
                 .setRejectionEvent(rejection)
-                .vBuild();
+                .build();
         var origin = rejection.asMessageOrigin();
         system.postEvent(commandRejected, origin);
     }

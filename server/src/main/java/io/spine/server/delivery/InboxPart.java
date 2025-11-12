@@ -26,8 +26,11 @@
 
 package io.spine.server.delivery;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.base.Time;
 import io.spine.server.ServerEnvironment;
+import io.spine.server.dispatch.DispatchOutcome;
+import io.spine.server.event.NoReaction;
 import io.spine.server.tenant.TenantAwareRunner;
 import io.spine.server.type.SignalEnvelope;
 import io.spine.type.TypeUrl;
@@ -98,7 +101,7 @@ abstract class InboxPart<I, M extends SignalEnvelope<?, ?, ?>> {
                 .setStatus(determineStatus(envelope, label))
                 .setVersion(VersionCounter.next());
         setRecordPayload(envelope, builder);
-        var message = builder.vBuild();
+        var message = builder.build();
 
         TenantAwareRunner
                 .with(envelope.tenantId())
@@ -113,46 +116,65 @@ abstract class InboxPart<I, M extends SignalEnvelope<?, ?, ?>> {
     /**
      * Delivers the message to its message endpoint.
      */
-    void deliver(InboxMessage message) {
-        callEndpoint(message, (endpoint, targetId, envelope) -> endpoint.dispatchTo(targetId));
+    DispatchOutcome deliver(InboxMessage message) {
+        var call = new EndpointCall<DispatchOutcome>(message) {
+            @Override
+            DispatchOutcome doInvoke(MessageEndpoint<I, M> endpoint, I targetId, M envelope) {
+                return endpoint.dispatchTo(targetId);
+            }
+        };
+        return call.invoke();
     }
 
     /**
      * Notifies the message endpoint of the duplicate.
      */
     void notifyOfDuplicated(InboxMessage message) {
-        callEndpoint(message, MessageEndpoint::onDuplicate);
-    }
+        var call = new EndpointCall<NoReaction>(message) {
 
-    private void callEndpoint(InboxMessage message, EndpointCall<I, M> call) {
-        var envelope = asEnvelope(message);
-        var label = message.getLabel();
-        var inboxId = message.getInboxId();
-        var endpoint = endpoints.get(label, envelope)
-                                .orElseThrow(() -> new LabelNotFoundException(inboxId, label));
-
-        @SuppressWarnings("unchecked")    // Only IDs of type `I` are stored.
-        var unpackedId = (I) InboxIds.unwrap(message.getInboxId());
-        TenantAwareRunner
-                .with(envelope.tenantId())
-                .run(() -> call.invoke(endpoint, unpackedId, envelope));
+            @Override
+            NoReaction doInvoke(MessageEndpoint<I, M> endpoint, I targetId, M envelope) {
+                endpoint.onDuplicate(targetId, envelope);
+                return NoReaction.getDefaultInstance();
+            }
+        };
+        call.invoke();
     }
 
     /**
-     * Passes the message to the endpoint.
+     * Passes the message to the endpoint and returns the resut of the invocation, if any.
      *
-     * @param <I>
-     *         the type of identifiers of the entity, served by the endpoint
-     * @param <M>
-     *         the type of envelopes which the endpoint takes
+     * @param <R>
+     *     the type of the invocation result
      */
-    @FunctionalInterface
-    private interface EndpointCall<I, M extends SignalEnvelope<?, ?, ?>> {
+    private abstract class EndpointCall<R> {
+
+        private final MessageEndpoint<I, M> endpoint;
+        private final I targetId;
+        private final M envelope;
+
+        @SuppressWarnings("unchecked")    // Only IDs of type `I` are stored.
+        private EndpointCall(InboxMessage message) {
+            this.envelope = asEnvelope(message);
+            var label = message.getLabel();
+            var inboxId = message.getInboxId();
+            this.endpoint =
+                    endpoints.get(label, envelope)
+                             .orElseThrow(() -> new LabelNotFoundException(inboxId, label));
+            this.targetId = (I) InboxIds.unwrap(message.getInboxId());
+        }
+
+        @CanIgnoreReturnValue
+        public R invoke() {
+            return TenantAwareRunner
+                    .with(envelope.tenantId())
+                    .evaluate(() -> doInvoke(endpoint, targetId, envelope));
+        }
 
         /**
-         * Invokes the method of the endpoint taking the ID of the target and the envelope as args
-         * if needed.
+         * Invokes the method of the endpoint taking the ID of the target
+         * and the envelope as args, if needed.
          */
-        void invoke(MessageEndpoint<I, M> endpoint, I targetId, M envelope);
+        abstract R doInvoke(MessageEndpoint<I, M> endpoint, I targetId, M envelope);
     }
 }

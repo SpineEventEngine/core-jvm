@@ -31,7 +31,6 @@ import com.google.protobuf.util.Durations;
 import io.spine.base.Identifier;
 import io.spine.environment.Tests;
 import io.spine.protobuf.Messages;
-import io.spine.server.BoundedContextBuilder;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.delivery.given.DeliveryTestEnv.RawMessageMemoizer;
 import io.spine.server.delivery.given.DeliveryTestEnv.ShardIndexMemoizer;
@@ -40,6 +39,7 @@ import io.spine.server.delivery.given.MemoizingDeliveryMonitor;
 import io.spine.server.delivery.given.TaskAggregate;
 import io.spine.server.delivery.given.TaskAssignment;
 import io.spine.server.delivery.given.TaskView;
+import io.spine.server.delivery.given.ThrowingWorkRegistry;
 import io.spine.server.delivery.memory.InMemoryShardedWorkRegistry;
 import io.spine.server.tenant.TenantAwareRunner;
 import io.spine.test.delivery.DCreateTask;
@@ -56,13 +56,14 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth8.assertThat;
 import static com.google.common.util.concurrent.Uninterruptibles.sleepUninterruptibly;
 import static io.spine.server.delivery.given.DeliveryTestEnv.manyTargets;
 import static io.spine.server.delivery.given.DeliveryTestEnv.singleTarget;
 import static java.util.Collections.synchronizedList;
 import static java.util.concurrent.Executors.newFixedThreadPool;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.stream.Collectors.toList;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Integration tests on message delivery that use different settings of sharding configuration and
@@ -190,14 +191,16 @@ public class DeliveryTest extends AbstractDeliveryTest {
 
     @Test
     @DisplayName("single shard and return stats when picked up the shard " +
-            "and `Optional.empty()` if shard was already picked")
+            "and notify monitor if shard was already picked up by another node")
     public void returnOptionalEmptyIfPicked() {
         var shardCount = 11;
         ShardedWorkRegistry registry = new InMemoryShardedWorkRegistry();
         var strategy = new FixedShardStrategy(shardCount);
+        var monitor = new MonitorUnderTest();
         var delivery = Delivery.newBuilder()
                 .setStrategy(strategy)
                 .setWorkRegistry(registry)
+                .setMonitor(monitor)
                 .build();
         ServerEnvironment.when(Tests.class)
                          .use(delivery);
@@ -205,14 +208,37 @@ public class DeliveryTest extends AbstractDeliveryTest {
         var index = strategy.nonEmptyShard();
         var tenantId = GivenTenantId.generate();
         TenantAwareRunner.with(tenantId)
-                         .run(() -> assertStatsMatch(delivery, index));
+                         .run(() -> assertPickedAndDelivered(delivery, index, monitor));
 
-        var session =
-                registry.pickUp(index, ServerEnvironment.instance().nodeId());
-        assertThat(session).isPresent();
-
+        var outcome = registry.pickUp(index, ServerEnvironment.instance()
+                                                              .nodeId());
+        assertThat(outcome.hasSession()).isTrue();
         TenantAwareRunner.with(tenantId)
-                         .run(() -> assertStatsEmpty(delivery, index));
+                         .run(() -> assertAlreadyPicked(delivery, index, monitor));
+    }
+
+    @Test
+    @DisplayName("a single shard and notify monitor if shard pick-up failed for a technical reason")
+    public void notifyOnPickUpFailure() {
+        var shardCount = 1;
+        var registry = new ThrowingWorkRegistry();
+        var strategy = new FixedShardStrategy(shardCount);
+        var monitor = new MonitorUnderTest();
+        var delivery = Delivery.newBuilder()
+                .setStrategy(strategy)
+                .setWorkRegistry(registry)
+                .setMonitor(monitor)
+                .build();
+        ServerEnvironment.when(Tests.class)
+                         .use(delivery);
+
+        var index = strategy.nonEmptyShard();
+        var tenantId = GivenTenantId.generate();
+        assertThrows(IllegalStateException.class,
+                     () -> TenantAwareRunner.with(tenantId)
+                                            .run(() -> delivery.deliverMessagesFrom(index))
+        );
+        assertThat(monitor.failedToPickUp()).containsExactly(index);
     }
 
     @Test
@@ -247,11 +273,6 @@ public class DeliveryTest extends AbstractDeliveryTest {
         var observedMsgCount = rawMessageMemoizer.messages()
                                                  .size();
         assertThat(totalFromStats).isEqualTo(observedMsgCount);
-    }
-
-    private static void assertStatsEmpty(Delivery delivery, ShardIndex index) {
-        var emptyStats = delivery.deliverMessagesFrom(index);
-        assertThat(emptyStats).isEmpty();
     }
 
     @Test
@@ -322,12 +343,12 @@ public class DeliveryTest extends AbstractDeliveryTest {
     @DisplayName("via multiple shards in multiple threads in an order of message emission")
     public void deliverMessagesInOrderOfEmission() throws InterruptedException {
         changeShardCountTo(20);
+        TaskView.enableStrictMode();
 
-        var context = BlackBox.from(
-                BoundedContextBuilder.assumingTests()
-                                     .add(TaskAggregate.class)
-                                     .add(new TaskAssignment.Repository())
-                                     .add(new TaskView.Repository())
+        var context = BlackBox.singleTenantWith(
+                TaskAggregate.class,
+                new TaskAssignment.Repository(),
+                new TaskView.Repository()
         );
         var commands = generateCommands(200);
         var service = newFixedThreadPool(20);
@@ -351,21 +372,65 @@ public class DeliveryTest extends AbstractDeliveryTest {
         }
     }
 
+    @Test
+    @DisplayName("direct `Delivery`")
+    public void directDelivery() {
+        // Wait until all previous `Delivery` tests complete their async routines.
+        sleepUninterruptibly(500, MILLISECONDS);
+
+        TaskView.disableStrictMode();
+        TaskView.clearCache();
+        var directDelivery = Delivery.direct();
+        ServerEnvironment.when(Tests.class)
+                         .use(directDelivery);
+        try (var context = BlackBox.singleTenantWith(
+                TaskAggregate.class,
+                new TaskAssignment.Repository(),
+                new TaskView.Repository())
+        ) {
+            var commands = generateCommands(200);
+            for (var command : commands) {
+                context.receivesCommand(command);
+                var taskId = command.getId();
+                var subject = context.assertEntity(taskId, TaskView.class);
+                subject.exists();
+
+                var actualView = (TaskView) subject.actual();
+                var state = actualView.state();
+                var actualAssignee = state.getAssignee();
+
+                assertThat(state.getId()).isEqualTo(taskId);
+                assertThat(Messages.isDefault(actualAssignee)).isFalse();
+            }
+        }
+    }
+
     /*
      * Test environment.
      *
      * <p>Accesses the {@linkplain Delivery Delivery API} which has been made
-     * package-private and marked as visible for testing. Therefore the test environment routines
+     * package-private and marked as visible for testing. Therefore, the test environment routines
      * aren't moved to a separate {@code ...TestEnv} class. Otherwise the test-only API
      * of {@code Delivery} must have been made {@code public}, which wouldn't be
      * a good API design move.
      ******************************************************************************/
 
-    private static void assertStatsMatch(Delivery delivery, ShardIndex index) {
+    private static void
+    assertPickedAndDelivered(Delivery delivery, ShardIndex index, MonitorUnderTest monitor) {
         var stats = delivery.deliverMessagesFrom(index);
         assertThat(stats).isPresent();
         assertThat(stats.get()
                         .shardIndex()).isEqualTo(index);
+        assertThat(monitor.failedToPickUp()).isEmpty();
+        assertThat(monitor.alreadyPickedShards()).isEmpty();
+    }
+
+    private static void
+    assertAlreadyPicked(Delivery delivery, ShardIndex index, MonitorUnderTest monitor) {
+        var emptyStats = delivery.deliverMessagesFrom(index);
+        assertThat(emptyStats).isEmpty();
+        assertThat(monitor.failedToPickUp()).isEmpty();
+        assertThat(monitor.alreadyPickedShards()).containsExactly(index);
     }
 
     private static List<DCreateTask> generateCommands(int howMany) {
@@ -374,7 +439,7 @@ public class DeliveryTest extends AbstractDeliveryTest {
             var taskId = Identifier.newUuid();
             commands.add(DCreateTask.newBuilder()
                                  .setId(taskIndex + "--" + taskId)
-                                 .vBuild());
+                                 .build());
         }
         return commands;
     }
@@ -405,6 +470,8 @@ public class DeliveryTest extends AbstractDeliveryTest {
     private static final class MonitorUnderTest extends DeliveryMonitor {
 
         private final List<DeliveryStats> allStats = new ArrayList<>();
+        private final List<ShardIndex> alreadyPicked = new ArrayList<>();
+        private final List<ShardIndex> failedToPickUp = new ArrayList<>();
 
         @Override
         public void onDeliveryCompleted(DeliveryStats stats) {
@@ -413,6 +480,27 @@ public class DeliveryTest extends AbstractDeliveryTest {
 
         private ImmutableList<DeliveryStats> stats() {
             return ImmutableList.copyOf(allStats);
+        }
+
+
+        @Override
+        public FailedPickUp.Action onShardPickUpFailure(RuntimeFailure failure) {
+            failedToPickUp.add(failure.shard());
+            return super.onShardPickUpFailure(failure);
+        }
+
+        @Override
+        public FailedPickUp.Action onShardAlreadyPicked(AlreadyPickedUp failure) {
+            alreadyPicked.add(failure.shard());
+            return super.onShardAlreadyPicked(failure);
+        }
+
+        public ImmutableList<ShardIndex> alreadyPickedShards() {
+            return ImmutableList.copyOf(alreadyPicked);
+        }
+
+        public ImmutableList<ShardIndex> failedToPickUp() {
+            return ImmutableList.copyOf(failedToPickUp);
         }
     }
 }

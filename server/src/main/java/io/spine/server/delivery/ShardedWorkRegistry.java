@@ -30,8 +30,6 @@ import com.google.protobuf.Duration;
 import io.spine.annotation.SPI;
 import io.spine.server.NodeId;
 
-import java.util.Optional;
-
 /**
  * The registry of the shard indexes along with the identifiers of the nodes, which
  * process the messages corresponding to each index.
@@ -45,21 +43,32 @@ public interface ShardedWorkRegistry {
      * <p>This action is intended to be exclusive, i.e. a single shard may be served
      * by a single application node at a given moment of time.
      *
-     * <p>In case of a successful operation, an instance of {@link ShardProcessingSession}
-     * is returned. The node obtained the session should perform the desired actions with the
-     * sharded messages and then {@link ShardProcessingSession#complete() complete} the session.
+     * <p>In case of a successful operation, an instance of {@link PickUpOutcome} containing
+     * {@code ShardSessionRecord} is returned. The worker node which obtained the session,
+     * should release {@link #release(ShardSessionRecord) release()} the session
+     * at the end of its work.
      *
-     * <p>In case the shard at a given index is already picked up by some node,
-     * an {@link Optional#empty() Optional.empty()} is returned.
+     * <p>If the shard at a given index is already picked up by some node,
+     * a {@link PickUpOutcome} containing {@link ShardAlreadyPickedUp} is returned. This outcome
+     * contains information about the {@code WorkerId} of the worker owning the session
+     * at the moment, and a {@code Timestamp} telling the shard was picked up.
      *
      * @param index
      *         the index of the shard to pick up for processing
      * @param node
      *         the identifier of the node for which to pick the shard
-     * @return the session of shard processing,
-     *         or {@code Optional.empty()} if the shard is not available
+     * @return outcome of the operation
      */
-    Optional<ShardProcessingSession> pickUp(ShardIndex index, NodeId node);
+    PickUpOutcome pickUp(ShardIndex index, NodeId node);
+
+    /**
+     * Ends the given {@code session} and releases the picked up shard, making it available
+     * for picking up again.
+     *
+     * @param session
+     *         a session to end
+     */
+    void release(ShardSessionRecord session);
 
     /**
      * Clears up the recorded {@code NodeId}s from the session records if there was no activity

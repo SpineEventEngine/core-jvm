@@ -26,12 +26,12 @@
 
 package io.spine.client;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.inprocess.InProcessChannelBuilder;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.EntityState;
 import io.spine.client.grpc.CommandServiceGrpc;
 import io.spine.client.grpc.CommandServiceGrpc.CommandServiceBlockingStub;
@@ -42,7 +42,7 @@ import io.spine.core.Command;
 import io.spine.core.TenantId;
 import io.spine.core.UserId;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -150,7 +150,8 @@ public final class Client implements AutoCloseable {
     }
 
     /**
-     * Creates a client which will be connected to the in-process server with the passed name.
+     * Creates a builder for the client which will be connected to the in-process
+     * server with the given name.
      *
      * <p>The client is fully-featured, high performance, and is useful in testing.
      *
@@ -361,10 +362,10 @@ public final class Client implements AutoCloseable {
         }
 
         private Builder(String processServerName) {
-            this(channelForTesting(processServerName));
+            this(inprocessChannel(processServerName));
         }
 
-        private static ManagedChannel channelForTesting(String serverName) {
+        private static ManagedChannel inprocessChannel(String serverName) {
             var result = InProcessChannelBuilder.forName(serverName)
                     .directExecutor()
                     .build();
@@ -393,7 +394,7 @@ public final class Client implements AutoCloseable {
         /**
          * Assigns the ID of the user for performing requests on behalf of non-logged in user.
          *
-         * <p>If the not set directly, the value {@code "guest"} will be used.
+         * <p>If is not set directly, the value {@code "guest"} will be used.
          *
          * @param guestUser
          *         non-null and non-default value

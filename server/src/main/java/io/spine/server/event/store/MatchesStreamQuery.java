@@ -29,7 +29,7 @@ package io.spine.server.event.store;
 import io.spine.core.Event;
 import io.spine.server.event.EventFilter;
 import io.spine.server.event.EventStreamQuery;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Predicate;

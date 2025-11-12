@@ -40,39 +40,40 @@ import static io.spine.query.RecordColumn.create;
  * Columns stored along with an {@link AggregateEventRecord}.
  */
 @RecordColumns(ofType = AggregateEventRecord.class)
-@SuppressWarnings(
-        {"DuplicateStringLiteralInspection",  /* Column names may repeat across records. */
-                "BadImport"})                 /* `create` looks fine in this context. */
-final class AggregateEventRecordColumn {
+@SuppressWarnings({
+        "DuplicateStringLiteralInspection"  /* Column names may repeat across records. */,
+        "BadImport" /* `create` looks fine in this context. */,
+        "WeakerAccess" /* This type is used in downstream Spine libraries. */})
+public final class AggregateEventRecordColumn {
 
     /**
      * Stores the identifier of an aggregate.
      */
-    static final RecordColumn<AggregateEventRecord, Any>
+    public static final RecordColumn<AggregateEventRecord, Any>
             aggregate_id = create("aggregate_id", Any.class, AggregateEventRecord::getAggregateId);
 
     /**
      * Stores the time when the event record was created.
      */
-    static final RecordColumn<AggregateEventRecord, Timestamp>
+    public static final RecordColumn<AggregateEventRecord, Timestamp>
             created = create("created", Timestamp.class, AggregateEventRecord::getTimestamp);
 
     /**
      * Stores the version of the record, either of the stored event, or the snapshot.
      */
-    static final RecordColumn<AggregateEventRecord, Integer>
+    public static final RecordColumn<AggregateEventRecord, Integer>
             version = create("version", Integer.class, new GetVersion());
 
     /**
      * Stores {@code true} for the records which hold snapshots, {@code false} otherwise.
      */
-    static final RecordColumn<AggregateEventRecord, Boolean>
+    public static final RecordColumn<AggregateEventRecord, Boolean>
             snapshot = create("snapshot", Boolean.class, AggregateEventRecord::hasSnapshot);
 
     /**
      * Prevents this type from instantiation.
      *
-     * <p>This class exists exclusively as a container of the column definitions. Thus it isn't
+     * <p>This class exists exclusively as a container of the column definitions. Thus, it isn't
      * expected to be instantiated at all. See the {@link RecordColumns} docs for more details on
      * this approach.
      */
@@ -82,7 +83,7 @@ final class AggregateEventRecordColumn {
     /**
      * Returns all the column definitions.
      */
-    static Columns<AggregateEventRecord> definitions() {
+    public static Columns<AggregateEventRecord> definitions() {
         return Columns.of(aggregate_id, created, version, snapshot);
     }
 

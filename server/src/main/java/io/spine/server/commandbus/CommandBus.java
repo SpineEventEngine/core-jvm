@@ -26,7 +26,6 @@
 
 package io.spine.server.commandbus;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -35,6 +34,7 @@ import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import com.google.errorprone.annotations.concurrent.LazyInit;
 import io.grpc.stub.StreamObserver;
 import io.spine.annotation.Internal;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.core.Ack;
 import io.spine.core.Command;
 import io.spine.core.TenantId;
@@ -51,15 +51,13 @@ import io.spine.server.type.CommandClass;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.system.server.SystemWriteSide;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
 import java.util.function.Consumer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.grpc.StreamObservers.noOpObserver;
-import static io.spine.server.bus.BusBuilder.FieldCheck.systemNotSet;
-import static io.spine.server.bus.BusBuilder.FieldCheck.tenantIndexNotSet;
 import static io.spine.system.server.WriteSideFunction.delegatingTo;
 
 /**
@@ -87,6 +85,7 @@ public final class CommandBus
      */
     private final boolean multitenant;
 
+    @SuppressWarnings("FieldMayBeStatic") // It's better to keep instance, e.g., for tests.
     private final DeadCommandHandler deadCommandHandler = new DeadCommandHandler();
 
     /**
@@ -107,7 +106,7 @@ public final class CommandBus
      * {@linkplain #initObservers(EventBus) injected} into this command bus instance, the observer
      * will start publishing the rejections to the said event bus.
      *
-     * <p>This observer can stay NO-OP in test environment for the simplicity of tests.
+     * <p>This observer can stay NO-OP in a test environment for the simplicity of tests.
      */
     private StreamObserver<Ack> immediateRejectionObserver = noOpObserver();
 
@@ -120,8 +119,7 @@ public final class CommandBus
                            ? builder.multitenant
                            : false;
         this.scheduler = checkNotNull(builder.commandScheduler);
-        this.systemWriteSide = builder.system()
-                                      .orElseThrow(systemNotSet());
+        this.systemWriteSide = builder.ensureSystem();
         this.tenantConsumer = checkNotNull(builder.tenantConsumer);
         this.watcher = checkNotNull(builder.watcher);
     }
@@ -134,7 +132,7 @@ public final class CommandBus
     }
 
     @VisibleForTesting
-    public final boolean isMultitenant() {
+    public boolean isMultitenant() {
         return multitenant;
     }
 
@@ -207,13 +205,15 @@ public final class CommandBus
                : TenantId.getDefaultInstance();
     }
 
-    final SystemWriteSide systemFor(TenantId tenantId) {
+    SystemWriteSide systemFor(TenantId tenantId) {
         checkNotNull(tenantId);
         var result = delegatingTo(systemWriteSide).get(tenantId);
         return result;
     }
 
     @Override
+    @SuppressWarnings("ResultOfMethodCallIgnored"
+            /* Dispatching outcome is reported via system events, if needed. */)
     protected void dispatch(CommandEnvelope command) {
         var dispatcher = dispatcherOf(command);
         watcher.onDispatchCommand(command);
@@ -228,7 +228,7 @@ public final class CommandBus
      * @return a set of classes of supported commands
      */
     @Internal
-    public final Set<CommandClass> registeredCommandClasses() {
+    public Set<CommandClass> registeredCommandClasses() {
         return registry().registeredMessageClasses();
     }
 
@@ -272,7 +272,6 @@ public final class CommandBus
     /**
      * The {@code Builder} for {@code CommandBus}.
      */
-    @CanIgnoreReturnValue
     public static class Builder extends BusBuilder<Builder,
                                                    Command,
                                                    CommandEnvelope,
@@ -290,9 +289,9 @@ public final class CommandBus
          * {@code BoundedContext}.
          */
         private @Nullable Boolean multitenant;
-        private CommandFlowWatcher watcher;
-        private Consumer<TenantId> tenantConsumer;
-        private CommandScheduler commandScheduler;
+        private @Nullable CommandFlowWatcher watcher;
+        private @MonotonicNonNull Consumer<TenantId> tenantConsumer;
+        private @MonotonicNonNull CommandScheduler commandScheduler;
 
         /** Prevents direct instantiation. */
         private Builder() {
@@ -305,12 +304,14 @@ public final class CommandBus
         }
 
         @Internal
+        @CanIgnoreReturnValue
         public Builder setMultitenant(@Nullable Boolean multitenant) {
             this.multitenant = multitenant;
             return this;
         }
 
         @Internal
+        @CanIgnoreReturnValue
         public Builder setWatcher(CommandFlowWatcher watcher) {
             this.watcher = watcher;
             return this;
@@ -325,12 +326,12 @@ public final class CommandBus
         @Override
         @CheckReturnValue
         public CommandBus build() {
-            checkFieldsSet();
+            var writeSide = ensureSystem();
+            var tenantIndex = ensureTenantIndex();
+
             commandScheduler =
                     ServerEnvironment.instance()
                                      .newCommandScheduler();
-            @SuppressWarnings("OptionalGetWithoutIsPresent") // ensured by checkFieldsSet()
-            var writeSide = system().get();
 
             if (watcher == null) {
                 watcher = new FlightRecorder(
@@ -339,7 +340,6 @@ public final class CommandBus
             }
             commandScheduler.setWatcher(watcher);
 
-            var tenantIndex = tenantIndex().orElseThrow(tenantIndexNotSet());
             tenantConsumer = tenantIndex::keep;
 
             var commandBus = createCommandBus();

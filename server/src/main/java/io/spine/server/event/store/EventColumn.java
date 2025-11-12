@@ -50,7 +50,7 @@ final class EventColumn {
      */
     static final RecordColumn<Event, String>
             type = create("type", String.class, (m) -> m.enclosedTypeUrl()
-                                                        .toTypeName()
+                                                        .typeName()
                                                         .value());
 
     /**

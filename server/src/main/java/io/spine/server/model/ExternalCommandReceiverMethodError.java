@@ -27,7 +27,7 @@
 package io.spine.server.model;
 
 import io.spine.annotation.Internal;
-import io.spine.server.command.model.CommandAcceptingMethod;
+import io.spine.server.command.model.CommandReceptor;
 import io.spine.server.command.model.CommandHandlingClass;
 
 import java.util.Collection;
@@ -60,17 +60,17 @@ public final class ExternalCommandReceiverMethodError extends ModelError {
     @Internal
     public ExternalCommandReceiverMethodError(
             CommandHandlingClass<?, ?> classWithViolation,
-            Collection<? extends CommandAcceptingMethod<?, ?>> invalidMethods) {
+            Collection<? extends CommandReceptor<?, ?>> invalidMethods) {
         super("The class `%s` declares `external` command receiver methods for command types: %s. "
                       + "Only event accepting methods should be marked as `external`.",
               classWithViolation, handledCommandTypes(invalidMethods));
     }
 
-    private static String
-    handledCommandTypes(Collection<? extends CommandAcceptingMethod<?, ?>> handlers) {
-        String result = handlers
+    private static
+    String handledCommandTypes(Collection<? extends CommandReceptor<?, ?>> receptors) {
+        var result = receptors
                 .stream()
-                .map(CommandAcceptingMethod::messageClass)
+                .map(CommandReceptor::messageClass)
                 .collect(toEnumerationBackticked());
         return result;
     }

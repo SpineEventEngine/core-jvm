@@ -30,6 +30,7 @@ import com.google.protobuf.Message;
 import io.spine.core.Event;
 import io.spine.core.EventContext;
 import io.spine.core.Origin;
+import io.spine.server.type.given.GivenEvent;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -89,6 +90,7 @@ class EventEnvelopeTest extends MessageEnvelopeTest<Event, EventEnvelope, EventC
         void fromPastMessage() {
             var actor = actorContext();
             var pastMessage = Origin.newBuilder()
+                    .setMessage(GivenEvent.arbitrary().messageId())
                     .setActorContext(actor)
                     .buildPartial();
             var context = eventContext(pastMessage);

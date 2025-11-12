@@ -29,7 +29,7 @@ package io.spine.system.server;
 import io.spine.client.ActorRequestFactory;
 import io.spine.core.TenantId;
 import io.spine.server.tenant.TenantFunction;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.system.server.DefaultSystemWriteSide.SYSTEM_USER;

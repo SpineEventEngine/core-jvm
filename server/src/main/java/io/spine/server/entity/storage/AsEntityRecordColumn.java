@@ -43,7 +43,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * <p>Such a "type cast" is required in order to adapt the all the column types available
  * to the framework users into the {@code RecordColumn}s, which are used in
  * {@linkplain io.spine.query.RecordQuery the common data structures} for
- * {@linkplain io.spine.server.storage.RecordStorage storage and retrieval} of the records data.
+ * {@linkplain io.spine.server.storage.RecordStorage storage and retrieval} of the records' data.
  */
 final class AsEntityRecordColumn {
 
@@ -69,6 +69,7 @@ final class AsEntityRecordColumn {
      *         the type of the column values
      * @return a view on the column
      */
+    @SuppressWarnings("Immutable")
     static <V> RecordColumn<EntityRecord, V>
     apply(Column<?, ?> original, Class<V> typeOfValues, Function<EntityRecord, V> getter) {
         checkNotNull(original);
@@ -88,8 +89,9 @@ final class AsEntityRecordColumn {
      *         the column to create a view for
      * @return a view on the column
      */
-    static RecordColumn<EntityRecord, Object> apply(Column<?, ?> original) {
-        return apply(original, Object.class);
+    static <V> RecordColumn<EntityRecord, V> apply(Column<?, V> original) {
+        var type = original.type();
+        return apply(original, type);
     }
 
     /**

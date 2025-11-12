@@ -28,6 +28,7 @@ package io.spine.server.entity;
 
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableMap;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.protobuf.FieldMask;
 import io.spine.base.EventMessage;
 import io.spine.core.Event;
@@ -125,6 +126,7 @@ public final class EventFieldFilter implements EventFilter {
          *         the fields to <b>retain</b> in the event message
          * @return self for method chaining
          */
+        @CanIgnoreReturnValue
         public Builder putMask(Class<? extends EventMessage> eventClass, FieldMask mask) {
             checkNotNull(eventClass);
             checkNotNull(mask);

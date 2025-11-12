@@ -26,14 +26,15 @@
 
 package io.spine.server.commandbus;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import io.spine.annotation.Internal;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.core.CommandId;
 import io.spine.server.MessageInvalid;
 import io.spine.server.bus.EnvelopeValidator;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.validate.ConstraintViolation;
+import io.spine.validate.TemplateString;
 import io.spine.validate.Validate;
 
 import java.util.List;
@@ -137,11 +138,13 @@ final class CommandValidator implements EnvelopeValidator<CommandEnvelope> {
         private static List<ConstraintViolation> validateId(CommandId id) {
             var violations = Validate.violationsOf(id);
             if (id.getUuid().isEmpty()) {
+                var idViolation = ConstraintViolation.newBuilder()
+                        .setMessage(TemplateString.newBuilder()
+                                            .setWithPlaceholders(COMMAND_ID_CANNOT_BE_EMPTY))
+                        .build();
                 return ImmutableList.<ConstraintViolation>builder()
                         .addAll(violations)
-                        .add(ConstraintViolation.newBuilder()
-                                     .setMsgFormat(COMMAND_ID_CANNOT_BE_EMPTY)
-                                     .build())
+                        .add(idViolation)
                         .build();
             }
             return violations;
@@ -177,8 +180,11 @@ final class CommandValidator implements EnvelopeValidator<CommandEnvelope> {
         }
 
         private void addViolation(String message) {
+            var templateString = TemplateString.newBuilder()
+                    .setWithPlaceholders(message)
+                    .build();
             result.add(ConstraintViolation.newBuilder()
-                               .setMsgFormat(message)
+                               .setMessage(templateString)
                                .build());
         }
     }

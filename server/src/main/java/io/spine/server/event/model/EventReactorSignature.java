@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -42,7 +42,6 @@ import java.util.Optional;
  */
 final class EventReactorSignature extends EventAcceptingSignature<EventReactorMethod> {
 
-    @SuppressWarnings("UnstableApiUsage")
     private static final ReturnTypes TYPES = new ReturnTypes(
             TypeToken.of(EventMessage.class),
             new TypeToken<Iterable<EventMessage>>() {},
@@ -69,7 +68,7 @@ final class EventReactorSignature extends EventAcceptingSignature<EventReactorMe
 
     /**
      * Tells that the method may state that a reaction isn't needed by returning
-     * {@link io.spine.server.model.Nothing Nothing}.
+     * {@link io.spine.server.event.NoReaction NoReaction}.
      */
     @Override
     public boolean mayReturnIgnored() {

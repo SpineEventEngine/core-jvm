@@ -27,9 +27,12 @@
 package io.spine.client;
 
 import io.spine.test.client.TestEntity;
+import io.spine.type.KnownTypes;
+import io.spine.validate.NonValidated;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -40,13 +43,29 @@ class QueryTest {
     private static final String TARGET_ENTITY_TYPE_URL =
             "type.spine.io/spine.test.queries.TestEntity";
 
+    private static final KnownTypes knownTypes = KnownTypes.instance();
+
+    @Test
+    void knowTypeProto() {
+        var files = knownTypes.fileNames();
+        assertThat(files)
+                .contains("google/protobuf/type.proto");
+    }
+
+    @Test
+    void knowEnumValueType() {
+        var types = knownTypes.typeNames();
+        assertThat(types)
+             .contains("google.protobuf.EnumValue");
+    }
+
     @Test
     @DisplayName("obtain entity type url for known query target type")
     void returnTypeUrlForKnownType() {
         var target = Targets.allOf(TestEntity.class);
         var query = Query.newBuilder()
                 .setTarget(target)
-                .build();
+                .buildPartial();
         var type = query.targetType();
         assertNotNull(type);
         assertEquals(TARGET_ENTITY_TYPE_URL, type.toString());
@@ -57,10 +76,11 @@ class QueryTest {
     void throwErrorForUnknownType() {
         var target = Target.newBuilder()
                 .setType("nonexistent/message.type")
+                .setIncludeAll(true)
                 .build();
-        var query = Query.newBuilder()
+        @NonValidated Query query = Query.newBuilder()
                 .setTarget(target)
-                .build();
+                .buildPartial();
         assertThrows(IllegalStateException.class, query::targetType);
     }
 }

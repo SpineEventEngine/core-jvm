@@ -58,11 +58,13 @@ class DispatchMixinsTest {
     void dispatchOutcomeMixinHasRejectionShortcut() {
         var noRejectionOutcome = DispatchOutcome.getDefaultInstance();
         assertThat(noRejectionOutcome.hasRejection()).isFalse();
+        var event = Given.rejectionEvent();
         var rejectionSuccessOutcome = Success.newBuilder()
-                .setRejection(Given.rejectionEvent())
+                .setRejection(event)
                 .build();
         var rejectionOutcome = DispatchOutcome.newBuilder()
                 .setSuccess(rejectionSuccessOutcome)
+                .setPropagatedSignal(event.messageId())
                 .build();
         assertThat(rejectionOutcome.hasRejection()).isTrue();
     }

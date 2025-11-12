@@ -29,7 +29,7 @@ package io.spine.server.delivery;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import io.spine.type.TypeUrl;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
 

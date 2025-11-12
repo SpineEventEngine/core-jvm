@@ -49,8 +49,11 @@ message ExternalMessage {
     // An original message wrapped to `Any` (e.g. a wrapped instance of `io.spine.core.Event`).
     google.protobuf.Any original_message = 2 [(required) = true];
 
-    // Information about the environment of the user who created the original message.
-    spine.core.ActorContext actor_context = 3 [(required) = true];
+    // `actor_context` field has been deleted, as it is impossible to populate
+    // it with meaningful values for all types of transmitted external messages.
+    //
+    reserved 3;
+    reserved "actor_context";
 
     // Name of the Bounded Context, within which an original message was created.
     spine.core.BoundedContextName bounded_context_name = 4 [(required) = true];

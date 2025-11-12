@@ -27,7 +27,7 @@
 package io.spine.client;
 
 import io.spine.client.Filter.Operator;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 
 import static io.spine.client.Filter.Operator.EQUAL;

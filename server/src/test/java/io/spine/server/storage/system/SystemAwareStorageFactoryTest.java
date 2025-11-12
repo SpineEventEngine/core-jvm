@@ -27,14 +27,14 @@
 package io.spine.server.storage.system;
 
 import com.google.common.testing.NullPointerTester;
+import io.spine.environment.DefaultMode;
 import io.spine.environment.Environment;
-import io.spine.environment.Production;
 import io.spine.environment.Tests;
 import io.spine.server.BoundedContext;
 import io.spine.server.ContextSpec;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.event.store.EmptyEventStore;
-import io.spine.server.storage.MessageRecordSpec;
+import io.spine.server.storage.RecordSpec;
 import io.spine.server.storage.StorageFactory;
 import io.spine.server.storage.memory.InMemoryStorageFactory;
 import io.spine.server.storage.system.given.MemoizingStorageFactory;
@@ -63,14 +63,14 @@ class SystemAwareStorageFactoryTest {
     }
 
     @Test
-    @DisplayName("wrap production storage")
+    @DisplayName("wrap DefaultMode storage")
     void wrapProdStorage() {
         Environment.instance()
-                   .setTo(Production.class);
+                   .setTo(DefaultMode.class);
 
         var serverEnv = ServerEnvironment.instance();
         StorageFactory productionStorage = new MemoizingStorageFactory();
-        ServerEnvironment.when(Production.class)
+        ServerEnvironment.when(DefaultMode.class)
                          .use(productionStorage);
         var storageFactory = serverEnv.storageFactory();
         assertThat(storageFactory)
@@ -116,8 +116,8 @@ class SystemAwareStorageFactoryTest {
         var factory = new MemoizingStorageFactory();
         var systemAware = SystemAwareStorageFactory.wrap(factory);
         var recordType = Project.class;
-        var spec = new MessageRecordSpec<>(ProjectId.class, Project.class,
-                                           i -> ProjectId.getDefaultInstance());
+        var spec = new RecordSpec<>(ProjectId.class, Project.class,
+                                    i -> ProjectId.getDefaultInstance());
         var storage = systemAware.createRecordStorage(CONTEXT, spec);
         assertThat(storage).isNull();
         assertThat(factory.requestedStorages())

@@ -33,6 +33,7 @@ import io.spine.server.delivery.Delivery;
 import io.spine.server.delivery.Inbox;
 import io.spine.server.delivery.InboxLabel;
 import io.spine.server.delivery.MessageEndpoint;
+import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.Repository;
 import io.spine.server.type.EventEnvelope;
 import io.spine.type.TypeUrl;
@@ -41,6 +42,7 @@ import io.spine.validate.ValidatingBuilder;
 import java.util.Optional;
 import java.util.Set;
 
+import static io.spine.server.dispatch.DispatchOutcomes.sentToInbox;
 import static io.spine.util.Exceptions.newIllegalStateException;
 
 /**
@@ -87,12 +89,14 @@ public abstract class AbstractStatefulReactor<I, S extends Message, B extends Va
     }
 
     @Override
-    public void dispatch(EventEnvelope event) {
+    public DispatchOutcome dispatch(EventEnvelope event) {
         Set<I> targets = route(event);
         for (var target : targets) {
             inbox.send(event)
                  .toReactor(target);
         }
+        var outcome = sentToInbox(event, targets);
+        return outcome;
     }
 
     /**
@@ -121,7 +125,7 @@ public abstract class AbstractStatefulReactor<I, S extends Message, B extends Va
      * as-is.
      */
     protected final void flushState() {
-        var newState = builder().vBuild();
+        var newState = builder().build();
         store(newState);
     }
 
@@ -150,11 +154,12 @@ public abstract class AbstractStatefulReactor<I, S extends Message, B extends Va
          *         concurrent modifications when running locally in a multi-threading mode
          */
         @Override
-        public final void dispatchTo(I targetId) {
+        public DispatchOutcome dispatchTo(I targetId) {
             synchronized (endpointLock) {
                 loadIntoBuilder(targetId);
-                AbstractStatefulReactor.super.dispatch(envelope);
+                var outcome = AbstractStatefulReactor.super.dispatch(envelope);
                 flushState();
+                return outcome;
             }
         }
 
@@ -163,8 +168,8 @@ public abstract class AbstractStatefulReactor<I, S extends Message, B extends Va
          * framework-internal essence.
          */
         @Override
-        public final void onDuplicate(I target, EventEnvelope envelope) {
-            // do nothing.
+        public void onDuplicate(I target, EventEnvelope envelope) {
+            // Do nothing.
         }
 
         /**
@@ -175,7 +180,7 @@ public abstract class AbstractStatefulReactor<I, S extends Message, B extends Va
          *         always
          */
         @Override
-        public final Repository<I, ?> repository() throws IllegalStateException {
+        public Repository<I, ?> repository() throws IllegalStateException {
             throw newIllegalStateException("`%s` has no repository.", getClass());
         }
 

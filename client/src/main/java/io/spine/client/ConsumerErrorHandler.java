@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -26,8 +26,8 @@
 
 package io.spine.client;
 
-import com.google.common.flogger.FluentLogger;
 import com.google.protobuf.Message;
+import io.spine.logging.Logger;
 
 import java.util.function.BiConsumer;
 
@@ -44,7 +44,7 @@ public interface ConsumerErrorHandler<M extends Message>
 
     /**
      * Obtains the handler which logs the fact of the error using
-     * the {@linkplain FluentLogger#atSevere() severe} level of the passed logger.
+     * the {@code ERROR} level of the passed logger.
      *
      * @param logger
      *         the instance of the logger to use for reporting the error
@@ -55,8 +55,9 @@ public interface ConsumerErrorHandler<M extends Message>
      *         the type of the messages delivered to the consumer
      * @return the logging error handler
      */
+    @SuppressWarnings("NonApiType") // https://github.com/SpineEventEngine/core-java/issues/1526
     static <M extends Message>
-    ConsumerErrorHandler<M> logError(FluentLogger logger,
+    ConsumerErrorHandler<M> logError(Logger logger,
                                      String messageFormat,
                                      Class<? extends Message> type) {
         return new LoggingConsumerErrorHandler<>(logger, messageFormat, type);

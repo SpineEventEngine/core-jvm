@@ -30,7 +30,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.protobuf.FieldMask;
 import io.spine.base.EntityState;
 import io.spine.core.ActorContext;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
 
@@ -248,7 +248,7 @@ public final class QueryFactory {
         return builder
                 .setId(newQueryId())
                 .setContext(actorContext)
-                .vBuild();
+                .build();
     }
 
     private static QueryId newQueryId() {
@@ -270,6 +270,6 @@ public final class QueryFactory {
         if (limit > 0) {
             result.setLimit(limit);
         }
-        return result.vBuild();
+        return result.build();
     }
 }

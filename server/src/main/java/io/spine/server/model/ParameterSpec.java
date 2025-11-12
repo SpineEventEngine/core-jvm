@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -30,7 +30,7 @@ import com.google.errorprone.annotations.Immutable;
 import io.spine.server.type.MessageEnvelope;
 
 /**
- * A specification of {@linkplain HandlerMethod handler method} parameters, specific for various
+ * A specification of {@linkplain Receptor receptor} parameters, specific for various
  * {@code HandlerMethod} implementations.
  *
  * <p>As long as handler methods are passed with a {@linkplain MessageEnvelope Message envelope},
@@ -51,8 +51,8 @@ public interface ParameterSpec<E extends MessageEnvelope<?, ?, ?>> {
     boolean matches(MethodParams params);
 
     /**
-     * Extracts the values to be used during the invocation of the method with this parameter
-     * specification.
+     * Extracts the values to be used during the invocation of the method with
+     * this parameter specification.
      *
      * @param envelope the envelope to use as a source
      * @return the values to use during the method invocation

@@ -53,7 +53,7 @@ class CommandOnRejectionTest {
                                .setId(proposedId)
                                .setName("test task name")
                                .setDescription("test task description")
-                               .vBuild()));
+                               .build()));
         assertTrue(retried(proposedId));
     }
 }

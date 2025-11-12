@@ -26,6 +26,7 @@
 
 package io.spine.client;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.protobuf.Message;
 
 import java.util.Arrays;
@@ -56,7 +57,7 @@ FilteringRequest<M extends Message,
                  R extends Message,
                  A extends TargetBuilder<R, A>,
                  B extends FilteringRequest<M, R, A, B>>
-        extends ClientRequest {
+        extends ClientRequestBase {
 
     /** The type of messages returned by the request. */
     private final Class<M> messageType;
@@ -97,6 +98,7 @@ FilteringRequest<M extends Message,
         return builder.get();
     }
 
+    @CanIgnoreReturnValue
     private B withIds(Iterable<?> ids) {
         checkNotNull(ids);
         builder().byId(ids);
@@ -111,6 +113,7 @@ FilteringRequest<M extends Message,
      *
      * <p>If the passed iterable is empty, all records matching other criteria will be returned.
      */
+    @CanIgnoreReturnValue
     public B byId(Iterable<?> ids) {
         return withIds(ids);
     }
@@ -118,6 +121,7 @@ FilteringRequest<M extends Message,
     /**
      * Requests only passed IDs to be included into the result of the request.
      */
+    @CanIgnoreReturnValue
     public B byId(Message... ids) {
         return withIds(Arrays.asList(ids));
     }
@@ -125,6 +129,7 @@ FilteringRequest<M extends Message,
     /**
      * Requests only passed IDs to be included into the result of the request.
      */
+    @CanIgnoreReturnValue
     public B byId(Long... ids) {
         return withIds(Arrays.asList(ids));
     }
@@ -132,6 +137,7 @@ FilteringRequest<M extends Message,
     /**
      * Requests only passed IDs to be included into the result of the request.
      */
+    @CanIgnoreReturnValue
     public B byId(Integer... ids) {
         return withIds(Arrays.asList(ids));
     }
@@ -139,6 +145,7 @@ FilteringRequest<M extends Message,
     /**
      * Requests only passed IDs to be included into the result of the request.
      */
+    @CanIgnoreReturnValue
     public B byId(String... ids) {
         return withIds(Arrays.asList(ids));
     }
@@ -150,6 +157,7 @@ FilteringRequest<M extends Message,
      *             filters.
      */
     @Deprecated
+    @CanIgnoreReturnValue
     public B where(Filter... filter) {
         builder().where(filter);
         return self();
@@ -162,6 +170,7 @@ FilteringRequest<M extends Message,
      *             filters.
      */
     @Deprecated
+    @CanIgnoreReturnValue
     public B where(CompositeFilter... filter) {
         builder().where(filter);
         return self();
@@ -170,6 +179,7 @@ FilteringRequest<M extends Message,
     /**
      * Instructs to populate only fields with the passed names in the results of the request.
      */
+    @CanIgnoreReturnValue
     public B withMask(Iterable<String> fieldNames) {
         builder().withMask(fieldNames);
         return self();
@@ -178,6 +188,7 @@ FilteringRequest<M extends Message,
     /**
      * Instructs to populate only fields with the passed names in the results of the request.
      */
+    @CanIgnoreReturnValue
     public B withMask(String... fieldNames) {
         builder().withMask(fieldNames);
         return self();

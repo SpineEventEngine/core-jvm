@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,18 +23,19 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package io.spine.server.aggregate;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.Empty;
 import io.spine.annotation.Internal;
-import io.spine.base.EntityState;
+import io.spine.annotation.VisibleForTesting;
+import io.spine.base.AggregateState;
 import io.spine.core.Event;
 import io.spine.core.Version;
 import io.spine.protobuf.AnyPacker;
 import io.spine.server.aggregate.model.AggregateClass;
-import io.spine.server.command.CommandAssigneeEntity;
+import io.spine.server.command.AssigneeEntity;
 import io.spine.server.dispatch.BatchDispatchOutcome;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.EventPlayer;
@@ -57,6 +58,7 @@ import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.protobuf.Messages.isNotDefault;
 import static io.spine.server.Ignored.ignored;
 import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
+import static io.spine.util.Exceptions.newIllegalStateException;
 
 /**
  * Abstract base for aggregates.
@@ -82,10 +84,11 @@ import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
  *         state types as generic parameters.
  * </ol>
  *
- * <h2>Assigning command handlers</h2>
+ * <h2>Assigning methods to handle commands</h2>
  *
- * <p>Command-handling methods of an {@code Aggregate} are defined in
- * the same way as described in {@link CommandAssigneeEntity}.
+ * <p>Command receptors of an {@code Aggregate} are defined in
+ * the same way as described in {@link AssigneeEntity}.
+ * Please also refer to {@link io.spine.server.command.Assign Assign}.
  *
  * <p>Event(s) returned by command-handling methods are posted to
  * the {@link io.spine.server.event.EventBus EventBus} automatically
@@ -100,9 +103,20 @@ import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
  * <p>An event applier is a method that changes the state of the aggregate
  * in response to an event. An event applier takes a single parameter of the
  * event message it handles and returns {@code void}.
+ * Please see {@link Apply} for more details.
  *
  * <p>The modification of the state is done using a builder instance obtained
- * from {@link #builder()}.
+ * from {@link #builder() builder()}. All changes to state become reflected
+ * in {@link #state() state()}, after <em>all</em> events (obtained from
+ * aggregate's history when loading an aggregate, or emitted by command handlers
+ * during the command dispatching) are played.
+ *
+ * <p>End-users must not call {@code state()} method within an event applier.
+ * It is so, because event appliers are invoked in scope of an active transaction,
+ * which accumulates the model updates in aggregate's {@code builder()},
+ * and not in {@code state()}. Therefore, {@code state()} invocation from
+ * the applier's code may return some inconsistent result, and thus
+ * is prone to errors. All such attempts will result in a {@code RuntimeException}.
  *
  * <p>An {@code Aggregate} class must have applier methods for
  * <em>all</em> types of the events that it produces.
@@ -120,11 +134,10 @@ import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
  * @param <B>
  *         the type of the aggregate state builder
  */
-@SuppressWarnings("OverlyCoupledClass") // OK for this central concept.
 public abstract class Aggregate<I,
-                                S extends EntityState<I>,
+                                S extends AggregateState<I>,
                                 B extends ValidatingBuilder<S>>
-        extends CommandAssigneeEntity<I, S, B>
+        extends AssigneeEntity<I, S, B>
         implements EventPlayer, EventReactor, HasLifecycleColumns<I, S> {
 
     private final UncommittedHistory uncommittedHistory = new UncommittedHistory(this::toSnapshot);
@@ -133,6 +146,12 @@ public abstract class Aggregate<I,
      * A guard for ensuring idempotency of messages dispatched by this aggregate.
      */
     private IdempotencyGuard idempotencyGuard;
+
+    /**
+     * Tells whether any applier method is being invoked
+     * right now for this instance of aggregate.
+     */
+    private final ApplierWatcher applierWatcher = new ApplierWatcher();
 
     /**
      * Creates a new instance.
@@ -213,6 +232,27 @@ public abstract class Aggregate<I,
     }
 
     /**
+     * Prohibits invoking {@link #state() state()} method from within an applier method.
+     *
+     * <p>All applier methods are always invoked in scope of an active transaction.
+     * Until this transaction is completed, the {@code state()} of the corresponding aggregate
+     * is not up-to-date. Therefore, relying upon it in code is prone to errors,
+     * and is prohibited for good sake.
+     *
+     * @throws IllegalStateException
+     *         if this method is called from within an event applier
+     */
+    @Override
+    protected void ensureAccessToState() {
+        if (applierWatcher.inProgress()) {
+            throw newIllegalStateException(
+                    "Aggregate `state()` method must not be used from `@Apply`-marked method." +
+                            " Use `builder()` instead. The issue detected in `%s` aggregate class.",
+                    getClass().getName());
+        }
+    }
+
+    /**
      * Obtains a method for the passed command and invokes it.
      *
      * <p>Dispatching the commands results in emitting event messages. All the
@@ -229,10 +269,10 @@ public abstract class Aggregate<I,
             var outcome = DispatchOutcome.newBuilder()
                     .setPropagatedSignal(command.messageId())
                     .setError(error.get())
-                    .vBuild();
+                    .build();
             return outcome;
         } else {
-            var method = thisClass().handlerOf(command);
+            var method = thisClass().receptorOf(command);
             var outcome = method.invoke(this, command);
             return outcome;
         }
@@ -255,7 +295,7 @@ public abstract class Aggregate<I,
             var outcome = DispatchOutcome.newBuilder()
                     .setPropagatedSignal(event.messageId())
                     .setError(error.get())
-                    .vBuild();
+                    .build();
             return outcome;
         }
         var method = thisClass().reactorOf(event);
@@ -274,7 +314,8 @@ public abstract class Aggregate<I,
      */
     final DispatchOutcome invokeApplier(EventEnvelope event) {
         var method = thisClass().applierOf(event);
-        return method.invoke(this, event);
+        var outcome = applierWatcher.perform(() -> method.invoke(this, event));
+        return outcome;
     }
 
     @Override
@@ -475,7 +516,8 @@ public abstract class Aggregate<I,
     /**
      * Creates an iterator of the aggregate event history with reverse traversal.
      *
-     * <p>The records are returned sorted by timestamp in descending order (from newer to older).
+     * <p>The records are returned sorted by timestamp in descending order
+     * (from newer to older).
      *
      * <p>The iterator is empty if there's no history for the aggregate.
      *

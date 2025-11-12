@@ -70,6 +70,7 @@ public final class DispatchOutcomeHandler {
     /**
      * Accepts {@code Error} case handler.
      */
+    @CanIgnoreReturnValue
     public DispatchOutcomeHandler onError(OutcomeHandler<Error> handler) {
         this.errorHandler = checkNotNull(handler);
         return this;
@@ -78,6 +79,7 @@ public final class DispatchOutcomeHandler {
     /**
      * Accepts {@code Interruption} case handler.
      */
+    @CanIgnoreReturnValue
     public DispatchOutcomeHandler onInterruption(OutcomeHandler<Interruption> handler) {
         this.interruptionHandler = checkNotNull(handler);
         return this;
@@ -86,6 +88,7 @@ public final class DispatchOutcomeHandler {
     /**
      * Accepts {@code Ignored} case handler.
      */
+    @CanIgnoreReturnValue
     public DispatchOutcomeHandler onIgnored(OutcomeHandler<Ignore> handler) {
         this.ignoreHandler = checkNotNull(handler);
         return this;
@@ -99,6 +102,7 @@ public final class DispatchOutcomeHandler {
      *
      * @see #afterSuccess(OutcomeHandler)
      */
+    @CanIgnoreReturnValue
     public DispatchOutcomeHandler onSuccess(OutcomeHandler<Success> handler) {
         this.successHandler = checkNotNull(handler);
         return this;
@@ -112,6 +116,7 @@ public final class DispatchOutcomeHandler {
      *
      * @see #onSuccess(OutcomeHandler)
      */
+    @CanIgnoreReturnValue
     public DispatchOutcomeHandler afterSuccess(OutcomeHandler<Success> handler) {
         this.afterSuccessHandler = checkNotNull(handler);
         return this;
@@ -120,6 +125,7 @@ public final class DispatchOutcomeHandler {
     /**
      * Accepts {@code rejection} success case handler.
      */
+    @CanIgnoreReturnValue
     public DispatchOutcomeHandler onRejection(OutcomeHandler<Event> handler) {
         this.rejectionHandler = checkNotNull(handler);
         return this;
@@ -128,6 +134,7 @@ public final class DispatchOutcomeHandler {
     /**
      * Accepts {@code ProducedCommands} success case handler.
      */
+    @CanIgnoreReturnValue
     public DispatchOutcomeHandler onCommands(OutcomeHandler<List<Command>> handler) {
         this.producedCommandsHandler = checkNotNull(handler);
         return this;
@@ -136,6 +143,7 @@ public final class DispatchOutcomeHandler {
     /**
      * Accepts {@code ProducedEvents} success case handler.
      */
+    @CanIgnoreReturnValue
     public DispatchOutcomeHandler onEvents(OutcomeHandler<List<Event>> handler) {
         this.producedEventsHandler = checkNotNull(handler);
         return this;

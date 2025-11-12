@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -26,11 +26,11 @@
 
 package io.spine.server.aggregate;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import io.spine.annotation.Internal;
-import io.spine.base.EntityState;
+import io.spine.annotation.VisibleForTesting;
+import io.spine.base.AggregateState;
 import io.spine.base.EventMessage;
 import io.spine.client.ResponseFormat;
 import io.spine.client.TargetFilters;
@@ -43,7 +43,7 @@ import io.spine.server.aggregate.model.AggregateClass;
 import io.spine.server.commandbus.CommandDispatcher;
 import io.spine.server.delivery.BatchDeliveryListener;
 import io.spine.server.delivery.Inbox;
-import io.spine.server.delivery.InboxLabel;
+import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.EntityRecord;
 import io.spine.server.entity.EventProducingRepository;
 import io.spine.server.entity.QueryableRepository;
@@ -53,7 +53,9 @@ import io.spine.server.event.EventBus;
 import io.spine.server.event.EventDispatcherDelegate;
 import io.spine.server.route.CommandRouting;
 import io.spine.server.route.EventRouting;
-import io.spine.server.route.Route;
+import io.spine.server.route.RouteFn;
+import io.spine.server.route.setup.CommandRoutingSetup;
+import io.spine.server.route.setup.EventRoutingSetup;
 import io.spine.server.type.CommandClass;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventClass;
@@ -73,8 +75,15 @@ import static com.google.common.base.Suppliers.memoize;
 import static com.google.common.collect.Iterators.transform;
 import static io.spine.option.EntityOption.Kind.AGGREGATE;
 import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
+import static io.spine.server.delivery.InboxLabel.HANDLE_COMMAND;
+import static io.spine.server.delivery.InboxLabel.IMPORT_EVENT;
+import static io.spine.server.delivery.InboxLabel.REACT_UPON_EVENT;
+import static io.spine.server.dispatch.DispatchOutcomes.maybeSentToInbox;
+import static io.spine.server.dispatch.DispatchOutcomes.sentToInbox;
 import static io.spine.server.tenant.TenantAwareRunner.with;
+import static io.spine.type.Json.toJson;
 import static io.spine.util.Exceptions.newIllegalStateException;
+import static java.util.Objects.requireNonNull;
 
 /**
  * The repository which manages instances of {@code Aggregate}s.
@@ -87,26 +96,28 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  *         the type of the state of aggregates managed by this repository
  * @see Aggregate
  */
-@SuppressWarnings({"ClassWithTooManyMethods", "OverlyCoupledClass"})
-public abstract class AggregateRepository<I, A extends Aggregate<I, S, ?>, S extends EntityState<I>>
+@SuppressWarnings("ClassWithTooManyMethods")
+public abstract class AggregateRepository<I,
+                                          A extends Aggregate<I, S, ?>,
+                                          S extends AggregateState<I>>
         extends Repository<I, A>
         implements CommandDispatcher, EventProducingRepository,
                    EventDispatcherDelegate, QueryableRepository<I, S> {
 
-    /** The default number of events to be stored before a next snapshot is made. */
+    /** The default number of events to be stored before a new snapshot is made. */
     static final int DEFAULT_SNAPSHOT_TRIGGER = 100;
 
     /** The routing schema for commands handled by the aggregates. */
     private final Supplier<CommandRouting<I>> commandRouting;
 
     /** The routing schema for events to which aggregates react. */
-    private final EventRouting<I> eventRouting;
+    private final Supplier<EventRouting<I>> eventRouting;
 
     /**
      * The routing for event import, which by default obtains the target aggregate ID as the
      * {@linkplain io.spine.core.EventContext#getProducerId() producer ID} of the event.
      */
-    private final EventRouting<I> eventImportRouting;
+    private final Supplier<EventRouting<I>> eventImportRouting;
 
     /**
      * The {@link Inbox} for the messages, which are sent to the instances managed by this
@@ -123,8 +134,12 @@ public abstract class AggregateRepository<I, A extends Aggregate<I, S, ?>, S ext
     protected AggregateRepository() {
         super();
         this.commandRouting = memoize(() -> CommandRouting.newInstance(idClass()));
-        this.eventRouting = EventRouting.withDefaultByProducerId();
-        this.eventImportRouting = EventRouting.withDefaultByProducerId();
+        this.eventRouting = memoize(
+                () -> EventRouting.withDefaultByProducerIdOrFirstField(idClass())
+        );
+        this.eventImportRouting = memoize(
+                () -> EventRouting.withDefaultByProducerIdOrFirstField(idClass())
+        );
     }
 
     /**
@@ -147,13 +162,8 @@ public abstract class AggregateRepository<I, A extends Aggregate<I, S, ?>, S ext
     @OverridingMethodsMustInvokeSuper
     public void registerWith(BoundedContext context) {
         checkNotVoid();
-
         super.registerWith(context);
-
-        setupCommandRouting(commandRouting.get());
-        setupEventRouting(eventRouting);
-        setupImportRouting(eventImportRouting);
-
+        setupRouting();
         context.internalAccess()
                .registerCommandDispatcher(this);
         if (aggregateClass().importsEvents()) {
@@ -163,6 +173,24 @@ public abstract class AggregateRepository<I, A extends Aggregate<I, S, ?>, S ext
         initCache(context.isMultitenant());
         initInbox();
         configureQuerying();
+    }
+
+    private void setupRouting() {
+        doSetupCommandRouting();
+        doSetupEventRouting();
+        setupImportRouting(eventImportRouting.get());
+    }
+
+    private void doSetupCommandRouting() {
+        var cmdRouting = commandRouting();
+        var entityClass = entityClass();
+        CommandRoutingSetup.apply(entityClass, cmdRouting);
+        setupCommandRouting(cmdRouting);
+    }
+
+    private void doSetupEventRouting() {
+        EventRoutingSetup.apply(entityClass(), eventRouting.get());
+        setupEventRouting(eventRouting.get());
     }
 
     @Override
@@ -178,32 +206,34 @@ public abstract class AggregateRepository<I, A extends Aggregate<I, S, ?>, S ext
      * Initializes the {@code Inbox}.
      */
     private void initInbox() {
-        var delivery = ServerEnvironment.instance()
-                                        .delivery();
-        inbox = delivery
-                .<I>newInbox(entityStateType())
-                .withBatchListener(new BatchDeliveryListener<>() {
-                    @Override
-                    public void onStart(I id) {
-                        cache.startCaching(id);
-                    }
-
-                    @Override
-                    public void onEnd(I id) {
-                        cache.stopCaching(id);
-                    }
-                })
-                .addEventEndpoint(InboxLabel.REACT_UPON_EVENT,
+        var delivery = ServerEnvironment.instance().delivery();
+        inbox = delivery.<I>newInbox(entityStateType())
+                .withBatchListener(newCachingListener())
+                .addEventEndpoint(REACT_UPON_EVENT,
                                   e -> new AggregateEventReactionEndpoint<>(this, e))
-                .addEventEndpoint(InboxLabel.IMPORT_EVENT,
+                .addEventEndpoint(IMPORT_EVENT,
                                   e -> new EventImportEndpoint<>(this, e))
-                .addCommandEndpoint(InboxLabel.HANDLE_COMMAND,
+                .addCommandEndpoint(HANDLE_COMMAND,
                                     c -> new AggregateCommandEndpoint<>(this, c))
                 .build();
     }
 
+    private BatchDeliveryListener<I> newCachingListener() {
+        return new BatchDeliveryListener<>() {
+            @Override
+            public void onStart(I id) {
+                cache.startCaching(id);
+            }
+
+            @Override
+            public void onEnd(I id) {
+                cache.stopCaching(id);
+            }
+        };
+    }
+
     private Inbox<I> inbox() {
-        return checkNotNull(inbox);
+        return requireNonNull(inbox);
     }
 
     /**
@@ -239,7 +269,7 @@ public abstract class AggregateRepository<I, A extends Aggregate<I, S, ?>, S ext
      * <p>Default routing returns the ID of the entity which
      * {@linkplain io.spine.core.EventContext#getProducerId() produced} the event.
      * This allows to “link” different kinds of entities by having the same class of IDs.
-     * More complex scenarios (e.g. one-to-many relationships) may require custom routing schemas.
+     * More complex scenarios (e.g., one-to-many relationships) may require custom routing schemas.
      *
      * @param routing
      *         the routing schema to customize
@@ -337,11 +367,12 @@ public abstract class AggregateRepository<I, A extends Aggregate<I, S, ?>, S ext
      *         the command to dispatch
      */
     @Override
-    public final void dispatch(CommandEnvelope cmd) {
+    public final DispatchOutcome dispatch(CommandEnvelope cmd) {
         checkNotNull(cmd);
         var target = route(cmd);
         target.ifPresent(id -> inbox().send(cmd)
                                       .toHandler(id));
+        return maybeSentToInbox(cmd, target);
     }
 
     /**
@@ -406,26 +437,30 @@ public abstract class AggregateRepository<I, A extends Aggregate<I, S, ?>, S ext
      *         the event to dispatch
      */
     @Override
-    public void dispatchEvent(EventEnvelope event) {
+    public DispatchOutcome dispatchEvent(EventEnvelope event) {
         checkNotNull(event);
         var targets = route(event);
         targets.forEach((id) -> inbox().send(event)
                                        .toReactor(id));
+        return sentToInbox(event, targets);
     }
 
     private Set<I> route(EventEnvelope event) {
-        return route(eventRouting(), event)
-                .orElse(ImmutableSet.of());
+        var route = route(eventRouting(), event);
+        @SuppressWarnings("unchecked")
+        var result = (Set<I>) route.orElse(ImmutableSet.of());
+        return result;
     }
 
     /**
      * Imports the passed event into one of the aggregates.
      */
-    final void importEvent(EventEnvelope event) {
+    final DispatchOutcome importEvent(EventEnvelope event) {
         checkNotNull(event);
         var target = routeImport(event);
         target.ifPresent(id -> inbox().send(event)
                                       .toImporter(id));
+        return maybeSentToInbox(event, target);
     }
 
     private Optional<I> routeImport(EventEnvelope event) {
@@ -433,34 +468,44 @@ public abstract class AggregateRepository<I, A extends Aggregate<I, S, ?>, S ext
         return id;
     }
 
-    @SuppressWarnings("UnnecessaryLambda")
-    private Route<? extends EventMessage, EventContext, I> eventImportRouting() {
-        return (message, context) -> {
-            var ids = eventImportRouting.apply(message, context);
-            var numberOfTargets = ids.size();
-            var messageType = message.getClass()
-                                     .getName();
-            checkState(
-                    numberOfTargets > 0,
-                    "Could not get aggregate ID from the event context: `%s`. Event class: `%s`.",
-                    context,
-                    messageType
-            );
-            checkState(
-                    numberOfTargets == 1,
-                    "Expected one aggregate ID, but got %s (%s). Event class: `%s`, context: `%s`.",
-                    String.valueOf(numberOfTargets),
-                    ids,
-                    messageType,
-                    context
-            );
-            var id = ids.stream()
-                      .findFirst()
-                      .orElseThrow(() -> newIllegalStateException(
-                              "Unable to route import event `%s`.", messageType)
-                      );
-            return id;
-        };
+    private RouteFn<? extends EventMessage, EventContext, I> eventImportRouting() {
+        return this::idForImported;
+    }
+
+    /**
+     * Obtains an aggregate ID from the given event message and context applying
+     * {@link #eventImportRouting} to them.
+     *
+     * <p>Assumes that routing should give only one ID.
+     *
+     * @throws IllegalStateException
+     *          if {@link #eventImportRouting} returns more than one ID
+     */
+    private I idForImported(EventMessage message, EventContext context) {
+        var ids = eventImportRouting.get().invoke(message, context);
+        var numberOfTargets = ids.size();
+        var messageType = message.getClass()
+                                 .getName();
+        checkState(
+                numberOfTargets > 0,
+                "Could not get aggregate ID from the event context: `%s`. Event class: `%s`.",
+                context,
+                messageType
+        );
+        checkState(
+                numberOfTargets == 1,
+                "Expected one aggregate ID, but got %s (%s). Event class: `%s`, context: `%s`.",
+                String.valueOf(numberOfTargets),
+                ids,
+                messageType,
+                context
+        );
+        var id = ids.stream()
+                .findFirst()
+                .orElseThrow(() -> newIllegalStateException(
+                        "Unable to route import event `%s`.", messageType)
+                );
+        return id;
     }
 
     /**
@@ -474,7 +519,7 @@ public abstract class AggregateRepository<I, A extends Aggregate<I, S, ?>, S ext
      * Obtains event routing instance used by this repository.
      */
     private EventRouting<I> eventRouting() {
-        return eventRouting;
+        return eventRouting.get();
     }
 
     /**
@@ -624,10 +669,14 @@ public abstract class AggregateRepository<I, A extends Aggregate<I, S, ?>, S ext
         tx.commitIfActive();
         if (!success) {
             lifecycleOf(id).onCorruptedState(outcome);
-            throw newIllegalStateException("Aggregate `%s` (ID: %s) cannot be loaded.%n",
-                                           aggregateClass().value()
-                                                           .getName(),
-                                           result.idAsString());
+            var outcomeDetails = toJson(outcome);
+            var aggClass = aggregateClass().rawClass()
+                                           .getName();
+            throw newIllegalStateException("Aggregate `%s` (ID: %s) cannot be loaded.%n" +
+                                                   "Erroneous dispatch outcome: `%s`.",
+                                           aggClass,
+                                           result.idAsString(),
+                                           outcomeDetails);
         }
         return result;
     }

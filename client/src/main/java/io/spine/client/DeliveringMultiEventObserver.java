@@ -30,8 +30,10 @@ import com.google.common.collect.ImmutableMap;
 import io.grpc.stub.StreamObserver;
 import io.spine.base.EventMessage;
 import io.spine.core.Event;
-import io.spine.logging.Logging;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import io.spine.logging.WithLogging;
+import org.jspecify.annotations.Nullable;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Delivers events to their consumers.
@@ -39,7 +41,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @see #onNext(Event)
  * @see MultiEventConsumers
  */
-final class DeliveringMultiEventObserver implements StreamObserver<Event>, Logging {
+final class DeliveringMultiEventObserver implements StreamObserver<Event>, WithLogging {
 
     private final ImmutableMap<Class<? extends EventMessage>, StreamObserver<Event>> observers;
     private final ErrorHandler streamingErrorHandler;
@@ -65,12 +67,15 @@ final class DeliveringMultiEventObserver implements StreamObserver<Event>, Loggi
         if (handler != null) {
             return handler;
         }
-        return throwable -> _error().withCause(throwable).log("Error receiving event.");
+        return throwable -> logger().atError()
+                                    .withCause(throwable)
+                                    .log(() -> "Error receiving event.");
     }
 
     @Override
     public void onNext(Event e) {
         var observer = observers.get(e.type());
+        requireNonNull(observer);
         observer.onNext(e);
     }
 

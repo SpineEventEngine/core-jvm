@@ -26,7 +26,6 @@
 
 package io.spine.server.event;
 
-import io.spine.base.EventMessage;
 import io.spine.server.bus.DeadMessageHandler;
 import io.spine.server.type.EventEnvelope;
 

@@ -29,7 +29,7 @@ package io.spine.client;
 import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.Timestamp;
 import io.spine.annotation.Internal;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 

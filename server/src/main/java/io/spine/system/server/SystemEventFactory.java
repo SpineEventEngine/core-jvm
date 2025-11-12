@@ -74,7 +74,7 @@ final class SystemEventFactory extends EventFactory {
     private static Message aggregateIdFrom(EventMessage systemEvent) {
         var routingOut =
                 EventRoute.byFirstMessageField(Object.class)
-                          .apply(systemEvent, EventContext.getDefaultInstance());
+                          .invoke(systemEvent, EventContext.getDefaultInstance());
         checkArgument(routingOut.size() == 1,
                       "System event message must have entity ID in the first field.");
         var id = routingOut.iterator()

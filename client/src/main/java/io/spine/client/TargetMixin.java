@@ -63,7 +63,7 @@ interface TargetMixin extends TargetOrBuilder {
      * Obtains the descriptor of the target type.
      */
     default Descriptor messageDescriptor() {
-        var result = type().toTypeName()
+        var result = type().typeName()
                            .messageDescriptor();
         return result;
     }

@@ -28,11 +28,12 @@ package io.spine.server.stand;
 import com.google.protobuf.Message;
 import com.google.protobuf.ProtocolMessageEnum;
 import io.spine.base.Error;
+import io.spine.protobuf.AnyPacker;
 import io.spine.type.TypeName;
 import io.spine.validate.Validate;
 import io.spine.validate.ValidationError;
 import io.spine.validate.diags.ViolationText;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import static java.lang.String.format;
 
@@ -163,10 +164,10 @@ abstract class RequestValidator<M extends Message> {
         var error = Error.newBuilder()
                 .setType(typeName)
                 .setCode(errorCode.getNumber())
-                .setValidationError(validationError)
+                .setDetails(AnyPacker.pack(validationError))
                 .setMessage(errorText)
                 .build();
-        var exceptionMsg = formatExceptionMessage(request, error);
+        var exceptionMsg = formatExceptionMessage(request, validationError);
         var exception = invalidMessageException(exceptionMsg, request, error);
         return exception;
     }
@@ -191,9 +192,8 @@ abstract class RequestValidator<M extends Message> {
         return null;
     }
 
-    private String formatExceptionMessage(M request, Error error) {
-        return format("%s. Validation error: %s.",
-                      errorConstraintsViolated(request), error.getValidationError());
+    private String formatExceptionMessage(M request, ValidationError error) {
+        return format("%s. Validation error: `%s`.", errorConstraintsViolated(request), error);
     }
 
     private String errorConstraintsViolated(M request) {

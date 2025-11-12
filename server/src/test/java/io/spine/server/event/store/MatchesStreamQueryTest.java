@@ -1,5 +1,5 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2023, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,6 @@ import org.junit.jupiter.api.Test;
 
 import static io.spine.base.Identifier.newUuid;
 import static io.spine.testing.DisplayNames.NOT_ACCEPT_NULLS;
-import static io.spine.testing.server.TestEventFactory.newInstance;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -51,7 +50,7 @@ class MatchesStreamQueryTest {
     private static final String FIELD_NAME = "spine.test.event.ProjectCreated.project_id";
 
     private static final TestEventFactory eventFactory =
-            newInstance(MatchesStreamQueryTest.class);
+            TestEventFactory.newInstance(MatchesStreamQueryTest.class);
 
     @Test
     @DisplayName(NOT_ACCEPT_NULLS)
@@ -76,7 +75,9 @@ class MatchesStreamQueryTest {
     @DisplayName("not match improper records")
     void notMatchImproperRecords() {
         var properField = generate();
-        var wrongValue = ProjectId.getDefaultInstance();
+        var wrongValue = ProjectId.newBuilder()
+                .setId("some-random-project")
+                .build();
         var event = eventWith(wrongValue);
         var predicate = queryWith(FIELD_NAME, properField);
         assertFalse(predicate.test(event));

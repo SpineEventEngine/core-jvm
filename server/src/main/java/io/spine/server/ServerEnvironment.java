@@ -26,14 +26,14 @@
 
 package io.spine.server;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.annotation.Internal;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.Identifier;
 import io.spine.environment.CustomEnvironmentType;
+import io.spine.environment.DefaultMode;
 import io.spine.environment.Environment;
 import io.spine.environment.EnvironmentType;
-import io.spine.environment.Production;
 import io.spine.environment.Tests;
 import io.spine.server.commandbus.CommandScheduler;
 import io.spine.server.commandbus.ExecutorCommandScheduler;
@@ -55,11 +55,11 @@ import static io.spine.util.Exceptions.newIllegalStateException;
 /**
  * The server conditions and configuration under which the application operates.
  *
- * <h3>Configuration</h3>
+ * <h2>Configuration</h2>
  *
  * <p>Some parts of the {@code ServerEnvironment} can be customized based on the {@code
  * EnvironmentType}. To do so, one of the overloads of the {@code use} method can be called.
- * Two environment types exist out of the box: {@link Tests} and {@link Production}.
+ * Two environment types exist out of the box: {@link Tests} and {@link DefaultMode}.
  * For example:
  * <pre>
  *
@@ -95,7 +95,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * of the respective {@code ServerEnvironment} for those Bounded Contexts. In this way,
  * the Contexts would reside in their own JVMs and not overlap on interacting with this singleton.
  */
-public final class ServerEnvironment implements AutoCloseable {
+public final class ServerEnvironment implements Closeable {
 
     private static final ServerEnvironment INSTANCE = new ServerEnvironment();
 
@@ -153,10 +153,15 @@ public final class ServerEnvironment implements AutoCloseable {
      */
     private Supplier<CommandScheduler> commandScheduler;
 
+    /**
+     * Flag indicating whether this environment has been closed.
+     */
+    private volatile boolean closed = false;
+
     private ServerEnvironment() {
         nodeId = NodeId.newBuilder()
                        .setValue(Identifier.newUuid())
-                       .vBuild();
+                       .build();
         commandScheduler = ExecutorCommandScheduler::new;
     }
 
@@ -173,7 +178,7 @@ public final class ServerEnvironment implements AutoCloseable {
      * @apiNote This is a convenience method for server-side configuration code, which
      *         simply delegates to {@link Environment#type()}.
      */
-    public Class<? extends EnvironmentType> type() {
+    public Class<? extends EnvironmentType<?>> type() {
         return Environment.instance().type();
     }
 
@@ -323,43 +328,71 @@ public final class ServerEnvironment implements AutoCloseable {
     }
 
     /**
+     * Tells if the environment is still open.
+     */
+    @Override
+    public boolean isOpen() {
+        return !closed;
+    }
+
+    /**
      * Releases resources associated with this instance.
      */
     @Override
-    public void close() throws Exception {
-        tracerFactory.apply(AutoCloseable::close);
-        transportFactory.apply(AutoCloseable::close);
-        storageFactory.apply(AutoCloseable::close);
+    public void close() {
+        if (closed) {
+            return;
+        }
+        closeFactory("TracerFactory", tracerFactory);
+        closeFactory("TransportFactory", transportFactory);
+        closeFactory("StorageFactory", storageFactory);
+        closed = true;
+    }
+
+    /**
+     * Closes a factory from an environment setting, wrapping any exceptions.
+     */
+    private static <T extends Closeable> void closeFactory(
+            String factoryName,
+            EnvSetting<T> setting
+    ) {
+        try {
+            setting.apply(Closeable::close);
+        } catch (Exception e) {
+            throw newIllegalStateException(e, "Failed to close `%s`.", factoryName);
+        }
     }
 
     /**
      * Starts flowing API chain for configuring {@code ServerEnvironment} for the passed type.
      */
-    public static TypeConfigurator when(Class<? extends EnvironmentType> type) {
+    public static TypeConfigurator when(Class<? extends EnvironmentType<?>> type) {
         checkNotNull(type);
         return new TypeConfigurator(type);
     }
 
     /**
-     * Allows to configure values used by the {@code ServerEnvironment} for the given type.
+     * Allows configuring values used by the {@code ServerEnvironment} for the given type.
      */
     public static class TypeConfigurator {
 
         private final ServerEnvironment se;
-        private final Class<? extends EnvironmentType> type;
+        private final Class<? extends EnvironmentType<?>> type;
 
-        private TypeConfigurator(Class<? extends EnvironmentType> type) {
+        private TypeConfigurator(Class<? extends EnvironmentType<?>> type) {
             this.se = instance();
+            // Clear the flag for the case of unit tests that closed the singleton before.
+            this.se.closed = false;
             if (CustomEnvironmentType.class.isAssignableFrom(type)) {
                 registerCustomType(type);
             }
             this.type = checkNotNull(type);
         }
 
-        private static void registerCustomType(Class<? extends EnvironmentType> type) {
+        private static void registerCustomType(Class<? extends EnvironmentType<?>> type) {
             @SuppressWarnings("unchecked") // checked by calling site.
             var customType =
-                    (Class<? extends CustomEnvironmentType>) type;
+                    (Class<? extends CustomEnvironmentType<?>>) type;
             Environment.instance()
                        .register(customType);
         }
@@ -368,7 +401,7 @@ public final class ServerEnvironment implements AutoCloseable {
          * Obtains the type of the environment being currently configured.
          */
         @VisibleForTesting
-        public Class<? extends EnvironmentType> type() {
+        public Class<? extends EnvironmentType<?>> type() {
             return type;
         }
 
@@ -505,7 +538,7 @@ public final class ServerEnvironment implements AutoCloseable {
      */
     @FunctionalInterface
     @SuppressWarnings("NewClassNamingConvention") // two letters for this name is fine.
-    public interface Fn<R> extends Function<Class<? extends EnvironmentType>, R> {
+    public interface Fn<R> extends Function<Class<? extends EnvironmentType<?>>, R> {
     }
 
     /**
@@ -519,7 +552,7 @@ public final class ServerEnvironment implements AutoCloseable {
         }
 
         private static IllegalStateException
-        storageFactory(Class<? extends EnvironmentType> type) {
+        storageFactory(Class<? extends EnvironmentType<?>> type) {
             return raise(
                     "The storage factory for the environment `%s` was not configured.",
                     type, "storageFactory"
@@ -527,7 +560,7 @@ public final class ServerEnvironment implements AutoCloseable {
         }
 
         private static IllegalStateException
-        transportFactory(Class<? extends EnvironmentType> type) {
+        transportFactory(Class<? extends EnvironmentType<?>> type) {
             return raise(
                     "Transport factory is not assigned for the current environment `%s`.",
                     type, "transportFactory"
@@ -547,7 +580,7 @@ public final class ServerEnvironment implements AutoCloseable {
          *         the name of the parameter passed to the {@code use()} method
          */
         private static IllegalStateException
-        raise(String prefixFmt, Class<? extends EnvironmentType> type, String featureParamName) {
+        raise(String prefixFmt, Class<? extends EnvironmentType<?>> type, String featureParamName) {
             var typeName = type.getSimpleName();
             var fmt = prefixFmt + " Please call `ServerEnvironment.when(%s.class).use(%s);`.";
             return newIllegalStateException(fmt, typeName, typeName, featureParamName);

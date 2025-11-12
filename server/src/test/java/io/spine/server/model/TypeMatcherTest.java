@@ -32,6 +32,8 @@ import com.google.protobuf.Message;
 import io.spine.base.CommandMessage;
 import io.spine.base.EventMessage;
 import io.spine.core.UserId;
+import io.spine.server.event.NoReaction;
+import io.spine.server.command.DoNothing;
 import io.spine.server.tuple.Pair;
 import io.spine.server.tuple.Triplet;
 import org.junit.jupiter.api.DisplayName;
@@ -47,8 +49,10 @@ import static com.google.common.truth.Truth.assertThat;
 import static io.spine.server.model.TypeMatcher.matches;
 
 @DisplayName("`TypeMatcher` should")
-@SuppressWarnings({"SerializableNonStaticInnerClassWithoutSerialVersionUID",
-        "SerializableInnerClassWithNonSerializableOuterClass"})     // using anonymous `TypeToken`s.
+@SuppressWarnings({
+        "SerializableNonStaticInnerClassWithoutSerialVersionUID",
+        "SerializableInnerClassWithNonSerializableOuterClass" /* using anonymous `TypeToken`s. */
+})
 class TypeMatcherTest {
 
     @Test
@@ -74,7 +78,7 @@ class TypeMatcherTest {
             "another one being neither a subclass nor of the same type")
     void notMatchDifferentTypes() {
         assertThat(matches(TypeToken.of(UserId.class),
-                           TypeToken.of(Nothing.class))
+                           TypeToken.of(NoReaction.class))
         ).isFalse();
 
         assertThat(matches(new TypeToken<List<EventMessage>>() {},
@@ -119,7 +123,7 @@ class TypeMatcherTest {
     void matchGenericByGeneric() {
 
         assertThat(matches(new TypeToken<Map<Object, EventMessage>>() {},
-                           new TypeToken<Map<String, Nothing>>() {})
+                           new TypeToken<Map<String, NoReaction>>() {})
         ).isTrue();
 
         assertThat(matches(new TypeToken<Map<Object, EventMessage>>() {},
@@ -127,7 +131,7 @@ class TypeMatcherTest {
         ).isFalse();
 
         assertThat(matches(new TypeToken<Triplet<EventMessage, EventMessage, EventMessage>>() {},
-                           new TypeToken<Triplet<Nothing, Object, Object>>() {})
+                           new TypeToken<Triplet<NoReaction, Object, Object>>() {})
         ).isFalse();
     }
 
@@ -137,7 +141,7 @@ class TypeMatcherTest {
     void unpackOptionalIfBothDefineGenericParams() {
         assertThat(
                 matches(new TypeToken<Optional<EventMessage>>() {},
-                        new TypeToken<Optional<Nothing>>() {})
+                        new TypeToken<Optional<NoReaction>>() {})
         ).isTrue();
 
         assertThat(
@@ -157,7 +161,8 @@ class TypeMatcherTest {
 
         assertThat(
                 matches(new TypeToken<Triplet<EventMessage, EventMessage, EventMessage>>() {},
-                        new TypeToken<Triplet<EventMessage, EventMessage, Optional<Nothing>>>() {})
+                        new TypeToken<Triplet<EventMessage, EventMessage, Optional<NoReaction>>>() {
+                        })
         ).isTrue();
     }
 
@@ -167,7 +172,7 @@ class TypeMatcherTest {
     void notUnpackOptionalIfExpectedHasNoGenerics() {
         assertThat(
                 matches(TypeToken.of(EventMessage.class),
-                        new TypeToken<Optional<Nothing>>() {})
+                        new TypeToken<Optional<NoReaction>>() {})
         ).isFalse();
     }
 

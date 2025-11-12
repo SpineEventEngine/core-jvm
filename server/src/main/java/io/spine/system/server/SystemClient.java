@@ -46,9 +46,6 @@ public interface SystemClient {
 
     /**
      * Closes the underlying system context.
-     *
-     * @throws Exception
-     *         if the context thrown an exception when closing
      */
-    void closeSystemContext() throws Exception;
+    void closeSystemContext();
 }

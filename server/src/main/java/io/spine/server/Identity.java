@@ -80,7 +80,7 @@ public final class Identity {
                 .newBuilder()
                 .setId(producerId)
                 .setTypeUrl(EMPTY_URL.value())
-                .vBuild();
+                .build();
     }
 
     /**
@@ -93,6 +93,6 @@ public final class Identity {
                 .newBuilder()
                 .setId(Identifier.pack(entityId))
                 .setTypeUrl(entityType.value())
-                .vBuild();
+                .build();
     }
 }

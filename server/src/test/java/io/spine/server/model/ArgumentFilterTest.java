@@ -79,12 +79,14 @@ class ArgumentFilterTest {
 
     private static EventMessage peasAdded() {
         return BeanAdded.newBuilder()
+                .setNumber(1)
                 .setKind(PEA)
                 .build();
     }
 
     private static EventMessage beansAdded() {
         return BeanAdded.newBuilder()
+                .setNumber(1)
                 .setKind(BEAN)
                 .build();
     }

@@ -27,6 +27,7 @@
 package io.spine.server.delivery;
 
 import io.spine.annotation.Internal;
+import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.Repository;
 import io.spine.server.type.SignalEnvelope;
 
@@ -47,7 +48,7 @@ public interface MessageEndpoint<I, M extends SignalEnvelope<?, ?, ?>> {
      * @param targetId
      *         the identifier of a target
      */
-    void dispatchTo(I targetId);
+    DispatchOutcome dispatchTo(I targetId);
 
     /**
      * The callback invoked if the handled signal is a duplicate.

@@ -1,0 +1,138 @@
+/*
+ * Copyright 2022, TeamDev. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Redistribution and use in source and/or binary forms, with or without
+ * modification, must retain the above copyright notice and the following
+ * disclaimer.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+syntax = "proto3";
+
+package spine.test.aggregate;
+
+import "spine/options.proto";
+
+option (type_url_prefix) = "type.spine.io";
+option java_package = "io.spine.test.aggregate";
+option java_multiple_files = true;
+
+import "google/protobuf/timestamp.proto";
+
+message ProjectId {
+    string uuid = 1;
+}
+
+enum Status {
+    PS_UNDEFINED = 0;
+    CREATED = 1;
+    STARTED = 2;
+    DONE = 3;
+    CANCELLED = 4;
+}
+
+message AggProject {
+    option (entity) = {kind: AGGREGATE visibility: FULL};
+
+    ProjectId id = 1;
+
+    string name = 2 [(column) = true];
+
+    repeated Task task = 3;
+
+    Status status = 4 [(column) = true];
+
+    google.protobuf.Timestamp last_modified = 5 [(column) = true];
+
+    int32 view_count = 6 [(column) = true, (min).value = "0"];
+}
+
+// An aggregate with a `String` identifier.
+message StringProject {
+    option (entity) = {kind: AGGREGATE visibility: FULL};
+
+    string id = 1 [(required) = false];
+
+    string name = 2;
+    repeated Task task = 3;
+    Status status = 4;
+}
+
+// An aggregate with an `Integer` identifier.
+message IntegerProject {
+    option (entity) = {kind: AGGREGATE visibility: FULL};
+
+    int32 id = 1;
+
+    string name = 2;
+    repeated Task task = 3;
+    Status status = 4;
+}
+
+// An aggregate with a `Long` identifier.
+message LongProject {
+    option (entity) = {kind: AGGREGATE visibility: FULL};
+
+    int64 id = 1;
+
+    string name = 2;
+    repeated Task task = 3;
+    Status status = 4;
+}
+
+message ProjectLifecycle {
+    option (entity) = {kind: AGGREGATE visibility: FULL};
+
+    ProjectId id = 1;
+    Status status = 2;
+}
+
+message ProjectDefinition {
+    option (entity) = {kind: AGGREGATE visibility: FULL};
+
+    ProjectId id = 1;
+    string name = 2;
+}
+
+message TaskId {
+    int32 id = 1;
+}
+
+message Task {
+    option (entity) = {kind: AGGREGATE visibility: FULL};
+
+    ProjectId id = 1 [(required) = false, (validate) = false];
+    TaskId task_id = 2;
+    string title = 3;
+    string description = 4;
+}
+
+message SubProjectList {
+    option (entity) = {kind: AGGREGATE visibility: FULL};
+
+    ProjectId parent_project = 1 [(required) = false, (validate) = false];
+    repeated ProjectId item = 2;
+}
+
+message ParentState {
+    option (entity) = {kind: AGGREGATE visibility: FULL};
+
+    ProjectId parent_project = 1;
+    string value = 2;
+}

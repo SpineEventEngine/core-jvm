@@ -28,6 +28,8 @@ package io.spine.server.event;
 
 import com.google.common.collect.ImmutableSet;
 import io.spine.annotation.Internal;
+import io.spine.server.bus.DispatcherDelegate;
+import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
 
@@ -35,15 +37,19 @@ import io.spine.server.type.EventEnvelope;
  * A common interface for objects which need to dispatch {@linkplain io.spine.core.Event events},
  * but are unable to implement {@link io.spine.server.event.EventDispatcher EventDispatcher}.
  *
- * <p>This interface defines own contract (instead of extending {@link
- * io.spine.server.bus.MessageDispatcher MessageDispatcher} to allow classes that dispatch
- * messages other than events (by implementing {@link io.spine.server.bus.MessageDispatcher
- * MessageDispatcher}), and dispatch events by implementing this interface.
+ * <p>This interface defines own contract for dispatching events, instead of extending
+ * the {@link io.spine.server.bus.MessageDispatcher MessageDispatcher} interface.
+ * Such an arrangement allows classes that dispatch messages other than events
+ * (by implementing {@link io.spine.server.bus.MessageDispatcher MessageDispatcher}), also
+ * dispatch events by implementing <em>this</em> interface.
+ *
+ * <p>Also this interface provides separate methods for obtaining
+ * {@linkplain #domesticEvents() domestic} and {@linkplain #externalEvents() external} event types.
  *
  * @see DelegatingEventDispatcher
  */
 @Internal
-public interface EventDispatcherDelegate {
+public interface EventDispatcherDelegate extends DispatcherDelegate<EventClass, EventEnvelope> {
 
     /**
      * Obtains all event classes dispatched by this delegate.
@@ -61,9 +67,9 @@ public interface EventDispatcherDelegate {
     ImmutableSet<EventClass> externalEvents();
 
     /**
-     * Dispatches the event.
+     * Dispatches the event and returns the outcome of dispatching.
      */
-    void dispatchEvent(EventEnvelope event);
+    DispatchOutcome dispatchEvent(EventEnvelope event);
 
     /**
      * Returns immutable set with one element with the identity of the multicast dispatcher
@@ -95,7 +101,7 @@ public interface EventDispatcherDelegate {
     /**
      * Checks if this dispatcher can dispatch the given event.
      *
-     * <p>By default, all events are permitted. Implementations may change this behaviour to reject
+     * <p>By default, all events are permitted. Implementations may change this behavior to reject
      * certain events as early as possible.
      *
      * @param envelope

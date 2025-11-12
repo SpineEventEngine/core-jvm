@@ -26,24 +26,23 @@
 
 package io.spine.server.model;
 
-import com.google.common.annotations.VisibleForTesting;
 import io.spine.annotation.Internal;
-import io.spine.logging.Logging;
+import io.spine.logging.WithLogging;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.flogger.LazyArgs.lazy;
+import static java.lang.String.format;
 
 /**
- * The checker of a {@link Method} access level.
+ * Verifies an access level of a {@link Method}.
  *
  * <p>If the access level check fails, the warning message will be put to the log.
  * If the check passes, no action is performed.
  */
 @Internal
-public final class MethodAccessChecker implements Logging {
+public final class MethodAccessChecker implements WithLogging {
 
     private final Method method;
 
@@ -124,9 +123,8 @@ public final class MethodAccessChecker implements Logging {
      * @param messageFormat formatted {@code String} representing the warning message
      * @see String#format(String, Object...)
      */
-    @VisibleForTesting
-    void warnOnWrongModifier(String messageFormat) {
-        _warn().log(messageFormat, lazy(this::methodFullName));
+    private void warnOnWrongModifier(String messageFormat) {
+        logger().atWarning().log(() -> format(messageFormat, methodFullName()));
     }
 
     private String methodFullName() {

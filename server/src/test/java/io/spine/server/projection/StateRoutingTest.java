@@ -29,7 +29,6 @@ package io.spine.server.projection;
 import com.google.protobuf.StringValue;
 import io.spine.base.Identifier;
 import io.spine.protobuf.AnyPacker;
-import io.spine.server.BoundedContextBuilder;
 import io.spine.server.route.given.sur.ArtistMood;
 import io.spine.server.route.given.sur.ArtistMoodRepo;
 import io.spine.server.route.given.sur.Gallery;
@@ -55,34 +54,34 @@ class StateRoutingTest {
 
     @BeforeEach
     void setupContext() {
-        context = BlackBox.from(
-                BoundedContextBuilder
-                        .assumingTests()
-                        .add(MagazineAggregate.class)
-                        .add(new ArtistMoodRepo())
-                        .add(new Gallery())
-                        .add(WorksProjection.class)
+        context = BlackBox.singleTenantWith(
+                MagazineAggregate.class,
+                new ArtistMoodRepo(),
+                new Gallery(),
+                WorksProjection.class
         );
     }
 
     @Test
     @DisplayName("support explicit routing")
     void explicit() {
+        var manifesto = Manifesto.newBuilder()
+                .setAuthor(GOLL)
+                .setTitle("My France")
+                .setText("Lorem ipsum")
+                .build();
         context.receivesCommand(
                 PublishArticle.newBuilder()
-                              .setMagazineName("Manifeste du surréalisme")
-                              .setArticle(AnyPacker.pack(
-                                      Manifesto.newBuilder()
-                                               .setAuthor(GOLL)
-                                               .setText("Lorem ipsum")
-                                               .build()))
-                              .build()
+                        .setMagazineName("Manifeste du surréalisme")
+                        .setArticle(AnyPacker.pack(manifesto))
+                        .build()
         );
 
         context.assertState(BRETON, ArtistMood.class)
+               .comparingExpectedFieldsOnly()
                .isEqualTo(ArtistMood.newBuilder()
-                                    .setMood(ArtistMood.Mood.ANGER)
-                                    .build());
+                                  .setMood(ArtistMood.Mood.ANGER)
+                                  .buildPartial());
     }
 
     @Test
@@ -98,11 +97,11 @@ class StateRoutingTest {
                         .build()
         );
 
-        context.assertState(
-                artist,
-                Works.newBuilder()
-                     .addWork(automaticDrawing)
-                     .build()
-        );
+        var works = Works
+                .newBuilder()
+                .setArtist(artist)
+                .addWork(automaticDrawing)
+                .build();
+        context.assertState(artist, works);
     }
 }

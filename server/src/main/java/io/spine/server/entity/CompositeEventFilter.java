@@ -27,6 +27,7 @@
 package io.spine.server.entity;
 
 import com.google.common.collect.ImmutableList;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.base.EventMessage;
 
 import java.util.Optional;
@@ -89,6 +90,7 @@ public final class CompositeEventFilter implements EventFilter {
          * <p>The order of applying the filters is the order of the filters being passed to this
          * method.
          */
+        @CanIgnoreReturnValue
         public Builder add(EventFilter filter) {
             checkNotNull(filter);
             filters.add(filter);

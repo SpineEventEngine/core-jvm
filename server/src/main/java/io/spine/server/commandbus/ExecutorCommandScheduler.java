@@ -1,5 +1,5 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2023, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,14 +26,14 @@
 
 package io.spine.server.commandbus;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.protobuf.Duration;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.core.Command;
-import io.spine.logging.Logging;
+import io.spine.logging.WithLogging;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
@@ -44,7 +44,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
  *
  * @see ScheduledExecutorService
  */
-public class ExecutorCommandScheduler extends CommandScheduler implements Logging {
+public class ExecutorCommandScheduler extends CommandScheduler implements WithLogging {
 
     private static final int MIN_THREAD_POOL_SIZE = 5;
     private static final int NANOS_IN_MILLISECOND = 1_000_000;
@@ -82,12 +82,12 @@ public class ExecutorCommandScheduler extends CommandScheduler implements Loggin
         try {
             post(command);
         } catch (Throwable t) {
-            _error().withCause(t)
-                    .log("Error posting command `%s` with ID `%s`: `%s`.",
-                         command.enclosedTypeUrl(),
-                         command.getId()
-                                .getUuid(),
-                         t.getLocalizedMessage());
+            logger().atError().withCause(t).log(() -> format(
+                    "Error posting command `%s` with ID `%s`: `%s`.",
+                    command.enclosedTypeUrl(),
+                    command.getId()
+                           .getUuid(),
+                    t.getLocalizedMessage()));
         }
     }
 
@@ -97,7 +97,7 @@ public class ExecutorCommandScheduler extends CommandScheduler implements Loggin
         var delaySec = delay.getSeconds();
         long delayMillisFraction = delay.getNanos() / NANOS_IN_MILLISECOND;
 
-        /**
+        /*
          * Maximum value of {@link Duration#getSeconds()} is
          * <a href="https://github.com/google/protobuf/blob/master/src/google/protobuf/duration.proto"+315,576,000,000.</a>.
          *

@@ -26,7 +26,6 @@
 
 package io.spine.server.model.handler;
 
-import io.spine.server.BoundedContextBuilder;
 import io.spine.server.aggregate.model.AggregateClass;
 import io.spine.server.model.handler.given.RoverBot;
 import io.spine.server.model.handler.given.command.Start;
@@ -52,10 +51,7 @@ class MessageInterfaceResultTest {
 
     @BeforeEach
     void createContext() {
-        context = BlackBox.from(
-                BoundedContextBuilder.assumingTests()
-                                     .add(RoverBot.class)
-        );
+        context = BlackBox.singleTenantWith(RoverBot.class);
     }
 
     @AfterEach

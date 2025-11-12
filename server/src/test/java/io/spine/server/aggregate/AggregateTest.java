@@ -100,6 +100,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.extensions.proto.ProtoTruth.assertThat;
 import static io.spine.grpc.StreamObservers.noOpObserver;
 import static io.spine.protobuf.AnyPacker.unpack;
+import static io.spine.server.aggregate.given.Given.ACommand.addTask;
 import static io.spine.server.aggregate.given.Given.EventMessage.projectCreated;
 import static io.spine.server.aggregate.given.Given.EventMessage.projectStarted;
 import static io.spine.server.aggregate.given.Given.EventMessage.taskAdded;
@@ -184,7 +185,7 @@ public class AggregateTest {
     }
 
     @AfterEach
-    void tearDown() throws Exception {
+    void tearDown() {
         context.close();
     }
 
@@ -353,6 +354,7 @@ public class AggregateTest {
     class ThrowOnMissing {
 
         @Test
+        @MuteLogging
         @DisplayName("command assignee")
         void commandHandler() {
             ModelTests.dropAllModels();
@@ -364,6 +366,7 @@ public class AggregateTest {
         }
 
         @Test
+        @MuteLogging
         @DisplayName("event applier for the event emitted in a result of command handling")
         void eventApplier() {
             ModelTests.dropAllModels();
@@ -465,7 +468,7 @@ public class AggregateTest {
 
         @Test
         @DisplayName("which are being committed")
-        void beingCommitedAfterDispatch() {
+        void beingCommittedAfterDispatch() {
             aggregate.dispatchCommands(command(createProject),
                                        command(addTask),
                                        command(startProject));
@@ -589,10 +592,37 @@ public class AggregateTest {
     }
 
     @Nested
+    @DisplayName("prohibit")
+    class Prohibit {
+
+        @Test
+        @MuteLogging
+        @DisplayName("to call `state()` from within applier")
+        void callStateFromApplier() {
+            ModelTests.dropAllModels();
+            var faultyAggregate =
+                    new FaultyAggregate(ID, false, false);
+            var command = addTask(ID);
+            var outcome = dispatchCommand(faultyAggregate, env(command));
+
+            assertThat(outcome.hasError())
+                    .isTrue();
+            var error = outcome.getError();
+            var expectedError = Error.newBuilder()
+                    .setType(IllegalStateException.class.getCanonicalName())
+                    .buildPartial();
+            assertThat(error)
+                    .comparingExpectedFieldsOnly()
+                    .isEqualTo(expectedError);
+        }
+    }
+
+    @Nested
     @DisplayName("catch `RuntimeException`s in")
     class CatchHandlerFailures {
 
         @Test
+        @MuteLogging
         @DisplayName("handlers")
         void whenHandlerThrows() {
             ModelTests.dropAllModels();
@@ -612,6 +642,7 @@ public class AggregateTest {
         }
 
         @Test
+        @MuteLogging
         @DisplayName("appliers")
         void whenApplierThrows() {
             ModelTests.dropAllModels();
@@ -785,7 +816,7 @@ public class AggregateTest {
                .registerEventDispatcher(monitor);
         var eventMessage = AggProjectDeleted.newBuilder()
                 .setProjectId(ID)
-                .vBuild();
+                .build();
         var event = event(eventMessage, 2);
         var envelope = EventEnvelope.of(event);
         Supplier<MessageEndpoint<ProjectId, ?>> endpoint =
@@ -896,7 +927,7 @@ public class AggregateTest {
         void notChangeStateIfNoReaction() {
             var booksOnFire = TemperatureChanged.newBuilder()
                     .setFahrenheit(451)
-                    .vBuild();
+                    .build();
             context().receivesExternalEvent(booksOnFire)
                      .assertEntity(thermometer, SafeThermometer.class)
                      .doesNotExist();
@@ -907,12 +938,12 @@ public class AggregateTest {
         void safelySaveValidState() {
             var gettingWarmer = TemperatureChanged.newBuilder()
                     .setFahrenheit(72)
-                    .vBuild();
+                    .build();
             context().receivesExternalEvent(gettingWarmer);
             var expected = Thermometer.newBuilder()
                     .setId(thermometer)
                     .setFahrenheit(72)
-                    .vBuild();
+                    .build();
             context().assertState(thermometer, expected);
         }
     }

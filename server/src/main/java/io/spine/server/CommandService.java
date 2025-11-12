@@ -26,40 +26,50 @@
 
 package io.spine.server;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import io.grpc.BindableService;
 import io.grpc.stub.StreamObserver;
+import io.spine.base.Error;
+import io.spine.base.Errors;
 import io.spine.client.grpc.CommandServiceGrpc;
 import io.spine.core.Ack;
 import io.spine.core.Command;
-import io.spine.logging.Logging;
-import io.spine.server.bus.MessageIdExtensions;
+import io.spine.logging.WithLogging;
 import io.spine.server.commandbus.UnsupportedCommandException;
 import io.spine.server.type.CommandClass;
-
-import java.util.Map;
-import java.util.Set;
+import io.spine.type.MessageClass;
+import io.spine.type.TypeUrl;
+import io.spine.type.UnpublishedLanguageException;
+import org.jspecify.annotations.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static io.spine.server.bus.MessageIdExtensions.causedError;
+import static java.lang.String.format;
 
 /**
- * The {@code CommandService} allows client applications to post commands and
- * receive updates from the application backend.
+ * The {@code CommandService} provides a synchronous way to post commands
+ * to the application backend.
+ *
+ * <p>This class is an implementation of a corresponding gRPC service.
+ * Hence, the public API of this class is dictated by
+ * the {@linkplain CommandServiceGrpc generated code}.
+ *
+ * <p>Commands are sent to the application backend by an instance
+ * of the {@linkplain io.spine.client.Client Client} class.
  */
 public final class CommandService
         extends CommandServiceGrpc.CommandServiceImplBase
-        implements Logging {
+        implements WithLogging {
 
-    private final ImmutableMap<CommandClass, BoundedContext> commandToContext;
+    private final CommandServiceImpl impl;
 
     /**
-     * Constructs new instance using the map from a {@code CommandClass} to
-     * a {@code BoundedContext} instance which handles the command.
+     * Creates a new instance using the given {@link TypeDictionary}.
      */
-    private CommandService(Map<CommandClass, BoundedContext> map) {
+    @SuppressWarnings("ThisEscapedInObjectConstruction") // Safe, injected at the end of the ctor.
+    private CommandService(TypeDictionary types) {
         super();
-        this.commandToContext = ImmutableMap.copyOf(map);
+        this.impl = new CommandServiceImpl(this, types);
     }
 
     /**
@@ -70,7 +80,9 @@ public final class CommandService
     }
 
     /**
-     * Builds the service with a single Bounded Context.
+     * Creates a service with the single given Bounded Context.
+     *
+     * @see #newBuilder()
      */
     public static CommandService withSingle(BoundedContext context) {
         checkNotNull(context);
@@ -78,98 +90,100 @@ public final class CommandService
         return result;
     }
 
+    /**
+     * Posts the command to {@code CommandBus}.
+     *
+     * @param command
+     *         The command to post
+     * @param observer
+     *         The observer for the acknowledgement for the command.
+     */
     @Override
-    public void post(Command request, StreamObserver<Ack> responseObserver) {
-        var commandClass = CommandClass.of(request);
-        var context = commandToContext.get(commandClass);
-        if (context == null) {
-            handleUnsupported(request, responseObserver);
-        } else {
-            var commandBus = context.commandBus();
-            commandBus.post(request, responseObserver);
-        }
+    public void post(Command command, StreamObserver<Ack> observer) {
+        impl.serve(command, observer, null);
     }
 
-    private void handleUnsupported(Command command, StreamObserver<Ack> responseObserver) {
-        var unsupported = new UnsupportedCommandException(command);
-        _error().withCause(unsupported)
-                .log("Unsupported command posted to `CommandService`.");
-        var error = unsupported.asError();
-        var id = command.getId();
-        var response = MessageIdExtensions.causedError(id, error);
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+    private static final class CommandServiceImpl extends ServiceDelegate<Command, Ack> {
+
+        private CommandServiceImpl(BindableService service, TypeDictionary types) {
+            super(service, types);
+        }
+
+        @Override
+        protected TypeUrl enclosedMessageType(Command request) {
+            var type = CommandClass.of(request).typeUrl();
+            return type;
+        }
+
+        @Override
+        protected void serve(BoundedContext context,
+                             Command cmd,
+                             StreamObserver<Ack> observer,
+                             @Nullable Object params) {
+            context.commandBus().post(cmd, observer);
+        }
+
+        @Override
+        protected void handleInternal(Command cmd, StreamObserver<Ack> observer) {
+            var unpublishedLanguage = new UnpublishedLanguageException(cmd.enclosedMessage());
+            logger().atError().withCause(unpublishedLanguage).log(() -> format(
+                    "Unpublished command posted to `%s`.", serviceName()));
+            var error = Errors.fromThrowable(unpublishedLanguage);
+            respondWithError(cmd, error, observer);
+        }
+
+        /**
+         * Since a command can be handled by only one bounded context, responds
+         * with the acknowledgement containing {@link UnsupportedCommandException}.
+         */
+        @Override
+        protected void serveNoContext(Command cmd,
+                                      StreamObserver<Ack> observer,
+                                      @Nullable Object params) {
+            var unsupported = new UnsupportedCommandException(cmd);
+            logger().atError().withCause(unsupported).log(() -> format(
+                    "Unsupported command posted to `%s`.", serviceName()));
+            var error = unsupported.asError();
+            respondWithError(cmd, error, observer);
+        }
+
+        private static void respondWithError(Command cmd, Error err, StreamObserver<Ack> observer) {
+            var id = cmd.getId();
+            var response = causedError(id, err);
+            observer.onNext(response);
+            observer.onCompleted();
+        }
     }
 
     /**
      * The builder for a {@code CommandService}.
      */
-    public static class Builder {
-
-        private final Set<BoundedContext> contexts = Sets.newHashSet();
-
-        /**
-         * Adds the {@code BoundedContext} to the builder.
-         */
-        @CanIgnoreReturnValue
-        public Builder add(BoundedContext context) {
-            // Saves it to a temporary set so that it is easy to remove it if needed.
-            contexts.add(context);
-            return this;
-        }
-
-        /**
-         * Removes the {@code BoundedContext} from the builder.
-         */
-        @CanIgnoreReturnValue
-        public Builder remove(BoundedContext context) {
-            contexts.remove(context);
-            return this;
-        }
-
-        /**
-         * Verifies if the passed {@code BoundedContext} was previously added to the builder.
-         *
-         * @param context the instance to check
-         * @return {@code true} if the instance was added to the builder, {@code false} otherwise
-         */
-        public boolean contains(BoundedContext context) {
-            var contains = contexts.contains(context);
-            return contains;
-        }
+    public static class Builder extends AbstractServiceBuilder<CommandService, Builder> {
 
         /**
          * Builds a new {@link CommandService}.
          */
+        @Override
         public CommandService build() {
-            var map = createMap();
-            var result = new CommandService(map);
+            var dictionary = TypeDictionary.newBuilder();
+            contexts().forEach(
+                    context -> dictionary.putAll(context, (c) ->
+                            c.commandBus()
+                             .registeredCommandClasses()
+                                    .stream()
+                                    .map(MessageClass::typeUrl)
+                                    .collect(toImmutableSet())
+                    )
+            );
+
+            var result = new CommandService(dictionary.build());
+            warnIfEmpty(result);
             return result;
         }
 
-        /**
-         * Creates a map from {@code CommandClass}es to {@code BoundedContext}s that
-         * handle such commands.
-         */
-        private ImmutableMap<CommandClass, BoundedContext> createMap() {
-            ImmutableMap.Builder<CommandClass, BoundedContext> builder = ImmutableMap.builder();
-            for (var boundedContext : contexts) {
-                putIntoMap(boundedContext, builder);
-            }
-            return builder.build();
-        }
-
-        /**
-         * Associates {@code CommandClass}es with the instance of {@code BoundedContext}
-         * that handles such commands.
-         */
-        private static void putIntoMap(BoundedContext context,
-                                       ImmutableMap.Builder<CommandClass, BoundedContext> builder) {
-            var commandBus = context.commandBus();
-            var cmdClasses = commandBus.registeredCommandClasses();
-            for (var commandClass : cmdClasses) {
-                builder.put(commandClass, context);
-            }
+        @Override
+        Builder self() {
+            return this;
         }
     }
 }

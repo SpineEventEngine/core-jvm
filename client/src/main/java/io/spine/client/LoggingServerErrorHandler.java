@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -26,23 +26,25 @@
 
 package io.spine.client;
 
-import com.google.common.flogger.FluentLogger;
 import com.google.protobuf.Message;
 import io.spine.base.Error;
+import io.spine.logging.Logger;
 
-import static com.google.protobuf.TextFormat.shortDebugString;
+import static io.spine.type.ProtoTexts.shortDebugString;
+import static java.lang.String.format;
 
 /**
  * A posting handler which logs the error.
  */
 final class LoggingServerErrorHandler extends LoggingHandler implements ServerErrorHandler {
 
-    LoggingServerErrorHandler(FluentLogger logger, String messageFormat) {
+    LoggingServerErrorHandler(Logger logger, String messageFormat) {
         super(logger, messageFormat);
     }
 
     @Override
     public void accept(Message message, Error error) {
-        error().log(messageFormat(), shortDebugString(message), shortDebugString(error));
+        error().log(() -> format(
+                messageFormat(), shortDebugString(message), shortDebugString(error)));
     }
 }

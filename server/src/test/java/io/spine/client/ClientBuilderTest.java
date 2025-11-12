@@ -34,7 +34,7 @@ import io.spine.core.UserId;
 import io.spine.testing.TestValues;
 import io.spine.testing.core.given.GivenTenantId;
 import io.spine.testing.core.given.GivenUserId;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -44,7 +44,6 @@ import org.junit.jupiter.api.Test;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth8.assertThat;
 import static io.spine.client.Client.connectTo;
 import static io.spine.client.Client.usingChannel;
 import static org.junit.jupiter.api.Assertions.assertThrows;

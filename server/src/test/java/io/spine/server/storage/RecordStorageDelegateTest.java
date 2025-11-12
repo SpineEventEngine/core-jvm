@@ -48,20 +48,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth8.assertThat;
 import static com.google.protobuf.util.Durations.fromDays;
 import static com.google.protobuf.util.Durations.fromMinutes;
 import static com.google.protobuf.util.Timestamps.add;
 import static com.google.protobuf.util.Timestamps.subtract;
 import static io.spine.base.Time.currentTime;
+import static io.spine.server.storage.given.GivenStorageProject.StgProjectColumns.due_date;
+import static io.spine.server.storage.given.GivenStorageProject.StgProjectColumns.status;
 import static io.spine.server.storage.given.GivenStorageProject.newState;
 import static io.spine.server.storage.given.RecordStorageDelegateTestEnv.assertOnlyIdAndDueDate;
 import static io.spine.server.storage.given.RecordStorageDelegateTestEnv.coupleOfDone;
 import static io.spine.server.storage.given.RecordStorageDelegateTestEnv.dozenOfRecords;
 import static io.spine.server.storage.given.RecordStorageDelegateTestEnv.idAndDueDate;
 import static io.spine.server.storage.given.RecordStorageDelegateTestEnv.toIds;
-import static io.spine.server.storage.given.StgColumn.due_date;
-import static io.spine.server.storage.given.StgColumn.status;
 import static io.spine.test.storage.StgProject.Status.CREATED;
 import static io.spine.test.storage.StgProject.Status.DONE;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -154,6 +153,7 @@ public class RecordStorageDelegateTest
 
             var result = storage().read(record.getId(), idAndDueDate());
             assertThat(result).isPresent();
+            @SuppressWarnings("OptionalGetWithoutIsPresent") // checked on the prev. line.
             var actual = result.get();
             assertOnlyIdAndDueDate(actual);
         }
@@ -434,6 +434,7 @@ public class RecordStorageDelegateTest
 
         @Test
         @DisplayName("`readAll(IDs)` method")
+        @SuppressWarnings("DistinctVarargsChecker")
         void readAllByIds() {
             assertISE(() -> storage().readAll(ImmutableSet.of(newId(), newId())));
         }

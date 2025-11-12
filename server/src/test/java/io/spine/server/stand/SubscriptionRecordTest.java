@@ -45,7 +45,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-import static com.google.common.truth.Truth8.assertThat;
+import static com.google.common.truth.Truth.assertThat;
 import static io.spine.client.Targets.composeTarget;
 import static io.spine.server.stand.given.SubscriptionRecordTestEnv.OTHER_TYPE;
 import static io.spine.server.stand.given.SubscriptionRecordTestEnv.projectCreatedEnvelope;
@@ -53,6 +53,7 @@ import static io.spine.server.stand.given.SubscriptionRecordTestEnv.projectId;
 import static io.spine.server.stand.given.SubscriptionRecordTestEnv.projectWithName;
 import static io.spine.server.stand.given.SubscriptionRecordTestEnv.stateChangedEnvelope;
 import static io.spine.server.stand.given.SubscriptionRecordTestEnv.subscription;
+import static io.spine.server.stand.given.SubscriptionRecordTestEnv.subscriptionProjectId;
 import static java.util.Collections.singleton;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -160,6 +161,7 @@ class SubscriptionRecordTest {
                     .setId(targetTeamId)
                     .build();
             var matching = ProjectCreated.newBuilder()
+                    .setProjectId(subscriptionProjectId("Subscription Project"))
                     .setTeamId(matchingTeamId)
                     .build();
             var envelope = projectCreatedEnvelope(targetId, matching);
@@ -175,6 +177,7 @@ class SubscriptionRecordTest {
                     .build();
             var other = ProjectCreated.newBuilder()
                     .setTeamId(otherTeamId)
+                    .setProjectId(subscriptionProjectId("Another Subscription Project"))
                     .build();
             var nonMatching = projectCreatedEnvelope(targetId, other);
             assertThat(record.detectUpdate(nonMatching)).isEmpty();

@@ -28,17 +28,21 @@ package io.spine.server.commandbus;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableSet;
 import io.spine.annotation.Internal;
+import io.spine.server.bus.DelegatingDispatcher;
+import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.type.CommandClass;
 import io.spine.server.type.CommandEnvelope;
 
 /**
- * A {@link CommandDispatcher}, that delegates the responsibilities to an aggregated
- * {@linkplain CommandDispatcherDelegate delegate instance}.
+ * A dispatcher of commands which delegates the responsibilities to
+ * a {@link CommandDispatcherDelegate}.
  *
  * @see CommandDispatcherDelegate
  */
 @Internal
-public class DelegatingCommandDispatcher implements CommandDispatcher {
+public class DelegatingCommandDispatcher
+        implements CommandDispatcher,
+                   DelegatingDispatcher<CommandClass, CommandEnvelope> {
 
     /**
      * A target delegate.
@@ -65,8 +69,13 @@ public class DelegatingCommandDispatcher implements CommandDispatcher {
     }
 
     @Override
-    public final void dispatch(CommandEnvelope envelope) {
-        delegate.dispatchCommand(envelope);
+    public final DispatchOutcome dispatch(CommandEnvelope envelope) {
+        return delegate.dispatchCommand(envelope);
+    }
+
+    @Override
+    public CommandDispatcherDelegate delegate() {
+        return delegate;
     }
 
     /**

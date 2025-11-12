@@ -32,8 +32,8 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.protobuf.Message;
 import io.grpc.stub.StreamObserver;
 import io.spine.base.MessageContext;
-import io.spine.logging.Logging;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import io.spine.logging.WithLogging;
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.Supplier;
 
@@ -71,7 +71,7 @@ import static com.google.common.base.Preconditions.checkState;
  *         or the same type as {@code <M>} if the messages do not have a context
  */
 abstract class Consumers<M extends Message, C extends MessageContext, W extends Message>
-        implements Logging {
+        implements WithLogging {
 
     private final ImmutableSet<MessageConsumer<M, C>> consumers;
     private final ErrorHandler streamingErrorHandler;
@@ -107,7 +107,7 @@ abstract class Consumers<M extends Message, C extends MessageContext, W extends 
             "SerializableInnerClassWithNonSerializableOuterClass" /* for `TypeToken` work */,
             "unchecked" /* The returned type is a class of messages, which is protected
                            by generic params of this class. */})
-    private final Class<? extends Message> messageType() {
+    private Class<? extends Message> messageType() {
         var result = new TypeToken<M>(getClass()){}.getRawType();
         return (Class<? extends Message>) result;
     }

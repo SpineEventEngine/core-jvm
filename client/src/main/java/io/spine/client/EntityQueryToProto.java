@@ -27,15 +27,8 @@
 package io.spine.client;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.FieldMask;
-import io.spine.base.EntityState;
-import io.spine.core.UserId;
-import io.spine.query.Column;
-import io.spine.query.ColumnName;
-import io.spine.query.ComparisonOperator;
 import io.spine.query.EntityQuery;
-import io.spine.query.LogicalOperator;
 import io.spine.query.QueryPredicate;
 import io.spine.query.Subject;
 import io.spine.query.SubjectParameter;
@@ -174,7 +167,7 @@ public final class EntityQueryToProto implements Function<EntityQuery<?, ?, ?>, 
                          .collect(toImmutableList());
         var childCompositeFilter =
                 builder.addAllCompositeFilter(childFilters)
-                       .vBuild();
+                       .build();
         return childCompositeFilter;
     }
 

@@ -32,7 +32,7 @@ import io.spine.core.ActorContext;
 import io.spine.core.EventContext;
 import io.spine.core.Origin;
 import io.spine.server.type.MessageEnvelope;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

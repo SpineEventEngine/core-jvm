@@ -50,7 +50,6 @@ import java.util.stream.IntStream;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth8.assertThat;
 import static com.google.common.util.concurrent.Uninterruptibles.sleepUninterruptibly;
 import static io.spine.base.Time.currentTime;
 import static io.spine.server.delivery.DeliveryStrategy.newIndex;
@@ -204,7 +203,7 @@ public class InboxStorageTest
         var originalMarkedDelivered = toMarkDelivered.stream()
                 .map(m -> m.toBuilder()
                         .setStatus(DELIVERED)
-                        .vBuild())
+                        .build())
                 .collect(toImmutableList());
 
         // Check that both `TO_DELIVER` message and those marked `DELIVERED` are stored as expected.
@@ -218,7 +217,7 @@ public class InboxStorageTest
         return toMarkDelivered.stream()
                 .map(m -> m.toBuilder()
                         .setStatus(DELIVERED)
-                        .vBuild())
+                        .build())
                 .collect(toList());
     }
 
@@ -266,7 +265,7 @@ public class InboxStorageTest
         var command = factory.createCommand(AddNumber.newBuilder()
                                                          .setCalculatorId(targetId)
                                                          .setValue(random.nextInt())
-                                                         .vBuild());
+                                                         .build());
         var inboxId = InboxIds.wrap(targetId, TypeUrl.of(Calc.class));
         var signalId = newSignalId(targetId, command.getId().value());
         return InboxMessage.newBuilder()
@@ -311,10 +310,10 @@ public class InboxStorageTest
         var modifiedId = message.getId()
                 .toBuilder()
                 .setIndex(newIndex(shardIndex, totalShards))
-                .vBuild();
+                .build();
         var result = message.toBuilder()
                 .setId(modifiedId)
-                .vBuild();
+                .build();
         return result;
     }
 

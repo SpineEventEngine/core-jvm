@@ -26,8 +26,7 @@
 
 package io.spine.server.storage;
 
-import io.spine.annotation.SPI;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The value mapping rules of record {@linkplain io.spine.query.Column columns}.
@@ -42,7 +41,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @param <R>
  *         a supertype of all stored values
  */
-@SPI
 public interface ColumnMapping<R> {
 
     /**
@@ -58,5 +56,5 @@ public interface ColumnMapping<R> {
     /**
      * Obtains the mapping rules of {@code null}.
      */
-    ColumnTypeMapping<@Nullable ?, @Nullable ? extends R> ofNull();
+    ColumnTypeMapping<? extends @Nullable Object, ? extends @Nullable R> ofNull();
 }

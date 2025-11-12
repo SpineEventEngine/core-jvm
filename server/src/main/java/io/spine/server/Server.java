@@ -26,20 +26,23 @@
 
 package io.spine.server;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import io.spine.logging.Logging;
+import io.grpc.BindableService;
+import io.spine.annotation.VisibleForTesting;
+import io.spine.logging.WithLogging;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static io.spine.util.Exceptions.newIllegalStateException;
 import static io.spine.util.Preconditions2.checkNotEmptyOrBlank;
+import static java.lang.String.format;
 
 /**
  * Exposes one or more Bounded Contexts via gRPC.
@@ -51,13 +54,16 @@ import static io.spine.util.Preconditions2.checkNotEmptyOrBlank;
  *     <li>{@link SubscriptionService}.
  * </ul>
  */
-public final class Server implements Logging {
+public final class Server implements WithLogging {
 
     /** Bounded Contexts exposed by the server. */
     private final ImmutableSet<BoundedContext> contexts;
 
     /** The container for Command- and Query- services. */
     private final GrpcContainer grpcContainer;
+    private final QueryService queryService;
+    private final SubscriptionService subscriptionService;
+    private final CommandService commandService;
 
     /**
      * Initiates creating a server exposed at the passed port.
@@ -79,6 +85,9 @@ public final class Server implements Logging {
     private Server(Builder builder) {
         this.contexts = builder.contexts();
         this.grpcContainer = builder.createContainer();
+        this.queryService = checkNotNull(builder.queryService);
+        this.subscriptionService = checkNotNull(builder.subscriptionService);
+        this.commandService = checkNotNull(builder.commandService);
     }
 
     /**
@@ -89,13 +98,15 @@ public final class Server implements Logging {
     public void start() throws IOException {
         grpcContainer.start();
         grpcContainer.addShutdownHook();
-        var info = _info();
-        grpcContainer
-                .port()
-                .ifPresent(p -> info.log("Server started, listening to the port %d.", p));
-        grpcContainer
-                .serverName()
-                .ifPresent(n -> info.log("In-process server started with the name `%s`.", n));
+        var info = logger().atInfo();
+        if (grpcContainer.hasPort()) {
+            var p = grpcContainer.getPort();
+            info.log(() -> format("Server started, listening to the port %d.", p));
+        }
+        if (grpcContainer.hasServerName()) {
+            var n = grpcContainer.getServerName();
+            info.log(() -> format("In-process server started with the name `%s`.", n));
+        }
     }
 
     /**
@@ -110,8 +121,7 @@ public final class Server implements Logging {
      * Initiates an orderly shutdown in which existing calls continue but new calls are rejected.
      */
     public void shutdown() {
-        var info = _info();
-        info.log("Shutting down the server...");
+        logger().atInfo().log(() -> "Shutting down the server...");
         grpcContainer.shutdown();
         contexts.forEach(context -> {
             try {
@@ -119,11 +129,11 @@ public final class Server implements Logging {
             } catch (Exception e) {
                 var contextName = context.name()
                                          .getValue();
-                _error().withCause(e)
-                        .log("Unable to close the `%s` Context.", contextName);
+                logger().atError().withCause(e).log(() -> format(
+                        "Unable to close the `%s` Context.", contextName));
             }
         });
-        info.log("Server shut down.");
+        logger().atInfo().log(() -> "Server shut down.");
     }
 
     /**
@@ -139,12 +149,39 @@ public final class Server implements Logging {
     }
 
     /**
+     * Obtains the {@link QueryService} exposed by this server.
+     */
+    public QueryService queryService() {
+        return queryService;
+    }
+
+    /**
+     * Obtains the {@link SubscriptionService} exposed by this server.
+     */
+    public SubscriptionService subscriptionService() {
+        return subscriptionService;
+    }
+
+    /**
+     * Obtains the {@link CommandService} exposed by this server.
+     */
+    public CommandService commandService() {
+        return commandService;
+    }
+
+
+
+    /**
      * The builder for the server.
      */
     public static final class Builder extends ConnectionBuilder {
 
+        private final Set<BindableService> extraServices = new HashSet<>();
         private final Set<BoundedContextBuilder> contextBuilders = new HashSet<>();
         private @MonotonicNonNull ImmutableSet<BoundedContext> contexts;
+        private @MonotonicNonNull QueryService queryService;
+        private @MonotonicNonNull SubscriptionService subscriptionService;
+        private @MonotonicNonNull CommandService commandService;
 
         private Builder(@Nullable Integer port, @Nullable String serverName) {
             super(port, serverName);
@@ -157,6 +194,21 @@ public final class Server implements Logging {
         public Builder add(BoundedContextBuilder context) {
             checkNotNull(context);
             contextBuilders.add(context);
+            return this;
+        }
+
+        /**
+         * Adds a gRPC service to the built server.
+         *
+         * <p>By default, the {@linkplain CommandService Command}, {@linkplain QueryService Query},
+         * and {@linkplain SubscriptionService Subscription} services are present in the server.
+         * But the users may add any other gRPC services to work alongside the standard ones,
+         * e.g. for monitoring, warmup procedures, etc.
+         */
+        @CanIgnoreReturnValue
+        public Builder include(BindableService service) {
+            checkNotNull(service);
+            extraServices.add(service);
             return this;
         }
 
@@ -184,28 +236,29 @@ public final class Server implements Logging {
             var commandService = CommandService.newBuilder();
             var queryService = QueryService.newBuilder();
             var subscriptionService = SubscriptionService.newBuilder();
-
             contexts().forEach(context -> {
                 commandService.add(context);
                 queryService.add(context);
                 subscriptionService.add(context);
             });
+            this.queryService = queryService.build();
+            this.subscriptionService = subscriptionService.build();
+            this.commandService = commandService.build();
             var builder = createContainerBuilder();
-            var result = builder.addService(commandService.build())
-                                .addService(queryService.build())
-                                .addService(subscriptionService.build())
-                                .build();
-            return result;
+            builder.addService(this.commandService)
+                   .addService(this.queryService)
+                   .addService(this.subscriptionService);
+            extraServices.forEach(builder::addService);
+            return builder.build();
         }
 
         private GrpcContainer.Builder createContainerBuilder() {
             GrpcContainer.Builder result;
-            if (serverName().isPresent()) {
-                result = GrpcContainer.inProcess(serverName().get());
+            if (hasServerName()) {
+                result = GrpcContainer.inProcess(getServerName());
             } else {
-                int port = port().orElseThrow(() -> newIllegalStateException(
-                        "Neither `port` nor `serverName` assigned."));
-                result = GrpcContainer.atPort(port);
+                checkState(hasPort(), "Neither `port` nor `serverName` assigned.");
+                result = GrpcContainer.atPort(getPort());
             }
             return result;
         }

@@ -30,6 +30,8 @@ import io.spine.base.EventMessage;
 import io.spine.core.Event;
 import io.spine.core.Origin;
 
+import static io.spine.util.Exceptions.newIllegalStateException;
+
 /**
  * An implementation of {@link SystemWriteSide} which never performs an operation.
  *
@@ -45,5 +47,12 @@ public enum NoOpSystemWriteSide implements SystemWriteSide {
     @Override
     public Event postEvent(EventMessage systemEvent, Origin origin) {
         return Event.getDefaultInstance();
+    }
+
+    @Override
+    public SystemFeatures features() {
+        throw newIllegalStateException(
+                "No-op of `SystemWriteSide` does not provide `features()`."
+        );
     }
 }

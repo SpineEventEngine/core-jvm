@@ -29,9 +29,15 @@ package io.spine.server.route;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.testing.NullPointerTester;
 import io.spine.core.EventContext;
+import io.spine.core.MessageId;
 import io.spine.protobuf.AnyPacker;
-import io.spine.server.route.given.switchman.LogState;
+import io.spine.protobuf.TypeConverter;
+import io.spine.server.given.context.switchman.LogState;
+import io.spine.server.type.given.GivenEvent;
 import io.spine.system.server.event.EntityStateChanged;
+import io.spine.testing.core.given.GivenVersion;
+import io.spine.type.TypeUrl;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -55,36 +61,51 @@ class StateUpdateRoutingTest {
     @DisplayName("route messages with defined routes")
     void routeMessagesByRoutes() {
         var counterKey = "sample_key";
-        var routing = StateUpdateRouting.newInstance(Integer.class)
+        var routing = StateUpdateRouting.newInstance(Long.class)
                 .route(LogState.class, (log, context) ->
-                        ImmutableSet.of(log.getCountersOrThrow(counterKey)));
+                        ImmutableSet.of((long) log.getCountersOrThrow(counterKey))
+                );
         var counter = 42;
         var log = LogState.newBuilder()
                 .putCounters(counterKey, counter)
                 .build();
-        var targets = routing.apply(log, emptyContext);
-        assertThat(targets).containsExactly(counter);
+        var targets = routing.invoke(log, emptyContext);
+        assertThat(targets).containsExactly((long)counter);
     }
 
     @Test
     @DisplayName("compose an `EventRoute` for `EntityStateChanged` events")
     void createEventRoute() {
         var counterKey = "test_key";
-        var routing = StateUpdateRouting.newInstance(Integer.class)
-                .route(LogState.class,
-                       (log, context) -> ImmutableSet.of(log.getCountersOrThrow(counterKey)));
+        var routing = StateUpdateRouting.newInstance(Long.class)
+                .route(LogState.class, (log, context) ->
+                               ImmutableSet.of((long) log.getCountersOrThrow(counterKey))
+                );
         var counter = 42;
         var builder = LogState.newBuilder()
                 .putCounters(counterKey, counter);
         var log = builder.build();
         var oldState = builder.putCounters(counterKey, 147).build();
+        var entityId = entityId();
         var event = EntityStateChanged.newBuilder()
+                .setEntity(entityId)
                 .setOldState(AnyPacker.pack(oldState))
                 .setNewState(AnyPacker.pack(log))
+                .addSignalId(GivenEvent.arbitrary().messageId())
                 .setWhen(currentTime())
                 .build();
         var eventRoute = routing.eventRoute();
-        var targets = eventRoute.apply(event, emptyContext);
-        assertThat(targets).containsExactly(counter);
+        var targets = eventRoute.invoke(event, emptyContext);
+        assertThat(targets).containsExactly((long) counter);
+    }
+
+    @NonNull
+    private static MessageId entityId() {
+        return MessageId.newBuilder()
+                .setId(TypeConverter.toAny(112))
+                .setTypeUrl(TypeUrl.of(LogState.class)
+                                   .value())
+                .setVersion(GivenVersion.withNumber(1))
+                .build();
     }
 }

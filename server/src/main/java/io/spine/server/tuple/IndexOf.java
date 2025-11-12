@@ -29,7 +29,7 @@ package io.spine.server.tuple;
 /**
  * Defines the indexes of the elements in tuples.
  *
- * <p>Serves to replace a numerous "magic numbers" across the codebase.
+ * <p>Serves to replace numerous "magic numbers" across the codebase.
  *
  * <p>Each index is put into a correspondence to the capital letter which is used as to name
  * a generic parameter in the tuple's declaration.

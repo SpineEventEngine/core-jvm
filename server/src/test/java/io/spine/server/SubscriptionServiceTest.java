@@ -30,8 +30,8 @@ import com.google.common.truth.extensions.proto.ProtoTruth;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.protobuf.Message;
 import io.spine.base.EntityState;
-import io.spine.base.Identifier;
 import io.spine.client.Subscription;
+import io.spine.client.SubscriptionId;
 import io.spine.client.SubscriptionUpdate;
 import io.spine.client.Targets;
 import io.spine.client.Topic;
@@ -49,28 +49,30 @@ import io.spine.test.aggregate.event.AggOwnerNotified;
 import io.spine.test.aggregate.event.AggProjectCreated;
 import io.spine.test.aggregate.event.AggTaskAdded;
 import io.spine.test.commandservice.customer.Customer;
+import io.spine.test.projection.BankAccount;
 import io.spine.test.subscriptionservice.event.ReportSent;
 import io.spine.testing.client.TestActorRequestFactory;
 import io.spine.testing.logging.LoggingTest;
 import io.spine.testing.logging.mute.MuteLogging;
 import io.spine.testing.server.model.ModelTests;
+import io.spine.type.UnpublishedLanguageException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth8.assertThat;
+import static io.spine.base.Identifier.newUuid;
 import static io.spine.grpc.StreamObservers.noOpObserver;
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.server.Given.CommandMessage.createProject;
 import static io.spine.server.Given.CommandMessage.sendReport;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayName("`SubscriptionService` should")
@@ -81,14 +83,18 @@ class SubscriptionServiceTest {
 
     private BoundedContext context;
     private SubscriptionService subscriptionService;
+
     /** The observer for creating a subscription. */
     private MemoizingObserver<Subscription> observer;
+
     /** The observer for activating a subscription. */
     private MemoizingObserver<SubscriptionUpdate> activationObserver;
+
     /** The observer for cancelling a subscription. */
     private MemoizingObserver<Response> cancellationObserver;
 
     @BeforeEach
+    @SuppressWarnings("resource")  /* Fine for tests. */
     void setUp() {
         ModelTests.dropAllModels();
         ServerEnvironment.instance()
@@ -110,7 +116,7 @@ class SubscriptionServiceTest {
     }
 
     private static BoundedContext randomCtx() {
-        return BoundedContext.singleTenant(Identifier.newUuid())
+        return BoundedContext.singleTenant(newUuid())
                              .build();
     }
 
@@ -144,7 +150,7 @@ class SubscriptionServiceTest {
             var subscriptionService = builder.build();
             assertNotNull(subscriptionService);
 
-            List<BoundedContext> contexts = builder.contexts();
+            Set<BoundedContext> contexts = builder.contexts();
             assertThat(contexts).hasSize(1);
             assertTrue(contexts.contains(oneContext));
         }
@@ -163,7 +169,7 @@ class SubscriptionServiceTest {
             var service = builder.build();
             assertNotNull(service);
 
-            List<BoundedContext> contexts = builder.contexts();
+            Set<BoundedContext> contexts = builder.contexts();
             assertThat(contexts).containsExactly(bc1, bc2, bc3);
         }
     }
@@ -184,16 +190,18 @@ class SubscriptionServiceTest {
         var subscriptionService = builder.build();
         assertNotNull(subscriptionService);
 
-        List<BoundedContext> contexts = builder.contexts();
+        Set<BoundedContext> contexts = builder.contexts();
         assertThat(contexts).containsExactly(bc3);
     }
 
     @Test
-    @DisplayName("fail to initialize from empty builder")
+    @MuteLogging
+    @DisplayName("allow a service instance serving no types")
     void notInitFromEmptyBuilder() {
-        assertThrows(IllegalStateException.class,
-                     () -> SubscriptionService.newBuilder()
-                                              .build());
+        assertDoesNotThrow(
+                () -> SubscriptionService.newBuilder()
+                        .build()
+        );
     }
 
     /*
@@ -223,8 +231,12 @@ class SubscriptionServiceTest {
      */
     private Subscription invalidSubscription() {
         var invalidTopic = invalidTopic();
+        var id = SubscriptionId.newBuilder()
+                .setValue(newUuid())
+                .build();
         return Subscription
                 .newBuilder()
+                .setId(id)
                 .setTopic(invalidTopic)
                 .build();
     }
@@ -311,7 +323,7 @@ class SubscriptionServiceTest {
     class PickContextBy {
 
         @Test
-        @DisplayName("events emitted by one of Context entities")
+        @DisplayName("events emitted by one of the bounded context entities")
         void eventsFromEntity() {
             assertTargetFound(AggTaskAdded.class);
         }
@@ -329,7 +341,7 @@ class SubscriptionServiceTest {
         }
 
         @Test
-        @DisplayName("state of entities that belong to Context")
+        @DisplayName("state of entities that belong to a bounded context")
         void entityType() {
             assertTargetFound(AggProject.class);
         }
@@ -523,9 +535,73 @@ class SubscriptionServiceTest {
             subscriptionService.cancel(observer.firstResponse(), faultyObserver);
             assertThat(faultyObserver.firstResponse()).isNotNull();
             assertThat(faultyObserver.isCompleted()).isFalse();
-            assertThat(faultyObserver.getError()).isInstanceOf(RuntimeException.class);
-            assertThat(faultyObserver.getError()
-                                     .getMessage()).isEqualTo(rejectionMessage);
+            var error = faultyObserver.getError();
+            assertThat(error).isInstanceOf(RuntimeException.class);
+            assertThat(error.getMessage()).isEqualTo(rejectionMessage);
+        }
+    }
+
+    @Nested
+    @DisplayName("reject calls for subscriptions on internal messages when")
+    @MuteLogging
+    class HandlingInternal {
+
+        private Topic topicOnInternal() {
+            return topic().forTarget(Targets.allOf(BankAccount.class));
+        }
+
+        @Test
+        @DisplayName("subscribing")
+        void subscribing() {
+            var topic = topicOnInternal();
+
+            subscriptionService.subscribe(topic, observer);
+
+            assertThat(observer.responses()).isEmpty();
+            assertThat(observer.isCompleted()).isFalse();
+            assertThat(observer.getError()).isInstanceOf(UnpublishedLanguageException.class);
+        }
+
+        @Test
+        @DisplayName("activating")
+        void activating() {
+            var subscription = forgedSubscription();
+
+            subscriptionService.activate(subscription, activationObserver);
+
+            assertThat(activationObserver.responses()).isEmpty();
+            assertThat(activationObserver.isCompleted()).isFalse();
+            assertThat(activationObserver.getError())
+                    .isInstanceOf(UnpublishedLanguageException.class);
+        }
+
+        @Test
+        @DisplayName("cancelling")
+        void cancelling() {
+            var subscription = forgedSubscription();
+
+            subscriptionService.cancel(subscription, cancellationObserver);
+
+            assertThat(cancellationObserver.responses()).isEmpty();
+            assertThat(cancellationObserver.isCompleted()).isFalse();
+            assertThat(cancellationObserver.getError())
+                    .isInstanceOf(UnpublishedLanguageException.class);
+        }
+
+        /**
+         * Creates a subscription on a valid topic and then substitutes a topic
+         * on an internal type.
+         */
+        private Subscription forgedSubscription() {
+            var topic = newTopic();
+            subscriptionService.subscribe(topic, observer);
+            var subscription = observer.firstResponse();
+
+            // Substitute another topic for existing subscription.
+            var forgedSubscription = subscription.toBuilder()
+                    .setTopic(topicOnInternal())
+                    .build();
+            return forgedSubscription;
         }
     }
 }

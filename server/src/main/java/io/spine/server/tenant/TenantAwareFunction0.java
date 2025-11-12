@@ -29,7 +29,7 @@ package io.spine.server.tenant;
 import com.google.protobuf.Empty;
 import io.spine.annotation.SPI;
 import io.spine.core.TenantId;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A tenant-aware function that takes no parameters.

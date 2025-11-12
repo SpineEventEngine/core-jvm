@@ -26,13 +26,10 @@
 
 package io.spine.server.storage;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.Message;
-import io.spine.annotation.Internal;
-import io.spine.annotation.SPI;
 import io.spine.query.ColumnName;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -41,7 +38,6 @@ import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.util.Exceptions.newIllegalStateException;
-import static java.util.Collections.unmodifiableMap;
 
 /**
  * A value of some message record along with the values
@@ -52,8 +48,7 @@ import static java.util.Collections.unmodifiableMap;
  * @param <R>
  *         the type of the stored records
  */
-@SPI
-public class RecordWithColumns<I, R extends Message> {
+public final class RecordWithColumns<I, R extends Message> {
 
     private final I id;
     private final R record;
@@ -66,18 +61,18 @@ public class RecordWithColumns<I, R extends Message> {
      */
     private final Map<ColumnName, @Nullable Object> storageFields;
 
-    protected RecordWithColumns(I identifier, R record, Map<ColumnName, Object> storageFields) {
+    private RecordWithColumns(I identifier, R record, Map<ColumnName, Object> storageFields) {
         this.id = checkNotNull(identifier);
         this.record = checkNotNull(record);
         this.storageFields = new HashMap<>(storageFields);
     }
 
     /**
-     * Creates a new record extracting the column values from the passed {@code Message} and setting
-     * the passed identifier value as the record identifier.
+     * Creates a new record extracting the column values from the passed record,
+     * and setting the passed identifier value as the record identifier.
      */
     public static <I, R extends Message>
-    RecordWithColumns<I, R> create(I identifier, R record, RecordSpec<I, R, R> recordSpec) {
+    RecordWithColumns<I, R> create(I identifier, R record, RecordSpec<I, R> recordSpec) {
         checkNotNull(identifier);
         checkNotNull(record);
         checkNotNull(recordSpec);
@@ -86,10 +81,11 @@ public class RecordWithColumns<I, R extends Message> {
     }
 
     /**
-     * Creates a new record extracting the column values from the passed {@code Message}.
+     * Creates a new record-with-columns,
+     * filling the column values by extracting them from the passed record.
      */
     public static <I, R extends Message>
-    RecordWithColumns<I, R> create(R record, RecordSpec<I, R, R> recordSpec) {
+    RecordWithColumns<I, R> create(R record, RecordSpec<I, R> recordSpec) {
         checkNotNull(record);
         checkNotNull(recordSpec);
         var storageFields = recordSpec.valuesIn(record);
@@ -109,8 +105,7 @@ public class RecordWithColumns<I, R extends Message> {
     /**
      * Creates a new instance from the passed record and storage fields.
      */
-    @VisibleForTesting
-    public static <I, R extends Message>
+    private static <I, R extends Message>
     RecordWithColumns<I, R> of(I identifier, R record, Map<ColumnName, Object> storageFields) {
         return new RecordWithColumns<>(identifier, record, storageFields);
     }
@@ -118,14 +113,14 @@ public class RecordWithColumns<I, R extends Message> {
     /**
      * Returns the identifier of the record.
      */
-    public final I id() {
+    public I id() {
         return id;
     }
 
     /**
      * Returns the message of the record.
      */
-    public final R record() {
+    public R record() {
         return record;
     }
 
@@ -134,7 +129,7 @@ public class RecordWithColumns<I, R extends Message> {
      *
      * @return the storage field names
      */
-    public final ImmutableSet<ColumnName> columnNames() {
+    public ImmutableSet<ColumnName> columnNames() {
         return ImmutableSet.copyOf(storageFields.keySet());
     }
 
@@ -155,7 +150,7 @@ public class RecordWithColumns<I, R extends Message> {
      * @throws IllegalStateException
      *         if there is no column with the specified name
      */
-    public final @Nullable Object columnValue(ColumnName columnName) {
+    public @Nullable Object columnValue(ColumnName columnName) {
         return columnValue(columnName, DefaultColumnMapping.INSTANCE);
     }
 
@@ -164,7 +159,7 @@ public class RecordWithColumns<I, R extends Message> {
      *
      * <p>The specified column mapping will be used to do the column value conversion.
      */
-    public final <V> V columnValue(ColumnName columnName, ColumnMapping<V> columnMapping) {
+    public <V> V columnValue(ColumnName columnName, ColumnMapping<V> columnMapping) {
         checkNotNull(columnName);
         checkNotNull(columnMapping);
         if (!storageFields.containsKey(columnName)) {
@@ -186,27 +181,16 @@ public class RecordWithColumns<I, R extends Message> {
      * Tells if there are any {@linkplain io.spine.query.Column columns}
      * associated with this record.
      */
-    public final boolean hasColumns() {
+    public boolean hasColumns() {
         return !storageFields.isEmpty();
     }
 
     /**
      * Determines if there is a column with the specified name among the storage fields.
      */
-    public final boolean hasColumn(ColumnName name) {
+    public boolean hasColumn(ColumnName name) {
         var result = storageFields.containsKey(name);
         return result;
-    }
-
-    /**
-     * Returns an unmodifiable copy of the values of storage fields associated with this record.
-     *
-     * @apiNote This method does not return an {@link com.google.common.collect.ImmutableMap
-     * ImmutableMap} since the map values are {@code null}-able.
-     */
-    @Internal
-    protected final Map<ColumnName, @Nullable Object> storageFields() {
-        return unmodifiableMap(storageFields);
     }
 
     @Override

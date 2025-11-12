@@ -30,7 +30,6 @@ import com.google.protobuf.Any;
 import com.google.protobuf.Message;
 import io.spine.annotation.SPI;
 import io.spine.base.EventMessage;
-import io.spine.protobuf.Messages;
 import io.spine.string.Stringifier;
 import io.spine.string.StringifierRegistry;
 
@@ -39,6 +38,7 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static io.spine.base.Identifier.newUuid;
+import static io.spine.protobuf.Messages.ensureUnpacked;
 import static io.spine.util.Preconditions2.checkNotDefaultArg;
 
 /**
@@ -80,7 +80,7 @@ public final class Events {
         if (eventOrMessage instanceof Event) {
             return ((Event) eventOrMessage).enclosedMessage();
         }
-        var unpacked = Messages.ensureMessage(eventOrMessage);
+        var unpacked = ensureUnpacked(eventOrMessage);
         return (EventMessage) unpacked;
     }
 

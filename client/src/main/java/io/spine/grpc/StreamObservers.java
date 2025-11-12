@@ -33,7 +33,7 @@ import io.spine.annotation.Internal;
 import io.spine.base.Error;
 import io.spine.core.Response;
 import io.spine.core.Responses;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 

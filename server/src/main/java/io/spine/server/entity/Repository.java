@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -26,31 +26,31 @@
 
 package io.spine.server.entity;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Iterators;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
-import com.google.protobuf.Message;
 import io.spine.annotation.Internal;
 import io.spine.annotation.SPI;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.Identifier;
-import io.spine.base.MessageContext;
-import io.spine.logging.Logging;
+import io.spine.base.Routable;
+import io.spine.core.SignalContext;
+import io.spine.logging.WithLogging;
 import io.spine.reflect.GenericTypeIndex;
 import io.spine.server.BoundedContext;
 import io.spine.server.Closeable;
 import io.spine.server.ContextAware;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.entity.model.EntityClass;
-import io.spine.server.route.Route;
+import io.spine.server.route.RouteFn;
 import io.spine.server.storage.Storage;
 import io.spine.server.storage.StorageFactory;
 import io.spine.server.type.SignalEnvelope;
 import io.spine.system.server.RoutingFailed;
 import io.spine.type.TypeUrl;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.dataflow.qual.Pure;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.Optional;
@@ -75,7 +75,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  */
 @SuppressWarnings("ClassWithTooManyMethods") // OK for this core class.
 public abstract class Repository<I, E extends Entity<I, ?>>
-        implements ContextAware, Closeable, Logging {
+        implements ContextAware, Closeable, WithLogging {
 
     private static final String ERR_MSG_STORAGE_NOT_ASSIGNED = "Storage is not assigned.";
 
@@ -184,7 +184,7 @@ public abstract class Repository<I, E extends Entity<I, ?>>
 
     /** Returns the class of entities managed by this repository. */
     public final Class<E> entityClass() {
-        return entityModelClass().value();
+        return entityModelClass().rawClass();
     }
 
     /**
@@ -268,6 +268,7 @@ public abstract class Repository<I, E extends Entity<I, ?>>
      * @throws IllegalStateException
      *         if the repository has no context assigned
      */
+    @SuppressWarnings("DataFlowIssue") // non-null result ensured by `hasContext()` call.
     protected final BoundedContext context() {
         checkState(hasContext(),
                    "The repository (class: `%s`) is not registered with a `BoundedContext`.",
@@ -331,10 +332,10 @@ public abstract class Repository<I, E extends Entity<I, ?>>
     /**
      * Ensures that the storage is not null.
      *
-     * @return passed value if it's not not null
+     * @return passed value if it is not null
      * @throws IllegalStateException if the passed instance is null
      */
-    protected static <S extends AutoCloseable> @NonNull S checkStorage(@Nullable S storage) {
+    protected static <S extends Closeable> @NonNull S checkStorage(@Nullable S storage) {
         checkState(storage != null, ERR_MSG_STORAGE_NOT_ASSIGNED);
         return storage;
     }
@@ -375,12 +376,12 @@ public abstract class Repository<I, E extends Entity<I, ?>>
     }
 
     @Internal
-    protected final <M extends Message, C extends MessageContext, R> Optional<R>
-    route(Route<M, C, R> routing, SignalEnvelope<?, ?, C> envelope) {
+    protected final <M extends Routable, C extends SignalContext, R> Optional<R>
+    route(RouteFn<M, C, R> routing, SignalEnvelope<?, ?, C> envelope) {
         try {
             @SuppressWarnings("unchecked")
             var message = (M) envelope.message();
-            var result = routing.apply(message, envelope.context());
+            var result = routing.invoke(message, envelope.context());
             checkMatchesIdType(result);
             return Optional.of(result);
         } catch (RuntimeException e) {
@@ -431,7 +432,7 @@ public abstract class Repository<I, E extends Entity<I, ?>>
                 .setEntityType(entityModelClass().typeName())
                 .setHandledSignal(envelope.messageId())
                 .setError(fromThrowable(cause))
-                .vBuild();
+                .build();
         context().systemClient()
                  .writeSide()
                  .postEvent(systemEvent, envelope.asMessageOrigin());

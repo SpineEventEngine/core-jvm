@@ -56,7 +56,7 @@ class CleanupStationTest extends AbstractStationTest {
         var toDeliver = toDeliver(targetOne, type);
         var conveyor = new Conveyor(
                 ImmutableList.of(delivered, deliveredToAnotherTarget, catchingUp, toDeliver),
-                new DeliveredMessages()
+                new DeliveredMessagesCache()
         );
 
         Station station = new CleanupStation();
@@ -85,7 +85,7 @@ class CleanupStationTest extends AbstractStationTest {
         );
         var conveyor = new Conveyor(
                 ImmutableList.of(deliveredKeepTillFuture, deliveredKeepUntilPastTime),
-                new DeliveredMessages()
+                new DeliveredMessagesCache()
         );
 
         Station station = new CleanupStation();
@@ -104,6 +104,6 @@ class CleanupStationTest extends AbstractStationTest {
     private static InboxMessage keepUntil(InboxMessage message, Timestamp tillWhen) {
         return message.toBuilder()
                         .setKeepUntil(tillWhen)
-                        .vBuild();
+                        .build();
     }
 }

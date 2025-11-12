@@ -26,10 +26,17 @@
 
 package io.spine.server.entity.storage;
 
+import com.google.common.collect.ImmutableSet;
+import io.spine.client.ArchivedColumn;
+import io.spine.client.DeletedColumn;
+import io.spine.client.VersionColumn;
 import io.spine.query.Column;
 import io.spine.query.ColumnName;
 import io.spine.query.EntityColumn;
+import io.spine.server.entity.EntityRecord;
+import io.spine.server.storage.RecordSpec;
 
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.common.truth.Truth.assertThat;
 
 /**
@@ -50,5 +57,20 @@ final class AssertColumns {
             contains = contains || column.name().equals(expectedName);
         }
         assertThat(contains).isTrue();
+    }
+
+    static void assertHasLifecycleColumns(RecordSpec<?, EntityRecord> spec) {
+        var columns = spec.columns();
+        var names = columns.stream()
+                .map(Column::name)
+                .collect(toImmutableSet());
+
+        assertThat(names).containsAtLeastElementsIn(
+                ImmutableSet.of(
+                        ArchivedColumn.instance().name(),
+                        DeletedColumn.instance().name(),
+                        VersionColumn.instance().name()
+                )
+        );
     }
 }

@@ -26,7 +26,6 @@
 
 package io.spine.server.bus;
 
-import io.spine.server.BoundedContextBuilder;
 import io.spine.server.bus.given.stock.JowDonsIndex;
 import io.spine.server.bus.given.stock.ShareAggregate;
 import io.spine.test.bus.Buy;
@@ -56,33 +55,33 @@ class DispatchingQueueSynchronisationTest {
     @DisplayName("`Bus` should not lock with its system counterpart")
     void deadlock() throws InterruptedException {
         var executor = (ThreadPoolExecutor) newFixedThreadPool(10);
-        var context = BlackBox.from(
-                BoundedContextBuilder.assumingTests()
-                                     .add(ShareAggregate.class)
-                                     .add(new JowDonsIndex.Repository())
-        );
-        var taskCount = 10;
-        var shares =
-                Stream.generate(() -> ShareId.newBuilder()
-                        .setValue(newUuid())
-                        .vBuild())
-                      .limit(taskCount)
-                      .collect(toImmutableList());
-        shares.forEach(share -> executor.execute(() -> {
-            var buy = Buy.newBuilder()
-                    .setShare(share)
-                    .setAmount(42)
-                    .vBuild();
-            context.receivesCommand(buy);
-            sleepUninterruptibly(Duration.ofSeconds(1));
-            var sell = Sell.newBuilder()
-                    .setShare(share)
-                    .setAmount(12)
-                    .vBuild();
-            context.receivesCommand(sell);
-        }));
-        executor.awaitTermination(5, SECONDS);
-        assertEquals(shares.size(), executor.getCompletedTaskCount(),
-                     "Not all tasks have been executed. Most likely, a dead lock is reached.");
+        try (var context = BlackBox.singleTenantWith(
+                ShareAggregate.class,
+                new JowDonsIndex.Repository())
+        ) {
+            var taskCount = 10;
+            var shares =
+                    Stream.generate(() -> ShareId.newBuilder()
+                                  .setValue(newUuid())
+                                  .build())
+                          .limit(taskCount)
+                          .collect(toImmutableList());
+            shares.forEach(share -> executor.execute(() -> {
+                var buy = Buy.newBuilder()
+                        .setShare(share)
+                        .setAmount(42)
+                        .build();
+                context.receivesCommand(buy);
+                sleepUninterruptibly(Duration.ofSeconds(1));
+                var sell = Sell.newBuilder()
+                        .setShare(share)
+                        .setAmount(12)
+                        .build();
+                context.receivesCommand(sell);
+            }));
+            executor.awaitTermination(5, SECONDS);
+            assertEquals(shares.size(), executor.getCompletedTaskCount(),
+                         "Not all tasks have been executed. Most likely, a dead lock is reached.");
+        }
     }
 }

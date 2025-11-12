@@ -48,7 +48,7 @@ final class CleanupStation extends Station {
      * observed.
      */
     @Override
-    public final Result process(Conveyor conveyor) {
+    public Result process(Conveyor conveyor) {
         for (var message : conveyor) {
             if (message.getStatus() == InboxMessageStatus.DELIVERED) {
                 var keepUntil = message.getKeepUntil();

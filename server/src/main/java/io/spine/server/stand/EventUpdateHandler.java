@@ -45,7 +45,7 @@ import static io.spine.core.Responses.ok;
 final class EventUpdateHandler extends UpdateHandler {
 
     EventUpdateHandler(Subscription subscription) {
-        super(subscription);
+        super(subscription, subscription.targetType());
     }
 
     @Override
@@ -68,7 +68,8 @@ final class EventUpdateHandler extends UpdateHandler {
     @Override
     boolean typeMatches(EventEnvelope event) {
         var expectedTypeUrl = target().getType();
-        var actualTypeUrl = event.typeUrl().value();
+        var actualTypeUrl = event.typeUrl()
+                                 .value();
         return expectedTypeUrl.equals(actualTypeUrl);
     }
 

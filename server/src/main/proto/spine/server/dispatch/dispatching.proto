@@ -35,6 +35,8 @@ option java_package = "io.spine.server.dispatch";
 option java_multiple_files = true;
 option java_outer_classname = "DispatchProto";
 
+import "google/protobuf/any.proto";
+
 import "spine/base/error.proto";
 import "spine/core/command.proto";
 import "spine/core/diagnostics.proto";
@@ -68,13 +70,13 @@ message DispatchOutcome {
 
         // Result of a successful handling.
         //
-        // If the handling resulted in signals, commands, events, or a rejection, stores those
-        // signals.
+        // If the handling resulted in signals, commands, events, or a rejection, stores
+        // those signals.
         //
         Success success = 2 [(validate) = true];
 
         // Erroneous handling result.
-        base.Error error = 3 [(validate) = true];
+        base.Error error = 3;
 
         // Result of the signal handling being interrupted.
         //
@@ -87,48 +89,72 @@ message DispatchOutcome {
 
         // Result of a signal being ignored.
         //
-        // If field filters of a handler do not match a given signal, the signal is ignored.
+        // If field filters of a receptor do not match a given signal, the signal is ignored.
         //
         Ignore ignored = 5 [(validate) = true];
+
+        // The signal has been sent to the inboxes of the corresponding targets.
+        //
+        // It will be handled as soon as it is delivered.
+        //
+        InboxAddresses sent_to_inbox = 6;
+
+        // The signal has been published to the remote channel.
+        //
+        // Typically, it means that the signals of this type were requested
+        // by other Bounded Contexts as their `external` subscriptions.
+        //
+        bool published_to_remote = 7;
+
+        // There were no targets to which the signal could have been dispatched.
+        bool no_targets_to_route = 8;
     }
 }
 
 // A successful signal handling result.
 //
 // This message may be empty if:
-//   1. The handling method does not return a result by its nature (e.g. a subscribing method), or
+//   1. The receptor does not return a result by its nature (e.g. a subscribing method), or
 //   2. The method returns `Nothing` (wrapped inside a tuple) because the entity ignores the signal.
-//      For example, a reacting method or a commanding method may chose not to product outgoing
-//      signal in response to incoming event.
+//      For example, a reacting receptor or a commanding receptor may chose not to produce
+//      an outgoing signal in response to incoming event.
 //
 message Success {
     option (is).java_type = "SuccessMixin";
 
     oneof exhaust {
 
-        // Events produced by the handler.
+        // Events produced by the receptor.
         ProducedEvents produced_events = 1 [(validate) = true];
 
-        // Commands produced by the handler.
+        // Commands produced by the receptor.
         ProducedCommands produced_commands = 2 [(validate) = true];
 
-        // The rejection produced by the handler.
+        // The rejection produced by the receptor.
         core.Event rejection = 3 [(validate) = true];
     }
 }
 
 // Events produced during a signal handling.
+//
+// Spine supports receptors returning `Optional` values,
+// so there may be no produced events.
+//
 message ProducedEvents {
     option (is).java_type = "ProducedEventsMixin";
 
-    repeated core.Event event = 1 [(required) = true, (validate) = true];
+    repeated core.Event event = 1 [(validate) = true];
 }
 
 // Commands produced during a signal handling.
+//
+// Spine supports receptors returning `Optional` values,
+// so there may be no produced commands.
+//
 message ProducedCommands {
     option (is).java_type = "ProducedCommandsMixin";
 
-    repeated core.Command command = 1 [(required) = true, (validate) = true];
+    repeated core.Command command = 1 [(validate) = true];
 }
 
 // Signal handling interruption.
@@ -137,8 +163,8 @@ message Interruption {
 
     // The message which caused the interruption.
     //
-    // Typically, the message which failed the transaction before the associated signal had a chance
-    // to be handled.
+    // Typically, the message which failed the transaction before the associated signal
+    // had a chance to be handled.
     //
     core.MessageId stopped_at = 1 [(required) = true, (validate) = true];
 }
@@ -152,4 +178,15 @@ message Ignore {
     // Used for debugging.
     //
     string reason = 1 [(required) = true];
+}
+
+// The addresses of the entity inboxes,
+// to which the message has been sent during dispatching.
+//
+message InboxAddresses {
+
+    // The identifiers of entity targets,
+    // to which inboxes the message has been sent.
+    //
+    repeated google.protobuf.Any id = 1 [(required) = true, (validate) = true];
 }

@@ -28,7 +28,7 @@ package io.spine.grpc;
 
 import io.grpc.stub.StreamObserver;
 import io.spine.annotation.Internal;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 

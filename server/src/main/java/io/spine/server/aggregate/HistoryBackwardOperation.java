@@ -29,7 +29,7 @@ package io.spine.server.aggregate;
 import io.spine.base.Identifier;
 import io.spine.core.Version;
 import io.spine.query.RecordQueryBuilder;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Iterator;
 

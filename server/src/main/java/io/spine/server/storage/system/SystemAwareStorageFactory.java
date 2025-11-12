@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -26,10 +26,10 @@
 
 package io.spine.server.storage.system;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.Message;
 import io.spine.annotation.Internal;
-import io.spine.base.EntityState;
+import io.spine.annotation.VisibleForTesting;
+import io.spine.base.AggregateState;
 import io.spine.server.ContextSpec;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.AggregateStorage;
@@ -85,7 +85,7 @@ public final class SystemAwareStorageFactory implements StorageFactory {
     }
 
     @Override
-    public <I, S extends EntityState<I>> AggregateStorage<I, S>
+    public <I, S extends AggregateState<I>> AggregateStorage<I, S>
     createAggregateStorage(ContextSpec context,
                            Class<? extends Aggregate<I, S, ?>> aggregateClass) {
         return delegate.createAggregateStorage(context, aggregateClass);
@@ -116,15 +116,20 @@ public final class SystemAwareStorageFactory implements StorageFactory {
 
     @Override
     public <I, M extends Message> RecordStorage<I, M>
-    createRecordStorage(ContextSpec context, RecordSpec<I, M, ?> recordSpec) {
+    createRecordStorage(ContextSpec context, RecordSpec<I, M> recordSpec) {
         return delegate.createRecordStorage(context, recordSpec);
+    }
+
+    @Override
+    public boolean isOpen() {
+        return delegate.isOpen();
     }
 
     /**
      * Closes the associated delegate factory.
      */
     @Override
-    public void close() throws Exception {
+    public void close() {
         delegate.close();
     }
 }

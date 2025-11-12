@@ -73,7 +73,7 @@ class CatchUpStationTest extends AbstractStationTest {
         var differentTarget = delivered(targetTwo, type);
         var conveyor = new Conveyor(
                 ImmutableList.of(toDeliver, anotherToDeliver, delivered, differentTarget),
-                new DeliveredMessages()
+                new DeliveredMessagesCache()
         );
 
         var job = catchUpJob(type, IN_PROGRESS, currentTime(), ImmutableList.of(targetOne));
@@ -104,7 +104,7 @@ class CatchUpStationTest extends AbstractStationTest {
         var initialContents =
                 ImmutableList.of(toCatchUp, anotherToCatchUp, duplicateCopy,
                                  alreadyDelivered, differentTarget);
-        var conveyor = new Conveyor(initialContents, new DeliveredMessages());
+        var conveyor = new Conveyor(initialContents, new DeliveredMessagesCache());
 
         var job = catchUpJob(type, IN_PROGRESS, currentTime(), ImmutableList.of(targetOne));
         var station = new CatchUpStation(MemoizingAction.empty(), ImmutableList.of(job));
@@ -138,7 +138,7 @@ class CatchUpStationTest extends AbstractStationTest {
         var differentTarget = delivered(targetTwo, type);
         var conveyor = new Conveyor(
                 ImmutableList.of(toDeliver, anotherToDeliver, delivered, differentTarget),
-                new DeliveredMessages()
+                new DeliveredMessagesCache()
         );
 
         var job = catchUpJob(type, FINALIZING, currentTime(), ImmutableList.of(targetOne));
@@ -167,7 +167,7 @@ class CatchUpStationTest extends AbstractStationTest {
         var conveyor = new Conveyor(
                 ImmutableList.of(toCatchUp, moreToCatchUp, toDeliver,
                                  duplicateToCatchUp, duplicateToDeliver),
-                new DeliveredMessages()
+                new DeliveredMessagesCache()
         );
 
         var job = catchUpJob(type, COMPLETED, currentTime(), ImmutableList.of(targetOne));
@@ -207,7 +207,7 @@ class CatchUpStationTest extends AbstractStationTest {
         var toCatchUp4 = catchingUp(targetOne, type, now);
         var conveyor = new Conveyor(
                 ImmutableList.of(toCatchUp3, toCatchUp2, toCatchUp4, toCatchUp1),
-                new DeliveredMessages()
+                new DeliveredMessagesCache()
         );
 
         var job = catchUpJob(type, IN_PROGRESS, currentTime(), ImmutableList.of(targetOne));

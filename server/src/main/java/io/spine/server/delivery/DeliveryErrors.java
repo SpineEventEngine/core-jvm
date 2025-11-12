@@ -28,7 +28,7 @@ package io.spine.server.delivery;
 
 import com.google.common.collect.ImmutableList;
 import io.spine.server.model.ModelError;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;

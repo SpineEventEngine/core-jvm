@@ -66,7 +66,7 @@ final class StatusExchange extends SingleChannelExchange {
     void declareOnlineStatus() {
         var notification = BoundedContextOnline.newBuilder()
                 .setContext(context())
-                .vBuild();
+                .build();
         var message = ExternalMessages.of(notification);
         publisher().publish(message.getId(), message);
     }

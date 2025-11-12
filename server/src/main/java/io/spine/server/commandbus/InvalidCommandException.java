@@ -42,14 +42,15 @@ import io.spine.validate.ExceptionFactory;
 
 import java.util.Map;
 
-import static com.google.protobuf.TextFormat.shortDebugString;
+import static io.spine.type.ProtoTexts.shortDebugString;
 import static java.lang.String.format;
 
 /**
  * The exception for reporting invalid commands.
  *
- * <p>A command is invalid if it's supported (there's a handler for the command), but its
- * attributes are not populated according to framework conventions or validation constraints.
+ * <p>A command is invalid if it is supported (i.e. there is a receptor for the command), but its
+ * attributes are not populated according to framework conventions <strong>OR</strong>
+ * validation constraints of the command message are violated.
  */
 public class InvalidCommandException extends CommandException implements MessageInvalid {
 

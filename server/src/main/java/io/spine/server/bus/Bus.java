@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2024, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -26,16 +26,17 @@
 
 package io.spine.server.bus;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import com.google.protobuf.Message;
 import io.grpc.stub.StreamObserver;
 import io.spine.annotation.Internal;
+import io.spine.annotation.VisibleForTesting;
+import io.spine.base.Mistake;
 import io.spine.core.Ack;
 import io.spine.core.Signal;
 import io.spine.core.SignalId;
-import io.spine.logging.Logging;
+import io.spine.logging.WithLogging;
 import io.spine.server.Closeable;
 import io.spine.server.type.MessageEnvelope;
 import io.spine.server.type.SignalEnvelope;
@@ -50,23 +51,24 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Suppliers.memoize;
 import static io.spine.server.bus.MessageIdExtensions.acknowledge;
 import static io.spine.util.Preconditions2.checkNotDefaultArg;
+import static java.lang.String.format;
 import static java.util.Collections.singleton;
 
 /**
- * Abstract base for buses.
+ * Abstract base for message buses.
  *
  * @param <T> the type of outer objects (containing messages of interest) that are posted to the bus
  * @param <E> the type of envelopes for outer objects used by this bus
  * @param <C> the type of message class
  * @param <D> the type of dispatches used by this bus
  */
-@SuppressWarnings("ClassWithTooManyMethods")    // It's OK.
 @Internal
+@SuppressWarnings("ClassWithTooManyMethods") // OK for the abstract bus.
 public abstract class Bus<T extends Signal<?, ?, ?>,
                           E extends SignalEnvelope<?, T, ?>,
                           C extends MessageClass<? extends Message>,
                           D extends MessageDispatcher<C, E>>
-        implements Closeable, Logging {
+        implements Closeable, WithLogging {
 
     /** Dispatchers of messages by their class. */
     private final DispatcherRegistry<C, E, D> registry;
@@ -74,6 +76,11 @@ public abstract class Bus<T extends Signal<?, ?, ?>,
     /** Listeners of the messages posted to the bus. */
     private final Listeners<E> listeners;
 
+    /**
+     * A supplier of the filter chain, which can be configured by the derived classes.
+     *
+     * @see #setupFilters(Iterable)
+     */
     private final Supplier<FilterChain<E>> filterChain;
 
     protected Bus(BusBuilder<?, T, E, C, D> builder) {
@@ -92,23 +99,49 @@ public abstract class Bus<T extends Signal<?, ?, ?>,
      *         exposed} by the dispatcher is empty
      */
     public void register(D dispatcher) {
-        registry().register(checkNotNull(dispatcher));
+        checkNotNull(dispatcher);
+        registry.register(dispatcher);
     }
 
     /**
-     * Unregisters dispatching for message classes of the passed dispatcher.
+     * Stops dispatching messages using the given dispatcher.
      *
      * @param dispatcher the dispatcher to unregister
      */
     public void unregister(D dispatcher) {
-        registry().unregister(checkNotNull(dispatcher));
+        checkNotNull(dispatcher);
+        registry.unregister(dispatcher);
+    }
+
+    /**
+     * Stops dispatching messages the given dispatcher delegate.
+     */
+    public void unregister(DispatcherDelegate<C, E> delegate) {
+        checkNotNull(delegate);
+        registry.unregister(delegate);
+    }
+
+    /**
+     * Adds the given listener to the bus.
+     */
+    public void add(Listener<E> listener) {
+        checkNotNull(listener);
+        listeners.add(listener);
+    }
+
+    /**
+     * Removes the given listener from the bus.
+     */
+    public void remove(Listener<E> listener) {
+        checkNotNull(listener);
+        listeners.remove(listener);
     }
 
     /**
      * Posts the message to the bus.
      *
      * @param message  the message to post
-     * @param observer the observer to receive outcome of the operation
+     * @param observer the observer to receive an outcome of the operation
      * @see #post(Iterable, StreamObserver) for posing multiple messages at once
      */
     public final void post(T message, StreamObserver<Ack> observer) {
@@ -131,18 +164,18 @@ public abstract class Bus<T extends Signal<?, ?, ?>,
      * {@link io.spine.base.Error Error} status is passed in {@code Ack} instance.
      *
      * <p>Depending on the underlying {@link MessageDispatcher}, a message which causes a business
-     * {@linkplain io.spine.base.RejectionThrowable rejection} may result either a rejection status or
-     * an {@link io.spine.core.Status.StatusCase#OK OK} status {@link Ack} instance.
+     * {@linkplain io.spine.base.RejectionThrowable rejection} may result either a rejection
+     * status or an {@link io.spine.core.Status.StatusCase#OK OK} status {@link Ack} instance.
      * The rejection status may only pop up if the {@link MessageDispatcher} processes the message
      * sequentially and throws the rejection (wrapped in a
-     * the {@linkplain io.spine.base.RejectionThrowable RejectionThrowables}) instead of handling them.
-     * Otherwise, the {@code OK} status should be expected.
+     * the {@linkplain io.spine.base.RejectionThrowable RejectionThrowables}) instead of
+     * handling them. Otherwise, the {@code OK} status should be expected.
      *
      * <p>Note that {@linkplain StreamObserver#onError StreamObserver.onError()} is never called
      * for the passed observer, since errors are propagated as statuses of {@code Ack} response.
      *
      * @param messages the messages to post
-     * @param observer the observer to receive outcome of the operation
+     * @param observer the observer to receive the outcome of the operation
      */
     public final void post(Iterable<T> messages, StreamObserver<Ack> observer) {
         checkNotNull(messages);
@@ -203,14 +236,11 @@ public abstract class Bus<T extends Signal<?, ?, ?>,
 
     /**
      * Closes the {@linkplain BusFilter filters} of this bus and unregisters all the dispatchers.
-     *
-     * @throws Exception if either filters or the {@linkplain DispatcherRegistry} throws
-     *         an exception
      */
     @Override
-    public void close() throws Exception {
+    public void close() {
         filterChain().close();
-        registry().unregisterAll();
+        registry.unregisterAll();
     }
 
     /**
@@ -319,15 +349,25 @@ public abstract class Bus<T extends Signal<?, ?, ?>,
      *
      * <p>This method assumes that the given message has passed the filtering.
      *
-     * @see #post(Signal, StreamObserver) for the public API
+     * @see #post(Signal, StreamObserver) the public API for posting
      */
     protected abstract void dispatch(E envelope);
 
     /**
      * Posts each of the given envelopes into the bus and notifies the given observer.
      *
-     * @param envelopes the envelopes to post
-     * @param observer  the observer to be notified of the operation result
+     * <p>If {@link #dispatch(SignalEnvelope) dispatching} throws a {@link Mistake} it is rethrown.
+     * Other types of exceptions are logged and then rethrown.
+     *
+     * <p>We treat {@link Mistake}s differently and want to void much of console output
+     * for this special case of exceptions.
+     * Please see {@link io.spine.server.model.AbstractReceptor#invoke(Object, MessageEnvelope)}
+     * for more details on special treatment of {@link Mistake} during dispatching.
+     *
+     * @param envelopes
+     *         the envelopes to post
+     * @param observer
+     *         the observer to be notified of the operation result
      * @see #dispatch(SignalEnvelope)
      */
     @SuppressWarnings("ProhibitedExceptionThrown") // Rethrow a caught exception.
@@ -339,11 +379,14 @@ public abstract class Bus<T extends Signal<?, ?, ?>,
             onDispatchingStarted(signalId);
             try {
                 dispatch(envelope);
+            } catch (Mistake m) {
+                throw m;
             } catch (Throwable t) {
-                _error().withCause(t)
-                        .log("Error when dispatching %s[ID: %s].",
-                             envelope.messageClass(),
-                             signalId);
+                logger().atError().withCause(t).log(() -> format(
+                        "Unable to dispatch `%s` with ID `%s`.",
+                        envelope.messageClass(),
+                        signalId.value())
+                );
                 throw t;
             } finally {
                 onDispatched(signalId);
@@ -403,8 +446,7 @@ public abstract class Bus<T extends Signal<?, ?, ?>,
      */
     @OverridingMethodsMustInvokeSuper
     protected Iterable<BusFilter<E>> setupFilters(Iterable<BusFilter<E>> filters) {
-        return ImmutableList
-                .<BusFilter<E>>builder()
+        return ImmutableList.<BusFilter<E>>builder()
                 .add(new ValidatingFilter<>(validator()))
                 .add(new DeadMessageFilter<>(deadMessageHandler(), registry()))
                 .addAll(filters)

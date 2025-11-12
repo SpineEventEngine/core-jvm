@@ -69,7 +69,7 @@ import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@DisplayName("`AggregateRepository` should ")
+@DisplayName("`AggregateRepository` running queries should ")
 class AggregateQueryingTest {
 
     private QueryFactory queries;

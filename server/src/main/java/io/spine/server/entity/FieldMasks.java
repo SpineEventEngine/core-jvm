@@ -30,6 +30,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.protobuf.FieldMask;
 import com.google.protobuf.Message;
 import com.google.protobuf.util.FieldMaskUtil;
+import io.spine.validate.NonValidated;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
@@ -53,13 +54,17 @@ public final class FieldMasks {
      * <p>If the {@code FieldMask} instance contains invalid field declarations, they are
      * ignored and do not affect the execution result.
      *
+     * <p>Please note, the returning messages are not validated according to
+     * the corresponding {@code Message} constraints. As masking may clear
+     * some required fields, the resulting instances are always built with {@code buildPartial()}.
+     *
      * @param mask     {@code FieldMask} to apply to each item of the input {@link Collection}.
      * @param messages {@link Message}s to filter.
      * @return messages with the {@code FieldMask} applied
      */
     @Nonnull
     public static <M extends Message>
-    Collection<M> applyMask(FieldMask mask, Collection<M> messages) {
+    Collection<@NonValidated M> applyMask(FieldMask mask, Collection<M> messages) {
         checkNotNull(mask);
         checkNotNull(messages);
         return doApplyMany(mask, messages);
@@ -72,12 +77,16 @@ public final class FieldMasks {
      * <p>If the {@code FieldMask} instance contains invalid field declarations,
      * they are ignored and do not affect the execution result.
      *
-     * @param mask    the {@code FieldMask} to apply.
-     * @param message the {@link Message} to apply given mask to.
+     * <p>Please note, the returning message is not validated according to
+     * the corresponding {@code Message} constraints. As masking may clear
+     * some required fields, the resulting instance is always built with {@code buildPartial()}.
+     *
+     * @param mask    the {@code FieldMask} to apply
+     * @param message the {@link Message} to apply given mask to
      * @return the message of the same type as the given one with only selected fields if
      * the {@code mask} is valid, original message otherwise.
      */
-    public static <M extends Message> M applyMask(FieldMask mask, M message) {
+    public static <M extends Message> @NonValidated M applyMask(FieldMask mask, M message) {
         checkNotNull(mask);
         checkNotNull(message);
         if (mask.getPathsList()
@@ -88,11 +97,11 @@ public final class FieldMasks {
         return result;
     }
 
-    private static <M extends Message> M distill(M wholeMessage, FieldMask mask) {
+    private static <M extends Message> @NonValidated M distill(M wholeMessage, FieldMask mask) {
         var builder = wholeMessage.newBuilderForType();
         FieldMaskUtil.merge(mask, wholeMessage, builder);
         @SuppressWarnings("unchecked") // safe as we got builder of `M`.
-        var result = (M) builder.build();
+        var result = (M) builder.buildPartial();
         return result;
     }
 

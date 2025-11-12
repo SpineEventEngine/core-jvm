@@ -123,6 +123,6 @@ class ReadOperationTest {
     private static StgProjectId sampleId() {
         return StgProjectId.newBuilder()
                 .setId("ReadOperationTest-ID")
-                .vBuild();
+                .build();
     }
 }

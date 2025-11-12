@@ -35,9 +35,8 @@ import io.spine.server.integration.broker.PhotosProcessed;
 import io.spine.server.integration.broker.PhotosUploaded;
 import io.spine.server.integration.broker.TotalPhotosUploadedIncreased;
 import io.spine.server.integration.broker.UploadPhotos;
-import io.spine.testing.server.blackbox.BlackBox;
 import io.spine.testing.server.model.ModelTests;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -61,8 +60,8 @@ class IntegrationBrokerTest {
                          .reset();
     }
 
-    @AfterEach
-    void tearDown() {
+    @AfterAll
+    static void cleanUpSuite() {
         ModelTests.dropAllModels();
         ServerEnvironment.instance()
                          .reset();

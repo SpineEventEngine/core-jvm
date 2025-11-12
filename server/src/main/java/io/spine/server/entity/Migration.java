@@ -32,11 +32,11 @@ import io.spine.annotation.Internal;
 import io.spine.base.EntityState;
 import io.spine.core.Event;
 import io.spine.core.Version;
-import io.spine.logging.Logging;
+import io.spine.logging.WithLogging;
 import io.spine.system.server.event.MigrationApplied;
 import io.spine.validate.ValidatingBuilder;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -44,6 +44,7 @@ import java.util.function.Function;
 import static com.google.common.base.Preconditions.checkState;
 import static io.spine.core.Versions.increment;
 import static io.spine.protobuf.Messages.isDefault;
+import static java.lang.String.format;
 
 /**
  * A stored {@link Entity} transformation done to account for the domain model changes.
@@ -80,7 +81,7 @@ public abstract class Migration<I,
                                 E extends TransactionalEntity<I, S, B>,
                                 S extends EntityState<I>,
                                 B extends ValidatingBuilder<S>>
-        implements Function<S, S>, Logging {
+        implements Function<S, S>, WithLogging {
 
     /**
      * The currently performed migration operation.
@@ -245,8 +246,9 @@ public abstract class Migration<I,
     }
 
     private void warnOnNoSystemEventsPosted() {
-        _warn().log("Couldn't post an instance of `%s` event. No system events will occur " +
-                            "during the migration.", MigrationApplied.class.getCanonicalName());
+        logger().atWarning().log(() -> format(
+                "Couldn't post an instance of `%s` event. No system events will occur " +
+                            "during the migration.", MigrationApplied.class.getCanonicalName()));
     }
 
     /**

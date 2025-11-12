@@ -35,8 +35,8 @@ import java.util.Optional;
 /**
  * A mapping of aggregate roots to the associated {@linkplain AggregatePart parts}.
  *
- * <p>In the directory, the aggregate root is represented by its type and the parts - by their
- * repositories.
+ * <p>In the directory, the aggregate root is represented by its type and
+ * the parts - by their repositories.
  */
 @Experimental
 @SPI
@@ -48,17 +48,18 @@ public interface AggregateRootDirectory {
     void register(AggregatePartRepository<?, ?, ?, ?> repository);
 
     /**
-     * Looks up an aggregate part repository by the type of the root and the type of the part state.
+     * Looks up an aggregate part repository by the type of the root and
+     * the type of the part state.
      *
-     * <p>If a matching repository if registered, it is obtained by this method with no regard to
-     * the visibility of the aggregate.
+     * <p>If a matching repository if registered, it is obtained by this method with
+     * no regard to the visibility of the aggregate.
      *
      * @param rootClass
      *         the type of the aggregate root
      * @param partStateClass
      *         the type of the part state
-     * @return the {@link AggregatePartRepository} or {@code Optional.empty()} if such a repository
-     *         is not registered
+     * @return the {@link AggregatePartRepository} or {@code Optional.empty()} if
+     *         such a repository is not registered
      */
     Optional<? extends AggregatePartRepository<?, ?, ?, ?>>
     findPart(Class<? extends AggregateRoot<?>> rootClass,

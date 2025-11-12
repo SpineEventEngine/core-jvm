@@ -29,6 +29,7 @@ package io.spine.server.bus;
 import io.spine.annotation.SPI;
 import io.spine.base.Error;
 import io.spine.core.Ack;
+import io.spine.server.Closeable;
 import io.spine.server.type.MessageEnvelope;
 
 import java.util.Optional;
@@ -47,7 +48,7 @@ import static io.spine.server.bus.MessageIdExtensions.causedError;
  */
 @SPI
 @FunctionalInterface
-public interface BusFilter<E extends MessageEnvelope<?, ?, ?>> extends AutoCloseable {
+public interface BusFilter<E extends MessageEnvelope<?, ?, ?>> extends Closeable {
 
     /**
      * Accepts or rejects a passed message.
@@ -117,13 +118,23 @@ public interface BusFilter<E extends MessageEnvelope<?, ?, ?>> extends AutoClose
         return Optional.of(ack);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>By default, always returns {@code true} as most filters don't manage resources.
+     */
+    @Override
+    default boolean isOpen() {
+        return true;
+    }
+
    /**
      * {@inheritDoc}
      *
      * <p>By default, performs no action.
      */
     @Override
-    default void close() throws Exception {
+    default void close() {
         // NoOp by default.
     }
 }

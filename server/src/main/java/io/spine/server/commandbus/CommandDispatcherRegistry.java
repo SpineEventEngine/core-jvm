@@ -41,7 +41,7 @@ import static io.spine.util.Exceptions.newIllegalArgumentException;
  *
  * <p>There can be only one dispatcher per command class.
  */
-class CommandDispatcherRegistry
+public final class CommandDispatcherRegistry
         extends DispatcherRegistry<CommandClass, CommandEnvelope, CommandDispatcher> {
 
     /**
@@ -72,9 +72,11 @@ class CommandDispatcherRegistry
      * <p>Ensures that there are not dispatchers already registered for
      * the commands of this dispatcher.
      *
-     * @param dispatcher the dispatcher to check
-     * @throws IllegalStateException if there is at least one command of the passed dispatcher
-     *                               that already has a registered dispatcher
+     * @param dispatcher
+     *         the dispatcher to check
+     * @throws IllegalStateException
+     *          if there is at least one command of the passed dispatcher that already
+     *          has a registered dispatcher
      */
     @Override
     protected void checkDispatcher(CommandDispatcher dispatcher)
@@ -87,8 +89,8 @@ class CommandDispatcherRegistry
      * Ensures that all of the commands of the passed dispatcher are not
      * already registered for dispatched in this command bus.
      *
-     * @throws IllegalArgumentException if at least one command class already has
-     *                                  a registered dispatcher
+     * @throws IllegalArgumentException
+     *          if at least one command class already has a registered dispatcher
      */
     private void checkNotAlreadyRegistered(CommandDispatcher dispatcher) {
         Set<CommandClass> commandClasses = dispatcher.messageClasses();
@@ -107,9 +109,12 @@ class CommandDispatcherRegistry
      *
      * <p>This is a convenience method for checking registration of handling dispatching.
      *
-     * @param alreadyRegistered the map of already registered classes or an empty set
-     * @param registeringObject the object which tries to register dispatching or handling
-     * @throws IllegalArgumentException if the set is not empty
+     * @param alreadyRegistered
+     *         the map of already registered classes or an empty set
+     * @param registeringObject
+     *         the object which tries to register dispatching or handling
+     * @throws IllegalArgumentException
+     *         if the set is not empty
      */
     private static void doCheck(Map<CommandClass, CommandDispatcher> alreadyRegistered,
                                 Object registeringObject) {
@@ -136,8 +141,7 @@ class CommandDispatcherRegistry
     /**
      * {@inheritDoc}
      *
-     * <p>Overrides to expose the method to
-     * {@link CommandBus#close() CommandBus}.
+     * <p>Overrides to expose the method to {@link CommandBus#close() CommandBus}.
      */
     @Override
     protected void unregisterAll() {

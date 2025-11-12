@@ -168,8 +168,10 @@ class EventReactorMethodTest {
         @Test
         @DisplayName("when returning Optional.empty()")
         void returnEmpty() {
-            // Passing event without projectId should return `Optional.empty()`.
-            var event = RefProjectCreated.getDefaultInstance();
+            // Passing event with this ID should return `Optional.empty()`.
+            var event = RefProjectCreated.newBuilder()
+                    .setProjectId(ProjectId.newBuilder().setId("xxx-xxx"))
+                    .build();
 
             var outcome = method.invoke(target, envelope(event));
 

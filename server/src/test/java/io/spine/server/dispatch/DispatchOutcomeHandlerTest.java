@@ -34,7 +34,11 @@ import io.spine.core.Command;
 import io.spine.core.Event;
 import io.spine.core.MessageId;
 import io.spine.server.dispatch.given.Given;
+import io.spine.server.dispatch.given.event.DispatchCreated;
+import io.spine.server.type.given.GivenEvent;
 import io.spine.testing.TestValues;
+import io.spine.testing.core.given.GivenVersion;
+import io.spine.type.TypeUrl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -76,6 +80,7 @@ public final class DispatchOutcomeHandlerTest {
                     .build();
             var outcome = DispatchOutcome.newBuilder()
                     .setError(error)
+                    .setPropagatedSignal(GivenEvent.arbitrary().messageId())
                     .build();
             List<Error> errors = new ArrayList<>();
             var result = DispatchOutcomeHandler
@@ -92,6 +97,7 @@ public final class DispatchOutcomeHandlerTest {
             var success = Success.getDefaultInstance();
             var outcome = DispatchOutcome.newBuilder()
                     .setSuccess(success)
+                    .setPropagatedSignal(GivenEvent.arbitrary().messageId())
                     .build();
             List<Success> successes = new ArrayList<>();
             var result = DispatchOutcomeHandler
@@ -113,6 +119,7 @@ public final class DispatchOutcomeHandlerTest {
                     .build();
             var outcome = DispatchOutcome.newBuilder()
                     .setSuccess(success)
+                    .setPropagatedSignal(event.messageId())
                     .build();
             List<Event> events = new ArrayList<>();
             var result = DispatchOutcomeHandler
@@ -134,6 +141,7 @@ public final class DispatchOutcomeHandlerTest {
                     .build();
             var outcome = DispatchOutcome.newBuilder()
                     .setSuccess(success)
+                    .setPropagatedSignal(command.messageId())
                     .build();
             List<Command> commands = new ArrayList<>();
             var result = DispatchOutcomeHandler
@@ -153,6 +161,7 @@ public final class DispatchOutcomeHandlerTest {
                     .build();
             var outcome = DispatchOutcome.newBuilder()
                     .setSuccess(error)
+                    .setPropagatedSignal(rejection.messageId())
                     .build();
             List<Event> rejections = new ArrayList<>();
             var result = DispatchOutcomeHandler
@@ -169,12 +178,15 @@ public final class DispatchOutcomeHandlerTest {
         void interruption() {
             var messageId = MessageId.newBuilder()
                     .setId(Identifier.pack(TestValues.randomString()))
+                    .setTypeUrl(TypeUrl.of(DispatchCreated.class).value())
+                    .setVersion(GivenVersion.withNumber(21))
                     .build();
             var interruption = Interruption.newBuilder()
                     .setStoppedAt(messageId)
                     .build();
             var outcome = DispatchOutcome.newBuilder()
                     .setInterrupted(interruption)
+                    .setPropagatedSignal(messageId)
                     .build();
             List<Interruption> interruptions = new ArrayList<>();
             var result = DispatchOutcomeHandler
@@ -193,6 +205,7 @@ public final class DispatchOutcomeHandlerTest {
                     .build();
             var outcome = DispatchOutcome.newBuilder()
                     .setIgnored(ignore)
+                    .setPropagatedSignal(GivenEvent.arbitrary().messageId())
                     .build();
             List<Ignore> ignored = new ArrayList<>();
             var result = DispatchOutcomeHandler

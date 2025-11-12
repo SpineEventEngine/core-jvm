@@ -27,6 +27,7 @@
 package io.spine.server.delivery;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.protobuf.Timestamp;
 import io.spine.base.Identifier;
 import io.spine.server.BoundedContext;
@@ -34,7 +35,7 @@ import io.spine.server.delivery.event.CatchUpRequested;
 import io.spine.server.projection.ProjectionRepository;
 import io.spine.server.type.EventClass;
 import io.spine.type.TypeUrl;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
 
@@ -100,11 +101,11 @@ final class CatchUpStarter<I> {
         var id = CatchUpId.newBuilder()
                 .setUuid(Identifier.newUuid())
                 .setProjectionType(projectionStateType.value())
-                .vBuild();
+                .build();
         var eventMessage = CatchUpRequested.newBuilder()
                 .setId(id)
                 .setRequest(request)
-                .vBuild();
+                .build();
         var eventFactory = new CatchUpEventFactory(projectionStateType, context.isMultitenant());
         var event = eventFactory.createEvent(eventMessage);
         context.eventBus()
@@ -127,7 +128,7 @@ final class CatchUpStarter<I> {
             var name = eventClass.typeName();
             requestBuilder.addEventType(name.value());
         }
-        return requestBuilder.vBuild();
+        return requestBuilder.build();
     }
 
     private void checkNotActive(@Nullable Set<I> ids) throws CatchUpAlreadyStartedException {
@@ -191,6 +192,7 @@ final class CatchUpStarter<I> {
          * Sets the <b>initialized</b> {@code BoundedContext}, in scope of which the catch-up is
          * performed.
          */
+        @CanIgnoreReturnValue
         Builder<I> withContext(BoundedContext context) {
             this.context = checkNotNull(context);
             return this;

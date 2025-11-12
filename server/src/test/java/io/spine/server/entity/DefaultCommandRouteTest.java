@@ -63,7 +63,7 @@ class DefaultCommandRouteTest {
 
         assertThat(DefaultCommandRoute
                            .newInstance(io.spine.test.entity.ProjectId.class)
-                           .apply(msg, CommandContext.getDefaultInstance()))
+                           .invoke(msg, CommandContext.getDefaultInstance()))
                 .isEqualTo(msg.getProjectId());
     }
 

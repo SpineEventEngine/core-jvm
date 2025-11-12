@@ -39,7 +39,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * A command dispatch operation.
  *
  * <p>Dispatches the given {@linkplain CommandEnvelope command} to the given
- * {@linkplain CommandAssigneeEntity entity} and triggers the {@link EntityLifecycle}.
+ * {@linkplain AssigneeEntity entity} and triggers the {@link EntityLifecycle}.
  *
  * @param <I>
  *         the type of entity ID
@@ -48,11 +48,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public final class DispatchCommand<I> {
 
     private final EntityLifecycle lifecycle;
-    private final CommandAssigneeEntity<I, ?, ?> entity;
+    private final AssigneeEntity<I, ?, ?> entity;
     private final CommandEnvelope command;
 
     private DispatchCommand(EntityLifecycle lifecycle,
-                            CommandAssigneeEntity<I, ?, ?> entity,
+                            AssigneeEntity<I, ?, ?> entity,
                             CommandEnvelope command) {
         this.lifecycle = lifecycle;
         this.entity = entity;
@@ -60,7 +60,7 @@ public final class DispatchCommand<I> {
     }
 
     public static <I> DispatchCommand<I> operationFor(EntityLifecycle lifecycle,
-                                                      CommandAssigneeEntity<I, ?, ?> entity,
+                                                      AssigneeEntity<I, ?, ?> entity,
                                                       CommandEnvelope command) {
         checkNotNull(lifecycle);
         checkNotNull(entity);
@@ -72,7 +72,7 @@ public final class DispatchCommand<I> {
     /**
      * Performs the operation.
      *
-     * <p>First, the command is {@linkplain CommandAssigneeEntity#dispatchCommand(CommandEnvelope)
+     * <p>First, the command is {@linkplain AssigneeEntity#dispatchCommand(CommandEnvelope)
      * passed} to the entity.
      *
      * <p>Then, depending on the command handling result, either
@@ -96,7 +96,7 @@ public final class DispatchCommand<I> {
         }
     }
 
-    public CommandAssigneeEntity<I, ?, ?> entity() {
+    public AssigneeEntity<I, ?, ?> entity() {
         return entity;
     }
 

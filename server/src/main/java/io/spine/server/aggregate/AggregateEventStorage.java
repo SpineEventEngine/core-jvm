@@ -28,7 +28,7 @@ package io.spine.server.aggregate;
 
 import io.spine.query.RecordQuery;
 import io.spine.server.ContextSpec;
-import io.spine.server.storage.MessageRecordSpec;
+import io.spine.server.storage.RecordSpec;
 import io.spine.server.storage.MessageStorage;
 import io.spine.server.storage.StorageFactory;
 
@@ -46,8 +46,8 @@ public class AggregateEventStorage
      * A specification on how to store the event records of an aggregate.
      */
     @SuppressWarnings("ConstantConditions")     // Protobuf getters return non-{@code null} values.
-    private static final MessageRecordSpec<AggregateEventRecordId, AggregateEventRecord> spec =
-            new MessageRecordSpec<>(
+    private static final RecordSpec<AggregateEventRecordId, AggregateEventRecord> spec =
+            new RecordSpec<>(
                     AggregateEventRecordId.class,
                     AggregateEventRecord.class,
                     AggregateEventRecord::getId,
@@ -98,5 +98,15 @@ public class AggregateEventStorage
     @Override
     protected void deleteAll(Iterable<AggregateEventRecordId> ids) {
         super.deleteAll(ids);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>This method is exposed to {@code public} for SPI users.
+     */
+    @Override
+    public void write(AggregateEventRecord record) {
+        super.write(record);
     }
 }

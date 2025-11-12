@@ -33,7 +33,6 @@ import io.spine.client.Query;
 import io.spine.client.QueryFactory;
 import io.spine.client.QueryId;
 import io.spine.client.Target;
-import io.spine.server.BoundedContext;
 import io.spine.server.projection.ProjectionRepository;
 import io.spine.server.stand.given.MenuRepository;
 import io.spine.system.server.Mirror;
@@ -44,6 +43,7 @@ import io.spine.test.stand.MenuId;
 import io.spine.testing.client.TestActorRequestFactory;
 import io.spine.testing.server.blackbox.BlackBox;
 import io.spine.type.TypeName;
+import io.spine.validate.NonValidated;
 import io.spine.validate.ValidationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -72,9 +72,7 @@ class EntityQueryProcessorTest {
     @BeforeEach
     void setUp() {
         ProjectionRepository<?, ?, ?> repository = new MenuRepository();
-        context = BlackBox.from(
-                BoundedContext.singleTenant("Cafeteria")
-                              .add(repository));
+        context = BlackBox.singleTenant("Cafeteria", repository);
         processor = new EntityQueryProcessor(repository);
         fill();
     }
@@ -126,10 +124,10 @@ class EntityQueryProcessorTest {
     @Test
     @DisplayName("fail if the query does not specify filters and `include_all` is not set")
     void failOnInvalidQuery() {
-        var target = Target.newBuilder()
+        @NonValidated Target target = Target.newBuilder()
                 .setType(TypeName.of(Mirror.class).value())
                 .buildPartial();
-        var query = Query.newBuilder()
+        @NonValidated Query query = Query.newBuilder()
                 .setId(QueryId.newBuilder().setValue(newUuid()))
                 .setContext(factory.newActorContext())
                 .setTarget(target)
@@ -148,12 +146,12 @@ class EntityQueryProcessorTest {
         var dish = Dish.newBuilder()
                 .setTitle("Dead beef")
                 .setPrice(42)
-                .vBuild();
+                .build();
         var id = MenuId.generate();
         var event = DishAdded.newBuilder()
                 .setId(id)
                 .setDish(dish)
-                .vBuild();
+                .build();
         context.receivesEvent(event);
         return event;
     }

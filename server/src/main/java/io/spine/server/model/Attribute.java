@@ -36,7 +36,7 @@ import com.google.errorprone.annotations.Immutable;
  * @param <V>
  *         the type of the value of the attribute. As it would typically be an annotation field
  *         value, its type cannot be restricted to anything except for {@link Object}.
- * @see HandlerMethod#attributes()
+ * @see Receptor#attributes()
  */
 @Immutable(containerOf = "V")
 public interface Attribute<V> {

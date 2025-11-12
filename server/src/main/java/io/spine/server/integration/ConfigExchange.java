@@ -26,6 +26,7 @@
 
 package io.spine.server.integration;
 
+import io.spine.server.Closeable;
 import io.spine.server.transport.ChannelId;
 import io.spine.type.TypeUrl;
 
@@ -39,7 +40,9 @@ import static io.spine.server.transport.MessageChannel.channelIdFor;
  * Tells other Bounded Contexts about the {@code external} domain events requested for subscription
  * in this Bounded Context, and listens to similar messages from other Bounded Contexts.
  */
-final class ConfigExchange extends SingleChannelExchange implements AutoCloseable {
+final class ConfigExchange extends SingleChannelExchange implements Closeable {
+
+    private boolean closed = false;
 
     /**
      * ID of the channel used to exchange the {@code ExternalEventsWanted} messages.
@@ -66,7 +69,7 @@ final class ConfigExchange extends SingleChannelExchange implements AutoCloseabl
 
     /**
      * Starts observing the {@link ExternalEventsWanted} messages sent by other Bounded Contexts
-     * and, if applicable, creates the corresponding subscriptions in the passed {@code bus}.
+     * and, if applicable, creates the corresponding subscriptions in passed {@code bus}.
      *
      * <p>After such subscriptions are created, the matching events travelling through the bus
      * will be transmitted to other Bounded Contexts via this exchange.
@@ -111,7 +114,12 @@ final class ConfigExchange extends SingleChannelExchange implements AutoCloseabl
     private static ExternalEventType typeOfTransmittedEvents(ChannelId channel) {
         return ExternalEventType.newBuilder()
                 .setTypeUrl(channel.getTargetType())
-                .vBuild();
+                .build();
+    }
+
+    @Override
+    public boolean isOpen() {
+        return !closed;
     }
 
     /**
@@ -120,7 +128,7 @@ final class ConfigExchange extends SingleChannelExchange implements AutoCloseabl
      * Bounded Context.
      */
     @Override
-    public void close() throws Exception {
+    public void close() {
         observers.forEach(ObserveWantedEvents::close);
         notifyTypesChanged();
     }

@@ -69,7 +69,7 @@ public class TestEntity
     private static ProjectId newIdWith(String value) {
         return ProjectId.newBuilder()
                         .setId(value)
-                        .vBuild();
+                        .build();
     }
 
     private TestEntity(ProjectId id) {

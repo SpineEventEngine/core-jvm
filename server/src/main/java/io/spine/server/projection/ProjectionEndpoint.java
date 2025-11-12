@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -28,7 +28,7 @@ package io.spine.server.projection;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.annotation.Internal;
-import io.spine.base.EntityState;
+import io.spine.base.ProjectionState;
 import io.spine.server.delivery.EventEndpoint;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.EntityLifecycleMonitor;
@@ -50,7 +50,7 @@ import static io.spine.server.projection.ProjectionTransaction.start;
  *         the type of projection states
  */
 @Internal
-public class ProjectionEndpoint<I, P extends Projection<I, S, ?>, S extends EntityState<I>>
+public class ProjectionEndpoint<I, P extends Projection<I, S, ?>, S extends ProjectionState<I>>
         extends EntityMessageEndpoint<I, P, EventEnvelope>
         implements EventEndpoint<I> {
 
@@ -58,7 +58,7 @@ public class ProjectionEndpoint<I, P extends Projection<I, S, ?>, S extends Enti
         super(repository, event);
     }
 
-    static <I, P extends Projection<I, S, ?>, S extends EntityState<I>>
+    static <I, P extends Projection<I, S, ?>, S extends ProjectionState<I>>
     ProjectionEndpoint<I, P, S> of(ProjectionRepository<I, P, ?> repository, EventEnvelope event) {
         return new ProjectionEndpoint<>(repository, event);
     }
@@ -69,11 +69,12 @@ public class ProjectionEndpoint<I, P extends Projection<I, S, ?>, S extends Enti
     }
 
     @Override
-    public void dispatchTo(I entityId) {
+    protected DispatchOutcome performDispatch(I entityId) {
         var repository = repository();
         var projection = repository.findOrCreate(entityId);
-        runTransactionFor(projection);
+        var outcome = runTransactionFor(projection);
         store(projection);
+        return outcome;
     }
 
     @Override
@@ -82,7 +83,7 @@ public class ProjectionEndpoint<I, P extends Projection<I, S, ?>, S extends Enti
                     .onDispatchEventToSubscriber(envelope().outerObject());
     }
 
-    protected void runTransactionFor(P projection) {
+    protected DispatchOutcome runTransactionFor(P projection) {
         var tx = start((Projection<I, S, ?>) projection);
         TransactionListener<I> listener =
                 EntityLifecycleMonitor.newInstance(repository(), projection.id());
@@ -96,6 +97,7 @@ public class ProjectionEndpoint<I, P extends Projection<I, S, ?>, S extends Enti
             repository().lifecycleOf(projection.id())
                         .onDispatchingFailed(envelope(), error);
         }
+        return outcome;
     }
 
     @CanIgnoreReturnValue

@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="EntryPointsManager">
-    <list size="5">
-      <item index="0" class="java.lang.String" itemvalue="io.spine.core.Subscribe" />
-      <item index="1" class="java.lang.String" itemvalue="io.spine.server.aggregate.Apply" />
-      <item index="2" class="java.lang.String" itemvalue="io.spine.server.command.Assign" />
-      <item index="3" class="java.lang.String" itemvalue="io.spine.server.command.Command" />
-      <item index="4" class="java.lang.String" itemvalue="io.spine.server.event.React" />
+    <list size="7">
+      <item index="0" class="java.lang.String" itemvalue="com.google.auto.service.AutoService" />
+      <item index="1" class="java.lang.String" itemvalue="io.spine.core.Subscribe" />
+      <item index="2" class="java.lang.String" itemvalue="io.spine.server.aggregate.Apply" />
+      <item index="3" class="java.lang.String" itemvalue="io.spine.server.command.Assign" />
+      <item index="4" class="java.lang.String" itemvalue="io.spine.server.command.Command" />
+      <item index="5" class="java.lang.String" itemvalue="io.spine.server.event.React" />
+      <item index="6" class="java.lang.String" itemvalue="io.spine.server.route.Route" />
     </list>
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
@@ -38,5 +40,5 @@
       </value>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK" />
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" default="true" project-jdk-name="corretto-17" project-jdk-type="JavaSDK" />
 </project>

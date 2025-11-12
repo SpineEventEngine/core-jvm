@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -30,11 +30,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.UnmodifiableIterator;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.protobuf.Empty;
-import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.Message;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
@@ -49,14 +48,13 @@ import static io.spine.util.Exceptions.newIllegalArgumentException;
  */
 public abstract class Tuple implements Iterable<Message>, Serializable {
 
+    @Serial
     private static final long serialVersionUID = 0L;
 
     /**
      * Immutable list of tuple values.
      *
-     * <p>The first entry must be a {@link GeneratedMessageV3}.
-     *
-     * <p>Other entries can be either {@link GeneratedMessageV3} or {@link Optional}.
+     * <p>Other entries can be either {@link Message} or {@link Optional}.
      */
     private final List<Element> values;
 
@@ -107,22 +105,24 @@ public abstract class Tuple implements Iterable<Message>, Serializable {
         return result;
     }
 
-    static <T extends Tuple>
-    void checkAllNotNullOrEmpty(Class<T> checkingClass, Message... values) {
+    @SafeVarargs
+    static <M extends Message, T extends Tuple>
+    void checkAllNotNullOrEmpty(Class<T> checkingClass, M... values) {
         for (var value : values) {
             checkNotNullOrEmpty(checkingClass, value);
         }
     }
 
-    static <T extends Tuple>
-    void checkAllNotEmpty(Class<T> checkingClass, Message... values) {
+    @SafeVarargs
+    static <M extends Message, T extends Tuple>
+    void checkAllNotEmpty(Class<T> checkingClass, M... values) {
         for (var value : values) {
             checkNotEmpty(checkingClass, value);
         }
     }
 
     @Override
-    public final @NonNull Iterator<Message> iterator() {
+    public final Iterator<Message> iterator() {
         Iterator<Message> result = new ExtractingIterator(values);
         return result;
     }
@@ -147,14 +147,20 @@ public abstract class Tuple implements Iterable<Message>, Serializable {
 
     @Override
     public final boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!(obj instanceof Tuple)) {
-            return false;
-        }
-        var other = (Tuple) obj;
-        return Objects.equals(this.values, other.values);
+        return (this == obj) ||
+                ((obj instanceof Tuple other) &&
+                        Objects.equals(this.values, other.values));
+    }
+
+    /**
+     * If the passed {@code value} is an {@code Optional}, tells if its value is present.
+     *
+     * <p>Otherwise, returns {@code true}.
+     */
+    static boolean isOptionalPresent(Object value) {
+        checkNotNull(value);
+        return !(value instanceof Optional<?> asOptional)
+                || asOptional.isPresent();
     }
 
     /**

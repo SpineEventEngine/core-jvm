@@ -30,6 +30,7 @@ import io.spine.annotation.Internal;
 import io.spine.base.Time;
 import io.spine.server.delivery.event.ShardProcessed;
 import io.spine.server.delivery.event.ShardProcessingRequested;
+import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.Repository;
 import io.spine.server.event.AbstractEventReactor;
 import io.spine.server.event.React;
@@ -37,6 +38,7 @@ import io.spine.server.stand.Stand;
 import io.spine.server.type.EventEnvelope;
 import io.spine.type.TypeUrl;
 
+import static io.spine.server.dispatch.DispatchOutcomes.sentToInbox;
 import static io.spine.util.Exceptions.newIllegalStateException;
 
 /**
@@ -75,15 +77,16 @@ final class ShardMaintenanceProcess extends AbstractEventReactor {
                 .setIndex(event.getIndex())
                 .setProcess(event.getProcess())
                 .setRunInfo(event.getRunInfo())
-                .vBuild();
+                .build();
         return processed;
     }
 
     @Override
-    public void dispatch(EventEnvelope event) {
+    public DispatchOutcome dispatch(EventEnvelope event) {
         var message = (ShardEvent) event.message();
         inbox.send(event)
              .toReactor(message.getIndex());
+        return sentToInbox(event, message.getIndex());
     }
 
     /**
@@ -108,8 +111,8 @@ final class ShardMaintenanceProcess extends AbstractEventReactor {
         }
 
         @Override
-        public void dispatchTo(ShardIndex targetId) {
-            ShardMaintenanceProcess.super.dispatch(envelope);
+        public DispatchOutcome dispatchTo(ShardIndex targetId) {
+            return ShardMaintenanceProcess.super.dispatch(envelope);
         }
 
         @Override

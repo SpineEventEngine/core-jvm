@@ -27,6 +27,8 @@ package io.spine.client;
 
 import com.google.protobuf.FieldMask;
 import io.spine.test.client.TestEntityId;
+import io.spine.testing.core.given.GivenUserId;
+import io.spine.time.ZoneIds;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -35,7 +37,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
-import static io.spine.client.given.ActorRequestFactoryTestEnv.requestFactory;
+import static io.spine.base.Identifier.newUuid;
 import static io.spine.client.given.TopicFactoryTestEnv.TARGET_ENTITY_TYPE_URL;
 import static io.spine.client.given.TopicFactoryTestEnv.TEST_ENTITY_TYPE;
 import static io.spine.client.given.TopicFactoryTestEnv.entityId;
@@ -53,6 +55,13 @@ class TopicFactoryTest {
 
     private ActorRequestFactory requestFactory;
     private TopicFactory factory;
+
+    private static ActorRequestFactory requestFactory() {
+        return ActorRequestFactory.newBuilder()
+                .setZoneId(ZoneIds.systemDefault())
+                .setActor(GivenUserId.of(newUuid()))
+                .build();
+    }
 
     @BeforeEach
     void createFactory() {

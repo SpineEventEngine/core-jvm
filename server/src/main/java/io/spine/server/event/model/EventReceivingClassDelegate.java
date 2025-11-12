@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -27,13 +27,12 @@
 package io.spine.server.event.model;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.errorprone.annotations.Immutable;
 import io.spine.server.entity.model.StateClass;
 import io.spine.server.event.EventReceiver;
-import io.spine.server.model.HandlerMap;
-import io.spine.server.model.HandlerMethod;
-import io.spine.server.model.MethodSignature;
 import io.spine.server.model.ModelClass;
+import io.spine.server.model.Receptor;
+import io.spine.server.model.ReceptorMap;
+import io.spine.server.model.ReceptorSignature;
 import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
 import io.spine.type.MessageClass;
@@ -48,17 +47,15 @@ import java.util.Optional;
  *         the type of target objects that handle messages
  * @param <P>
  *         the type of message classes produced by handler methods
- * @param <M>
- *         the type of handler method objects
+ * @param <R>
+ *         the type of the receptors
  */
-@Immutable(containerOf = "M")
 public class EventReceivingClassDelegate<T extends EventReceiver,
                                          P extends MessageClass<?>,
-                                         M extends HandlerMethod<?, EventClass, ?, P>>
+                                         R extends Receptor<?, EventClass, ?, P>>
         extends ModelClass<T> {
 
-    private static final long serialVersionUID = 0L;
-    private final HandlerMap<EventClass, P, M> handlers;
+    private final ReceptorMap<EventClass, P, R> receptors;
     private final ImmutableSet<EventClass> events;
     private final ImmutableSet<EventClass> domesticEvents;
     private final ImmutableSet<EventClass> externalEvents;
@@ -66,21 +63,21 @@ public class EventReceivingClassDelegate<T extends EventReceiver,
     private final ImmutableSet<StateClass<?>> externalStates;
 
     /**
-     * Creates new instance for the passed raw class with methods obtained
+     * Creates a new instance for the passed raw class with methods obtained
      * through the passed factory.
      */
-    public EventReceivingClassDelegate(Class<T> delegatingClass, MethodSignature<M, ?> signature) {
+    public EventReceivingClassDelegate(Class<T> delegatingClass, ReceptorSignature<R, ?> signature) {
         super(delegatingClass);
-        this.handlers = HandlerMap.create(delegatingClass, signature);
-        this.events = handlers.messageClasses();
-        this.domesticEvents = handlers.messageClasses((h) -> !h.isExternal());
-        this.externalEvents = handlers.messageClasses(HandlerMethod::isExternal);
+        this.receptors = ReceptorMap.create(delegatingClass, signature);
+        this.events = receptors.messageClasses();
+        this.domesticEvents = receptors.messageClasses((r) -> !r.isExternal());
+        this.externalEvents = receptors.messageClasses(Receptor::isExternal);
         this.domesticStates = extractStates(false);
         this.externalStates = extractStates(true);
     }
 
     public boolean contains(EventClass eventClass) {
-        return handlers.containsClass(eventClass);
+        return receptors.containsClass(eventClass);
     }
 
     /**
@@ -122,19 +119,7 @@ public class EventReceivingClassDelegate<T extends EventReceiver,
      * Obtains the classes of messages produced by handler methods of this class.
      */
     public ImmutableSet<P> producedTypes() {
-        return handlers.producedTypes();
-    }
-
-    /**
-     * Obtains the method which handles the passed event class.
-     *
-     * @param event
-     *         the event which must be handled
-     * @throws IllegalStateException
-     *         if there is no such method in the class
-     */
-    public Optional<M> handlerOf(EventEnvelope event) {
-        return handlers.findHandlerFor(event);
+        return receptors.producedTypes();
     }
 
     /**
@@ -144,8 +129,8 @@ public class EventReceivingClassDelegate<T extends EventReceiver,
      *         the event which must be handled
      * @return event handler method or {@code Optional.empty()} if there is no such method
      */
-    public Optional<M> findHandlerOf(EventEnvelope event) {
-        return handlers.findHandlerFor(event);
+    public Optional<R> findReceptorOf(EventEnvelope event) {
+        return receptors.findReceptorFor(event);
     }
 
     /**
@@ -153,14 +138,14 @@ public class EventReceivingClassDelegate<T extends EventReceiver,
      */
     private ImmutableSet<StateClass<?>> extractStates(boolean external) {
         var updateEvent = StateClass.updateEvent();
-        if (!handlers.containsClass(updateEvent)) {
+        if (!receptors.containsClass(updateEvent)) {
             return ImmutableSet.of();
         }
-        var stateHandlers = handlers.handlersOf(updateEvent);
+        var stateHandlers = receptors.receptorsOf(updateEvent);
         var result = stateHandlers.stream()
                 .filter(h -> h instanceof StateSubscriberMethod)
                 .map(h -> (StateSubscriberMethod) h)
-                .filter(external ? HandlerMethod::isExternal : HandlerMethod::isDomestic)
+                .filter(external ? Receptor::isExternal : Receptor::isDomestic)
                 .map(StateSubscriberMethod::stateClass)
                 .collect(ImmutableSet.<StateClass<?>>toImmutableSet());
         return result;

@@ -32,6 +32,8 @@ import com.google.protobuf.Message;
 import com.google.protobuf.StringValue;
 import io.spine.test.client.TestEntity;
 import io.spine.test.client.TestEntityId;
+import io.spine.testing.core.given.GivenUserId;
+import io.spine.time.ZoneIds;
 import io.spine.type.TypeUrl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -54,7 +56,6 @@ import static io.spine.client.Filters.either;
 import static io.spine.client.Filters.eq;
 import static io.spine.client.Filters.ge;
 import static io.spine.client.Filters.le;
-import static io.spine.client.given.ActorRequestFactoryTestEnv.requestFactory;
 import static io.spine.client.given.TestEntities.randomId;
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.protobuf.TypeConverter.toObject;
@@ -88,6 +89,13 @@ class TopicBuilderTest {
         fail(format("No Filter found for %s. field", name));
         // avoid returning `null`
         throw new RuntimeException("never happens unless JUnit is broken");
+    }
+
+    private static ActorRequestFactory requestFactory() {
+        return ActorRequestFactory.newBuilder()
+                .setZoneId(ZoneIds.systemDefault())
+                .setActor(GivenUserId.of(newUuid()))
+                .build();
     }
 
     @BeforeEach

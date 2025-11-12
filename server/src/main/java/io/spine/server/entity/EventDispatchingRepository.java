@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -29,15 +29,18 @@ package io.spine.server.entity;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import io.spine.base.EntityState;
-import io.spine.core.Event;
 import io.spine.server.BoundedContext;
+import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.event.EventDispatcher;
 import io.spine.server.route.EventRouting;
+import io.spine.server.route.setup.EventRoutingSetup;
 import io.spine.server.type.EventEnvelope;
 
 import java.util.Set;
+import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Suppliers.memoize;
 
 /**
  * Abstract base for repositories that deliver events to entities they manage.
@@ -55,19 +58,13 @@ public abstract class EventDispatchingRepository<I,
         extends DefaultRecordBasedRepository<I, E, S>
         implements EventDispatcher {
 
-    private final EventRouting<I> eventRouting;
+    private final Supplier<EventRouting<I>> eventRouting;
 
     protected EventDispatchingRepository() {
         super();
-        this.eventRouting = EventRouting.withDefaultByProducerId();
-    }
-
-    /**
-     * Obtains the {@link EventRouting} schema used by the repository for calculating identifiers
-     * of event targets.
-     */
-    private EventRouting<I> eventRouting() {
-        return eventRouting;
+        this.eventRouting = memoize(
+                () -> EventRouting.withDefaultByProducerIdOrFirstField(idClass())
+        );
     }
 
     /**
@@ -82,7 +79,9 @@ public abstract class EventDispatchingRepository<I,
         super.registerWith(context);
         context.internalAccess()
                .registerEventDispatcher(this);
-        setupEventRouting(eventRouting());
+
+        EventRoutingSetup.apply(entityClass(), eventRouting.get());
+        setupEventRouting(eventRouting.get());
     }
 
     /**
@@ -91,7 +90,7 @@ public abstract class EventDispatchingRepository<I,
      * <p>Default routing returns the ID of the entity which
      * {@linkplain io.spine.core.EventContext#getProducerId() produced} the event.
      * This allows to “link” different kinds of entities by having the same class of IDs.
-     * More complex scenarios (e.g. one-to-many relationships) may require custom routing schemas.
+     * More complex scenarios (e.g., one-to-many relationships) may require custom routing schemas.
      *
      * @param routing
      *         the routing schema to customize
@@ -110,26 +109,22 @@ public abstract class EventDispatchingRepository<I,
      * @param event the event to dispatch
      */
     @Override
-    public final void dispatch(EventEnvelope event) {
+    public final DispatchOutcome dispatch(EventEnvelope event) {
         checkNotNull(event);
-        doDispatch(event);
-    }
-
-    private void doDispatch(EventEnvelope event) {
         var targets = route(event);
-        var outerObject = event.outerObject();
-        targets.forEach(id -> dispatchTo(id, outerObject));
+        return dispatchTo(targets, event);
     }
 
     /**
-     * Dispatches the given event to an entity with the given ID.
+     * Dispatches the given event to entities with the given identifiers and
+     * returns the dispatch outcome.
      *
-     * @param id
-     *         the target entity ID
+     * @param ids
+     *         the identifiers of the target entities
      * @param event
      *         the event to dispatch
      */
-    protected abstract void dispatchTo(I id, Event event);
+    protected abstract DispatchOutcome dispatchTo(Set<I> ids, EventEnvelope event);
 
     /**
      * Determines the targets of the given event.
@@ -138,7 +133,9 @@ public abstract class EventDispatchingRepository<I,
      * @return a set of IDs of projections to dispatch the given event to
      */
     protected Set<I> route(EventEnvelope event) {
-        return route(eventRouting(), event)
-                .orElse(ImmutableSet.of());
+        var targets = route(eventRouting.get(), event);
+        @SuppressWarnings("unchecked")
+        var result = (Set<I>) targets.orElse(ImmutableSet.of());
+        return result;
     }
 }

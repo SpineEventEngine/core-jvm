@@ -66,7 +66,7 @@ class LiveDeliveryStationTest extends AbstractStationTest {
         var initialContents =
                 ImmutableList.of(toDeliver, anotherToDeliver, differentTarget,
                                  alreadyDelivered, toCatchUp);
-        var conveyor = new Conveyor(initialContents, new DeliveredMessages());
+        var conveyor = new Conveyor(initialContents, new DeliveredMessagesCache());
 
         var action = MemoizingAction.empty();
         Station station = new LiveDeliveryStation(action, noWindow());
@@ -104,7 +104,7 @@ class LiveDeliveryStationTest extends AbstractStationTest {
         var initialContents =
                 ImmutableList.of(toDeliver, duplicate, anotherDuplicate,
                                  alreadyDelivered, duplicateOfDelivered, toCatchUp);
-        var conveyor = new Conveyor(initialContents, new DeliveredMessages());
+        var conveyor = new Conveyor(initialContents, new DeliveredMessagesCache());
 
         var action = MemoizingAction.empty();
         Station station = new LiveDeliveryStation(action, noWindow());
@@ -143,7 +143,7 @@ class LiveDeliveryStationTest extends AbstractStationTest {
         var toDeliver4 = toDeliver(targetTwo, type, now);
         var conveyor = new Conveyor(
                 ImmutableList.of(toDeliver2, toDeliver3, toDeliver4, toDeliver1),
-                new DeliveredMessages()
+                new DeliveredMessagesCache()
         );
 
         var action = MemoizingAction.empty();
@@ -167,7 +167,7 @@ class LiveDeliveryStationTest extends AbstractStationTest {
 
         var initialContents =
                 ImmutableList.of(toDeliver, differentTarget, alreadyDelivered, toCatchUp);
-        var conveyor = new Conveyor(initialContents, new DeliveredMessages());
+        var conveyor = new Conveyor(initialContents, new DeliveredMessagesCache());
 
         Station station = new LiveDeliveryStation(MemoizingAction.empty(), fromSeconds(100));
         var result = station.process(conveyor);

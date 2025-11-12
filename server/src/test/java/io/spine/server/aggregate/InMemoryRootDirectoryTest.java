@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-import static com.google.common.truth.Truth8.assertThat;
+import static com.google.common.truth.Truth.assertThat;
 
 @DisplayName("In-memory `AggregateRootDirectory` should")
 class InMemoryRootDirectoryTest {

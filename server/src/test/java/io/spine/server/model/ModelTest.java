@@ -39,7 +39,7 @@ import tres.quattro.Counter;
 import uno.dos.Encounter;
 
 import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
-import static io.spine.server.command.model.CommandAssigneeClass.asCommandAssigneeClass;
+import static io.spine.server.command.model.AssigneeClass.asCommandAssigneeClass;
 import static io.spine.server.procman.model.ProcessManagerClass.asProcessManagerClass;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -65,7 +65,7 @@ class ModelTest {
             asAggregateClass(MAggregate.class);
             asCommandAssigneeClass(MCommandAssignee.class);
             failErrorNotThrown();
-        } catch (DuplicateCommandHandlerError error) {
+        } catch (DuplicateCommandReceptorError error) {
             assertContainsClassName(error, RefCreateProject.class);
             assertContainsClassName(error, MAggregate.class);
             assertContainsClassName(error, MCommandAssignee.class);
@@ -80,7 +80,7 @@ class ModelTest {
             asAggregateClass(MAggregate.class);
             asProcessManagerClass(MProcessManager.class);
             failErrorNotThrown();
-        } catch (DuplicateCommandHandlerError error) {
+        } catch (DuplicateCommandReceptorError error) {
             assertContainsClassName(error, RefCreateProject.class);
             assertContainsClassName(error, RefStartProject.class);
             assertContainsClassName(error, MAggregate.class);
@@ -124,6 +124,6 @@ class ModelTest {
     }
 
     private static void failErrorNotThrown() {
-        fail(DuplicateCommandHandlerError.class.getName() + " should be thrown");
+        fail(DuplicateCommandReceptorError.class.getName() + " should be thrown");
     }
 }

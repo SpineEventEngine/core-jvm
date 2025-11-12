@@ -26,37 +26,41 @@
 
 package io.spine.server.route;
 
-import com.google.protobuf.Message;
-
-import java.io.Serializable;
-import java.util.function.BiFunction;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Obtains one or more entity identifiers based on a message and its context.
+ * Annotates a <strong>static</strong> method of an {@link io.spine.server.entity.Entity Entity}
+ * class for arranging message routing for this class of entities.
  *
- * @param <M>
- *         the type of messages to get IDs from
- * @param <C>
- *         the type of message context
- * @param <R>
- *         the type of the route function result
+ * <p>The method must accept a {@link io.spine.base.SignalMessage SignalMessage} as the first
+ * parameter, and <em>may</em> contain corresponding
+ * {@link io.spine.base.MessageContext MessageContext} as the second parameter.
+ *
+ * <p>The method <em>must</em> return one identifier of type {@code <I>} for {@link Unicast}
+ * dispatching, and <em>may</em> return an {@code Iterable<I>}, if this message can be dispatched
+ * via {@linkplain Multicast multicast}.
+ *
+ * <p>When used in Java, the method <strong>must</strong> be either package-private or
+ * {@code protected} for being accessible from the generated code in the same package.
+ * <p>The {@code protected} modifier should be used <em>only</em> in the very rare cases of
+ * dealing with {@linkplain io.spine.core.ContractFor entity class hierarchies}.
+ *
+ * <p>When used in Kotlin, the methods <strong>must</strong> be {@code internal},
+ * with the {@code @Route} annotation of a companion object function.
+ *
+ * <p>Using the annotated functions, Spine Compiler will generate classes implementing
+ * the {@link io.spine.server.route.setup.RoutingSetup RoutingSetup} interface.
+ * Repositories will use these classes for configuring their routing schemas.
+ *
+ * @see io.spine.server.route.setup.RoutingSetup
+ * @see io.spine.server.entity.EventDispatchingRepository#setupEventRouting(EventRouting)
+ * @see io.spine.server.aggregate.AggregateRepository#setupCommandRouting(CommandRouting)
  */
-@FunctionalInterface
-public interface Route<M extends Message, C extends Message, R>
-        extends BiFunction<M, C, R>, Serializable {
-
-    /**
-     * Obtains entity ID(s) from the passed message and its context.
-     *
-     * @param message
-     *         the event or a command message
-     * @param context
-     *         the context of the message
-     * @return the set of entity identifiers
-     * @apiNote This method overrides the one from {@code BiFunction} for more clarity in
-     *         Javadoc references. Without overriding it will be {@code #apply(Object, Object)}
-     *         which may be confusing in the context of event routing.
-     */
-    @Override
-    R apply(M message, C context);
+@SuppressWarnings("JavadocReference") // We reference protected methods of repository classes.
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface Route {
 }

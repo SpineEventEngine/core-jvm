@@ -30,7 +30,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.core.Event;
 import io.spine.core.EventId;
-import io.spine.logging.Logging;
 import io.spine.server.dispatch.BatchDispatchOutcome;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.EntityLifecycleMonitor;
@@ -60,15 +59,14 @@ import static io.spine.protobuf.AnyPacker.unpack;
 abstract class AggregateEndpoint<I,
                                  A extends Aggregate<I, ?, ?>,
                                  M extends SignalEnvelope<?, ?, ?>>
-        extends EntityMessageEndpoint<I, A, M>
-        implements Logging {
+        extends EntityMessageEndpoint<I, A, M> {
 
     AggregateEndpoint(AggregateRepository<I, A, ?> repository, M envelope) {
         super(repository, envelope);
     }
 
     @Override
-    public final void dispatchTo(I aggregateId) {
+    protected final DispatchOutcome performDispatch(I aggregateId) {
         var aggregate = loadOrCreate(aggregateId);
         var flagsBefore = aggregate.lifecycleFlags();
         var outcome = handleAndApplyEvents(aggregate);
@@ -79,6 +77,7 @@ abstract class AggregateEndpoint<I,
             repository().lifecycleOf(aggregateId)
                         .onDispatchingFailed(envelope(), error);
         }
+        return outcome;
     }
 
     private void storeAndPost(A aggregate, DispatchOutcome outcome, LifecycleFlags flagsBefore) {
@@ -152,7 +151,7 @@ abstract class AggregateEndpoint<I,
      * @param commandOutcome
      *         the successful command outcome
      * @param eventDispatch
-     *         the result of event applying
+     *         the result of applying the event
      * @return the same command outcome but with the events of the correct versions
      * @implNote After the versions are corrected, the resulting message isn't validated
      *         again, as it comes in a valid state and the versions are all fine.

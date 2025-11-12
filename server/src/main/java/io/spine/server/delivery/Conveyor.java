@@ -26,10 +26,10 @@
 
 package io.spine.server.delivery;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Sets;
 import com.google.protobuf.Duration;
 import com.google.protobuf.util.Timestamps;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.Time;
 
 import java.util.ArrayList;
@@ -54,13 +54,13 @@ import static java.util.stream.Collectors.toList;
  * <p>Collects the state updates of the messages and allows to flush the pending changes to the
  * respective {@link InboxStorage} in a bulk.
  *
- * <p>By accessing the {@linkplain DeliveredMessages cache}, knows which messages were marked
+ * <p>By accessing the {@linkplain DeliveredMessagesCache cache}, knows which messages were marked
  * delivered by the instances of {@code Conveyor} in the previous {@code DeliveryStage}s.
  */
 final class Conveyor implements Iterable<InboxMessage> {
 
     private final Map<InboxMessageId, InboxMessage> messages = new LinkedHashMap<>();
-    private final DeliveredMessages deliveredMessages;
+    private final DeliveredMessagesCache deliveredMessagesCache;
     private final Set<InboxMessageId> dirtyMessages = new HashSet<>();
     private final Set<InboxMessage> removals = new HashSet<>();
     private final Set<InboxMessage> duplicates = new HashSet<>();
@@ -71,11 +71,11 @@ final class Conveyor implements Iterable<InboxMessage> {
      *
      * @param messages
      *         messages to process
-     * @param deliveredMessages
+     * @param deliveredMessagesCache
      *         cache of the previously delivered messages
      */
-    Conveyor(Collection<InboxMessage> messages, DeliveredMessages deliveredMessages) {
-        this.deliveredMessages = deliveredMessages;
+    Conveyor(Collection<InboxMessage> messages, DeliveredMessagesCache deliveredMessagesCache) {
+        this.deliveredMessagesCache = deliveredMessagesCache;
         for (var message : messages) {
             this.messages.put(message.getId(), message);
         }
@@ -89,15 +89,21 @@ final class Conveyor implements Iterable<InboxMessage> {
         return new ArrayList<>(messages.values()).iterator();
     }
 
-    private void markDelivered(InboxMessage message) {
+    /**
+     * Marks the passed message as {@link InboxMessageStatus#DELIVERED DELIVERED}.
+     *
+     * <p>The change made will be reflected in the storage upon the next
+     * {@link #flushTo(InboxStorage) flushTo(InboxStorage)} invocation.
+     */
+    void markDelivered(InboxMessage message) {
         changeStatus(message, DELIVERED);
-        deliveredMessages.recordDelivered(message);
+        deliveredMessagesCache.recordDelivered(message);
     }
 
     /**
      * Marks all the passed messages as {@link InboxMessageStatus#DELIVERED DELIVERED}.
      *
-     * <p>Produced the bulk change to the storage, pending until the next
+     * <p>Produces the bulk change to the storage, pending until the next
      * {@link #flushTo(InboxStorage) flushTo(InboxStorage)} invocation.
      */
     void markDelivered(Collection<InboxMessage> messages) {
@@ -185,13 +191,13 @@ final class Conveyor implements Iterable<InboxMessage> {
      *
      * <p>This includes both the IDs of messages delivered within the lifetime of this conveyor
      * instance and of the messages delivered
-     * {@linkplain Conveyor#Conveyor(Collection, DeliveredMessages) before it}.
+     * {@linkplain Conveyor#Conveyor(Collection, DeliveredMessagesCache) before it}.
      */
     Set<DispatchingId> allDelivered() {
         var recentlyDelivered = recentlyDelivered()
                 .map(DispatchingId::new)
                 .collect(Collectors.toSet());
-        var result = Sets.union(recentlyDelivered, deliveredMessages.allDelivered());
+        var result = Sets.union(recentlyDelivered, deliveredMessagesCache.allDelivered());
         return result;
     }
 

@@ -40,11 +40,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * <p>All the user interactions with the system (such as
  * {@linkplain BoundedContext#register(Repository) repository registration},
  * {@linkplain BoundedContext#commandBus() command posting},
- * {@linkplain BoundedContext#findRepository(Class) query processing}, etc.) happen through
- * an instance of this class.
+ * {@linkplain BoundedContext.InternalAccess#findRepository(Class) query processing}, etc.) happen
+ * through an instance of this class.
  *
  * <p>Each {@code DomainContext} has an associated
- * {@link io.spine.system.server.SystemContext SystemContext}, which manages the meta information
+ * {@link io.spine.system.server.SystemContext SystemContext}, which manages the meta-information
  * about entities of this Bounded Context.
  *
  * @see io.spine.system.server.SystemContext SystemContext
@@ -53,8 +53,7 @@ final class DomainContext extends BoundedContext {
 
     private final SystemClient system;
 
-    private DomainContext(BoundedContextBuilder builder,
-                          SystemClient system) {
+    private DomainContext(BoundedContextBuilder builder, SystemClient system) {
         super(builder);
         this.system = checkNotNull(system);
     }
@@ -77,11 +76,9 @@ final class DomainContext extends BoundedContext {
      * {@inheritDoc}
      *
      * <p>Closes the system context as well.
-     *
-     * @throws Exception if one of the context components throws an error when closing
      */
     @Override
-    public void close() throws Exception {
+    public void close() {
         super.close();
         system.closeSystemContext();
     }

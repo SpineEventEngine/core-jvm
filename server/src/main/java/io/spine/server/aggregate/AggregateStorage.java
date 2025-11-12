@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -31,6 +31,7 @@ import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
 import io.spine.annotation.Internal;
 import io.spine.annotation.SPI;
+import io.spine.base.AggregateState;
 import io.spine.base.EntityState;
 import io.spine.client.ResponseFormat;
 import io.spine.client.TargetFilters;
@@ -40,12 +41,12 @@ import io.spine.query.EntityQuery;
 import io.spine.server.ContextSpec;
 import io.spine.server.entity.EntityRecord;
 import io.spine.server.entity.storage.EntityRecordStorage;
-import io.spine.server.entity.storage.EntityRecordWithColumns;
 import io.spine.server.entity.storage.ToEntityRecordQuery;
 import io.spine.server.storage.AbstractStorage;
 import io.spine.server.storage.QueryConverter;
+import io.spine.server.storage.RecordWithColumns;
 import io.spine.server.storage.StorageFactory;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.Optional;
@@ -123,7 +124,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  *
  */
 @SPI
-public class AggregateStorage<I, S extends EntityState<I>>
+public class AggregateStorage<I, S extends AggregateState<I>>
         extends AbstractStorage<I, AggregateHistory> {
 
     private static final String TRUNCATE_ON_WRONG_SNAPSHOT_MESSAGE =
@@ -300,7 +301,7 @@ public class AggregateStorage<I, S extends EntityState<I>>
      *         the record to write
      */
     protected void writeEventRecord(I id, AggregateEventRecord record) {
-        eventStorage.write(record.getId(), record);
+        eventStorage.write(record);
     }
 
     /**
@@ -368,14 +369,12 @@ public class AggregateStorage<I, S extends EntityState<I>>
     }
 
     private Class<? extends EntityState<?>> stateClass() {
-        return stateStorage.recordSpec()
-                           .entityClass()
-                           .stateClass();
+        return stateStorage.stateClass();
     }
 
     protected void writeState(Aggregate<I, ?, ?> aggregate) {
         var record = AggregateRecords.newStateRecord(aggregate, queryingEnabled);
-        var result = EntityRecordWithColumns.create(aggregate, record);
+        var result = RecordWithColumns.create(record, stateStorage.recordSpec());
         stateStorage.write(result);
     }
 
@@ -417,7 +416,9 @@ public class AggregateStorage<I, S extends EntityState<I>>
      */
     protected Iterator<AggregateEventRecord>
     historyBackward(I id, int batchSize, @Nullable Version startingFrom) {
-        return historyBackward.read(id, batchSize, startingFrom);
+        var original = historyBackward.read(id, batchSize, startingFrom);
+        var copied = ImmutableList.copyOf(original);
+        return copied.iterator();
     }
 
     /**
@@ -453,6 +454,7 @@ public class AggregateStorage<I, S extends EntityState<I>>
      *         if the {@code snapshotIndex} is negative
      */
     @Internal
+    @SuppressWarnings("LenientFormatStringValidation")
     public void truncateOlderThan(int snapshotIndex, Timestamp date) {
         checkNotNull(date);
         checkArgument(snapshotIndex >= 0, TRUNCATE_ON_WRONG_SNAPSHOT_MESSAGE, snapshotIndex);

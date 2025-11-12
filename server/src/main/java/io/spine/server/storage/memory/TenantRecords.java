@@ -27,21 +27,18 @@
 package io.spine.server.storage.memory;
 
 import com.google.common.collect.Iterators;
-import com.google.protobuf.Any;
 import com.google.protobuf.FieldMask;
 import com.google.protobuf.Message;
 import io.spine.query.RecordQuery;
 import io.spine.query.Subject;
-import io.spine.server.entity.EntityRecord;
+import io.spine.server.storage.FieldMaskApplier;
 import io.spine.server.storage.RecordWithColumns;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -79,7 +76,6 @@ final class TenantRecords<I, R extends Message>
      */
     public Iterator<I> index(RecordQuery<I, R> query) {
         var subset = findRecords(query);
-        @SuppressWarnings("ConstantConditions")  // Elements of the returned list are non-`null`.
         var result = Iterators.transform(subset.iterator(), RecordWithColumns::id);
         return result;
     }
@@ -95,7 +91,7 @@ final class TenantRecords<I, R extends Message>
      * <p>If there is no such a message stored, returns {@code Optional.empty()}.
      */
     public Optional<R> get(I id, FieldMask mask) {
-        return get(id).map(r -> new FieldMaskApplier(mask).apply(r.record()));
+        return get(id).map(r -> new FieldMaskApplier<R>(mask).apply(r.record()));
     }
 
     @Override
@@ -113,7 +109,7 @@ final class TenantRecords<I, R extends Message>
         var records = findRecords(query);
         return records.stream()
                 .map(RecordWithColumns::record)
-                .map(new FieldMaskApplier(fieldMask))
+                .map(new FieldMaskApplier<>(fieldMask))
                 .iterator();
     }
 
@@ -131,7 +127,7 @@ final class TenantRecords<I, R extends Message>
         var stream = data;
         var sortingSpecs = query.sorting();
         if (sortingSpecs.size() > 0) {
-            stream = stream.sorted(accordingTo(sortingSpecs.asList()));
+            stream = stream.sorted(accordingTo(sortingSpecs));
         }
         var limit = query.limit();
         if (limit != null && limit > 0) {
@@ -152,50 +148,5 @@ final class TenantRecords<I, R extends Message>
     @Override
     public boolean isEmpty() {
         return records.isEmpty();
-    }
-
-    /**
-     * A {@link Function} transforming the {@link EntityRecord} state by applying the given
-     * {@link FieldMask} to it.
-     *
-     * <p>The resulting {@link EntityRecord} has the same fields as the given one except
-     * the {@code state} field, which is masked.
-     */
-    private class FieldMaskApplier implements Function<R, R> {
-
-        private final FieldMask fieldMask;
-
-        private FieldMaskApplier(FieldMask fieldMask) {
-            this.fieldMask = fieldMask;
-        }
-
-        @SuppressWarnings("unchecked")
-        @Override
-        public @Nullable R apply(@Nullable R input) {
-            if (null == input || fieldMask.getPathsList()
-                                          .isEmpty()) {
-                return input;
-            }
-            if (input instanceof EntityRecord) {
-                return (R) maskEntityRecord((EntityRecord) input);
-            }
-            return applyMask(fieldMask, input);
-        }
-
-        private EntityRecord maskEntityRecord(EntityRecord input) {
-            checkNotNull(input);
-            var maskedState = maskAny(input.getState());
-            var result = EntityRecord.newBuilder(input)
-                    .setState(maskedState)
-                    .build();
-            return result;
-        }
-
-        private Any maskAny(Any message) {
-            var stateMessage = unpack(message);
-            var maskedMessage = applyMask(fieldMask, stateMessage);
-            var result = pack(maskedMessage);
-            return result;
-        }
     }
 }

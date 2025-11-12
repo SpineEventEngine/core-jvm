@@ -29,7 +29,7 @@ package io.spine.server.tenant;
 import io.spine.base.Time;
 import io.spine.core.TenantId;
 import io.spine.server.ContextSpec;
-import io.spine.server.storage.MessageRecordSpec;
+import io.spine.server.storage.RecordSpec;
 import io.spine.server.storage.StorageFactory;
 
 /**
@@ -50,8 +50,8 @@ final class DefaultTenantStorage extends TenantStorage<Tenant> {
     }
 
     @SuppressWarnings("ConstantConditions")     // Protobuf getters do not return {@code null}s.
-    private static MessageRecordSpec<TenantId, Tenant> spec() {
-        return new MessageRecordSpec<>(TenantId.class, Tenant.class, Tenant::getId);
+    private static RecordSpec<TenantId, Tenant> spec() {
+        return new RecordSpec<>(TenantId.class, Tenant.class, Tenant::getId);
     }
 
     @Override

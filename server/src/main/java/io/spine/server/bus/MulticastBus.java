@@ -60,9 +60,12 @@ public abstract class MulticastBus<M extends Signal<?, ?, ?>,
     /**
      * Call the dispatchers for the {@code messageEnvelope}.
      *
-     * @param messageEnvelope the message envelope to pass to the dispatchers
+     * @param messageEnvelope
+     *         the message envelope to pass to the dispatchers
      * @return the number of the dispatchers called or {@code 0} if there weren't any
      */
+    @SuppressWarnings("ResultOfMethodCallIgnored"
+            /* Dispatching outcomes are reported via system events, if needed. */)
     protected int callDispatchers(E messageEnvelope) {
         Collection<D> dispatchers = registry().dispatchersOf(messageEnvelope);
         for (var dispatcher : dispatchers) {

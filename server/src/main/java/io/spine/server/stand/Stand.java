@@ -25,36 +25,36 @@
  */
 package io.spine.server.stand;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.grpc.stub.StreamObserver;
 import io.spine.annotation.Internal;
-import io.spine.base.Identifier;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.client.EntityStateWithVersion;
 import io.spine.client.Query;
 import io.spine.client.QueryResponse;
 import io.spine.client.Subscription;
+import io.spine.client.SubscriptionId;
 import io.spine.client.Topic;
 import io.spine.core.Origin;
 import io.spine.core.Response;
 import io.spine.core.Responses;
-import io.spine.protobuf.AnyPacker;
+import io.spine.server.Closeable;
 import io.spine.server.EventProducer;
 import io.spine.server.Identity;
 import io.spine.server.bus.Listener;
 import io.spine.server.entity.Entity;
 import io.spine.server.entity.EntityLifecycle;
-import io.spine.server.entity.EntityRecord;
 import io.spine.server.entity.EntityRecordChange;
 import io.spine.server.entity.Repository;
+import io.spine.server.entity.StorageConverter;
 import io.spine.server.tenant.QueryOperation;
 import io.spine.server.tenant.SubscriptionOperation;
 import io.spine.server.tenant.TenantAwareOperation;
 import io.spine.server.type.EventEnvelope;
 import io.spine.system.server.event.EntityStateChanged;
 import io.spine.type.TypeUrl;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 
@@ -82,8 +82,7 @@ import static io.spine.grpc.StreamObservers.ack;
  * @see <a href="https://spine.io/docs/concepts/diagrams/spine-architecture-diagram-full-screen.html">
  *     Spine Architecture Diagram</a>
  */
-@SuppressWarnings("OverlyCoupledClass")
-public class Stand implements AutoCloseable {
+public class Stand implements Closeable {
 
     /**
      * Used to return an empty result collection for {@link Query}.
@@ -145,15 +144,11 @@ public class Stand implements AutoCloseable {
      */
     @VisibleForTesting
     void post(Entity<?, ?> entity, EntityLifecycle lifecycle) {
-        var id = Identifier.pack(entity.id());
-        var state = AnyPacker.pack(entity.state());
-        var record = EntityRecord.newBuilder()
-                .setEntityId(id)
-                .setState(state)
-                .vBuild();
+        var record = StorageConverter.toEntityRecord(entity)
+                                     .build();
         var change = EntityRecordChange.newBuilder()
                 .setNewValue(record)
-                .vBuild();
+                .build();
         var origin = Identity.byString("Stand-received-entity-update");
         lifecycle.onStateChanged(change,
                                  ImmutableSet.of(origin),
@@ -237,7 +232,6 @@ public class Stand implements AutoCloseable {
         checkNotNull(callback);
 
         subscriptionValidator.validate(subscription);
-
         var op = new SubscriptionOperation(subscription) {
             @Override
             public void run() {
@@ -245,7 +239,6 @@ public class Stand implements AutoCloseable {
                 ack(responseObserver);
             }
         };
-
         op.execute();
     }
 
@@ -271,8 +264,10 @@ public class Stand implements AutoCloseable {
         var op = new SubscriptionOperation(subscription) {
             @Override
             public void run() {
-                subscriptionRegistry.remove(subscription);
-                ack(responseObserver);
+                if(subscriptionRegistry.containsId(subscription.getId())) {
+                    subscriptionRegistry.remove(subscription);
+                    ack(responseObserver);
+                }
             }
         };
         op.execute();
@@ -370,11 +365,16 @@ public class Stand implements AutoCloseable {
         eventRegistry.register(producer);
     }
 
+    @Override
+    public boolean isOpen() {
+        return typeRegistry.isOpen();
+    }
+
     /**
      * Closes the {@code Stand} performing necessary cleanups.
      */
     @Override
-    public void close() throws Exception {
+    public void close() {
         typeRegistry.close();
         eventRegistry.close();
     }
@@ -399,6 +399,14 @@ public class Stand implements AutoCloseable {
             return new EntityQueryProcessor(recordRepo);
         }
         return NO_OP_PROCESSOR;
+    }
+
+    /**
+     * Tells whether this context has a subscription with the given ID.
+     */
+    @Internal
+    public boolean hasSubscription(SubscriptionId id) {
+        return subscriptionRegistry.containsId(id);
     }
 
     public static class Builder {

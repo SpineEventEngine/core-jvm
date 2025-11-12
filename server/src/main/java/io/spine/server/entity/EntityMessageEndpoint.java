@@ -27,7 +27,7 @@
 package io.spine.server.entity;
 
 import io.spine.annotation.Internal;
-import io.spine.server.delivery.MessageEndpoint;
+import io.spine.server.delivery.AbstractMessageEndpoint;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.type.SignalEnvelope;
 
@@ -46,17 +46,14 @@ import io.spine.server.type.SignalEnvelope;
 public abstract class EntityMessageEndpoint<I,
                                             E extends Entity<I, ?>,
                                             M extends SignalEnvelope<?, ?, ?>>
-        implements MessageEndpoint<I, M> {
+        extends AbstractMessageEndpoint<I, M> {
 
     /** The repository which created this endpoint. */
     private final Repository<I, E> repository;
 
-    /** The message which needs to dispatched. */
-    private final M envelope;
-
     protected EntityMessageEndpoint(Repository<I, E> repository, M envelope) {
+        super(envelope);
         this.repository = repository;
-        this.envelope = envelope;
     }
 
     /**
@@ -98,13 +95,6 @@ public abstract class EntityMessageEndpoint<I,
      * the entity in response to the message.
      */
     protected abstract void onEmptyResult(E entity);
-
-    /**
-     * Obtains the envelope of the message processed by this endpoint.
-     */
-    protected final M envelope() {
-        return envelope;
-    }
 
     /**
      * Obtains the parent repository of this endpoint.

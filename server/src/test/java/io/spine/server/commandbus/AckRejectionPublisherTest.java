@@ -34,7 +34,7 @@ import io.spine.server.type.EventEnvelope;
 import io.spine.test.commandbus.CmdBusCaffetteriaId;
 import io.spine.test.commandbus.command.CmdBusEntryDenied;
 import io.spine.testing.client.TestActorRequestFactory;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

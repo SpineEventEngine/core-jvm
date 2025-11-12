@@ -61,6 +61,6 @@ public interface InboxMessageMixin extends ShardedRecord, InboxMessageOrBuilder 
         return InboxMessageId.newBuilder()
                              .setUuid(newUuid())
                              .setIndex(index)
-                             .vBuild();
+                             .build();
     }
 }

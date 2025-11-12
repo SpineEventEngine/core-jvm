@@ -108,8 +108,8 @@ public final class SystemContext extends BoundedContext {
     /**
      * {@inheritDoc}
      *
-     * <p>Since a system bounded context does not have an associated system bounded context, returns
-     * a {@link NoOpSystemWriteSide} instance.
+     * <p>Since the System context does not have an associated System context of its own,
+     * the method returns a {@link NoOpSystemWriteSide} instance.
      */
     @Override
     public NoOpSystemClient systemClient() {

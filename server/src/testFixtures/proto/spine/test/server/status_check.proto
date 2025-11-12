@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package spine.test.server;
+
+import "spine/options.proto";
+
+option (type_url_prefix) = "type.spine.io";
+option java_package = "io.spine.test.server";
+option java_outer_classname = "StatusCheckProto";
+option java_multiple_files = true;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+// A gRPC service for `io.spine.server.Server` tests.
+service StatusCheck {
+
+    rpc check(google.protobuf.Empty) returns (Status);
+}
+
+message Status {
+
+    ServerStatus status = 1;
+
+    google.protobuf.Timestamp last_updated = 2;
+}
+
+enum ServerStatus {
+
+    SERVER_STATUS_UNKNOWN = 0;
+
+    OK = 1;
+    STARTING = 2;
+    SHUTTING_DOWN = 3;
+    DOWN = 4;
+}

@@ -59,7 +59,6 @@ import java.util.function.Supplier;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.reverse;
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth8.assertThat;
 import static com.google.protobuf.util.FieldMaskUtil.fromFieldNumbers;
 import static io.spine.client.CompositeFilter.CompositeOperator.ALL;
 import static io.spine.client.Filters.all;
@@ -319,7 +318,7 @@ class RecordBasedRepositoryTest<E extends AbstractEntity<I, S>, I, S extends Ent
 
             var format = ResponseFormat.newBuilder()
                     .addOrderBy(orderByName(ASCENDING))
-                    .vBuild();
+                    .build();
             var readEntities = repository().loadAll(format);
             Collection<E> foundList = newArrayList(readEntities);
 
@@ -336,7 +335,7 @@ class RecordBasedRepositoryTest<E extends AbstractEntity<I, S>, I, S extends Ent
 
             var format = ResponseFormat.newBuilder()
                     .addOrderBy(orderByName(DESCENDING))
-                    .vBuild();
+                    .build();
             var readEntities = repository().loadAll(format);
             Collection<E> foundList = newArrayList(readEntities);
 
@@ -355,7 +354,7 @@ class RecordBasedRepositoryTest<E extends AbstractEntity<I, S>, I, S extends Ent
             var format = ResponseFormat.newBuilder()
                     .addOrderBy(orderByName(ASCENDING))
                     .setLimit(limit)
-                    .vBuild();
+                    .build();
             var readEntities = repository().loadAll(format);
             Collection<E> foundList = newArrayList(readEntities);
 
@@ -399,7 +398,7 @@ class RecordBasedRepositoryTest<E extends AbstractEntity<I, S>, I, S extends Ent
         private Iterator<E> find(TargetFilters filters, FieldMask firstFieldOnly) {
             var format = ResponseFormat.newBuilder()
                     .setFieldMask(firstFieldOnly)
-                    .vBuild();
+                    .build();
             return repository().find(filters, format);
         }
 

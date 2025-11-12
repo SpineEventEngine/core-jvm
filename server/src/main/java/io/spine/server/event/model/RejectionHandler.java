@@ -28,7 +28,7 @@ package io.spine.server.event.model;
 
 import com.google.errorprone.annotations.Immutable;
 import io.spine.server.model.DispatchKey;
-import io.spine.server.model.HandlerMethod;
+import io.spine.server.model.Receptor;
 import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
 import io.spine.type.MessageClass;
@@ -43,7 +43,7 @@ import io.spine.type.MessageClass;
  */
 @Immutable
 interface RejectionHandler<T, R extends MessageClass<?>>
-        extends HandlerMethod<T, EventClass, EventEnvelope, R> {
+        extends Receptor<T, EventClass, EventEnvelope, R> {
 
     /**
      * Obtains the specification of parameters for this method.
@@ -67,6 +67,6 @@ interface RejectionHandler<T, R extends MessageClass<?>>
             var dispatchKey = RejectionDispatchKeys.of(messageClass(), rawMethod());
             return dispatchKey;
         }
-        return HandlerMethod.super.key();
+        return Receptor.super.key();
     }
 }

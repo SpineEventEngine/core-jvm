@@ -77,7 +77,7 @@ final class ClassMap {
      *        it will be replaced with the new class obtained from the supplier.
      * @param supplier a supplier of a model class
      * @return the instance of the model class corresponding to the raw class
-     * @throws DuplicateCommandHandlerError
+     * @throws DuplicateCommandReceptorError
      *         if the passed class handles commands that are already handled
      */
     <T, M extends ModelClass<T>>
@@ -126,7 +126,7 @@ final class ClassMap {
     }
 
     private void checkDuplicates(CommandHandlingClass<?, ?> candidate)
-            throws DuplicateCommandHandlerError {
+            throws DuplicateCommandReceptorError {
         Set<CommandClass> candidateCommands = candidate.commands();
         ImmutableMap.Builder<Set<CommandClass>, CommandHandlingClass<?, ?>> duplicates =
                 ImmutableMap.builder();
@@ -145,7 +145,7 @@ final class ClassMap {
 
         var currentHandlers = duplicates.build();
         if (!currentHandlers.isEmpty()) {
-            throw new DuplicateCommandHandlerError(candidate, currentHandlers);
+            throw new DuplicateCommandReceptorError(candidate, currentHandlers);
         }
     }
 }

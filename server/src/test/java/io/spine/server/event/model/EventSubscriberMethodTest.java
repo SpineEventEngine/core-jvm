@@ -28,6 +28,7 @@ package io.spine.server.event.model;
 
 import com.google.common.testing.NullPointerTester;
 import com.google.protobuf.Any;
+import io.spine.base.Identifier;
 import io.spine.core.Event;
 import io.spine.core.EventContext;
 import io.spine.server.event.model.given.subscriber.ExternalSubscriber;
@@ -37,6 +38,8 @@ import io.spine.server.event.model.given.subscriber.ValidOneParam;
 import io.spine.server.model.SignalOriginMismatchError;
 import io.spine.server.model.given.Given;
 import io.spine.server.type.EventEnvelope;
+import io.spine.server.type.given.GivenEvent;
+import io.spine.test.reflect.ProjectId;
 import io.spine.test.reflect.event.RefProjectCreated;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -80,6 +83,8 @@ class EventSubscriberMethodTest {
         var msg = Given.EventMessage.projectCreated();
 
         var event = Event.newBuilder()
+                .setId(GivenEvent.someId())
+                .setContext(GivenEvent.context())
                 .setMessage(pack(msg))
                 .build();
 
@@ -125,11 +130,16 @@ class EventSubscriberMethodTest {
             var created = signature.classify(method);
             assertTrue(created.isPresent());
             var modelMethod = created.get();
-            var context = EventContext.newBuilder()
+            var context = GivenEvent.context()
+                    .toBuilder()
                     .setExternal(external)
                     .build();
+            var eventMessage = RefProjectCreated.newBuilder()
+                    .setProjectId(ProjectId.newBuilder().setId(Identifier.newUuid()))
+                    .build();
             var event = Event.newBuilder()
-                    .setMessage(pack(RefProjectCreated.getDefaultInstance()))
+                    .setId(GivenEvent.someId())
+                    .setMessage(pack(eventMessage))
                     .setContext(context)
                     .build();
             var envelope = EventEnvelope.of(event);

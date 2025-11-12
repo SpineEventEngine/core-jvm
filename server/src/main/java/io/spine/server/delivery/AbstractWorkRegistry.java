@@ -50,7 +50,7 @@ import static io.spine.base.Time.currentTime;
 public abstract class AbstractWorkRegistry implements ShardedWorkRegistry {
 
     @Override
-    public Optional<ShardProcessingSession> pickUp(ShardIndex index, NodeId node) {
+    public PickUpOutcome pickUp(ShardIndex index, NodeId node) {
         checkNotNull(index);
         checkNotNull(node);
 
@@ -60,20 +60,21 @@ public abstract class AbstractWorkRegistry implements ShardedWorkRegistry {
         return session;
     }
 
-    private Optional<ShardProcessingSession> pickUp(ShardIndex index, WorkerId worker) {
+    private PickUpOutcome pickUp(ShardIndex index, WorkerId worker) {
         var optionalRecord = find(index);
         if (optionalRecord.isEmpty()) {
             var newRecord = createRecord(index, worker);
-            return Optional.of(asSession(newRecord));
+            return PickUpOutcomeMixin.pickedUp(newRecord);
         }
 
         var record = optionalRecord.get();
         if (hasWorker(record)) {
-            return Optional.empty();
+            return PickUpOutcomeMixin
+                    .alreadyPicked(record.getWorker(), record.getWhenLastPicked());
         }
 
         var updatedRecord = updateNode(record, worker);
-        return Optional.of(asSession(updatedRecord));
+        return PickUpOutcomeMixin.pickedUp(updatedRecord);
     }
 
     /**
@@ -95,7 +96,7 @@ public abstract class AbstractWorkRegistry implements ShardedWorkRegistry {
                 .setIndex(index)
                 .setWorker(worker)
                 .setWhenLastPicked(currentTime())
-                .vBuild();
+                .build();
         write(newRecord);
         return newRecord;
     }
@@ -160,9 +161,4 @@ public abstract class AbstractWorkRegistry implements ShardedWorkRegistry {
      *         the registry
      */
     protected abstract Optional<ShardSessionRecord> find(ShardIndex index);
-
-    /**
-     * Restores a {@link ShardProcessingSession} from the given session record.
-     */
-    protected abstract ShardProcessingSession asSession(ShardSessionRecord record);
 }

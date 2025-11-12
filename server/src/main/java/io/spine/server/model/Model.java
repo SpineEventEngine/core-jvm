@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -26,10 +26,10 @@
 
 package io.spine.server.model;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import io.spine.annotation.Internal;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.code.java.ClassName;
 import io.spine.core.BoundedContext;
 import io.spine.core.BoundedContextName;
@@ -52,7 +52,7 @@ import static io.spine.util.Exceptions.illegalStateWithCauseOf;
 public class Model {
 
     /**
-     * Maps a raw class of a model object to corresponding Model instance.
+     * Maps a raw class of a model object to a corresponding Model instance.
      */
     private static final Map<Class<?>, Model> models = newConcurrentMap();
 
@@ -94,7 +94,7 @@ public class Model {
 
         // If no name of a Bounded Context found, assume the default name.
         // This is a safety net for newcomers and our tests.
-        // We may want to make this check strict, and require specifying Bounded Context names.
+        // We may want to make this check strict and require specifying Bounded Context names.
         var context = optional.orElseGet(BoundedContextNames::assumingTests);
 
         // Try to find a Model if it already exists.
@@ -149,7 +149,7 @@ public class Model {
      * Clears the classes already added to the {@code Model}.
      *
      * <p>This method can be useful when multiple Spine projects are processed under the same
-     * static context, e.g. in tests.
+     * static context, e.g., in tests.
      */
     private void clear() {
         classes.clear();
@@ -171,7 +171,7 @@ public class Model {
      * <p>This method must <em>not</em> be called from the production code.
      *
      * @throws SecurityException
-     *         if called directly by non-authorized class
+     *         if called directly by a non-authorized class
      * @apiNote This method <em>may</em> be called indirectly from authorized tool classes
      *         or test utility classes.
      */

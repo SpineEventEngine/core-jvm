@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package io.spine.core
 
 import kotlin.annotation.AnnotationRetention.RUNTIME
@@ -42,6 +43,7 @@ import kotlin.reflect.KClass
  *
  * Example.
  * The abstract base that defines the contract method:
+ *
  * ```java
  *   public abstract class ProjectCreatedSubscriber extends AbstractEventSubscriber {
  *
@@ -53,7 +55,9 @@ import kotlin.reflect.KClass
  *       protected final boolean isAdmin(UserId user) { /* ... */ }
  *   }
  * ```
+ *
  * The implementation:
+ *
  * ```java
  *   public final class LoggingSubscriber extends ProjectCreatedSubscriber {
  *
@@ -66,13 +70,16 @@ import kotlin.reflect.KClass
  *
  * Note that the contract method serves only for convenience. It has no effect on signal processing.
  * There are no changes to the default signal dispatching either.
- * For example, commands can only have one handler method. Adding a contract method does not change
- * that. Yet, command handler methods can have contracts. For example, if the contract
- * is generalized, i.e. the method accepts an argument of a generic type, then
+ *
+ * For example, commands can only have one handler method. Adding a contract method does
+ * not change that. Yet, command handler methods can have contracts. If the contract
+ * is generalized, i.e., the method accepts an argument of a generic type, then
  * the contract implementations may accept different types of commands, while still maintaining
- * a shared portion of the contract. Consider the following example.
- * Here is an abstract commander definition:
- * ```
+ * a shared portion of the contract.
+ *
+ * Consider the following example. Here is an abstract commander definition:
+ *
+ * ```kotlin
  *   abstract class SplittingCommander<C : CommandMessage> : AbstractCommander() {
  *
  *       @ContractFor(handler = Command::class)
@@ -80,7 +87,8 @@ import kotlin.reflect.KClass
  *   }
  * ```
  * And here are the implementations:
- * ```
+ *
+ * ```kotlin
  *   class PaymentSafety : SplittingCommander<InvalidatePaymentMethod> {
  *
  *       @Command

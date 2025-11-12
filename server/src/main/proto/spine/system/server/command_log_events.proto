@@ -109,7 +109,7 @@ message CommandErrored {
     core.CommandId id = 1;
 
     // The runtime error.
-    base.Error error = 2 [(validate) = true];
+    base.Error error = 2;
 }
 
 // An event emitted if the command cannot be handled due to a business rejection.

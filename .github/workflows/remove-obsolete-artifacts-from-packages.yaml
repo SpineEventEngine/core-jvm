@@ -1,0 +1,73 @@
+#
+# Periodically removes obsolete artifacts from GitHub Packages.
+#
+# Only non-release artifacts—those containing "SNAPSHOT" in their version name—are eligible
+# for removal. The latest non-release artifacts will be retained, with the exact number determined
+# by the `VERSION_COUNT_TO_KEEP` environment variable.
+#
+# Please note the following details:
+#
+# 1. An artifact cannot be deleted if it is public and has been downloaded more than 5,000 times.
+#   In this scenario, contact GitHub support for further assistance.
+#
+# 2. This workflow only applies to artifacts published from this repository.
+#
+# 3. A maximum of 100 artifacts can be removed per run from each package;
+#   if there are more than 100 obsolete artifacts, either manually restart the workflow
+#   or wait for the next scheduled removal.
+#
+# 4. When artifacts with version `x.x.x-SNAPSHOT` are published, GitHub automatically appends
+#   the current timestamp, resulting in versions like `x.x.x-SNAPSHOT.20241024.173759`.
+#   All such artifacts are grouped into one package and treated as a single package
+#   in GitHub Packages with the version `x.x.x-SNAPSHOT`. Consequently, it is not possible
+#   to remove obsolete versions within a package; only the entire package can be deleted.
+#
+
+name: Remove obsolete Maven artifacts from GitHub Packages
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Run every day at midnight.
+
+env:
+  VERSION_COUNT_TO_KEEP: 5  # Number of most recent SNAPSHOT versions to retain.
+
+jobs:
+  retrieve-package-names:
+    name: Retrieve the package names published from this repository
+    runs-on: ubuntu-latest
+    outputs:
+      package-names: ${{ steps.request-package-names.outputs.package-names }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+
+      - name: Retrieve the names of packages
+        id: request-package-names
+        shell: bash
+        run: |
+          repoName=$(echo ${{ github.repository }} | cut -d '/' -f2)
+          chmod +x ./config/scripts/request-package-names.sh
+          ./config/scripts/request-package-names.sh ${{ github.token }} \
+                $repoName ${{ github.repository_owner }} ./package-names.json
+          echo "package-names=$(<./package-names.json)" >> $GITHUB_OUTPUT
+
+  delete-obsolete-artifacts:
+    name: Remove obsolete artifacts published from this repository to GitHub Packages
+    needs: retrieve-package-names
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package-name: ${{ fromJson(needs.retrieve-package-names.outputs.package-names) }}
+    steps:
+      - name: Remove obsolete artifacts from '${{ matrix.package-name }}' package
+        uses: actions/delete-package-versions@v5
+        with:
+          owner: ${{ github.repository_owner }}
+          package-name: ${{ matrix.package-name }}
+          package-type: 'maven'
+          token: ${{ github.token }}
+          min-versions-to-keep: ${{ env.VERSION_COUNT_TO_KEEP }}
+          # Ignores artifacts that do not contain the word "SNAPSHOT".
+          ignore-versions: '^(?!.+SNAPSHOT).*$'

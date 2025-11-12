@@ -248,7 +248,7 @@ class RepositoryTest {
         var stateWithVersion = entity.state()
                 .toBuilder()
                 .setId(id)
-                .vBuild();
+                .build();
         TestTransaction.injectState(entity, stateWithVersion, Versions.zero());
         repository.store(entity);
     }

@@ -38,11 +38,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * A timout value with a unit.
  *
  * @implNote This class is created instead of reusing {@code okio.Timeout} to avoid
- *         dependency on the library which is a transitive dependency of gRPC.
+ *         dependency on the library, which is a transitive dependency of gRPC.
  *         Also, {@code okio.Timeout} does a lot more than we need in this package.
  */
 @Immutable
-final class Timeout {
+public final class Timeout {
 
     private final long value;
     private final TimeUnit unit;

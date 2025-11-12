@@ -34,8 +34,8 @@ import io.grpc.stub.StreamObserver;
 import io.spine.base.EventMessage;
 import io.spine.core.Event;
 import io.spine.core.EventContext;
-import io.spine.logging.Logging;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import io.spine.logging.WithLogging;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,7 +49,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * <p>A consumer of an event can accept {@linkplain EventConsumer event message and its context}
  * or {@linkplain Consumer only event message}.
  */
-final class MultiEventConsumers implements Logging {
+final class MultiEventConsumers implements WithLogging {
 
     private final
     ImmutableMap<Class<? extends EventMessage>, EventConsumers<? extends EventMessage>> map;
@@ -131,6 +131,7 @@ final class MultiEventConsumers implements Logging {
             return doPut(eventType, consumer);
         }
 
+        @CanIgnoreReturnValue
         private <E extends EventMessage>
         Builder doPut(Class<E> eventType, EventConsumer<E> ec) {
             if (map.containsKey(eventType)) {

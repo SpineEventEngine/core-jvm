@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -29,14 +29,14 @@ package io.spine.server.command.model;
 import io.spine.server.command.Command;
 import io.spine.server.command.model.given.reaction.InvalidCommander;
 import io.spine.server.command.model.given.reaction.ValidCommander;
-import io.spine.server.model.MethodSignatureTest;
+import io.spine.server.model.ReceptorSignatureTest;
 import org.junit.jupiter.api.DisplayName;
 
 import java.lang.reflect.Method;
 import java.util.stream.Stream;
 
 @DisplayName("`CommandReactionSignature` should")
-class CommandReactionSignatureTest extends MethodSignatureTest<CommandReactionSignature> {
+class CommandReactionSignatureTest extends ReceptorSignatureTest<CommandReactionSignature> {
 
     @Override
     protected Stream<Method> validMethods() {

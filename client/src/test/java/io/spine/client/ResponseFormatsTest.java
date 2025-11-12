@@ -98,6 +98,6 @@ class ResponseFormatsTest extends UtilityClassTest<ResponseFormats> {
         return OrderBy.newBuilder()
                       .setDirection(OrderBy.Direction.DESCENDING)
                       .setColumn("number_of_issues")
-                      .vBuild();
+                      .build();
     }
 }

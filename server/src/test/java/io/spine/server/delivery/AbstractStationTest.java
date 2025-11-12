@@ -65,7 +65,7 @@ abstract class AbstractStationTest {
     void doNothingOnEmptyConveyor() {
         var action = new MemoizingAction();
         var station = newStation(action);
-        var emptyConveyor = new Conveyor(new ArrayList<>(), new DeliveredMessages());
+        var emptyConveyor = new Conveyor(new ArrayList<>(), new DeliveredMessagesCache());
 
         var result = station.process(emptyConveyor);
         assertDeliveredCount(result, 0);

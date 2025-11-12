@@ -80,7 +80,7 @@ final class AggregateRecords {
                 .setAggregateId(packedId)
                 .setTimestamp(timestamp)
                 .setEvent(event)
-                .vBuild();
+                .build();
         return result;
     }
 
@@ -110,7 +110,7 @@ final class AggregateRecords {
                 .setAggregateId(Identifier.pack(aggregateId))
                 .setTimestamp(value)
                 .setSnapshot(snapshot)
-                .vBuild();
+                .build();
         return result;
     }
 
@@ -141,12 +141,12 @@ final class AggregateRecords {
             var state = aggregate.state();
             builder.setState(AnyPacker.pack(state));
         }
-        return builder.vBuild();
+        return builder.build();
     }
 
     private static AggregateEventRecordId eventRecordId(String snapshotId) {
         return AggregateEventRecordId.newBuilder()
                                      .setValue(snapshotId)
-                                     .vBuild();
+                                     .build();
     }
 }

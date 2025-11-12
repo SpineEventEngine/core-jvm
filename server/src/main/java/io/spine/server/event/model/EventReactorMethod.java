@@ -28,7 +28,7 @@ package io.spine.server.event.model;
 
 import io.spine.server.event.EventReactor;
 import io.spine.server.event.React;
-import io.spine.server.model.EventProducingMethod;
+import io.spine.server.model.EventEmitter;
 import io.spine.server.model.ParameterSpec;
 import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
@@ -41,8 +41,8 @@ import java.lang.reflect.Method;
  * @see React
  */
 public final class EventReactorMethod
-        extends EventHandlerMethod<EventReactor, EventClass>
-        implements EventProducingMethod<EventReactor, EventClass, EventEnvelope> {
+        extends EventReceptor<EventReactor, EventClass>
+        implements EventEmitter<EventReactor, EventClass, EventEnvelope> {
 
     EventReactorMethod(Method method, ParameterSpec<EventEnvelope> params) {
         super(method, params);

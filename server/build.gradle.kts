@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -24,12 +24,21 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import io.spine.internal.dependency.AutoService
-import io.spine.internal.dependency.Grpc
-import io.spine.internal.dependency.Kotlin
+import io.spine.dependency.lib.AutoService
+import io.spine.dependency.lib.Grpc
+import io.spine.dependency.lib.Kotlin
+import io.spine.dependency.local.BaseTypes
+import io.spine.dependency.local.Change
+import io.spine.dependency.local.TestLib
+import io.spine.dependency.local.Time
+import io.spine.dependency.local.Validation
+import io.spine.tools.compiler.gradle.plugin.LaunchSpineCompiler
 
-val spineBaseVersion: String by extra
-val spineBaseTypesVersion: String by extra
+plugins {
+    module
+    `java-test-fixtures`
+    id("io.spine.core-jvm")
+}
 
 dependencies {
     api(Kotlin.reflect)
@@ -38,16 +47,33 @@ dependencies {
     api(Grpc.stub)
     api(project(":client"))
 
-    AutoService.apply {
+    /*
+     * Expose Validation API on the server side.
+     *  E.g., for tuning custom validation for anti-corruption layer.
+     */
+    api(Validation.runtime)
+
+    api(Change.lib)
+
+    implementation(Grpc.inProcess)
+
+    with(AutoService) {
         testAnnotationProcessor(processor)
         testCompileOnly(annotations)
     }
     testImplementation(Grpc.nettyShaded)
-    testImplementation("io.spine.tools:spine-testlib:$spineBaseVersion")
-    testImplementation("io.spine:spine-base-types:$spineBaseTypesVersion")
-    testImplementation(project(path = ":core", configuration = "testArtifacts"))
-    testImplementation(project(path = ":client", configuration = "testArtifacts"))
-    testImplementation(project(":testutil-server"))
+
+    testImplementation(TestLib.lib)
+    testImplementation(BaseTypes.lib)
+
+    testFixturesImplementation(TestLib.lib)
+    testFixturesImplementation(Time.testLib)
+    testFixturesImplementation(AutoService.annotations)
+    val serverTestLib = project(":server-testlib")
+    testFixturesImplementation(serverTestLib)
+
+    testImplementation(Time.testLib)
+    testImplementation(serverTestLib)
 }
 
 // Copies the documentation files to the Javadoc output folder.
@@ -56,7 +82,42 @@ tasks.javadoc {
     doLast {
         copy {
             from("src/main/docs")
-            into("$buildDir/docs/javadoc")
+            into(layout.buildDirectory.dir("docs/javadoc"))
+        }
+    }
+}
+
+/**
+ * Sets remote debug options for the `launchTestFixturesProtoData` task.
+ *
+ * @param enabled if `true` the task will be suspended.
+ *
+ * @see remoteDebug
+ */
+fun Project.testFixturesSpineCompilerDebug(enabled: Boolean = false) {
+    val taskName = "launchTestFixturesSpineCompiler"
+    val tasks = tasks.withType<LaunchSpineCompiler>()
+    tasks.configureEach {
+        if (this.name == taskName) {
+            println("Configuring `$taskName` with the remote debug: $enabled.")
+            this.remoteDebug(enabled)
+        }
+    }
+}
+
+afterEvaluate {
+    testSpineCompilerRemoteDebug(false)
+    testFixturesSpineCompilerDebug(false)
+
+    tasks.named("testJar").configure { this as Jar
+        from(sourceSets.testFixtures.get().output)
+    }
+}
+
+spine {
+    coreJvm {
+        grpc {
+            enabled.set(true)
         }
     }
 }

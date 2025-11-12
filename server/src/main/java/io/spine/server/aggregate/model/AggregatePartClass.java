@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -46,8 +46,6 @@ import static io.spine.server.aggregate.AggregatePart.GenericParameter.AGGREGATE
 public final class AggregatePartClass<A extends AggregatePart<?, ?, ?, ?>>
         extends AggregateClass<A> {
 
-    private static final long serialVersionUID = 0L;
-
     /** The model class of the aggregate root to which the aggregate part belongs. */
     @LazyInit
     private transient volatile @MonotonicNonNull Class<? extends AggregateRoot<?>> rootClass;
@@ -75,7 +73,7 @@ public final class AggregatePartClass<A extends AggregatePart<?, ?, ?, ?>>
     @SuppressWarnings("unchecked") // The type is ensured by the class declaration.
     public Class<? extends AggregateRoot<?>> rootClass() {
         if (rootClass == null) {
-            rootClass = (Class<? extends AggregateRoot<?>>) AGGREGATE_ROOT.argumentIn(value());
+            rootClass = (Class<? extends AggregateRoot<?>>) AGGREGATE_ROOT.argumentIn(rawClass());
         }
         return rootClass;
     }
@@ -85,7 +83,7 @@ public final class AggregatePartClass<A extends AggregatePart<?, ?, ?, ?>>
      */
     @Override
     protected EntityFactory<A> createFactory() {
-        return new PartFactory<>(value(), rootClass());
+        return new PartFactory<>(rawClass(), rootClass());
     }
 
     /**

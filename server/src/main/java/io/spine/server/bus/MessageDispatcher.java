@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -27,6 +27,7 @@
 package io.spine.server.bus;
 
 import com.google.common.collect.ImmutableSet;
+import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.type.MessageEnvelope;
 import io.spine.type.MessageClass;
 
@@ -34,11 +35,11 @@ import io.spine.type.MessageClass;
  * A dispatcher of a message.
  *
  * @param <C>
- *         the type of class of the dispatched messages
+ *         the type of message class of dispatched messages
  * @param <E>
  *         the type of the message envelopes
  */
-public interface MessageDispatcher<C extends MessageClass, E extends MessageEnvelope> {
+public interface MessageDispatcher<C extends MessageClass<?>, E extends MessageEnvelope<?, ?, ?>> {
 
     /**
      * Obtains a set of message classes that can be processed by this dispatcher.
@@ -48,11 +49,13 @@ public interface MessageDispatcher<C extends MessageClass, E extends MessageEnve
     ImmutableSet<C> messageClasses();
 
     /**
-     * Dispatches the message contained in the passed envelope.
+     * Dispatches the message contained in the given envelope and returns the outcome.
      *
-     * @param envelope the envelope with the message
+     * @param envelope
+     *         the envelope with the message
+     * @return the outcome of dispatching
      */
-    void dispatch(E envelope);
+    DispatchOutcome dispatch(E envelope);
 
     /**
      * Checks if this dispatcher can dispatch the given message.

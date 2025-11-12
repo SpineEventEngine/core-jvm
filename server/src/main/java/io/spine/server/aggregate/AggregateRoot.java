@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -27,7 +27,7 @@
 package io.spine.server.aggregate;
 
 import io.spine.annotation.Experimental;
-import io.spine.base.EntityState;
+import io.spine.base.AggregateState;
 import io.spine.server.BoundedContext;
 
 import java.util.Optional;
@@ -79,7 +79,7 @@ public class AggregateRoot<I> {
      *         if a repository was not found, or the ID type of the part state does not match
      *         the ID type of this {@code AggregateRoot}
      */
-    protected <S extends EntityState<I>, A extends AggregatePart<I, S, ?, ?>>
+    protected <S extends AggregateState<I>, A extends AggregatePart<I, S, ?, ?>>
     S partState(Class<S> partStateClass) {
         AggregatePartRepository<I, A, S, ?> repo = repositoryOf(partStateClass);
         AggregatePart<I, S, ?, ?> aggregatePart = repo.loadOrCreate(id());
@@ -95,7 +95,7 @@ public class AggregateRoot<I> {
      *         of this {@code AggregateRoot}
      */
     @SuppressWarnings("unchecked") // We ensure ID type when adding to the map.
-    private <S extends EntityState<I>, A extends AggregatePart<I, S, ?, ?>>
+    private <S extends AggregateState<I>, A extends AggregatePart<I, S, ?, ?>>
     AggregatePartRepository<I, A, S, ?> repositoryOf(Class<S> stateClass) {
         var thisType = (Class<? extends AggregateRoot<?>>) getClass();
         Optional<? extends AggregatePartRepository<?, ?, ?, ?>> partRepository =

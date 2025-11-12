@@ -70,6 +70,6 @@ public final class Ignored {
                 .newBuilder()
                 .setPropagatedSignal(event.messageId())
                 .setIgnored(Ignore.newBuilder().setReason(reason))
-                .vBuild();
+                .build();
     }
 }

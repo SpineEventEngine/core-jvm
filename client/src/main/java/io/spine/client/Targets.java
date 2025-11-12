@@ -31,7 +31,7 @@ import com.google.protobuf.Message;
 import io.spine.annotation.Internal;
 import io.spine.base.Identifier;
 import io.spine.type.TypeUrl;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -110,7 +110,7 @@ public final class Targets {
 
         var typeUrl = TypeUrl.of(targetClass);
         var builder = Target.newBuilder()
-                                       .setType(typeUrl.value());
+                .setType(typeUrl.value());
         if (includeAll) {
             builder.setIncludeAll(true);
         } else {
@@ -148,6 +148,9 @@ public final class Targets {
     }
 
     private static IdFilter idFilter(List<Any> ids) {
+        if (ids.isEmpty()) {
+            return IdFilter.getDefaultInstance();
+        }
         return IdFilter
                 .newBuilder()
                 .addAllId(ids)

@@ -29,12 +29,14 @@ package io.spine.server.entity;
 import com.google.common.reflect.Invokable;
 import com.google.common.testing.EqualsTester;
 import io.spine.base.EntityState;
+import io.spine.protobuf.AnyPacker;
 import io.spine.server.entity.given.entity.AnEntity;
 import io.spine.server.entity.given.entity.NaturalNumberEntity;
 import io.spine.server.test.shared.LongIdAggregate;
 import io.spine.test.entity.Project;
 import io.spine.test.entity.ProjectId;
 import io.spine.test.server.number.NaturalNumber;
+import io.spine.validate.ValidationError;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -69,7 +71,7 @@ class AbstractEntityTest {
         }
 
         /**
-         * Ensures that {@link AbstractEntity#validate(EntityState)} is final so that
+         * Ensures that the {@code AbstractEntity.validate(EntityState)} method is final so that
          * it's not possible to override the default behaviour.
          */
         @Test
@@ -96,9 +98,10 @@ class AbstractEntityTest {
 
             fail("Exception expected.");
         } catch (InvalidEntityStateException e) {
-            assertThat(e.error()
-                        .getValidationError()
-                        .getConstraintViolationList()).hasSize(1);
+            var details = AnyPacker.unpack(e.error().getDetails());
+            assertThat(details).isInstanceOf(ValidationError.class);
+            assertThat(((ValidationError)details).getConstraintViolationList())
+                    .hasSize(1);
         }
     }
 
@@ -114,7 +117,7 @@ class AbstractEntityTest {
     @Test
     @DisplayName("allow valid state")
     void allowValidState() {
-        var entity = new AnEntity(0L);
+        var entity = new AnEntity(17L);
         var state = LongIdAggregate.newBuilder()
                 .setId(entity.id())
                 .build();
@@ -167,7 +170,7 @@ class AbstractEntityTest {
 
         private AvEntity(ProjectId id) {
             super(id);
-            updateState(Project.newBuilder().setId(id).vBuild());
+            updateState(Project.newBuilder().setId(id).build());
         }
 
         static ProjectId projectId(String value) {
@@ -180,6 +183,6 @@ class AbstractEntityTest {
     static NaturalNumber newNaturalNumber(int value) {
         return NaturalNumber.newBuilder()
                 .setValue(value)
-                .build();
+                .buildPartial();
     }
 }

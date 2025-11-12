@@ -28,7 +28,7 @@ package io.spine.server.projection.model;
 
 import io.spine.base.EventMessage;
 import io.spine.server.entity.given.Given;
-import io.spine.server.model.DuplicateHandlerMethodError;
+import io.spine.server.model.DuplicateReceptorError;
 import io.spine.server.model.HandlerFieldFilterClashError;
 import io.spine.server.projection.given.SavedString;
 import io.spine.server.projection.given.cls.Calcumulator;
@@ -130,7 +130,7 @@ class ProjectionClassTest {
     @DisplayName("fail on duplicate filter values")
     void failOnDuplicateFilters() {
         assertThrows(
-                DuplicateHandlerMethodError.class,
+                DuplicateReceptorError.class,
                 () -> asProjectionClass(DuplicateValueSubscription.class)
         );
     }

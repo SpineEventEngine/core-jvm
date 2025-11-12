@@ -27,10 +27,13 @@
 package io.spine.server.transport.memory;
 
 import io.spine.base.Identifier;
+import io.spine.core.BoundedContextNames;
 import io.spine.grpc.MemoizingObserver;
+import io.spine.protobuf.AnyPacker;
 import io.spine.server.integration.ExternalMessage;
 import io.spine.server.transport.ChannelId;
 import io.spine.server.transport.memory.given.ThrowingObserver;
+import io.spine.server.type.given.GivenEvent;
 import io.spine.testing.logging.mute.MuteLogging;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -58,6 +61,8 @@ class SingleThreadInMemSubscriberTest {
         var id = Identifier.pack(newUuid());
         var externalMessage = ExternalMessage.newBuilder()
                 .setId(id)
+                .setOriginalMessage(AnyPacker.pack(GivenEvent.arbitrary()))
+                .setBoundedContextName(BoundedContextNames.newName("Orders"))
                 .build();
         subscriber.onMessage(externalMessage);
 

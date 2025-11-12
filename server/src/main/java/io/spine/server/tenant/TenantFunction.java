@@ -28,7 +28,7 @@ package io.spine.server.tenant;
 
 import io.spine.annotation.Internal;
 import io.spine.core.TenantId;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.Function;
 
@@ -48,7 +48,7 @@ public abstract class TenantFunction<T> extends TenantAware implements Function<
      *                    {@code false} for single-tenant context
      */
     protected TenantFunction(boolean multitenant) {
-        super(TenantAware.currentTenant(multitenant));
+        super(currentTenant(multitenant));
     }
 
     /**

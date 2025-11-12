@@ -81,7 +81,7 @@ final class BroadcastWantedEvents {
     synchronized void send() {
         var request = ExternalEventsWanted.newBuilder()
                 .addAllType(wantedEvents)
-                .vBuild();
+                .build();
         var wrapped = ExternalMessages.of(request, context);
         publisher.publish(wrapped.getId(), wrapped);
     }

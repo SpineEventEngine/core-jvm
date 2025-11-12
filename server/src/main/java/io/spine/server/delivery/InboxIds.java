@@ -60,11 +60,11 @@ final class InboxIds {
 
         var entityId = EntityId.newBuilder()
                 .setId(pack(id))
-                .vBuild();
+                .build();
         var inboxId = InboxId.newBuilder()
                 .setEntityId(entityId)
                 .setTypeUrl(entityType.value())
-                .vBuild();
+                .build();
         return inboxId;
     }
 

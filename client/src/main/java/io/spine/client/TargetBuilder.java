@@ -30,7 +30,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.protobuf.FieldMask;
 import com.google.protobuf.Message;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
 
@@ -205,12 +205,12 @@ public abstract class TargetBuilder<T extends Message, B extends TargetBuilder<T
      *
      * <p>The multiple parameters passed into this method are considered to be joined in
      * a conjunction ({@link io.spine.client.CompositeFilter.CompositeOperator#ALL ALL}
-     * operator), i.e. a record matches this query only if it matches all of these parameters.
+     * operator), i.e., a record matches this query only if it matches all of these parameters.
      *
      * @param predicate
-     *         the {@link io.spine.client.Filter}s to filter the query results
-     * @return self for method chaining
-     * @see Filters for a convenient way to create {@link io.spine.client.Filter} instances
+     *         the {@link Filter io.spine.client.Filter}s to filter the query results
+     * @return {@code this} for method chaining
+     * @see Filters for a convenient way to create {@code Filter} instances
      * @see #where(io.spine.client.CompositeFilter...)
      */
     @CanIgnoreReturnValue
@@ -250,7 +250,7 @@ public abstract class TargetBuilder<T extends Message, B extends TargetBuilder<T
      * established less than two years ago, or originate from Germany.
      *
      * <p>Note that the filters which belong to different {@link Filters#all all(...)} groups
-     * may be represented as a single {@link Filters#all all(...)} group. For example, two
+     * may be represented as a single {@link Filters#all all(...)} group. For example, the two
      * following queries would be identical:
      * <pre>{@code
      *     // Option 1
@@ -274,15 +274,14 @@ public abstract class TargetBuilder<T extends Message, B extends TargetBuilder<T
      * <p>The {@code Option 1} is recommended in this case, since the filters are grouped
      * logically,
      * though both builders produce effectively the same {@link io.spine.client.Query} instances.
-     * Note, that
-     * those instances may not be equal in terms of {@link Object#equals(Object)} method.
+     * Please note that those instances may not be equal in terms of
+     * the {@link Object#equals(Object)} method.
      *
      * @param predicate
-     *         a number of {@link io.spine.client.CompositeFilter} instances forming the query
-     *         predicate
-     * @return self for method chaining
-     * @see Filters for a convenient way to create {@link io.spine.client.CompositeFilter}
-     *      instances
+     *         a number of {@link CompositeFilter io.spine.client.CompositeFilter} instances
+     *         forming the query predicate
+     * @return {@code this} for method chaining
+     * @see Filters for a convenient way to create {@code CompositeFilter} instances
      */
     @CanIgnoreReturnValue
     public B where(CompositeFilter... predicate) {

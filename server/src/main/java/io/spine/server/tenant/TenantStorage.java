@@ -26,11 +26,11 @@
 
 package io.spine.server.tenant;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.protobuf.Message;
 import io.spine.annotation.SPI;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.core.TenantId;
 import io.spine.server.ContextSpec;
 import io.spine.server.storage.MessageStorage;
@@ -73,7 +73,7 @@ public abstract class TenantStorage<T extends Message>
         var optional = read(id);
         if (optional.isEmpty()) {
             var newRecord = create(id);
-            write(id, newRecord);
+            write(newRecord);
         }
         cache(id);
     }

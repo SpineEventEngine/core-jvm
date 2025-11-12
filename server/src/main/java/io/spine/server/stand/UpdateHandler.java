@@ -31,8 +31,9 @@ import io.spine.client.IdFilter;
 import io.spine.client.Subscription;
 import io.spine.client.SubscriptionUpdate;
 import io.spine.client.Target;
-import io.spine.logging.Logging;
+import io.spine.logging.WithLogging;
 import io.spine.server.type.EventEnvelope;
+import io.spine.type.TypeUrl;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import java.util.Optional;
@@ -46,9 +47,14 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * notifies the {@linkplain #setCallback(SubscriptionCallback) callback} with
  * the detected {@linkplain SubscriptionUpdate subscription updates}.
  */
-abstract class UpdateHandler implements Logging {
+abstract class UpdateHandler implements WithLogging {
 
     private final Subscription subscription;
+
+    /**
+     * The type of {@code EntityLifecycle} event handled by this instance.
+     */
+    private final TypeUrl eventType;
 
     /**
      * An action which accepts the update and notifies the read-side accordingly.
@@ -57,10 +63,11 @@ abstract class UpdateHandler implements Logging {
 
     /**
      * Creates an update handler acting according to the criteria of the passed
-     * {@code Subscription}.
+     * {@code Subscription}, reacting to the system events of the specified {@code eventType}.
      */
-    UpdateHandler(Subscription subscription) {
+    UpdateHandler(Subscription subscription, TypeUrl eventType) {
         this.subscription = subscription;
+        this.eventType = eventType;
     }
 
     /**
@@ -96,7 +103,7 @@ abstract class UpdateHandler implements Logging {
         try {
             callback.accept(update);
         } catch (Throwable t) {
-            _error().withCause(t).log();
+            logger().atError().withCause(t).log();
         }
     }
 
@@ -113,6 +120,13 @@ abstract class UpdateHandler implements Logging {
      */
     final Subscription subscription() {
         return subscription;
+    }
+
+    /**
+     * Returns the type of system events to which this handler reacts.
+     */
+    final TypeUrl eventType() {
+        return eventType;
     }
 
     /**

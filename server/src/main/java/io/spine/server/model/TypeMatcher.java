@@ -42,13 +42,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * Tells if a passed class satisfies some particular criterion.
  */
-@SuppressWarnings("UnstableApiUsage")   // Using Guava's `TypeToken`.
 @Internal
 @Immutable
 public interface TypeMatcher extends Predicate<Class<?>> {
 
     /**
-     * Creates a type matcher which matches the type if it is a class (i.e. not an interface)
+     * Creates a type matcher which matches the type if it is a class (i.e., not an interface)
      * implementing the given interface.
      */
     static TypeMatcher classImplementing(Class<?> iface) {
@@ -105,6 +104,7 @@ public interface TypeMatcher extends Predicate<Class<?>> {
      *      <li> Generic parameters with wildcard are <em>not</em> supported.
      * </ul>
      */
+    @SuppressWarnings("PMD.SimplifyBooleanReturns") // Here we chose readability over compactness.
     static boolean matches(TypeToken<?> expected, TypeToken<?> actual) {
         checkNotNull(expected);
         checkNotNull(actual);
@@ -190,12 +190,10 @@ public interface TypeMatcher extends Predicate<Class<?>> {
         checkNotNull(whoseGenerics);
         checkNotNull(expectedGenericType);
         var actualTypeParams = genericTypesOf(whoseGenerics);
-        if (actualTypeParams.length > 0) {
-            for (var param : actualTypeParams) {
-                var actualGenericType = resolve(whoseGenerics, param);
-                if (differs(actualGenericType, expectedGenericType)) {
-                    return false;
-                }
+        for (var param : actualTypeParams) {
+            var actualGenericType = resolve(whoseGenerics, param);
+            if (differs(actualGenericType, expectedGenericType)) {
+                return false;
             }
         }
         return true;
@@ -204,7 +202,7 @@ public interface TypeMatcher extends Predicate<Class<?>> {
     /**
      * Returns a set of {@link Message} types that are declared by the given type.
      *
-     * <p>The types returned are the most narrow possible.
+     * <p>The types returned are as narrow as possible.
      *
      * <p>E.g. {@code Pair<TaskCreated, TaskAssigned>} returns {@literal Class<TaskCreated>} and
      * {@code Class<TaskAssigned>}.

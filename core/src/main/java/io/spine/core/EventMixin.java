@@ -186,7 +186,7 @@ interface EventMixin
     default MessageId messageId() {
         return identityBuilder()
                 .setVersion(context().getVersion())
-                .vBuild();
+                .build();
     }
 
     /**

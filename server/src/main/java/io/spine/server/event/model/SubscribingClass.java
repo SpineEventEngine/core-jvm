@@ -26,7 +26,7 @@
 
 package io.spine.server.event.model;
 
-import io.spine.logging.Logging;
+import io.spine.logging.WithLogging;
 import io.spine.server.type.EventEnvelope;
 
 import java.util.Optional;
@@ -34,7 +34,7 @@ import java.util.Optional;
 /**
  * An interface common for model classes that subscribe to events.
  */
-public interface SubscribingClass extends Logging {
+public interface SubscribingClass extends WithLogging {
 
     /**
      * Obtains a method that handles the passed class of events.

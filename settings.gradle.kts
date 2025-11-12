@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 pluginManagement {
     repositories {
         mavenCentral()
@@ -30,17 +31,13 @@ pluginManagement {
     }
 }
 
-rootProject.name = "spine-core-java"
+rootProject.name = "spine-core-jvm"
 
-include("core")
-include("client")
-include("server")
-include("testutil-core")
-include("testutil-client")
-include("testutil-server")
-
-include("model-assembler")
-include("model-verifier")
-
-project(":model-assembler").projectDir = File("./model/model-assembler")
-project(":model-verifier").projectDir = File("./model/model-verifier")
+include(
+    "core",
+    "core-testlib",
+    "client",
+    "client-testlib",
+    "server",
+    "server-testlib",
+)

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -29,6 +29,7 @@ package io.spine.server.entity.model;
 import com.google.errorprone.annotations.concurrent.LazyInit;
 import io.spine.base.EntityState;
 import io.spine.base.Identifier;
+import io.spine.protobuf.Messages;
 import io.spine.server.entity.DefaultEntityFactory;
 import io.spine.server.entity.Entity;
 import io.spine.server.entity.EntityFactory;
@@ -44,7 +45,6 @@ import java.lang.reflect.Constructor;
 import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static io.spine.protobuf.Messages.defaultInstance;
 import static io.spine.util.Exceptions.newIllegalStateException;
 
 /**
@@ -54,8 +54,6 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  */
 @SuppressWarnings("SynchronizeOnThis") // Double-check idiom for lazy init.
 public class EntityClass<E extends Entity<?, ?>> extends ModelClass<E> {
-
-    private static final long serialVersionUID = 0L;
 
     /** The class of entity IDs. */
     private final Class<?> idClass;
@@ -71,13 +69,12 @@ public class EntityClass<E extends Entity<?, ?>> extends ModelClass<E> {
 
     /** The default state of entities of this class. */
     @LazyInit
-    private transient volatile @MonotonicNonNull EntityState<?> defaultState;
+    private volatile @MonotonicNonNull EntityState<?> defaultState;
 
     @LazyInit
-    @SuppressWarnings("Immutable") // effectively
-    private transient volatile @MonotonicNonNull EntityFactory<E> factory;
+    private volatile @MonotonicNonNull EntityFactory<E> factory;
 
-    /** Creates new instance of the model class for the passed class of entities. */
+    /** Creates a new instance of the model class for the passed class of entities. */
     protected EntityClass(Class<E> cls) {
         super(cls);
         this.idClass = idClass(cls);
@@ -97,19 +94,6 @@ public class EntityClass<E extends Entity<?, ?>> extends ModelClass<E> {
      * Obtains an entity class for the passed raw class.
      */
     public static <E extends Entity<?, ?>> EntityClass<E> asEntityClass(Class<E> cls) {
-        checkNotNull(cls);
-        @SuppressWarnings("unchecked")
-        var result = (EntityClass<E>) get(cls, EntityClass.class, () -> new EntityClass<>(cls));
-        return result;
-    }
-
-    /**
-     * Obtains an entity class for the passed parameterized class.
-     *
-     * <p>Use this method when a more precise type bounds are required.
-     */
-    public static <I, S extends EntityState<I>, E extends Entity<I, S>>
-    EntityClass<E> asParameterizedEntityClass(Class<E> cls) {
         checkNotNull(cls);
         @SuppressWarnings("unchecked")
         var result = (EntityClass<E>) get(cls, EntityClass.class, () -> new EntityClass<>(cls));
@@ -139,7 +123,7 @@ public class EntityClass<E extends Entity<?, ?>> extends ModelClass<E> {
      * Creates a new instance of the factory for creating entities.
      */
     protected EntityFactory<E> createFactory() {
-        return new DefaultEntityFactory<>(value());
+        return new DefaultEntityFactory<>(rawClass());
     }
 
     /**
@@ -152,7 +136,7 @@ public class EntityClass<E extends Entity<?, ?>> extends ModelClass<E> {
                 result = defaultState;
                 if (result == null) {
                     var stateClass = stateClass();
-                    defaultState = defaultInstance(stateClass);
+                    defaultState = Messages.getDefaultInstance(stateClass);
                     result = defaultState;
                 }
             }
@@ -202,8 +186,8 @@ public class EntityClass<E extends Entity<?, ?>> extends ModelClass<E> {
      */
     public final EntityTypeName typeName() {
         return EntityTypeName.newBuilder()
-                .setJavaClassName(value().getCanonicalName())
-                .vBuild();
+                .setJavaClassName(rawClass().getCanonicalName())
+                .build();
     }
 
     /**
@@ -211,8 +195,8 @@ public class EntityClass<E extends Entity<?, ?>> extends ModelClass<E> {
      */
     @SuppressWarnings("unchecked") // The cast is protected by the generic param of this class.
     @Override
-    public Class<E> value() {
-        return (Class<E>) super.value();
+    public Class<E> rawClass() {
+        return (Class<E>) super.rawClass();
     }
 
     /**
@@ -254,7 +238,7 @@ public class EntityClass<E extends Entity<?, ?>> extends ModelClass<E> {
      * it can be {@code Long}, {@code String}, {@code Integer}, and class implementing
      * {@code Message}.
      *
-     * <p>We perform the check to to detect possible programming error
+     * <p>We perform the check to detect possible programming error
      * in declarations of entity and repository classes <em>until</em> we have
      * compile-time model check.
      *

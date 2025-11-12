@@ -26,17 +26,18 @@
 
 package io.spine.server;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.annotation.Internal;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.core.BoundedContextName;
-import io.spine.logging.Logging;
+import io.spine.logging.WithLogging;
 import io.spine.server.aggregate.AggregateRootDirectory;
 import io.spine.server.aggregate.InMemoryRootDirectory;
 import io.spine.server.bus.BusFilter;
 import io.spine.server.bus.Listener;
 import io.spine.server.bus.MessageDispatcher;
+import io.spine.server.command.AbstractAssignee;
 import io.spine.server.commandbus.CommandBus;
 import io.spine.server.commandbus.CommandDispatcher;
 import io.spine.server.enrich.Enricher;
@@ -54,7 +55,8 @@ import io.spine.system.server.SystemClient;
 import io.spine.system.server.SystemContext;
 import io.spine.system.server.SystemSettings;
 import io.spine.system.server.SystemWriteSide;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -67,21 +69,21 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.core.BoundedContextNames.assumingTestsValue;
 import static io.spine.server.ContextSpec.multitenant;
 import static io.spine.server.ContextSpec.singleTenant;
+import static java.lang.String.format;
 
 /**
  * A builder for producing {@code BoundedContext} instances.
  */
-@SuppressWarnings({"ClassWithTooManyMethods", "OverlyCoupledClass"})
-// OK for this central piece.
-public final class BoundedContextBuilder implements Logging {
+@SuppressWarnings({"ClassWithTooManyMethods", "OverlyCoupledClass"}) // OK for this central piece.
+public final class BoundedContextBuilder implements WithLogging {
 
     private final ContextSpec spec;
 
     private final CommandBus.Builder commandBus = CommandBus.newBuilder();
 
     /**
-     * Command dispatchers to be registered with the context {@link CommandBus} after the Bounded
-     * Context creation.
+     * Command dispatchers to be registered with the context {@link CommandBus}
+     * after the Bounded Context creation.
      */
     private final Collection<CommandDispatcher> commandDispatchers = new ArrayList<>();
 
@@ -96,12 +98,14 @@ public final class BoundedContextBuilder implements Logging {
 
     private final SystemSettings systemSettings;
 
-    private Stand stand;
-    private Supplier<AggregateRootDirectory> rootDirectory;
-    private TenantIndex tenantIndex;
+    private @MonotonicNonNull Stand stand;
+    private @MonotonicNonNull Supplier<AggregateRootDirectory> rootDirectory;
+    private @Nullable TenantIndex tenantIndex;
 
     /** Repositories to be registered with the Bounded Context being built after its creation. */
     private final Collection<Repository<?, ?>> repositories = new ArrayList<>();
+
+    private @Nullable Consumer<BoundedContext> onBeforeClose = null;
 
     /**
      * Creates a new builder with the given spec.
@@ -136,9 +140,10 @@ public final class BoundedContextBuilder implements Logging {
     @Internal
     @VisibleForTesting
     public static BoundedContextBuilder assumingTests(boolean multitenant) {
+        var name = assumingTestsValue();
         var spec = multitenant
-                   ? multitenant(assumingTestsValue())
-                   : singleTenant(assumingTestsValue());
+                   ? multitenant(name)
+                   : singleTenant(name);
         return new BoundedContextBuilder(spec);
     }
 
@@ -174,9 +179,31 @@ public final class BoundedContextBuilder implements Logging {
 
     /**
      * Obtains {@code TenantIndex} implementation associated with the Bounded Context.
+     *
+     * @deprecated Use {@link #getTenantIndex()} and {@link #hasTenantIndex()} instead.
      */
+    @Deprecated
     public Optional<? extends TenantIndex> tenantIndex() {
         return Optional.ofNullable(tenantIndex);
+    }
+
+    /**
+     * Checks whether the {@code TenantIndex} has been configured.
+     *
+     * @return {@code true} if the tenant index was set, {@code false} otherwise
+     */
+    public boolean hasTenantIndex() {
+        return tenantIndex != null;
+    }
+
+    /**
+     * Returns the configured {@code TenantIndex}.
+     *
+     * @return the tenant index
+     * @throws NullPointerException if the tenant index was not set
+     */
+    public TenantIndex getTenantIndex() {
+        return checkNotNull(tenantIndex);
     }
 
     /**
@@ -220,19 +247,11 @@ public final class BoundedContextBuilder implements Logging {
         return this;
     }
 
-    /**
-     * Obtains {@code EventEnricher} assigned to the context to be built, or
-     * empty {@code Optional} if no enricher was assigned prior to this call.
-     */
-    public Optional<EventEnricher> eventEnricher() {
-        return eventBus.enricher();
-    }
-
     @CanIgnoreReturnValue
     public BoundedContextBuilder setTenantIndex(TenantIndex tenantIndex) {
         if (isMultitenant()) {
             checkNotNull(tenantIndex,
-                         "`%s` cannot be null in a multitenant `BoundedContext`.",
+                         "`%s` cannot be `null` in a multitenant `BoundedContext`.",
                          TenantIndex.class.getSimpleName());
         }
         this.tenantIndex = tenantIndex;
@@ -244,7 +263,7 @@ public final class BoundedContextBuilder implements Logging {
      * dispatcher to {@code addXxxDispatcher()} and {@code removeXxxDispatcher()} methods.
      *
      * <p>Such a call can be made by a developer (presumably by mistake) because some repositories
-     * <em>are</em> command- or event- dispatchers. Event though the methods
+     * <em>are</em> command- or event-dispatchers. Event though the methods
      * {@link #add(Repository)} and {@link #remove(Repository)} is the correct way of handling
      * removing repositories, we do not want to play hard in this case, and simply divert the flow
      * to process the passed {@code Repository} via correct counterpart methods.
@@ -259,6 +278,7 @@ public final class BoundedContextBuilder implements Logging {
      *         the type of the dispatchers
      * @return this builder
      */
+    @CanIgnoreReturnValue
     private <D extends MessageDispatcher<?, ?>>
     BoundedContextBuilder ifRepository(D dispatcher,
                                        Consumer<Repository<?, ?>> repositoryConsumer,
@@ -272,10 +292,22 @@ public final class BoundedContextBuilder implements Logging {
     }
 
     /**
+     * Adds the given assignee to the Bounded Context.
+     *
+     * @param assignee
+     *         the assignee to add
+     */
+    @CanIgnoreReturnValue
+    public BoundedContextBuilder addAssignee(AbstractAssignee assignee) {
+        return addCommandDispatcher(assignee);
+    }
+
+    /**
      * Adds the passed command dispatcher to the dispatcher registration list which will be
      * processed after the Bounded Context is created.
      *
-     * @apiNote This method is also capable of registering {@linkplain Repository repositories}
+     * @apiNote This method is also capable of registering
+     *         {@linkplain Repository repositories}
      *         that implement {@code CommandDispatcher}, but the {@link #add(Repository)} method
      *         should be preferred for this purpose.
      */
@@ -301,6 +333,7 @@ public final class BoundedContextBuilder implements Logging {
     /**
      * Adds a listener for commands posted to the {@code CommandBus} of the context being built.
      */
+    @CanIgnoreReturnValue
     public BoundedContextBuilder addCommandListener(Listener<CommandEnvelope> listener) {
         checkNotNull(listener);
         commandBus.addListener(listener);
@@ -311,7 +344,8 @@ public final class BoundedContextBuilder implements Logging {
      * Adds the passed event dispatcher to the dispatcher registration list which will be processed
      * after the Bounded Context is created.
      *
-     * @apiNote This method is also capable of registering {@linkplain Repository repositories}
+     * @apiNote This method is also capable of registering
+     *         {@linkplain Repository repositories}
      *         that implement {@code EventDispatcher}, but the {@link #add(Repository)} method
      *         should be preferred for this purpose.
      */
@@ -340,6 +374,7 @@ public final class BoundedContextBuilder implements Logging {
     /**
      * Adds a listener of the events posted to the {@code EventBus} of the context being built.
      */
+    @CanIgnoreReturnValue
     public BoundedContextBuilder addEventListener(Listener<EventEnvelope> listener) {
         checkNotNull(listener);
         eventBus.addListener(listener);
@@ -357,7 +392,7 @@ public final class BoundedContextBuilder implements Logging {
     }
 
     /**
-     * Adds the passed repository to the registration list which will be processed after
+     * Adds the passed repository to the registration list, which will be processed after
      * the Bounded Context is created.
      */
     @CanIgnoreReturnValue
@@ -443,8 +478,8 @@ public final class BoundedContextBuilder implements Logging {
         checkNotNull(entityClass);
         var result =
                 repositories.stream()
-                            .anyMatch(repository -> repository.entityClass()
-                                                              .equals(entityClass));
+                        .anyMatch(repository -> repository.entityClass()
+                                                          .equals(entityClass));
         return result;
     }
 
@@ -467,26 +502,6 @@ public final class BoundedContextBuilder implements Logging {
      */
     public ImmutableList<Repository<?, ?>> repositories() {
         return ImmutableList.copyOf(repositories);
-    }
-
-    /**
-     * Obtains the list of command dispatchers added to the builder by the time of the call.
-     *
-     * <p>Adding dispatchers to the builder after this method returns will not update the
-     * returned list.
-     */
-    public ImmutableList<CommandDispatcher> commandDispatchers() {
-        return ImmutableList.copyOf(commandDispatchers);
-    }
-
-    /**
-     * Obtains the list of event dispatchers added to the builder by the time of the call.
-     *
-     * <p>Adding dispatchers to the builder after this method returns will not update the
-     * returned list.
-     */
-    public ImmutableList<EventDispatcher> eventDispatchers() {
-        return ImmutableList.copyOf(eventDispatchers);
     }
 
     /**
@@ -550,7 +565,8 @@ public final class BoundedContextBuilder implements Logging {
     public BoundedContext build() {
         var system = buildSystem();
         var result = buildDomain(system);
-        _debug().log("%s created.", result.nameForLogging());
+        logger().atDebug()
+                .log(() -> format("%s created.", result.nameForLogging()));
 
         registerRepositories(result);
         registerDispatchers(result);
@@ -567,6 +583,24 @@ public final class BoundedContextBuilder implements Logging {
         return eventBus.build();
     }
 
+    /**
+     * Sets the action to be performed before the context is closed.
+     *
+     * <p>The action is performed after the context is closed, but before the
+     * {@linkplain BoundedContext#close() context's own action} is performed.
+     *
+     * @param consumer
+     *         the action to perform
+     */
+    public BoundedContextBuilder setOnBeforeClose(Consumer<BoundedContext> consumer) {
+        this.onBeforeClose = checkNotNull(consumer);
+        return this;
+    }
+
+    @Nullable Consumer<BoundedContext> getOnBeforeClose() {
+        return onBeforeClose;
+    }
+
     CommandBus buildCommandBus() {
         return commandBus.build();
     }
@@ -574,7 +608,8 @@ public final class BoundedContextBuilder implements Logging {
     private void registerRepositories(BoundedContext result) {
         for (var repository : repositories) {
             result.register(repository);
-            _debug().log("`%s` registered.", repository);
+            logger().atDebug()
+                    .log(() -> format("`%s` registered.", repository));
         }
     }
 
@@ -634,7 +669,7 @@ public final class BoundedContextBuilder implements Logging {
     private void initCommandBus(SystemWriteSide systemWriteSide) {
         commandBus.setMultitenant(isMultitenant());
         commandBus.injectSystem(systemWriteSide)
-                  .injectTenantIndex(tenantIndex);
+                  .injectTenantIndex(checkNotNull(tenantIndex, "Tenant index is not set."));
     }
 
     private Stand createStand(@Nullable Stand systemStand) {
@@ -644,27 +679,5 @@ public final class BoundedContextBuilder implements Logging {
             result.withSubscriptionRegistryFrom(systemStand);
         }
         return result.build();
-    }
-
-    /**
-     * Creates a copy of this context builder for the purpose of testing.
-     */
-    @Internal
-    @VisibleForTesting
-    public BoundedContextBuilder testingCopy() {
-        var name = name().getValue();
-        var enricher = eventEnricher().orElseGet(() ->
-                                                         EventEnricher.newBuilder().build());
-        var copy =
-                isMultitenant()
-                ? BoundedContext.multitenant(name)
-                : BoundedContext.singleTenant(name);
-        copy.enrichEventsUsing(enricher);
-        repositories().forEach(copy::add);
-        commandDispatchers().forEach(copy::addCommandDispatcher);
-        commandBus.filters().forEach(copy::addCommandFilter);
-        eventDispatchers().forEach(copy::addEventDispatcher);
-        eventBus.filters().forEach(copy::addEventFilter);
-        return copy;
     }
 }

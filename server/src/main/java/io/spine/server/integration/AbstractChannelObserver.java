@@ -29,7 +29,7 @@ import com.google.protobuf.Message;
 import io.grpc.stub.StreamObserver;
 import io.spine.annotation.SPI;
 import io.spine.core.BoundedContextName;
-import io.spine.logging.Logging;
+import io.spine.logging.WithLogging;
 import io.spine.server.transport.Subscriber;
 
 import java.util.Objects;
@@ -38,12 +38,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static io.spine.util.Exceptions.newIllegalStateException;
+import static java.lang.String.format;
 
 /**
  * Base routines for the {@linkplain Subscriber#addObserver(StreamObserver) subscriber observers}.
  */
 @SPI
-public abstract class AbstractChannelObserver implements StreamObserver<ExternalMessage>, Logging {
+public abstract class AbstractChannelObserver
+        implements StreamObserver<ExternalMessage>, WithLogging {
 
     private final BoundedContextName boundedContextName;
     private final Class<? extends Message> messageClass;
@@ -78,8 +80,9 @@ public abstract class AbstractChannelObserver implements StreamObserver<External
     public void onError(Throwable t) {
         var wasCompleted = !completed.compareAndSet(false, true);
         if (wasCompleted) {
-            _warn().log("Observer for `%s` received an error despite being closed.",
-                        messageClass.getName());
+            logger().atWarning().log(() -> format(
+                    "Observer for `%s` received an error despite being closed.",
+                    messageClass.getName()));
         }
         throw newIllegalStateException("Error caught when observing the incoming " +
                                                "messages of type %s", messageClass);
@@ -94,12 +97,13 @@ public abstract class AbstractChannelObserver implements StreamObserver<External
     @Override
     public final void onNext(ExternalMessage message) {
         checkNotNull(message);
+        var messageClass = message.getClass().getName();
+        var originalMessage = message.getOriginalMessage().getTypeUrl();
         checkState(!completed.get(),
-                   "Channel %s received message (%s[%s]) despite being closed.",
-                   message.getClass()
-                          .getName(),
-                   message.getOriginalMessage()
-                          .getTypeUrl());
+                   "Channel `%s` received message (%s[%s]) despite being closed.",
+                   this,
+                   messageClass,
+                   originalMessage);
         var source = message.getBoundedContextName();
         var sameContext = boundedContextName.equals(source)
                 || boundedContextName.isSystemOf(source)
@@ -121,10 +125,9 @@ public abstract class AbstractChannelObserver implements StreamObserver<External
         if (this == o) {
             return true;
         }
-        if (!(o instanceof AbstractChannelObserver)) {
+        if (!(o instanceof AbstractChannelObserver that)) {
             return false;
         }
-        var that = (AbstractChannelObserver) o;
         return Objects.equals(boundedContextName, that.boundedContextName) &&
                 Objects.equals(messageClass, that.messageClass);
     }

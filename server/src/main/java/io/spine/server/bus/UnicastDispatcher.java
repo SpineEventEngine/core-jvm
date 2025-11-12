@@ -37,6 +37,6 @@ import io.spine.type.MessageClass;
  * @param <E>
  *         the type of envelopes for dispatched objects that contain messages
  */
-public interface UnicastDispatcher<C extends MessageClass, E extends MessageEnvelope>
+public interface UnicastDispatcher<C extends MessageClass<?>, E extends MessageEnvelope<?, ?, ?>>
         extends MessageDispatcher<C, E> {
 }

@@ -4,21 +4,33 @@ on: pull_request
 
 jobs:
   build:
+    name: Build under Windows
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v2
-
-      - uses: actions/setup-java@v2
+      - uses: actions/checkout@v4
         with:
-          java-version: 11
+          submodules: 'true'
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: 17
           distribution: zulu
           cache: gradle
 
-      - name: Pull config
-        run: git submodule update --init --recursive
+      # See: https://github.com/al-cheb/configure-pagefile-action
+      - name: Configure Pagefile
+        uses: al-cheb/configure-pagefile-action@v1.3
 
       - name: Build project and run tests
         shell: cmd
         # For the reason on `--no-daemon` see https://github.com/actions/cache/issues/454
         run: gradlew.bat build --stacktrace --no-daemon
+
+      # See: https://github.com/marketplace/actions/junit-report-action
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v4.0.3
+        if: always() # always run even if the previous step fails
+        with:
+          report_paths: '**/build/test-results/**/TEST-*.xml'
+          require_tests: true # will fail workflow if test reports not found

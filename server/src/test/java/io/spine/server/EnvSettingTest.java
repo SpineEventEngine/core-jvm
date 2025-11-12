@@ -27,7 +27,7 @@
 package io.spine.server;
 
 import io.spine.environment.EnvironmentType;
-import io.spine.environment.Production;
+import io.spine.environment.DefaultMode;
 import io.spine.environment.Tests;
 import io.spine.server.given.environment.Local;
 import io.spine.server.storage.StorageFactory;
@@ -41,7 +41,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth8.assertThat;
 import static io.spine.testing.Assertions.assertNpe;
 
 @DisplayName("`EnvSetting` should")
@@ -53,9 +52,9 @@ class EnvSettingTest {
     class NoNulls {
 
         @Test
-        @DisplayName("for the `Production` environment")
+        @DisplayName("for the `DefaultMode` environment")
         void forProd() {
-            testNoNullsForEnv(Production.class);
+            testNoNullsForEnv(DefaultMode.class);
         }
 
         @Test
@@ -79,7 +78,7 @@ class EnvSettingTest {
         }
 
         @SuppressWarnings("ThrowableNotThrown")
-        private void testNoNullsForEnv(Class<? extends EnvironmentType> envType) {
+        private void testNoNullsForEnv(Class<? extends EnvironmentType<?>> envType) {
             EnvSetting<?> setting = new EnvSetting<Void>();
             assertNpe(() -> setting.use(null, envType));
             assertNpe(() -> setting.lazyUse(null, envType));
@@ -92,9 +91,9 @@ class EnvSettingTest {
     class ReturnValue {
 
         @Test
-        @DisplayName("for the `Production` environment")
-        void forProduction() {
-            testReturnsForEnv(Production.class);
+        @DisplayName("for the `DefaultMode` environment")
+        void forDefaultMode() {
+            testReturnsForEnv(DefaultMode.class);
         }
 
         @Test
@@ -109,7 +108,7 @@ class EnvSettingTest {
             testReturnsForEnv(Local.class);
         }
 
-        private void testReturnsForEnv(Class<? extends EnvironmentType> type) {
+        private void testReturnsForEnv(Class<? extends EnvironmentType<?>> type) {
             var factory = InMemoryStorageFactory.newInstance();
             var storageFactory = new EnvSetting<StorageFactory>();
             storageFactory.use(factory, type);
@@ -124,15 +123,15 @@ class EnvSettingTest {
         class AssignDefault {
 
             @Test
-            @DisplayName("assign for a missing `Production` environment")
+            @DisplayName("assign for a missing `DefaultMode` environment")
             void assignDefaultForProd() {
-                testAssignsDefaultForEnv(Production.class);
+                testAssignsDefaultForEnv(DefaultMode.class);
             }
 
             @Test
-            @DisplayName("retain the original `Production` env value")
+            @DisplayName("retain the original `DefaultMode` env value")
             void retainForProd() {
-                testRetainsDefaultForEnv(Production.class);
+                testRetainsDefaultForEnv(DefaultMode.class);
             }
 
             @Test
@@ -159,7 +158,7 @@ class EnvSettingTest {
                 testRetainsDefaultForEnv(Tests.class);
             }
 
-            void testAssignsDefaultForEnv(Class<? extends EnvironmentType> type) {
+            void testAssignsDefaultForEnv(Class<? extends EnvironmentType<?>> type) {
                 var memoizingFactory = new MemoizingStorageFactory();
                 var storageFactory =
                         new EnvSetting<StorageFactory>(type, () -> memoizingFactory);
@@ -167,7 +166,7 @@ class EnvSettingTest {
                         .isSameInstanceAs(memoizingFactory);
             }
 
-            void testRetainsDefaultForEnv(Class<? extends EnvironmentType> type) {
+            void testRetainsDefaultForEnv(Class<? extends EnvironmentType<?>> type) {
                 var defaultFactory = new MemoizingStorageFactory();
                 var storageFactory =
                         new EnvSetting<StorageFactory>(type, () -> defaultFactory);
@@ -185,9 +184,9 @@ class EnvSettingTest {
     class Lazy {
 
         @Test
-        @DisplayName("for the `Production` environment")
-        void forProduction() {
-            testLazyForEnv(Production.class);
+        @DisplayName("for the `DefaultMode` environment")
+        void forDefaultMode() {
+            testLazyForEnv(DefaultMode.class);
         }
 
         @Test
@@ -202,7 +201,8 @@ class EnvSettingTest {
             testLazyForEnv(Local.class);
         }
 
-        private void testLazyForEnv(Class<? extends EnvironmentType> type) {
+        @SuppressWarnings("OptionalGetWithoutIsPresent")
+        private void testLazyForEnv(Class<? extends EnvironmentType<?>> type) {
             var factory = InMemoryStorageFactory.newInstance();
             var storageFactory = new EnvSetting<StorageFactory>();
             var resolved = new AtomicBoolean(false);
@@ -228,13 +228,13 @@ class EnvSettingTest {
         var localStorageFactory = InMemoryStorageFactory.newInstance();
 
         var storageFactory = new EnvSetting<StorageFactory>();
-        storageFactory.use(prodStorageFactory, Production.class);
+        storageFactory.use(prodStorageFactory, DefaultMode.class);
         storageFactory.use(testingStorageFactory, Tests.class);
         storageFactory.use(localStorageFactory, Local.class);
 
         storageFactory.reset();
 
-        Stream.of(Production.class, Tests.class, Local.class)
+        Stream.of(DefaultMode.class, Tests.class, Local.class)
               .map(storageFactory::optionalValue)
               .forEach(s -> assertThat(s).isEmpty());
     }
@@ -246,8 +246,8 @@ class EnvSettingTest {
 
         var storageSetting = new EnvSetting<StorageFactory>();
 
-        storageSetting.use(storageFactory, Production.class);
-        storageSetting.ifPresentForEnvironment(Production.class, AutoCloseable::close);
+        storageSetting.use(storageFactory, DefaultMode.class);
+        storageSetting.ifPresentForEnvironment(DefaultMode.class, AutoCloseable::close);
 
         assertThat(storageFactory.isClosed()).isTrue();
     }
@@ -261,7 +261,7 @@ class EnvSettingTest {
 
         var storageSetting = new EnvSetting<StorageFactory>();
 
-        storageSetting.use(prodStorageFactory, Production.class);
+        storageSetting.use(prodStorageFactory, DefaultMode.class);
         storageSetting.use(testingStorageFactory, Tests.class);
         storageSetting.use(localStorageFactory, Local.class);
 

@@ -26,7 +26,7 @@
 
 package io.spine.system.server;
 
-import com.google.common.annotations.VisibleForTesting;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.server.BoundedContext;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -63,7 +63,7 @@ final class DefaultSystemClient implements SystemClient {
     }
 
     @Override
-    public void closeSystemContext() throws Exception {
+    public void closeSystemContext() {
         context.close();
     }
 

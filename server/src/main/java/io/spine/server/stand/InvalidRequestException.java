@@ -25,10 +25,11 @@
  */
 package io.spine.server.stand;
 
-import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.Message;
 import io.spine.base.Error;
 import io.spine.server.MessageError;
+
+import java.io.Serial;
 
 /**
  * A base class for exceptions fired in case an invalid request
@@ -36,9 +37,10 @@ import io.spine.server.MessageError;
  */
 public class InvalidRequestException extends RuntimeException implements MessageError {
 
+    @Serial
     private static final long serialVersionUID = 0L;
 
-    private final GeneratedMessageV3 request;
+    private final Message request;
     private final Error error;
 
     /**
@@ -48,7 +50,7 @@ public class InvalidRequestException extends RuntimeException implements Message
      * @param request     the related actor request
      * @param error       the error occurred
      */
-    InvalidRequestException(String messageText, GeneratedMessageV3 request, Error error) {
+    InvalidRequestException(String messageText, Message request, Error error) {
         super(messageText);
         this.request = request;
         this.error = error;

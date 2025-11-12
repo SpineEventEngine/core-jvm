@@ -51,7 +51,7 @@ import static io.spine.util.Preconditions2.checkNotEmptyOrBlank;
  * @implSpec Note that a {@code ThirdPartyContext} sends a request for external messages to
  *         other contexts. The {@code ThirdPartyContext} never consumes external messages itself,
  *         but requires the other Bounded Contexts to send their requests, so that the publishing
- *         channels are open. Depending of the implementation of
+ *         channels are open. Depending on the implementation of
  *         {@linkplain io.spine.server.transport.TransportFactory transport}, creating
  *         a {@code ThirdPartyContext} may be an expensive operation. Thus, it is recommended that
  *         the instances of this class are reused and {@linkplain #close() closed} when they are
@@ -149,7 +149,7 @@ public final class ThirdPartyContext implements Closeable {
         var context = ActorContext.newBuilder()
                 .setActor(userId)
                 .setTimestamp(currentTime())
-                .vBuild();
+                .build();
         emittedEvent(eventMessage, context);
     }
 
@@ -174,12 +174,9 @@ public final class ThirdPartyContext implements Closeable {
      * Closes this Context and clean up underlying resources.
      *
      * <p>Attempts of emitting an event from a closed Context result in an exception.
-     *
-     * @throws Exception
-     *         if the underlying {@link BoundedContext} fails to close
      */
     @Override
-    public void close() throws Exception {
+    public void close() {
         context.close();
     }
 

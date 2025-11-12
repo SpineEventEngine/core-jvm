@@ -51,7 +51,7 @@ public final class ReactorClassDelegate<T extends EventReceiver>
 
     @Override
     public Optional<EventReactorMethod> reactorOf(EventEnvelope event) {
-        return handlerOf(event);
+        return findReceptorOf(event);
     }
 
     @Override

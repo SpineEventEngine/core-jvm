@@ -82,12 +82,10 @@ final class FilterChain<E extends MessageEnvelope<?, ?, ?>> implements BusFilter
      *
      * @throws IllegalStateException
      *         on a repetitive call
-     * @throws Exception
-     *         if a filter throws an {@link Exception}
      * @see #isOpen()
      */
     @Override
-    public void close() throws Exception {
+    public void close() {
         checkOpen();
         closed = true;
         for (BusFilter<?> filter : chain.reverse()) {

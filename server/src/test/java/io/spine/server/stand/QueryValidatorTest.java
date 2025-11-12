@@ -56,7 +56,7 @@ class QueryValidatorTest {
                 .setId(queryId())
                 .setTarget(buildTarget())
                 .setFormat(format)
-                .vBuild();
+                .build();
         var typeRegistry = InMemoryTypeRegistry.newInstance();
         typeRegistry.register(new MenuRepository());
         var validator = new QueryValidator(typeRegistry);

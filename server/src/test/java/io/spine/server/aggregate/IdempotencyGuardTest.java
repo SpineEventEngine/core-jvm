@@ -50,7 +50,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Optional;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth8.assertThat;
 import static io.spine.core.CommandValidationError.DUPLICATE_COMMAND_VALUE;
 import static io.spine.grpc.StreamObservers.noOpObserver;
 import static io.spine.server.aggregate.given.IdempotencyGuardTestEnv.command;

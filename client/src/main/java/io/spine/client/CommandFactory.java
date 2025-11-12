@@ -26,9 +26,9 @@
 
 package io.spine.client;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.Any;
 import io.spine.annotation.Internal;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.CommandMessage;
 import io.spine.core.Command;
 import io.spine.core.CommandContext;
@@ -38,7 +38,7 @@ import io.spine.validate.ValidationException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.base.Time.currentTime;
-import static io.spine.validate.Validate.checkValid;
+import static io.spine.validate.Validate.check;
 
 /**
  * A factory of {@link Command} instances.
@@ -47,7 +47,7 @@ import static io.spine.validate.Validate.checkValid;
  * such as the actor, the tenant, and others.
  *
  * <p>The command messages passed to the factory are
- * {@linkplain io.spine.validate.Validate#checkValid(com.google.protobuf.Message) validated}
+ * {@linkplain io.spine.validate.Validate#check(com.google.protobuf.Message) validated}
  * according to their Proto definitions. If a given message is invalid,
  * a {@link ValidationException} is thrown.
  *
@@ -64,14 +64,16 @@ public final class CommandFactory {
     /**
      * Creates a new {@link Command} with the given message.
      *
-     * @param message the command message
+     * @param message
+     *         the command message
      * @return new command instance
-     * @throws ValidationException if the passed message does not satisfy the constraints,
-     *                             set for it in its Protobuf definition
+     * @throws ValidationException
+     *         if the passed message does not satisfy the constraints,
+     *         set for it in its Protobuf definition
      */
     public Command create(CommandMessage message) throws ValidationException {
         checkNotNull(message);
-        checkValid(message);
+        check(message);
 
         var context = createContext();
         var result = createCommand(message, context);
@@ -83,17 +85,20 @@ public final class CommandFactory {
      *
      * <p>The {@code targetVersion} parameter defines the version of the entity which handles
      * the resulting command. Note that the framework performs no validation of the target version
-     * before a command is handled. Instead users themselves can perform validation.
+     * before a command is handled. Instead, users themselves can perform validation.
      *
-     * @param message       the command message
-     * @param targetVersion the version of the entity for which this command is intended
+     * @param message
+     *         the command message
+     * @param targetVersion
+     *         the version of the entity for which this command is intended
      * @return new command instance
-     * @throws ValidationException if the passed message does not satisfy the constraints
-     *                             set for it in its Protobuf definition
+     * @throws ValidationException
+     *         if the passed message does not satisfy the constraints
+     *         set for it in its Protobuf definition
      */
     public Command create(CommandMessage message, int targetVersion) throws ValidationException {
         checkNotNull(message);
-        checkValid(message);
+        check(message);
 
         var context = createContext(targetVersion);
         var result = createCommand(message, context);
@@ -106,11 +111,14 @@ public final class CommandFactory {
      * <p>The produced command is created with a {@code CommandContext} instance, copied from
      * the given one, but with the current time set as a context timestamp.
      *
-     * @param message the command message
-     * @param context the command context to use as a base for the new command
+     * @param message
+     *         the command message
+     * @param context
+     *         the command context to use as a base for the new command
      * @return new command instance
      * @throws ValidationException
-     * if the passed message does not satisfy the constraints set for it in its Protobuf definition
+     *         if the passed message does not satisfy the constraints set for it
+     *         in its Protobuf definition
      */
     @Internal
     @VisibleForTesting
@@ -118,7 +126,7 @@ public final class CommandFactory {
             throws ValidationException {
         checkNotNull(message);
         checkNotNull(context);
-        checkValid(message);
+        check(message);
 
         var newContext = withCurrentTime(context);
         var result = createCommand(message, newContext);
@@ -133,8 +141,10 @@ public final class CommandFactory {
      *
      * <p>The ID of the new command instance is automatically generated.
      *
-     * @param message the command message
-     * @param context the context of the command
+     * @param message
+     *         the command message
+     * @param context
+     *         the context of the command
      * @return a new command
      */
     private static Command createCommand(CommandMessage message, CommandContext context) {

@@ -31,11 +31,12 @@ import com.google.errorprone.annotations.concurrent.LazyInit;
 import io.spine.base.Error;
 import io.spine.core.BoundedContextName;
 import io.spine.core.MessageId;
-import io.spine.logging.Logging;
+import io.spine.logging.WithLogging;
 import io.spine.server.BoundedContext;
 import io.spine.server.ContextAware;
 import io.spine.server.Identity;
 import io.spine.server.bus.MessageDispatcher;
+import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.dispatch.DispatchOutcomeHandler;
 import io.spine.server.event.model.EventSubscriberClass;
 import io.spine.server.type.EventClass;
@@ -52,6 +53,7 @@ import static com.google.common.base.Suppliers.memoize;
 import static io.spine.server.Ignored.ignored;
 import static io.spine.server.event.model.EventSubscriberClass.asEventSubscriberClass;
 import static io.spine.server.tenant.TenantAwareRunner.with;
+import static java.lang.String.format;
 
 /**
  * The abstract base for objects that can be subscribed to receive events from {@link EventBus}.
@@ -63,7 +65,7 @@ import static io.spine.server.tenant.TenantAwareRunner.with;
  * @see io.spine.core.Subscribe
  */
 public abstract class AbstractEventSubscriber
-        implements EventDispatcher, EventSubscriber, ContextAware, Logging {
+        implements EventDispatcher, EventSubscriber, ContextAware, WithLogging {
 
     /** Model class for this subscriber. */
     private final EventSubscriberClass<?> thisClass = asEventSubscriberClass(getClass());
@@ -94,17 +96,17 @@ public abstract class AbstractEventSubscriber
      *         the envelope with the event
      */
     @Override
-    public final void dispatch(EventEnvelope event) {
-        with(event.tenantId()).run(() -> handle(event));
+    public final DispatchOutcome dispatch(EventEnvelope event) {
+        return with(event.tenantId()).evaluate(() -> handle(event));
     }
 
     /**
      * Handles an event dispatched to this subscriber instance.
      *
-     * <p>By default, passes the event to the corresponding {@linkplain io.spine.core.Subscribe
-     * subscriber} method of the entity.
+     * <p>By default, passes the event to the corresponding
+     * {@linkplain io.spine.core.Subscribe subscriber} method of the entity.
      */
-    protected void handle(EventEnvelope event) {
+    protected DispatchOutcome handle(EventEnvelope event) {
         var outcome =
                 thisClass.subscriberOf(event)
                          .map(method -> method.invoke(this, event))
@@ -113,6 +115,7 @@ public abstract class AbstractEventSubscriber
                 .onError(e -> postFailure(e, event))
                 .onIgnored(i -> logOnIgnored(event))
                 .handle();
+        return outcome;
     }
 
     private void postFailure(Error error, EventEnvelope event) {
@@ -120,14 +123,15 @@ public abstract class AbstractEventSubscriber
                 .setEntity(eventAnchor())
                 .setHandledSignal(event.messageId())
                 .setError(error)
-                .vBuild();
+                .build();
         system.postEvent(systemEvent, event.asMessageOrigin());
     }
 
     private void logOnIgnored(EventEnvelope event) {
         if (!event.isEntityStateUpdate()) {
-            _debug().log("Subscriber `%s` filtered out and ignored event %s[ID: %s].",
-                         thisClass, event.messageClass(), event.id().value());
+            logger().atDebug().log(() -> format(
+                    "Subscriber `%s` filtered out and ignored event %s[ID: %s].",
+                    thisClass, event.messageClass(), event.id().value()));
         }
     }
 

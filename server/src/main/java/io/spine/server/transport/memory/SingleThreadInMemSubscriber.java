@@ -27,17 +27,17 @@
 package io.spine.server.transport.memory;
 
 import io.spine.base.Identifier;
-import io.spine.logging.Logging;
+import io.spine.logging.WithLogging;
 import io.spine.server.integration.ExternalMessage;
 import io.spine.server.transport.ChannelId;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
 
-import static com.google.common.flogger.LazyArgs.lazy;
+import static java.lang.String.format;
 
 /**
  * The in-memory subscriber, which uses single-thread delivery of messages.
@@ -48,7 +48,7 @@ import static com.google.common.flogger.LazyArgs.lazy;
  * <p>This implementation should not be used in production environments, as it is not designed
  * to operate with external transport.
  */
-final class SingleThreadInMemSubscriber extends InMemorySubscriber implements Logging {
+final class SingleThreadInMemSubscriber extends InMemorySubscriber implements WithLogging {
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -69,10 +69,10 @@ final class SingleThreadInMemSubscriber extends InMemorySubscriber implements Lo
      * @return {@code null} always
      */
     private @Nullable Void logError(Throwable throwable, ExternalMessage message) {
-        _error().withCause(throwable)
-                .log("Error dispatching an external message `%s` with ID `%s`.",
-                     message.getOriginalMessage().getTypeUrl(),
-                     lazy(() -> Identifier.unpack(message.getId())));
+        logger().atError().withCause(throwable).log(() -> format(
+                "Error dispatching an external message `%s` with ID `%s`.",
+                message.getOriginalMessage().getTypeUrl(),
+                Identifier.unpack(message.getId())));
         return null;
     }
 

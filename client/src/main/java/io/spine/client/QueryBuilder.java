@@ -26,6 +26,7 @@
 
 package io.spine.client;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.base.EntityState;
 
 import java.util.Optional;
@@ -84,6 +85,7 @@ public final class QueryBuilder extends TargetBuilder<Query, QueryBuilder> {
      * @param direction
      *         sorting direction
      */
+    @CanIgnoreReturnValue
     public QueryBuilder orderBy(String column, OrderBy.Direction direction) {
         checkNotNull(column);
         checkNotNull(direction);
@@ -103,6 +105,7 @@ public final class QueryBuilder extends TargetBuilder<Query, QueryBuilder> {
      * @param count
      *         the number of results to be returned
      */
+    @CanIgnoreReturnValue
     public QueryBuilder limit(int count) {
         checkLimit(count);
         this.limit = count;

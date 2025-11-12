@@ -28,19 +28,18 @@ package io.spine.server.type;
 
 import com.google.protobuf.Message;
 import io.spine.base.Identifier;
-import io.spine.base.Time;
 import io.spine.core.Event;
-import io.spine.core.EventContext;
 import io.spine.core.EventId;
 import io.spine.protobuf.AnyPacker;
-import io.spine.test.core.ProjectId;
-import io.spine.test.core.TaskAssigned;
-import io.spine.test.core.TaskId;
+import io.spine.server.type.given.GivenEvent;
+import io.spine.test.server.envelope.ProjectId;
+import io.spine.test.server.envelope.event.TaskAssigned;
+import io.spine.test.server.envelope.TaskId;
 import io.spine.validate.ValidationException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static io.spine.validate.Validate.checkValid;
+import static io.spine.validate.Validate.check;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DisplayName("Event message should")
@@ -55,7 +54,7 @@ class EventMessageTest {
                 .setUserName("John Doe")
                 .build();
         var event = event(msg);
-        checkValid(event);
+        check(event);
     }
 
     @Test
@@ -64,9 +63,9 @@ class EventMessageTest {
         var msg = TaskAssigned.newBuilder()
                 .setId(newTaskId())
                 .setProjectId(newProjectId())
-                .build();
-        var event = event(msg);
-        assertThrows(ValidationException.class, () -> checkValid(event));
+                .buildPartial();
+        var event = partiallyBuiltEvent(msg);
+        assertThrows(ValidationException.class, () -> check(event));
     }
 
     private static TaskId newTaskId() {
@@ -82,18 +81,27 @@ class EventMessageTest {
     }
 
     private static Event event(Message message) {
+        var builder = eventWithMsg(message);
+        var result = builder.build();
+        return result;
+    }
+
+    private static Event partiallyBuiltEvent(Message message) {
+        var builder = eventWithMsg(message);
+        var result = builder.buildPartial();
+        return result;
+    }
+
+    private static Event.Builder eventWithMsg(Message message) {
         var id = EventId.newBuilder()
                 .setValue(Identifier.newUuid())
                 .build();
         var wrappedMessage = AnyPacker.pack(message);
-        var context = EventContext.newBuilder()
-                .setTimestamp(Time.currentTime())
-                .build();
-        var result = Event.newBuilder()
+        var context = GivenEvent.context();
+        var builder = Event.newBuilder()
                 .setId(id)
                 .setMessage(wrappedMessage)
-                .setContext(context)
-                .build();
-        return result;
+                .setContext(context);
+        return builder;
     }
 }

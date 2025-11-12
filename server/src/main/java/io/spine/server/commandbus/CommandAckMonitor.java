@@ -28,6 +28,7 @@ package io.spine.server.commandbus;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.grpc.stub.StreamObserver;
 import io.spine.base.EventMessage;
 import io.spine.core.Ack;
@@ -151,6 +152,7 @@ final class CommandAckMonitor implements StreamObserver<Ack> {
         /**
          * Sets the ID of a tenant who owns the observed commands.
          */
+        @CanIgnoreReturnValue
         Builder setTenantId(TenantId tenantId) {
             this.tenantId = checkNotNull(tenantId);
             return this;
@@ -159,6 +161,7 @@ final class CommandAckMonitor implements StreamObserver<Ack> {
         /**
          * Sets the {@link SystemWriteSide} to post system commands into.
          */
+        @CanIgnoreReturnValue
         Builder setSystemWriteSide(SystemWriteSide systemWriteSide) {
             this.systemWriteSide = checkNotNull(systemWriteSide);
             return this;
@@ -169,6 +172,7 @@ final class CommandAckMonitor implements StreamObserver<Ack> {
          *
          * <p>The resulting monitor is able to observe only outcomes of these commands.
          */
+        @CanIgnoreReturnValue
         Builder setPostedCommands(ImmutableSet<Command> commands) {
             this.commands = checkNotNull(commands);
             return this;

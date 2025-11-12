@@ -142,7 +142,7 @@ public interface Signal<I extends SignalId,
      * Obtains the ID of this message.
      */
     default MessageId messageId() {
-        return identityBuilder().vBuild();
+        return identityBuilder().build();
     }
 
     /**
@@ -166,7 +166,7 @@ public interface Signal<I extends SignalId,
                 .setActorContext(actorContext())
                 .setMessage(messageId());
         origin().ifPresent(originBuilder::setGrandOrigin);
-        return originBuilder.vBuild();
+        return originBuilder.build();
     }
 
     /**

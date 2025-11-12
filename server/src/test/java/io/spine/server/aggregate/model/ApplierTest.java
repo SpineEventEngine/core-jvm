@@ -29,6 +29,7 @@ package io.spine.server.aggregate.model;
 import com.google.common.testing.NullPointerTester;
 import com.google.common.truth.extensions.proto.ProtoTruth;
 import com.google.protobuf.Any;
+import io.spine.base.Identifier;
 import io.spine.core.CommandContext;
 import io.spine.core.Event;
 import io.spine.server.aggregate.Aggregate;
@@ -38,10 +39,13 @@ import io.spine.server.model.IllegalOutcomeException;
 import io.spine.server.model.MatchCriterion;
 import io.spine.server.test.shared.LongIdAggregate;
 import io.spine.server.type.EventEnvelope;
+import io.spine.server.type.given.GivenEvent;
+import io.spine.test.reflect.ProjectId;
 import io.spine.test.reflect.event.RefProjectCreated;
 import io.spine.testdata.Sample;
 import io.spine.testing.logging.mute.MuteLogging;
 import io.spine.testing.server.model.ModelTests;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -92,6 +96,8 @@ class ApplierTest {
         var applier = method.get();
         var eventMessage = Sample.messageOfType(RefProjectCreated.class);
         var event = Event.newBuilder()
+                .setId(GivenEvent.someId())
+                .setContext(GivenEvent.context())
                 .setMessage(pack(eventMessage))
                 .build();
         var envelope = EventEnvelope.of(event);
@@ -120,15 +126,29 @@ class ApplierTest {
         assertTrue(method.isPresent());
         var applier = method.get();
 
-        Void result = null;
         var event = Event.newBuilder()
-                .setMessage(pack(RefProjectCreated.getDefaultInstance()))
+                .setId(GivenEvent.someId())
+                .setContext(GivenEvent.context())
+                .setMessage(pack(eventMessage()))
                 .build();
         var envelope = EventEnvelope.of(event);
-        var success = applier.toSuccessfulOutcome(result, applierObject, envelope);
+        var success = applier.toSuccessfulOutcome(null, applierObject, envelope);
         var assertSuccess = ProtoTruth.assertThat(success);
         assertSuccess.isNotNull();
         assertSuccess.isEqualToDefaultInstance();
+    }
+
+    @NonNull
+    private static RefProjectCreated eventMessage() {
+        return RefProjectCreated.newBuilder()
+                .setProjectId(newProjectId())
+                .build();
+    }
+
+    private static ProjectId newProjectId() {
+        return ProjectId.newBuilder()
+                .setId(Identifier.newUuid())
+                .build();
     }
 
     @Test
@@ -140,7 +160,9 @@ class ApplierTest {
         var applier = method.get();
 
         var event = Event.newBuilder()
-                .setMessage(pack(RefProjectCreated.getDefaultInstance()))
+                .setId(GivenEvent.someId())
+                .setContext(GivenEvent.context())
+                .setMessage(pack(eventMessage()))
                 .build();
         var envelope = EventEnvelope.of(event);
         var result = "hello there";

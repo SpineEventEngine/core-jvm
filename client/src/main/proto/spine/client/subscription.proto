@@ -64,17 +64,13 @@ message Topic {
 
     // Defines the target of interest, e.g. event/entity type URL and a set of subscription
     // criteria.
-    Target target = 2 [(required) = true,
-                       (validate) = true,
-                       (if_invalid).msg_format = "Invalid topic target"];
+    Target target = 2 [(required) = true, (validate) = true];
 
     // Field mask to be applied to the subscription updates.
     google.protobuf.FieldMask field_mask = 3;
 
     // Service information about the environment in which the topic was created.
-    core.ActorContext context = 4 [(required) = true,
-                                   (validate) = true,
-                                   (if_invalid).msg_format = "Invalid actor context"];
+    core.ActorContext context = 4 [(required) = true, (validate) = true];
 }
 
 // Wrapped collection of read-side entity updates on a topic with the specific subscription ID.
@@ -190,7 +186,7 @@ message Subscription {
     SubscriptionId id = 1 [(required) = true];
 
     // Represents the original topic for this subscription.
-    Topic topic = 2 [(required) = true, (validate) = true, (if_invalid).msg_format = "Invalid topic"];
+    Topic topic = 2 [(required) = true, (validate) = true];
 }
 
 // Enumeration of possible technical error reasons occurred in topic validation.

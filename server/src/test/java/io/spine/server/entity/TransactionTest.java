@@ -148,8 +148,8 @@ public abstract class TransactionTest<I,
             assertThat(tx.entity())
                     .isEqualTo(entity);
             // Not possible to compare `Message.Builder` instances via `equals`, so trigger `build()`.
-            assertThat(tx.builder().build())
-                    .isEqualTo(expectedBuilder.build());
+            assertThat(tx.builder().buildPartial())
+                    .isEqualTo(expectedBuilder.buildPartial());
             assertThat(tx.version())
                     .isEqualTo(expectedVersion);
             assertThat(tx.lifecycleFlags())

@@ -25,9 +25,9 @@
  */
 package io.spine.client;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.annotation.Internal;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.Time;
 import io.spine.core.ActorContext;
 import io.spine.core.CommandContext;
@@ -35,7 +35,7 @@ import io.spine.core.TenantId;
 import io.spine.core.UserId;
 import io.spine.time.ZoneId;
 import io.spine.time.ZoneIds;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.base.Time.currentTime;
@@ -221,8 +221,23 @@ public class ActorRequestFactory {
 
         private @Nullable TenantId tenantId;
 
+        /**
+         * Checks whether the actor has been set.
+         *
+         * @return {@code true} if the actor was set, {@code false} otherwise
+         */
+        public boolean hasActor() {
+            return actor != null;
+        }
+
+        /**
+         * Returns the actor ID.
+         *
+         * @return the actor ID
+         * @throws NullPointerException if the actor was not set
+         */
         public UserId getActor() {
-            return actor;
+            return checkNotNull(actor);
         }
 
         /**
@@ -240,9 +255,30 @@ public class ActorRequestFactory {
          * Obtains the zone ID set in the builder.
          *
          * @return the zone ID or {@code null} if the value was not set
+         * @deprecated This method returns {@code null}. Use {@link #getZoneId()} and {@link #hasZoneId()} instead.
          */
-        public @Nullable ZoneId getZoneId() {
+        @Deprecated
+        public @Nullable ZoneId zoneId() {
             return zoneId;
+        }
+
+        /**
+         * Checks whether the zone ID has been set.
+         *
+         * @return {@code true} if the zone ID was set, {@code false} otherwise
+         */
+        public boolean hasZoneId() {
+            return zoneId != null;
+        }
+
+        /**
+         * Returns the zone ID.
+         *
+         * @return the zone ID
+         * @throws NullPointerException if the zone ID was not set
+         */
+        public ZoneId getZoneId() {
+            return checkNotNull(zoneId);
         }
 
         /**
@@ -260,9 +296,30 @@ public class ActorRequestFactory {
          * Obtains the ID of the tenant in a multi-tenant application to which the actor belongs.
          *
          * @return the ID of the tenant or {@code null} for a single-tenant execution context
+         * @deprecated This method returns {@code null}. Use {@link #getTenantId()} and {@link #hasTenantId()} instead.
          */
-        public @Nullable TenantId getTenantId() {
+        @Deprecated
+        public @Nullable TenantId tenantId() {
             return tenantId;
+        }
+
+        /**
+         * Checks whether the tenant ID has been set.
+         *
+         * @return {@code true} if the tenant ID was set, {@code false} otherwise
+         */
+        public boolean hasTenantId() {
+            return tenantId != null;
+        }
+
+        /**
+         * Returns the tenant ID.
+         *
+         * @return the tenant ID
+         * @throws NullPointerException if the tenant ID was not set
+         */
+        public TenantId getTenantId() {
+            return checkNotNull(tenantId);
         }
 
         /**

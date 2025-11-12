@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -35,9 +35,11 @@ import io.spine.base.RejectionThrowable
 import io.spine.core.Command
 import io.spine.core.Event
 import io.spine.core.EventContext
-import io.spine.core.RejectionEventContext
+import io.spine.core.rejectionEventContext
 
-/** A placeholder to be used when a producer of a rejection is not available. */
+/**
+ * A placeholder to be used when a producer of a rejection is not available.
+ */
 private val unknownProducer: Any = Identifier.pack("Unknown")
 
 /**
@@ -46,13 +48,11 @@ private val unknownProducer: Any = Identifier.pack("Unknown")
  * If the ID of the actor generating the rejection was not [set][RejectionThrowable.initProducer],
  * in the rejection, a placeholder with the string `"Unknown"` will be used as the producer ID.
  *
- * @param command
- *          the command to be rejected
- * @param throwable
- *          the reason for the command to be rejected, must implement [RejectionThrowable],
- *          or have its cause implementing this interface
- * @throws IllegalArgumentException
- *          if neither the passed throwable nor its cause implement [RejectionThrowable]
+ * @param command The command to be rejected.
+ * @param throwable The reason for the command to be rejected, must implement [RejectionThrowable],
+ *   or have its cause implementing this interface.
+ * @throws IllegalArgumentException if neither the passed throwable nor its cause
+ *   implement [RejectionThrowable].
  */
 public fun reject(command: Command, throwable: Throwable): Event {
     val rt = unwrap(throwable)
@@ -60,7 +60,9 @@ public fun reject(command: Command, throwable: Throwable): Event {
     return factory.createRejection()
 }
 
-/** Extracts a `RejectionThrowable` from the passed instance. */
+/**
+ * Extracts a `RejectionThrowable` from the passed instance.
+ */
 private fun unwrap(throwable: Throwable): RejectionThrowable {
     if (throwable is RejectionThrowable) {
         return throwable
@@ -82,21 +84,23 @@ private class RFactory(val command: Command, val throwable: RejectionThrowable) 
         throwable.producerId().orElse(unknownProducer)
     ) {
 
-    /** Creates a rejection event which does not have version information. */
+    /**
+     * Creates a rejection event which does not have version information.
+     */
     fun createRejection(): Event {
         val msg = throwable.messageThrown()
         val ctx = createContext()
         return assemble(msg, ctx)
     }
 
-    /** Creates an event context holding a rejection context. */
-    private fun createContext(): EventContext {
-        val rejectionContext = RejectionEventContext.newBuilder()
-            .setCommand(command)
-            .setStacktrace(throwable.stackTraceToString())
-            .vBuild()
-        return newContext(null)
-            .setRejection(rejectionContext)
-            .vBuild()
-    }
+    /**
+     * Creates an event context holding a rejection context.
+     */
+    private fun createContext(): EventContext =
+        newContext(null).apply {
+            rejection = rejectionEventContext {
+                command = this@RFactory.command
+                stacktrace = throwable.stackTraceToString()
+            }
+        }.build()
 }

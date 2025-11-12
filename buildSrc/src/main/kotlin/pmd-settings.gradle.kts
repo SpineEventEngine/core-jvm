@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -24,7 +24,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import io.spine.internal.dependency.Pmd
+import io.spine.dependency.build.Pmd
 
 plugins {
     pmd
@@ -41,11 +41,9 @@ pmd {
     // Disable the default rule set to use the custom rules (see below).
     ruleSets = listOf()
 
-    // Load PMD settings from a file in `buildSrc/resources/`.
-    val classLoader = Pmd.javaClass.classLoader
-    val settingsResource = classLoader.getResource("pmd.xml")!!
-    val pmdSettings: String = settingsResource.readText()
-    val textResource: TextResource = resources.text.fromString(pmdSettings)
+    // Load PMD settings.
+    val pmdSettings = file("$rootDir/buildSrc/quality/pmd.xml")
+    val textResource: TextResource = resources.text.fromFile(pmdSettings)
     ruleSetConfig = textResource
 
     reportsDir = file("build/reports/pmd")

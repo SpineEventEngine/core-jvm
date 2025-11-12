@@ -27,17 +27,14 @@
 package io.spine.client;
 
 import com.google.common.collect.ImmutableList;
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import io.spine.base.CommandMessage;
 import io.spine.base.EntityState;
 import io.spine.base.EventMessage;
 import io.spine.core.UserId;
 import io.spine.query.EntityQuery;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static io.spine.util.Preconditions2.checkNotDefaultArg;
+import static io.spine.type.PubPreconditions.requirePublished;
 
 /**
  * Entry point for creating client requests.
@@ -47,33 +44,23 @@ import static io.spine.util.Preconditions2.checkNotDefaultArg;
  * a specific client request e.g. for {@linkplain ClientRequest#command(CommandMessage) posting
  * a command}.
  *
- * <p>A client request may be customized using fluent API provided by the deriving classes.
+ * <p>A client request may be customized using fluent API provided by the classes derived
+ * from {@link ClientRequestBase}.
  *
  * <p>Some features such as running an {@link EntityQuery} are available
  * {@linkplain #run(EntityQuery) directly from this class}.
  *
  * @see Client
  */
-@SuppressWarnings("ClassReferencesSubclass")
 // we want to have DSL for calls encapsulated in this class.
-public class ClientRequest {
+public class ClientRequest extends ClientRequestBase {
 
-    private final UserId user;
-    private final Client client;
-
-    private @Nullable ErrorHandler streamingErrorHandler;
-    private @Nullable ServerErrorHandler serverErrorHandler;
-
+    /**
+     * Creates a new instance with the given user ID and the reference to
+     * the {@code client} instance which is going to send the request.
+     */
     ClientRequest(UserId user, Client client) {
-        checkNotDefaultArg(user);
-        this.user = user;
-        this.client = checkNotNull(client);
-    }
-
-    ClientRequest(ClientRequest parent) {
-        this(parent.user, parent.client);
-        this.streamingErrorHandler = parent.streamingErrorHandler;
-        this.serverErrorHandler = parent.serverErrorHandler;
+        super(user, client);
     }
 
     /**
@@ -81,6 +68,7 @@ public class ClientRequest {
      */
     public CommandRequest command(CommandMessage c) {
         checkNotNull(c);
+        requirePublished(c);
         return new CommandRequest(this, c);
     }
 
@@ -89,6 +77,7 @@ public class ClientRequest {
      */
     public <S extends EntityState<?>> SubscriptionRequest<S> subscribeTo(Class<S> type) {
         checkNotNull(type);
+        requirePublished(type);
         return new SubscriptionRequest<>(this, type);
     }
 
@@ -97,6 +86,7 @@ public class ClientRequest {
      */
     public <E extends EventMessage> EventSubscriptionRequest<E> subscribeToEvent(Class<E> type) {
         checkNotNull(type);
+        requirePublished(type);
         return new EventSubscriptionRequest<>(this, type);
     }
 
@@ -122,54 +112,9 @@ public class ClientRequest {
      *         the type of the entity state for which the query is run
      */
     public <S extends EntityState<?>> ImmutableList<S> run(EntityQuery<?, S, ?> query) {
+        requirePublished(query.subject().recordType());
         var request = new QueryRequest<>(this, query);
         var results = request.run();
         return results;
-    }
-
-    /**
-     * Obtains the ID of the user of the request.
-     */
-    protected final UserId user() {
-        return user;
-    }
-
-    /**
-     * Obtains the client instance that will perform the request.
-     */
-    protected final Client client() {
-        return client;
-    }
-
-    /**
-     * Assigns a handler for errors occurred when delivering messages from the server.
-     *
-     * <p>If such an error occurs, no more results are expected from the server.
-     */
-    @CanIgnoreReturnValue
-    @OverridingMethodsMustInvokeSuper
-    public ClientRequest onStreamingError(ErrorHandler handler) {
-        this.streamingErrorHandler = checkNotNull(handler);
-        return this;
-    }
-
-    /**
-     * Assigns a handler for an error occurred on the server-side (such as validation error)
-     * in response to posting a request.
-     */
-    @CanIgnoreReturnValue
-    @OverridingMethodsMustInvokeSuper
-    public ClientRequest onServerError(ServerErrorHandler handler) {
-        checkNotNull(handler);
-        this.serverErrorHandler = handler;
-        return this;
-    }
-
-    final @Nullable ErrorHandler streamingErrorHandler() {
-        return streamingErrorHandler;
-    }
-
-    final @Nullable ServerErrorHandler serverErrorHandler() {
-        return serverErrorHandler;
     }
 }

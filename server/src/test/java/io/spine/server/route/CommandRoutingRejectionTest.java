@@ -32,13 +32,13 @@ import io.spine.core.Subscribe;
 import io.spine.server.BoundedContext;
 import io.spine.server.commandbus.CommandBus;
 import io.spine.server.event.AbstractEventSubscriber;
-import io.spine.server.route.given.switchman.Log;
-import io.spine.server.route.given.switchman.SwitchId;
-import io.spine.server.route.given.switchman.SwitchPosition;
-import io.spine.server.route.given.switchman.Switchman;
-import io.spine.server.route.given.switchman.SwitchmanBureau;
-import io.spine.server.route.given.switchman.command.SetSwitch;
-import io.spine.server.route.given.switchman.event.SwitchPositionConfirmed;
+import io.spine.server.given.context.switchman.Log;
+import io.spine.server.given.context.switchman.SwitchId;
+import io.spine.server.given.context.switchman.SwitchPosition;
+import io.spine.server.given.context.switchman.Switchman;
+import io.spine.server.given.context.switchman.SwitchmanBureau;
+import io.spine.server.given.context.switchman.command.SetSwitch;
+import io.spine.server.given.context.switchman.event.SwitchPositionConfirmed;
 import io.spine.testing.client.TestActorRequestFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,8 +51,8 @@ import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.truth.Truth.assertThat;
 import static io.spine.base.Identifier.newUuid;
 import static io.spine.grpc.StreamObservers.noOpObserver;
-import static io.spine.server.route.given.switchman.SwitchPosition.RIGHT;
-import static io.spine.server.route.given.switchman.SwitchmanBureau.MISSING_SWITCHMAN_NAME;
+import static io.spine.server.given.context.switchman.SwitchPosition.RIGHT;
+import static io.spine.server.given.context.switchman.SwitchmanBureau.MISSING_SWITCHMAN_NAME;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -83,7 +83,7 @@ class CommandRoutingRejectionTest {
     }
 
     @AfterEach
-    void tearDown() throws Exception {
+    void tearDown() {
         context.close();
     }
 
@@ -116,6 +116,8 @@ class CommandRoutingRejectionTest {
         // Post a command with the argument which causes rejection in routing.
         var commandToReject = requestFactory.createCommand(
                 SetSwitch.newBuilder()
+                         // This name is specifically checked in the routing function to
+                         // throw an error.
                          .setSwitchmanName(MISSING_SWITCHMAN_NAME)
                          .setSwitchId(generateSwitchId())
                          .setPosition(SwitchPosition.LEFT)

@@ -29,7 +29,7 @@ package io.spine.server.entity;
 import com.google.errorprone.annotations.concurrent.LazyInit;
 import io.spine.server.entity.model.AbstractEntityFactory;
 import io.spine.server.model.ModelError;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

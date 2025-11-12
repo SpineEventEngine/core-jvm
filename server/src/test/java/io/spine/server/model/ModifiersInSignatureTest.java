@@ -40,7 +40,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth8.assertThat;
 import static io.spine.server.model.AccessModifier.PROTECTED_CONTRACT;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 

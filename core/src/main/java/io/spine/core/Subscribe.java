@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -34,9 +34,8 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Marks a method as a subscriber for the command output.
- *
- * <p>Use it to subscribe to either events, business rejections, or entity state updates.
+ * Marks a method as a subscriber for the output of a command such as events,
+ * rejections, or entity state updates.
  *
  * <h1>Subscribing to Events</h1>
  *
@@ -66,17 +65,17 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *
  * <p>Therefore, if the subscriber method specifies both the command message and
  * the command context, it must have the parameters exactly is that order, i.e.
- * {@code (RejectionMessage, CommandMessage, CommandContext)}. Otherwise, an exception may be thrown
- * at runtime.
+ * {@code (RejectionMessage, CommandMessage, CommandContext)}.
+ * Otherwise, an exception may be thrown at runtime.
  *
- * <p>The type of the command argument, if specified, acts as a filter, i.e. the subscriber receives
- * the rejection if:
+ * <p>The type of the command argument, if specified, acts as a filter, i.e.,
+ * the subscriber receives the rejection if:
  * <ul>
  *     <li>the rejection type matches the first argument type;
  *     <li>the command, which processing caused the rejection, has the same type as
  *         the command message argument if it is present;
- *     <li>if the command message argument is absent, any rejection of a matching type is received
- *         by the subscriber.
+ *     <li>if the command message argument is absent, any rejection of a matching type
+ *         is received by the subscriber.
  * </ul>
  *
  * <h1>Subscribing to Entity State Updates</h1>
@@ -85,8 +84,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * <ul>
  *     <li>is annotated with {@link Subscribe};
  *     <li>returns {@code void};
- *     <li>accepts an entity state message marked with the {@code (entity)} option as the only
- *         parameter.
+ *     <li>accepts an entity state message marked with the {@code (entity)} option as
+ *         the only parameter.
  * </ul>
  *
  * <p>If the annotation is applied to a method which doesn't satisfy either of these requirements,
@@ -95,8 +94,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * <p>Event subscriber methods are designed to be called by the framework only.
  * Therefore, it is recommended to declare them package-private (or {@code internal} in Kotlin).
  * It discourages developers from calling these methods directly from anywhere.
- * It is also acceptable to use {@code protected} if the declaring class inherits the method from
- * a superclass.
+ * It is also acceptable to use {@code protected} if the declaring class inherits
+ * the method from a superclass.
  *
  * <p>This level of access declares that an event reactor method is a part
  * of the Bounded Context-level API. See the {@link io.spine.core.BoundedContext

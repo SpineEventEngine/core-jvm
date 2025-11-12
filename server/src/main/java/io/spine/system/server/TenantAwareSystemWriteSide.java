@@ -75,4 +75,9 @@ final class TenantAwareSystemWriteSide implements SystemWriteSide {
         var event = runner.evaluate(() -> delegate.postEvent(systemEvent, origin));
         return event;
     }
+
+    @Override
+    public SystemFeatures features() {
+        return delegate.features();
+    }
 }

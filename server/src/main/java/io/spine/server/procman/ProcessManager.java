@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -26,11 +26,15 @@
 
 package io.spine.server.procman;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import io.spine.annotation.Internal;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.EntityState;
-import io.spine.server.command.CommandAssigneeEntity;
+import io.spine.base.ProcessManagerState;
+import io.spine.logging.WithLogging;
+import io.spine.server.BoundedContext;
+import io.spine.server.command.Assign;
+import io.spine.server.command.AssigneeEntity;
 import io.spine.server.command.Commander;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.HasLifecycleColumns;
@@ -38,16 +42,21 @@ import io.spine.server.entity.HasVersionColumn;
 import io.spine.server.entity.Transaction;
 import io.spine.server.entity.TransactionalEntity;
 import io.spine.server.event.EventReactor;
-import io.spine.server.log.LoggingEntity;
+import io.spine.server.event.React;
 import io.spine.server.procman.model.ProcessManagerClass;
+import io.spine.server.query.Querying;
+import io.spine.server.query.QueryingClient;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
 import io.spine.validate.ValidatingBuilder;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.server.Ignored.ignored;
 import static io.spine.server.procman.model.ProcessManagerClass.asProcessManagerClass;
 import static io.spine.util.Exceptions.newIllegalStateException;
+import static java.lang.String.format;
 
 /**
  * A central processing unit used to maintain the state of the business process and determine
@@ -63,7 +72,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * <li>
  *   <a href="http://www.enterpriseintegrationpatterns.com/patterns/messaging/ProcessManager.html">
  *       Process Manager Pattern</a>
- * <li><a href="http://kellabyte.com/2012/05/30/clarifying-the-saga-pattern/">
+ * <li><a href="http://web.archive.org/web/20161205130022/http://kellabyte.com/2012/05/30/clarifying-the-saga-pattern/">
  *     Clarifying the Saga pattern</a> — the difference between Process Manager and Saga
  * <li><a href="https://dzone.com/articles/are-sagas-and-workflows-same-t">
  *     Are Sagas and Workflows the same...</a>
@@ -79,14 +88,24 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  *         the type of the builders for the process manager state
  */
 public abstract class ProcessManager<I,
-                                     S extends EntityState<I>,
+                                     S extends ProcessManagerState<I>,
                                      B extends ValidatingBuilder<S>>
-        extends CommandAssigneeEntity<I, S, B>
+        extends AssigneeEntity<I, S, B>
         implements EventReactor,
                    Commander,
                    HasVersionColumn<I, S>,
                    HasLifecycleColumns<I, S>,
-                   LoggingEntity {
+                   Querying,
+                   WithLogging {
+
+    /**
+     * The context in which this process manager is executed.
+     *
+     * <p>May be {@code null} if the process manager is not yet attached to a context.
+     *
+     * @see ProcessManagerRepository#configure(ProcessManager)
+     */
+    private @MonotonicNonNull BoundedContext context = null;
 
     /**
      * Creates a new instance.
@@ -103,6 +122,34 @@ public abstract class ProcessManager<I,
      */
     protected ProcessManager(I id) {
         super(id);
+    }
+
+    /**
+     * Assigns the passed bounded context to this process manager.
+     */
+    final void injectContext(BoundedContext context) {
+        checkNotNull(context);
+        if (this.context != null) {
+            throw newIllegalStateException(
+                    "The process manager `%s` is already placed into the Bounded Context `%s`.",
+                    toString(),
+                    this.context.name()
+            );
+        }
+        this.context = context;
+    }
+
+    /**
+     * Returns a new instance of {@link QueryingClient} for querying the state of entities
+     * of the specified type.
+     *
+     * @param type the entity state type
+     * @return a new instance of QueryingClient
+     * @param <P> the type of the entity state
+     */
+    @Override
+    public <P extends EntityState<?>> QueryingClient<P> select(Class<P> type) {
+        return new QueryingClient<>(context, type, toString());
     }
 
     @Internal
@@ -167,7 +214,7 @@ public abstract class ProcessManager<I,
         var commandClass = command.messageClass();
 
         if (thisClass.handlesCommand(commandClass)) {
-            var method = thisClass.handlerOf(command);
+            var method = thisClass.receptorOf(command);
             var outcome = method.invoke(this, command);
             return outcome;
         }
@@ -216,14 +263,17 @@ public abstract class ProcessManager<I,
             var outcome = commanderMethod.get().invoke(this, event);
             return outcome;
         }
-        _debug().log("Process manager %s filtered out and ignored event %s[ID: %s].",
-                     thisClass, event.messageClass(), event.id().value());
+        logger().atDebug().log(() -> format(
+                "The process manager `%s` filtered out and ignored the event `%s` with ID `%s`.",
+                     thisClass, event.messageClass(), event.id().value()));
         return ignored(thisClass, event);
     }
 
     @Override
     protected String missingTxMessage() {
-        return "ProcessManager modification is not available this way. " +
-                "Please modify the state from a command handling or event reacting method.";
+        return "`ProcessManager` modification is not available this way." +
+                " Please modify the state from a command handling (`@"
+                + Assign.class.getSimpleName() + "`)" +
+                " or event reacting (`@" + React.class.getSimpleName() + "`) method.";
     }
 }

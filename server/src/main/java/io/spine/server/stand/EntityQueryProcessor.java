@@ -36,6 +36,7 @@ import java.util.Iterator;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.Streams.stream;
+import static io.spine.validate.Validate.check;
 
 /**
  * Processes the queries targeting {@link io.spine.server.entity.Entity Entity} objects.
@@ -50,6 +51,11 @@ class EntityQueryProcessor implements QueryProcessor {
 
     @Override
     public ImmutableCollection<EntityStateWithVersion> process(Query query) {
+        check(query);
+        // Specifically check the target until Validation generates code
+        // for `(validate)` field option.
+        // See: https://github.com/SpineEventEngine/validation/issues/59
+        check(query.getTarget());
         var entities = query.all()
                        ? loadAll(query.responseFormat())
                        : loadByQuery(query);
@@ -60,8 +66,7 @@ class EntityQueryProcessor implements QueryProcessor {
     }
 
     private Iterator<EntityRecord> loadByQuery(Query query) {
-        var entities =
-                repository.findRecords(query.filters(), query.responseFormat());
+        var entities = repository.findRecords(query.filters(), query.responseFormat());
         return entities;
     }
 

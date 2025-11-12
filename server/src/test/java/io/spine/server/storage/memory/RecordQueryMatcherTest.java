@@ -26,29 +26,22 @@
 
 package io.spine.server.storage.memory;
 
-import com.google.common.collect.ImmutableMap;
-import io.spine.base.Identifier;
-import io.spine.query.ColumnName;
-import io.spine.query.RecordQuery;
-import io.spine.query.RecordQueryBuilder;
-import io.spine.server.entity.EntityRecord;
-import io.spine.server.entity.storage.EntityRecordWithColumns;
-import io.spine.test.entity.ProjectId;
-import io.spine.test.entity.TaskId;
-import io.spine.testdata.Sample;
+import io.spine.server.storage.RecordWithColumns;
+import io.spine.server.storage.given.GivenStorageProject.StgProjectColumns;
+import io.spine.test.storage.StgProject;
+import io.spine.test.storage.StgProjectId;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.Map;
-
-import static io.spine.server.storage.memory.given.RecordQueryMatcherTestEnv.anyColumn;
-import static io.spine.server.storage.memory.given.RecordQueryMatcherTestEnv.anyValue;
-import static io.spine.server.storage.memory.given.RecordQueryMatcherTestEnv.booleanColumn;
+import static com.google.common.truth.Truth.assertThat;
+import static io.spine.protobuf.AnyPacker.pack;
+import static io.spine.server.storage.given.GivenStorageProject.newState;
+import static io.spine.server.storage.given.GivenStorageProject.messageSpec;
+import static io.spine.server.storage.memory.given.RecordQueryMatcherTestEnv.newQueryBuilder;
 import static io.spine.server.storage.memory.given.RecordQueryMatcherTestEnv.recordSubject;
+import static io.spine.testdata.Sample.messageOfType;
 import static io.spine.testing.TestValues.nullRef;
-import static java.util.Collections.singletonMap;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayName("`RecordQueryMatcher` should")
 class RecordQueryMatcherTest {
@@ -57,87 +50,81 @@ class RecordQueryMatcherTest {
     @DisplayName("match everything except `null` to empty query")
     void matchEverythingToEmpty() {
         var sampleSubject = recordSubject();
-        RecordQueryMatcher<?, EntityRecord> matcher = new RecordQueryMatcher<>(sampleSubject);
+        var matcher = new RecordQueryMatcher<>(sampleSubject);
 
-        assertFalse(matcher.test(nullRef()));
-        assertTrue(matcher.test(EntityRecordWithColumns.of(sampleEntityRecord())));
+        assertThat(matcher.test(nullRef()))
+                .isFalse();
+        assertThat(matcher.test(asRecord(newState())))
+                .isTrue();
     }
 
     @Test
     @DisplayName("match IDs")
     void matchIds() {
-        var genericId = Sample.messageOfType(ProjectId.class);
-        var subject = recordSubject(genericId);
+        var matchingId = messageOfType(StgProjectId.class);
+        var nonMatchingId = messageOfType(StgProjectId.class);
+        var subject = recordSubject(matchingId);
 
         var matcher = new RecordQueryMatcher<>(subject);
-        var matching = sampleEntityRecord(genericId);
-        var nonMatching = sampleEntityRecord(Sample.messageOfType(ProjectId.class));
-        EntityRecordWithColumns<ProjectId> matchingRecord = EntityRecordWithColumns.of(matching);
-        EntityRecordWithColumns<ProjectId> nonMatchingRecord = EntityRecordWithColumns.of(nonMatching);
-        assertTrue(matcher.test(matchingRecord));
-        assertFalse(matcher.test(nonMatchingRecord));
+        var matching = newState(matchingId);
+        var nonMatching = newState(nonMatchingId);
+        var matchingRecord = asRecord(matching);
+        var nonMatchingRecord = asRecord(nonMatching);
+        assertThat(matcher.test(matchingRecord))
+                .isTrue();
+        assertThat(matcher.test(nonMatchingRecord))
+                .isFalse();
     }
 
     @Test
     @DisplayName("match columns")
     void matchColumns() {
-        var column = booleanColumn();
-        var actualValue = false;
-        var columnName = column.name();
-        var query = newBuilder().where(column).is(actualValue).build();
-
+        var matchingState = newState();
+        var matchingName = matchingState.getName();
+        var query = newQueryBuilder().where(StgProjectColumns.name).is(matchingName).build();
         var matcher = new RecordQueryMatcher<>(query.subject());
+        var matchingRecord = asRecord(matchingState);
+        var nonMatching = newState();
+        var nonMatchingRecord = asRecord(nonMatching);
 
-        var matching = sampleEntityRecord(Sample.messageOfType(TaskId.class));
-        Map<ColumnName, Object> matchingColumns = ImmutableMap.of(columnName, actualValue);
-        var matchingRecord = EntityRecordWithColumns.of(matching, matchingColumns);
+        assertThat(matcher.test(matchingRecord))
+                .isTrue();
+        assertThat(matcher.test(nonMatchingRecord))
+                .isFalse();
+    }
 
-        var nonMatching = sampleEntityRecord(Sample.messageOfType(TaskId.class));
-        var nonMatchingRecord = EntityRecordWithColumns.of(nonMatching);
-
-        assertTrue(matcher.test(matchingRecord));
-        assertFalse(matcher.test(nonMatchingRecord));
+    @NonNull
+    private static RecordWithColumns<StgProjectId, StgProject> asRecord(StgProject state) {
+        return RecordWithColumns.create(state, messageSpec());
     }
 
     @Test
     @DisplayName("match `Any` instances")
     void matchAnyInstances() {
-        var column = anyColumn();
-        var actualValue = anyValue();
+        var matchingState = newState();
+        var queryValue = pack(matchingState);
+        var matchingRecord = asRecord(matchingState);
+        var nonMatchingRecord = asRecord(newState());
 
-        var columnName = column.name();
-
-        var record = sampleEntityRecord();
-        Map<ColumnName, Object> columns = singletonMap(columnName, actualValue);
-        var recordAndCols = EntityRecordWithColumns.of(record, columns);
-        var query = newBuilder().where(column).is(actualValue).build();
+        var query = newQueryBuilder()
+                .where(StgProjectColumns.state_as_any).is(queryValue).build();
         var matcher = new RecordQueryMatcher<>(query);
-        assertTrue(matcher.test(recordAndCols));
+        assertThat(matcher.test(matchingRecord))
+                .isTrue();
+        assertThat(matcher.test(nonMatchingRecord))
+                .isFalse();
     }
 
     @Test
     @DisplayName("not match by wrong field name")
     void notMatchByWrongField() {
-        var target = booleanColumn("some_random_name");
-        var query = newBuilder().where(target).is(true).build();
+        var query = newQueryBuilder()
+                .where(StgProjectColumns.random_non_stored_column).is("whatever")
+                .build();
         var matcher = new RecordQueryMatcher<>(query);
 
-        var record = sampleEntityRecord();
-        var recordWithColumns = EntityRecordWithColumns.of(record);
-        assertFalse(matcher.test(recordWithColumns));
-    }
-
-    private static RecordQueryBuilder<Object, EntityRecord> newBuilder() {
-        return RecordQuery.newBuilder(Object.class, EntityRecord.class);
-    }
-
-    private static EntityRecord sampleEntityRecord() {
-        return sampleEntityRecord(Identifier.newUuid());
-    }
-
-    private static EntityRecord sampleEntityRecord(Object id) {
-        return EntityRecord.newBuilder()
-                .setEntityId(Identifier.pack(id))
-                .build();
+        var recordWithColumns = asRecord(newState());
+        assertThat(matcher.test(recordWithColumns))
+                .isFalse();
     }
 }

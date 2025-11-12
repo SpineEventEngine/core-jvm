@@ -28,7 +28,7 @@ package io.spine.server.tenant;
 
 import io.spine.annotation.Internal;
 import io.spine.core.TenantId;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jspecify.annotations.NonNull;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.protobuf.Messages.isDefault;

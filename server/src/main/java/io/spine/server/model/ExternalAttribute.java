@@ -33,18 +33,18 @@ import java.lang.reflect.Method;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * A meta-attribute of the {@code Method}, telling whether this method handles the objects,
- * produced outside of the current bounded context.
+ * A meta-attribute of a {@link Receptor}, telling whether it handles objects,
+ * produced outside the current bounded context.
  *
  * @see External
  */
 @Immutable
 enum ExternalAttribute implements Attribute<Boolean> {
 
-    /** An attribute value for the methods, designed to handle external objects only. */
+    /** An attribute value for the receptors, designed to handle external objects only. */
     EXTERNAL(true),
 
-    /** An attribute value for the methods, designed to handle domestic objects only. */
+    /** An attribute value for the receptors, designed to handle domestic objects only. */
     DOMESTIC(false);
 
     private final boolean value;

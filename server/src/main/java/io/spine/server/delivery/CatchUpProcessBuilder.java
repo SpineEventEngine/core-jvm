@@ -26,6 +26,7 @@
 
 package io.spine.server.delivery;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.server.delivery.CatchUpProcess.DispatchCatchingUp;
 import io.spine.server.projection.ProjectionRepository;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -66,9 +67,19 @@ public final class CatchUpProcessBuilder<I> {
     /**
      * Sets the {@code CatchUpStorage} to use during the catch-up.
      */
+    @CanIgnoreReturnValue
     CatchUpProcessBuilder<I> setStorage(CatchUpStorage storage) {
         this.storage = checkNotNull(storage);
         return this;
+    }
+
+    /**
+     * Checks whether the {@code CatchUpStorage} has been configured.
+     *
+     * @return {@code true} if the storage was set, {@code false} otherwise
+     */
+    boolean hasStorage() {
+        return storage != null;
     }
 
     /**
@@ -86,10 +97,20 @@ public final class CatchUpProcessBuilder<I> {
      *
      * <p>Must be a positive value.
      */
+    @CanIgnoreReturnValue
     CatchUpProcessBuilder<I> setPageSize(int pageSize) {
         checkPositive(pageSize);
         this.pageSize = pageSize;
         return this;
+    }
+
+    /**
+     * Checks whether the page size has been configured.
+     *
+     * @return {@code true} if the page size was set, {@code false} otherwise
+     */
+    boolean hasPageSize() {
+        return pageSize > 0;
     }
 
     /**
@@ -102,9 +123,19 @@ public final class CatchUpProcessBuilder<I> {
     /**
      * Sets the way to dispatch the events during the catch-up.
      */
+    @CanIgnoreReturnValue
     public CatchUpProcessBuilder<I> setDispatchOp(DispatchCatchingUp<I> operation) {
         this.dispatchOp = checkNotNull(operation);
         return this;
+    }
+
+    /**
+     * Checks whether the dispatch operation has been configured.
+     *
+     * @return {@code true} if the dispatch operation was set, {@code false} otherwise
+     */
+    boolean hasDispatchOp() {
+        return dispatchOp != null;
     }
 
     /**

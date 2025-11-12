@@ -36,7 +36,7 @@ import io.spine.query.EntityQuery;
  * @param <S>
  *         the type of the queried entity states
  */
-final class QueryRequest<S extends EntityState<?>> extends ClientRequest {
+final class QueryRequest<S extends EntityState<?>> extends ClientRequestBase {
 
     /** The type of entities returned by the request. */
     private final Class<S> entityStateType;

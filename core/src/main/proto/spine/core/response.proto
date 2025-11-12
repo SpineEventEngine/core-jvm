@@ -55,7 +55,7 @@ message Response {
 // The response status.
 message Status {
     oneof status {
-        option (is_required) = true;
+        option (choice).required = true;
 
         // The request was accepted to execution.
         google.protobuf.Empty ok = 1;

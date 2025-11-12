@@ -79,7 +79,7 @@ class DefaultSystemWriteSideTest {
             var event = OrderPlaced.newBuilder()
                     .setId(projectionId)
                     .addItem("Pizza")
-                    .vBuild();
+                    .build();
             systemWriteSide.postEvent(event);
 
             var order = projectionState();

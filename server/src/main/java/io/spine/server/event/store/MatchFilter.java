@@ -36,7 +36,7 @@ import io.spine.core.EventContext;
 import io.spine.server.event.EventFilter;
 import io.spine.type.TypeName;
 import io.spine.type.TypeUrl;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;

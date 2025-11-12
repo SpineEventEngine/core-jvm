@@ -33,7 +33,7 @@ public final class SignalOriginMismatchError extends ModelError {
 
     private static final long serialVersionUID = 0L;
 
-    SignalOriginMismatchError(HandlerMethod<?, ?, ?, ?> method,
+    SignalOriginMismatchError(Receptor<?, ?, ?, ?> method,
                               boolean expectedExternal,
                               boolean actualExternal) {
         super("Mismatch of `external` value for the handler method %s. "

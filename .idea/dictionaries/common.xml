@@ -5,6 +5,7 @@
       <w>arraybuffer</w>
       <w>aspx</w>
       <w>bytebuffer</w>
+      <w>callees</w>
       <w>closeables</w>
       <w>cqrs</w>
       <w>dartdocs</w>
@@ -23,6 +24,8 @@
       <w>handshaker</w>
       <w>hohpe</w>
       <w>idempotency</w>
+      <w>jspecify</w>
+      <w>kotest</w>
       <w>lempira</w>
       <w>liskov</w>
       <w>melnik</w>
@@ -44,15 +47,18 @@
       <w>processmanager</w>
       <w>procman</w>
       <w>proto's</w>
+      <w>protodata</w>
       <w>protos</w>
       <w>sfixed</w>
       <w>stderr</w>
       <w>stringifier</w>
       <w>stringifiers</w>
+      <w>substituter</w>
       <w>switchman</w>
       <w>testutil</w>
       <w>threeten</w>
       <w>tuples</w>
+      <w>unicast</w>
       <w>unregister</w>
       <w>unregistering</w>
       <w>unregisters</w>

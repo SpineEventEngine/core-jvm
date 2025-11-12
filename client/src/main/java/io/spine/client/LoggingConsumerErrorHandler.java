@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -26,14 +26,14 @@
 
 package io.spine.client;
 
-import com.google.common.flogger.FluentLogger;
 import com.google.protobuf.Message;
+import io.spine.logging.Logger;
 
 import static io.spine.client.DelegatingConsumer.toRealConsumer;
+import static java.lang.String.format;
 
 /**
- * Logs the fact of the error using the {@linkplain FluentLogger#atSevere() severe} level
- * of the passed logger.
+ * Logs the fact of the error using the {@code ERROR} level of the passed logger.
  *
  * @param <M>
  *         the type of the messages delivered to the consumer
@@ -53,7 +53,7 @@ final class LoggingConsumerErrorHandler<M extends Message>
      * @param type
      *         the type of the message which caused the error
      */
-    LoggingConsumerErrorHandler(FluentLogger logger,
+    LoggingConsumerErrorHandler(Logger logger,
                                 String messageFormat,
                                 Class<? extends Message> type) {
         super(logger, messageFormat, type);
@@ -62,6 +62,6 @@ final class LoggingConsumerErrorHandler<M extends Message>
     @Override
     public void accept(MessageConsumer<M, ?> consumer, Throwable throwable) {
         var consumerToReport = toRealConsumer(consumer);
-        error(throwable).log(messageFormat(), consumerToReport, typeName());
+        error(throwable).log(() -> format(messageFormat(), consumerToReport, typeName()));
     }
 }

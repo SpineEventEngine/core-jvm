@@ -1,0 +1,58 @@
+<templateSet group="Spine">
+  <template name="apply" value="@io.spine.server.aggregate.Apply&#10;private void $methodName$(final $eventClass$ e) {&#10;    $END$&#10;}" description="Create an @Apply method to process Event" toReformat="true" toShortenFQNames="true" useStaticImport="true">
+    <variable name="eventClass" expression="" defaultValue="&quot;Event Class&quot;" alwaysStopAt="true" />
+    <variable name="methodName" expression="" defaultValue="camelCase(eventClass)" alwaysStopAt="true" />
+    <context>
+      <option name="JAVA_CODE" value="true" />
+    </context>
+  </template>
+  <template name="applyc" value="@io.spine.server.aggregate.Apply&#10;private void $methodName$(final $eventClass$ e, final io.spine.core.EventContext context) {&#10;    $END$&#10;}" description="Create an @Apply method to process Event with EventContext passed" toReformat="true" toShortenFQNames="true" useStaticImport="true">
+    <variable name="eventClass" expression="" defaultValue="&quot;Event Class&quot;" alwaysStopAt="true" />
+    <variable name="methodName" expression="" defaultValue="camelCase(eventClass)" alwaysStopAt="true" />
+    <context>
+      <option name="JAVA_CODE" value="true" />
+    </context>
+  </template>
+  <template name="assign" value="@io.spine.server.command.Assign&#10;com.google.protobuf.Message $methodName$(final $commandClass$ c) {&#10;    $END$&#10;}" description="Create an @Assign method to process Command" toReformat="true" toShortenFQNames="true" useStaticImport="true">
+    <variable name="commandClass" expression="" defaultValue="&quot;Command Class&quot;" alwaysStopAt="true" />
+    <variable name="methodName" expression="" defaultValue="camelCase(commandClass)" alwaysStopAt="true" />
+    <context>
+      <option name="JAVA_CODE" value="true" />
+    </context>
+  </template>
+  <template name="assignc" value="@io.spine.server.command.Assign&#10;com.google.protobuf.Message $methodName$(final $commandClass$ c, final io.spine.core.CommandContext context) {&#10;    $END$&#10;}" description="Create an @Assign method to process Command with CommandContext passed" toReformat="true" toShortenFQNames="true" useStaticImport="true">
+    <variable name="commandClass" expression="" defaultValue="&quot;Command Class&quot;" alwaysStopAt="true" />
+    <variable name="methodName" expression="" defaultValue="camelCase(commandClass)" alwaysStopAt="true" />
+    <context>
+      <option name="JAVA_CODE" value="true" />
+    </context>
+  </template>
+  <template name="react" value="@io.spine.server.aggregate.React&#10;com.google.protobuf.Message on$methodName$(final $eventClass$ e) {&#10;    $END$&#10;}" description="Create a @React method to process Event" toReformat="true" toShortenFQNames="true" useStaticImport="true">
+    <variable name="eventClass" expression="" defaultValue="&quot;Event Class&quot;" alwaysStopAt="true" />
+    <variable name="methodName" expression="" defaultValue="eventClass" alwaysStopAt="true" />
+    <context>
+      <option name="JAVA_CODE" value="true" />
+    </context>
+  </template>
+  <template name="reactc" value="@io.spine.server.aggregate.React&#10;com.google.protobuf.Message on$methodName$(final $eventClass$ e, final io.spine.core.EventContext context) {&#10;    $END$&#10;}" description="Create a @React method to process Event with EventContext passed" toReformat="true" toShortenFQNames="true" useStaticImport="true">
+    <variable name="eventClass" expression="" defaultValue="&quot;Event Class&quot;" alwaysStopAt="true" />
+    <variable name="methodName" expression="" defaultValue="eventClass" alwaysStopAt="true" />
+    <context>
+      <option name="JAVA_CODE" value="true" />
+    </context>
+  </template>
+  <template name="subscribe" value="@io.spine.core.Subscribe&#10;public void on$methodName$(final $eventClass$ e) {&#10;    $END$&#10;}" description="Create a @Subscribe method to process Event" toReformat="true" toShortenFQNames="true" useStaticImport="true">
+    <variable name="eventClass" expression="" defaultValue="&quot;Event Class&quot;" alwaysStopAt="true" />
+    <variable name="methodName" expression="" defaultValue="eventClass" alwaysStopAt="true" />
+    <context>
+      <option name="JAVA_CODE" value="true" />
+    </context>
+  </template>
+  <template name="subscribec" value="@io.spine.core.Subscribe&#10;public void on$methodName$(final $eventClass$ e, final io.spine.core.EventContext context) {&#10;    $END$&#10;}" description="Create a @Subscribe method to process Event with EventContext passed" toReformat="true" toShortenFQNames="true" useStaticImport="true">
+    <variable name="eventClass" expression="" defaultValue="&quot;Event Class&quot;" alwaysStopAt="true" />
+    <variable name="methodName" expression="" defaultValue="eventClass" alwaysStopAt="true" />
+    <context>
+      <option name="JAVA_CODE" value="true" />
+    </context>
+  </template>
+</templateSet>

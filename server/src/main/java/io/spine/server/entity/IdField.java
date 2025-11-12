@@ -32,7 +32,7 @@ import io.spine.code.proto.FieldDeclaration;
 import io.spine.server.entity.model.EntityClass;
 import io.spine.validate.ValidatingBuilder;
 import io.spine.validate.option.Required;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

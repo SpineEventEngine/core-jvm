@@ -33,10 +33,11 @@ import io.spine.core.Command;
 import io.spine.core.Event;
 import io.spine.core.Version;
 import io.spine.core.Versions;
-import io.spine.logging.Logging;
+import io.spine.logging.WithLogging;
 import io.spine.server.BoundedContext;
 import io.spine.server.command.model.CommanderClass;
 import io.spine.server.commandbus.CommandBus;
+import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.dispatch.DispatchOutcomeHandler;
 import io.spine.server.event.EventDispatcherDelegate;
 import io.spine.server.type.CommandClass;
@@ -50,13 +51,15 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.grpc.StreamObservers.noOpObserver;
 import static io.spine.server.command.model.CommanderClass.asCommanderClass;
+import static io.spine.server.dispatch.DispatchOutcomes.ignored;
+import static java.lang.String.format;
 
 /**
  * The abstract base for classes that generate commands in response to incoming messages.
  */
 public abstract class AbstractCommander
         extends AbstractCommandDispatcher
-        implements Commander, EventDispatcherDelegate, Logging {
+        implements Commander, EventDispatcherDelegate, WithLogging {
 
     private final CommanderClass<?> thisClass = asCommanderClass(getClass());
     @LazyInit
@@ -73,46 +76,55 @@ public abstract class AbstractCommander
     }
 
     @Override
-    public ImmutableSet<CommandClass> messageClasses() {
+    public final ImmutableSet<CommandClass> messageClasses() {
         return thisClass.commands();
     }
 
     @Override
-    public void dispatch(CommandEnvelope command) {
-        var method = thisClass.handlerOf(command);
+    public final DispatchOutcome dispatch(CommandEnvelope command) {
+        var method = thisClass.receptorOf(command);
+        var outcome = method.invoke(this, command);
         DispatchOutcomeHandler
-                .from(method.invoke(this, command))
+                .from(outcome)
                 .onCommands(this::postCommands)
                 .onRejection(this::postRejection)
                 .handle();
+        return outcome;
     }
 
     @Override
-    public ImmutableSet<EventClass> events() {
+    public final ImmutableSet<EventClass> events() {
         return thisClass.events();
     }
 
     @Override
-    public ImmutableSet<EventClass> externalEvents() {
+    public final ImmutableSet<EventClass> externalEvents() {
         return thisClass.externalEvents();
     }
 
     @Override
-    public ImmutableSet<EventClass> domesticEvents() {
+    public final ImmutableSet<EventClass> domesticEvents() {
         return thisClass.domesticEvents();
     }
 
     @Override
-    public void dispatchEvent(EventEnvelope event) {
+    @SuppressWarnings("FloggerLogString" /* Using the same message for log and the outcome. */)
+    public final DispatchOutcome dispatchEvent(EventEnvelope event) {
         var method = thisClass.commanderOn(event);
         if (method.isPresent()) {
+            var outcome = method.get().invoke(this, event);
             DispatchOutcomeHandler
-                    .from(method.get().invoke(this, event))
+                    .from(outcome)
                     .onCommands(this::postCommands)
                     .handle();
+            return outcome;
         } else {
-            _debug().log("Commander `%s` filtered out and ignored event %s[ID: %s].",
-                         this, event.messageClass(), event.id().value());
+            var eventId = event.id();
+            var msg = format("Commander `%s` filtered out and ignored event %s[ID: %s].",
+                             this, event.messageClass(), eventId.value());
+            logger().atDebug().log(() -> msg);
+            var result = ignored(event, msg);
+            return result;
         }
     }
 
@@ -122,7 +134,7 @@ public abstract class AbstractCommander
      * <p>Always returns a version with number {@code 0} and current time.
      */
     @Override
-    public Version version() {
+    public final Version version() {
         return Versions.zero();
     }
 
@@ -132,7 +144,7 @@ public abstract class AbstractCommander
      * <p>Always returns an empty set.
      */
     @Override
-    public ImmutableSet<EventClass> producedEvents() {
+    public final ImmutableSet<EventClass> producedEvents() {
         return ImmutableSet.of();
     }
 

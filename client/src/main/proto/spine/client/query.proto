@@ -104,17 +104,12 @@ message Query {
     QueryId id = 1 [(required) = true];
 
     // Defines the entity of interest, e.g. entity type URL and a set of fetch criteria.
-    Target target = 2 [(required) = true,
-                       (validate) = true,
-                       (if_invalid).msg_format = "Invalid query target"];
+    Target target = 2 [(required) = true, (validate) = true];
 
     // Service information about the environment in which the query was created.
-    core.ActorContext context = 3 [(required) = true,
-                                   (validate) = true,
-                                   (if_invalid).msg_format = "Invalid actor context"];
+    core.ActorContext context = 3 [(required) = true, (validate) = true];
 
-    ResponseFormat format = 4 [(validate) = true,
-                               (if_invalid).msg_format = "Invalid response format"];
+    ResponseFormat format = 4 [(validate) = true];
 }
 
 // A `Query` response format.
@@ -136,8 +131,7 @@ message ResponseFormat {
     // of order by the first directive. Same behaviour is expected for each N-th and (N+1)-th of
     // ordering directives.
     //
-    repeated OrderBy order_by = 2 [(validate) = true,
-                                   (if_invalid).msg_format = "Invalid query order"];
+    repeated OrderBy order_by = 2 [(validate) = true];
 
     // The max number of entities to retrieve.
     //

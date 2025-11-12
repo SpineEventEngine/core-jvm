@@ -27,9 +27,12 @@
 package io.spine.server.aggregate;
 
 import io.spine.core.Event;
+import io.spine.logging.WithLogging;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.dispatch.Success;
 import io.spine.server.type.EventEnvelope;
+
+import static java.lang.String.format;
 
 /**
  * The endpoint for importing events into aggregates.
@@ -45,7 +48,7 @@ import io.spine.server.type.EventEnvelope;
  * @see io.spine.server.aggregate.Apply#allowImport()
  */
 final class EventImportEndpoint<I, A extends Aggregate<I, ?, ?>>
-    extends AggregateEventEndpoint<I, A> {
+    extends AggregateEventEndpoint<I, A> implements WithLogging {
 
     EventImportEndpoint(AggregateRepository<I, A, ?> repository, EventEnvelope event) {
         super(repository, event);
@@ -70,7 +73,7 @@ final class EventImportEndpoint<I, A extends Aggregate<I, ?, ?>>
         var outcome = DispatchOutcome.newBuilder()
                 .setPropagatedSignal(event.messageId())
                 .setSuccess(success)
-                .vBuild();
+                .build();
         return outcome;
     }
 
@@ -82,7 +85,8 @@ final class EventImportEndpoint<I, A extends Aggregate<I, ?, ?>>
 
     @Override
     protected void onEmptyResult(A aggregate) {
-        _error().log("The aggregate `%s` was not modified during the import of the event `%s`.",
-                     aggregate, envelope());
+        logger().atError().log(() -> format(
+                "The aggregate `%s` was not modified during the import of the event `%s`.",
+                     aggregate, envelope()));
     }
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2024, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -33,8 +33,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * An exception signifying that a handler method produced an unexpected result.
  *
- * <p>For example, event subscriber methods should not produce any result signals. If any such
- * signals are encountered, an {@code IllegalOutcomeException} is thrown.
+ * <p>For example, event subscriber methods should not produce any result signals.
+ * If any such signals are encountered, an {@code IllegalOutcomeException} is thrown.
  */
 @Internal
 public final class IllegalOutcomeException extends RuntimeException {

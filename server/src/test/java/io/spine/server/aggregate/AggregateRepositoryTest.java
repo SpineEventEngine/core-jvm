@@ -1,5 +1,5 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2023, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,6 @@ import io.spine.base.Identifier;
 import io.spine.core.Ack;
 import io.spine.core.Event;
 import io.spine.core.Events;
-import io.spine.server.BoundedContextBuilder;
 import io.spine.server.aggregate.given.repo.AnemicAggregateRepository;
 import io.spine.server.aggregate.given.repo.EventDiscardingAggregateRepository;
 import io.spine.server.aggregate.given.repo.FailingAggregateRepository;
@@ -78,7 +77,6 @@ import java.util.List;
 import java.util.Set;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth8.assertThat;
 import static io.spine.base.Time.currentTime;
 import static io.spine.grpc.StreamObservers.noOpObserver;
 import static io.spine.protobuf.Messages.isNotDefault;
@@ -115,7 +113,7 @@ class AggregateRepositoryTest {
     }
 
     @AfterEach
-    void tearDown() throws Exception {
+    void tearDown() {
         context().close();
     }
 
@@ -404,7 +402,7 @@ class AggregateRepositoryTest {
             var parentId = givenAggregateId("parent");
             var childId = givenAggregateId("child");
 
-            /**
+            /*
              * Create event factory for which producer ID would be the `parentId`.
              * Custom routing set by {@linkplain ReactingRepository()} would use
              * child IDs from the event.
@@ -414,7 +412,7 @@ class AggregateRepositoryTest {
             var msg = AggProjectArchived.newBuilder()
                     .setProjectId(parentId)
                     .addChildProjectId(childId)
-                    .vBuild();
+                    .build();
             var event = factory.createEvent(msg);
 
             // Posting this event should archive the aggregate.
@@ -504,10 +502,7 @@ class AggregateRepositoryTest {
         @BeforeEach
         void createAnotherRepository() {
             resetRepository();
-            context = BlackBox.from(
-                    BoundedContextBuilder.assumingTests()
-                                         .add(repository())
-            );
+            context = BlackBox.singleTenantWith(repository());
         }
 
         @Test
@@ -573,15 +568,12 @@ class AggregateRepositoryTest {
                     .setProjectId(parent)
                     .addChildProjectId(id)
                     .build();
-            var context = BlackBox.from(
-                    BoundedContextBuilder.assumingTests()
-                                         .add(new EventDiscardingAggregateRepository())
-            );
-            context.receivesCommands(create, start)
-                   .receivesEvent(archived);
-            context.assertEvents()
-                   .isEmpty();
-            context.close();
+            try (var context = BlackBox.singleTenantWith(new EventDiscardingAggregateRepository())) {
+                context.receivesCommands(create, start)
+                       .receivesEvent(archived);
+                context.assertEvents()
+                       .isEmpty();
+            }
         }
 
         private void assertEventVersions(int... expectedVersions) {
@@ -667,6 +659,7 @@ class AggregateRepositoryTest {
     }
 
     @Test
+    @MuteLogging
     @DisplayName("not pass command rejection to `onError`")
     void notPassCommandRejectionToOnError() {
         var repository = new FailingAggregateRepository();
@@ -678,7 +671,7 @@ class AggregateRepositoryTest {
         // Passing negative long value to `FailingAggregate` should cause a rejection.
         var rejectNegative = RejectNegativeLong.newBuilder()
                 .setNumber(-100_000_000L)
-                .vBuild();
+                .build();
         var command = requestFactory().createCommand(rejectNegative);
         var envelope = CommandEnvelope.of(
                 command);

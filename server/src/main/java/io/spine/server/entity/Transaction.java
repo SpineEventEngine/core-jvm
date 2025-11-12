@@ -25,10 +25,10 @@
  */
 package io.spine.server.entity;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.annotation.Internal;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.EntityState;
 import io.spine.base.Error;
 import io.spine.base.Identifier;
@@ -240,7 +240,7 @@ public abstract class Transaction<I,
     }
 
     /**
-     * Returns the value of the lifecycle flags, as of current state within this transaction.
+     * Returns the value of the lifecycle flags, as of the current state within this transaction.
      */
     protected LifecycleFlags lifecycleFlags() {
         return lifecycleFlags;
@@ -255,7 +255,7 @@ public abstract class Transaction<I,
                 .setId(Identifier.pack(entity.id()))
                 .setTypeUrl(typeUrl.value())
                 .setVersion(entity.version())
-                .vBuild();
+                .build();
     }
 
     protected final E entity() {
@@ -319,12 +319,12 @@ public abstract class Transaction<I,
             return DispatchOutcome.newBuilder()
                     .setPropagatedSignal(phase.signal().messageId())
                     .setError(rootCause)
-                    .vBuild();
+                    .build();
         }
     }
 
     /**
-     * Advances the state and the version of the entity being build by the transaction after
+     * Advances the state and the version of the entity being built by the transaction after
      * the message was successfully dispatched.
      *
      * <p>This is needed for the cases of dispatching more than one message during a transaction.

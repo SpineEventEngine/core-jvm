@@ -34,7 +34,7 @@ import io.spine.server.delivery.InboxStorage;
 import io.spine.server.entity.Entity;
 import io.spine.server.model.given.filter.CreateProjectCommander;
 import io.spine.server.model.given.filter.CreateProjectEventCommander;
-import io.spine.server.model.given.filter.ModSplitCommandAggregate;
+import io.spine.server.model.given.filter.ModSplitAggregate;
 import io.spine.server.model.given.filter.ModSplitEventAggregate;
 import io.spine.server.model.given.filter.ProjectCreatedReactor;
 import io.spine.server.model.given.filter.ProjectCreatedSubscriber;
@@ -96,7 +96,7 @@ class FilterTest {
         @Test
         @DisplayName("`@Assign`-ed command-handling method")
         void assign() {
-            assertInvalid(ModSplitCommandAggregate.class);
+            assertInvalid(ModSplitAggregate.class);
         }
 
         @Test

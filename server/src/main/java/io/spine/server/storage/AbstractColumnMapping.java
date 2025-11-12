@@ -44,9 +44,9 @@ import static io.spine.util.Exceptions.newIllegalArgumentException;
  * <p>Since record columns are proto-based and have a limited amount of possible types, this class
  * allows descendants to override concrete type mapping rules in a convenient way.
  *
- * <p>Some of the types are expected to be mapped in a way so they support the ordering comparison
- * operators ("greater than", "less than or equals", etc.). For details, see
- * {@link io.spine.client.Filters}.
+ * <p>Some of the types are expected to be mapped in a way so that
+ * they support the ordering comparison operators ("greater than", "less than or equals", etc.).
+ * For details, see {@link io.spine.client.Filters}.
  *
  * @param <R>
  *         the type of stored records
@@ -54,11 +54,23 @@ import static io.spine.util.Exceptions.newIllegalArgumentException;
 public abstract class AbstractColumnMapping<R> implements ColumnMapping<R> {
 
     /**
-     * The mapping rules of built-in proto types.
+     * The mapping rules of built-in Proto types.
      */
     private final
     ImmutableMap<Class<?>, Supplier<ColumnTypeMapping<?, ? extends R>>> standardTypesMapping
             = standardTypesMapping();
+
+    /**
+     * The mappings which were previously found per column types.
+     *
+     * <p>If the mapping for some given type is not yet discovered, it is going to be searched for
+     * and then cached for future use.
+     *
+     * <p>This is an optimization for the well-known hot spot discovered in profiling sessions
+     * in real-world Spine-based applications.
+     */
+    private final KnownMappings<R> knownMappings =
+            new KnownMappings<>(this::standardMappingFor, this::customMappingFor);
 
     /**
      * The mapping rules for custom user-defined types.
@@ -72,14 +84,8 @@ public abstract class AbstractColumnMapping<R> implements ColumnMapping<R> {
     @Override
     public <T> ColumnTypeMapping<T, ? extends R> of(Class<T> type) {
         checkNotNull(type);
-        ColumnTypeMapping<?, ? extends R> result;
-        var rule = customMappingFor(type);
-        if (rule.isPresent()) {
-            result = rule.get();
-        } else {
-            rule = standardMappingFor(type);
-            result = rule.orElseThrow(() -> unsupportedType(type));
-        }
+        var rule = knownMappings.get(type);
+        var result = rule.orElseThrow(() -> unsupportedType(type));
         return (ColumnTypeMapping<T, ? extends R>) result;
     }
 
@@ -209,6 +215,7 @@ public abstract class AbstractColumnMapping<R> implements ColumnMapping<R> {
      * <p>If such mapping for the passed type exists, it will be retrieved by this method.
      */
     private Optional<ColumnTypeMapping<?, ? extends R>> customMappingFor(Class<?> columnType) {
+        @SuppressWarnings("DataFlowIssue" /* `customMapping()` is not nullable.*/)
         Optional<ColumnTypeMapping<?, ? extends R>> result =
                 customMapping().keySet()
                                .stream()
@@ -220,12 +227,13 @@ public abstract class AbstractColumnMapping<R> implements ColumnMapping<R> {
     }
 
     /**
-     * Searches for the column type mapping among standard proto type mappings.
+     * Searches for the column type mapping among standard Proto type mappings.
      *
      * <p>Inherited types are taken into account too, so if the passed type extends {@link Enum},
      * the {@linkplain #ofEnum() enum type mapping} will be used.
      */
     private Optional<ColumnTypeMapping<?, ? extends R>> standardMappingFor(Class<?> columnType) {
+        @SuppressWarnings("DataFlowIssue" /* `standardTypesMapping.get()` has value. */)
         Optional<ColumnTypeMapping<?, ? extends R>> result =
                 standardTypesMapping.keySet()
                                     .stream()

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -26,23 +26,18 @@
 
 package io.spine.server.model;
 
-import com.google.common.base.Joiner;
+import java.lang.reflect.Method;
 
 /**
- * Thrown for {@linkplain io.spine.server.model.HandlerMethod handler method} in case
- * its {@link HandlerMethod#rawMethod() wrapped method} does not match
- * {@linkplain MethodSignature method signature}, set for the handler.
+ * Thrown for a {@linkplain Receptor receptor} in case
+ * its {@link Receptor#rawMethod() wrapped method} does not match
+ * {@linkplain ReceptorSignature method signature}, set for the handler.
  */
 public class SignatureMismatchException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
-    SignatureMismatchException(Iterable<SignatureMismatch> mismatches) {
-        super(formatMsg(mismatches));
-    }
-
-    private static String formatMsg(Iterable<SignatureMismatch> mismatches) {
-        return "Error declaring a method. Mismatches: " + Joiner.on(", ")
-                                                                .join(mismatches);
+    SignatureMismatchException(Method method, Iterable<SignatureMismatch> mismatches) {
+        super(SignatureMismatch.formatMsg(method, mismatches));
     }
 }

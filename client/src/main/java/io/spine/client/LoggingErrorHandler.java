@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -26,20 +26,22 @@
 
 package io.spine.client;
 
-import com.google.common.flogger.FluentLogger;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import io.spine.logging.Logger;
+import org.jspecify.annotations.Nullable;
 
-final class LoggingErrorHandler extends LoggingHandler implements ErrorHandler{
+import static java.lang.String.format;
+
+final class LoggingErrorHandler extends LoggingHandler implements ErrorHandler {
 
     private final @Nullable Object param;
 
-    LoggingErrorHandler(FluentLogger logger, String messageFormat, @Nullable Object param) {
+    LoggingErrorHandler(Logger logger, String messageFormat, @Nullable Object param) {
         super(logger, messageFormat);
         this.param = param;
     }
 
     @Override
     public void accept(Throwable throwable) {
-        error(throwable).log(messageFormat(), param);
+        error(throwable).log(() -> format(messageFormat(), param));
     }
 }

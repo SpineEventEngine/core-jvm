@@ -27,7 +27,6 @@
 package io.spine.server.storage;
 
 import io.spine.annotation.Internal;
-import io.spine.annotation.SPI;
 
 import java.util.function.Function;
 
@@ -41,7 +40,6 @@ import java.util.function.Function;
  * @param <R>
  *         the "persist as" type
  */
-@SPI
 public interface ColumnTypeMapping<T, R> extends Function<T, R> {
 
     /**

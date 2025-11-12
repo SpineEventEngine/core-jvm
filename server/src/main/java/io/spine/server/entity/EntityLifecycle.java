@@ -26,10 +26,10 @@
 
 package io.spine.server.entity;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.annotation.Internal;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.Error;
 import io.spine.base.EventMessage;
 import io.spine.base.Identifier;
@@ -99,7 +99,7 @@ import static io.spine.server.entity.EventFilter.allowAll;
  * @see Repository#lifecycleOf(Object) Repository.lifecycleOf(I)
  */
 @Internal
-@SuppressWarnings({"OverlyCoupledClass", "ClassWithTooManyMethods"})
+@SuppressWarnings("ClassWithTooManyMethods")
     // Posts system messages in multiple cases.
 public class EntityLifecycle {
 
@@ -114,7 +114,7 @@ public class EntityLifecycle {
     private final EventFilter eventFilter;
 
     /**
-     * The message ID of of the associated {@link Entity} state.
+     * The message ID of the associated {@link Entity} state.
      */
     private final MessageId entityId;
 
@@ -157,7 +157,7 @@ public class EntityLifecycle {
         var event = EntityCreated.newBuilder()
                 .setEntity(entityId)
                 .setKind(entityKind)
-                .vBuild();
+                .build();
         postEvent(event);
     }
 
@@ -175,11 +175,11 @@ public class EntityLifecycle {
         var target = CommandTarget.newBuilder()
                 .setEntityId(entityId)
                 .setTypeUrl(this.entityId.getTypeUrl())
-                .vBuild();
+                .build();
         var event = TargetAssignedToCommand.newBuilder()
                 .setId(commandId)
                 .setTarget(target)
-                .vBuild();
+                .build();
         postEvent(event);
     }
 
@@ -195,7 +195,7 @@ public class EntityLifecycle {
                 .setPayload(command)
                 .setWhenDispatched(currentTime())
                 .setEntityType(typeName)
-                .vBuild();
+                .build();
         var systemEventOrigin = command.asMessageOrigin();
         postEvent(systemCommand, systemEventOrigin);
     }
@@ -209,7 +209,7 @@ public class EntityLifecycle {
     public final void onCommandHandled(Command command) {
         var systemEvent = CommandHandled.newBuilder()
                 .setId(command.getId())
-                .vBuild();
+                .build();
         var systemEventOrigin = command.asMessageOrigin();
         postEvent(systemEvent, systemEventOrigin);
     }
@@ -226,7 +226,7 @@ public class EntityLifecycle {
         var systemEvent = CommandRejected.newBuilder()
                 .setId(commandId)
                 .setRejectionEvent(rejection)
-                .vBuild();
+                .build();
         var origin = rejection.asMessageOrigin();
         postEvent(systemEvent, origin);
     }
@@ -243,7 +243,7 @@ public class EntityLifecycle {
                 .setPayload(event)
                 .setWhenDispatched(currentTime())
                 .setEntityType(typeName)
-                .vBuild();
+                .build();
         var origin = event.asMessageOrigin();
         postEvent(systemCommand, origin);
     }
@@ -254,7 +254,7 @@ public class EntityLifecycle {
                 .setPayload(event)
                 .setWhenImported(currentTime())
                 .setEntityType(typeName)
-                .vBuild();
+                .build();
         var systemEventOrigin = event.asMessageOrigin();
         postEvent(systemEvent, systemEventOrigin);
     }
@@ -271,7 +271,7 @@ public class EntityLifecycle {
                 .setPayload(event)
                 .setWhenDispatched(currentTime())
                 .setEntityType(typeName)
-                .vBuild();
+                .build();
         var origin = event.asMessageOrigin();
         postEvent(systemCommand, origin);
     }
@@ -311,7 +311,7 @@ public class EntityLifecycle {
                 .setEntity(entityId)
                 .addAllSignalId(ImmutableList.copyOf(signalIds))
                 .setRemovedFromStorage(true)
-                .vBuild();
+                .build();
         postEvent(event);
     }
 
@@ -351,7 +351,7 @@ public class EntityLifecycle {
                 .setLastMessage(lastMessage)
                 .setRootMessage(root)
                 .addAllViolation(error.getConstraintViolationList())
-                .vBuild();
+                .build();
         postEvent(event);
     }
 
@@ -382,7 +382,7 @@ public class EntityLifecycle {
                 .setEntity(entityId)
                 .setEvent(event.id())
                 .setDuplicateEvent(event.messageId())
-                .vBuild();
+                .build();
         postEvent(systemEvent);
     }
 
@@ -397,7 +397,7 @@ public class EntityLifecycle {
         var event = EntityPreparedForCatchUp.newBuilder()
                         .setId(catchUpId)
                         .setInstanceId(packedId)
-                        .vBuild();
+                        .build();
         postEvent(event);
     }
 
@@ -408,7 +408,7 @@ public class EntityLifecycle {
                 .setEntity(entityId)
                 .setCommand(command.id())
                 .setDuplicateCommand(command.messageId())
-                .vBuild();
+                .build();
         postEvent(systemEvent);
     }
 
@@ -441,7 +441,7 @@ public class EntityLifecycle {
                 .setErroneousEvent(erroneous)
                 .setError(error)
                 .setInterruptedEvents(interruptedCount)
-                .vBuild();
+                .build();
         postEvent(event);
     }
 
@@ -461,7 +461,7 @@ public class EntityLifecycle {
                     .setNewState(newState)
                     .addAllSignalId(messageIds)
                     .setNewVersion(newVersion)
-                    .vBuild();
+                    .build();
             postEvent(event, origin);
         }
     }
@@ -477,11 +477,14 @@ public class EntityLifecycle {
         if (newValue && !oldValue) {
             var version = change.getNewValue()
                                 .getVersion();
+            var lastKnownState = change.getPreviousValue()
+                                       .getState();
             var event = EntityArchived.newBuilder()
                     .setEntity(entityId)
                     .addAllSignalId(ImmutableList.copyOf(messageIds))
                     .setVersion(version)
-                    .vBuild();
+                    .setLastState(lastKnownState)
+                    .build();
             postEvent(event);
         }
     }
@@ -497,12 +500,15 @@ public class EntityLifecycle {
         if (newValue && !oldValue) {
             var version = change.getNewValue()
                                 .getVersion();
+            var lastKnownState = change.getPreviousValue()
+                                       .getState();
             var event = EntityDeleted.newBuilder()
                     .setEntity(entityId)
                     .addAllSignalId(ImmutableList.copyOf(messageIds))
                     .setVersion(version)
                     .setMarkedAsDeleted(true)
-                    .vBuild();
+                    .setLastState(lastKnownState)
+                    .build();
             postEvent(event);
         }
     }
@@ -516,13 +522,14 @@ public class EntityLifecycle {
                              .getLifecycleFlags()
                              .getArchived();
         if (!newValue && oldValue) {
-            var version = change.getNewValue()
-                                .getVersion();
+            var newRecord = change.getNewValue();
+            var version = newRecord.getVersion();
             var event = EntityUnarchived.newBuilder()
                     .setEntity(entityId)
                     .addAllSignalId(ImmutableList.copyOf(messageIds))
                     .setVersion(version)
-                    .vBuild();
+                    .setState(newRecord.getState())
+                    .build();
             postEvent(event);
         }
     }
@@ -536,13 +543,14 @@ public class EntityLifecycle {
                              .getLifecycleFlags()
                              .getDeleted();
         if (!newValue && oldValue) {
-            var version = change.getNewValue()
-                                .getVersion();
+            var newRecord = change.getNewValue();
+            var version = newRecord.getVersion();
             var event = EntityRestored.newBuilder()
                     .setEntity(entityId)
                     .addAllSignalId(ImmutableList.copyOf(messageIds))
                     .setVersion(version)
-                    .vBuild();
+                    .setState(newRecord.getState())
+                    .build();
             postEvent(event);
         }
     }
@@ -583,7 +591,7 @@ public class EntityLifecycle {
                 .setEntity(entityId)
                 .setHandledSignal(handledSignal)
                 .setError(error)
-                .vBuild();
+                .build();
         postEvent(systemEvent);
     }
 
@@ -645,21 +653,25 @@ public class EntityLifecycle {
         private Builder() {
         }
 
+        @CanIgnoreReturnValue
         Builder setEntityId(Object entityId) {
             this.entityId = checkNotNull(entityId);
             return this;
         }
 
+        @CanIgnoreReturnValue
         Builder setEntityType(EntityClass<?> entityType) {
             this.entityType = checkNotNull(entityType);
             return this;
         }
 
+        @CanIgnoreReturnValue
         Builder setSystemWriteSide(SystemWriteSide writeSide) {
             this.writeSide = checkNotNull(writeSide);
             return this;
         }
 
+        @CanIgnoreReturnValue
         Builder setEventFilter(EventFilter eventFilter) {
             this.eventFilter = checkNotNull(eventFilter);
             return this;

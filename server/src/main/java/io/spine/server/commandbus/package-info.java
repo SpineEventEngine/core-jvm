@@ -29,9 +29,9 @@
  * {@link io.spine.server.commandbus.CommandBus CommandBus} and its configuration.
  */
 @CheckReturnValue
-@ParametersAreNonnullByDefault
+@NullMarked
 package io.spine.server.commandbus;
 
 import com.google.errorprone.annotations.CheckReturnValue;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.jspecify.annotations.NullMarked;

@@ -32,6 +32,7 @@ import com.google.common.reflect.TypeToken;
 import io.spine.base.CommandMessage;
 import io.spine.base.EventMessage;
 import io.spine.reflect.Types;
+import io.spine.server.event.NoReaction;
 import io.spine.server.type.CommandClass;
 import io.spine.server.type.EventClass;
 import io.spine.type.MessageClass;
@@ -44,7 +45,7 @@ import static com.google.common.collect.Streams.stream;
 import static io.spine.util.Exceptions.newIllegalArgumentException;
 
 /**
- * Obtains a set of command or event types produced by a {@link HandlerMethod}.
+ * Obtains a set of command or event types produced by a {@link Receptor}.
  *
  * <p>The set contains <em>class</em> information collected from method signatures.
  * If a method result refers to an interface (directly or as a generic parameter), this
@@ -95,11 +96,12 @@ final class MethodResults {
      * Checks if the class is a concrete {@linkplain CommandMessage command} or
      * {@linkplain EventMessage event}.
      */
+    @SuppressWarnings("deprecation") // Handling of `Nothing` is kept for backward compatibility.
     private static boolean isCommandOrEvent(Class<?> cls) {
         if (cls.isInterface()) {
             return false;
         }
-        if (Nothing.class.equals(cls)) {
+        if (Nothing.class.equals(cls) || NoReaction.class.equals(cls)) {
             return false;
         }
         var isCommandOrEvent = CommandMessage.class.isAssignableFrom(cls)

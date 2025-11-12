@@ -100,7 +100,7 @@ interface MessageIdMixin extends MessageIdOrBuilder, FieldAwareMessage {
         return MessageId.newBuilder()
                         .setId(getId())
                         .setTypeUrl(getTypeUrl())
-                        .vBuild();
+                        .build();
     }
 
     @Override

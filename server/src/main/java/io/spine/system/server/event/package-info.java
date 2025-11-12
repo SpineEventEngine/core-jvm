@@ -25,9 +25,9 @@
  */
 
 @CheckReturnValue
-@ParametersAreNonnullByDefault
+@NullMarked
 package io.spine.system.server.event;
 
 import com.google.errorprone.annotations.CheckReturnValue;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.jspecify.annotations.NullMarked;

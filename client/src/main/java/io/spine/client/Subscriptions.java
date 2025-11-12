@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,29 +23,30 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package io.spine.client;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.flogger.FluentLogger;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.protobuf.Message;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.Identifier;
 import io.spine.client.grpc.SubscriptionServiceGrpc;
 import io.spine.client.grpc.SubscriptionServiceGrpc.SubscriptionServiceBlockingStub;
 import io.spine.client.grpc.SubscriptionServiceGrpc.SubscriptionServiceStub;
 import io.spine.core.Response;
-import io.spine.logging.Logging;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import io.spine.logging.Logger;
+import io.spine.logging.WithLogging;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.protobuf.TextFormat.shortDebugString;
+import static io.spine.type.ProtoTexts.shortDebugString;
 import static java.lang.String.format;
 import static java.util.Collections.synchronizedSet;
 
@@ -69,7 +70,7 @@ import static java.util.Collections.synchronizedSet;
  * @see ClientRequest#subscribeToEvent(Class)
  * @see CommandRequest#post()
  */
-public final class Subscriptions implements Logging {
+public final class Subscriptions implements WithLogging {
 
     private final SubscriptionServiceStub service;
     private final SubscriptionServiceBlockingStub blockingServiceStub;
@@ -127,7 +128,7 @@ public final class Subscriptions implements Logging {
         var subscription = Subscription.newBuilder()
                 .setId(id)
                 .setTopic(topic)
-                .vBuild();
+                .build();
         return subscription;
     }
 
@@ -147,6 +148,15 @@ public final class Subscriptions implements Logging {
     <M extends Message> Subscription subscribeTo(Topic topic, StreamObserver<M> observer) {
         var subscription = blockingServiceStub.subscribe(topic);
         service.activate(subscription, new SubscriptionObserver<>(observer));
+        add(subscription);
+        return subscription;
+    }
+
+    <M extends Message> Subscription subscribeTo(Topic topic,
+                                                 StreamObserver<M> observer,
+                                                 StreamObserver<SubscriptionUpdate> chain) {
+        var subscription = blockingServiceStub.subscribe(topic);
+        service.activate(subscription, new SubscriptionObserver<>(observer, chain));
         add(subscription);
         return subscription;
     }
@@ -247,7 +257,7 @@ public final class Subscriptions implements Logging {
                            ));
         }
 
-        private FluentLogger logger() {
+        private Logger logger() {
             return Subscriptions.this.logger();
         }
     }

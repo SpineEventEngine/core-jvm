@@ -77,7 +77,7 @@ class RejectionInFilterTest {
                        CmdBusCaffetteriaStats.newBuilder()
                                .setVisitorCount(allowedCount)
                                .setEntryDenied(deniedCount)
-                               .build()
+                               .buildPartial()
                );
     }
 

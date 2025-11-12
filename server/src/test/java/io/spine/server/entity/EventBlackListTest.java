@@ -27,10 +27,15 @@
 package io.spine.server.entity;
 
 import io.spine.base.EventMessage;
+import io.spine.base.Identifier;
 import io.spine.core.Event;
+import io.spine.test.entity.ProjectId;
+import io.spine.test.entity.Task;
+import io.spine.test.entity.TaskId;
 import io.spine.test.entity.event.EntProjectCreated;
 import io.spine.test.entity.event.EntProjectStarted;
 import io.spine.test.entity.event.EntTaskAdded;
+import io.spine.testing.TestValues;
 import io.spine.testing.server.TestEventFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -60,7 +65,7 @@ class EventBlackListTest {
     @Test
     @DisplayName("allow events of type not from the list")
     void allowArbitrary() {
-        EventMessage event = EntProjectCreated.getDefaultInstance();
+        var event = projectCreated();
         var filtered = blackList.filter(event);
         assertTrue(filtered.isPresent());
         assertEquals(event, filtered.get());
@@ -69,7 +74,7 @@ class EventBlackListTest {
     @Test
     @DisplayName("not allow events of type from the list")
     void notAllowFromList() {
-        EventMessage event = EntTaskAdded.getDefaultInstance();
+        var event = taskAdded(newProjectId());
         var filtered = blackList.filter(event);
         assertFalse(filtered.isPresent());
     }
@@ -77,12 +82,34 @@ class EventBlackListTest {
     @Test
     @DisplayName("filter out events from bulk")
     void filterOut() {
-        var events = Stream.<EventMessage>of(EntProjectCreated.getDefaultInstance(),
-                                             EntTaskAdded.getDefaultInstance())
+        var projectCreated = projectCreated();
+        var events = Stream.of(projectCreated,
+                               taskAdded(projectCreated.getProjectId()))
                            .map(eventFactory::createEvent)
                            .collect(toList());
         Collection<Event> filtered = blackList.filter(events);
         assertEquals(1, filtered.size());
         assertTrue(events.contains(events.get(0)));
+    }
+
+    static EntProjectCreated projectCreated() {
+        return EntProjectCreated.newBuilder()
+                .setProjectId(newProjectId())
+                .build();
+    }
+
+    static ProjectId newProjectId() {
+        return ProjectId.newBuilder()
+                .setId(Identifier.newUuid())
+                .build();
+    }
+
+    static EventMessage taskAdded(ProjectId projectId) {
+        return EntTaskAdded.newBuilder()
+                .setProjectId(projectId)
+                .setTask(Task.newBuilder()
+                                 .setTaskId(TaskId.newBuilder()
+                                                    .setId(TestValues.random(100))))
+                .build();
     }
 }

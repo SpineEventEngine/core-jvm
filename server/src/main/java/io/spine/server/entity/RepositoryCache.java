@@ -27,7 +27,7 @@
 package io.spine.server.entity;
 
 import io.spine.annotation.Internal;
-import io.spine.logging.Logging;
+import io.spine.logging.WithLogging;
 import io.spine.server.tenant.IdInTenant;
 
 import java.util.HashMap;
@@ -36,6 +36,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+
+import static java.lang.String.format;
 
 /**
  * The cache of {@code Entity} objects for a certain {@code Repository} and
@@ -73,7 +75,7 @@ import java.util.function.Function;
  *         the type of entity
  */
 @Internal
-public final class RepositoryCache<I, E extends Entity<I, ?>> implements Logging {
+public final class RepositoryCache<I, E extends Entity<I, ?>> implements WithLogging {
 
     private final Map<IdInTenant<I>, E> cache = new HashMap<>();
     private final Set<IdInTenant<I>> idsToCache = new HashSet<>();
@@ -145,11 +147,12 @@ public final class RepositoryCache<I, E extends Entity<I, ?>> implements Logging
         var idInTenant = idInTenant(id);
         var entity = cache.get(idInTenant);
         if (entity == null) {
-            _warn().log("Cannot find the cached entity in the cache for ID `%s`. " +
-                                "Cache keys: %s. IDs to cache: %s." +
-                                "Most likely, the entity was dispatched with messages " +
-                                "but was never loaded by its repository.",
-                        idInTenant, cache.keySet(), idsToCache);
+            logger().atWarning().log(() -> format(
+                    "Cannot find the cached entity in the cache for ID `%s`." +
+                            " Cache keys: `%s`. IDs to cache: `%s`." +
+                            " Most likely, the entity was dispatched with messages" +
+                            " but was never loaded by its repository.",
+                    idInTenant, cache.keySet(), idsToCache));
             return;
         }
         storeFn.accept(entity);

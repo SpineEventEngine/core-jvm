@@ -25,8 +25,10 @@
  */
 package io.spine.server.stand;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.client.Subscription;
 import io.spine.client.SubscriptionUpdate;
 import io.spine.server.type.EventEnvelope;
@@ -35,20 +37,26 @@ import io.spine.type.TypeUrl;
 
 import java.util.Optional;
 
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
+import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
+
 /**
  * A {@link SubscriptionRegistry} entry that manages a single subscription.
  */
 final class SubscriptionRecord {
 
-    private static final TypeUrl ENTITY_STATE_CHANGED = TypeUrl.of(EntityStateChanged.class);
     private final Subscription subscription;
-    private final TypeUrl type;
-    private final UpdateHandler handler;
+    private final ImmutableMap<TypeUrl, UpdateHandler> handlers;
 
-    private SubscriptionRecord(Subscription s, TypeUrl targetType, UpdateHandler handler) {
+    private SubscriptionRecord(Subscription s, ImmutableSet<UpdateHandler> handlers) {
         this.subscription = s;
-        this.type = targetType;
-        this.handler = handler;
+        this.handlers = handlers.stream()
+                .collect(toImmutableMap(UpdateHandler::eventType, h -> h));
+    }
+
+    private SubscriptionRecord(Subscription s, UpdateHandler handler) {
+        this(s, ImmutableSet.of(handler));
     }
 
     /**
@@ -71,18 +79,24 @@ final class SubscriptionRecord {
      */
     private static SubscriptionRecord createEventRecord(Subscription subscription) {
         var handler = new EventUpdateHandler(subscription);
-        return new SubscriptionRecord(subscription, subscription.targetType(), handler);
+        return new SubscriptionRecord(subscription, handler);
     }
 
     /**
-     * Creates a record managing an entity subscription.
+     * Creates a record managing a subscription on entity changes.
      *
-     * <p>In fact, this is a subscription to an {@link EntityStateChanged} event with a custom
-     * callback and matcher (to validate the entity state packed inside the event).
+     * <p>In fact, this is a subscription to {@link EntityStateChanged},
+     * {@link EntityDeleted}, and {@link EntityArchived} events with a custom callback
+     * and matcher (to validate the entity state packed inside the event).
      */
     private static SubscriptionRecord createEntityRecord(Subscription subscription) {
-        var handler = new EntityUpdateHandler(subscription);
-        return new SubscriptionRecord(subscription, ENTITY_STATE_CHANGED, handler);
+        ImmutableSet<UpdateHandler> handlers =
+                ImmutableSet.of(new EntityChangeHandler(subscription),
+                                new EntityDeletionHandler(subscription),
+                                new EntityRestorationHandler(subscription),
+                                new EntityArchivalHandler(subscription),
+                                new EntityUnarchivalHandler(subscription));
+        return new SubscriptionRecord(subscription, handlers);
     }
 
     /**
@@ -94,7 +108,9 @@ final class SubscriptionRecord {
      *         the action to attach to the record
      */
     void activate(SubscriptionCallback callback) {
-        handler.setCallback(callback);
+        for (var handler : handlers()) {
+            handler.setCallback(callback);
+        }
     }
 
     /**
@@ -108,14 +124,31 @@ final class SubscriptionRecord {
      * @see #activate(SubscriptionCallback)
      */
     void update(EventEnvelope event) {
+        var handler = handlerForEvent(event);
         handler.handle(event);
+    }
+
+    private UpdateHandler handlerForEvent(EventEnvelope event) {
+        var eventType = event.typeUrl();
+        var handler = handlers.get(eventType);
+        requireNonNull(handler,
+                       () -> format("Cannot find `UpdateHandler` for the event of type `%s`.",
+                                    eventType));
+        return handler;
+    }
+
+    private Iterable<UpdateHandler> handlers() {
+        Iterable<UpdateHandler> updateHandlers = handlers.values();
+        return updateHandlers;
     }
 
     /**
      * Checks whether this record has an active callback attached.
      */
     boolean isActive() {
-        return handler.isActive();
+        return handlers.values()
+                .stream()
+                .anyMatch(UpdateHandler::isActive);
     }
 
     /**
@@ -124,11 +157,12 @@ final class SubscriptionRecord {
      */
     @VisibleForTesting
     Optional<SubscriptionUpdate> detectUpdate(EventEnvelope event) {
+        var handler = handlerForEvent(event);
         return handler.detectUpdate(event);
     }
 
-    TypeUrl targetType() {
-        return type;
+    ImmutableSet<TypeUrl> targetTypes() {
+        return handlers.keySet();
     }
 
     @Override

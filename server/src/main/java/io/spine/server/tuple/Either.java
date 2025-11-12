@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -26,14 +26,13 @@
 
 package io.spine.server.tuple;
 
-import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.Message;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Objects;
-import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -44,16 +43,14 @@ import static java.lang.String.format;
  */
 public abstract class Either implements Iterable<Message>, Serializable {
 
+    @Serial
     private static final long serialVersionUID = 0L;
 
-    private final GeneratedMessageV3 value;
+    private final Message value;
     private final int index;
 
     protected Either(Message value, int index) {
-        /* We need instances of GeneratedMessageV3 as they are Serializable.
-           The only known case of message class which does not descend from
-           GeneratedMessageV3 is DynamicMessage, and  Spine does not support it. */
-        this.value = (GeneratedMessageV3) checkNotNull(value);
+        this.value = checkNotNull(value);
         checkArgument(index >= 0, "Index must be greater or equal zero");
         this.index = index;
     }
@@ -75,8 +72,8 @@ public abstract class Either implements Iterable<Message>, Serializable {
     /**
      * Obtains the value of the element by its index and casts it to the type {@code <T>}.
      */
-    @SuppressWarnings("TypeParameterUnusedInFormals") // We want to save on casts at the callers.
-    protected static <T> T get(Either either, IndexOf index) {
+    @SuppressWarnings("TypeParameterUnusedInFormals") // We save on casts, internally.
+    static <T> T get(Either either, IndexOf index) {
         var requestedIdx = index.value();
         if (requestedIdx != either.index()) {
             var errMsg =
@@ -86,7 +83,7 @@ public abstract class Either implements Iterable<Message>, Serializable {
             throw new IllegalStateException(errMsg);
         }
 
-        @SuppressWarnings("unchecked") // It's the caller responsibility to ensure correct type.
+        @SuppressWarnings("unchecked") // It's the caller's responsibility to ensure a correct type.
         var result = (T) either.value();
         return result;
 
@@ -102,17 +99,16 @@ public abstract class Either implements Iterable<Message>, Serializable {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof Either)) {
+        if (!(obj instanceof Either other)) {
             return false;
         }
-        var other = (Either) obj;
         return Objects.equals(this.value, other.value)
                 && (this.index == other.index);
     }
 
     @Override
     public final Iterator<Message> iterator() {
-        Set<Message> singleton = Collections.singleton(value);
+        var singleton = Collections.singleton(value);
         return singleton.iterator();
     }
 }

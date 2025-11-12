@@ -26,24 +26,23 @@
 
 package io.spine.client;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.CommandMessage;
 import io.spine.base.EventMessage;
-import io.spine.core.Ack;
 import io.spine.core.Command;
 import io.spine.core.Status;
-import io.spine.logging.Logging;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import io.spine.logging.WithLogging;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.function.Consumer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.protobuf.TextFormat.shortDebugString;
 import static io.spine.client.EventsAfterCommand.subscribe;
+import static io.spine.type.ProtoTexts.shortDebugString;
 import static io.spine.util.Exceptions.newIllegalStateException;
 
 /**
@@ -66,7 +65,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * the subscriptions depends on the nature of the posted command and the outcome
  * expected by the client application.
  */
-public final class CommandRequest extends ClientRequest implements Logging {
+public final class CommandRequest extends ClientRequestBase implements WithLogging {
 
     private final CommandMessage message;
     private final MultiEventConsumers.Builder eventConsumers;

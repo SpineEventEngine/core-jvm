@@ -26,9 +26,9 @@
 
 package io.spine.server.entity.storage;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import io.spine.annotation.Internal;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.client.ArchivedColumn;
 import io.spine.client.DeletedColumn;
 import io.spine.client.VersionColumn;
@@ -40,7 +40,6 @@ import io.spine.query.RecordColumns;
 import io.spine.server.entity.EntityRecord;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 /**
@@ -56,15 +55,16 @@ import static com.google.common.collect.ImmutableSet.toImmutableSet;
  *         are not available on the client, the enumeration of columns declared here is,
  *         in some way, a wiring between a generic declaration of the column
  *         (e.g. {@link ArchivedColumn}) and its {@code EntityRecord}-based counterpart
- *         (i.e. {@link EntityRecordColumn#archived EntityRecordColumn.archived}.
+ *         (i.e. {@link EntityRecordColumn#archived EntityRecordColumn.archived}).
  */
+@Internal
 @RecordColumns(ofType = EntityRecord.class)
-final class EntityRecordColumn {
+public final class EntityRecordColumn {
 
     /**
      * An {@link ArchivedColumn} which uses {@link EntityRecord} as a source for its values.
      */
-    static final RecordColumn<EntityRecord, Boolean> archived =
+    public static final RecordColumn<EntityRecord, Boolean> archived =
             AsEntityRecordColumn.apply(ArchivedColumn.instance(),
                                        Boolean.class,
                                        EntityRecord::isArchived);
@@ -72,7 +72,7 @@ final class EntityRecordColumn {
     /**
      * A {@link DeletedColumn} which uses {@link EntityRecord} as a source for its values.
      */
-    static final RecordColumn<EntityRecord, Boolean> deleted =
+    public static final RecordColumn<EntityRecord, Boolean> deleted =
             AsEntityRecordColumn.apply(DeletedColumn.instance(),
                                        Boolean.class,
                                        EntityRecord::isDeleted);
@@ -80,7 +80,7 @@ final class EntityRecordColumn {
     /**
      * A {@link VersionColumn} which uses {@link EntityRecord} as a source for its values.
      */
-    static final RecordColumn<EntityRecord, Version> version =
+    public static final RecordColumn<EntityRecord, Version> version =
             AsEntityRecordColumn.apply(VersionColumn.instance(),
                                        Version.class,
                                        EntityRecord::getVersion);
@@ -103,22 +103,10 @@ final class EntityRecordColumn {
      * Returns the names of all columns defined for storing of {@link EntityRecord}.
      */
     @VisibleForTesting
-    static ImmutableSet<ColumnName> names() {
+    public static ImmutableSet<ColumnName> names() {
         return all.stream()
                   .map(Column::name)
                   .collect(toImmutableSet());
-    }
-
-    /**
-     * Evaluates the columns against the passed record and returns the value of each column
-     * along the with its name.
-     */
-    static ImmutableMap<ColumnName, Object> valuesIn(EntityRecord record) {
-        checkNotNull(record);
-        ImmutableMap<ColumnName, Object> values =
-                all.stream()
-                   .collect(toImmutableMap(Column::name, c -> c.valueIn(record)));
-        return values;
     }
 
     /**

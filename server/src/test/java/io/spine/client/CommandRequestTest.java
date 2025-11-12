@@ -28,7 +28,6 @@ package io.spine.client;
 
 import com.google.common.collect.ImmutableList;
 import com.google.protobuf.Message;
-import io.spine.base.CommandMessage;
 import io.spine.base.Error;
 import io.spine.base.EventMessage;
 import io.spine.core.Command;
@@ -42,7 +41,7 @@ import io.spine.test.client.users.event.UserLoggedIn;
 import io.spine.test.client.users.rejection.Rejections.UserAlreadyLoggedIn;
 import io.spine.testing.core.given.GivenUserId;
 import io.spine.testing.logging.mute.MuteLogging;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -253,7 +252,7 @@ class CommandRequestTest extends AbstractClientTest {
                         .isInstanceOf(Command.class);
                 var expected = Command.newBuilder()
                         .setMessage(AnyPacker.pack(commandMessage))
-                        .build();
+                        .buildPartial();
                 assertThat(postedMessage)
                         .comparingExpectedFieldsOnly()
                         .isEqualTo(expected);

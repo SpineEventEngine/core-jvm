@@ -94,7 +94,7 @@ class EventReactorClassTest {
                 ConferenceAnnounced.newBuilder()
                         .setConference(Conference.newBuilder().setName("ES Conf"))
                         .setDate(LocalDates.of(2021, JULY, 29))
-                        .vBuild());
+                        .build());
         var method = reactorClass.reactorOf(EventEnvelope.of(event))
                                  .orElseGet(Assertions::fail);
         assertThat(method.rawMethod())

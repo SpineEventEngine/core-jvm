@@ -34,14 +34,14 @@ import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Marks a handler method parameter to be of an external origin.
+ * Marks a receptor parameter to be of an external origin.
  *
  * <p>External messages are messages originated in a different Bounded Context.
  *
  * <p>Events (including Rejections) and entity states may be external.
  *
- * <p>Annotate the first parameter of the handler method with {@code @External} to make the handler
- * accept external messages. By default, any message handler accepts domestic messages.
+ * <p>Annotate the first parameter of the receptor with {@code @External} so that it
+ * accepts external messages. By default, any receptor accepts domestic messages.
  *
  * @see AcceptsExternal
  */

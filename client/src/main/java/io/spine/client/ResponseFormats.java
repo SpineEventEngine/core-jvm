@@ -27,7 +27,7 @@
 package io.spine.client;
 
 import com.google.protobuf.FieldMask;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -73,6 +73,6 @@ final class ResponseFormats {
             checkArgument(limit > 0, "Limit must be positive, if set.");
             result.setLimit(limit);
         }
-        return result.vBuild();
+        return result.build();
     }
 }

@@ -28,7 +28,7 @@ package io.spine.server.storage;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import static io.spine.server.storage.ColumnTypeMapping.identity;
 
@@ -94,9 +94,8 @@ public final class DefaultColumnMapping extends AbstractColumnMapping<Object> {
         return identity();
     }
 
-    @SuppressWarnings("ReturnOfNull")
     @Override
-    public ColumnTypeMapping<@Nullable ?, @Nullable ?> ofNull() {
+    public ColumnTypeMapping<? extends @Nullable Object, ? extends @Nullable Object> ofNull() {
         return o -> null;
     }
 }

@@ -88,8 +88,8 @@ public interface EventPlayer {
         checkNotNull(entity);
         Transaction<?, ?, ?, ?> tx = entity.tx();
         checkArgument(tx instanceof EventPlayingTransaction,
-                      "EventPlayer can only be created for the entity whose transaction type is " +
-                              "EventPlayingTransaction");
+                      "`EventPlayer` can only be created for the entity " +
+                              "whose transaction type is `EventPlayingTransaction`.");
         EventPlayingTransaction<?, ?, ?, ?> cast = (EventPlayingTransaction<?, ?, ?, ?>) tx;
         return new TransactionalEventPlayer(cast);
     }

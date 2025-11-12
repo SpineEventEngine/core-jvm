@@ -31,7 +31,7 @@ import io.grpc.stub.StreamObserver;
 import io.spine.core.Command;
 import io.spine.core.CommandValidationError;
 import io.spine.grpc.StreamObservers;
-import io.spine.server.command.AbstractCommandAssignee;
+import io.spine.server.command.AbstractAssignee;
 import io.spine.server.commandbus.given.MultitenantCommandBusTestEnv.AddTaskDispatcher;
 import io.spine.server.type.CommandClass;
 import io.spine.test.commandbus.command.CmdBusAddTask;
@@ -149,7 +149,7 @@ class MultiTenantCommandBusTest extends AbstractCommandBusTestSuite {
         @Test
         @DisplayName("command assignee")
         void commandAssignee() {
-            AbstractCommandAssignee assignee = newCommandAssignee();
+            AbstractAssignee assignee = newCommandAssignee();
 
             commandBus.register(assignee);
             commandBus.unregister(assignee);

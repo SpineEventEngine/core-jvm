@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -26,18 +26,16 @@
 package io.spine.server.event.store;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.flogger.FluentLogger;
-import com.google.protobuf.TextFormat;
 import io.grpc.stub.StreamObserver;
 import io.spine.core.Event;
 import io.spine.core.EventId;
 import io.spine.core.Signal;
-import io.spine.logging.Logging;
+import io.spine.logging.WithLogging;
 import io.spine.server.ContextSpec;
 import io.spine.server.event.EventStore;
 import io.spine.server.event.EventStreamQuery;
-import io.spine.server.storage.MessageRecordSpec;
 import io.spine.server.storage.MessageStorage;
+import io.spine.server.storage.RecordSpec;
 import io.spine.server.storage.RecordWithColumns;
 import io.spine.server.storage.StorageFactory;
 import io.spine.server.tenant.EventOperation;
@@ -51,15 +49,16 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.Streams.stream;
-import static com.google.common.flogger.LazyArgs.lazy;
 import static io.spine.server.event.EventComparator.chronological;
+import static io.spine.type.ProtoTexts.shortDebugString;
+import static java.lang.String.format;
 import static java.util.stream.Collectors.toSet;
 
 /**
  * Default implementation of {@link EventStore}.
  */
 public final class DefaultEventStore extends MessageStorage<EventId, Event>
-        implements EventStore, Logging {
+        implements EventStore, WithLogging {
 
     private static final String TENANT_MISMATCH_ERROR_MSG =
             "Events, that target different tenants, cannot be stored in a single operation. " +
@@ -76,9 +75,9 @@ public final class DefaultEventStore extends MessageStorage<EventId, Event>
         this.log = new Log();
     }
 
-    private static MessageRecordSpec<EventId, Event> spec() {
-        var spec = new MessageRecordSpec<>(EventId.class, Event.class, Signal::id,
-                                           EventColumn.definitions());
+    private static RecordSpec<EventId, Event> spec() {
+        var spec = new RecordSpec<>(EventId.class, Event.class, Signal::id,
+                                    EventColumn.definitions());
         return spec;
     }
 
@@ -170,13 +169,13 @@ public final class DefaultEventStore extends MessageStorage<EventId, Event>
 
     private void store(Event event) {
         var toStore = event.clearEnrichments();
-        write(toStore.getId(), toStore);
+        write(toStore);
     }
 
     private void store(Iterable<Event> events) {
         var records = stream(events)
                 .map(Event::clearEnrichments)
-                .map((e) -> RecordWithColumns.create(e.getId(), e, recordSpec()))
+                .map((e) -> RecordWithColumns.create(e, recordSpec()))
                 .collect(toImmutableList());
         writeAll(records);
     }
@@ -184,13 +183,13 @@ public final class DefaultEventStore extends MessageStorage<EventId, Event>
     /**
      * Logging for operations of {@link DefaultEventStore}.
      */
-    final class Log {
+    private final class Log {
 
-        private final FluentLogger.Api debug = logger().atFine();
-        private final boolean debugEnabled = debug.isEnabled();
+        private final boolean debugEnabled = logger().atDebug().isEnabled();
 
         private void stored(Event event) {
-            debug.log("Stored: %s.", lazy(() -> TextFormat.shortDebugString(event)));
+            logger().atDebug().log(() -> format(
+                    "Stored: %s.", shortDebugString(event)));
         }
 
         private void stored(Iterable<Event> events) {
@@ -202,13 +201,15 @@ public final class DefaultEventStore extends MessageStorage<EventId, Event>
         }
 
         private void readingStart(EventStreamQuery query, StreamObserver<Event> observer) {
-            debug.log("Creating stream on request: `%s` for observer: `%s`.",
-                      lazy(() -> TextFormat.shortDebugString(query)),
-                      observer);
+            logger().atDebug().log(() -> format(
+                    "Creating stream on request: `%s` for observer: `%s`.",
+                      shortDebugString(query),
+                      observer));
         }
 
         private void readingComplete(StreamObserver<Event> observer) {
-            debug.log("Observer `%s` got all queried events.", observer);
+            logger().atDebug().log(() -> format(
+                    "Observer `%s` got all queried events.", observer));
         }
     }
 }

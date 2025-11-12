@@ -30,7 +30,6 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.protobuf.FieldMask;
 import com.google.protobuf.Message;
 import io.spine.annotation.Internal;
-import io.spine.annotation.SPI;
 import io.spine.client.ResponseFormat;
 import io.spine.query.RecordQuery;
 import io.spine.query.RecordQueryBuilder;
@@ -52,11 +51,10 @@ import java.util.Optional;
  * @param <R>
  *         the type of the stored message records
  */
-@SPI
 @SuppressWarnings("ClassWithTooManyMethods")    // This is a centerpiece.
 public abstract class RecordStorage<I, R extends Message> extends AbstractStorage<I, R> {
 
-    private final RecordSpec<I, R, ?> recordSpec;
+    private final RecordSpec<I, R> recordSpec;
 
     /**
      * Creates the new storage instance.
@@ -66,7 +64,7 @@ public abstract class RecordStorage<I, R extends Message> extends AbstractStorag
      * @param recordSpec
      *         definitions of the columns to store along with each record
      */
-    protected RecordStorage(ContextSpec context, RecordSpec<I, R, ?> recordSpec) {
+    protected RecordStorage(ContextSpec context, RecordSpec<I, R> recordSpec) {
         super(context.isMultitenant());
         this.recordSpec = recordSpec;
     }
@@ -277,7 +275,7 @@ public abstract class RecordStorage<I, R extends Message> extends AbstractStorag
      * Creates a new query builder for the records stored in this storage.
      */
     public RecordQueryBuilder<I, R> queryBuilder() {
-        return RecordQuery.newBuilder(recordSpec.idType(), recordSpec().storedType());
+        return RecordQuery.newBuilder(recordSpec.idType(), recordSpec().recordType());
     }
 
     /**
@@ -325,7 +323,7 @@ public abstract class RecordStorage<I, R extends Message> extends AbstractStorag
      * Returns the specification of the record format, in which the message record should be stored.
      */
     @Internal
-    protected RecordSpec<I, R, ?> recordSpec() {
+    protected RecordSpec<I, R> recordSpec() {
         return recordSpec;
     }
 

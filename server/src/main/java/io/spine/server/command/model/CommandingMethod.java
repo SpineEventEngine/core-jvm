@@ -27,7 +27,7 @@
 package io.spine.server.command.model;
 
 import com.google.errorprone.annotations.Immutable;
-import io.spine.server.model.CommandProducingMethod;
+import io.spine.server.model.CommandEmitter;
 import io.spine.server.type.MessageEnvelope;
 import io.spine.type.MessageClass;
 
@@ -46,5 +46,5 @@ import io.spine.type.MessageClass;
 public interface CommandingMethod<T,
                                   M extends MessageClass<?>,
                                   E extends MessageEnvelope<?, ?, ?>>
-        extends CommandProducingMethod<T, M, E> {
+        extends CommandEmitter<T, M, E> {
 }

@@ -44,11 +44,7 @@ import static java.lang.Math.abs;
  * <p>Uses a hash code of the entity identifier and the remainder of its division by the total
  * number of shards to determine the index of a shard, at which the modification is allowed.
  * To reach the consistency of the hash code values across JVMs,
- * the {@linkplain Hashing#murmur3_32() MurmurHash3, x86 variant} is used.
- *
- * <p>While Guava's {@code Hashing} is marked {@code @Beta}, it is still the best option
- * for hashing functions — not to involve any heavy-weight third-party hashing
- * solutions.
+ * the {@linkplain Hashing#murmur3_32_fixed() MurmurHash3, x86 variant} is used.
  */
 @Immutable
 public final class UniformAcrossAllShards extends DeliveryStrategy implements Serializable {
@@ -58,8 +54,7 @@ public final class UniformAcrossAllShards extends DeliveryStrategy implements Se
     /**
      * The hash function to use for the shard index calculation.
      */
-    @SuppressWarnings("UnstableApiUsage")   // See the class-level docs.
-    private static final HashFunction HASHER = Hashing.murmur3_32();
+    private static final HashFunction HASHER = Hashing.murmur3_32_fixed();
 
     private final int numberOfShards;
 

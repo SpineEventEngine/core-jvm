@@ -30,7 +30,7 @@ import io.spine.annotation.SPI;
 import io.spine.server.NodeId;
 
 /**
- * A controlling monitor of a {@link Delivery Inbox Delivery} process.
+ * A controlling monitor of an {@link Delivery Inbox Delivery} process.
  *
  * <p>In some cases when a funnel-like {@code Entity} (e.g. some projection of a business report
  * subscribed to half of the domain events) has a lot of messages in its {@code Inbox},
@@ -84,9 +84,9 @@ public class DeliveryMonitor {
      * @param stats
      *         the statistics of the performed delivery
      */
-    @SuppressWarnings("unused")  /* This SPI method is designed for descendants. */
+    @SuppressWarnings({"WeakerAccess" /* Part of public API. */, "unused"})
     public void onDeliveryCompleted(DeliveryStats stats) {
-        // do nothing.
+        // Do nothing.
     }
 
     /**
@@ -96,13 +96,72 @@ public class DeliveryMonitor {
      * @param index
      *         the index of the shard, the delivery from which has been started
      */
-    @SuppressWarnings({"unused", "WeakerAccess"}) /* This SPI method is designed for descendants. */
+    @SuppressWarnings({"WeakerAccess" /* Part of public API. */, "unused"})
     public void onDeliveryStarted(ShardIndex index) {
-        // do nothing.
+        // Do nothing.
     }
 
     /**
-     * Returns an instance of {@code DeliveryMonitor} which always tells to continue.
+     * A callback invoked if the signal transmitted via given message
+     * is handled by the respective receptor with failure.
+     *
+     * <p>Returns an action to take in relation to the failure.
+     *
+     * <p>By default, this callback returns an action which
+     * marks the message as {@linkplain InboxMessageStatus#DELIVERED delivered}.
+     *
+     * <p>See {@link FailedReception} for more pre-defined actions.
+     *
+     * @param reception
+     *         the details on failed reception
+     */
+    @SuppressWarnings("WeakerAccess" /* Part of public API. */)
+    public FailedReception.Action onReceptionFailure(FailedReception reception) {
+        return reception.markDelivered();
+    }
+
+    /**
+     * Called if an {@code Exception} occurred when the {@code Delivery} attempted
+     * to pick up a shard.
+     *
+     * <p>Please note, this callback is <em>not</em> invoked in case the shard cannot be picked up
+     * if it's already picked up by another worker. It is so, because such a use case is a part
+     * of normal flow, and thus does not provoke a {@code RuntimeException}.
+     *
+     * <p>Returns an action to take in relation to the failure.
+     *
+     * <p>By default this callback returns an {@code Action} that propagates
+     * the occurred exception.
+     *
+     * @param failure
+     *         contains an information about the occurred failure, and gives access to
+     *         predefined {@code Action}s to handle the error
+     */
+    @SuppressWarnings("WeakerAccess" /* Part of public API. */)
+    public FailedPickUp.Action onShardPickUpFailure(RuntimeFailure failure) {
+        return failure.propagate();
+    }
+
+    /**
+     * Called if {@code Delivery} could not pick up a shard because it was already picked up
+     * by another worker.
+     *
+     * <p>Returns an action to take in relation to the failure.
+     *
+     * <p>By default this callback returns an Action that does nothing. This means that
+     * an empty {@code Optional} will be returned from the {@code deliverMessagesFrom()} method.
+     *
+     * @param failure
+     *         contains an information about the worker who owns the session and gives access
+     *         to predefined {@code Action}s to handle the error
+     */
+    @SuppressWarnings("WeakerAccess" /* Part of public API. */)
+    public FailedPickUp.Action onShardAlreadyPicked(AlreadyPickedUp failure) {
+        return failure.doNothing();
+    }
+
+    /**
+     * Returns an instance of {@code DeliveryMonitor} which always says to continue.
      */
     static DeliveryMonitor alwaysContinue() {
         return ALWAYS_CONTINUE;

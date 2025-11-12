@@ -28,6 +28,8 @@ package io.spine.server.aggregate;
 
 import com.google.common.collect.ImmutableList;
 import io.spine.core.Event;
+import io.spine.server.type.EventEnvelope;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -148,12 +150,12 @@ final class UncommittedHistory {
         return AggregateHistory.newBuilder()
                 .addAllEvent(events)
                 .setSnapshot(snapshot)
-                .vBuild();
+                .build();
     }
 
     private static AggregateHistory historyFrom(List<Event> events) {
         return AggregateHistory.newBuilder()
                 .addAllEvent(events)
-                .vBuild();
+                .build();
     }
 }

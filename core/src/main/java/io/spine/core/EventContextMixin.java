@@ -1,5 +1,5 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2023, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,17 +27,19 @@
 package io.spine.core;
 
 import com.google.errorprone.annotations.Immutable;
-import com.google.protobuf.Descriptors;
+import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.Timestamp;
 import io.spine.annotation.GeneratedMixin;
 import io.spine.annotation.Internal;
 import io.spine.base.Identifier;
-import io.spine.logging.Logging;
+import io.spine.logging.WithLogging;
 import io.spine.validate.FieldAwareMessage;
 
 import java.util.Optional;
 
+import static io.spine.type.ProtoTexts.shortDebugString;
 import static io.spine.util.Exceptions.newIllegalStateException;
+import static java.lang.String.format;
 
 /**
  * Mixin interface for {@link EventContext}s.
@@ -49,7 +51,7 @@ interface EventContextMixin extends EventContextOrBuilder,
                                     WithTime,
                                     EnrichableMessageContext,
                                     FieldAwareMessage,
-                                    Logging {
+                                    WithLogging {
 
     /**
      * Obtains an actor context for the event context.
@@ -127,14 +129,15 @@ interface EventContextMixin extends EventContextOrBuilder,
             case ORIGIN_NOT_SET:
             default:
                 if (hasRootCommandId()) {
-                    @SuppressWarnings("DuplicateStringLiteralInspection") // Coincidence.
                     var id = MessageId.newBuilder()
                             .setId(Identifier.pack(getRootCommandId()))
                             .setTypeUrl("Unknown")
-                            .vBuild();
+                            .build();
                     return Optional.of(id);
                 } else {
-                    _warn().log("Cannot determine root message ID.");
+                    logger().atWarning().log(() -> format(
+                            "Cannot determine root message ID. Event context: `%s`.",
+                            shortDebugString(this)));
                     return Optional.empty();
                 }
         }
@@ -169,7 +172,7 @@ interface EventContextMixin extends EventContextOrBuilder,
     @SuppressWarnings({"OverlyComplexMethod", "MagicNumber", "deprecation"})    // see the docs.
     @Override
     @Internal
-    default Object readValue(Descriptors.FieldDescriptor field) {
+    default Object readValue(FieldDescriptor field) {
         switch (field.getIndex()) {
             case 0:
                 return getTimestamp();

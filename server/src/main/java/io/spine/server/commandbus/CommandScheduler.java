@@ -35,7 +35,7 @@ import io.spine.core.CommandId;
 import io.spine.server.Closeable;
 import io.spine.server.bus.BusFilter;
 import io.spine.server.type.CommandEnvelope;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.Set;

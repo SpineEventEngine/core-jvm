@@ -31,8 +31,6 @@ import com.google.common.collect.Iterators;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Durations;
 import io.spine.base.Time;
-import io.spine.server.BoundedContextBuilder;
-import io.spine.server.DefaultRepository;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.delivery.given.ConsecutiveNumberProcess;
 import io.spine.server.delivery.given.ConsecutiveProjection;
@@ -56,7 +54,6 @@ import java.util.concurrent.Callable;
 import java.util.stream.IntStream;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth8.assertThat;
 import static com.google.protobuf.util.Timestamps.subtract;
 import static io.spine.base.Time.currentTime;
 import static io.spine.server.delivery.CatchUpStatus.COMPLETED;
@@ -103,32 +100,53 @@ public class CatchUpTest extends AbstractDeliveryTest {
                          .clear();
     }
 
+    /**
+     * This test is intentionally left {@code public}.
+     *
+     * <p>See the class-level docs.
+     */
     @Test
-    @DisplayName("given the time is provided with nanosecond resolution, catch up " +
-            "only particular instances by their IDs")
+    @DisplayName("given the time is provided with nanosecond resolution " +
+            "catch up only particular instances by their IDs")
     public void withNanosByIds() throws InterruptedException {
         testCatchUpByIds();
     }
 
+    /**
+     * This test is intentionally left {@code public}.
+     *
+     * <p>See the class-level docs.
+     */
     @Test
-    @DisplayName("given the time is provided with nanosecond resolution, " +
-            "catch up all of projection instances " +
+    @DisplayName("given the time is provided with nanosecond resolution" +
+            " catch up all of projection instances " +
             "and respect the order of the delivered events")
     public void withNanosAllInOrder() throws InterruptedException {
         testCatchUpAll();
     }
 
+    /**
+     * This test is intentionally left {@code public}.
+     *
+     * <p>See the class-level docs.
+     */
     @Test
-    @DisplayName("given the time is provided with millisecond resolution, " +
-            "catch up only particular instances by their IDs")
+    @DisplayName("given the time is provided with millisecond resolution" +
+            " catch up only particular instances by their IDs")
     public void withMillisByIds() throws InterruptedException {
         setupMillis();
         testCatchUpByIds();
     }
 
+    /**
+     * This test is intentionally left {@code public}.
+     *
+     * <p>See the class-level docs.
+     */
     @Test
-    @DisplayName("given the time is provided with millisecond resolution, catch up all " +
-            "of projection instances and respect the order of the delivered events")
+    @DisplayName("given the time is provided with millisecond resolution " +
+            "catch up all of projection instances and " +
+            "respect the order of the delivered events")
     public void withMillisAllInOrder() throws InterruptedException {
         setupMillis();
         testCatchUpAll();
@@ -147,16 +165,18 @@ public class CatchUpTest extends AbstractDeliveryTest {
         @Test
         @DisplayName("if the event store is empty")
         void onEmptyEventStore() {
-            var counterCatchUp = catchUpForCounter();
-            counterCatchUp.catchUp(WhatToCatchUp.catchUpAll(aMinuteAgo()));
+            try (var counterCatchUp = catchUpForCounter()) {
+                counterCatchUp.catchUp(WhatToCatchUp.catchUpAll(aMinuteAgo()));
+            }
         }
 
         @Test
         @DisplayName("of the same instance, if the previous catch-up is already completed")
         void ifPreviousCatchUpCompleted() {
             CounterCatchUp.addOngoingCatchUpRecord(catchUpAll(aMinuteAgo()), COMPLETED);
-            var counterCatchUp = catchUpForCounter();
-            counterCatchUp.catchUp(WhatToCatchUp.catchUpAll(aMinuteAgo()));
+            try (var counterCatchUp = catchUpForCounter()) {
+                counterCatchUp.catchUp(WhatToCatchUp.catchUpAll(aMinuteAgo()));
+            }
         }
     }
 
@@ -170,9 +190,10 @@ public class CatchUpTest extends AbstractDeliveryTest {
         @DisplayName("if catching up of all repository instances has started previously")
         void ifCatchUpAllStartedPreviously() {
             CounterCatchUp.addOngoingCatchUpRecord(catchUpAll(aMinuteAgo()));
-            var counterCatchUp = catchUpForCounter();
-            for (var target : counterCatchUp.targets()) {
-                assertCatchUpAlreadyStarted(counterCatchUp, target);
+            try (var counterCatchUp = catchUpForCounter()) {
+                for (var target : counterCatchUp.targets()) {
+                    assertCatchUpAlreadyStarted(counterCatchUp, target);
+                }
             }
         }
 
@@ -180,17 +201,16 @@ public class CatchUpTest extends AbstractDeliveryTest {
         @DisplayName("of the same repository instances")
         void ofSameInstances() {
             CounterCatchUp.addOngoingCatchUpRecord(catchUpOf(TARGET_ID, aMinuteAgo()));
-            var counterCatchUp = new CounterCatchUp(TARGET_ID);
-
-            assertCatchUpAlreadyStarted(counterCatchUp, TARGET_ID);
+            try (var counterCatchUp = new CounterCatchUp(TARGET_ID)) {
+                assertCatchUpAlreadyStarted(counterCatchUp, TARGET_ID);
+            }
         }
 
         @Test
         @DisplayName("of all instances if at least one catch-up of an instance is in progress")
         void ofAllIfOneAlreadyStarted() {
             CounterCatchUp.addOngoingCatchUpRecord(catchUpOf(TARGET_ID, aMinuteAgo()));
-            var counterCatchUp = new CounterCatchUp(TARGET_ID);
-            try {
+            try(var counterCatchUp = new CounterCatchUp(TARGET_ID)) {
                 counterCatchUp.catchUp(catchUpAll(aMinuteAgo()));
                 fail("It must not be possible to start catching up all the instances," +
                              " while some instance is already catching up.");
@@ -216,62 +236,62 @@ public class CatchUpTest extends AbstractDeliveryTest {
 
     private static void testCatchUpEmpty() {
         changeShardCountTo(17);
+        try (var counterCatchUp = catchUpForCounter()) {
+            var aWhileAgo = subtract(currentTime(), Durations.fromHours(1));
+            var someTarget = "some-target";
+            counterCatchUp.catchUp(WhatToCatchUp.catchUpOf(someTarget, aWhileAgo));
 
-        var counterCatchUp = catchUpForCounter();
-        var aWhileAgo = subtract(currentTime(), Durations.fromHours(1));
-        var someTarget = "some-target";
-        counterCatchUp.catchUp(WhatToCatchUp.catchUpOf(someTarget, aWhileAgo));
-
-        var actual = counterCatchUp.find(someTarget);
-        assertThat(actual).isEmpty();
+            var actual = counterCatchUp.find(someTarget);
+            assertThat(actual).isEmpty();
+        }
     }
 
     private static void testCatchUpByIds() throws InterruptedException {
         changeShardCountTo(2);
+        try(var counterCatchUp = catchUpForCounter()) {
 
-        var counterCatchUp = catchUpForCounter();
-        var events = counterCatchUp.generateEvents(200);
+            var events = counterCatchUp.generateEvents(200);
 
-        var aWhileAgo = subtract(currentTime(), Durations.fromHours(1));
-        counterCatchUp.addHistory(aWhileAgo, events);
+            var aWhileAgo = subtract(currentTime(), Durations.fromHours(1));
+            counterCatchUp.addHistory(aWhileAgo, events);
 
-        // Round 1. Fight!
+            // Round 1. Fight!
 
-        var initialWeight = 1;
-        CounterView.changeWeightTo(initialWeight);
+            var initialWeight = 1;
+            CounterView.changeWeightTo(initialWeight);
 
-        counterCatchUp.dispatch(events, 20);
+            counterCatchUp.dispatch(events, 20);
 
-        var targets = counterCatchUp.targets();
-        var totalTargets = targets.length;
-        var initialTotals = counterCatchUp.counterValues();
-        var sumInRound = events.size() / totalTargets * initialWeight;
-        var sums = IntStream.iterate(sumInRound, i -> i)
-                            .limit(totalTargets);
-        assertThat(initialTotals).isEqualTo(sums.boxed()
-                                                .collect(toList()));
+            var targets = counterCatchUp.targets();
+            var totalTargets = targets.length;
+            var initialTotals = counterCatchUp.counterValues();
+            var sumInRound = events.size() / totalTargets * initialWeight;
+            var sums = IntStream.iterate(sumInRound, i -> i)
+                                .limit(totalTargets);
+            assertThat(initialTotals).isEqualTo(sums.boxed()
+                                                    .collect(toList()));
 
-        // Round 2. Catch up the first and the second and fight!
+            // Round 2. Catch up the first and the second and fight!
 
-        var newWeight = 100;
-        CounterView.changeWeightTo(newWeight);
-        counterCatchUp
-                .dispatchWithCatchUp(events, 20,
-                                     catchUpOf(targets[0], aWhileAgo),
-                                     catchUpOf(targets[1], aMinuteAgo()));
+            var newWeight = 100;
+            CounterView.changeWeightTo(newWeight);
+            counterCatchUp
+                    .dispatchWithCatchUp(events, 20,
+                                         catchUpOf(targets[0], aWhileAgo),
+                                         catchUpOf(targets[1], aMinuteAgo()));
 
-        var totalsAfterCatchUp = counterCatchUp.counterValues();
+            var totalsAfterCatchUp = counterCatchUp.counterValues();
 
-        var firstSumExpected = sumInRound * newWeight / initialWeight * 3;
-        var secondSumExpected = sumInRound * newWeight / initialWeight * 2;
-        var untouchedSum = sumInRound + sumInRound * newWeight / initialWeight;
-        List<Integer> expectedTotals =
-                ImmutableList.of(firstSumExpected, secondSumExpected, untouchedSum, untouchedSum);
+            var firstSumExpected = sumInRound * newWeight / initialWeight * 3;
+            var secondSumExpected = sumInRound * newWeight / initialWeight * 2;
+            var untouchedSum = sumInRound + sumInRound * newWeight / initialWeight;
+            List<Integer> expectedTotals =
+                    ImmutableList.of(firstSumExpected, secondSumExpected, untouchedSum, untouchedSum);
 
-        assertThat(totalsAfterCatchUp).isEqualTo(expectedTotals);
+            assertThat(totalsAfterCatchUp).isEqualTo(expectedTotals);
+        }
     }
 
-    @SuppressWarnings("OverlyLongMethod")   // Complex environment setup.
     private static void testCatchUpAll() throws InterruptedException {
         ConsecutiveProjection.usePositives();
 
@@ -281,12 +301,9 @@ public class CatchUpTest extends AbstractDeliveryTest {
 
         changeShardCountTo(3);
         var projectionRepo = new ConsecutiveProjection.Repo();
-        var pmRepo =
-                DefaultRepository.of(ConsecutiveNumberProcess.class);
-        var ctx = BlackBox.from(
-                BoundedContextBuilder.assumingTests()
-                                     .add(projectionRepo)
-                                     .add(pmRepo)
+        var ctx = BlackBox.singleTenantWith(
+                projectionRepo,
+                ConsecutiveNumberProcess.class
         );
         var jobs = asPostCommandJobs(ctx, commands);
         post(jobs, 1);
@@ -323,9 +340,11 @@ public class CatchUpTest extends AbstractDeliveryTest {
             var maybeState = projectionRepo.find(identifier);
             assertThat(maybeState).isPresent();
 
-            var state = maybeState.get().state();
+            var state = maybeState.get()
+                                  .state();
             assertThat(state.getLastValue()).isEqualTo(negativeExpected);
         }
+        ctx.close();
     }
 
     private static Timestamp aMinuteAgo() {
@@ -335,9 +354,9 @@ public class CatchUpTest extends AbstractDeliveryTest {
     private static List<Integer> readLastValues(ConsecutiveProjection.Repo repo,
                                                 String[] ids) {
         return Arrays.stream(ids)
-                     .map((id) -> findView(repo, id).state()
-                                                    .getLastValue())
-                     .collect(toList());
+                .map((id) -> findView(repo, id).state()
+                                               .getLastValue())
+                .collect(toList());
     }
 
     private static List<EmitNextNumber> generateEmissionCommands(int howMany, String[] ids) {
@@ -346,7 +365,7 @@ public class CatchUpTest extends AbstractDeliveryTest {
         for (var i = 0; i < howMany; i++) {
             commands.add(EmitNextNumber.newBuilder()
                                  .setId(idIterator.next())
-                                 .vBuild());
+                                 .build());
         }
         return commands;
     }
@@ -354,8 +373,8 @@ public class CatchUpTest extends AbstractDeliveryTest {
     private static List<Callable<Object>>
     asPostCommandJobs(BlackBox ctx, List<EmitNextNumber> commands) {
         return commands.stream()
-                       .map(cmd -> (Callable<Object>) () -> ctx.receivesCommand(cmd))
-                       .collect(toList());
+                .map(cmd -> (Callable<Object>) () -> ctx.receivesCommand(cmd))
+                .collect(toList());
     }
 
     private static void setupMillis() {
@@ -363,8 +382,8 @@ public class CatchUpTest extends AbstractDeliveryTest {
     }
 
     /**
-     * A time provider which provides the current time based upon JDK's wall clock, i.e. without
-     * the emulated nanoseconds.
+     * A time provider which provides the current time based upon JDK's wall clock,
+     * i.e. without the emulated nanoseconds.
      */
     private static class WithMillisOnlyResolution implements Time.Provider {
 

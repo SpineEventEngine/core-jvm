@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -26,42 +26,41 @@
 
 package io.spine.server.entity;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
-import com.google.common.flogger.FluentLogger;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import com.google.errorprone.annotations.concurrent.LazyInit;
 import com.google.protobuf.Message;
 import com.google.protobuf.Timestamp;
 import io.spine.annotation.Internal;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.EntityState;
 import io.spine.base.Identifier;
 import io.spine.core.Version;
 import io.spine.core.Versions;
+import io.spine.logging.LoggingFactory;
+import io.spine.logging.MetadataKey;
+import io.spine.logging.context.ScopedLoggingContext;
 import io.spine.server.entity.model.EntityClass;
 import io.spine.server.entity.rejection.CannotModifyArchivedEntity;
 import io.spine.server.entity.rejection.CannotModifyDeletedEntity;
-import io.spine.server.log.HandlerLifecycle;
-import io.spine.server.log.HandlerLog;
-import io.spine.server.model.HandlerMethod;
+import io.spine.server.log.ReceptorLifecycle;
+import io.spine.server.model.Receptor;
 import io.spine.string.Stringifiers;
 import io.spine.validate.ConstraintViolation;
 import io.spine.validate.Validate;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.logging.Level;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static io.spine.logging.Logging.loggerFor;
 import static io.spine.util.Exceptions.newIllegalArgumentException;
-import static io.spine.validate.Validate.checkValid;
-import static io.spine.validate.Validate.validateChange;
+import static io.spine.util.Exceptions.newIllegalStateException;
+import static io.spine.validate.Validate.check;
 import static io.spine.validate.Validate.violationsOf;
 
 /**
@@ -77,7 +76,18 @@ import static io.spine.validate.Validate.violationsOf;
             fields. See Effective Java 2nd Ed. Item #71. */,
         "ClassWithTooManyMethods"})
 public abstract class AbstractEntity<I, S extends EntityState<I>>
-        implements Entity<I, S>, HandlerLifecycle {
+        implements Entity<I, S>, ReceptorLifecycle<AbstractEntity<I, S>> {
+
+    /**
+     * The key for the metadata value which contains the list with the names of
+     * parameter types of a receptor.
+     *
+     * @see #beforeInvoke(Receptor)
+     * @see #afterInvoke(Receptor)
+     */
+    @SuppressWarnings("rawtypes") // to avoid generics hell.
+    private static final MetadataKey<List> RECEPTOR_PARAM_TYPES =
+            LoggingFactory.singleMetadataKey("receptor_param_types", List.class);
 
     /**
      * Lazily initialized reference to the model class of this entity.
@@ -91,10 +101,14 @@ public abstract class AbstractEntity<I, S extends EntityState<I>>
     /**
      * The ID of the entity.
      *
-     * <p>Assigned either through the {@linkplain #AbstractEntity(Object)} constructor which
+     * <p>Assigned either through the {@linkplain #AbstractEntity(Object) constructor which
      * accepts the ID}, or via {@link #setId(Object)}. Is never {@code null}.
+     *
+     * @apiNote The field is named with the underscore prefix to avoid
+     *          name clash with the extension property name in Kotlin.
      */
-    private @MonotonicNonNull I id;
+    @SuppressWarnings("FieldNamingConvention") // See `apiNote` above.
+    private @MonotonicNonNull I _id;
 
     /** Cached version of string ID. */
     @LazyInit
@@ -106,14 +120,26 @@ public abstract class AbstractEntity<I, S extends EntityState<I>>
      * <p>Lazily initialized to the {@linkplain #defaultState() default state},
      * if {@linkplain #state() accessed} before {@linkplain #setState(EntityState)}
      * initialization}.
+     *
+     * @apiNote The field is named with the underscore prefix to avoid
+     *          name clash with the extension property name in Kotlin.
      */
+    @SuppressWarnings("FieldNamingConvention") // See `apiNote` above.
     @LazyInit
-    private volatile @MonotonicNonNull S state;
+    private volatile @MonotonicNonNull S _state;
 
-    /** The version of the entity. */
-    private volatile Version version;
+    /**
+     * The version of the entity.
+     *
+     * @apiNote The field is named with the underscore prefix to avoid
+     *          name clash with the extension property name in Kotlin.
+     */
+    @SuppressWarnings("FieldNamingConvention") // See `apiNote` above.
+    private volatile Version _version;
 
-    /** The lifecycle flags of the entity. */
+    /**
+     * The lifecycle flags of the entity.
+     */
     private volatile @MonotonicNonNull LifecycleFlags lifecycleFlags;
 
     /**
@@ -124,7 +150,15 @@ public abstract class AbstractEntity<I, S extends EntityState<I>>
      */
     private volatile boolean lifecycleFlagsChanged;
 
-    private @Nullable HandlerLog handlerLog;
+    /**
+     * A context for the logging operations performed by the entity in a receptor.
+     *
+     * <p>This field is {@code null}, if the entity is not being accessed through a receptor.
+     *
+     * @see #beforeInvoke(Receptor)
+     * @see #afterInvoke(Receptor)
+     */
+    private @Nullable AutoCloseable loggingContext = null;
 
     /**
      * Creates a new instance with the zero version and cleared lifecycle flags.
@@ -151,12 +185,12 @@ public abstract class AbstractEntity<I, S extends EntityState<I>>
     @SuppressWarnings("InstanceVariableUsedBeforeInitialized") // checked in `if`
     final void setId(I id) {
         checkNotNull(id);
-        if (this.id != null) {
-            checkState(id.equals(this.id),
+        if (this._id != null) {
+            checkState(id.equals(this._id),
                        "Entity ID already assigned to `%s`." +
-                               " Attempted to reassign to `%s`.", this.id, id);
+                               " Attempted to reassign to `%s`.", this._id, id);
         }
-        this.id = id;
+        this._id = id;
     }
 
     /**
@@ -176,7 +210,7 @@ public abstract class AbstractEntity<I, S extends EntityState<I>>
 
     @Override
     public I id() {
-        return checkNotNull(id);
+        return checkNotNull(_id);
     }
 
     /**
@@ -189,17 +223,36 @@ public abstract class AbstractEntity<I, S extends EntityState<I>>
      */
     @Override
     public final S state() {
-        var result = state;
+        ensureAccessToState();
+        var result = _state;
         if (result == null) {
             synchronized (this) {
-                result = state;
+                result = _state;
                 if (result == null) {
-                    state = defaultState();
-                    result = state;
+                    _state = defaultState();
+                    result = _state;
                 }
             }
         }
         return result;
+    }
+
+    /**
+     * Ensures that the callee is allowed to access Entity's {@link #state() state()} method.
+     *
+     * <p>In case the access is prohibited, throws a {@code RuntimeException}.
+     *
+     * <p>In some scenarios, the state of Entity may be not up-to-date,
+     * so descendants of {@code AbstractEntity} are able to put the corresponding restrictions
+     * on this method invocation.
+     *
+     * <p>By default, this method performs no checks,
+     * thus allowing to access Entity's {@code state()} at any point of time.
+     */
+    @Internal
+    @SuppressWarnings("NoopMethodInAbstractClass" /* By design. */)
+    protected void ensureAccessToState() {
+        // Do nothing by default.
     }
 
     /**
@@ -233,7 +286,7 @@ public abstract class AbstractEntity<I, S extends EntityState<I>>
      * Sets the entity state to the passed value.
      */
     void setState(S newState) {
-        this.state = checkNotNull(newState);
+        this._state = checkNotNull(newState);
     }
 
     /**
@@ -276,7 +329,6 @@ public abstract class AbstractEntity<I, S extends EntityState<I>>
         checkNotNull(newState);
         ImmutableList.Builder<ConstraintViolation> violations = ImmutableList.builder();
         violations.addAll(violationsOf(newState));
-        violations.addAll(validateChange(state(), newState));
         return violations.build();
     }
 
@@ -299,10 +351,10 @@ public abstract class AbstractEntity<I, S extends EntityState<I>>
     /**
      * Obtains ID of the entity in the {@linkplain Stringifiers#toString(Object) string form}.
      *
-     * <p>Subsequent calls to the method returns a cached instance of the string, which minimizes
+     * <p>Subsequent calls to the method return a cached instance of the string, which minimizes
      * the performance impact of repeated calls.
      *
-     * @return string form of the entity ID
+     * @return the string form of the entity ID
      */
     @Override
     public String idAsString() {
@@ -386,7 +438,7 @@ public abstract class AbstractEntity<I, S extends EntityState<I>>
      * Ensures that the entity is not marked as {@code archived}.
      *
      * @throws CannotModifyArchivedEntity
-     *         if the entity in in the archived status
+     *         if the entity in the archived status
      * @see #lifecycleFlags()
      * @see io.spine.server.entity.LifecycleFlags#getArchived()
      */
@@ -461,8 +513,8 @@ public abstract class AbstractEntity<I, S extends EntityState<I>>
 
     final void updateVersion(Version newVersion) {
         checkNotNull(newVersion);
-        checkValid(newVersion);
-        if (version.equals(newVersion)) {
+        check(newVersion);
+        if (_version.equals(newVersion)) {
             return;
         }
         var currentVersionNumber = versionNumber();
@@ -494,7 +546,7 @@ public abstract class AbstractEntity<I, S extends EntityState<I>>
     }
 
     void setVersion(Version version) {
-        this.version = version;
+        this._version = version;
     }
 
     private Version incrementedVersion() {
@@ -509,7 +561,7 @@ public abstract class AbstractEntity<I, S extends EntityState<I>>
      */
     @Override
     public Version version() {
-        return version;
+        return _version;
     }
 
     /**
@@ -519,50 +571,56 @@ public abstract class AbstractEntity<I, S extends EntityState<I>>
      */
     int incrementVersion() {
         setVersion(incrementedVersion());
-        return version.getNumber();
+        return _version.getNumber();
     }
 
     /**
      * Obtains timestamp of the entity version.
      */
     public Timestamp whenModified() {
-        return version.getTimestamp();
-    }
-
-    @OverridingMethodsMustInvokeSuper
-    @Override
-    public void beforeInvoke(HandlerMethod<?, ?, ?, ?> method) {
-        checkNotNull(method);
-        var logger = loggerFor(getClass());
-        this.handlerLog = new HandlerLog(logger, method);
-    }
-
-    @OverridingMethodsMustInvokeSuper
-    @Override
-    public void afterInvoke(HandlerMethod<?, ?, ?, ?> method) {
-        this.handlerLog = null;
+        return _version.getTimestamp();
     }
 
     /**
-     * Obtains a new fluent logging API at the given level.
+     * Creates new {@link ScopedLoggingContext} containing the names of the types of
+     * the parameters of the given {@link Receptor}.
      *
-     * <p>If called from within a handler method, the resulting log will reference the handler
-     * method as the log site. Otherwise, equivalent to
-     * {@code Logging.loggerFor(getClass()).at(logLevel)}.
+     * <p>The list will be displayed as {@code CONTEXT} metadata in a log record,
+     * iff the receptor performs logging.
      *
-     * @param logLevel
-     *         the log level
-     * @return new fluent logging API
-     * @apiNote This method mirrors the declaration of
-     *         {@link io.spine.server.log.LoggingEntity#at(Level)}. It is recommended to implement
-     *         the {@link io.spine.server.log.LoggingEntity} interface and use the underscore
-     *         logging methods instead of calling {@code at(..)} directly.
-     * @see io.spine.server.log.LoggingEntity
+     * @param method the receptor method which is going to be called
+     *
+     * @see #afterInvoke(Receptor)
      */
-    public final FluentLogger.Api at(Level logLevel) {
-        return handlerLog != null
-               ? handlerLog.at(logLevel)
-               : loggerFor(getClass()).at(logLevel);
+    @OverridingMethodsMustInvokeSuper
+    @Override
+    @SuppressWarnings("MustBeClosedChecker") // We close the `loggingContext` in `afterInvoke()`.
+    public void beforeInvoke(Receptor<AbstractEntity<I, S>, ?, ?, ?> method) {
+        checkNotNull(method);
+        var paramTypes = method.params().simpleNames();
+        loggingContext = ScopedLoggingContext.getInstance()
+            .newContext()
+            .withMetadata(RECEPTOR_PARAM_TYPES, paramTypes)
+            .install();
+    }
+
+    /**
+     * Releases the {@link #loggingContext} installed by {@link #beforeInvoke(Receptor)}.
+     *
+     * @see #beforeInvoke(Receptor)
+     */
+    @OverridingMethodsMustInvokeSuper
+    @Override
+    public void afterInvoke(Receptor<AbstractEntity<I, S>, ?, ?, ?> method) {
+        if (loggingContext != null) {
+            try {
+                loggingContext.close();
+            } catch (Exception e) {
+                throw newIllegalStateException(e,
+                           "Unable to close the logging context `%s`.", loggingContext);
+            }
+            loggingContext = null;
+        }
     }
 
     @Override
@@ -570,10 +628,9 @@ public abstract class AbstractEntity<I, S extends EntityState<I>>
         if (this == o) {
             return true;
         }
-        if (!(o instanceof AbstractEntity)) {
+        if (!(o instanceof AbstractEntity<?, ?> that)) {
             return false;
         }
-        var that = (AbstractEntity<?, ?>) o;
         return Objects.equals(id(), that.id()) &&
                 Objects.equals(state(), that.state()) &&
                 Objects.equals(version(), that.version()) &&

@@ -32,11 +32,8 @@ import com.google.protobuf.util.Durations;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.Optional;
-
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth8.assertThat;
 import static com.google.common.util.concurrent.Uninterruptibles.sleepUninterruptibly;
 import static io.spine.server.delivery.DeliveryStrategy.newIndex;
 import static io.spine.server.delivery.given.DeliveryTestEnv.generateNodeId;
@@ -56,24 +53,22 @@ public abstract class ShardedWorkRegistryTest {
     protected abstract ShardedWorkRegistry registry();
 
     @Test
-    @DisplayName("pick up the shard if it is not picked up previously and allow to complete it")
+    @DisplayName("pick up the shard if it is not picked up previously, and allow to complete it")
     void testPickUp() {
         var registry = registry();
 
         var index = newIndex(1, 42);
         var node = generateNodeId();
 
-        var session = registry.pickUp(index, node);
-        var actualSession = assertSession(session, index);
+        var outcome = registry.pickUp(index, node);
+        var session = assertSession(outcome, index);
 
-        assertThat(registry.pickUp(index, node))
-                .isEmpty();
-        assertThat(registry.pickUp(index, generateNodeId()))
-                .isEmpty();
+        assertAlreadyPicked(registry.pickUp(index, node), session.getWorker());
+        assertAlreadyPicked(registry.pickUp(index, generateNodeId()), session.getWorker());
 
-        actualSession.complete();
-        var newSession = registry.pickUp(index, generateNodeId());
-        assertSession(newSession, index);
+        registry.release(session);
+        var newOutcome = registry.pickUp(index, generateNodeId());
+        assertSession(newOutcome, index);
     }
 
     @Test
@@ -95,8 +90,8 @@ public abstract class ShardedWorkRegistryTest {
 
         for (var shardIndex : indexes) {
             var anotherNode = generateNodeId();
-            var newSession = registry.pickUp(shardIndex, anotherNode);
-            assertSession(newSession, shardIndex);
+            var outcome = registry.pickUp(shardIndex, anotherNode);
+            assertSession(outcome, shardIndex);
         }
     }
 
@@ -126,22 +121,38 @@ public abstract class ShardedWorkRegistryTest {
                     var newNode = generateNodeId();
                     var newIndex = newIndex(i, outOfTotal);
 
-                    var session = registry.pickUp(newIndex, newNode);
-                    assertSession(session, newIndex);
+                    var outcome = registry.pickUp(newIndex, newNode);
+                    assertSession(outcome, newIndex);
                     return newIndex;
                 })
                 .collect(toImmutableSet());
         return indexes;
     }
 
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")     // asserting the `Optional`.
+    /**
+     * Asserts that the given {@code outcome} indicates a successfully picked up shard with
+     * the given {@code index}.
+     */
     @CanIgnoreReturnValue
-    private static ShardProcessingSession
-    assertSession(Optional<ShardProcessingSession> session, ShardIndex index) {
-        assertThat(session)
-                .isPresent();
-        var actualSession = session.get();
-        assertThat(actualSession.shardIndex()).isEqualTo(index);
+    private static ShardSessionRecord assertSession(PickUpOutcome outcome, ShardIndex index) {
+        assertThat(outcome.session()).isPresent();
+        var actualSession = outcome.getSession();
+        assertThat(actualSession.getIndex()).isEqualTo(index);
         return actualSession;
+    }
+
+    /**
+     * Asserts that the given {@code outcome} indicates that shard
+     * is already picked up by the given {@code expected} worker.
+     *
+     * @return the {@code WorkerId} from the {@code outcome}
+     */
+    @CanIgnoreReturnValue
+    private static ShardAlreadyPickedUp
+    assertAlreadyPicked(PickUpOutcome outcome, WorkerId expected) {
+        assertThat(outcome.alreadyPicked()).isPresent();
+        assertThat(outcome.getAlreadyPicked()
+                          .getWorker()).isEqualTo(expected);
+        return outcome.getAlreadyPicked();
     }
 }

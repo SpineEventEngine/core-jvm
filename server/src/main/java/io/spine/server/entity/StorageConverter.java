@@ -28,10 +28,11 @@ package io.spine.server.entity;
 
 import com.google.common.base.Converter;
 import com.google.protobuf.FieldMask;
+import io.spine.annotation.Internal;
 import io.spine.base.EntityState;
 import io.spine.base.Identifier;
 import io.spine.type.TypeUrl;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -97,13 +98,40 @@ public abstract class StorageConverter<I, E extends Entity<I, S>, S extends Enti
 
     @Override
     protected EntityRecord doForward(E entity) {
+        var builder = toEntityRecord(entity);
+        updateBuilder(builder, entity);
+        return builder.build();
+    }
+
+    /**
+     * Creates a new builder of {@code EntityRecord} on top of the passed {@code Entity} state.
+     *
+     * <p>This method is internal to the framework. End-users should rely on other public
+     * endpoints of {@code StorageConverter}.
+     *
+     * @param entity
+     *         an entity to create a record builder from
+     * @param <I>
+     *         type of entity identifiers
+     * @param <E>
+     *         type of entity
+     * @param <S>
+     *         type of entity state
+     * @return a new entity record builder reflecting the current state of the passed entity
+     */
+    @Internal
+    public static <I, E extends Entity<I, S>, S extends EntityState<I>>
+    EntityRecord.Builder toEntityRecord(E entity) {
+        checkNotNull(entity);
+
         var entityId = Identifier.pack(entity.id());
         var stateAny = pack(entity.state());
         var builder = EntityRecord.newBuilder()
                 .setEntityId(entityId)
-                .setState(stateAny);
-        updateBuilder(builder, entity);
-        return builder.build();
+                .setState(stateAny)
+                .setVersion(entity.version())
+                .setLifecycleFlags(entity.lifecycleFlags());
+        return builder;
     }
 
     @SuppressWarnings("unchecked" /* The cast is safe since the <I> and <S> types are bound with
@@ -120,19 +148,18 @@ public abstract class StorageConverter<I, E extends Entity<I, S>, S extends Enti
     }
 
     /**
-     * Derived classes may override to additionally tune the passed entity builder.
+     * Updates the builder with required values, if needed.
      *
-     * <p>Default implementation does nothing.
+     * <p>Derived classes may override to additionally tune
+     * the passed entity record builder.
      *
      * @param builder
      *         the entity builder to update
      * @param entity
      *         the entity which data is passed to the {@link EntityRecord} we are building
      */
-    @SuppressWarnings("NoopMethodInAbstractClass") // Avoid forcing empty implementations.
-    protected void updateBuilder(EntityRecord.Builder builder, E entity) {
-        // Do nothing.
-    }
+    @SuppressWarnings({"WeakerAccess", "unused"})
+    protected abstract void updateBuilder(EntityRecord.Builder builder, E entity);
 
     /**
      * Derived classes must implement providing state injection into the passed entity.

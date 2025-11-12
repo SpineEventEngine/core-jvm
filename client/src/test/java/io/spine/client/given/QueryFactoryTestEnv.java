@@ -36,6 +36,7 @@ import io.spine.protobuf.AnyPacker;
 import io.spine.test.client.TestEntity;
 import io.spine.test.client.TestEntityId;
 import io.spine.type.TypeUrl;
+import io.spine.validate.NonValidated;
 
 import java.util.Collection;
 import java.util.Set;
@@ -129,16 +130,16 @@ public final class QueryFactoryTestEnv {
         }
     }
 
-    public static TargetFilters stripIdFilter(TargetFilters filters) {
+    private static @NonValidated TargetFilters stripIdFilter(TargetFilters filters) {
         return filters.toBuilder()
                       .clearIdFilter()
-                      .build();
+                      .buildPartial();
     }
 
-    public static Target stripFilters(Target target) {
+    private static @NonValidated Target stripFilters(Target target) {
         return target.toBuilder()
                      .clearFilters()
-                     .build();
+                     .buildPartial();
     }
 
     public static void checkIdQueriesEqual(Query query1, Query query2) {

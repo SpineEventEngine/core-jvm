@@ -29,6 +29,8 @@ package io.spine.client;
 import com.google.protobuf.Message;
 import io.grpc.stub.StreamObserver;
 
+import java.util.Optional;
+
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.util.Exceptions.unsupported;
 
@@ -42,16 +44,61 @@ import static io.spine.util.Exceptions.unsupported;
  * and sent to the delegate observer one by one.
  *
  * @param <M>
- *         the type of the delegate observer messages, which could be unpacked entity state
- *         or {@code Event}
+ *         the type of the delegate-observer's messages, which can either be
+ *         an unpacked entity state or an {@code Event}
  */
 final class SubscriptionObserver<M extends Message>
         implements StreamObserver<SubscriptionUpdate> {
 
+    /**
+     * Delegate which would receive the unpacked domain-specific messages, such as
+     * entity states or {@code Event}s.
+     */
     private final StreamObserver<M> delegate;
 
+
+    /**
+     * Optional chained observer of raw {@code SubscriptionUpdate}s,
+     * which would receive its input within the same subscription.
+     *
+     * <p>Such an observer may be handy for descendants which need more details
+     * than just an "unpacked" domain message.
+     */
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType"
+            /* Could have been `@Nullable`,
+            but it is always used as `Optional`;
+            so having `Optional` field is an optimization. */)
+    private final Optional<StreamObserver<SubscriptionUpdate>> chain;
+
+    /**
+     * Creates a new instance of {@code SubscriptionObserver}.
+     *
+     * <p>Specifies no chained observer.
+     *
+     * @param targetObserver a delegate consuming the {@code Entity} state, or an {@code Event}
+     */
     SubscriptionObserver(StreamObserver<M> targetObserver) {
         this.delegate = targetObserver;
+        this.chain = Optional.empty();
+    }
+
+    /**
+     * Creates a new instance of {@code SubscriptionObserver}.
+     *
+     * <p>Use this constructor in favour of
+     * {@link SubscriptionObserver#SubscriptionObserver(StreamObserver)
+     * SubscriptionObserver(StreamObserver)} to additionally set the observer chain.
+     *
+     * @param targetObserver
+     *         a delegate consuming the {@code Entity} state, or an {@code Event}
+     * @param chain
+     *         chained observer consuming {@code SubscriptionUpdate} obtained within
+     *         the same subscription
+     */
+    SubscriptionObserver(StreamObserver<M> targetObserver,
+                         StreamObserver<SubscriptionUpdate> chain) {
+        this.delegate = targetObserver;
+        this.chain = Optional.of(chain);
     }
 
     @SuppressWarnings("unchecked") // Logically correct.
@@ -79,6 +126,7 @@ final class SubscriptionObserver<M extends Message>
             default:
                 throw unsupported("Unsupported update case `%s`.", updateCase);
         }
+        chain.ifPresent(observer -> observer.onNext(value));
     }
 
     @Override

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -38,8 +38,8 @@ import io.spine.server.command.Command;
 import io.spine.server.model.AllowedParams;
 import io.spine.server.model.ExtractedArguments;
 import io.spine.server.model.MethodParams;
-import io.spine.server.model.MethodSignature;
 import io.spine.server.model.ParameterSpec;
+import io.spine.server.model.ReceptorSignature;
 import io.spine.server.model.ReturnTypes;
 import io.spine.server.model.TypeMatcher;
 import io.spine.server.type.EventEnvelope;
@@ -51,10 +51,10 @@ import static io.spine.server.model.TypeMatcher.classImplementing;
 import static io.spine.server.model.TypeMatcher.exactly;
 
 /**
- * A signature of {@link CommandReactionMethod}.
+ * A signature of {@link CommandingReaction}.
  */
 public class CommandReactionSignature
-        extends MethodSignature<CommandReactionMethod, EventEnvelope> {
+        extends ReceptorSignature<CommandingReaction, EventEnvelope> {
 
     private static final ReturnTypes TYPES = new ReturnTypes(
             TypeToken.of(CommandMessage.class),
@@ -77,13 +77,13 @@ public class CommandReactionSignature
     }
 
     @Override
-    public CommandReactionMethod create(Method method, ParameterSpec<EventEnvelope> params) {
-        return new CommandReactionMethod(method, params);
+    public CommandingReaction create(Method method, ParameterSpec<EventEnvelope> params) {
+        return new CommandingReaction(method, params);
     }
 
     /**
      * Tells that the method may state that a reaction isn't needed by returning
-     * {@link io.spine.server.model.DoNothing DoNothing}.
+     * {@link io.spine.server.command.DoNothing DoNothing}.
      */
     @Override
     public boolean mayReturnIgnored() {
@@ -92,13 +92,14 @@ public class CommandReactionSignature
 
     /**
      * {@inheritDoc}
-     * <p>
-     * @implNote This method distinguishes {@linkplain Command Commander} methods one from another,
-     * as they use the same annotation, but have different parameter list. It skips the methods
-     * which first parameter {@linkplain MethodParams#firstIsCommand(Method) is }
-     * a {@code Command} message.
+     *
+     * <p>@implNote This method distinguishes {@linkplain Command Commander} methods
+     * one from another, as they use the same annotation, but have a different parameter list.
+     * It skips the methods which first parameter
+     * {@linkplain MethodParams#firstIsCommand(Method) is} a {@code Command} message.
      */
     @Override
+    @SuppressWarnings("PMD.SimplifyBooleanReturns" /* Keep this way for better readability. */ )
     protected boolean skipMethod(Method method) {
         var parentResult = !super.skipMethod(method);
         if (parentResult) {
@@ -108,8 +109,8 @@ public class CommandReactionSignature
     }
 
     /**
-     * Allowed combinations of parameters for {@linkplain CommandReactionMethod Command reaction}
-     * methods.
+     * Allowed combinations of parameters for
+     * {@linkplain CommandingReaction Command reaction} methods.
      */
     @Immutable
     private enum CommandReactionParams implements ParameterSpec<EventEnvelope> {

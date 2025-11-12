@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package io.spine.server;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -30,10 +31,11 @@ import io.spine.annotation.Internal;
 import io.spine.base.EntityState;
 import io.spine.core.BoundedContextName;
 import io.spine.core.BoundedContextNames;
-import io.spine.logging.Logging;
+import io.spine.logging.WithLogging;
 import io.spine.option.EntityOption.Visibility;
 import io.spine.server.aggregate.AggregateRootDirectory;
 import io.spine.server.aggregate.ImportBus;
+import io.spine.server.bus.Listener;
 import io.spine.server.commandbus.CommandBus;
 import io.spine.server.commandbus.CommandDispatcher;
 import io.spine.server.commandbus.CommandDispatcherDelegate;
@@ -45,26 +47,30 @@ import io.spine.server.event.DelegatingEventDispatcher;
 import io.spine.server.event.EventBus;
 import io.spine.server.event.EventDispatcher;
 import io.spine.server.event.EventDispatcherDelegate;
-import io.spine.server.event.store.DefaultEventStore;
 import io.spine.server.integration.IntegrationBroker;
-import io.spine.server.security.Security;
 import io.spine.server.stand.Stand;
 import io.spine.server.tenant.TenantIndex;
+import io.spine.server.type.CommandEnvelope;
+import io.spine.server.type.EventEnvelope;
 import io.spine.system.server.SystemClient;
 import io.spine.system.server.SystemContext;
 import io.spine.type.TypeName;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static io.spine.server.security.Security.allowOnlyFrameworkServer;
 import static io.spine.util.Exceptions.newIllegalStateException;
+import static java.lang.String.format;
 
 /**
  * A logical and structural boundary of a model.
  *
- * <p>Logically, a Bounded Context represents a sub-system built to be described with the same
+ * <p>Logically, a Bounded Context represents a subsystem built to be described with the same
  * Ubiquitous Language. Any term within a single bounded context has a single meaning and may or
  * may not map to another term in the language of another Bounded Context.
  *
@@ -82,8 +88,11 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * @see <a href="https://martinfowler.com/bliki/BoundedContext.html">
  *         Martin Fowler on Bounded Contexts</a>
  */
-@SuppressWarnings({"OverlyCoupledClass", "ClassWithTooManyMethods"})
-public abstract class BoundedContext implements Closeable, Logging {
+@SuppressWarnings({"ClassWithTooManyMethods", "OverlyCoupledClass", "NotJavadoc"})
+public abstract class BoundedContext
+        implements Comparable<BoundedContext>,
+                   Closeable,
+                   WithLogging {
 
     /** Basic features of the context. */
     private final ContextSpec spec;
@@ -112,14 +121,21 @@ public abstract class BoundedContext implements Closeable, Logging {
     /** The index of tenants having data in this context. */
     private final TenantIndex tenantIndex;
 
-    /** Provides access to internally-used features of the context. */
+    /** Provides access to internally used features of the context. */
     private final InternalAccess internalAccess;
+
+    private final @Nullable Consumer<BoundedContext> onBeforeClose;
+
+    /**
+     * The currently installed probe.
+     */
+    private @Nullable Probe probe;
 
     /**
      * Creates new instance.
      *
      * @throws IllegalStateException
-     *         if called from a derived class, which is not a part of the framework
+     *          if called from a derived class, which is not a part of the framework
      * @apiNote
      * This constructor is for internal use of the framework. Application developers should not
      * create classes derived from {@code BoundedContext}.
@@ -138,6 +154,7 @@ public abstract class BoundedContext implements Closeable, Logging {
         this.importBus = buildImportBus(tenantIndex);
         this.aggregateRootDirectory = builder.aggregateRootDirectory();
         this.internalAccess = new InternalAccess();
+        this.onBeforeClose = builder.getOnBeforeClose();
     }
 
     /**
@@ -226,6 +243,7 @@ public abstract class BoundedContext implements Closeable, Logging {
      *
      * @see #registerCommandDispatcher(CommandDispatcherDelegate)
      */
+    @SuppressWarnings("WeakerAccess") // This class is effectively `sealed`, so this is stricter.
     protected void registerCommandDispatcher(CommandDispatcher dispatcher) {
         checkNotNull(dispatcher);
         registerIfAware(dispatcher);
@@ -250,18 +268,26 @@ public abstract class BoundedContext implements Closeable, Logging {
         }
     }
 
+    private void unregisterCommandDispatcher(CommandDispatcherDelegate dispatcher) {
+        checkNotNull(dispatcher);
+        if (dispatcher.dispatchesCommands()) {
+            commandBus().unregister(dispatcher);
+        }
+    }
+
     /**
      * Registering the passed event dispatcher with the buses of this context.
      *
-     * <p>If the passed instance dispatches domestic events, registers it with the {@code EventBus}.
-     * If the passed instance dispatches external events, registers it with
+     * <p>If the given instance dispatches domestic events, registers it with the {@code EventBus}.
+     * If the given instance dispatches external events, registers it with
      * the {@code IntegrationBroker}.
      *
      * @see #registerEventDispatcher(EventDispatcherDelegate)
+     * @see #unregisterEventDispatcher(EventDispatcher)
      */
     protected void registerEventDispatcher(EventDispatcher dispatcher) {
         checkNotNull(dispatcher);
-        Security.allowOnlyFrameworkServer();
+        allowOnlyFrameworkServer();
         registerIfAware(dispatcher);
         if (dispatcher.dispatchesEvents()) {
             var eventBus = eventBus();
@@ -275,6 +301,34 @@ public abstract class BoundedContext implements Closeable, Logging {
         if (dispatcher instanceof CommandDispatcherDelegate) {
             var commandDispatcher = (CommandDispatcherDelegate) dispatcher;
             registerCommandDispatcher(commandDispatcher);
+        }
+    }
+
+    /**
+     * Unregisters the passed event dispatcher from the buses of this context.
+     *
+     * <p>If the given instance dispatches domestic events, unregisters it from
+     * the {@code EventBus}. If the given instance dispatches external events, unregisters it from
+     * the {@code IntegrationBroker}.
+     *
+     * @see #registerEventDispatcher(EventDispatcher)
+     */
+    private void unregisterEventDispatcher(EventDispatcher dispatcher) {
+        checkNotNull(dispatcher);
+        allowOnlyFrameworkServer();
+        unregisterIfAware(dispatcher);
+        if (dispatcher.dispatchesEvents()) {
+            var eventBus = eventBus();
+            eventBus.unregister(dispatcher);
+            var systemReadSide = systemClient().readSide();
+            systemReadSide.unregister(dispatcher);
+        }
+        if (dispatcher.dispatchesExternalEvents()) {
+            broker.unregister(dispatcher);
+        }
+        if (dispatcher instanceof CommandDispatcherDelegate) {
+            var commandDispatcher = (CommandDispatcherDelegate) dispatcher;
+            unregisterCommandDispatcher(commandDispatcher);
         }
     }
 
@@ -303,6 +357,19 @@ public abstract class BoundedContext implements Closeable, Logging {
     }
 
     /**
+     * If the given {@code contextPart} is {@link ContextAware},
+     * {@linkplain ContextAware#unregister() unregisters} it from this context.
+     */
+    private static void unregisterIfAware(Object contextPart) {
+        if (contextPart instanceof ContextAware) {
+            var contextAware = (ContextAware) contextPart;
+            if (contextAware.isRegistered()) {
+                contextAware.unregister();
+            }
+        }
+    }
+
+    /**
      * Obtains a set of entity type names by their visibility.
      */
     public Set<TypeName> stateTypes(Visibility visibility) {
@@ -321,7 +388,7 @@ public abstract class BoundedContext implements Closeable, Logging {
     /**
      * Verifies if this Bounded Context contains entities of the passed class.
      *
-     * <p>This method does not take into account visibility of entity states.
+     * <p>This method does not take into account the visibility of entity states.
      */
     public boolean hasEntitiesOfType(Class<? extends Entity<?, ?>> entityClass) {
         var cls = EntityClass.asEntityClass(entityClass);
@@ -332,7 +399,7 @@ public abstract class BoundedContext implements Closeable, Logging {
     /**
      * Verifies if this Bounded Context has entities with the state of the passed class.
      *
-     * <p>This method does not take into account visibility of entity states.
+     * <p>This method does not take into account the visibility of entity states.
      */
     public boolean hasEntitiesWithState(Class<? extends EntityState<?>> stateClass) {
         var result = guard.hasRepository(stateClass);
@@ -398,33 +465,44 @@ public abstract class BoundedContext implements Closeable, Logging {
      *
      * <p>This method performs the following:
      * <ol>
+     *     <li>Invokes {@link BoundedContextBuilder#getOnBeforeClose onBeforeClose} if it was
+     *      configured when the context was {@linkplain BoundedContextBuilder built}.
      *     <li>Closes {@link CommandBus}.
      *     <li>Closes {@link EventBus}.
      *     <li>Closes {@link IntegrationBroker}.
-     *     <li>Closes {@link DefaultEventStore EventStore}.
      *     <li>Closes {@link Stand}.
      *     <li>Closes {@link ImportBus}.
      *     <li>Closes all registered {@linkplain Repository repositories}.
+     *     <li>Removes a {@link Probe}, if it was {@linkplain #install(Probe) installed}.
      * </ol>
-     *
-     * @throws Exception
-     *         caused by closing one of the components
      */
     @Override
-    public void close() throws Exception {
-        commandBus.close();
-        eventBus.close();
-        broker.close();
-        stand.close();
-        importBus.close();
-        shutDownRepositories();
+    public void close() {
+        var isOpen = isOpen();
+        if (isOpen && onBeforeClose != null) {
+            onBeforeClose.accept(this);
+        }
 
-        _debug().log(closed(nameForLogging()));
+        commandBus.closeIfOpen();
+        eventBus.closeIfOpen();
+        broker.closeIfOpen();
+        stand.closeIfOpen();
+        importBus.closeIfOpen();
+
+        if (isOpen) {
+            shutDownRepositories();
+        }
+        if (hasProbe()) {
+            removeProbe();
+        }
+        if (isOpen) {
+            logger().atDebug().log(() -> format("%s", closed(nameForLogging())));
+        }
     }
 
     @Override
     public boolean isOpen() {
-        return !guard.isClosed();
+        return commandBus.isOpen();
     }
 
     final String nameForLogging() {
@@ -454,8 +532,7 @@ public abstract class BoundedContext implements Closeable, Logging {
      */
     @Override
     public String toString() {
-        return spec.name()
-                   .getValue();
+        return spec.name().value();
     }
 
     /**
@@ -466,8 +543,116 @@ public abstract class BoundedContext implements Closeable, Logging {
      */
     @Internal
     public final InternalAccess internalAccess() {
-        Security.allowOnlyFrameworkServer();
-        return this.internalAccess;
+        allowOnlyFrameworkServer();
+        return internalAccess;
+    }
+
+    /**
+     * Compares two bounded contexts by their names.
+     */
+    @Override
+    public int compareTo(BoundedContext another) {
+        checkNotNull(another);
+        return name().value().compareTo(another.name().value());
+    }
+
+    /**
+     * Installs the passed probe into this context.
+     *
+     * @see #hasProbe()
+     * @see #probe()
+     * @see #removeProbe()
+     * @throws IllegalStateException
+     *          if another probe is already installed
+     */
+    public final void install(Probe probe) {
+        checkNotNull(probe);
+        checkState(this.probe == null || probe.equals(this.probe),
+                   "Probe is already installed (`%s`). Please remove previous probe first.", probe);
+        if (probe.equals(this.probe)) {
+            return;
+        }
+        probe.registerWith(this);
+        commandBus.add(probe.commandListener());
+        eventBus.add(probe.eventListener());
+        probe.eventDispatchers()
+             .forEach(this::registerEventDispatcher);
+        this.probe = probe;
+    }
+
+    /**
+     * Removes the currently installed probe, unregistering it with this context.
+     *
+     * @throws IllegalStateException
+     *          if no probe was installed before
+     */
+    public final void removeProbe() {
+        checkState(probe != null, "Probe is not installed.");
+        commandBus.remove(probe.commandListener());
+        eventBus.remove(probe.eventListener());
+        probe.eventDispatchers()
+             .forEach(this::unregisterEventDispatcher);
+        probe.unregister();
+        probe = null;
+    }
+
+    /**
+     * Obtains the currently installed {@link Probe} or {@link Optional#empty()} if no probe
+     * is installed.
+     */
+    public final Optional<Probe> probe() {
+        return Optional.ofNullable(probe);
+    }
+
+    /**
+     * Returns {@code true} if a {@link Probe} is installed, {@code false} otherwise.
+     */
+    public final boolean hasProbe() {
+        return probe != null;
+    }
+
+    /**
+     * Returns {@code true} if another bounded context has the same name as this one,
+     * {@code false} otherwise.
+     */
+    @Override
+    public boolean equals(@Nullable Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof BoundedContext)) {
+            return false;
+        }
+        var another = (BoundedContext) o;
+        return name().equals(another.name());
+    }
+
+    @Override
+    public int hashCode() {
+        return name().hashCode();
+    }
+
+    /**
+     * A diagnostic probe which can be {@linkplain #install(Probe) installed} into
+     * a Bounded Context to collect information about the commands and events processed by it.
+     */
+    public interface Probe extends ContextAware {
+
+        /**
+         * The listener of commands processed by the context.
+         */
+        Listener<CommandEnvelope> commandListener();
+
+        /**
+         * The listener of events processed by the context.
+         */
+        Listener<EventEnvelope> eventListener();
+
+        /**
+         * Obtains the event dispatchers exposed by the probe for gathering
+         * additional information about the events.
+         */
+        Set<EventDispatcher> eventDispatchers();
     }
 
     /**
@@ -476,7 +661,7 @@ public abstract class BoundedContext implements Closeable, Logging {
     @Internal
     public final class InternalAccess {
 
-        /** Prevents instantiation from outside. */
+        /** Prevents instantiation from the outside. */
         private InternalAccess() {
         }
 
@@ -520,7 +705,7 @@ public abstract class BoundedContext implements Closeable, Logging {
          * Obtains repositories of the context.
          *
          * @throws IllegalStateException
-         *         if there is not repository entities of which have the passed state
+         *         if there are no repository entities of which have the passed state
          */
         public Repository<?, ?> getRepository(Class<? extends EntityState<?>> stateClass) {
             return guard.get(stateClass);
@@ -537,7 +722,7 @@ public abstract class BoundedContext implements Closeable, Logging {
          * the requested entity is {@linkplain Visibility#NONE not visible}.
          *
          * @param stateCls
-         *         the class of the state of the entity managed by the resulting repository
+         *         the class of the entity state managed by the resulting repository
          * @return the requested repository or {@link Optional#empty()} if the repository manages
          *         a {@linkplain Visibility#NONE non-visible} entity
          * @throws IllegalStateException
@@ -571,6 +756,9 @@ public abstract class BoundedContext implements Closeable, Logging {
             return tenantIndex;
         }
 
+        /**
+         * Obtains an {@link AggregateRootDirectory} of this {@code BoundedContext}.
+         */
         public AggregateRootDirectory aggregateRootDirectory() {
             return aggregateRootDirectory;
         }

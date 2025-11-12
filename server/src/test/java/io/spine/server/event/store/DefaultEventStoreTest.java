@@ -307,7 +307,7 @@ public class DefaultEventStoreTest {
         private EventStreamQuery.Limit limitOf(int value) {
             return EventStreamQuery.Limit.newBuilder()
                     .setValue(value)
-                    .vBuild();
+                    .build();
         }
     }
 

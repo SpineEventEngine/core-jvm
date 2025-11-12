@@ -4,26 +4,35 @@ on: push
 
 jobs:
   build:
+    name: Build under Ubuntu
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-
-      - uses: actions/setup-java@v2
+      - uses: actions/checkout@v4
         with:
-          java-version: 11
+          submodules: 'true'
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: 17
           distribution: zulu
           cache: gradle
-
-      - name: Pull config
-        run: git submodule update --init --recursive
 
       - name: Build project and run tests
         shell: bash
         run: ./gradlew build --stacktrace
 
-      - name: Upload code coverage report
-        uses: codecov/codecov-action@v2
+      # See: https://github.com/marketplace/actions/junit-report-action
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v4.0.3
+        if: always() # always run even if the previous step fails
         with:
-          fail_ci_if_error: true
+          report_paths: '**/build/test-results/**/TEST-*.xml'
+          require_tests: true # will fail workflow if test reports not found
+
+      - name: Upload code coverage report
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
           verbose: true

@@ -38,6 +38,7 @@ import io.spine.system.server.event.EventImported;
 import io.spine.system.server.event.SignalDispatchedMixin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.lang.String.format;
 
 /**
  * An event subscriber which listens to {@linkplain SignalDispatchedMixin dispatching events}.
@@ -79,9 +80,9 @@ public final class TraceEventObserver extends AbstractEventSubscriber {
         try (var tracer = tracing.trace(context, payload)) {
             tracer.processedBy(event.getReceiver(), event.getEntityType());
         } catch (Exception e) {
-            _error().withCause(e)
-                    .log("Error during trace construction on the event with type `%s`.",
-                         payload.enclosedTypeUrl());
+            logger().atError().withCause(e).log(() -> format(
+                    "Error during trace construction on the event with type `%s`.",
+                    payload.enclosedTypeUrl()));
         }
     }
 }

@@ -129,7 +129,7 @@ final class VisibilityGuard {
      * Obtains a repository by the type of the entity state.
      *
      * @throws IllegalStateException
-     *         if there is not repository entities of which have the passed state
+     *         if there is no repository, entities of which have the passed state
      */
     Repository<?, ?> get(Class<? extends EntityState<?>> stateClass) {
         var access = findOrThrow(stateClass);
@@ -181,7 +181,7 @@ final class VisibilityGuard {
     }
 
     /**
-     * Allows to get a reference to repository if states of its entities are visible.
+     * Allows to get a reference to a repository if states of its entities are visible.
      */
     private static class RepositoryAccess {
 
@@ -201,8 +201,7 @@ final class VisibilityGuard {
         }
 
         private TypeName stateTypeName() {
-            return repository.entityStateType()
-                             .toTypeName();
+            return repository.entityStateType().typeName();
         }
 
         @Override

@@ -89,7 +89,7 @@ public abstract class DeliveryStrategy {
         var result = ShardIndex.newBuilder()
                 .setIndex(indexValue)
                 .setOfTotal(ofTotal)
-                .vBuild();
+                .build();
         return result;
     }
 }

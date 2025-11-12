@@ -26,15 +26,16 @@
 
 package io.spine.server.delivery;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.protobuf.Duration;
 import com.google.protobuf.util.Durations;
+import io.spine.annotation.Experimental;
 import io.spine.annotation.Internal;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.core.BoundedContextName;
 import io.spine.core.BoundedContextNames;
-import io.spine.logging.Logging;
+import io.spine.logging.WithLogging;
 import io.spine.server.BoundedContext;
 import io.spine.server.ContextSpec;
 import io.spine.server.ServerEnvironment;
@@ -50,7 +51,7 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.flogger.LazyArgs.lazy;
+import static java.lang.String.format;
 import static java.util.Collections.synchronizedList;
 
 /**
@@ -196,7 +197,7 @@ import static java.util.Collections.synchronizedList;
  * performing the actual message dispatching rely onto this knowledge and deduplicate
  * the messages prior to calling the target's endpoint.
  *
- * <p>Additionally, the {@code Delivery} provides a {@linkplain DeliveredMessages cache of recently
+ * <p>Additionally, the {@code Delivery} provides a {@linkplain DeliveredMessagesCache cache of recently
  * delivered messages}. Each instance of the {@code Conveyor} has an access to it and uses it
  * in deduplication procedures.
  *
@@ -222,7 +223,7 @@ import static java.util.Collections.synchronizedList;
  * {@linkplain  io.spine.server.BoundedContextBuilder#build() built}.
  */
 @SuppressWarnings({"OverlyCoupledClass", "ClassWithTooManyMethods"}) // It's fine for a centerpiece.
-public final class Delivery implements Logging {
+public final class Delivery implements WithLogging {
 
     /**
      * The width of the deduplication window in a local environment.
@@ -297,7 +298,7 @@ public final class Delivery implements Logging {
     /**
      * The cache of the locally delivered messages.
      */
-    private final DeliveredMessages deliveredMessages;
+    private final DeliveredMessagesCache deliveredMessagesCache;
 
     /**
      * The maximum amount of messages to deliver within a {@link DeliveryStage}.
@@ -320,11 +321,11 @@ public final class Delivery implements Logging {
         this.inboxStorage = builder.getInboxStorage();
         this.catchUpStorage = builder.getCatchUpStorage();
         this.catchUpPageSize = builder.getCatchUpPageSize();
-        this.monitor = builder.getMonitor();
+        this.monitor = builder.getDeliveryMonitor();
         this.pageSize = builder.getPageSize();
         this.deliveries = new InboxDeliveries();
         this.shardObservers = synchronizedList(new ArrayList<>());
-        this.deliveredMessages = new DeliveredMessages();
+        this.deliveredMessagesCache = new DeliveredMessagesCache();
     }
 
     /**
@@ -398,6 +399,38 @@ public final class Delivery implements Logging {
     }
 
     /**
+     * Creates a new instance of {@code Delivery} which makes all signals to skip
+     * the {@code Inbox}es and be delivered straight to their respective targets.
+     *
+     * <p>In this mode, no signals are stored in the {@code InboxStorage}. Also, the signals
+     * are not sharded.
+     *
+     * <p>This mode only suits the applications which operate in a single-thread mode
+     * and in scope of a single JVM. Typically, that would be some tools executing
+     * linear-style jobs, which aim for the maximum performance under
+     * the strictly controlled circumstances.
+     *
+     * <p>Any concurrent dispatching of signals (command posting, receiving external events, etc.)
+     * will likely break the consistency of their target entities.
+     *
+     * <p>This API is experimental. Use with caution.
+     *
+     * @return a new instance of {@code Delivery}
+     */
+    @Experimental
+    public static Delivery direct() {
+        var delivery = newBuilder()
+                .setStrategy(UniformAcrossAllShards.singleShard())
+                .setInboxStorage(NoOpInboxStorage.instance())
+                .build();
+        delivery.subscribe(update -> {
+            var action = delivery.deliveries.get(update);
+            action.deliverDirectly(update);
+        });
+        return delivery;
+    }
+
+    /**
      * Delivers the messages put into the shard with the passed index to their targets.
      *
      * <p>At a given moment of time, exactly one application node may serve messages from
@@ -427,11 +460,16 @@ public final class Delivery implements Logging {
     public Optional<DeliveryStats> deliverMessagesFrom(ShardIndex index) {
         var currentNode = ServerEnvironment.instance()
                                            .nodeId();
-        var picked = workRegistry.pickUp(index, currentNode);
-        if (picked.isEmpty()) {
-            return Optional.empty();
+        PickUpOutcome outcome;
+        try {
+            outcome = workRegistry.pickUp(index, currentNode);
+        } catch (RuntimeException e) {
+            return onRuntimeFailure(index, e);
         }
-        var session = picked.get();
+        if (outcome.hasAlreadyPicked()) {
+            return onAlreadyPickedUp(index, outcome.getAlreadyPicked());
+        }
+        var session = outcome.getSession();
         monitor.onDeliveryStarted(index);
 
         RunResult runResult;
@@ -442,7 +480,7 @@ public final class Delivery implements Logging {
                 totalDelivered += runResult.deliveredCount();
             } while (runResult.shouldRunAgain());
         } finally {
-            session.complete();
+            workRegistry.release(session);
         }
         var stats = new DeliveryStats(index, totalDelivered);
         monitor.onDeliveryCompleted(stats);
@@ -450,6 +488,38 @@ public final class Delivery implements Logging {
         lateMessage.ifPresent(this::onNewMessage);
 
         return Optional.of(stats);
+    }
+
+    /**
+     * Notifies the {@code DeliveryMonitor} telling about the runtime error
+     * occurred while performing the delivery from certain shard.
+     *
+     * <p>Executes the failure handler {@code Action} returned by the monitor.
+     *
+     * <p>If the monitor tells to repeat the delivery, returns the stats of the repeated
+     * delivery process, if any.
+     */
+    private Optional<DeliveryStats> onRuntimeFailure(ShardIndex shard, RuntimeException e) {
+        var failure = new RuntimeFailure(shard, e, () -> deliverMessagesFrom(shard));
+        var result = monitor.onShardPickUpFailure(failure)
+                            .execute();
+        return result;
+    }
+
+    /**
+     * Notifies the {@code DeliveryMonitor} telling the shard from which the delivery
+     * was asked to run, is already picked up.
+     *
+     * <p>Executes the failure handler {@code Action} returned by the monitor.
+     *
+     * <p>If the monitor tells to repeat the delivery, returns the stats of the repeated
+     * delivery process, if any.
+     */
+    private Optional<DeliveryStats> onAlreadyPickedUp(ShardIndex shard, ShardAlreadyPickedUp pickedUp) {
+        var failure = new AlreadyPickedUp(shard, pickedUp, () -> deliverMessagesFrom(shard));
+        var result = monitor.onShardAlreadyPicked(failure)
+                            .execute();
+        return result;
     }
 
     /**
@@ -463,8 +533,8 @@ public final class Delivery implements Logging {
      *
      * @return the results of the run
      */
-    private RunResult runDelivery(ShardProcessingSession session) {
-        var index = session.shardIndex();
+    private RunResult runDelivery(ShardSessionRecord session) {
+        var index = session.getIndex();
 
         var startingPage = inboxStorage.readAll(index, pageSize);
         var maybePage = Optional.of(startingPage);
@@ -501,8 +571,8 @@ public final class Delivery implements Logging {
     private DeliveryStage deliverMessages(ImmutableList<InboxMessage> messages,
                                           ShardIndex index,
                                           Iterable<CatchUp> catchUpJobs) {
-        DeliveryAction action = new GroupByTargetAndDeliver(deliveries);
-        var conveyor = new Conveyor(messages, deliveredMessages);
+        var conveyor = new Conveyor(messages, deliveredMessagesCache);
+        DeliveryAction action = new GroupByTargetAndDeliver(deliveries, monitor, conveyor);
         List<Station> stations = conveyorStationsFor(catchUpJobs, action);
         var stage = launch(conveyor, stations, index);
         return stage;
@@ -545,7 +615,7 @@ public final class Delivery implements Logging {
     private static DeliveryRunInfo deliveryInfoWith(Iterable<CatchUp> catchUpJobs) {
         return DeliveryRunInfo.newBuilder()
                               .addAllCatchUpJob(catchUpJobs)
-                              .vBuild();
+                              .build();
     }
 
     private void notifyOfDuplicatesIn(Conveyor conveyor) {
@@ -561,7 +631,7 @@ public final class Delivery implements Logging {
                 .newBuilder()
                 .setIndex(index)
                 .setMessagesDelivered(deliveredInBatch)
-                .vBuild();
+                .build();
     }
 
     private boolean monitorTellsToContinueAfter(DeliveryStage stage) {
@@ -581,9 +651,9 @@ public final class Delivery implements Logging {
             try {
                 observer.onMessage(message);
             } catch (Exception e) {
-                _error().withCause(e)
-                        .log("Error calling a shard observer with the message %s.",
-                             lazy(() -> Stringifiers.toString(message)));
+                logger().atError().withCause(e).log(() -> format(
+                        "Error calling a shard observer with the message `%s`.",
+                        Stringifiers.toString(message)));
             }
         }
     }
@@ -623,7 +693,8 @@ public final class Delivery implements Logging {
      *
      * <p>The registration of the dispatchers allows to handle the {@code Delivery}-specific events.
      *
-     * @param context Bounded Context in which the message dispatchers should be registered
+     * @param context
+     *         Bounded Context in which the message dispatchers should be registered
      */
     @Internal
     public void registerDispatchersIn(BoundedContext context) {
@@ -721,10 +792,17 @@ public final class Delivery implements Logging {
 
     /**
      * Returns the specification of a Bounded Context describing the {@code Delivery} flow.
-     * @param multitenant whether the Bounded Context supports multi-tenancy
+     *
+     * <p>Usually, this context is single-tenant, as the batch processing
+     * of {@code InboxMessage}s is more effective when the batches are not
+     * split across tenants.
+     *
+     * @param multitenant
+     *         whether the Bounded Context supports multi-tenancy
      */
-    @SuppressWarnings("TestOnlyProblems")   // The called code is not test-only.
-    static ContextSpec contextSpec(boolean multitenant) {
+    @SuppressWarnings({"TestOnlyProblems" /* The called code is not test-only. */,
+            "WeakerAccess" /* Used in descendant libraries to configure storage. */})
+    public static ContextSpec contextSpec(boolean multitenant) {
         var name = SYSTEM_DELIVERY.value();
         return multitenant ?
                ContextSpec.multitenant(name) :

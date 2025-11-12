@@ -32,6 +32,7 @@ import com.google.protobuf.Message;
 import io.grpc.stub.StreamObserver;
 import io.spine.base.MessageContext;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -47,13 +48,13 @@ import java.util.function.Consumer;
  *         (e.g. {@link io.spine.core.Event}); if subscribed message type does not have a context,
  *         this parameter is likely to be the same as {@code M}
  * @param <B>
- *         the type of this requests for return type covariance
+ *         the type of this request, for returning type covariance
  */
 public abstract class
 SubscribingRequest<M extends Message,
-                   C extends MessageContext,
-                   W extends Message,
-                   B extends SubscribingRequest<M, C, W, B>>
+        C extends MessageContext,
+        W extends Message,
+        B extends SubscribingRequest<M, C, W, B>>
         extends FilteringRequest<M, Topic, TopicBuilder, B> {
 
     SubscribingRequest(ClientRequest parent, Class<M> type) {
@@ -117,17 +118,43 @@ SubscribingRequest<M extends Message,
     public Subscription post() {
         var topic = builder().build();
         var observer = createObserver();
-        return subscribe(topic, observer);
+        var subscription = chain().map(c -> subscribe(topic, observer, c))
+                                  .orElseGet(() -> subscribe(topic, observer));
+        return subscription;
     }
 
     private StreamObserver<W> createObserver() {
-        return consumers().build().toObserver();
+        return consumers().build()
+                          .toObserver();
+    }
+
+    /**
+     * Returns an observer of raw {@code SubscriptionUpdate}s, which will be called
+     * in addition to notifying the {@linkplain #consumers() consumers}.
+     *
+     * <p>Descendants may choose to override this method in order to specify their
+     * observer chaining policy.
+     *
+     * @return {@code StreamObserver} to call in chain (wrapped into {@code Optional}),
+     *         or {@code Optional.empty()} if no such chaining is configured
+     */
+    protected Optional<StreamObserver<SubscriptionUpdate>> chain() {
+        return Optional.empty();
     }
 
     private Subscription subscribe(Topic topic, StreamObserver<W> observer) {
         var subscription =
                 client().subscriptions()
                         .subscribeTo(topic, observer);
+        return subscription;
+    }
+
+    private Subscription subscribe(Topic topic,
+                                   StreamObserver<W> observer,
+                                   StreamObserver<SubscriptionUpdate> chain) {
+        var subscription =
+                client().subscriptions()
+                        .subscribeTo(topic, observer, chain);
         return subscription;
     }
 }

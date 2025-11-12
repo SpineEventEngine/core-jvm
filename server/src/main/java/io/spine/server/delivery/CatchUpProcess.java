@@ -56,8 +56,8 @@ import io.spine.server.event.EventFactory;
 import io.spine.server.event.EventStore;
 import io.spine.server.event.EventStreamQuery;
 import io.spine.server.event.EventStreamQuery.Limit;
+import io.spine.server.event.NoReaction;
 import io.spine.server.event.React;
-import io.spine.server.model.Nothing;
 import io.spine.server.projection.ProjectionRepository;
 import io.spine.server.stand.Stand;
 import io.spine.server.tuple.EitherOf2;
@@ -65,7 +65,7 @@ import io.spine.server.tuple.EitherOf3;
 import io.spine.server.type.EventEnvelope;
 import io.spine.type.TypeUrl;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.List;
@@ -186,7 +186,7 @@ import static java.util.stream.Collectors.toSet;
  * See {@link CatchUpStation} for more details.
  *
  * <p>The historical data pushed by the catch-up is dispatched through a number of shards,
- * each processed by the {@code Delivery} independently from each other. Starting to dispatch
+ * each processed by the {@code Delivery} independently of each other. Starting to dispatch
  * the events from a shard, {@code Delivery} reads the details of the ongoing catch-up processes.
  * By interpreting the status of each catch-up, {@code Delivery} decides on the actions to apply
  * to the historical events. For instance, the historical events dispatched from a catch-up which
@@ -201,7 +201,7 @@ import static java.util.stream.Collectors.toSet;
  * potentially by different application nodes. Therefore, in order to switch to the
  * {@code COMPLETED} status, a catch-up process must ensure that <b>each</b> shard was processed
  * by the {@code Delivery} which witnessed the catch-up process in its {@code FINALIZING} state.
- * Such an evidence would mean that this {@code Delivery} run is at the point in time by which
+ * Such evidence would mean that this {@code Delivery} run is at the point in time by which
  * three things already happened:
  *
  * <ol type="a">
@@ -272,7 +272,7 @@ import static java.util.stream.Collectors.toSet;
  *         impossible to register the process managers with the same state in
  *         a multi-{@code BoundedContext} application.
  */
-@SuppressWarnings({"OverlyCoupledClass", "ClassWithTooManyMethods"})    // It does a lot.
+@SuppressWarnings("ClassWithTooManyMethods")    // It does a lot.
 public final class CatchUpProcess<I>
         extends AbstractStatefulReactor<CatchUpId, CatchUp, CatchUp.Builder> {
 
@@ -344,7 +344,7 @@ public final class CatchUpProcess<I>
     /**
      * Moves the process from {@code Not Started} to {@code STARTED} state.
      *
-     * Several important things happen at this stage:
+     * <p>Several important things happen at this stage:
      * <ol>
      *      <li>The reading timestamp of the process is set to the one specified in the request.
      *      However, people are used to say "I want to catch-up since 1 PM" meaning "counting
@@ -369,7 +369,7 @@ public final class CatchUpProcess<I>
      * directly to the inboxes of the catching-up projections.
      */
     @React
-    Nothing handle(CatchUpRequested e, EventContext ctx) {
+    NoReaction handle(CatchUpRequested e, EventContext ctx) {
         var id = e.getId();
 
         var request = e.getRequest();
@@ -383,7 +383,7 @@ public final class CatchUpProcess<I>
         flushState();
 
         dispatchCatchUpStarted(started, ctx);
-        return nothing();
+        return noReaction();
     }
 
     private void dispatchCatchUpStarted(CatchUpStarted started, EventContext ctx) {
@@ -405,12 +405,12 @@ public final class CatchUpProcess<I>
      * {@code HistoryEventsRecalled} by which it triggers the next round of history reading.
      */
     @React
-    EitherOf3<HistoryEventsRecalled, HistoryFullyRecalled, Nothing>
+    EitherOf3<HistoryEventsRecalled, HistoryFullyRecalled, NoReaction>
     handle(EntityPreparedForCatchUp event) {
         var leftToClear = builder().getInstancesToClear() - 1;
         builder().setInstancesToClear(leftToClear);
         if (leftToClear > 0) {
-            return EitherOf3.withC(nothing());
+            return EitherOf3.withC(noReaction());
         }
         builder().setStatus(IN_PROGRESS);
 
@@ -538,10 +538,10 @@ public final class CatchUpProcess<I>
      * <p>See the class-level documentation for more details and the big picture.
      */
     @React
-    EitherOf3<CatchUpCompleted, ShardProcessingRequested, Nothing> handle(ShardProcessed event) {
+    EitherOf3<CatchUpCompleted, ShardProcessingRequested, NoReaction> handle(ShardProcessed event) {
         var builder = builder();
         if (builder.getStatus() == COMPLETED) {
-            return EitherOf3.withC(nothing());
+            return EitherOf3.withC(noReaction());
         }
 
         var id = builder.getId();
@@ -558,7 +558,7 @@ public final class CatchUpProcess<I>
                     var completed = completeProcess(builder.getId());
                     return EitherOf3.withA(completed);
                 }
-                return EitherOf3.withC(nothing());
+                return EitherOf3.withC(noReaction());
             }
         }
         var stillRequested = shardProcessingRequested(id, event.getIndex());
@@ -687,7 +687,7 @@ public final class CatchUpProcess<I>
      *         the set of identifiers of the targets to dispatch the events to;
      *         if empty, no particular targets are selected, so the target repository will
      *         decide on its own
-     * @return the list of the identifiers to which the dispatching has been made in fact
+     * @return the set of the identifiers to which the dispatching has been made in fact
      */
     @CanIgnoreReturnValue
     private Set<I> dispatchAll(List<Event> events, Set<I> targets) {
@@ -758,7 +758,7 @@ public final class CatchUpProcess<I>
         if (limit != null) {
             builder.setLimit(limit);
         }
-        return builder.vBuild();
+        return builder.build();
     }
 
     /*

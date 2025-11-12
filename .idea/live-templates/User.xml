@@ -1,0 +1,11 @@
+<templateSet group="User">
+    <template name="todo" value="$LINE_COMMENT_START$ TODO:$DATE$:$USER$: $END$ $LINE_COMMENT_END$" description="Insert TODO comment with the current date and username" toReformat="false" toShortenFQNames="true">
+        <variable name="LINE_COMMENT_START" expression="commentStart()" defaultValue="" alwaysStopAt="false"/>
+        <variable name="DATE" expression="date(&quot;YYYY-MM-dd&quot;)" defaultValue="" alwaysStopAt="false"/>
+        <variable name="USER" expression="user()" defaultValue="" alwaysStopAt="false"/>
+        <variable name="LINE_COMMENT_END" expression="commentEnd()" defaultValue="" alwaysStopAt="false"/>
+        <context>
+            <option name="OTHER" value="true"/>
+        </context>
+    </template>
+</templateSet>

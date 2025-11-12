@@ -30,14 +30,15 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.Message;
 import io.spine.core.EnrichableMessageContext;
-import io.spine.logging.Logging;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import io.spine.logging.WithLogging;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static java.lang.String.format;
 
 /**
  * Contains enrichment functions.
@@ -47,7 +48,7 @@ import static com.google.common.collect.ImmutableSet.toImmutableSet;
  * @param <C>
  *         the type of contexts along which the enriched messages exist
  */
-final class Schema<M extends Message, C extends EnrichableMessageContext> implements Logging {
+final class Schema<M extends Message, C extends EnrichableMessageContext> implements WithLogging {
 
     private final ImmutableMap<Class<? extends M>, SchemaFn<? extends M, C>> map;
 
@@ -63,7 +64,8 @@ final class Schema<M extends Message, C extends EnrichableMessageContext> implem
     private Schema(Factory<M, C> factory) {
         this.map = ImmutableMap.copyOf(factory.schemaMap);
         this.size = factory.functions.size();
-        _debug().log("Created enrichment schema with %d entries.", this.size);
+        logger().atDebug().log(() -> format(
+                "Created enrichment schema with %d entries.", this.size));
     }
 
     boolean isEmpty() {
@@ -104,10 +106,10 @@ final class Schema<M extends Message, C extends EnrichableMessageContext> implem
             this.functions = ImmutableMap.copyOf(eBuilder.functions());
             this.sourceTypes =
                     functions.keySet()
-                             .stream()
-                             .map(EnricherBuilder.Key::sourceClass)
-                             .map(c -> (Class<M>) c)
-                             .collect(toImmutableSet());
+                            .stream()
+                            .map(EnricherBuilder.Key::sourceClass)
+                            .map(c -> (Class<M>) c)
+                            .collect(toImmutableSet());
         }
 
         private Schema<M, C> create() {
@@ -123,12 +125,14 @@ final class Schema<M extends Message, C extends EnrichableMessageContext> implem
         private SchemaFn<? extends M, C> createFn(Class<? extends M> sourceType) {
             ImmutableSet<EnrichmentFn<M, C, ?>> fns =
                     functions.entrySet()
-                             .stream()
-                             .filter(e -> sourceType.equals(e.getKey().sourceClass()))
-                             .map(e -> (EnrichmentFn<M, C, ?>) e.getValue())
-                             .collect(toImmutableSet());
+                            .stream()
+                            .filter(e -> sourceType.equals(e.getKey()
+                                                            .sourceClass()))
+                            .map(e -> (EnrichmentFn<M, C, ?>) e.getValue())
+                            .collect(toImmutableSet());
             if (fns.size() == 1) {
-                return new SingularFn<>(fns.iterator().next());
+                return new SingularFn<>(fns.iterator()
+                                           .next());
             } else {
                 return new CompositeFn<M, C>(fns);
             }

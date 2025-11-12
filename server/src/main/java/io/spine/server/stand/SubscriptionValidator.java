@@ -30,7 +30,7 @@ import io.spine.base.Error;
 import io.spine.client.Subscription;
 import io.spine.client.SubscriptionValidationError;
 import io.spine.server.tenant.TenantAwareFunction;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Objects.requireNonNull;

@@ -78,17 +78,17 @@ final class UpdateShardProcessingEvents implements ConveyorJob {
         var event = destination.getEvent();
         var modifiedEvent = event.toBuilder()
                 .setMessage(pack(what))
-                .vBuild();
+                .build();
         var modifiedMessage = destination.toBuilder()
                 .setEvent(modifiedEvent)
-                .vBuild();
+                .build();
         return modifiedMessage;
     }
 
     private ShardProcessingRequested updateWithRunInfo(ShardProcessingRequested signal) {
         var modifiedSignal = signal.toBuilder()
                 .setRunInfo(runInfo)
-                .vBuild();
+                .build();
         return modifiedSignal;
     }
 }

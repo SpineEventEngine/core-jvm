@@ -27,6 +27,7 @@
 package io.spine.server.enrich;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.Immutable;
 import com.google.protobuf.Message;
 import io.spine.core.EnrichableMessageContext;
@@ -47,7 +48,7 @@ import static io.spine.type.MessageClass.interfacesOf;
  * @param <C>
  *         the type of the contexts of the enriched messages
  * @param <B>
- *         the type of an enricher builder implementation, a descendant of this type, for covariance
+ *         the type of enricher builder implementation, a descendant of this type, for covariance
  */
 public abstract class EnricherBuilder<M extends Message,
                                       C extends EnrichableMessageContext,
@@ -72,6 +73,7 @@ public abstract class EnricherBuilder<M extends Message,
      *         The binding of the generic parameters allows type-specific functions
      *         exposed in the public API to call this method.
      */
+    @CanIgnoreReturnValue
     protected final <S extends M, T extends Message>
     B doAdd(Class<S> messageClassOrInterface,
             Class<T> enrichmentClass,
@@ -149,6 +151,7 @@ public abstract class EnricherBuilder<M extends Message,
      *
      * <p>If the function for this class was not added, the call has no effect.
      */
+    @CanIgnoreReturnValue
     public <T extends Message>
     B remove(Class<M> eventClass, Class<T> enrichmentClass) {
         functions.remove(new Key(eventClass, enrichmentClass));

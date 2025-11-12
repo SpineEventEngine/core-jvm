@@ -27,8 +27,6 @@
 package io.spine.server.storage;
 
 import com.google.protobuf.Message;
-import io.spine.annotation.Internal;
-import io.spine.annotation.SPI;
 import io.spine.server.ContextSpec;
 
 import static com.google.common.collect.Streams.stream;
@@ -54,7 +52,6 @@ import static java.util.stream.Collectors.toList;
  *         for the persisted {@code Message}s
  * @see io.spine.server.entity.storage.EntityRecordStorage EntityRecordStorage
  */
-@SPI
 public abstract class MessageStorage<I, M extends Message> extends RecordStorageDelegate<I, M> {
 
     /**
@@ -121,18 +118,6 @@ public abstract class MessageStorage<I, M extends Message> extends RecordStorage
         var records = stream(messages).map(this::toRecord)
                                       .collect(toList());
         writeAll(records);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>Overrides for the type covariance.
-     */
-    @Internal
-    @Override
-    @SuppressWarnings("unchecked")  // Columns of the stored messages are taken from the messages.
-    protected RecordSpec<I, M, M> recordSpec() {
-        return (RecordSpec<I, M, M>) super.recordSpec();
     }
 
     /**

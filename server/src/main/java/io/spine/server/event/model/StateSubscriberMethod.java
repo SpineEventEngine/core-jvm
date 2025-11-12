@@ -35,7 +35,7 @@ import io.spine.core.BoundedContext;
 import io.spine.core.BoundedContextName;
 import io.spine.environment.Environment;
 import io.spine.environment.Tests;
-import io.spine.logging.Logging;
+import io.spine.logging.WithLogging;
 import io.spine.server.entity.model.StateClass;
 import io.spine.server.model.ArgumentFilter;
 import io.spine.server.model.Model;
@@ -47,12 +47,13 @@ import io.spine.type.TypeUrl;
 import java.lang.reflect.Method;
 
 import static io.spine.core.BoundedContextNames.assumingTests;
+import static java.lang.String.format;
 
 /**
  * A handler method which receives an entity state and produces no output.
  */
 @Immutable
-public final class StateSubscriberMethod extends SubscriberMethod implements Logging {
+public final class StateSubscriberMethod extends SubscriberMethod implements WithLogging {
 
     private static final FieldPath ENTITY_TYPE_URL = Field.parse("entity.type_url").path();
 
@@ -106,13 +107,13 @@ public final class StateSubscriberMethod extends SubscriberMethod implements Log
         var model = Model.inContextOf(cls);
         var name = model.contextName();
         if (!Environment.instance().is(Tests.class) && name.equals(assumingTests())) {
-            _warn().log(
+            logger().atWarning().log(() -> format(
                     "The class `%s` belongs to the Bounded Context named `%s`," +
                     " which is used for testing. As such, it should not be used in production." +
                     " Please see the description of `%s` for instructions on" +
                     " annotating packages with names of Bounded Contexts of your application.",
                     cls.getName(), assumingTests().getValue(), BoundedContext.class.getName()
-            );
+            ));
         }
         return name;
     }

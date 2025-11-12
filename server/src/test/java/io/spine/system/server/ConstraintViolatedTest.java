@@ -28,7 +28,6 @@ package io.spine.system.server;
 
 import io.spine.core.UserId;
 import io.spine.net.EmailAddress;
-import io.spine.server.BoundedContextBuilder;
 import io.spine.system.server.given.diagnostics.ValidatedAggregate;
 import io.spine.system.server.given.diagnostics.VerificationProcman;
 import io.spine.system.server.given.diagnostics.ViolationsWatch;
@@ -37,12 +36,13 @@ import io.spine.system.server.test.StartVerification;
 import io.spine.system.server.test.ValidateAndSet;
 import io.spine.system.server.test.ValidatedId;
 import io.spine.testing.logging.mute.MuteLogging;
-import io.spine.testing.server.blackbox.BlackBox;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import static com.google.common.truth.Truth.assertThat;
 import static io.spine.base.Identifier.newUuid;
 import static io.spine.system.server.given.diagnostics.ViolationsWatch.DEFAULT;
+import static io.spine.testing.server.blackbox.BlackBox.singleTenantWith;
 
 @DisplayName("`ConstraintViolated` should be emitted when")
 class ConstraintViolatedTest {
@@ -51,50 +51,53 @@ class ConstraintViolatedTest {
     @MuteLogging
     @DisplayName("an entity state is set to an invalid value as a result of an event")
     void afterEvent() {
-        var invalidText = "123-non numerical";
-        var context = BlackBox.from(
-                BoundedContextBuilder.assumingTests()
-                    .add(ValidatedAggregate.class)
-                    .add(new ViolationsWatch.Repository())
-        ).tolerateFailures();
-        context.receivesCommand(
-                ValidateAndSet.newBuilder()
-                              .setId(ValidatedId.generate())
-                              .setTextToValidate(invalidText)
-                              .vBuild()
-        );
-        context.assertEntity(DEFAULT, ViolationsWatch.class)
-               .hasStateThat()
-               .isEqualTo(InvalidText.newBuilder()
-                                     .setId(DEFAULT)
-                                     .setInvalidText(invalidText)
-                                     .buildPartial()
-               );
+        try (var context = singleTenantWith(
+                     ValidatedAggregate.class,
+                     new ViolationsWatch.Repository()
+             ).tolerateFailures()
+        ) {
+            var invalidText = "123-non numerical";
+            context.receivesCommand(
+                    ValidateAndSet.newBuilder()
+                            .setId(ValidatedId.generate())
+                            .setTextToValidate(invalidText)
+                            .build()
+            );
+            context.assertEntity(DEFAULT, ViolationsWatch.class)
+                   .hasStateThat()
+                   .isEqualTo(InvalidText.newBuilder()
+                                      .setId(DEFAULT)
+                                      .setInvalidText(invalidText)
+                                      .buildPartial()
+                   );
+        }
     }
 
     @Test
     @MuteLogging
     @DisplayName("an entity state is set to an invalid value as a result of a command")
     void afterCommand() {
-        var context = BlackBox.from(
-                BoundedContextBuilder.assumingTests()
-                .add(VerificationProcman.class)
-                .add(new ViolationsWatch.Repository())
-        ).tolerateFailures();
-        context.receivesCommand(
-                StartVerification
-                        .newBuilder()
-                        .setUserId(UserId.newBuilder()
-                                         .setValue(newUuid()))
-                        .setAddress(EmailAddress.newBuilder()
-                                                .setValue("a@b.c"))
-                        .vBuild()
-        );
-        context.assertEntity(DEFAULT, ViolationsWatch.class)
-               .hasStateThat()
-               .isEqualTo(InvalidText.newBuilder()
-                                     .setId(DEFAULT)
-                                     .setErrorMessage("A value must be set.")
-                                     .buildPartial());
+        try (var context = singleTenantWith(VerificationProcman.class,
+                                            new ViolationsWatch.Repository())
+                .tolerateFailures()
+        ) {
+            context.receivesCommand(
+                    StartVerification.newBuilder()
+                            .setUserId(UserId.newBuilder().setValue(newUuid()))
+                            .setAddress(EmailAddress.newBuilder().setValue("a@b.c"))
+                            .build()
+            );
+            var state = (InvalidText) context.assertEntity(DEFAULT, ViolationsWatch.class)
+                                             .actual()
+                                             .state();
+            var assertErrorMessage = assertThat(state.getErrorMessage());
+
+            // Assert the reference to the invalid field.
+            assertErrorMessage.contains("spine.test.diagnostics.Verification.email");
+            // Assert the type of the field.
+            assertErrorMessage.contains("spine.net.EmailAddress");
+            // Assert the text of the error.
+            assertErrorMessage.contains("must have a non-default value.");
+        }
     }
 }

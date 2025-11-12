@@ -42,13 +42,11 @@ import io.spine.server.type.EventEnvelope;
 
 import java.util.Optional;
 
-import static io.spine.server.bus.BusBuilder.FieldCheck.tenantIndexNotSet;
-
 /**
  * Dispatches events to repositories of aggregates that
  * {@linkplain io.spine.server.aggregate.Apply#allowImport() import} these events.
  *
- * <h1>Usage Scenarios</h1>
+ * <h2>Usage Scenarios</h2>
  *
  * <p>Importing events may be used for registering facts occurred in a legacy or a third-party
  * system, which the Bounded Context translates into facts (events) of its history.
@@ -61,7 +59,7 @@ import static io.spine.server.bus.BusBuilder.FieldCheck.tenantIndexNotSet;
  * produce the event). Such a command or an event:
  * <ol>
  *   <li>serves as a dispatched message type which is used as the first argument of the
- *       corresponding aggregate handler method;
+ *       corresponding method in the aggregate;
  *   <li>carries the information about the fact we want to remember.
  * </ol>
  *
@@ -69,7 +67,7 @@ import static io.spine.server.bus.BusBuilder.FieldCheck.tenantIndexNotSet;
  * {@linkplain AggregateRepository#setupImportRouting(io.spine.server.route.EventRouting) routing}
  * allows to store aggregate events without having intermediate messages.
  *
- * <h1>Temporal Logic</h1>
+ * <h2>Temporal Logic</h2>
  *
  * <p>Importing events through dispatching
  * {@linkplain #post(io.spine.core.Signal, io.grpc.stub.StreamObserver) one} or
@@ -82,14 +80,13 @@ import static io.spine.server.bus.BusBuilder.FieldCheck.tenantIndexNotSet;
 public final class ImportBus
         extends UnicastBus<Event, EventEnvelope, EventClass, EventImportDispatcher<?>> {
 
-    private final ImportValidator validator = new ImportValidator();
+    private static final ImportValidator validator = new ImportValidator();
     private final DeadImportEventHandler deadImportEventHandler = new DeadImportEventHandler();
     private final TenantIndex tenantIndex;
 
     private ImportBus(Builder builder) {
         super(builder);
-        this.tenantIndex = builder.tenantIndex()
-                                  .orElseThrow(tenantIndexNotSet());
+        this.tenantIndex = builder.ensureTenantIndex();
     }
 
     /**
@@ -115,6 +112,8 @@ public final class ImportBus
     }
 
     @Override
+    @SuppressWarnings("ResultOfMethodCallIgnored"
+            /* Dispatching outcome is reported via system events, if needed. */)
     protected void dispatch(EventEnvelope event) {
         EventDispatcher dispatcher = dispatcherOf(event);
         dispatcher.dispatch(event);
@@ -146,7 +145,7 @@ public final class ImportBus
 
     /**
      * Creates {@link UnsupportedImportEventException} in response to an event message
-     * of unsupported type.
+     * of an unsupported type.
      */
     private static class DeadImportEventHandler implements DeadMessageHandler<EventEnvelope> {
 
@@ -159,10 +158,9 @@ public final class ImportBus
     /**
      * The registry of import dispatchers.
      */
-    private static final class Registry
+    protected static final class Registry
             extends DispatcherRegistry<EventClass, EventEnvelope, EventImportDispatcher<?>> {
 
-        @SuppressWarnings("RedundantMethodOverride") // Overrides to open access to the method.
         @Override
         protected Optional<EventImportDispatcher<?>> dispatcherOf(EventEnvelope event) {
             return super.dispatcherOf(event);

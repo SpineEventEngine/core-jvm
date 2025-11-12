@@ -28,6 +28,8 @@ package io.spine.server;
 
 import io.spine.annotation.Internal;
 
+import javax.annotation.OverridingMethodsMustInvokeSuper;
+
 import static com.google.common.base.Preconditions.checkState;
 
 /**
@@ -54,6 +56,18 @@ public interface ContextAware {
     boolean isRegistered();
 
     /**
+     * Unregisters this instance from the Bounded Context with which this instance
+     * was {@linkplain #registerWith(BoundedContext) registered before}.
+     *
+     * <p>The default implementation checks if this instance is registered and does nothing else.
+     * Override this method to perform additional actions, making sure to call the super method.
+     */
+    @OverridingMethodsMustInvokeSuper
+    default void unregister() {
+        checkRegistered();
+    }
+
+    /**
      * Verifies that this instance is already registered.
      *
      * <p>Throws an {@code IllegalStateException} if not registered.
@@ -68,6 +82,6 @@ public interface ContextAware {
      * <p>Throws an {@code IllegalStateException} if already registered.
      */
     default void checkNotRegistered() {
-        checkState(!isRegistered(), "%s is already registered.", this);
+        checkState(!isRegistered(), "`%s` is already registered.", this);
     }
 }

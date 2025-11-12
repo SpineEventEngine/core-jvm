@@ -31,9 +31,9 @@ import io.spine.core.Command;
 import io.spine.core.Event;
 import io.spine.core.EventContext;
 import io.spine.core.UserId;
-import io.spine.logging.Logging;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import io.spine.logging.WithLogging;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
@@ -44,7 +44,7 @@ import static io.spine.util.Preconditions2.checkNotDefaultArg;
  * Subscribes to events which originate from the given command and arranges the delivery
   * to the passed event consumers.
  */
-final class EventsAfterCommand implements Logging {
+final class EventsAfterCommand implements WithLogging {
 
     private final Client client;
     private final UserId user;

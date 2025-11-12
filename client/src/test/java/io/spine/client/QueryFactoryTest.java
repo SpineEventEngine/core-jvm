@@ -25,12 +25,14 @@
  */
 package io.spine.client;
 
+import io.spine.testing.core.given.GivenUserId;
+import io.spine.time.ZoneIds;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static io.spine.client.given.ActorRequestFactoryTestEnv.requestFactory;
+import static io.spine.base.Identifier.newUuid;
 import static io.spine.client.given.QueryFactoryTestEnv.TEST_ENTITY_TYPE;
 import static io.spine.client.given.QueryFactoryTestEnv.checkFieldMaskEmpty;
 import static io.spine.client.given.QueryFactoryTestEnv.checkFiltersEmpty;
@@ -54,6 +56,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class QueryFactoryTest {
 
     private QueryFactory factory;
+
+    private static ActorRequestFactory requestFactory() {
+        return ActorRequestFactory.newBuilder()
+                .setZoneId(ZoneIds.systemDefault())
+                .setActor(GivenUserId.of(newUuid()))
+                .build();
+    }
 
     @BeforeEach
     void createFactory() {

@@ -179,8 +179,10 @@ public final class ToEntityRecordQuery<I, S extends EntityState<I>>
      * Creates {@link Either} statements for each of the passed parameters and predicates
      * and returns them all as a new {@code ImmutableList}.
      */
-    @SuppressWarnings("MethodWithMultipleLoops")  /* Transforming params and predicates
-                                                     are very related to each other. */
+    @SuppressWarnings({"Immutable"      /* Using `builder` in lambda is fine. */,
+            "MethodWithMultipleLoops"   /* Transforming params and predicates
+                                            are very related to each other. */
+    })
     private ImmutableList<Either<RecordQueryBuilder<I, EntityRecord>>>
     toEither(Iterable<SubjectParameter<?, ?, ?>> params, Iterable<QueryPredicate<S>> predicates) {
         ImmutableList.Builder<Either<RecordQueryBuilder<I, EntityRecord>>> result =
@@ -222,11 +224,12 @@ public final class ToEntityRecordQuery<I, S extends EntityState<I>>
      * @return the same {@code builder} as passed, for call chaining
      */
     @CanIgnoreReturnValue
-    private RecordQueryBuilder<I, EntityRecord>
+    private <V> RecordQueryBuilder<I, EntityRecord>
     addParameter(RecordQueryBuilder<I, EntityRecord> builder, Column<?, ?> source,
-                 ComparisonOperator operator, Object value) {
-        var column = AsEntityRecordColumn.apply(source);
-
+                 ComparisonOperator operator, V value) {
+        @SuppressWarnings("unchecked")
+        var castSource = (Column<?, V>) source;
+        var column = AsEntityRecordColumn.apply(castSource);
         var where = builder.where(column);
         switch (operator) {
             case EQUALS:

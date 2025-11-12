@@ -38,7 +38,7 @@ import io.spine.test.commandbus.command.CmdBusCreateLabels;
 import io.spine.test.commandbus.command.CmdBusCreateProject;
 import io.spine.testing.client.TestActorRequestFactory;
 import io.spine.validate.ConstraintViolation;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -48,13 +48,14 @@ import static com.google.common.truth.Truth.assertThat;
 import static io.spine.server.commandbus.CommandValidator.inspect;
 import static io.spine.server.commandbus.Given.CommandMessage.createProjectMessage;
 import static io.spine.testing.core.given.GivenCommandContext.withRandomActor;
+import static io.spine.validate.TemplateStrings.format;
 
 @DisplayName("`CommandValidator` violation check should")
 class CommandValidatorViolationCheckTest {
 
     private static final Correspondence<@NonNull ConstraintViolation, @NonNull String>
             messageFormatContains = Correspondence.from(
-                    (actual, expected) -> actual.getMsgFormat().contains(expected),
+                    (actual, expected) -> format(actual.getMessage()).contains(expected),
                     "has message format"
             );
 
@@ -75,7 +76,7 @@ class CommandValidatorViolationCheckTest {
         var cmd = Given.ACommand.createProject();
         var unidentifiableCommand = cmd.toBuilder()
                 .setId(CommandId.getDefaultInstance())
-                .build();
+                .buildPartial();
         var violations = inspectCommand(unidentifiableCommand);
 
         assertThat(violations)
@@ -106,7 +107,7 @@ class CommandValidatorViolationCheckTest {
         var command = factory.createCommand(createProjectMessage(), Time.currentTime());
         var commandWithoutContext = command.toBuilder()
                 .setContext(CommandContext.getDefaultInstance())
-                .build();
+                .buildPartial();
 
         var violations = inspectCommand(commandWithoutContext);
         assertThat(violations)
@@ -132,7 +133,7 @@ class CommandValidatorViolationCheckTest {
                 .addLabel("red")
                 .addLabel("green")
                 .addLabel("blue")
-                .vBuild();
+                .build();
         var command = factory.createCommand(msg);
         var violations = inspectCommand(command);
         assertThat(violations)

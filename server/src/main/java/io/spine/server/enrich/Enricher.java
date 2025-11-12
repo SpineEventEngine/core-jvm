@@ -30,7 +30,7 @@ import com.google.protobuf.Message;
 import io.spine.core.EnrichableMessageContext;
 import io.spine.core.Enrichment;
 import io.spine.server.type.EnrichableMessageEnvelope;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 

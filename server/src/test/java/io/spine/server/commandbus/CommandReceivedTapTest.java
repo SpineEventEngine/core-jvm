@@ -33,9 +33,10 @@ import io.spine.server.type.CommandEnvelope;
 import io.spine.system.server.MemoizingWriteSide;
 import io.spine.system.server.WriteSideFunction;
 import io.spine.system.server.event.CommandReceived;
-import io.spine.test.commands.CmdCreateProject;
+import io.spine.test.command.CmdCreateProject;
+import io.spine.test.command.ProjectId;
 import io.spine.testing.client.TestActorRequestFactory;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -121,7 +122,7 @@ class CommandReceivedTapTest {
 
     private static CommandMessage commandMessage() {
         return CmdCreateProject.newBuilder()
-                .setId(newUuid())
+                .setProjectId(ProjectId.newBuilder().setId(newUuid()))
                 .build();
     }
 }

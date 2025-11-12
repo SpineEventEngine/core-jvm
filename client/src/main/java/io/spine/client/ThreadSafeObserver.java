@@ -47,7 +47,7 @@ public final class ThreadSafeObserver<V> implements StreamObserver<V> {
 
     /**
      * Creates a new instance of {@code ThreadSafeObserver} by wrapping the passed instance
-     * and delegating all of calls to it.
+     * and delegating all the calls to it.
      *
      * @param observer
      *         the observer to wrap into a thread-safe shell

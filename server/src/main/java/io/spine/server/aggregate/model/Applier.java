@@ -30,7 +30,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import io.spine.base.EventMessage;
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.model.AbstractHandlerMethod;
+import io.spine.server.model.AbstractReceptor;
 import io.spine.server.model.ArgumentFilter;
 import io.spine.server.model.Attribute;
 import io.spine.server.model.ParameterSpec;
@@ -46,12 +46,13 @@ import java.util.function.Function;
 /**
  * A wrapper for event applier method.
  */
+@SuppressWarnings("rawtypes") // Generic params are of no importance in this context.
 public final class Applier
-        extends AbstractHandlerMethod<Aggregate,
-                                      EventMessage,
-                                      EventClass,
-                                      EventEnvelope,
-                                      EmptyClass>
+        extends AbstractReceptor<Aggregate,
+                                 EventMessage,
+                                 EventClass,
+                                 EventEnvelope,
+                                 EmptyClass>
         implements VoidMethod<Aggregate, EventClass, EventEnvelope> {
 
     /**

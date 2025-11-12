@@ -33,12 +33,12 @@ import io.spine.core.EventContext
 import io.spine.core.Events
 import io.spine.core.Version
 import io.spine.protobuf.AnyPacker.pack
-import io.spine.validate.Validate.checkValid
+import io.spine.validate.checkValid
 
 /**
- * Abstract base for event factories.
+ * Base class for event factories.
  */
-internal abstract class EventFactoryBase(
+internal open class EventFactoryBase protected constructor(
     val origin: EventOrigin,
     val producerId: Any
 ) {
@@ -47,7 +47,7 @@ internal abstract class EventFactoryBase(
      * which produced the event.
      */
     protected fun createContext(version: Version?): EventContext =
-        newContext(version).vBuild()
+        newContext(version).build()
 
     /**
      * Creates a builder for a new context of the event with optionally set
@@ -67,14 +67,14 @@ internal abstract class EventFactoryBase(
      * Creates a new `Event` instance.
      */
     protected fun assemble(message: EventMessage, context: EventContext): Event {
-        checkValid(message)
+        message.checkValid()
         val eventId = Events.generateId()
         val packed = pack(message)
         return with(Event.newBuilder()) {
             id = eventId
             this.message = packed
             this.context = context
-            vBuild()
+            build()
         }
     }
 }

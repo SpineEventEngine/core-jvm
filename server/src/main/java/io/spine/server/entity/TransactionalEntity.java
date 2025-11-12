@@ -25,16 +25,17 @@
  */
 package io.spine.server.entity;
 
-import com.google.common.annotations.VisibleForTesting;
 import io.spine.annotation.Internal;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.EntityState;
 import io.spine.core.Event;
 import io.spine.core.Version;
 import io.spine.validate.ValidatingBuilder;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.requireNonNull;
 
 /**
  * A base for entities, perform transactions {@linkplain Event events}.
@@ -155,7 +156,7 @@ class TransactionalEntity<I, S extends EntityState<I>, B extends ValidatingBuild
         if (!isTransactionInProgress()) {
             throw new IllegalStateException(missingTxMessage());
         }
-        return checkNotNull(transaction);
+        return requireNonNull(transaction);
     }
 
     /**

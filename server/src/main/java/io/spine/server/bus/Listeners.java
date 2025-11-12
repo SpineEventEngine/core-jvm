@@ -26,13 +26,15 @@
 
 package io.spine.server.bus;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableSet;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.server.type.SignalEnvelope;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Collections.synchronizedSet;
 
 /**
  * Manages consumption of a message posted to the bus by its listeners.
@@ -41,11 +43,21 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 final class Listeners<E extends SignalEnvelope<?, ?, ?>> implements Consumer<E> {
 
-    private final ImmutableSet<Listener<E>> listeners;
+    private final Set<Listener<E>> listeners = synchronizedSet(new HashSet<>());
 
     Listeners(BusBuilder<?, ?, E, ?, ?> builder) {
         checkNotNull(builder);
-        this.listeners = ImmutableSet.copyOf(builder.listeners());
+        listeners.addAll(builder.listeners());
+    }
+
+    void add(Listener<E> listener) {
+        checkNotNull(listener);
+        listeners.add(listener);
+    }
+
+    void remove(Listener<E> listener) {
+        checkNotNull(listener);
+        listeners.remove(listener);
     }
 
     @Override

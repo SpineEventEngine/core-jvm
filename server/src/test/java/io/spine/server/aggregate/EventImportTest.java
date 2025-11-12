@@ -27,7 +27,6 @@
 package io.spine.server.aggregate;
 
 import io.spine.base.EventMessage;
-import io.spine.server.BoundedContextBuilder;
 import io.spine.server.aggregate.given.klasse.EngineAggregate;
 import io.spine.server.aggregate.given.klasse.EngineId;
 import io.spine.server.aggregate.given.klasse.EngineRepository;
@@ -38,7 +37,7 @@ import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
 import io.spine.testing.server.TestEventFactory;
 import io.spine.testing.server.blackbox.BlackBox;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -59,10 +58,7 @@ class EventImportTest {
 
     void createRepository(boolean routeByFirstMessageField) {
         repository = new EngineRepository(routeByFirstMessageField);
-        context = BlackBox.from(
-                BoundedContextBuilder.assumingTests()
-                                     .add(repository)
-        );
+        context = BlackBox.singleTenantWith(repository);
     }
 
     @AfterEach

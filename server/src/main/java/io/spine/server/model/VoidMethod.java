@@ -31,12 +31,12 @@ import io.spine.server.dispatch.Success;
 import io.spine.server.type.EmptyClass;
 import io.spine.server.type.MessageEnvelope;
 import io.spine.type.MessageClass;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import static java.lang.String.format;
 
 /**
- * A {@link HandlerMethod} which processes a message and produces no response.
+ * A {@link Receptor} which processes a message and produces no response.
  *
  * @param <T>
  *         the type of the target object
@@ -49,7 +49,7 @@ import static java.lang.String.format;
 public interface VoidMethod<T,
                             C extends MessageClass<?>,
                             E extends MessageEnvelope<?, ?, ?>>
-        extends HandlerMethod<T, C, E, EmptyClass> {
+        extends Receptor<T, C, E, EmptyClass> {
 
     @Override
     default Success toSuccessfulOutcome(@Nullable Object result, T target, E handledSignal) {

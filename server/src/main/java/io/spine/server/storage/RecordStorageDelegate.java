@@ -188,7 +188,7 @@ public abstract class RecordStorageDelegate<I, R extends Message> extends Record
 
     @Override
     @Internal
-    protected RecordSpec<I, R, ?> recordSpec() {
+    protected RecordSpec<I, R> recordSpec() {
         return delegate.recordSpec();
     }
 

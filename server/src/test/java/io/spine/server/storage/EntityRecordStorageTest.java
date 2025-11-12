@@ -40,12 +40,11 @@ import io.spine.server.entity.Entity;
 import io.spine.server.entity.EntityRecord;
 import io.spine.server.entity.TransactionalEntity;
 import io.spine.server.entity.storage.EntityRecordStorage;
-import io.spine.server.entity.storage.EntityRecordWithColumns;
-import io.spine.server.storage.given.EntityRecordStorageTestEnv;
 import io.spine.server.storage.given.EntityRecordStorageTestEnv.TestCounterEntity;
+import io.spine.server.storage.given.GivenStorageProject;
 import io.spine.test.storage.StgProject;
 import io.spine.test.storage.StgProjectId;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -62,7 +61,6 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.protobuf.util.FieldMaskUtil.fromFieldNumbers;
-import static io.spine.base.Identifier.newUuid;
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.protobuf.Messages.isDefault;
 import static io.spine.server.ContextSpec.singleTenant;
@@ -71,11 +69,12 @@ import static io.spine.server.storage.given.EntityRecordStorageTestEnv.archive;
 import static io.spine.server.storage.given.EntityRecordStorageTestEnv.assertIteratorsEqual;
 import static io.spine.server.storage.given.EntityRecordStorageTestEnv.assertQueryHasSingleResult;
 import static io.spine.server.storage.given.EntityRecordStorageTestEnv.assertSingleRecord;
-import static io.spine.server.storage.given.EntityRecordStorageTestEnv.buildStorageRecord;
 import static io.spine.server.storage.given.EntityRecordStorageTestEnv.delete;
 import static io.spine.server.storage.given.EntityRecordStorageTestEnv.newEntity;
 import static io.spine.server.storage.given.EntityRecordStorageTestEnv.newRecord;
 import static io.spine.server.storage.given.EntityRecordStorageTestEnv.recordWithCols;
+import static io.spine.server.storage.given.EntityRecordStorageTestEnv.recordsWithColumnsFrom;
+import static io.spine.server.storage.given.GivenStorageProject.newEntityRecordWithCols;
 import static io.spine.server.storage.given.GivenStorageProject.newState;
 import static io.spine.test.storage.StgProject.Status.CANCELLED;
 import static io.spine.test.storage.StgProject.Status.CANCELLED_VALUE;
@@ -115,9 +114,7 @@ public class EntityRecordStorageTest
 
     @Override
     protected final StgProjectId newId() {
-        return StgProjectId.newBuilder()
-                           .setId(newUuid())
-                           .build();
+        return GivenStorageProject.newId();
     }
 
     @Test
@@ -165,7 +162,7 @@ public class EntityRecordStorageTest
         for (var i = 0; i < checkCount; i++) {
             EntityState<StgProjectId> newState = newState(id);
             if (states.contains(newState)) {
-                fail("RecordStorageTest.newState() should return unique messages.");
+                fail("`RecordStorageTest.newState()` should return unique messages.");
             }
         }
     }
@@ -239,8 +236,6 @@ public class EntityRecordStorageTest
             var activeRecordId = newId();
             var archivedRecordId = newId();
 
-            var activeRecord = buildStorageRecord(activeRecordId, newState(activeRecordId));
-            var archivedRecord = buildStorageRecord(archivedRecordId, newState(archivedRecordId));
             TransactionalEntity<StgProjectId, ?, ?> activeEntity = newEntity(activeRecordId);
             TransactionalEntity<StgProjectId, ?, ?> archivedEntity = newEntity(archivedRecordId);
 
@@ -248,11 +243,12 @@ public class EntityRecordStorageTest
 
             var storage = storage();
 
-            storage.write(recordWithCols(activeEntity, activeRecord));
-            storage.write(recordWithCols(archivedEntity, archivedRecord));
+            storage.write(recordWithCols(activeEntity));
+            var archivedWithCols = recordWithCols(archivedEntity);
+            storage.write(archivedWithCols);
 
             var query = StgProject.query().where(ArchivedColumn.is(), true).build();
-            assertQueryHasSingleResult(query, archivedRecord, storage);
+            assertQueryHasSingleResult(query, archivedWithCols.record(), storage);
         }
     }
 
@@ -285,9 +281,9 @@ public class EntityRecordStorageTest
 
             // After the mutation above the single matching record is the one
             // under the `idMatching` ID
-            var fineRecord = writeRecord(storage, idMatching, matchingEntity);
-            writeRecord(storage, idWrong1, wrong1);
-            writeRecord(storage, idWrong2, wrong2);
+            var fineRecord = writeRecord(storage, matchingEntity);
+            writeRecord(storage, wrong1);
+            writeRecord(storage, wrong2);
 
             var query = StgProject.query()
                                   .projectStatusValue().is(DONE_VALUE)
@@ -298,12 +294,10 @@ public class EntityRecordStorageTest
 
         @CanIgnoreReturnValue
         private EntityRecord writeRecord(EntityRecordStorage<StgProjectId, StgProject> storage,
-                                         StgProjectId id,
                                          TestCounterEntity entity) {
-            var record = buildStorageRecord(id, newState(id));
-            var withCols = recordWithCols(entity, record);
+            var withCols = recordWithCols(entity);
             storage.write(withCols);
-            return record;
+            return withCols.record();
         }
 
         private Version projectVersion() {
@@ -374,10 +368,9 @@ public class EntityRecordStorageTest
         private EntityRecord writeRecord(StgProjectId id,
                                          EntityRecordStorage<StgProjectId, StgProject> storage) {
             Entity<StgProjectId, ?> entity = newEntity(id);
-            var record = buildStorageRecord(id, newState(id));
-            var withCols = recordWithCols(entity, record);
+            var withCols = recordWithCols(entity);
             storage.write(withCols);
-            return record;
+            return withCols.record();
         }
 
         @Test
@@ -399,9 +392,9 @@ public class EntityRecordStorageTest
                 StgProjectId deletedId, EntityRecordStorage<StgProjectId, StgProject> storage) {
             var deletedEntity = newEntity(deletedId);
             delete(deletedEntity);
-            var deletedRecord = buildStorageRecord(deletedEntity);
-            storage.write(recordWithCols(deletedEntity, deletedRecord));
-            return deletedRecord;
+            var deletedWithCols = recordWithCols(deletedEntity);
+            storage.write(deletedWithCols);
+            return deletedWithCols.record();
         }
 
         @CanIgnoreReturnValue
@@ -409,9 +402,9 @@ public class EntityRecordStorageTest
                 (StgProjectId archivedId, EntityRecordStorage<StgProjectId, StgProject> storage) {
             var archivedEntity = newEntity(archivedId);
             archive(archivedEntity);
-            var archivedRecord = buildStorageRecord(archivedEntity);
-            storage.write(recordWithCols(archivedEntity, archivedRecord));
-            return archivedRecord;
+            var recordWithCols = recordWithCols(archivedEntity);
+            storage.write(recordWithCols);
+            return recordWithCols.record();
         }
 
         @Test
@@ -454,9 +447,7 @@ public class EntityRecordStorageTest
 
         private void write(Entity<StgProjectId, ?> entity) {
             var storage = storage();
-            var record = buildStorageRecord(entity.id(), entity.state(),
-                                            entity.lifecycleFlags());
-            storage.write(recordWithCols(entity, record));
+            storage.write(recordWithCols(entity));
         }
     }
 
@@ -484,15 +475,14 @@ public class EntityRecordStorageTest
         @DisplayName("a record with custom columns")
         void withColumns() {
             var id = newId();
-            var record = newStorageRecord(id);
             Entity<StgProjectId, ?> testEntity = newEntity(id);
             var storage = storage();
-            var withCols = recordWithCols(testEntity, record);
+            var withCols = recordWithCols(testEntity);
             storage.write(withCols);
 
             var readRecord = storage.read(id);
             assertTrue(readRecord.isPresent());
-            assertEquals(record, readRecord.get());
+            assertEquals(withCols.record(), readRecord.get());
         }
 
         @Test
@@ -501,13 +491,12 @@ public class EntityRecordStorageTest
             var storage = storage();
             var bulkSize = 5;
 
-            Map<StgProjectId, EntityRecordWithColumns<StgProjectId>> initial =
+            Map<StgProjectId, RecordWithColumns<StgProjectId, EntityRecord>> initial =
                     new HashMap<>(bulkSize);
 
             for (var i = 0; i < bulkSize; i++) {
-                var id = newId();
-                var record = newStorageRecord(id);
-                initial.put(id, newRecord(id, record));
+                var record = newEntityRecordWithCols();
+                initial.put(record.id(), record);
             }
             storage.writeAll(initial.values());
 
@@ -547,11 +536,11 @@ public class EntityRecordStorageTest
                 v2Records.put(id, alternateRecord);
             }
 
-            storage.writeAll(EntityRecordStorageTestEnv.recordsWithColumnsFrom(v1Records));
+            storage.writeAll(recordsWithColumnsFrom(v1Records));
             var firstRevision = storage.readAll();
             assertIteratorsEqual(v1Records.values()
                                           .iterator(), firstRevision);
-            storage.writeAll(EntityRecordStorageTestEnv.recordsWithColumnsFrom(v2Records));
+            storage.writeAll(recordsWithColumnsFrom(v2Records));
             var secondRevision = storage.readAll();
             assertIteratorsEqual(v2Records.values()
                                           .iterator(), secondRevision);
@@ -563,11 +552,10 @@ public class EntityRecordStorageTest
             var storage = storage();
             var id = newId();
             var entity = newEntity(id);
-            var record = buildStorageRecord(id, newState(id));
 
             // Write with `DONE` status at first.
             var initialStatus = DONE;
-            record = writeWithStatus(entity, initialStatus, record, storage);
+            var record = writeWithStatus(entity, initialStatus, storage);
             var query =
                     StgProject.query()
                               .projectStatusValue().is(initialStatus.getNumber())
@@ -577,7 +565,7 @@ public class EntityRecordStorageTest
 
             // Update the column status with `CANCELLED` value.
             var statusAfterUpdate = CANCELLED;
-            writeWithStatus(entity, statusAfterUpdate, record, storage);
+            writeWithStatus(entity, statusAfterUpdate, storage);
 
             var recordsAfter = storage.findAll(query);
             assertFalse(recordsAfter.hasNext());
@@ -587,12 +575,11 @@ public class EntityRecordStorageTest
         private EntityRecord
         writeWithStatus(TestCounterEntity entity,
                         StgProject.Status status,
-                        EntityRecord record,
                         EntityRecordStorage<StgProjectId, StgProject> storage) {
             entity.assignStatus(status);
-            var withCols = recordWithCols(entity, record);
+            var withCols = recordWithCols(entity);
             storage.write(withCols);
-            return record;
+            return withCols.record();
         }
     }
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -26,14 +26,14 @@
 
 package io.spine.server.projection;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import com.google.protobuf.Timestamp;
 import io.spine.annotation.Internal;
-import io.spine.base.EntityState;
+import io.spine.annotation.VisibleForTesting;
+import io.spine.base.ProjectionState;
 import io.spine.base.Time;
 import io.spine.core.Event;
 import io.spine.server.BoundedContext;
@@ -46,6 +46,7 @@ import io.spine.server.delivery.CatchUpSignal;
 import io.spine.server.delivery.Delivery;
 import io.spine.server.delivery.Inbox;
 import io.spine.server.delivery.InboxLabel;
+import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.EventDispatchingRepository;
 import io.spine.server.entity.RepositoryCache;
 import io.spine.server.entity.model.StateClass;
@@ -54,12 +55,12 @@ import io.spine.server.event.EventStore;
 import io.spine.server.projection.model.ProjectionClass;
 import io.spine.server.route.EventRouting;
 import io.spine.server.route.StateUpdateRouting;
-import io.spine.server.stand.Stand;
+import io.spine.server.route.setup.StateRoutingSetup;
 import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
 import io.spine.time.TimestampTemporal;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
 
@@ -69,6 +70,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.Sets.intersection;
 import static com.google.common.collect.Sets.union;
 import static io.spine.option.EntityOption.Kind.PROJECTION;
+import static io.spine.server.dispatch.DispatchOutcomes.sentToInbox;
 import static io.spine.server.projection.model.ProjectionClass.asProjectionClass;
 import static io.spine.server.tenant.TenantAwareRunner.withCurrentTenant;
 import static io.spine.util.Exceptions.newIllegalArgumentException;
@@ -85,11 +87,11 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * <p>To start the catch-up, one should call a corresponding method (see below).
  *
  * <pre>
- *     TaskViewRepository repository = new TaskViewRepository();
+ *     var repository = new TaskViewRepository();
  *
- *     BoundedContextBuilder builder = BoundedContext.singleTenant("Tasks")
- *                                                   .add(repository)
- *                                                   .build();
+ *     var builder = BoundedContext.singleTenant("Tasks")
+ *             .add(repository)
+ *             .build();
  *     // ...
  *
  *     //Start the catch-up when needed:
@@ -112,7 +114,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  */
 public abstract class ProjectionRepository<I,
                                            P extends Projection<I, S, ?>,
-                                           S extends EntityState<I>>
+                                           S extends ProjectionState<I>>
         extends EventDispatchingRepository<I, P, S> {
 
     private @MonotonicNonNull Inbox<I> inbox;
@@ -234,6 +236,7 @@ public abstract class ProjectionRepository<I,
      */
     private StateUpdateRouting<I> createStateRouting() {
         var routing = StateUpdateRouting.newInstance(idClass());
+        StateRoutingSetup.apply(entityClass(), routing);
         setupStateRouting(routing);
         validate(routing);
         return routing;
@@ -363,10 +366,16 @@ public abstract class ProjectionRepository<I,
         return subscriber.isPresent();
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Sends the given event to the {@code Inbox}es of respective entities.
+     */
     @Override
-    protected final void dispatchTo(I id, Event event) {
-        inbox().send(EventEnvelope.of(event))
-               .toSubscriber(id);
+    protected final DispatchOutcome dispatchTo(Set<I> ids, EventEnvelope event) {
+        ids.forEach(id -> inbox().send(event)
+                                 .toSubscriber(id));
+        return sentToInbox(event, ids);
     }
 
     /**
@@ -450,14 +459,14 @@ public abstract class ProjectionRepository<I,
      * routed as per the repository routing schema, and the obtained set of the identifiers
      * is narrowed down to the restricted targets.
      *
-     * <p>Such a setting allows to catch up only the selected targets.
+     * <p>Such a setting allows catching up only the selected targets.
      *
      * <p>This API method also supports sending the special {@link CatchUpSignal}s
      * to the projection. They regulate the lifecycle of the catch-up and are handled by
      * the {@link CatchUpEndpoint} exposed by this repository.
      *
      * <p>Please note that the {@code CatchUpSignal}s are dispatched to the selected targets
-     * only and cannot be dispatched to all of the repository instances. The reason is that
+     * only and cannot be dispatched to all the repository instances. The reason is that
      * handling of {@code CatchUpSignal}s may affect the lifecycle state of the projection
      * instances. E.g. the callee must know to what targets he is sending the "delete state" signal.
      *

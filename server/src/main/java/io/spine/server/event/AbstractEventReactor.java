@@ -34,11 +34,12 @@ import io.spine.base.Error;
 import io.spine.core.MessageId;
 import io.spine.core.Version;
 import io.spine.core.Versions;
-import io.spine.logging.Logging;
+import io.spine.logging.WithLogging;
 import io.spine.protobuf.TypeConverter;
 import io.spine.server.BoundedContext;
 import io.spine.server.ContextAware;
 import io.spine.server.Identity;
+import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.dispatch.DispatchOutcomeHandler;
 import io.spine.server.event.model.EventReactorClass;
 import io.spine.server.stand.Stand;
@@ -53,6 +54,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Suppliers.memoize;
+import static io.spine.server.dispatch.DispatchOutcomes.ignored;
+import static java.lang.String.format;
 
 /**
  * An abstract base for all classes that may produce events in response to other events.
@@ -68,7 +71,7 @@ import static com.google.common.base.Suppliers.memoize;
  * @see React reactors
  */
 public abstract class AbstractEventReactor
-        implements EventReactor, EventDispatcher, ContextAware, Logging {
+        implements EventReactor, EventDispatcher, ContextAware, WithLogging {
 
     private final EventReactorClass<?> thisClass = EventReactorClass.asReactorClass(getClass());
     private final Supplier<MessageId> eventAnchor = memoize(() -> Identity.ofSingleton(getClass()));
@@ -103,32 +106,38 @@ public abstract class AbstractEventReactor
     }
 
     @Override
-    public boolean isRegistered() {
+    public final boolean isRegistered() {
         return eventBus != null;
     }
 
     @Override
-    public ImmutableSet<EventClass> messageClasses() {
+    public final ImmutableSet<EventClass> messageClasses() {
         return thisClass.events();
     }
 
     @Override
-    public void dispatch(EventEnvelope event) {
-        TenantAwareRunner.with(event.tenantId())
-                         .run(() -> reactAndPost(event));
+    public DispatchOutcome dispatch(EventEnvelope event) {
+        return TenantAwareRunner.with(event.tenantId())
+                                .evaluate(() -> reactAndPost(event));
     }
 
-    private void reactAndPost(EventEnvelope event) {
+    @SuppressWarnings("FloggerLogString" /* Re-using the logged message. */)
+    private DispatchOutcome reactAndPost(EventEnvelope event) {
         var method = thisClass.reactorOf(event);
         if (method.isPresent()) {
+            var outcome = method.get().invoke(this, event);
             DispatchOutcomeHandler
-                    .from(method.get().invoke(this, event))
+                    .from(outcome)
                     .onEvents(eventBus::post)
                     .onError(error -> postFailure(error, event))
                     .handle();
+            return outcome;
         } else {
-            _debug().log("Reactor `%s` filtered out and ignored event %s[ID: %s].",
-                         thisClass, event.messageClass(), event.id().value());
+            var eventId = event.id();
+            var msg = format("Reactor `%s` filtered out and ignored event %s[ID: %s].",
+                             thisClass, event.messageClass(), eventId.value());
+            logger().atDebug().log(() -> msg);
+            return ignored(event, msg);
         }
     }
 
@@ -141,34 +150,38 @@ public abstract class AbstractEventReactor
                 .setEntity(eventAnchor())
                 .setHandledSignal(event.messageId())
                 .setError(error)
-                .vBuild();
+                .build();
         system.postEvent(systemEvent, event.asMessageOrigin());
     }
 
-    /** Obtains the name of this reactor, {@linkplain TypeConverter#toAny(Object) packed to Any}. */
+    /**
+     * Obtains the name of this reactor, {@linkplain TypeConverter#toAny(Object) packed to Any}.
+     */
     @Override
     public Any producerId() {
         return producerId.get();
     }
 
-    /** Returns a {@linkplain Versions#zero() zero version}. */
+    /**
+     * Returns a {@linkplain Versions#zero() zero version}.
+     */
     @Override
     public Version version() {
         return Versions.zero();
     }
 
     @Override
-    public ImmutableSet<EventClass> externalEventClasses() {
+    public final ImmutableSet<EventClass> externalEventClasses() {
         return thisClass.externalEvents();
     }
 
     @Override
-    public ImmutableSet<EventClass> domesticEventClasses() {
+    public final ImmutableSet<EventClass> domesticEventClasses() {
         return thisClass.domesticEvents();
     }
 
     @Override
-    public ImmutableSet<EventClass> producedEvents() {
+    public final ImmutableSet<EventClass> producedEvents() {
         return thisClass.reactionOutput();
     }
 }

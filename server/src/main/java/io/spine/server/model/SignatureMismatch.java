@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -26,13 +26,16 @@
 
 package io.spine.server.model;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.MoreObjects;
+import com.google.common.collect.ImmutableList;
 import io.spine.annotation.Internal;
+import io.spine.annotation.VisibleForTesting;
+import org.jspecify.annotations.NonNull;
 
+import java.lang.reflect.Method;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.lang.String.format;
 
 /**
  * The mismatch of a signature.
@@ -67,6 +70,36 @@ public final class SignatureMismatch {
         this.message = criterion.formatMsg(values);
     }
 
+    static String formatMsg(Method method, Iterable<SignatureMismatch> mismatches) {
+        var list = ImmutableList.copyOf(mismatches);
+        var singularOrPlural = list.size() > 1 ? "issues" : "an issue";
+        var methodRef = Methods.reference(method);
+        var prolog = format(
+                "The method `%s` is declared with %s:%n",
+                methodRef,
+                singularOrPlural
+        );
+        var issues = buildList(list);
+        return prolog + issues;
+    }
+
+    private static @NonNull StringBuilder buildList(ImmutableList<SignatureMismatch> list) {
+        var stringBuilder = new StringBuilder(100);
+        var lastMismatch = list.get(list.size() - 1);
+        var newLine = System.lineSeparator();
+        list.forEach(mismatch -> {
+            var kind = mismatch.isError() ? "Error: " : "Warning: ";
+            stringBuilder.append(" - ")
+                         .append(kind)
+                         .append(mismatch);
+            var isLast = mismatch.equals(lastMismatch);
+            if (!isLast) {
+                stringBuilder.append(newLine);
+            }
+        });
+        return stringBuilder;
+    }
+
     /** Returns whether this mismatch is of {@code ERROR} severity. */
     boolean isError() {
         return severity == Severity.ERROR;
@@ -91,7 +124,7 @@ public final class SignatureMismatch {
      * @param criterion
      *         the criterion
      * @param values
-     *         the values, which did not met the criterion requirements
+     *         the values, which did not meet the criterion requirements
      * @return a new {@code SignatureMismatch} instance wrapped in {@code Optional}
      *         which is guaranteed to be non-empty
      */
@@ -113,17 +146,13 @@ public final class SignatureMismatch {
 
         /**
          * The mismatch of {@code WARN} level means that the recommended criterion was not met,
-         * however the application execution may proceed.
+         * however, the application execution may proceed.
          */
         WARN
     }
 
-    @SuppressWarnings("DuplicateStringLiteralInspection") // `message` is a common term.
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this)
-                          .add("unmetCriterion", unmetCriterion)
-                          .add("message", message)
-                          .toString();
+        return message;
     }
 }

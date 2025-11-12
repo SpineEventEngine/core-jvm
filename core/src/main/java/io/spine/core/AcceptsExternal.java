@@ -34,7 +34,7 @@ import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 /**
- * Marks a handler method annotation which may accept external messages.
+ * Marks a receptor annotation which may accept external messages.
  *
  * @see External
  */

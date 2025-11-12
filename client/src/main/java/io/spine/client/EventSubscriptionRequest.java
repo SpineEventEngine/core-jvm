@@ -77,6 +77,7 @@ public final class EventSubscriptionRequest<E extends EventMessage>
      * <p>Please note that the {@link EventFilter} instances may target both event message and
      * event context fields. See {@link EventFilter} for details.
      */
+    @CanIgnoreReturnValue
     public EventSubscriptionRequest<E> where(EventFilter... filter) {
         builder().where(extractFilters(filter));
         return self();
@@ -88,6 +89,7 @@ public final class EventSubscriptionRequest<E extends EventMessage>
      * <p>Please note that the {@link CompositeEventFilter} instances may target both event message
      * and event context fields. See {@link CompositeEventFilter} for details.
      */
+    @CanIgnoreReturnValue
     public EventSubscriptionRequest<E> where(CompositeEventFilter... filter) {
         builder().where(extractFilters(filter));
         return self();

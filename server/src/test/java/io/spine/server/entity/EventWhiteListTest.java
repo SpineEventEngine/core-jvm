@@ -31,7 +31,6 @@ import io.spine.base.EventMessage;
 import io.spine.core.Event;
 import io.spine.test.entity.event.EntProjectCreated;
 import io.spine.test.entity.event.EntProjectStarted;
-import io.spine.test.entity.event.EntTaskAdded;
 import io.spine.testing.server.TestEventFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -41,6 +40,8 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static io.spine.server.entity.EventBlackListTest.projectCreated;
+import static io.spine.server.entity.EventBlackListTest.taskAdded;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -62,7 +63,7 @@ class EventWhiteListTest {
     @Test
     @DisplayName("allow eventFactory of white list type")
     void acceptAllowed() {
-        EventMessage event = EntProjectCreated.getDefaultInstance();
+        EventMessage event = projectCreated();
         Optional<? extends Message> result = whiteList.filter(event);
         assertTrue(result.isPresent());
         assertEquals(event, result.get());
@@ -71,8 +72,9 @@ class EventWhiteListTest {
     @Test
     @DisplayName("filter out non-allowed events")
     void filterOut() {
-        var events = Stream.<EventMessage>of(EntProjectStarted.getDefaultInstance(),
-                                             EntTaskAdded.getDefaultInstance())
+        var projectCreated = projectCreated();
+        var events = Stream.of(projectCreated,
+                               taskAdded(projectCreated.getProjectId()))
                            .map(eventFactory::createEvent)
                            .collect(toList());
         Collection<Event> filtered = whiteList.filter(events);
@@ -83,7 +85,7 @@ class EventWhiteListTest {
     @Test
     @DisplayName("not allow events out from the white list")
     void denyEvents() {
-        EventMessage event = EntTaskAdded.getDefaultInstance();
+        var event = taskAdded(EventBlackListTest.newProjectId());
         var result = whiteList.filter(event);
         assertFalse(result.isPresent());
     }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -24,99 +24,89 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import io.spine.internal.dependency.ErrorProne
-import io.spine.internal.dependency.JUnit
-import io.spine.internal.gradle.IncrementGuard
-import io.spine.internal.gradle.VersionWriter
-import io.spine.internal.gradle.applyGitHubPackages
-import io.spine.internal.gradle.applyStandard
-import io.spine.internal.gradle.checkstyle.CheckStyleConfig
-import io.spine.internal.gradle.excludeProtobufLite
-import io.spine.internal.gradle.forceVersions
-import io.spine.internal.gradle.github.pages.updateGitHubPages
-import io.spine.internal.gradle.javac.configureErrorProne
-import io.spine.internal.gradle.javac.configureJavac
-import io.spine.internal.gradle.javadoc.JavadocConfig
-import io.spine.internal.gradle.kotlin.applyJvmToolchain
-import io.spine.internal.gradle.kotlin.setFreeCompilerArgs
-import io.spine.internal.gradle.publish.Publish.Companion.publishProtoArtifact
-import io.spine.internal.gradle.publish.PublishingRepos
-import io.spine.internal.gradle.publish.spinePublishing
-import io.spine.internal.gradle.report.coverage.JacocoConfig
-import io.spine.internal.gradle.report.license.LicenseReporter
-import io.spine.internal.gradle.report.pom.PomGenerator
-import io.spine.internal.gradle.test.configureLogging
-import io.spine.internal.gradle.test.registerTestTasks
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+@file:Suppress("RemoveRedundantQualifierName")
 
-@Suppress("RemoveRedundantQualifierName") // Cannot use imports here.
+import io.spine.dependency.boms.BomsPlugin
+import io.spine.gradle.publish.PublishingRepos
+import io.spine.gradle.publish.spinePublishing
+import io.spine.gradle.repo.standardToSpineSdk
+import io.spine.gradle.report.coverage.JacocoConfig
+import io.spine.gradle.report.license.LicenseReporter
+import io.spine.gradle.report.pom.PomGenerator
+
 buildscript {
-    apply(from = "$rootDir/version.gradle.kts")
+    standardSpineSdkRepositories()
+    doForceVersions(configurations)
+    configurations {
+        all {
+            exclude(group = "io.spine", module = "spine-flogger-api")
+            exclude(group = "io.spine", module = "spine-logging-backend")
+            resolutionStrategy {
+                val jackson = io.spine.dependency.lib.Jackson
+                val cfg = this@all
+                val rs = this@resolutionStrategy
+                jackson.forceArtifacts(project, cfg, rs)
+                io.spine.dependency.lib.Jackson.DataType.forceArtifacts(project, cfg, rs)
 
-    io.spine.internal.gradle.doApplyStandard(repositories)
-    io.spine.internal.gradle.doApplyGitHubPackages(repositories, "base", rootProject)
-
-    val kotlinVersion = io.spine.internal.dependency.Kotlin.version
-    val spineBaseVersion: String by extra
-    val spineTimeVersion: String by extra
-    val mcJavaVersion: String by extra
-
-    dependencies {
-        classpath("io.spine.tools:spine-mc-java:$mcJavaVersion")
+                val logging = io.spine.dependency.local.Logging
+                force(
+                    jackson.annotations,
+                    jackson.bom,
+                    io.spine.dependency.lib.Guava.lib,
+                    io.spine.dependency.lib.Kotlin.bom,
+                    io.spine.dependency.local.Base.annotations,
+                    io.spine.dependency.local.Base.lib,
+                    io.spine.dependency.local.ToolBase.lib,
+                    io.spine.dependency.local.CoreJava.server,
+                    io.spine.dependency.local.Reflect.lib,
+                    logging.lib,
+                    logging.libJvm,
+                    logging.grpcContext,
+                    io.spine.dependency.local.Time.lib,
+                    io.spine.dependency.local.Validation.runtime,
+                )
+            }
+        }
     }
 
-    io.spine.internal.gradle.doForceVersions(configurations)
-    configurations.all {
-        resolutionStrategy {
-            force(
-                    "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion",
-                    "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion",
-                    "io.spine:spine-base:$spineBaseVersion",
-                    "io.spine:spine-time:$spineTimeVersion"
-            )
-        }
+    dependencies {
+        classpath(enforcedPlatform(io.spine.dependency.lib.Grpc.bom))
+        classpath(enforcedPlatform(io.spine.dependency.kotlinx.Coroutines.bom))
+        classpath(spineCompiler.pluginLib)
+        classpath(coreJvmCompiler.pluginLib)
     }
 }
 
-repositories.applyStandard()
-
-apply(from = "$rootDir/version.gradle.kts")
-
-@Suppress("RemoveRedundantQualifierName") // Cannot use imports here.
 plugins {
     `java-library`
     kotlin("jvm")
     idea
-    id(io.spine.internal.dependency.Protobuf.GradlePlugin.id)
-    id(io.spine.internal.dependency.ErrorProne.GradlePlugin.id)
+    protobuf
+    errorprone
+    `gradle-doctor`
 }
+apply<BomsPlugin>()
 
-/** The name of the GitHub repository to which this project belongs. */
-val repositoryName: String = "core-java"
-
-val spineBaseVersion: String by extra
-val spineTimeVersion: String by extra
-val toolBaseVersion: String by extra
+repositories.standardToSpineSdk()
 
 spinePublishing {
-    with(PublishingRepos) {
-        targetRepositories.addAll(setOf(
-            cloudRepo,
-            gitHub(repositoryName),
+    modules = productionModules.map { it.name }.toSet()
+
+    destinations = with(PublishingRepos) {
+        setOf(
+            gitHub("core-jvm"),
             cloudArtifactRegistry
-        ))
+        )
     }
 
-    projectsToPublish.addAll(
-        "core",
-        "client",
-        "server",
-        "testutil-core",
-        "testutil-client",
-        "testutil-server",
-        "model-assembler",
-        "model-verifier"
-    )
+    testJar {
+        inclusions = setOf("server")
+    }
+
+    dokkaJar {
+        kotlin = true
+        java = true
+    }
 }
 
 allprojects {
@@ -126,164 +116,13 @@ allprojects {
         plugin("project-report")
     }
 
-    // Apply “legacy” dependency definitions which are not yet migrated to Kotlin.
-    // The `ext.deps` project property is used by `.gradle` scripts under `config/gradle`.
-    apply {
-        from("$rootDir/version.gradle.kts")
-    }
-
+    apply(from = "$rootDir/version.gradle.kts")
     group = "io.spine"
     version = extra["versionToPublish"]!!
 }
 
-subprojects {
-
-    with(repositories) {
-        applyGitHubPackages("base", rootProject)
-        applyGitHubPackages("time", rootProject)
-        applyStandard()
-    }
-
-    apply {
-        plugin("java-library")
-        plugin("jacoco")
-        plugin("com.google.protobuf")
-        plugin("net.ltgt.errorprone")
-        plugin("io.spine.mc-java")
-        plugin("kotlin")
-        plugin("pmd")
-        plugin("maven-publish")
-        plugin("pmd-settings")
-    }
-
-    tasks.withType<JavaCompile> {
-        configureJavac()
-        configureErrorProne()
-    }
-
-    @Suppress("MagicNumber")
-    val javaVersion = 11
-    kotlin {
-        applyJvmToolchain(javaVersion)
-        explicitApi()
-    }
-
-    tasks.withType<KotlinCompile>().configureEach {
-        kotlinOptions.jvmTarget = JavaVersion.VERSION_11.toString()
-        setFreeCompilerArgs()
-    }
-
-    dependencies {
-        ErrorProne.apply {
-            errorprone(core)
-        }
-
-        api("io.spine:spine-base:$spineBaseVersion")
-        api("io.spine:spine-time:$spineTimeVersion")
-
-        testImplementation(JUnit.runner)
-        testImplementation("io.spine.tools:spine-testlib:$spineBaseVersion")
-    }
-
-    configurations.forceVersions()
-    configurations {
-        all {
-            resolutionStrategy {
-                force(
-                    "io.spine:spine-base:$spineBaseVersion",
-                    "io.spine:spine-time:$spineTimeVersion",
-                    "io.spine.tools:spine-testlib:$spineBaseVersion",
-                    "io.spine.tools:spine-plugin-base:$toolBaseVersion"
-                )
-            }
-        }
-    }
-    configurations.excludeProtobufLite()
-
-    val generatedDir = "$projectDir/generated"
-    val generatedJavaDir = "$generatedDir/main/java"
-    val generatedTestJavaDir = "$generatedDir/test/java"
-    val generatedGrpcDir = "$generatedDir/main/grpc"
-    val generatedTestGrpcDir = "$generatedDir/test/grpc"
-    val generatedSpineDir = "$generatedDir/main/spine"
-    val generatedTestSpineDir = "$generatedDir/test/spine"
-
-    sourceSets {
-        main {
-            java.srcDirs(generatedSpineDir)
-        }
-        test {
-            java.srcDirs(generatedTestSpineDir)
-        }
-    }
-
-    val generateRejections by tasks.getting
-    tasks.compileKotlin {
-        dependsOn(generateRejections)
-    }
-
-    val generateTestRejections by tasks.getting
-    tasks.compileTestKotlin {
-        dependsOn(generateTestRejections)
-    }
-
-    tasks {
-        registerTestTasks()
-        test {
-            useJUnitPlatform {
-                includeEngines("junit-jupiter")
-            }
-            configureLogging()
-        }
-    }
-
-    apply<IncrementGuard>()
-    apply<VersionWriter>()
-    publishProtoArtifact(project)
-    LicenseReporter.generateReportIn(project)
-    JavadocConfig.applyTo(project)
-    CheckStyleConfig.applyTo(project)
-
-    idea {
-        module {
-            generatedSourceDirs.addAll(
-                files(
-                    generatedJavaDir,
-                    generatedGrpcDir,
-                    generatedSpineDir,
-                    generatedTestJavaDir,
-                    generatedTestGrpcDir,
-                    generatedTestSpineDir
-                )
-            )
-
-            testSourceDirs.add(file(generatedTestJavaDir))
-
-            isDownloadJavadoc = true
-            isDownloadSources = true
-        }
-    }
-
-    /**
-     * Determines whether this project should expose its Javadoc to `SpineEventEngine.github.io`
-     * website.
-     *
-     * Currently, the `testutil` projects are excluded from publishing, as well as the modules
-     * that perform the model compile-time checks.
-     *
-     * @return `true` is the project Javadoc should be published, `false` otherwise
-     */
-    fun shouldPublishJavadoc() =
-        !project.name.startsWith("testutil") &&
-        !project.name.startsWith("model")
-
-    updateGitHubPages(project.version.toString()) {
-        allowInternalJavadoc.set(true)
-        rootFolder.set(rootDir)
-    }
-    project.tasks["publish"].dependsOn("${project.path}:updateGitHubPages")
+gradle.projectsEvaluated {
+    JacocoConfig.applyTo(project)
+    PomGenerator.applyTo(project)
+    LicenseReporter.mergeAllReports(project)
 }
-
-JacocoConfig.applyTo(project)
-PomGenerator.applyTo(project)
-LicenseReporter.mergeAllReports(project)

@@ -25,25 +25,21 @@
  */
 package io.spine.server;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import io.grpc.BindableService;
 import io.grpc.stub.StreamObserver;
 import io.spine.client.Query;
 import io.spine.client.QueryResponse;
 import io.spine.client.grpc.QueryServiceGrpc;
-import io.spine.logging.Logging;
-import io.spine.server.model.UnknownEntityTypeException;
+import io.spine.logging.WithLogging;
+import io.spine.server.model.UnknownEntityStateTypeException;
 import io.spine.server.stand.InvalidRequestException;
 import io.spine.type.TypeUrl;
-
-import java.util.Map;
-import java.util.Set;
+import org.jspecify.annotations.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.flogger.LazyArgs.lazy;
-import static com.google.protobuf.TextFormat.shortDebugString;
 import static io.spine.server.transport.Statuses.invalidArgumentWithCause;
+import static io.spine.type.ProtoTexts.shortDebugString;
+import static java.lang.String.format;
 
 /**
  * The {@code QueryService} provides a synchronous way to fetch read-side state from the server.
@@ -52,13 +48,14 @@ import static io.spine.server.transport.Statuses.invalidArgumentWithCause;
  */
 public final class QueryService
         extends QueryServiceGrpc.QueryServiceImplBase
-        implements Logging {
+        implements WithLogging {
 
-    private final ImmutableMap<TypeUrl, BoundedContext> typeToContextMap;
+    private final QueryServiceImpl impl;
 
-    private QueryService(Map<TypeUrl, BoundedContext> map) {
+    @SuppressWarnings("ThisEscapedInObjectConstruction") // Safe as we're injecting at the end.
+    private QueryService(TypeDictionary types) {
         super();
-        this.typeToContextMap = ImmutableMap.copyOf(map);
+        this.impl = new QueryServiceImpl(this, types);
     }
 
     /**
@@ -81,104 +78,76 @@ public final class QueryService
      * Executes the passed query returning results to the passed observer.
      */
     @Override
-    public void read(Query query, StreamObserver<QueryResponse> responseObserver) {
-        _debug().log("Incoming query: `%s`.", lazy(() -> shortDebugString(query)));
-
-        var type = query.targetType();
-        var context = typeToContextMap.get(type);
-        if (context == null) {
-            handleUnsupported(type, responseObserver);
-        } else {
-            handleQuery(context, query, responseObserver);
-        }
+    public void read(Query query, StreamObserver<QueryResponse> observer) {
+        logger().atDebug().log(() -> format(
+                "Incoming query: `%s`.", shortDebugString(query)));
+        impl.serve(query, observer, null);
     }
 
-    private void handleQuery(BoundedContext context,
+    private static final class QueryServiceImpl extends ServiceDelegate<Query, QueryResponse> {
+
+        QueryServiceImpl(BindableService service, TypeDictionary types) {
+            super(service, types);
+        }
+
+        @Override
+        protected TypeUrl enclosedMessageType(Query request) {
+            return request.targetType();
+        }
+
+        @Override
+        protected void serve(BoundedContext context,
                              Query query,
-                             StreamObserver<QueryResponse> responseObserver) {
-        var stand = context.stand();
-        try {
-            stand.execute(query, responseObserver);
-        } catch (InvalidRequestException e) {
-            _error().log("Invalid request. `%s`", e.asError());
-            var exception = invalidArgumentWithCause(e);
-            responseObserver.onError(exception);
-        } catch (@SuppressWarnings("OverlyBroadCatchBlock") Exception e) {
-            _error().withCause(e)
-                    .log("Error processing query.");
-            responseObserver.onError(e);
+                             StreamObserver<QueryResponse> observer,
+                             @Nullable Object params) {
+            try {
+                var stand = context.stand();
+                stand.execute(query, observer);
+            } catch (InvalidRequestException e) {
+                logger().atError().log(() -> format("Invalid request. `%s`", e.asError()));
+                var exception = invalidArgumentWithCause(e);
+                observer.onError(exception);
+            } catch (@SuppressWarnings("OverlyBroadCatchBlock") Exception e) {
+                logger().atError().withCause(e).log(() -> "Error processing query.");
+                observer.onError(e);
+            }
         }
-    }
 
-    private void handleUnsupported(TypeUrl type, StreamObserver<QueryResponse> observer) {
-        var exception = new UnknownEntityTypeException(type);
-        _error().withCause(exception)
-                .log("Unknown type encountered.");
-        observer.onError(exception);
+        @Override
+        protected void serveNoContext(Query query,
+                                      StreamObserver<QueryResponse> observer,
+                                      @Nullable Object params) {
+            var exception = new UnknownEntityStateTypeException(query.targetType());
+            logger().atError().withCause(exception).log();
+            observer.onError(exception);
+        }
     }
 
     /**
      * The builder for a {@code QueryService}.
      */
-    public static class Builder {
-
-        private final Set<BoundedContext> contexts = Sets.newHashSet();
-
-        /**
-         * Adds the passed bounded context to be served by the query service.
-         */
-        @CanIgnoreReturnValue
-        public Builder add(BoundedContext context) {
-            contexts.add(context);
-            return this;
-        }
-
-        /**
-         * Excludes the passed bounded context from being served by the query service.
-         */
-        @CanIgnoreReturnValue
-        public Builder remove(BoundedContext context) {
-            contexts.remove(context);
-            return this;
-        }
-
-        /**
-         * Tells if the builder already contains the passed bounded context.
-         */
-        public boolean contains(BoundedContext context) {
-            return contexts.contains(context);
-        }
+    public static class Builder extends AbstractServiceBuilder<QueryService, Builder> {
 
         /**
          * Builds the {@link QueryService}.
          *
          * @throws IllegalStateException if no bounded contexts were added.
          */
+        @Override
         public QueryService build() throws IllegalStateException {
-            if (contexts.isEmpty()) {
-                var message = "Query service must have at least one `BoundedContext`.";
-                throw new IllegalStateException(message);
-            }
-            var map = createMap();
-            var result = new QueryService(map);
-            return result;
+            var dictionary = TypeDictionary.newBuilder();
+            contexts().forEach(
+                    context -> dictionary.putAll(context, (c) -> c.stand().exposedTypes())
+            );
+
+            var service = new QueryService(dictionary.build());
+            warnIfEmpty(service);
+            return service;
         }
 
-        private ImmutableMap<TypeUrl, BoundedContext> createMap() {
-            ImmutableMap.Builder<TypeUrl, BoundedContext> map = ImmutableMap.builder();
-            for (var context : contexts) {
-                putExposedTypes(context, map);
-            }
-            return map.build();
-        }
-
-        private static void putExposedTypes(BoundedContext context,
-                                            ImmutableMap.Builder<TypeUrl, BoundedContext> map) {
-            var stand = context.stand();
-            var exposedTypes = stand.exposedTypes();
-            for (var type : exposedTypes) {
-                map.put(type, context);
-            }
+        @Override
+        Builder self() {
+            return this;
         }
     }
 }

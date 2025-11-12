@@ -30,10 +30,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.protobuf.Timestamp;
 import io.spine.annotation.SPI;
 import io.spine.query.RecordQueryBuilder;
-import io.spine.server.storage.MessageRecordSpec;
+import io.spine.server.storage.RecordSpec;
 import io.spine.server.storage.MessageStorage;
 import io.spine.server.storage.StorageFactory;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -58,17 +58,30 @@ import static java.util.stream.Collectors.toList;
 @SPI
 public class InboxStorage extends MessageStorage<InboxMessageId, InboxMessage> {
 
+    /**
+     * Creates a new instance of this storage.
+     *
+     * <p>Generally, {@code InboxStorage} instances should be single-tenant only.
+     * It is so, because no distinction should be made for processing of {@code InboxMessage}s,
+     * since it is batch-based anyway, and splitting batches even more (across tenants)
+     * reduces the performance.
+     *
+     * @param factory
+     *         storage factory to create an underlying record storage
+     * @param multitenant
+     *         whether {@code InboxStorage} should be multi-tenant
+     */
     public InboxStorage(StorageFactory factory, boolean multitenant) {
         super(Delivery.contextSpec(multitenant),
               factory.createRecordStorage(Delivery.contextSpec(multitenant), spec()));
     }
 
-    private static MessageRecordSpec<InboxMessageId, InboxMessage> spec() {
+    private static RecordSpec<InboxMessageId, InboxMessage> spec() {
         @SuppressWarnings("ConstantConditions")     // Protobuf getters do not return {@code null}s.
-        var spec = new MessageRecordSpec<>(InboxMessageId.class,
-                                           InboxMessage.class,
-                                           InboxMessage::getId,
-                                           InboxColumn.definitions());
+        var spec = new RecordSpec<>(InboxMessageId.class,
+                                    InboxMessage.class,
+                                    InboxMessage::getId,
+                                    InboxColumn.definitions());
         return spec;
     }
 

@@ -26,7 +26,6 @@
 
 package io.spine.grpc;
 
-import com.google.common.truth.Truth8;
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.grpc.Metadata;
 import io.spine.base.Error;
@@ -73,7 +72,7 @@ class MetadataConverterTest extends UtilityClassTest<MetadataConverter> {
     void processEmptyMetadata() {
         var metadata = new Metadata();
 
-        Truth8.assertThat(toError(metadata))
+        assertThat(toError(metadata))
               .isEmpty();
     }
 

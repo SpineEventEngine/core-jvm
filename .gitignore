@@ -1,5 +1,11 @@
 #
-# Copyright 2022, TeamDev. All rights reserved.
+# Copyright 2025, TeamDev. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# https://www.apache.org/licenses/LICENSE-2.0
 #
 # Redistribution and use in source and/or binary forms, with or without
 # modification, must retain the above copyright notice and the following
@@ -25,6 +31,18 @@
 #
 # Therefore, instructions below are superset of instructions required for all the projects.
 
+# Temporary output of AI agents.
+.output
+
+# `jenv` local configuration.
+.java-version
+
+# Internal tool directories.
+.fleet/
+
+# Kotlin temp directories.
+**/.kotlin/
+
 # IntelliJ IDEA modules and interim config files.
 *.iml
 .idea/*.xml
@@ -40,14 +58,31 @@
 !.idea/codeStyles/
 !.idea/copyright/
 
+# Ignore IDEA config files under `tests`
+/tests/.idea/**
+
 # Gradle interim configs
 **/.gradle/**
 
+# Temp directory for Gradle TestKit runners
+**/.gradle-test-kit/**
+
+# Integration test log files
+/tests/_out/**
+
 # Generated source code
 **/generated/**
+**/*.pb.dart
+**/*.pbenum.dart
+**/*.pbserver.dart
+**/*.pbjson.dart
+
+# Generated source code with custom path under `tests`
+/tests/**/proto-gen/**
 
 # Gradle build files
 **/build/**
+!**/src/**/build/**
 
 # Build files produced by the IDE
 **/out/**
@@ -66,9 +101,6 @@ gradle-app.setting
 
 # Spine internal directory for storing intermediate artifacts
 **/.spine/**
-
-# Spine model compiler auto-generated resources
-/tools/gradle-plugins/model-compiler/src/main/resources/spine-protoc.gradle
 
 # Login details to Maven repository.
 # Each workstation should have developer's login defined in this file.
@@ -94,17 +126,7 @@ hs_err_pid*
 .packages
 pubspec.lock
 
+# Ignore the `tmp` directory used for building dependant repositories.
+/tmp
 
-#
-# The gradle.properties file should contain settings specific to a developer's workstation.
-#
-# See sample file for a Mac OS X workstation below.
-# -------
-# # Set Java home to point to JDK8. This is need to generate classes working with Java8 API.
-# # Otherwise the following warning appears during the build:
-# #     warning: [options] bootstrap class path not set in conjunction with -source 1.8
-# #
-# # suppress inspection "UnusedProperty"
-# org.gradle.java.home=/Library/Java/JavaVirtualMachines/jdk1.8.0_51.jdk/Contents/Home/
-# -------
-gradle.properties
+.gradle-test-kit/

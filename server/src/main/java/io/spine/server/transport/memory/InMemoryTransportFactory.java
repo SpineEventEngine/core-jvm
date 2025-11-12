@@ -40,8 +40,8 @@ import static com.google.common.collect.Multimaps.synchronizedMultimap;
 /**
  * In-memory implementation of the {@link TransportFactory}.
  *
- * <p>Publishers and subscribers must be in the same JVM. Therefore this factory usage should
- * be limited to tests.
+ * <p>Publishers and subscribers must be in the same JVM.
+ * Therefore, this factory usage should be limited to tests.
  */
 public class InMemoryTransportFactory implements TransportFactory {
 
@@ -54,7 +54,7 @@ public class InMemoryTransportFactory implements TransportFactory {
     /** Turns {@code true} upon {@linkplain #close()} closing} the factory. */
     private boolean closed;
 
-    /** Prevent direct instantiation from outside of the inheritance tree. */
+    /** Prevent direct instantiation from outside the inheritance tree. */
     protected InMemoryTransportFactory() {
     }
 

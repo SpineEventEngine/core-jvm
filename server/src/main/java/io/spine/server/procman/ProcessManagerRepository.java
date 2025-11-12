@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -26,13 +26,12 @@
 
 package io.spine.server.procman;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import io.spine.annotation.Internal;
-import io.spine.base.EntityState;
+import io.spine.annotation.VisibleForTesting;
+import io.spine.base.ProcessManagerState;
 import io.spine.core.Command;
-import io.spine.core.Event;
 import io.spine.server.BoundedContext;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.commandbus.CommandBus;
@@ -41,6 +40,7 @@ import io.spine.server.commandbus.DelegatingCommandDispatcher;
 import io.spine.server.delivery.BatchDeliveryListener;
 import io.spine.server.delivery.Inbox;
 import io.spine.server.delivery.InboxLabel;
+import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.EntityLifecycleMonitor;
 import io.spine.server.entity.EntityRecord;
 import io.spine.server.entity.EventDispatchingRepository;
@@ -52,6 +52,7 @@ import io.spine.server.procman.model.ProcessManagerClass;
 import io.spine.server.route.CommandRouting;
 import io.spine.server.route.EventRoute;
 import io.spine.server.route.EventRouting;
+import io.spine.server.route.setup.CommandRoutingSetup;
 import io.spine.server.type.CommandClass;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventClass;
@@ -61,12 +62,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Suppliers.memoize;
 import static io.spine.grpc.StreamObservers.noOpObserver;
 import static io.spine.option.EntityOption.Kind.PROCESS_MANAGER;
+import static io.spine.server.dispatch.DispatchOutcomes.maybeSentToInbox;
+import static io.spine.server.dispatch.DispatchOutcomes.sentToInbox;
 import static io.spine.server.procman.model.ProcessManagerClass.asProcessManagerClass;
 import static io.spine.server.tenant.TenantAwareRunner.with;
 import static io.spine.util.Exceptions.newIllegalStateException;
@@ -84,7 +88,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  */
 public abstract class ProcessManagerRepository<I,
                                                P extends ProcessManager<I, S, ?>,
-                                               S extends EntityState<I>>
+                                               S extends ProcessManagerState<I>>
         extends EventDispatchingRepository<I, P, S>
         implements CommandDispatcherDelegate, EventProducingRepository {
 
@@ -150,10 +154,19 @@ public abstract class ProcessManagerRepository<I,
     @OverridingMethodsMustInvokeSuper
     public void registerWith(BoundedContext context) {
         super.registerWith(context);
-        setupCommandRouting(commandRouting());
+
+        doSetupCommandRouting();
+
         checkNotDeaf();
         initCache(context.isMultitenant());
         initInbox();
+    }
+
+    private void doSetupCommandRouting() {
+        var cmdRouting = commandRouting();
+        var entityClass = entityClass();
+        CommandRoutingSetup.apply(entityClass, cmdRouting);
+        setupCommandRouting(cmdRouting);
     }
 
     @Override
@@ -196,7 +209,7 @@ public abstract class ProcessManagerRepository<I,
     }
 
     /**
-     * Replaces default routing with the one which takes the target ID from the first field
+     * Replaces default routing with the one that takes the target ID from the first field
      * of an event message.
      *
      * @param routing
@@ -228,7 +241,7 @@ public abstract class ProcessManagerRepository<I,
     private void checkNotDeaf() {
         if (!dispatchesCommands() && !dispatchesEvents()) {
             throw newIllegalStateException(
-                    "Process managers of the repository %s have no command handlers, " +
+                    "Process managers of the repository `%s` have no command handlers, " +
                             "and do not react to any events.", this);
         }
     }
@@ -300,11 +313,12 @@ public abstract class ProcessManagerRepository<I,
      *         a request to dispatch
      */
     @Override
-    public final void dispatchCommand(CommandEnvelope command) {
+    public final DispatchOutcome dispatchCommand(CommandEnvelope command) {
         checkNotNull(command);
         var target = route(command);
         target.ifPresent(id -> inbox().send(command)
                                       .toHandler(id));
+        return maybeSentToInbox(command, target);
     }
 
     private Optional<I> route(CommandEnvelope cmd) {
@@ -336,12 +350,13 @@ public abstract class ProcessManagerRepository<I,
     /**
      * {@inheritDoc}
      *
-     * <p>Sends the given event to the {@code Inbox} of this repository.
+     * <p>Sends the given event to the {@code Inbox}es of respective entities.
      */
     @Override
-    protected final void dispatchTo(I id, Event event) {
-        inbox().send(EventEnvelope.of(event))
-               .toReactor(id);
+    protected final DispatchOutcome dispatchTo(Set<I> ids, EventEnvelope event) {
+        ids.forEach(id -> inbox().send(event)
+                                 .toReactor(id));
+        return sentToInbox(event, ids);
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})   // to avoid massive generic-related issues.
@@ -349,7 +364,8 @@ public abstract class ProcessManagerRepository<I,
     protected PmTransaction<?, ?, ?> beginTransactionFor(P manager) {
         @SuppressWarnings("RedundantExplicitVariableType")  /* Because of the wildcard generic. */
         PmTransaction<I, S, ?> tx = new PmTransaction<>((ProcessManager<I, S, ?>) manager);
-        TransactionListener listener = EntityLifecycleMonitor.newInstance(this, manager.id());
+        TransactionListener listener =
+                EntityLifecycleMonitor.newInstance(this, manager.id());
         tx.setListener(listener);
         return tx;
     }
@@ -387,15 +403,16 @@ public abstract class ProcessManagerRepository<I,
      * before it is returned by the repository as the result of creating a new process manager
      * instance or finding existing one.
      *
-     * <p>Default implementation does nothing. Overriding repositories may use this method for
-     * injecting dependencies that process managers need to have.
+     * <p>Default implementation attaches the process manager to the bounded context,
+     * so that it can perform querying. Overriding repositories may use this method for
+     * injecting other dependencies that process managers need to have.
      *
      * @param processManager
      *         the process manager to configure
      */
-    @SuppressWarnings("NoopMethodInAbstractClass") // see Javadoc
+    @OverridingMethodsMustInvokeSuper
     protected void configure(@SuppressWarnings("unused") P processManager) {
-        // Do nothing.
+        processManager.injectContext(context());
     }
 
     /**

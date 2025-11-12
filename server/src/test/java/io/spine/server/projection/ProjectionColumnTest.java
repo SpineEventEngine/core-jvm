@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -30,21 +30,20 @@ import io.spine.client.ArchivedColumn;
 import io.spine.client.DeletedColumn;
 import io.spine.client.VersionColumn;
 import io.spine.query.ColumnName;
-import io.spine.server.entity.storage.EntityRecordSpec;
-import io.spine.server.projection.given.SavedString;
+import io.spine.server.entity.EntityRecord;
+import io.spine.server.entity.storage.SpecScanner;
 import io.spine.server.projection.given.SavingProjection;
+import io.spine.server.storage.RecordSpec;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static com.google.common.truth.Truth8.assertThat;
+import static com.google.common.truth.Truth.assertThat;
 
-@Nested
 @DisplayName("`Projection` should have columns")
 class ProjectionColumnTest {
 
-    private static final EntityRecordSpec<String, SavedString, SavingProjection> recordSpec =
-            EntityRecordSpec.of(SavingProjection.class);
+    private static final RecordSpec<String, EntityRecord> recordSpec =
+            SpecScanner.scan(SavingProjection.class);
 
     @Test
     @DisplayName("`version`")

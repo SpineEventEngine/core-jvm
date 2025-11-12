@@ -34,7 +34,7 @@ import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 /**
- * Marks a handler method annotation which supports filtering events by fields using {@link Where}.
+ * Marks a receptor annotation which supports filtering events by fields using {@link Where}.
  */
 @Retention(SOURCE)
 @Target(ANNOTATION_TYPE)

@@ -53,7 +53,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.google.common.truth.Truth8.assertThat;
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -144,14 +144,16 @@ class BoundedContextBuilderTest {
                 .assumingTests()
                 .setTenantIndex(tenantIndex);
 
-        assertThat(builder.tenantIndex())
-                .hasValue(tenantIndex);
+        assertThat(builder.getTenantIndex())
+                .isEqualTo(tenantIndex);
     }
 
     /**
      * Stub implementation of {@code TenantIndex}.
      */
     private static class StubTenantIndex implements TenantIndex {
+
+        private boolean closed = false;
 
         @Override
         public void keep(TenantId id) {
@@ -164,8 +166,13 @@ class BoundedContextBuilderTest {
         }
 
         @Override
+        public boolean isOpen() {
+            return !closed;
+        }
+
+        @Override
         public void close() {
-            // Do nothing.
+            closed = true;
         }
     }
 

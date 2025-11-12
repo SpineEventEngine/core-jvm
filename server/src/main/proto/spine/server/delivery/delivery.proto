@@ -60,14 +60,16 @@ message ShardSessionRecord {
     // The index of a shard processed in this session.
     ShardIndex index = 1 [(required) = true];
 
-    // When the shard processed within the session was last picked by the node.
+    // When the shard processed within the session was last picked up by the node.
     //
-    // This field is unset if no nodes ever picked the session.
+    // This field is unset if no nodes ever picked up the session.
+    //
     google.protobuf.Timestamp when_last_picked = 3;
 
     // An identifier of an application worker, which picked up the shard and processes it.
     //
     // Unset until a worker picks the shard.
+    //
     WorkerId worker = 4;
 
     reserved 2;
@@ -120,4 +122,43 @@ message WorkerId {
     //
     // An example of such an identifier could be ID of the thread which processes a shard.
     string value = 2 [(required) = true];
+}
+
+// An outcome of a shard pick-up request, stating that the shard is already picked up
+// by another worker.
+message ShardAlreadyPickedUp {
+
+    // A worker that owns the session at the moment.
+    WorkerId worker = 1 [(required) = true];
+
+    // Time when the worker has picked up the shard.
+    //
+    // Note, this value is not synchronized between application servers by default.
+    // The wall clock on each instance is generally slightly different.
+    // Comparing this value (potentially instantiated on another application node)
+    // with the wall clock on your current application node may give
+    // some misleading results.
+    //
+    google.protobuf.Timestamp when_picked = 2 [(required) = true];
+}
+
+// An outcome of a shard pick-up attempt.
+message PickUpOutcome {
+
+    option (is).java_type = "io.spine.server.delivery.PickUpOutcomeMixin";
+
+    oneof value {
+        option (choice).required = true;
+
+        // Shard was picked up successfully, and this value points to the
+        // delivery session owned by the node requested to pick up the shard.
+        ShardSessionRecord session = 1;
+
+        // Shard could not be picked up as it's already picked up by another worker.
+        //
+        // This value brings some additional information about the currently
+        // ongoing session owned by another worker node.
+        //
+        ShardAlreadyPickedUp already_picked = 2;
+    }
 }

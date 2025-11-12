@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -31,7 +31,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.Immutable;
 import io.spine.base.CommandMessage;
 import io.spine.server.event.model.SubscriberMethod;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -39,6 +39,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static io.spine.server.model.TypeMatcher.exactly;
 
 /**
@@ -72,7 +73,7 @@ public final class MethodParams {
     }
 
     /**
-     * Creates the instance with single parameter of the passed type.
+     * Creates the instance with a single parameter of the passed type.
      */
     static MethodParams ofType(Class<?> type) {
         checkNotNull(type);
@@ -91,6 +92,15 @@ public final class MethodParams {
     /** Obtains the number of parameters passed to the method. */
     public int size() {
         return params.size();
+    }
+
+    /**
+     * Obtains the simple names of the method parameters.
+     */
+    public ImmutableList<String> simpleNames() {
+        return params.stream()
+                .map(Class::getSimpleName)
+                .collect(toImmutableList());
     }
 
     /**

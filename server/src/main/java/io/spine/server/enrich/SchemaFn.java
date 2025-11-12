@@ -32,7 +32,7 @@ import io.spine.core.Enrichment;
 import io.spine.core.Enrichment.Container;
 import io.spine.protobuf.AnyPacker;
 import io.spine.type.TypeName;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;

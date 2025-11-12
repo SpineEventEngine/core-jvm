@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,9 +23,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package io.spine.server.stand;
 
 import com.google.protobuf.FieldMask;
+import io.spine.base.Identifier;
 import io.spine.client.ActorRequestFactory;
 import io.spine.client.Query;
 import io.spine.client.QueryResponse;
@@ -36,6 +38,7 @@ import io.spine.client.Subscriptions;
 import io.spine.client.Target;
 import io.spine.client.Targets;
 import io.spine.client.Topic;
+import io.spine.client.TopicId;
 import io.spine.core.Event;
 import io.spine.protobuf.AnyPacker;
 import io.spine.server.BoundedContextBuilder;
@@ -45,6 +48,7 @@ import io.spine.server.entity.Repository;
 import io.spine.server.projection.ProjectionRepository;
 import io.spine.server.stand.given.AloneWaiter;
 import io.spine.server.stand.given.Given.StandTestProjectionRepository;
+import io.spine.server.stand.given.StandTestEnv;
 import io.spine.server.stand.given.StandTestEnv.AssertProjectQueryResults;
 import io.spine.server.stand.given.StandTestEnv.MemoizeQueryResponseObserver;
 import io.spine.server.stand.given.StandTestEnv.MemoizeSubscriptionCallback;
@@ -59,7 +63,8 @@ import io.spine.test.projection.Project;
 import io.spine.test.projection.ProjectId;
 import io.spine.testing.logging.mute.MuteLogging;
 import io.spine.testing.server.tenant.TenantAwareTest;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import io.spine.validate.ValidationError;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -73,7 +78,6 @@ import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth8.assertThat;
 import static io.spine.client.EntityQueryToProto.transformWith;
 import static io.spine.client.QueryValidationError.INVALID_QUERY;
 import static io.spine.client.QueryValidationError.UNSUPPORTED_QUERY_TARGET;
@@ -111,8 +115,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-@DisplayName("Stand should")
-@SuppressWarnings("OverlyCoupledClass")  // It's OK for this test.
+@DisplayName("`Stand` should")  // It's OK for this test.
 class StandTest extends TenantAwareTest {
 
     private static final int TOTAL_PROJECTS_FOR_BATCH_READING = 10;
@@ -360,7 +363,6 @@ class StandTest extends TenantAwareTest {
 
         @Test
         @DisplayName("upon receiving the event of observed type, when event is produced by Entity")
-        @SuppressWarnings("OverlyCoupledMethod") // Huge end-to-end test.
         void uponEventFromEntity() {
             // Subscribe to Customer aggregate updates.
             var repository = new CustomerAggregateRepository();
@@ -417,7 +419,7 @@ class StandTest extends TenantAwareTest {
             var orderId = OrderId.generate();
             var placeOrder = PlaceOrder.newBuilder()
                     .setId(orderId)
-                    .vBuild();
+                    .build();
             var command = requestFactory.command().create(placeOrder);
 
             assertThat(waiter.ordersPlaced()).isEqualTo(0);
@@ -428,7 +430,7 @@ class StandTest extends TenantAwareTest {
             assertThat(observed).isNotNull();
             var expected = OrderPlaced.newBuilder()
                     .setId(orderId)
-                    .vBuild();
+                    .build();
             assertThat(observed.enclosedMessage()).isEqualTo(expected);
         }
     }
@@ -482,7 +484,31 @@ class StandTest extends TenantAwareTest {
 
         stand.cancel(subscription, noOpObserver());
 
-        var customer = generateCustomers(1).iterator().next();
+        assertNoUpdates(stand, repository, callback);
+    }
+
+    @Test
+    @DisplayName("allow cancelling a subscription " +
+            "even if its internal properties were modified, but ID is the same")
+    void cancelModifiedSubscriptions() {
+        var repository = new CustomerAggregateRepository();
+        var stand = createStand(repository);
+        var allCustomers = requestFactory.topic().allOf(Customer.class);
+        var callback = new MemoizeSubscriptionCallback();
+        var subscription = subscribeAndActivate(stand, allCustomers, callback);
+
+        var modifiedSubscription = StandTestEnv.resetTimestamp(subscription);
+        stand.cancel(modifiedSubscription, noOpObserver());
+
+        assertNoUpdates(stand, repository, callback);
+    }
+
+    private static void
+    assertNoUpdates(Stand stand,
+                    CustomerAggregateRepository repository,
+                    MemoizeSubscriptionCallback callback) {
+        var customer = generateCustomers(1).iterator()
+                                           .next();
         var customerId = customer.getId();
         var version = 1;
         var entity = aggregateOfClass(CustomerAggregate.class)
@@ -499,9 +525,13 @@ class StandTest extends TenantAwareTest {
     @DisplayName("fail if cancelling non-existent subscription")
     void notCancelNonExistent() {
         var stand = createStand();
+        var topicId = TopicId.newBuilder()
+                .setValue(Identifier.newUuid())
+                .build();
         var nonExistingSubscription = Subscription.newBuilder()
                 .setId(Subscriptions.generateId())
-                .build();
+                .setTopic(Topic.newBuilder().setId(topicId).buildPartial())
+                .buildPartial();
         assertThrows(InvalidSubscriptionException.class,
                      () -> stand.cancel(nonExistingSubscription, noOpObserver()));
     }
@@ -593,11 +623,13 @@ class StandTest extends TenantAwareTest {
 
         var actualFilter = repository.memoizedFilters();
         assertThat(actualFilter).isPresent();
-        assertThat(actualFilter.get()).isEqualTo(query.filters());
+        assertThat(actualFilter)
+              .hasValue(query.filters());
 
         var actualFormat = repository.memoizedFormat();
         assertThat(actualFormat).isPresent();
-        assertThat(actualFormat.get()).isEqualTo(query.getFormat());
+        assertThat(actualFormat)
+              .hasValue(query.getFormat());
     }
 
     @Test
@@ -684,8 +716,8 @@ class StandTest extends TenantAwareTest {
             assertEquals(INVALID_QUERY.getNumber(),
                          exception.asError()
                                   .getCode());
-            var validationError = exception.asError()
-                                           .getValidationError();
+            var validationError = AnyPacker.unpack(exception.asError().getDetails());
+            assertThat(validationError).isInstanceOf(ValidationError.class);
             assertTrue(isNotDefault(validationError));
         }
     }
@@ -729,8 +761,8 @@ class StandTest extends TenantAwareTest {
                          exception.asError()
                                   .getCode());
 
-            var validationError = exception.asError()
-                                           .getValidationError();
+            var validationError = AnyPacker.unpack(exception.asError().getDetails());
+            assertThat(validationError).isInstanceOf(ValidationError.class);
             assertTrue(isNotDefault(validationError));
         }
     }
@@ -792,20 +824,21 @@ class StandTest extends TenantAwareTest {
             verifyInvalidSubscription(invalidSubscription, exception);
         }
 
-        private void verifyInvalidSubscription(Subscription invalidSubscription,
-                                               InvalidSubscriptionException exception) {
+        private static void verifyInvalidSubscription(Subscription invalidSubscription,
+                                                      InvalidSubscriptionException exception) {
             assertEquals(invalidSubscription, exception.getRequest());
 
             assertEquals(SubscriptionValidationError.INVALID_SUBSCRIPTION.getNumber(),
                          exception.asError()
                                   .getCode());
 
-            var validationError = exception.asError().getValidationError();
+            var validationError = (ValidationError)
+                    AnyPacker.unpack(exception.asError().getDetails());
             assertTrue(isNotDefault(validationError));
         }
 
-        private void verifyUnknownSubscription(Subscription subscription,
-                                               InvalidSubscriptionException exception) {
+        private static void verifyUnknownSubscription(Subscription subscription,
+                                                      InvalidSubscriptionException exception) {
             assertEquals(subscription, exception.getRequest());
 
             assertEquals(SubscriptionValidationError.UNKNOWN_SUBSCRIPTION.getNumber(),

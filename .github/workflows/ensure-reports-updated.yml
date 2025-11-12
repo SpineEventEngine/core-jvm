@@ -1,0 +1,25 @@
+# Ensures that the license report files were modified in this PR.
+
+name: Ensure license reports updated
+
+on:
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  build:
+    name: Ensure license reports updated
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Configure the checkout of all branches, so that it is possible to run the comparison.
+          fetch-depth: 0
+          # Check out the `config` submodule to fetch the required script file.
+          submodules: true
+
+      - name: Check that both `pom.xml` and license report files are modified
+        shell: bash
+        run: chmod +x ./config/scripts/ensure-reports-updated.sh && ./config/scripts/ensure-reports-updated.sh

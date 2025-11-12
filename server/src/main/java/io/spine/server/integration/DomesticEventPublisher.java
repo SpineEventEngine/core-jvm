@@ -27,12 +27,13 @@ package io.spine.server.integration;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableSet;
-import io.spine.logging.Logging;
+import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.event.EventDispatcher;
 import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static io.spine.server.dispatch.DispatchOutcomes.publishedToRemote;
 
 /**
  * A subscriber to local {@code EventBus}, which publishes each matching domestic event to
@@ -42,7 +43,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Their set is determined by the {@linkplain ExternalEventsWanted
  * configuration messages}, received by the associated instance of {@code IntegrationBroker}.
  */
-final class DomesticEventPublisher implements EventDispatcher, Logging {
+final class DomesticEventPublisher implements EventDispatcher {
 
     private final ImmutableSet<EventClass> eventClasses;
     private final IntegrationBroker broker;
@@ -58,8 +59,9 @@ final class DomesticEventPublisher implements EventDispatcher, Logging {
     }
 
     @Override
-    public void dispatch(EventEnvelope event) {
+    public DispatchOutcome dispatch(EventEnvelope event) {
         broker.publish(event);
+        return publishedToRemote(event);
     }
 
     @Override

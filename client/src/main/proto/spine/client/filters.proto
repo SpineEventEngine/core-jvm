@@ -55,6 +55,8 @@ message Target {
 
     // The filters which are applied to the received entity state or event message.
     oneof criterion {
+        // Either `include_all` must be set to `true`, or `filters` must be specified.
+        option (choice).required = true;
 
         // The instruction to include all objects of a given type.
         bool include_all = 2;

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -24,21 +24,41 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import io.spine.internal.dependency.Grpc
-import io.spine.internal.gradle.testing.exposeTestArtifacts
+import io.spine.dependency.lib.Grpc
+import io.spine.dependency.lib.JavaX
+import io.spine.dependency.local.Logging
+import io.spine.dependency.local.Reflect
+import io.spine.dependency.local.Time
 
-val spineBaseVersion: String by extra
+plugins {
+    module
+    id("io.spine.core-jvm")
+}
 
 dependencies {
+    api(platform(Grpc.bom))
     api(Grpc.core)
     api(Grpc.stub)
     api(Grpc.protobuf)
     api(project(":core"))
+    api(Reflect.lib)
 
-    testImplementation("io.spine.tools:spine-testlib:$spineBaseVersion")
-    testImplementation(project(":testutil-client"))
-    testImplementation(project(path = ":core", configuration = "testArtifacts"))
+    // `@javax.annotation.Generated` is still being used by gRPC.
+    api(JavaX.annotations)
+
+    implementation(Grpc.inProcess)
+    // This dependency is needed for Logging contexts to work.
+    // Since we depend on gRPC, we can use the implementation of the context based on gRPC.
+    implementation(Logging.grpcContext)
+
+    testImplementation(Time.testLib)
+    testImplementation(project(":client-testlib"))
 }
-java {
-    exposeTestArtifacts()
+
+spine {
+    coreJvm {
+        grpc {
+            enabled.set(true)
+        }
+    }
 }

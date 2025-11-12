@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -54,7 +54,6 @@ public final class ProjectionClass<P extends Projection<?, ?, ?>>
         extends EntityClass<P>
         implements EventReceiverClass, SubscribingClass, StateSubscribingClass {
 
-    private static final long serialVersionUID = 0L;
     private final EventReceivingClassDelegate<P, EmptyClass, SubscriberMethod> delegate;
 
     private ProjectionClass(Class<P> cls) {
@@ -75,32 +74,32 @@ public final class ProjectionClass<P extends Projection<?, ?, ?>>
     }
 
     @Override
-    public final ImmutableSet<EventClass> events() {
+    public ImmutableSet<EventClass> events() {
         return delegate.events();
     }
 
     @Override
-    public final ImmutableSet<EventClass> domesticEvents() {
+    public ImmutableSet<EventClass> domesticEvents() {
         return delegate.domesticEvents();
     }
 
     @Override
-    public final ImmutableSet<EventClass> externalEvents() {
+    public ImmutableSet<EventClass> externalEvents() {
         return delegate.externalEvents();
     }
 
     @Override
-    public final ImmutableSet<StateClass<?>> domesticStates() {
+    public ImmutableSet<StateClass<?>> domesticStates() {
         return delegate.domesticStates();
     }
 
     @Override
-    public final ImmutableSet<StateClass<?>> externalStates() {
+    public ImmutableSet<StateClass<?>> externalStates() {
         return delegate.externalStates();
     }
 
     @Override
     public Optional<SubscriberMethod> subscriberOf(EventEnvelope event) {
-        return delegate.findHandlerOf(event);
+        return delegate.findReceptorOf(event);
     }
 }

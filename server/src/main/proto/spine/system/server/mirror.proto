@@ -64,6 +64,16 @@ message Mirror {
 
     // The aggregate type URL.
     string aggregate_type = 6 [(column) = true];
+
+    // A flag which tells whether this message was migrated to an `EntityRecord`.
+    //
+    // `Mirror` was deprecated in Spine 2.0. Now, `EntityRecord` is used to persist
+    // the aggregate's state.
+    //
+    // The presence of this flag pops out of the need to perform the migration in batches.
+    //
+    // See `io.spine.server.migration.mirror.MirrorMigration` for details.
+    bool was_migrated = 7 [(column) = true];
 }
 
 // An ID of a mirror projection.
@@ -78,9 +88,6 @@ message MirrorId {
 
 // Entity columns of the associated aggregate.
 message EntityColumns {
-
-    // TODO:2018-09-06:dmytro.dashenkov: Support entity columns.
-    // https://github.com/SpineEventEngine/core-java/issues/400
 
     map<string, google.protobuf.Any> columns = 1;
 }

@@ -130,7 +130,7 @@ class TransactionalEventPlayerTest {
             return DispatchOutcome.newBuilder()
                     .setPropagatedSignal(event.messageId())
                     .setSuccess(Success.getDefaultInstance())
-                    .vBuild();
+                    .build();
         }
 
         @Override

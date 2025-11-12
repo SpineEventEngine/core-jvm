@@ -28,8 +28,8 @@
 
 package io.spine.server.bus
 
-import com.google.common.annotations.VisibleForTesting
 import com.google.protobuf.Message
+import io.spine.annotation.VisibleForTesting
 import io.spine.base.Error
 import io.spine.base.RejectionThrowable
 import io.spine.core.Ack
@@ -42,7 +42,8 @@ import io.spine.core.Responses.rejectedBecauseOf
 import io.spine.core.Responses.statusOk
 import io.spine.core.SignalId
 import io.spine.core.Status
-import io.spine.protobuf.AnyPacker
+import io.spine.core.ack
+import io.spine.protobuf.pack
 import io.spine.server.event.reject
 
 /**
@@ -85,10 +86,8 @@ public fun Command.reject(cause: RejectionThrowable): Ack {
  * @receiver the ID of the message being processed
  */
 private fun Message.ackWithStatus(status: Status): Ack {
-    val packedId = AnyPacker.pack(this)
-    return with(Ack.newBuilder()) {
-        messageId = packedId
+    return ack {
+        messageId = this@ackWithStatus.pack()
         this.status = status
-        vBuild()
     }
 }

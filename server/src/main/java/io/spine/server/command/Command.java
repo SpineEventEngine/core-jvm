@@ -50,17 +50,17 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *     </ul>
  * </ul>
  *
- * <p>Like other message-handling methods, commanding methods are designed to be called by
+ * <p>Like other receptors, commanding methods are designed to be called by
  * the framework only. Therefore, it is recommended to declare them package-private
  * (or {@code internal} in Kotlin). It discourages developers from calling these methods directly
  * from anywhere. It is also acceptable to use {@code protected} if the declaring class inherits
  * the method from a superclass.
  *
- * <p>This level of access declares that a command handler method is a part
+ * <p>This level of access declares that a command receptor is a part
  * of the Bounded Context-level API. See the {@link io.spine.core.BoundedContext
  * BoundedContext} description on how the packages and Bounded Contexts relate.
  *
- * <h1>Command Transformation</h1>
+ * <h2>Command Transformation</h2>
  *
  * <p>Commanding methods may be used to transform an incoming command into one or more commands.
  * In this case the first method parameter must extend {@linkplain io.spine.base.CommandMessage}.
@@ -70,7 +70,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * of the same application, a run-time error will occur. This also means that an application
  * cannot have two command-handling methods that accept the same command type.
  *
- * <h2>Accepted Parameters</h2>
+ * <h3>Accepted Parameters</h3>
  *
  * <p>There are several combinations of accepted parameters for a command-transforming method.
  * The set of available parameters include
@@ -92,7 +92,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * </pre>
  * </ul>
  *
- * <h2>Returning Values</h2>
+ * <h3>Returning Values</h3>
  *
  * <p>A command-transforming method always returns an outcome. Depending on the design intention,
  * a type of outcome may vary.
@@ -136,7 +136,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * </pre>
  * </ul>
  *
- * <h2>Rejecting Commands</h2>
+ * <h3>Rejecting Commands</h3>
  *
  * <p>As a command-handling method, a command-transforming method may reject an incoming command.
  * In this case, it should declare a generated class derived from
@@ -151,14 +151,13 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * <p>Throwing {@linkplain Throwable other types} of {@code Throwable}s is not allowed in
  * the command-transforming methods.
  *
- *
- * <h1>Command Reaction</h1>
+ * <h2>Command Reaction</h2>
  *
  * <p>A commanding method may serve to emit commands in response to an incoming event. In this case
  * its first parameter must be a message of either {@link io.spine.base.EventMessage EventMessage}
  * or {@link io.spine.base.RejectionMessage RejectionMessage} type.
  *
- * <h2>Accepted Parameters</h2>
+ * <h3>Accepted Parameters</h3>
  *
  * <p>Command-reaction method must accept either
  *
@@ -202,7 +201,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * with the {@link io.spine.core.External @External} annotation. External Commands do not travel
  * this way.
  *
- * <h2>Returning Values</h2>
+ * <h3>Returning Values</h3>
  *
  * <p>A command-reacting method may emit one or more messages derived from
  * {@link io.spine.base.CommandMessage CommandMessage}. The possibilities for the return values

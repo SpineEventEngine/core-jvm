@@ -53,7 +53,7 @@ import io.spine.testing.SlowTest;
 import io.spine.testing.logging.mute.MuteLogging;
 import io.spine.testing.server.TestEventFactory;
 import io.spine.validate.Validated;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -463,7 +463,7 @@ class EventBusTest {
         var threadCount = 50;
         @Validated DonationMade eventMessage = DonationMade.newBuilder()
                 .setUsdsDonated(3.14)
-                .vBuild();
+                .build();
         var event = eventFactory.createEvent(eventMessage);
         var executor = Executors.newFixedThreadPool(threadCount);
         // Catch non-easily reproducible bugs.

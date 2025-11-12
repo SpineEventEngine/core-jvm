@@ -28,7 +28,7 @@ package io.spine.server.procman.model;
 
 import io.spine.base.RejectionMessage;
 import io.spine.server.entity.rejection.StandardRejections;
-import io.spine.server.procman.given.pm.TestProcessManager;
+import io.spine.server.procman.given.pm.LastSignalMemo;
 import io.spine.server.type.EventClass;
 import io.spine.test.procman.command.PmAddTask;
 import io.spine.test.procman.command.PmCancelIteration;
@@ -72,7 +72,7 @@ class ProcessManagerClassTest {
 
     @BeforeEach
     void createClass() {
-        processManagerClass = asProcessManagerClass(TestProcessManager.class);
+        processManagerClass = asProcessManagerClass(LastSignalMemo.class);
     }
 
     @Nested

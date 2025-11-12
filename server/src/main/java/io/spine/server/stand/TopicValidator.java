@@ -85,6 +85,6 @@ final class TopicValidator extends AbstractTargetValidator<Topic> {
     @Override
     protected String errorMessage(Topic request) {
         var targetType = getTypeOf(request.getTarget());
-        return format("The topic target type is not supported: %s", targetType.toTypeName());
+        return format("The topic target type is not supported: %s", targetType.typeName());
     }
 }

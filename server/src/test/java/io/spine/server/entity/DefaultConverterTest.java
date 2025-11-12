@@ -85,7 +85,7 @@ class DefaultConverterTest {
         var entityState = Organization.newBuilder()
                 .setName("back and forth")
                 .setId(id)
-                .vBuild();
+                .build();
         var entity = createEntity(id, entityState);
 
         var out = converter.convert(entity);

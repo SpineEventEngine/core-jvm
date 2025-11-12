@@ -27,7 +27,11 @@
 package io.spine.server.event.store;
 
 import com.google.common.collect.ImmutableList;
+import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
+import io.spine.core.Event;
+import io.spine.query.Column;
+import io.spine.query.ComparisonOperator;
 import io.spine.query.SubjectParameter;
 import io.spine.server.event.EventFilter;
 import io.spine.server.event.EventStreamQuery;
@@ -37,8 +41,12 @@ import org.junit.jupiter.api.Test;
 
 import static com.google.common.testing.NullPointerTester.Visibility.PACKAGE;
 import static com.google.common.truth.Truth.assertThat;
+import static io.spine.base.Time.currentTime;
+import static io.spine.query.ComparisonOperator.GREATER_THAN;
+import static io.spine.query.ComparisonOperator.LESS_THAN;
 import static io.spine.query.LogicalOperator.AND;
 import static io.spine.query.LogicalOperator.OR;
+import static io.spine.server.event.store.EventColumn.created;
 import static io.spine.server.event.store.Queries.convert;
 
 @DisplayName("`Queries` should")
@@ -65,9 +73,11 @@ class QueriesTest extends UtilityClassTest<Queries> {
     @Test
     @DisplayName("convert the time-constrained query to the corresponding `RecordQuery`")
     void convertTimeConstrainedQuery() {
+        var startTime = Timestamps.fromSeconds(0);
+        var endTime = currentTime();
         var query = EventStreamQuery.newBuilder()
-                .setAfter(Timestamps.MIN_VALUE)
-                .setBefore(Timestamps.MAX_VALUE)
+                .setAfter(startTime)
+                .setBefore(endTime)
                 .build();
         var result = convert(query);
         var subject = result.subject();
@@ -75,7 +85,26 @@ class QueriesTest extends UtilityClassTest<Queries> {
         assertThat(rootPredicate.children()).isEmpty();
 
         assertThat(rootPredicate.operator()).isEqualTo(AND);
-        assertThat(rootPredicate.parameters()).hasSize(2);
+        var params = rootPredicate.parameters();
+        assertThat(params).hasSize(2);
+
+        var greaterThanParam = params.get(0);
+        assertCreatedColumnQueried(greaterThanParam, GREATER_THAN, startTime);
+
+        var lessThanParam = params.get(1);
+        assertCreatedColumnQueried(lessThanParam, LESS_THAN, endTime);
+
+    }
+
+    private static void assertCreatedColumnQueried(
+            SubjectParameter<Event, ? extends Column<Event, ?>, ?> parameter,
+            ComparisonOperator operator, Timestamp value) {
+        assertThat(parameter.operator())
+                .isEqualTo(operator);
+        assertThat(parameter.column().name())
+                .isEqualTo(created.name());
+        assertThat(parameter.value())
+                .isEqualTo(value);
     }
 
     @Test

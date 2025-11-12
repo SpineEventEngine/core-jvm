@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -27,13 +27,15 @@
 package io.spine.server.tuple;
 
 import com.google.protobuf.Empty;
-import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.Message;
 import io.spine.base.EventMessage;
+import io.spine.server.event.NoReaction;
+import io.spine.server.model.Nothing;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.Optional;
@@ -50,24 +52,32 @@ import static io.spine.util.Preconditions2.checkNotDefaultArg;
  */
 final class Element implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 0L;
 
     private Object value;
     private Type type;
 
     /**
-     * Creates a tuple element with a value which can be {@link GeneratedMessageV3},
+     * Creates a tuple element with a value which can be {@link Message},
      * {@link Optional}, or {@link Either}.
      */
-    @SuppressWarnings("ChainOfInstanceofChecks")
+    @SuppressWarnings({
+            "ChainOfInstanceofChecks",
+            "deprecation" /* Keep using `Nothing` for backward compatibility. */
+    })
     Element(Object value) {
         if (value instanceof Either) {
             this.type = Type.EITHER;
         } else if (value instanceof Optional) {
             this.type = Type.OPTIONAL;
-        } else if (value instanceof GeneratedMessageV3) {
-            var messageV3 = (GeneratedMessageV3) value;
-            checkNotDefault(messageV3);
+        } else if (value instanceof Message message) {
+            // Treat `Nothing` (deprecated) and `NoReaction` as a special case,
+            // allowing its default instance so that `Just<NoReaction>` is possible.
+            var noReaction = value instanceof Nothing || value instanceof NoReaction;
+            if (!noReaction) {
+                checkNotDefault(message);
+            }
             this.type = Type.MESSAGE;
         } else {
             throw newIllegalArgumentException(
@@ -124,6 +134,7 @@ final class Element implements Serializable {
         throw newIllegalStateException("Unsupported element type encountered: `%s`.", this.type);
     }
 
+    @Serial
     private void writeObject(ObjectOutputStream out) throws IOException {
         out.writeObject(type);
         final Serializable obj;
@@ -137,6 +148,7 @@ final class Element implements Serializable {
         out.writeObject(obj);
     }
 
+    @Serial
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         type = (Type) in.readObject();
         if (type == Type.OPTIONAL) {

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -37,10 +37,9 @@ import io.spine.server.type.CommandEnvelope;
 import java.lang.reflect.Method;
 
 /**
- * A signature of {@link io.spine.server.command.model.CommandSubstituteMethod
- * CommandSubstituteMethod}.
+ * A signature of {@link CommandSubstituter}.
  */
-public class CommandSubstituteSignature extends CommandAcceptingSignature<CommandSubstituteMethod> {
+public class CommandSubstituteSignature extends CommandAcceptingSignature<CommandSubstituter> {
 
     private static final ReturnTypes TYPES = new ReturnTypes(
             TypeToken.of(CommandMessage.class),
@@ -52,8 +51,8 @@ public class CommandSubstituteSignature extends CommandAcceptingSignature<Comman
     }
 
     @Override
-    public CommandSubstituteMethod create(Method method, ParameterSpec<CommandEnvelope> params) {
-        return new CommandSubstituteMethod(method, params);
+    public CommandSubstituter create(Method method, ParameterSpec<CommandEnvelope> params) {
+        return new CommandSubstituter(method, params);
     }
 
     @Override
@@ -65,11 +64,14 @@ public class CommandSubstituteSignature extends CommandAcceptingSignature<Comman
      * {@inheritDoc}
      *
      * @implNote This method distinguishes {@linkplain Command Commander} methods one from
-     * another, as they use the same annotation, but have different parameter list. It skips
-     * the methods which first parameter {@linkplain MethodParams#firstIsCommand(Method)
-     * is NOT} a {@code Command} message.
+     * another, as they use the same annotation, but have a different parameter list.
+     * It skips the methods which first parameter
+     * {@linkplain MethodParams#firstIsCommand(Method) is NOT} a {@code Command} message.
      */
-    @SuppressWarnings("UnnecessaryInheritDoc") // IDEA bug.
+    @SuppressWarnings({
+            "PMD.SimplifyBooleanReturns" /* Keep this way for better readability. */,
+            "UnnecessaryInheritDoc" /* IDEA bug. */
+    })
     @Override
     protected boolean skipMethod(Method method) {
         var parentResult = !super.skipMethod(method);

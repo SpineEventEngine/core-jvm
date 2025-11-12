@@ -36,10 +36,12 @@ import io.spine.server.storage.StorageFactory;
  */
 public final class InMemoryStorageFactory implements StorageFactory {
 
+    private boolean closed = false;
+
     /**
-     * Creates new instance of the factory which would serve the specified context.
+     * Creates a new instance of the factory which would serve the specified context.
      *
-     * @return new instance of the factory
+     * @return a new instance of the factory
      */
     public static InMemoryStorageFactory newInstance() {
         return new InMemoryStorageFactory();
@@ -50,12 +52,17 @@ public final class InMemoryStorageFactory implements StorageFactory {
 
     @Override
     public <I, M extends Message> InMemoryRecordStorage<I, M>
-    createRecordStorage(ContextSpec context, RecordSpec<I, M, ?> spec) {
+    createRecordStorage(ContextSpec context, RecordSpec<I, M> spec) {
         return new InMemoryRecordStorage<>(context, spec);
     }
 
     @Override
+    public boolean isOpen() {
+        return !closed;
+    }
+
+    @Override
     public void close() {
-        // NOP
+        closed = true;
     }
 }

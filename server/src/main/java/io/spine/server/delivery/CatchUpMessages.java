@@ -55,7 +55,7 @@ final class CatchUpMessages {
         checkNotNull(id);
         return CatchUpStarted.newBuilder()
                 .setId(id)
-                .vBuild();
+                .build();
     }
 
     /**
@@ -65,7 +65,7 @@ final class CatchUpMessages {
     static EventStreamQuery.Limit limitOf(int value) {
         return EventStreamQuery.Limit.newBuilder()
                 .setValue(value)
-                .vBuild();
+                .build();
     }
 
     /**
@@ -75,7 +75,7 @@ final class CatchUpMessages {
         checkNotNull(id);
         return HistoryEventsRecalled.newBuilder()
                 .setId(id)
-                .vBuild();
+                .build();
     }
 
     /**
@@ -85,7 +85,7 @@ final class CatchUpMessages {
         checkNotNull(id);
         return HistoryFullyRecalled.newBuilder()
                 .setId(id)
-                .vBuild();
+                .build();
     }
 
     /**
@@ -107,7 +107,7 @@ final class CatchUpMessages {
         checkNotNull(id);
         return LiveEventsPickedUp.newBuilder()
                 .setId(id)
-                .vBuild();
+                .build();
     }
 
     /**
@@ -117,7 +117,7 @@ final class CatchUpMessages {
         checkNotNull(id);
         return CatchUpCompleted.newBuilder()
                 .setId(id)
-                .vBuild();
+                .build();
     }
 
     /**
@@ -129,6 +129,6 @@ final class CatchUpMessages {
         return ShardProcessingRequested.newBuilder()
                 .setIndex(shardIndex)
                 .setProcess(id)
-                .vBuild();
+                .build();
     }
 }

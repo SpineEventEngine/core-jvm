@@ -25,14 +25,12 @@
  */
 package io.spine.server;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.common.collect.Ordering;
+import com.google.errorprone.annotations.CompileTimeConstant;
+import io.grpc.BindableService;
 import io.grpc.stub.StreamObserver;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.client.Subscription;
 import io.spine.client.SubscriptionUpdate;
 import io.spine.client.Subscriptions;
@@ -41,17 +39,23 @@ import io.spine.client.ThreadSafeObserver;
 import io.spine.client.Topic;
 import io.spine.client.grpc.SubscriptionServiceGrpc;
 import io.spine.core.Response;
-import io.spine.logging.Logging;
+import io.spine.grpc.MemoizingObserver;
+import io.spine.grpc.StreamObservers;
+import io.spine.logging.WithLogging;
+import io.spine.server.stand.SubscriptionCallback;
 import io.spine.type.TypeUrl;
+import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Consumer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.flogger.LazyArgs.lazy;
+import static com.google.common.collect.Sets.union;
 import static io.spine.grpc.StreamObservers.forwardErrorsOnly;
 import static io.spine.server.stand.SubscriptionCallback.forwardingTo;
+import static java.lang.String.format;
 
 /**
  * The {@code SubscriptionService} provides an asynchronous way to fetch read-side state
@@ -61,15 +65,20 @@ import static io.spine.server.stand.SubscriptionCallback.forwardingTo;
  */
 public final class SubscriptionService
         extends SubscriptionServiceGrpc.SubscriptionServiceImplBase
-        implements Logging {
+        implements WithLogging {
 
-    private static final Joiner LIST_JOINER = Joiner.on(", ");
+    private final TypeDictionary types;
+    private final SubscriptionImpl subscriptions;
+    private final ActivationImpl activation;
+    private final CancellationImpl cancellation;
 
-    private final ImmutableMap<TypeUrl, BoundedContext> typeToContextMap;
-
-    private SubscriptionService(ImmutableMap<TypeUrl, BoundedContext> map) {
+    @SuppressWarnings("ThisEscapedInObjectConstruction" /* To simplify the implementation. */)
+    private SubscriptionService(TypeDictionary types) {
         super();
-        this.typeToContextMap = checkNotNull(map);
+        this.types = types;
+        this.subscriptions = new SubscriptionImpl(this, types);
+        this.activation = new ActivationImpl(this, types);
+        this.cancellation = new CancellationImpl(this, types);
     }
 
     /**
@@ -84,95 +93,68 @@ public final class SubscriptionService
      */
     public static SubscriptionService withSingle(BoundedContext context) {
         checkNotNull(context);
-        var result = newBuilder().add(context).build();
+        var result = newBuilder()
+                .add(context)
+                .build();
         return result;
     }
 
-    @Override
-    public void subscribe(Topic topic, StreamObserver<Subscription> responseObserver) {
-        _debug().log("Creating the subscription to the topic: `%s`.", topic);
+    /**
+     * Executes the given consumer using a {@link ThreadSafeObserver} over the given one.
+     *
+     * @param consumer
+     *         the code to execute
+     * @param observer
+     *         an observer for handling the request
+     * @param errorMessage
+     *         the error message to be put into a log if an exception occurs when
+     *         running the consumer
+     * @param <S>
+     *         the type of objects accepted by the observers
+     */
+    private <S> void runThreadSafe(Consumer<ThreadSafeObserver<S>> consumer,
+                                   StreamObserver<S> observer,
+                                   @CompileTimeConstant final String errorMessage) {
+        var safeObserver = new ThreadSafeObserver<>(observer);
         try {
-            StreamObserver<Subscription> safeObserver = new ThreadSafeObserver<>(responseObserver);
-            subscribeTo(topic, safeObserver);
+            consumer.accept(safeObserver);
         } catch (@SuppressWarnings("OverlyBroadCatchBlock") Exception e) {
-            _error().withCause(e)
-                    .log("Error processing subscription request.");
-            responseObserver.onError(e);
+            logger().atError().withCause(e).log(() -> errorMessage);
+            safeObserver.onError(e);
         }
     }
 
-    private void subscribeTo(Topic topic, StreamObserver<Subscription> responseObserver) {
-        var target = topic.getTarget();
-        var foundContext = findContextOf(target);
-        if (foundContext.isPresent()) {
-            var stand = foundContext.get().stand();
-            stand.subscribe(topic, responseObserver);
-        } else {
-            Set<BoundedContext> contexts = ImmutableSet.copyOf(typeToContextMap.values());
-            _warn().log("Unable to find a Bounded Context for type `%s`." +
-                                " Creating a subscription in contexts: %s.",
-                        topic.getTarget().type(),
-                        LIST_JOINER.join(contexts));
-            var subscription = Subscriptions.from(topic);
-            for (var context : contexts) {
-                var stand = context.stand();
-                stand.subscribe(subscription);
-            }
-            responseObserver.onNext(subscription);
-            responseObserver.onCompleted();
-        }
+    @Override
+    public void subscribe(Topic topic, StreamObserver<Subscription> observer) {
+        logger().atDebug().log(() -> format(
+                "Creating the subscription to the topic: `%s`.", topic));
+        runThreadSafe(
+                (safeObserver) -> subscriptions.serve(topic, safeObserver, null),
+                observer, "Error processing subscription request."
+        );
     }
 
     @Override
     public void activate(Subscription subscription, StreamObserver<SubscriptionUpdate> observer) {
-        _debug().log("Activating the subscription: `%s`.", subscription);
-        StreamObserver<SubscriptionUpdate> safeObserver = new ThreadSafeObserver<>(observer);
-        try {
-            var callback = forwardingTo(safeObserver);
-            StreamObserver<Response> responseObserver = forwardErrorsOnly(safeObserver);
-            var foundContext = findContextOf(subscription);
-            if (foundContext.isPresent()) {
-                var targetStand = foundContext.get().stand();
-                targetStand.activate(subscription, callback, responseObserver);
-            } else {
-                for (var context : typeToContextMap.values()) {
-                    var stand = context.stand();
-                    stand.activate(subscription, callback, responseObserver);
-                }
-            }
-        } catch (@SuppressWarnings("OverlyBroadCatchBlock") Exception e) {
-            _error().withCause(e)
-                    .log("Error activating the subscription.");
-            safeObserver.onError(e);
-        }
+        logger().atDebug().log(() -> format("Activating the subscription: `%s`.", subscription));
+        runThreadSafe(
+                (safeObserver) -> {
+                    var callback = forwardingTo(safeObserver);
+                    StreamObserver<Response> responseObserver = forwardErrorsOnly(safeObserver);
+                    activation.serve(subscription, responseObserver, callback);
+                },
+                observer, "Error activating the subscription."
+        );
     }
 
     @Override
-    public void cancel(Subscription subscription, StreamObserver<Response> responseObserver) {
-        _debug().log("Incoming cancel request for the subscription topic: `%s`.", subscription);
-        StreamObserver<Response> safeObserver = new ThreadSafeObserver<>(responseObserver);
-        var selected = findContextOf(subscription);
-        if (selected.isEmpty()) {
-            _warn().log("Trying to cancel a subscription `%s` which could not be found.",
-                        lazy(subscription::toShortString));
-            safeObserver.onCompleted();
-            return;
-        }
-        try {
-            var context = selected.get();
-            var stand = context.stand();
-            stand.cancel(subscription, safeObserver);
-        } catch (@SuppressWarnings("OverlyBroadCatchBlock") Exception e) {
-            _error().withCause(e)
-                    .log("Error processing cancel subscription request.");
-            safeObserver.onError(e);
-        }
-    }
-
-    private Optional<BoundedContext> findContextOf(Subscription subscription) {
-        var target = subscription.getTopic().getTarget();
-        var result = findContextOf(target);
-        return result;
+    public void cancel(Subscription subscription, StreamObserver<Response> observer) {
+        logger().atDebug().log(() -> format(
+                "Incoming cancel request for the subscription topic: `%s`.", subscription));
+        runThreadSafe(
+                (safeObserver) -> cancellation.serve(subscription, safeObserver, null),
+                observer, "Error processing cancel subscription request."
+        );
     }
 
     /**
@@ -183,77 +165,197 @@ public final class SubscriptionService
      * @return the context which exposes the target type,
      *         or {@code Optional.empty} if no known context does so
      */
-    @VisibleForTesting  /* Otherwise should have been `private`. */
+    @VisibleForTesting  /* Test-only method. */
     Optional<BoundedContext> findContextOf(Target target) {
         var type = target.type();
-        var selected = typeToContextMap.get(type);
-        var result = Optional.ofNullable(selected);
+        var result = types.find(type);
         return result;
+    }
+
+    private static final class SubscriptionImpl extends ServiceDelegate<Topic, Subscription> {
+
+        private SubscriptionImpl(BindableService service, TypeDictionary types) {
+            super(service, types);
+        }
+
+        @Override
+        protected TypeUrl enclosedMessageType(Topic topic) {
+            return topic.getTarget()
+                        .type();
+        }
+
+        @Override
+        protected void serve(BoundedContext context,
+                             Topic topic,
+                             StreamObserver<Subscription> observer,
+                             @Nullable Object params) {
+            var stand = context.stand();
+            stand.subscribe(topic, observer);
+        }
+
+        /**
+         * Creates a subscription in each Bounded Context known to {@code SubscriptionService}.
+         */
+        @Override
+        protected void serveNoContext(Topic topic,
+                                      StreamObserver<Subscription> observer,
+                                      @Nullable Object params) {
+            List<BoundedContext> contexts = new ArrayList<>(contexts());
+            contexts.sort(Ordering.natural());
+            logger().atWarning().log(() -> format(
+                    "Unable to find a Bounded Context for type `%s`." +
+                            " Creating a subscription in contexts: %s.",
+                    topic.getTarget().type(),
+                    contextsAsString(contexts)));
+            var subscription = Subscriptions.from(topic);
+            for (var context : contexts) {
+                var stand = context.stand();
+                stand.subscribe(subscription);
+            }
+            observer.onNext(subscription);
+            observer.onCompleted();
+        }
+    }
+
+    private abstract static class SubscriptionDelegate
+            extends ServiceDelegate<Subscription, Response> {
+
+        SubscriptionDelegate(BindableService service, TypeDictionary types) {
+            super(service, types);
+        }
+
+        @Override
+        protected TypeUrl enclosedMessageType(Subscription subscription) {
+            return subscription.targetType();
+        }
+    }
+
+    private static final class ActivationImpl extends SubscriptionDelegate {
+
+        private ActivationImpl(BindableService service, TypeDictionary types) {
+            super(service, types);
+        }
+
+        @Override
+        protected void serve(BoundedContext context,
+                             Subscription subscription,
+                             StreamObserver<Response> observer,
+                             @Nullable Object params) {
+            var callback = (SubscriptionCallback) checkNotNull(params);
+            var stand = context.stand();
+            stand.activate(subscription, callback, observer);
+        }
+
+        @Override
+        protected void serveNoContext(Subscription subscription,
+                                      StreamObserver<Response> observer,
+                                      @Nullable Object params) {
+            contexts().forEach(context -> serve(context, subscription, observer, params));
+        }
+    }
+
+    private static final class CancellationImpl extends SubscriptionDelegate {
+
+        private CancellationImpl(BindableService service, TypeDictionary types) {
+            super(service, types);
+        }
+
+        @Override
+        protected void serve(BoundedContext context,
+                             Subscription subscription,
+                             StreamObserver<Response> observer,
+                             @Nullable Object params) {
+            var stand = context.stand();
+            stand.cancel(subscription, observer);
+        }
+
+        /**
+         * Performs the cancellation of the subscription.
+         *
+         * <p>Such a use case means that it was not possible to detect a Bounded Context
+         * serving the message targeted in the subscription. Thus, upon subscribing,
+         * the subscription
+         * {@linkplain SubscriptionImpl#serveNoContext(Topic, StreamObserver, Object) was created}
+         * in each known Bounded Context.
+         *
+         * <p>Therefore, the cancellation is also performed in each Bounded Context known
+         * to this service.
+         *
+         * @implNote The original {@code observer} is only fed with an acknowledgement once
+         *         after the subscription in cancelled in each Bounded Context.
+         *         This is because it is not possible to call {@code onCompleted()}
+         *         for several times, which would happen should we run
+         *         the original {@code observer} through a default cancellation procedure.
+         */
+        @Override
+        protected void serveNoContext(Subscription subscription,
+                                      StreamObserver<Response> observer,
+                                      @Nullable Object params) {
+            var contexts = contexts();
+            logger().atWarning().log(() -> format(
+                    "Trying to cancel a subscription `%s` which could not be found. " +
+                            "Cancelling it in all known contexts, where it may reside: %s.",
+                    subscription.toShortString(),
+                    contextsAsString(contexts))
+            );
+            var gatheringObserver = StreamObservers.<Response>memoizingObserver();
+            for (var context : contexts) {
+                if(context.stand().hasSubscription(subscription.getId())) {
+                    serve(context, subscription, gatheringObserver, params);
+                }
+            }
+            summarizeResponses(gatheringObserver, observer);
+            observer.onCompleted();
+        }
+
+        private static void
+        summarizeResponses(MemoizingObserver<Response> summarizer,
+                           StreamObserver<Response> destination) {
+            var observedError = summarizer.getError();
+            if(observedError != null) {
+                destination.onError(observedError);
+                return;
+            }
+            var responses = summarizer.responses();
+            if(!responses.isEmpty()) {
+                var response = responses.get(0);
+                destination.onNext(response);
+            }
+        }
+    }
+
+    private static String contextsAsString(Iterable<BoundedContext> contexts) {
+        return Joiner.on(", ")
+                     .join(contexts);
     }
 
     /**
      * The builder for the {@link SubscriptionService}.
      */
-    public static class Builder {
-        private final Set<BoundedContext> contexts = Sets.newHashSet();
-
-        /**
-         * Adds the context to be handled by the subscription service.
-         */
-        @CanIgnoreReturnValue
-        public Builder add(BoundedContext context) {
-            // Save it to a temporary set so that it is easy to remove it if needed.
-            contexts.add(context);
-            return this;
-        }
-
-        /**
-         * Removes the context from being handled by the subscription service.
-         */
-        @CanIgnoreReturnValue
-        public Builder remove(BoundedContext context) {
-            contexts.remove(context);
-            return this;
-        }
-
-        /**
-         * Obtains the context added to the subscription service by the time of the call.
-         */
-        public ImmutableList<BoundedContext> contexts() {
-            return ImmutableList.copyOf(contexts);
-        }
+    public static class Builder extends AbstractServiceBuilder<SubscriptionService, Builder> {
 
         /**
          * Builds the {@link SubscriptionService}.
          *
-         * @throws IllegalStateException if no Bounded Contexts were added.
+         * @throws IllegalStateException
+         *         if no Bounded Contexts were added.
          */
+        @Override
         public SubscriptionService build() throws IllegalStateException {
-            if (contexts.isEmpty()) {
-                throw new IllegalStateException(
-                        "Subscription service must have at least one Bounded Context.");
-            }
-            var map = createMap();
-            var result = new SubscriptionService(map);
+            var dictionary = TypeDictionary.newBuilder();
+            contexts().forEach(
+                    context -> dictionary.putAll(context, (c) ->
+                            union(c.stand().exposedTypes(), c.stand().exposedEventTypes())
+                    )
+            );
+            var result = new SubscriptionService(dictionary.build());
+            warnIfEmpty(result);
             return result;
         }
 
-        private ImmutableMap<TypeUrl, BoundedContext> createMap() {
-            ImmutableMap.Builder<TypeUrl, BoundedContext> builder = ImmutableMap.builder();
-            for (var context : contexts) {
-                putIntoMap(context, builder);
-            }
-            return builder.build();
-        }
-
-        private static void putIntoMap(BoundedContext context,
-                                       ImmutableMap.Builder<TypeUrl, BoundedContext> mapBuilder) {
-            var stand = context.stand();
-            Consumer<TypeUrl> putIntoMap = typeUrl -> mapBuilder.put(typeUrl, context);
-            stand.exposedTypes()
-                 .forEach(putIntoMap);
-            stand.exposedEventTypes()
-                 .forEach(putIntoMap);
+        @Override
+        Builder self() {
+            return this;
         }
     }
 }

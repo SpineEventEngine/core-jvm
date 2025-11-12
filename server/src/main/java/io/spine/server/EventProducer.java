@@ -29,6 +29,7 @@ package io.spine.server;
 import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.Any;
 import io.spine.core.Version;
+import io.spine.server.event.NoReaction;
 import io.spine.server.model.Nothing;
 import io.spine.server.type.EventClass;
 
@@ -56,15 +57,30 @@ public interface EventProducer {
     ImmutableSet<EventClass> producedEvents();
 
     /**
-     * Obtains the {@link io.spine.server.model.Nothing} event message.
+     * Obtains the {@link Nothing} event message.
      *
      * <p>This event should be returned if there is no value for the domain to produce an actual
-     * event. Note that a {@link io.spine.server.model.Nothing} event is never actually posted into
+     * event. Note that a {@link Nothing} event is never actually posted into
      * the {@link io.spine.server.event.EventBus EventBus}.
      *
-     * @return the default instance of {@link io.spine.server.model.Nothing}
+     * @return the default instance of {@link Nothing}
+     * @deprecated please use {@link #noReaction()} instead.
      */
+    @Deprecated
     default Nothing nothing() {
         return Nothing.getDefaultInstance();
+    }
+
+    /**
+     * Obtains the {@link NoReaction} event message.
+     *
+     * <p>This event should be returned if there is no value for the domain to produce an actual
+     * event. Note that a {@link NoReaction} event is never actually posted into
+     * the {@link io.spine.server.event.EventBus EventBus}.
+     *
+     * @return the default instance of {@link NoReaction}
+     */
+    default NoReaction noReaction() {
+        return NoReaction.getDefaultInstance();
     }
 }

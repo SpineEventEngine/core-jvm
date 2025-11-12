@@ -26,7 +26,6 @@
 package io.spine.core;
 
 import com.google.common.testing.NullPointerTester;
-import com.google.protobuf.Any;
 import com.google.protobuf.StringValue;
 import io.spine.base.Identifier;
 import io.spine.base.RejectionThrowable;
@@ -37,11 +36,13 @@ import io.spine.server.type.given.GivenEvent;
 import io.spine.string.Stringifiers;
 import io.spine.testing.UtilityClassTest;
 import io.spine.testing.client.TestActorRequestFactory;
+import io.spine.testing.core.given.GivenUserId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static io.spine.core.Events.nothing;
+import static io.spine.protobuf.AnyPacker.pack;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -79,7 +80,7 @@ public class EventsTest extends UtilityClassTest<Events> {
     protected void configure(NullPointerTester tester) {
         super.configure(tester);
         var defaultRejectionThrowable = EntityAlreadyArchived.newBuilder()
-                .setEntityId(Any.getDefaultInstance())
+                .setEntityId(pack(GivenUserId.newUuid()))
                 .build();
         tester.setDefault(StringValue.class, StringValue.getDefaultInstance())
               .setDefault(EventContext.class, GivenEvent.context())

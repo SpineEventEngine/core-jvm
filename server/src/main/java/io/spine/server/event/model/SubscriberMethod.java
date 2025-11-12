@@ -29,7 +29,7 @@ package io.spine.server.event.model;
 import com.google.errorprone.annotations.Immutable;
 import io.spine.base.EventMessage;
 import io.spine.server.event.EventSubscriber;
-import io.spine.server.model.AbstractHandlerMethod;
+import io.spine.server.model.AbstractReceptor;
 import io.spine.server.model.MethodParams;
 import io.spine.server.model.ParameterSpec;
 import io.spine.server.model.VoidMethod;
@@ -48,11 +48,11 @@ import java.lang.reflect.Method;
  */
 @Immutable
 public abstract class SubscriberMethod
-        extends AbstractHandlerMethod<EventSubscriber,
-                                      EventMessage,
-                                      EventClass,
-                                      EventEnvelope,
-                                      EmptyClass>
+        extends AbstractReceptor<EventSubscriber,
+                                 EventMessage,
+                                 EventClass,
+                                 EventEnvelope,
+                                 EmptyClass>
         implements VoidMethod<EventSubscriber, EventClass, EventEnvelope> {
 
 

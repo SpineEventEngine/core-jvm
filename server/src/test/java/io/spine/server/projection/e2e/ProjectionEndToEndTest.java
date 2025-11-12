@@ -1,5 +1,5 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2023, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ import io.spine.core.EventContext;
 import io.spine.core.Events;
 import io.spine.core.MessageId;
 import io.spine.core.UserId;
-import io.spine.server.BoundedContext;
+import io.spine.protobuf.TypeConverter;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.given.groups.GroupId;
@@ -42,6 +42,7 @@ import io.spine.server.given.groups.GroupName;
 import io.spine.server.given.groups.GroupNameProjection;
 import io.spine.server.given.groups.GroupProjection;
 import io.spine.server.given.organizations.Organization;
+import io.spine.server.given.organizations.OrganizationId;
 import io.spine.server.given.organizations.OrganizationProjection;
 import io.spine.server.projection.given.EntitySubscriberProjection;
 import io.spine.server.projection.given.ProjectionRepositoryTestEnv.GivenEventMessage;
@@ -64,11 +65,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@DisplayName("`Projection` should")
-class ProjectionEndToEndTest {
+@DisplayName("In end-to-end usage scenario, `Projection` should")
+@SuppressWarnings("WeakerAccess" /* Open for re-using in descendant Spine libraries.*/)
+public class ProjectionEndToEndTest {
 
     @AfterEach
-    void tearDown() {
+    protected void tearDown() {
         ServerEnvironment.instance()
                          .reset();
     }
@@ -80,26 +82,26 @@ class ProjectionEndToEndTest {
         var firstTaskAdded = GivenEventMessage.taskAdded();
         var secondTaskAdded = GivenEventMessage.taskAdded();
         var producerId = created.getProjectId();
-        var context = BlackBox.from(
-                BoundedContextBuilder.assumingTests()
-                                     .add(new EntitySubscriberProjection.Repository())
-                                     .add(new TestProjection.Repository())
-        );
-
-        context.receivesEventsProducedBy(producerId,
-                                         created,
-                                         firstTaskAdded,
-                                         secondTaskAdded);
-
-        context.assertState(
-                producerId,
-                ProjectTaskNames.newBuilder()
-                        .setProjectId(producerId)
-                        .setProjectName(created.getName())
-                        .addTaskName(firstTaskAdded.getTask().getTitle())
-                        .addTaskName(secondTaskAdded.getTask().getTitle())
-                        .build()
-        );
+        try (var context = BlackBox.singleTenantWith(
+                new EntitySubscriberProjection.Repository(),
+                new TestProjection.Repository())
+        ) {
+            context.receivesEventsProducedBy(producerId,
+                                             created,
+                                             firstTaskAdded,
+                                             secondTaskAdded);
+            context.assertState(
+                    producerId,
+                    ProjectTaskNames.newBuilder()
+                            .setProjectId(producerId)
+                            .setProjectName(created.getName())
+                            .addTaskName(firstTaskAdded.getTask()
+                                                       .getTitle())
+                            .addTaskName(secondTaskAdded.getTask()
+                                                        .getTitle())
+                            .build()
+            );
+        }
     }
 
     @Test
@@ -107,14 +109,8 @@ class ProjectionEndToEndTest {
     void receiveExternal() {
         var established = GivenEventMessage.organizationEstablished();
 
-        var sender = BlackBox.from(
-                BoundedContext.singleTenant("Organizations")
-                              .add(new OrganizationProjection.Repository())
-        );
-        var receiver = BlackBox.from(
-                BoundedContext.singleTenant("Groups")
-                .add(new GroupNameProjection.Repository())
-        );
+        var sender = BlackBox.singleTenant("Organizations", new OrganizationProjection.Repository());
+        var receiver = BlackBox.singleTenant("Groups", new GroupNameProjection.Repository());
 
         var producerId = established.getId();
         sender.receivesEventsProducedBy(producerId, established);
@@ -131,8 +127,7 @@ class ProjectionEndToEndTest {
 
     @Test
     @DisplayName("receive entity state updates along with system event context")
-    @SuppressWarnings("OverlyCoupledMethod")
-    void receiveEntityStateUpdatesAndEventContext() throws Exception {
+    void receiveEntityStateUpdatesAndEventContext() {
         var repository = new GroupProjection.Repository();
         var groups = BoundedContextBuilder.assumingTests().build();
         groups.internalAccess()
@@ -141,9 +136,10 @@ class ProjectionEndToEndTest {
         var entityId = MessageId.newBuilder()
                 .setTypeUrl(TypeUrl.of(Organization.class).value())
                 .setId(pack(organizationHead))
-                .vBuild();
+                .build();
         var organizationName = "Contributors";
         var stateBuilder = Organization.newBuilder()
+                .setId(OrganizationId.generate())
                 .setHead(organizationHead)
                 .setName(organizationName)
                 .addMember(UserId.getDefaultInstance());
@@ -161,6 +157,7 @@ class ProjectionEndToEndTest {
                 .setTimestamp(producedAt)
                 .setExternal(true)
                 .setImportContext(ActorContext.getDefaultInstance())
+                .setProducerId(TypeConverter.toAny(GivenUserId.newUuid()))
                 .build();
         var event = Event.newBuilder()
                 .setId(Events.generateId())

@@ -45,7 +45,7 @@ public final class Versions {
         return Version.newBuilder()
                       .setNumber(number)
                       .setTimestamp(timestamp)
-                      .vBuild();
+                      .build();
     }
 
     /**

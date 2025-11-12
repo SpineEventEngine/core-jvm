@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -26,32 +26,29 @@
 
 package io.spine.client;
 
-import com.google.common.flogger.FluentLogger;
+import io.spine.logging.Logger;
+import io.spine.logging.LoggingApi;
 
 /**
  * Abstract base for error handlers that write a message to the associated logger.
  *
- * <p>The handler always uses {@linkplain FluentLogger#atSevere() severe} level.
+ * <p>The handler always uses {@linkplain Logger#atError() ERROR} level.
  */
 abstract class LoggingHandler {
 
-    private final FluentLogger logger;
+    private final Logger logger;
     private final String messageFormat;
 
     /**
-     * Creates new instance of the logging handler.
+     * Creates a new instance of the logging handler.
      *  @param logger
      *         the instance of the logger to use for reporting the error
      * @param messageFormat
      *         the formatting message for an error text
      */
-    LoggingHandler(FluentLogger logger, String messageFormat) {
+    LoggingHandler(Logger logger, String messageFormat) {
         this.logger = logger;
         this.messageFormat = messageFormat;
-    }
-
-    final FluentLogger logger() {
-        return logger;
     }
 
     final String messageFormat() {
@@ -59,12 +56,12 @@ abstract class LoggingHandler {
     }
 
     /** Obtains logging API at {@code sever} level. */
-    protected final FluentLogger.Api error() {
-        return logger().atSevere();
+    protected final LoggingApi<?> error() {
+        return logger.atError();
     }
 
     /** Obtains logging API at {@code sever} level and initializes it with the passed cause. */
-    protected final FluentLogger.Api error(Throwable cause) {
+    protected final LoggingApi<?> error(Throwable cause) {
         return error().withCause(cause);
     }
 }

@@ -26,15 +26,15 @@
 
 package io.spine.server.model;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.errorprone.annotations.Immutable;
 import com.google.protobuf.Empty;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.Field;
 import io.spine.base.FieldPath;
 import io.spine.base.SignalMessage;
 import io.spine.core.Where;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -43,7 +43,7 @@ import java.util.function.Predicate;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static io.spine.server.model.AbstractHandlerMethod.firstParamType;
+import static io.spine.server.model.AbstractReceptor.firstParamType;
 import static io.spine.string.Stringifiers.fromString;
 
 /**

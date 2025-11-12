@@ -26,7 +26,6 @@
 package io.spine.core;
 
 import com.google.common.testing.NullPointerTester;
-import com.google.protobuf.Any;
 import com.google.protobuf.StringValue;
 import io.spine.base.CommandMessage;
 import io.spine.base.Identifier;
@@ -42,6 +41,7 @@ import io.spine.test.core.given.EtDoSomething;
 import io.spine.test.core.given.EtProjectCreated;
 import io.spine.testing.UtilityClassTest;
 import io.spine.testing.client.TestActorRequestFactory;
+import io.spine.testing.core.given.GivenUserId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -92,7 +92,7 @@ public class EventTest extends UtilityClassTest<Events> {
     protected void configure(NullPointerTester tester) {
         super.configure(tester);
         var defaultRejectionThrowable = EntityAlreadyArchived.newBuilder()
-                .setEntityId(Any.getDefaultInstance())
+                .setEntityId(pack(GivenUserId.newUuid()))
                 .build();
         tester.setDefault(StringValue.class, StringValue.getDefaultInstance())
               .setDefault(EventContext.class, GivenEvent.context())
@@ -162,8 +162,11 @@ public class EventTest extends UtilityClassTest<Events> {
         @DisplayName("from the previous message")
         void fromPastMessage() {
             var targetTenantId = tenantId();
+            var actorContext = ActorContext.newBuilder()
+                    .setTenantId(targetTenantId)
+                    .buildPartial();
             var origin = Origin.newBuilder()
-                    .setActorContext(ActorContext.newBuilder().setTenantId(targetTenantId))
+                    .setActorContext(actorContext)
                     .buildPartial();
             var context = contextWithoutOrigin().setPastMessage(origin)
                                                 .buildPartial();
