@@ -71,7 +71,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * one or more events. These events are used later to restore the state of the
  * aggregate.
  *
- * <h1>Creating an aggregate class</h1>
+ * <h2>Creating an aggregate class</h2>
  *
  * <p>To create a new aggregate class:
  * <ol>
@@ -84,7 +84,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  *         state types as generic parameters.
  * </ol>
  *
- * <h2>Assigning methods to handle commands</h2>
+ * <h3>Assigning methods to handle commands</h3>
  *
  * <p>Command receptors of an {@code Aggregate} are defined in
  * the same way as described in {@link AssigneeEntity}.
@@ -94,7 +94,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * the {@link io.spine.server.event.EventBus EventBus} automatically
  * by {@link AggregateRepository}.
  *
- * <h2>Adding event appliers</h2>
+ * <h3>Adding event appliers</h3>
  *
  * <p>Aggregate data is stored as a sequence of events it produces.
  * The state of the aggregate is restored by re-playing the history of
@@ -121,7 +121,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * <p>An {@code Aggregate} class must have applier methods for
  * <em>all</em> types of the events that it produces.
  *
- * <h1>Performance considerations</h1>
+ * <h2>Performance considerations</h2>
  *
  * <p>To improve performance of loading aggregates, an
  * {@link AggregateRepository} periodically stores aggregate snapshots.
@@ -370,8 +370,8 @@ public abstract class Aggregate<I,
      * the {@code events} list is of size 3, the applied events will have versions {@code 43},
      * {@code 44}, and {@code 45}.
      *
-     * <p>All the events successfully applied to the aggregate instance are
-     * {@linkplain UncommittedHistory#track(List, int) tracked} as a part of the aggregate's
+     * <p>All the events applied to the aggregate instance are
+     * {@linkplain UncommittedHistory#startTracking(int) tracked} as a part of the aggregate's
      * {@link UncommittedHistory} and later are stored.
      *
      * <p>If during the application of the events, the number of the events since the last snapshot
@@ -387,13 +387,21 @@ public abstract class Aggregate<I,
     final BatchDispatchOutcome apply(List<Event> events, int snapshotTrigger) {
         var versionSequence = new VersionSequence(version());
         var versionedEvents = versionSequence.update(events);
-        var outcome = play(versionedEvents);
+        uncommittedHistory.startTracking(snapshotTrigger);
+        var result = play(versionedEvents);
+        uncommittedHistory.stopTracking();
+        return result;
+    }
 
-        if (outcome.getSuccessful()) {
-            uncommittedHistory.track(versionedEvents, snapshotTrigger);
-        }
-
-        return outcome;
+    /**
+     * A callback telling that the event has been played on this aggregate in scope
+     * of a transaction.
+     *
+     * <p>If this event is new in the aggregate history (e.g. it's not already stored), it is
+     * recorded as a part of the aggregate's {@link UncommittedHistory}.
+     */
+    final void onAfterEventPlayed(EventEnvelope event) {
+        uncommittedHistory.track(event);
     }
 
     /**
