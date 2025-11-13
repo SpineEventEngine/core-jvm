@@ -82,6 +82,7 @@ import static io.spine.grpc.StreamObservers.ack;
  * @see <a href="https://spine.io/docs/concepts/diagrams/spine-architecture-diagram-full-screen.html">
  *     Spine Architecture Diagram</a>
  */
+@SuppressWarnings("OverlyCoupledClass")
 public class Stand implements Closeable {
 
     /**
@@ -480,7 +481,7 @@ public class Stand implements Closeable {
          * <p>This method is supposed to be called internally when building aggregating
          * {@code BoundedContext}.
          *
-         * @return new instance of Stand
+         * @return a new instance of {@code Stand}
          */
         @Internal
         public Stand build() {
