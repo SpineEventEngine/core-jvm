@@ -120,6 +120,7 @@ final class PartFactory<A extends AggregatePart<?, ?, ?, ?>> extends AbstractEnt
     }
 
     @Override
+    @SuppressWarnings("PMD.SimplifyBooleanReturns")
     public boolean equals(Object o) {
         if (this == o) {
             return true;
