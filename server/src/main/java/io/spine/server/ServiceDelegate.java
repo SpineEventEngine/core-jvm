@@ -99,7 +99,7 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
     protected abstract TypeUrl enclosedMessageType(T request);
 
     /**
-     * Handles the request by passing it to corresponding feature of
+     * Handles the request by passing it to the corresponding feature of
      * the specified bounded context.
      *
      * @param context
