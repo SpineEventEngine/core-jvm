@@ -57,9 +57,9 @@ message MessageId {
 
     // The version associated with this message.
     //
-    // If the message is an entity state, this is the version of the entity. If the message is
-    // an event, this is the `EventContext.version`. If the message is a command, the version is
-    // absent.
+    // If the message is a command, the version is absent.
+    // If the message is an event, this is the `EventContext.version`.
+    // If the message is an entity state, this is the version of the entity.
     //
     core.Version version = 3 [(required) = false, (validate) = true];
 }
