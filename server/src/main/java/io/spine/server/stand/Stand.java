@@ -296,7 +296,8 @@ public class Stand implements Closeable {
     }
 
     /**
-     * Reads all event types produced by the repositories associated with this {@code Stand}.
+     * Reads all event types produced by repositories and event producers
+     * associated with this {@code Stand}.
      *
      * @return the set of types as {@link TypeUrl} instances
      */
