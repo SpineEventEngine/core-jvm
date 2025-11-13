@@ -76,6 +76,18 @@ public class AggregateTransaction<I,
         return aggregate.invokeApplier(event);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Additionally, notifies the {@code Aggregate} instance that the event has been played.
+     */
+    @Override
+    public DispatchOutcome play(EventEnvelope event) {
+        var outcome = super.play(event);
+        entity().onAfterEventPlayed(event);
+        return outcome;
+    }
+
     @Override
     protected VersionIncrement createVersionIncrement(EventEnvelope event) {
         return VersionIncrement.fromEvent(event);
