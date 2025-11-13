@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -99,7 +99,7 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
     protected abstract TypeUrl enclosedMessageType(T request);
 
     /**
-     * Handles the request by passing it to corresponding feature of
+     * Handles the request by passing it to the corresponding feature of
      * the specified bounded context.
      *
      * @param context
@@ -136,7 +136,7 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
     }
 
     /**
-     * Handles the case of internal message enclosed into the specified request.
+     * Handles the case of an internal message enclosed into the specified request.
      *
      * <p>Default implementation reports {@link UnpublishedLanguageException} to
      * the given observer.

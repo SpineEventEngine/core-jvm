@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -37,6 +37,7 @@ import io.spine.server.MessageError;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.type.TypeName;
 
+import java.io.Serial;
 import java.util.Map;
 
 import static java.lang.String.format;
@@ -54,6 +55,7 @@ public abstract class CommandException extends RuntimeException implements Messa
      */
     public static final String ATTR_COMMAND_TYPE_NAME = "commandType";
 
+    @Serial
     private static final long serialVersionUID = 0L;
 
     private final Command command;

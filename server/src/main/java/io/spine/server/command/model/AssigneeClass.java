@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -29,6 +29,8 @@ package io.spine.server.command.model;
 import io.spine.server.command.AbstractAssignee;
 import io.spine.server.type.EventClass;
 
+import java.io.Serial;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -40,6 +42,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public final class AssigneeClass<C extends AbstractAssignee>
         extends AbstractCommandHandlingClass<C, EventClass, AssigneeReceptor> {
 
+    @Serial
     private static final long serialVersionUID = 0L;
 
     private AssigneeClass(Class<C> cls) {

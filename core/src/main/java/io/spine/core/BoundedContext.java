@@ -39,12 +39,12 @@ import java.lang.annotation.Target;
  * <p>Java does not have the notion of package nesting. Packages in Java are separated namespaces
  * which seem to have a hierarchical structure for convenience.
  *
- * <h1>Nesting Convention</h1>
+ * <h2>Nesting Convention</h2>
  * <p>This annotation assumes that nesting formed by a programmer when naming packages <em>is</em>
  * a hierarchy. Terms mentioned below assume that package “inheritance” or “hierarchy” is a
  * convention supported by this framework and is not a standard feature of Java.
  *
- * <h1>Inheriting Package Annotation</h1>
+ * <h2>Inheriting Package Annotation</h2>
  * <p>Packages which names start with the name of the annotated package “inherit” the annotation.
  * This means that these packages belong to the same Bounded Context <em>unless</em> they are
  * annotated with another Bounded Context name.

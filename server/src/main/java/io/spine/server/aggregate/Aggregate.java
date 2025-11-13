@@ -64,14 +64,14 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * Abstract base for aggregates.
  *
  * <p>An aggregate is the main building block of a business model.
- * Aggregates guarantee consistency of data modifications in response to
+ * Aggregates guarantee the consistency of data modifications in response to
  * commands they receive.
  *
  * <p>An aggregate modifies its state in response to a command and produces
  * one or more events. These events are used later to restore the state of the
  * aggregate.
  *
- * <h1>Creating an aggregate class</h1>
+ * <h2>Creating an aggregate class</h2>
  *
  * <p>To create a new aggregate class:
  * <ol>
@@ -84,7 +84,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  *         state types as generic parameters.
  * </ol>
  *
- * <h2>Assigning methods to handle commands</h2>
+ * <h3>Assigning methods to handle commands</h3>
  *
  * <p>Command receptors of an {@code Aggregate} are defined in
  * the same way as described in {@link AssigneeEntity}.
@@ -94,7 +94,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * the {@link io.spine.server.event.EventBus EventBus} automatically
  * by {@link AggregateRepository}.
  *
- * <h2>Adding event appliers</h2>
+ * <h3>Adding event appliers</h3>
  *
  * <p>Aggregate data is stored as a sequence of events it produces.
  * The state of the aggregate is restored by re-playing the history of
@@ -121,7 +121,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * <p>An {@code Aggregate} class must have applier methods for
  * <em>all</em> types of the events that it produces.
  *
- * <h1>Performance considerations</h1>
+ * <h2>Performance considerations</h2>
  *
  * <p>To improve performance of loading aggregates, an
  * {@link AggregateRepository} periodically stores aggregate snapshots.
@@ -286,7 +286,7 @@ public abstract class Aggregate<I,
      *
      * @param event
      *         the envelope with the event to dispatch
-     * @return a list of event messages that the aggregate produces in reaction to the event or
+     * @return a list of event messages that the aggregate produces in reaction to the event, or
      *         an empty list if the aggregate state does not change because of the event
      */
     DispatchOutcome reactOn(EventEnvelope event) {

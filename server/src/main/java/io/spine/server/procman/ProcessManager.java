@@ -144,7 +144,7 @@ public abstract class ProcessManager<I,
      * of the specified type.
      *
      * @param type the entity state type
-     * @return a new instance of QueryingClient
+     * @return a new instance of {@code QueryingClient}
      * @param <P> the type of the entity state
      */
     @Override

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -89,7 +89,7 @@ public final class CommandBus
     private final DeadCommandHandler deadCommandHandler = new DeadCommandHandler();
 
     /**
-     * Tha validator for the commands posted into this bus.
+     * The validator for the commands posted into this bus.
      *
      * <p>The value is effectively final, though should be initialized lazily.
      *
@@ -111,7 +111,7 @@ public final class CommandBus
     private StreamObserver<Ack> immediateRejectionObserver = noOpObserver();
 
     /**
-     * Creates new instance according to the passed {@link Builder}.
+     * Creates a new instance according to the passed {@link Builder}.
      */
     private CommandBus(Builder builder) {
         super(builder);
@@ -137,10 +137,10 @@ public final class CommandBus
     }
 
     /**
-     * Initializes the {@link #immediateRejectionObserver} with the passed {@link EventBus}.
+     * Initializes the {@link #immediateRejectionObserver} with the given {@link EventBus}.
      *
-     * <p>This enables posting of rejections received from command filters to the corresponding
-     * {@link EventBus}.
+     * <p>This enables posting of rejections received from command filters
+     * to the associated {@link EventBus}.
      *
      * <p>This method is called by the {@link io.spine.server.BoundedContext BoundedContext} and is
      * a part of context initialization process.
@@ -178,7 +178,7 @@ public final class CommandBus
      *
      * <p>Wraps the {@code source} observer with the {@link CommandAckMonitor}.
      *
-     * @return new instance of {@link CommandAckMonitor} with the given parameters
+     * @return a new instance of {@link CommandAckMonitor} with the given parameters
      */
     @Override
     protected StreamObserver<Ack> prepareObserver(Iterable<Command> commands,
@@ -205,7 +205,7 @@ public final class CommandBus
                : TenantId.getDefaultInstance();
     }
 
-    SystemWriteSide systemFor(TenantId tenantId) {
+    private SystemWriteSide systemFor(TenantId tenantId) {
         checkNotNull(tenantId);
         var result = delegatingTo(systemWriteSide).get(tenantId);
         return result;

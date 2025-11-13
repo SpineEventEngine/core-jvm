@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -34,6 +34,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import java.lang.reflect.Constructor;
 import java.util.Objects;
+import java.io.Serial;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -45,6 +46,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public abstract class AbstractEntityFactory<E extends Entity<?, ?>> implements EntityFactory<E>  {
 
+    @Serial
     private static final long serialVersionUID = 0L;
 
     /** The class of entities this factory creates. */

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -31,6 +31,7 @@ import com.google.protobuf.Message;
 import io.spine.client.CompositeFilter.CompositeOperator;
 import io.spine.value.ValueHolder;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
@@ -49,6 +50,7 @@ abstract class TypedCompositeFilter<M extends Message>
         extends ValueHolder<CompositeFilter>
         implements CompositeMessageFilter<M> {
 
+    @Serial
     private static final long serialVersionUID = 0L;
 
     private final ImmutableList<MessageFilter<M>> filters;

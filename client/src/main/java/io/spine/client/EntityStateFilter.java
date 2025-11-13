@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -30,6 +30,8 @@ import io.spine.base.EntityState;
 import io.spine.client.Filter.Operator;
 import io.spine.query.EntityStateField;
 
+import java.io.Serial;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.client.Filter.Operator.EQUAL;
 import static io.spine.client.Filter.Operator.GREATER_OR_EQUAL;
@@ -44,6 +46,7 @@ import static io.spine.client.Filters.createFilter;
  */
 public final class EntityStateFilter extends TypedFilter<EntityState<?>> {
 
+    @Serial
     private static final long serialVersionUID = 0L;
 
     private EntityStateFilter(EntityStateField field, Object expected, Operator operator) {

@@ -24,40 +24,38 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.server.delivery;
+package io.spine.server
 
-import io.spine.annotation.Internal;
-import io.spine.string.Stringifiers;
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import io.spine.core.Status.StatusCase.ERROR
+import io.spine.protobuf.isNotDefault
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
 
-import java.io.Serial;
+@DisplayName("`CommandService` in a single-tenant context should")
+internal class CommandServiceSingleTenancySpec : CommandServiceTenancyTest() {
 
-import static java.lang.String.format;
-
-/**
- * Thrown if there is an attempt to mark a message put to {@code Inbox} with a label, which was
- * not added for the {@code Inbox} instance.
- */
-@Internal
-public class LabelNotFoundException extends RuntimeException {
-
-    @Serial
-    private static final long serialVersionUID = 1L;
-
-    private final InboxLabel label;
-    private final InboxId inboxId;
-
-    /**
-     * Creates an instance for the given {@code Inbox} ID and the label.
-     */
-    LabelNotFoundException(InboxId id, InboxLabel label) {
-        super();
-        this.label = label;
-        this.inboxId = id;
+    override fun createContext(): BoundedContext {
+        val ctx = BoundedContext.singleTenant("Projects").build()
+        ctx.register(Given.ProjectAggregateRepository())
+        return ctx
     }
 
-    @Override
-    public String getMessage() {
-        return format("Inbox %s has no available label %s",
-                      Stringifiers.toString(inboxId), label);
+    @Test
+    fun `return ERROR for a command with 'TenantId'`() {
+        // Creates a command with `TenantId`.
+        val command = Given.ACommand.createProject()
+
+        service.post(command, responseObserver)
+
+        responseObserver.isCompleted shouldBe true
+
+        val result = responseObserver.firstResponse()
+
+        result shouldNotBe null
+
+        result.isNotDefault() shouldBe true
+        result.status.statusCase shouldBe ERROR
     }
 }

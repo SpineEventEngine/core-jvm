@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -67,11 +67,12 @@ class CommandServiceTest {
     private BoundedContext projectsContext;
 
     private BoundedContext customersContext;
-    private final MemoizingObserver<Ack> responseObserver = memoizingObserver();
+    private MemoizingObserver<Ack> responseObserver;
 
     @BeforeEach
     void setUp() {
         ModelTests.dropAllModels();
+        responseObserver = memoizingObserver();
         // Create Projects Bounded Context with one repository.
         projectsContext = BoundedContext.multitenant("Projects").build();
         var projectRepo = new Given.ProjectAggregateRepository();
@@ -93,7 +94,7 @@ class CommandServiceTest {
     }
 
     @AfterEach
-    void tearDown() throws Exception {
+    void tearDown() {
         for (var boundedContext : boundedContexts) {
             boundedContext.close();
         }

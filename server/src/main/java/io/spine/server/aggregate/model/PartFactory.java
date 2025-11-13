@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -31,6 +31,7 @@ import io.spine.server.aggregate.AggregateRoot;
 import io.spine.server.entity.model.AbstractEntityFactory;
 import io.spine.server.model.ModelError;
 
+import java.io.Serial;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
@@ -46,6 +47,7 @@ import static java.lang.String.format;
  */
 final class PartFactory<A extends AggregatePart<?, ?, ?, ?>> extends AbstractEntityFactory<A> {
 
+    @Serial
     private static final long serialVersionUID = 0L;
 
     private final Class<? extends AggregateRoot<?>> rootClass;
@@ -118,17 +120,17 @@ final class PartFactory<A extends AggregatePart<?, ?, ?, ?>> extends AbstractEnt
     }
 
     @Override
+    @SuppressWarnings("PMD.SimplifyBooleanReturns")
     public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof PartFactory)) {
+        if (!(o instanceof PartFactory<?> factory)) {
             return false;
         }
         if (!super.equals(o)) {
             return false;
         }
-        PartFactory<?> factory = (PartFactory<?>) o;
         return rootClass.equals(factory.rootClass);
     }
 

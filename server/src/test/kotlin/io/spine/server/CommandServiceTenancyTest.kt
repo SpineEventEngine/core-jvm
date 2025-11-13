@@ -24,40 +24,31 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.server.delivery;
+package io.spine.server
 
-import io.spine.annotation.Internal;
-import io.spine.string.Stringifiers;
-
-import java.io.Serial;
-
-import static java.lang.String.format;
+import io.spine.core.Ack
+import io.spine.grpc.MemoizingObserver
+import io.spine.grpc.StreamObservers.memoizingObserver
+import io.spine.testing.server.model.ModelTests
+import org.junit.jupiter.api.BeforeEach
 
 /**
- * Thrown if there is an attempt to mark a message put to {@code Inbox} with a label, which was
- * not added for the {@code Inbox} instance.
+ * The abstract base for test suites checking how [CommandService] work
+ * with single- and multi-tenant contexts.
  */
-@Internal
-public class LabelNotFoundException extends RuntimeException {
+abstract class CommandServiceTenancyTest {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
+    protected lateinit var context: BoundedContext
+    protected lateinit var service: CommandService
+    protected lateinit var responseObserver: MemoizingObserver<Ack>
 
-    private final InboxLabel label;
-    private final InboxId inboxId;
+    protected abstract fun createContext(): BoundedContext
 
-    /**
-     * Creates an instance for the given {@code Inbox} ID and the label.
-     */
-    LabelNotFoundException(InboxId id, InboxLabel label) {
-        super();
-        this.label = label;
-        this.inboxId = id;
-    }
-
-    @Override
-    public String getMessage() {
-        return format("Inbox %s has no available label %s",
-                      Stringifiers.toString(inboxId), label);
+    @BeforeEach
+    fun setup() {
+        ModelTests.dropAllModels()
+        responseObserver = memoizingObserver()
+        context = createContext()
+        service = CommandService.withSingle(context)
     }
 }
