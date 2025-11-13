@@ -67,11 +67,12 @@ class CommandServiceTest {
     private BoundedContext projectsContext;
 
     private BoundedContext customersContext;
-    private final MemoizingObserver<Ack> responseObserver = memoizingObserver();
+    private MemoizingObserver<Ack> responseObserver;
 
     @BeforeEach
     void setUp() {
         ModelTests.dropAllModels();
+        responseObserver = memoizingObserver();
         // Create Projects Bounded Context with one repository.
         projectsContext = BoundedContext.multitenant("Projects").build();
         var projectRepo = new Given.ProjectAggregateRepository();
