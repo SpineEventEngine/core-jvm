@@ -61,7 +61,7 @@ final class TenantSubscriptionRegistry implements SubscriptionRegistry {
     @Override
     public void activate(Subscription subscription, SubscriptionCallback callback) {
         lockAndRun(() -> {
-            @Nullable Subscription knownSubscription = asKnownSubscription(subscription);
+            var knownSubscription = asKnownSubscription(subscription);
             requireNonNull(knownSubscription,
                            () -> format(
                                    "Cannot find the subscription with ID `%s` in the registry.",
@@ -93,7 +93,7 @@ final class TenantSubscriptionRegistry implements SubscriptionRegistry {
     @Override
     public void remove(Subscription subscription) {
         lockAndRun(() -> {
-            @Nullable Subscription toRemove = asKnownSubscription(subscription);
+            var toRemove = asKnownSubscription(subscription);
             if (toRemove == null) {
                 return;
             }
@@ -122,7 +122,7 @@ final class TenantSubscriptionRegistry implements SubscriptionRegistry {
         if(subscriptionToAttrs.containsKey(subscription)) {
             return subscription;
         }
-        @Nullable Subscription foundById = findById(subscription.getId());
+        var foundById = findById(subscription.getId());
         return foundById;
     }
 
@@ -149,7 +149,7 @@ final class TenantSubscriptionRegistry implements SubscriptionRegistry {
 
     @Override
     public boolean containsId(SubscriptionId subscriptionId) {
-        @Nullable Subscription found = findById(subscriptionId);
+        var found = findById(subscriptionId);
         return found != null;
     }
 
