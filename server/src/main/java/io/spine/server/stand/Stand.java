@@ -54,6 +54,7 @@ import io.spine.server.tenant.TenantAwareOperation;
 import io.spine.server.type.EventEnvelope;
 import io.spine.system.server.event.EntityStateChanged;
 import io.spine.type.TypeUrl;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
@@ -427,10 +428,10 @@ public class Stand implements Closeable {
         private final TypeRegistry typeRegistry = InMemoryTypeRegistry.newInstance();
         private final EventRegistry eventRegistry = InMemoryEventRegistry.newInstance();
 
-        private SubscriptionRegistry subscriptionRegistry;
-        private TopicValidator topicValidator;
-        private QueryValidator queryValidator;
-        private SubscriptionValidator subscriptionValidator;
+        private @MonotonicNonNull SubscriptionRegistry subscriptionRegistry;
+        private @MonotonicNonNull TopicValidator topicValidator;
+        private @MonotonicNonNull QueryValidator queryValidator;
+        private @MonotonicNonNull SubscriptionValidator subscriptionValidator;
 
         @CanIgnoreReturnValue
         @Internal
