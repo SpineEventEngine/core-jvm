@@ -62,7 +62,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * Dispatches incoming events to subscribers and provides ways for registering those subscribers.
  *
- * <h1>Receiving Events</h1>
+ * <h2>Receiving Events</h2>
  *
  * <p>To receive event messages, a subscriber object should:
  * <ol>
@@ -79,7 +79,7 @@ import static java.util.Objects.requireNonNull;
  * the first parameter. It must be an <strong>exact type</strong> of the event message
  * that needs to be handled.
  *
- * <h1>Posting Events</h1>
+ * <h2>Posting Events</h2>
  *
  * <p>Events are posted to an EventBus using {@link #post(Signal, StreamObserver)} method.
  * Normally this is done by an

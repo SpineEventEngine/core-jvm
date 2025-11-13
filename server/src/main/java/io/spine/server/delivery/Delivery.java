@@ -66,9 +66,9 @@ import static java.util.Collections.synchronizedList;
  * {@link #newInbox(TypeUrl) Inbox}es of each target entity. The respective {@code Inbox} instances
  * should be created in each of {@code Entity} repositories.
  *
- * <h1>Configuration</h1>
+ * <h2>Configuration</h2>
  *
- * <h2>Delivery Strategy</h2>
+ * <h3>Delivery Strategy</h3>
  *
  * <p>By default, a shard is assigned according to the identifier of the target entity. The
  * messages heading to a single entity will always reside in a single shard. However,
@@ -82,7 +82,7 @@ import static java.util.Collections.synchronizedList;
  * the eventual consistency lag between {@code C} side (i.e. aggregate state updates)
  * and {@code Q} side (i.e. the respective updates in projections).
  *
- * <h2>Deduplication</h2>
+ * <h3>Deduplication</h3>
  *
  * <p>As long as the underlying storage and transport mechanisms are restricted by the CAP theorem,
  * there may be duplicates in the messages written, read or dispatched. The {@code Delivery}
@@ -94,7 +94,7 @@ import static java.util.Collections.synchronizedList;
  * to their targets. The duplicates will be detected among the messages, which are not older, than
  * {@code now - [deduplication window]}.
  *
- * <h2>Customizing {@code InboxStorage}</h2>
+ * <h3>Customizing {@code InboxStorage}</h3>
  *
  * <p>{@code Delivery} is responsible for providing the {@link InboxStorage} for every inbox
  * registered. Framework users may {@linkplain DeliveryBuilder#setInboxStorage(InboxStorage)
@@ -104,7 +104,7 @@ import static java.util.Collections.synchronizedList;
  * served by the {@code Delivery}, the {@code InboxStorage} should be configured
  * to support the multi-tenancy.
  *
- * <h2>Catch-up</h2>
+ * <h3>Catch-up</h3>
  *
  * <p>In addition to delivering the messages sent in a real-time, {@code Delivery} dispatches
  * the historical events sent to the catching-up projections. These events are dispatched through
@@ -124,7 +124,7 @@ import static java.util.Collections.synchronizedList;
  * as multi-tenant if at least one {@code BoundedContext} served by the {@code Delivery}
  * is multi-tenant.
  *
- * <h2>Observers</h2>
+ * <h3>Observers</h3>
  *
  * <p>Once a message is written to the {@code Inbox},
  * the {@linkplain Delivery#subscribe(ShardObserver) pre-configured shard observers} are
@@ -134,16 +134,16 @@ import static java.util.Collections.synchronizedList;
  * environment a message queue may be used to notify the node cluster of a shard that has some
  * messages pending for the delivery.
  *
- * <h2>Work registry</h2>
+ * <h3>Work registry</h3>
  *
  * <p>Once an application node picks the shard to deliver the messages from it, it registers itself
  * in a {@link ShardedWorkRegistry}. It serves as a list of locks-per-shard that only allows
  * to pick a shard to a single node at a time. The framework users may configure the implementation
  * of the registry by calling {@link DeliveryBuilder#setWorkRegistry(ShardedWorkRegistry)}.
  *
- * <h2>Dispatching messages</h2>
+ * <h3>Dispatching messages</h3>
  *
- * <h3>Delivery stages</h3>
+ * <h4>Delivery stages</h4>
  *
  * <p>The delivery process for each shard index is split into {@link DeliveryStage}s. In scope of
  * each stage, a certain number of messages is read from the respective shard of the {@code Inbox}.
@@ -155,7 +155,7 @@ import static java.util.Collections.synchronizedList;
  * {@link DeliveryBuilder#setMonitor(DeliveryMonitor) supplying} a custom delivery monitor.
  * Please refer to the {@link DeliveryMonitor documentation} for the details.
  *
- * <h3>Conveyor and stations</h3>
+ * <h4>Conveyor and stations</h4>
  *
  * <p>In a scope of {@code DeliveryStage} the page of the {@code InboxMessage}s is placed
  * to the {@link Conveyor} responsible for tracking the status of each message.
@@ -201,7 +201,7 @@ import static java.util.Collections.synchronizedList;
  * delivered messages}. Each instance of the {@code Conveyor} has an access to it and uses it
  * in deduplication procedures.
  *
- * <h2>Local environment</h2>
+ * <h3>Local environment</h3>
  *
  * <p>By default, the delivery is configured to {@linkplain Delivery#local() run locally}. It
  * uses {@linkplain LocalDispatchingObserver see-and-dispatch observer}, which delivers the
@@ -214,7 +214,7 @@ import static java.util.Collections.synchronizedList;
  * {@code synchronized} in-memory data structures and prevents several threads from picking up the
  * same shard.
  *
- * <h2>Shard maintenance</h2>
+ * <h3>Shard maintenance</h3>
  *
  * <p>To perform the maintenance procedures, the {@code Delivery} requires all the {@code
  * BoundedContext}s to register themselves in it. Upon this registration, a special

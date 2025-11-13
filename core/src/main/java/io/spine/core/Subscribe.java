@@ -37,7 +37,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * Marks a method as a subscriber for the output of a command such as events,
  * rejections, or entity state updates.
  *
- * <h1>Subscribing to Events</h1>
+ * <h2>Subscribing to Events</h2>
  *
  * <p>An event subscriber method:
  * <ul>
@@ -49,7 +49,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *          as the second parameter.
  * </ul>
  *
- * <h1>Subscribing to Rejections</h1>
+ * <h2>Subscribing to Rejections</h2>
  *
  * <p>A rejection subscriber method:
  * <ul>
@@ -78,7 +78,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *         is received by the subscriber.
  * </ul>
  *
- * <h1>Subscribing to Entity State Updates</h1>
+ * <h2>Subscribing to Entity State Updates</h2>
  *
  * <p>An entity state subscriber method:
  * <ul>

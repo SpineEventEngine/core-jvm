@@ -67,14 +67,14 @@ public interface TypeMatcher extends Predicate<Class<?>> {
     /**
      * Tells whether the {@code actual} type matches the {@code expected}.
      *
-     * <h1>Use Cases</h1>
+     * <h2>Use Cases</h2>
      *
-     * <h2>Legend</h2>
+     * <h3>Legend</h3>
      *
      * <p>Examples below refer to the types for simplicity;
      * in fact, the respective {@code TypeToken}s for the types are passed into the method.
      *
-     * <h2>Rules</h2>
+     * <h3>Rules</h3>
      *
      * <ul>
      *      <li> The same types always match;
