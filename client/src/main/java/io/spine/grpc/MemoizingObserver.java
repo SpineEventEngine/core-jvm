@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -48,7 +48,7 @@ public class MemoizingObserver<T> implements StreamObserver<T> {
     private boolean completed = false;
 
     /**
-     * Creates new empty instance.
+     * Creates a new empty instance.
      */
     public MemoizingObserver() {
     }
@@ -78,7 +78,7 @@ public class MemoizingObserver<T> implements StreamObserver<T> {
     public T firstResponse() {
         var noResponses = responses.isEmpty();
         if (noResponses) {
-            throw new IllegalStateException("No responses have been received yet");
+            throw new IllegalStateException("No responses have been received yet.");
         }
         return responses.get(0);
     }
@@ -86,14 +86,14 @@ public class MemoizingObserver<T> implements StreamObserver<T> {
     /**
      * Returns all the responses received so far.
      *
-     * @return all objects received by this {@code StreamObserver}
+     * @return a mutable list with all responses received by this {@code StreamObserver}
      */
     public List<T> responses() {
         return newArrayList(responses);
     }
 
     /**
-     * Allows to understand whether the response has been completed.
+     * Tells if the response has been completed.
      *
      * @return {@code true} if the response has been completed, {@code false} otherwise
      */
