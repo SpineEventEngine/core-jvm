@@ -33,7 +33,7 @@ import io.spine.protobuf.isNotDefault
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
-@DisplayName("`CommandService` in a single-tenant context should")
+@DisplayName("`CommandService` in a multi-tenant context should")
 class CommandServiceMultiTenancySpec : CommandServiceTenancyTest() {
 
     override fun createContext(): BoundedContext {
