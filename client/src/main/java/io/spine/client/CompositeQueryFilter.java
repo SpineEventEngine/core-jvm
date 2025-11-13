@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -29,6 +29,7 @@ package io.spine.client;
 import io.spine.base.EntityState;
 import io.spine.client.CompositeFilter.CompositeOperator;
 
+import java.io.Serial;
 import java.util.Collection;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -46,6 +47,7 @@ import static io.spine.client.CompositeFilter.CompositeOperator.EITHER;
 @Deprecated
 public final class CompositeQueryFilter extends TypedCompositeFilter<EntityState<?>> {
 
+    @Serial
     private static final long serialVersionUID = 0L;
 
     private CompositeQueryFilter(Collection<QueryFilter> filters, CompositeOperator operator) {

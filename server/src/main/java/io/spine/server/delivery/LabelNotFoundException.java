@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -29,6 +29,8 @@ package io.spine.server.delivery;
 import io.spine.annotation.Internal;
 import io.spine.string.Stringifiers;
 
+import java.io.Serial;
+
 import static java.lang.String.format;
 
 /**
@@ -38,6 +40,7 @@ import static java.lang.String.format;
 @Internal
 public class LabelNotFoundException extends RuntimeException {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private final InboxLabel label;

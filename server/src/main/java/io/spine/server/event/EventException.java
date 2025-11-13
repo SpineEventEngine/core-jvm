@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -34,6 +34,7 @@ import io.spine.base.EventMessage;
 import io.spine.server.MessageError;
 import io.spine.type.TypeName;
 
+import java.io.Serial;
 import java.util.Map;
 
 /**
@@ -41,6 +42,7 @@ import java.util.Map;
  */
 public abstract class EventException extends RuntimeException implements MessageError {
 
+    @Serial
     private static final long serialVersionUID = 0L;
 
     public static final String ATTR_EVENT_TYPE_NAME = "eventType";
