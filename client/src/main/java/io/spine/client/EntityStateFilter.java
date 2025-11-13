@@ -46,6 +46,7 @@ import static io.spine.client.Filters.createFilter;
  */
 public final class EntityStateFilter extends TypedFilter<EntityState<?>> {
 
+    @Serial
     private static final long serialVersionUID = 0L;
 
     private EntityStateFilter(EntityStateField field, Object expected, Operator operator) {

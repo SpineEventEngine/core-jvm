@@ -55,6 +55,7 @@ import static java.lang.String.format;
  */
 public class InvalidCommandException extends CommandException implements MessageInvalid {
 
+    @Serial
     private static final long serialVersionUID = 0L;
 
     private static final String MSG_VALIDATION_ERROR = "Command message does not match " +

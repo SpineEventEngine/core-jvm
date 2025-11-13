@@ -50,6 +50,7 @@ import static io.spine.client.Filters.createFilter;
 @Deprecated
 public final class QueryFilter extends TypedFilter<EntityState<?>> {
 
+    @Serial
     private static final long serialVersionUID = 0L;
 
     private QueryFilter(EntityColumn<?, ?> column, Object expected, Operator operator) {
