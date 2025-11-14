@@ -34,6 +34,7 @@ import io.spine.server.given.environment.Local;
 import io.spine.server.storage.StorageFactory;
 import io.spine.server.storage.memory.InMemoryStorageFactory;
 import io.spine.server.storage.system.given.MemoizingStorageFactory;
+import io.spine.testing.TestValues;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -53,6 +54,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.util.concurrent.Uninterruptibles.awaitUninterruptibly;
 import static com.google.common.util.concurrent.Uninterruptibles.sleepUninterruptibly;
 import static io.spine.testing.Assertions.assertNpe;
+import static io.spine.testing.TestValues.nullRef;
 import static io.spine.util.Exceptions.illegalStateWithCauseOf;
 import static java.util.UUID.randomUUID;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -64,6 +66,13 @@ class EnvSettingTest {
     @Nested
     @DisplayName("not allow to configure a `null` value ")
     class NoNulls {
+
+        @Test
+        @DisplayName("when using a ctor to define the fallback value")
+        void forCtor() {
+            assertNpe(() -> new EnvSetting<StorageFactory>(nullRef(), TestValues::nullRef));
+            assertNpe(() -> new EnvSetting<StorageFactory>(DefaultMode.class, nullRef()));
+        }
 
         @Test
         @DisplayName("for the `DefaultMode` environment")

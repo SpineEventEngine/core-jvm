@@ -119,6 +119,8 @@ public final class EnvSetting<V> {
      *         the supplier of a default value for the passed environment type
      */
     public EnvSetting(Class<? extends EnvironmentType<?>> type, Supplier<V> fallback) {
+        checkNotNull(type);
+        checkNotNull(fallback);
         this.fallbacks.put(type, fallback);
     }
 
