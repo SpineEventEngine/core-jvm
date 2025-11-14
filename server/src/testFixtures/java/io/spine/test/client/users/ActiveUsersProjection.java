@@ -24,15 +24,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.test.client;
+package io.spine.test.client.users;
 
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import io.spine.core.Subscribe;
 import io.spine.server.projection.Projection;
 import io.spine.server.projection.ProjectionRepository;
 import io.spine.server.route.EventRouting;
-import io.spine.test.client.users.ActiveUsers;
-import io.spine.test.client.users.ActiveUsersId;
 import io.spine.test.client.users.event.UserLoggedIn;
 import io.spine.test.client.users.event.UserLoggedOut;
 

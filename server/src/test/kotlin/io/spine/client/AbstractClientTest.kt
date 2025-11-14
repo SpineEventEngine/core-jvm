@@ -37,11 +37,9 @@ import org.junit.jupiter.api.BeforeEach
 /**
  * Abstract base for Client API tests.
  *
- *
  * Both `Client` and `Server` are created in-process with a name generated
  * by [.generateServerName]. In order to configure the `Server` derived test suites
  * must implement the [.contexts] providing builders of contexts of the backend services.
- *
  *
  * Both client and server instances are shut down after each test.
  */

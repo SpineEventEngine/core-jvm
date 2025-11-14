@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,27 +23,19 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-syntax = "proto3";
 
-package spine.test.client.users;
+@file:JvmName("Context")
 
-import "spine/options.proto";
+package io.spine.test.client.users
 
-option (type_url_prefix) = "type.spine.io";
-option java_package = "io.spine.test.client.users";
-option java_outer_classname = "UserAccountProto";
-option java_multiple_files = true;
+import io.spine.server.BoundedContext
+import io.spine.server.BoundedContextBuilder
 
-import "spine/core/user_id.proto";
-import "spine/people/person_name.proto";
+const val NAME = "Test Users"
 
-message UserAccount {
-    option (entity) = { kind: AGGREGATE visibility: SUBSCRIBE };
-    core.UserId user = 1;
-    people.PersonName name = 2;
-
-    // This is a naïve implementation for the purposes of the test.
-    // Real-world implementations should not expose passwords in such a way.
-    string password = 3;
-}
-
+fun builder(): BoundedContextBuilder =
+    BoundedContext.singleTenant(NAME)
+        .add(UserAccountAggregate::class.java)
+        .add(LoginProcess::class.java)
+        .add(ActiveUsersProjection.Repository())
+        .addEventDispatcher(PasswordChangeReaction())

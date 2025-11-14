@@ -39,8 +39,7 @@ import io.spine.server.enrich.EventEnrichmentFn;
  *
  * <p>Enrichment schema is constructed like this:
  * <pre>{@code
- *   Enricher enricher = Enricher
- *       .newBuilder()
+ *   Enricher enricher = Enricher.newBuilder()
  *       .add(MyEvent.class, MyEnrichment.class,
  *            new EventEnrichmentFn<MyEvent, EventContext, MyEnrichment> { ... } )
  *       ...

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,27 +23,31 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-syntax = "proto3";
 
-package spine.test.client.users;
+package io.spine.test.client.users
 
-import "spine/options.proto";
+import io.spine.core.UserId
+import io.spine.server.aggregate.Aggregate
+import io.spine.server.aggregate.Apply
+import io.spine.server.command.Assign
+import io.spine.test.client.users.command.ChangePassword
+import io.spine.test.client.users.event.PasswordChanged
+import io.spine.test.client.users.event.passwordChanged
 
-option (type_url_prefix) = "type.spine.io";
-option java_package = "io.spine.test.client.users";
-option java_outer_classname = "UserAccountProto";
-option java_multiple_files = true;
+internal class UserAccountAggregate : Aggregate<UserId, UserAccount, UserAccount.Builder>() {
 
-import "spine/core/user_id.proto";
-import "spine/people/person_name.proto";
+    /**
+     * This is a naïve implementation of password change handling.
+     *
+     * Real world apps should handle it by checking the current password,
+     * the strength of the password, the history, etc.
+     */
+    @Assign
+    fun handle(c: ChangePassword): PasswordChanged =
+        passwordChanged {
+            user = c.user
+        }
 
-message UserAccount {
-    option (entity) = { kind: AGGREGATE visibility: SUBSCRIBE };
-    core.UserId user = 1;
-    people.PersonName name = 2;
-
-    // This is a naïve implementation for the purposes of the test.
-    // Real-world implementations should not expose passwords in such a way.
-    string password = 3;
+    @Apply
+    fun event(@Suppress("unused") ignored: PasswordChanged) = Unit
 }
-

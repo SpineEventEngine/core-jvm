@@ -24,13 +24,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.test.client;
+package io.spine.test.client.users;
 
 import io.spine.core.UserId;
 import io.spine.server.command.Assign;
 import io.spine.server.procman.ProcessManager;
 import io.spine.server.tuple.Pair;
-import io.spine.test.client.users.LoginStatus;
 import io.spine.test.client.users.command.LogInUser;
 import io.spine.test.client.users.command.LogOutUser;
 import io.spine.test.client.users.event.UserAccountCreated;

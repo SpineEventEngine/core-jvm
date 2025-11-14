@@ -49,7 +49,6 @@ import java.util.List;
 
 import static io.spine.grpc.StreamObservers.noOpObserver;
 import static io.spine.util.Exceptions.newIllegalStateException;
-import static java.util.Collections.unmodifiableList;
 
 public class SingleTenantCommandBusTestEnv {
 
@@ -129,10 +128,6 @@ public class SingleTenantCommandBusTestEnv {
                     .newBuilder()
                     .setProjectId(command.getId())
                     .build();
-        }
-
-        public List<Message> handledCommands() {
-            return unmodifiableList(handledCommands);
         }
     }
 }
