@@ -85,13 +85,13 @@ public final class SubscriptionRequest<S extends EntityState<?>>
      * Adds a consumer observing the entities which previously matched the subscription criteria,
      * but stopped to do so.
      *
-     * <p>The consumer is fed with the ID of the entity in the use-cases which follow:
+     * <p>The consumer is fed with the ID of the entity in one of the following cases:
      *
      * <ul>
-     *     <li>the value of entity fields is changed so that the entity state does not pass
-     *     the subscription filters;
-     *     <li>entity is deleted;
-     *     <li>entity is archived.</li>
+     *     <li>the entity no longer passes the subscription filter because
+     *         one of its fields changed;
+     *     <li>the entity has been deleted;
+     *     <li>the entity has been archived.</li>
      * </ul>
      *
      * <p>It is the responsibility of callee to provide a correct type of entity identifiers.
