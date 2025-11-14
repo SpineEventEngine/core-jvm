@@ -174,6 +174,11 @@ public final class EnvSetting<V> {
      *
      * <p>If it is not set, returns a fallback value. If no fallback was configured, an
      * {@code IllegalStateException} is thrown.
+     *
+     * @param type
+     *         the environment type for which to retrieve the value
+     * @throws IllegalStateException
+     *         if no value is set and no fallback is configured for the type
      */
     public V value(Class<? extends EnvironmentType<?>> type) {
         checkNotNull(type);
