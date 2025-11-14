@@ -305,7 +305,8 @@ class EnvSettingTest {
         }
 
         /**
-         * Submits a blocking read operation to the setting and verifies the retrieved value.
+         * Runs a blocking read operation over the `setting` instance under test,
+         * and verifies the retrieved value.
          *
          * @param type
          *         the environment type for which to read the value
@@ -325,7 +326,7 @@ class EnvSettingTest {
         }
 
         /**
-         * Submits a blocking write operation to the setting.
+         * Runs a blocking write operation over the `setting` instance under test.
          *
          * @param type
          *         the environment type for which to set the value
