@@ -66,7 +66,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  *         new EnvSetting<>(Tests.class, () -> fallbackStorageFactory);
  *
  *     // `use` was never called, so the fallback value is calculated and returned.
- *     assertThat(setting.optionalValue()).isPresent();
+ *     assertThat(setting.optionalValue(Tests.class)).isPresent();
  *     assertThat(setting.value()).isSameInstanceAs(fallbackStorageFactory);
  * }</pre>
  *
