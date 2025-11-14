@@ -149,6 +149,8 @@ public final class EnvSetting<V> {
      * <p>This means the operation is applied to all passed setting {@linkplain #environmentValues
      * values} on a per-environment basis.
      *
+     * @param operation
+     *         the operation to apply
      * @apiNote The not yet run {@linkplain #fallbacks fallback suppliers} are ignored
      *         to avoid an unnecessary value instantiation.
      */
@@ -267,6 +269,7 @@ public final class EnvSetting<V> {
      *         supplier of the value to assign to one of environments
      * @param type
      *         the type of the environment
+     * @return this instance for call chaining
      */
     @CanIgnoreReturnValue
     public EnvSetting<V> lazyUse(Supplier<V> value, Class<? extends EnvironmentType<?>> type) {
