@@ -36,8 +36,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.StampedLock;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -96,7 +95,7 @@ public final class EnvSetting<V> {
     private final Map<Class<? extends EnvironmentType<?>>, Supplier<V>> fallbacks =
             new HashMap<>();
 
-    private final ReadWriteLock locker = new ReentrantReadWriteLock();
+    private final StampedLock locker = new StampedLock();
 
     /**
      * Creates a new instance without any fallback configuration.
@@ -302,13 +301,11 @@ public final class EnvSetting<V> {
      *         the operation to execute
      */
     private void writeWithLock(Runnable operation) {
-        locker.writeLock()
-              .lock();
+        var stamp = locker.writeLock(); // acquire write lock
         try {
             operation.run();
         } finally {
-            locker.writeLock()
-                  .unlock();
+            locker.unlockWrite(stamp); // release write lock
         }
     }
 
@@ -322,15 +319,12 @@ public final class EnvSetting<V> {
      * @param operation
      *         the operation to execute
      */
-
     private <T> @Nullable T readWithLock(Supplier<@Nullable T> operation) {
-        locker.readLock()
-              .lock();
+        var stamp = locker.readLock();
         try {
             return operation.get();
         } finally {
-            locker.readLock()
-                  .unlock();
+            locker.unlockRead(stamp);
         }
     }
 

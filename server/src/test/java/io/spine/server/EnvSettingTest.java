@@ -256,14 +256,14 @@ class EnvSettingTest {
 
         @BeforeEach
         void setUp() {
-            readWriteExecutors = Executors.newFixedThreadPool(3);
+            readWriteExecutors = Executors.newFixedThreadPool(5);
             latch = new CountDownLatch(1);
             setting = new EnvSetting<>();
         }
 
         @Test
         @DisplayName("allowing multiple threads to read simultaneously " +
-                "without affecting the stored value")
+                "but postpone concurrent write operations")
         void testReadOperations() {
             var initialValue = randomUUID();
             setting.use(initialValue, Local.class);
@@ -274,12 +274,26 @@ class EnvSettingTest {
             var actualValue = setting.value(Local.class);
             assertThat(actualValue).isEqualTo(initialValue);
 
+            // This "write" operation should be waiting until the lock is released
+            // via `latch.countDown()`.
+            var rewrittenValue = randomUUID();
+            readWriteExecutors.submit(() -> {
+                setting.use(rewrittenValue, Local.class);
+            });
+            sleepUninterruptibly(100, MILLISECONDS);
+
+            var stillSameValue = setting.value(Local.class);
+            assertThat(stillSameValue).isEqualTo(initialValue);
+
             latch.countDown();
             await(readBlockingFuture);
+
+            var newValue = setting.value(Local.class);
+            assertThat(newValue).isEqualTo(rewrittenValue);
         }
 
         @Test
-        @DisplayName("allowing a write operation to holds exclusive access, " +
+        @DisplayName("allowing a write operation to hold exclusive access, " +
                 "blocking concurrent reads and writes until complete")
         void testWriteOperations() {
             var initialValue = randomUUID();
