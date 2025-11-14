@@ -84,8 +84,12 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  *     StorageFactory theSameFactory = setting.value();
  * }</pre>
  *
+ * <p>This type provides thread safety in accessing the configured values.
+ *
  * @param <V>
  *         the type of value
+ * @implNote The access synchronization is implemented on top of {@link StampedLock}.
+ *         See its documentation for more info on the potential limitations.
  */
 public final class EnvSetting<V> {
 
