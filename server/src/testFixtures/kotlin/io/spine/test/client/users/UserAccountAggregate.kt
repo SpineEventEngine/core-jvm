@@ -39,7 +39,7 @@ internal class UserAccountAggregate : Aggregate<UserId, UserAccount, UserAccount
     /**
      * This is a naïve implementation of password change handling.
      *
-     * Real word apps should handle it by checking the current password,
+     * Real world apps should handle it by checking the current password,
      * the strength of the password, the history, etc.
      */
     @Assign
