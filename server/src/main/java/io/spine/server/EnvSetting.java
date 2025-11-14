@@ -26,7 +26,7 @@
 
 package io.spine.server;
 
-import com.google.common.annotations.VisibleForTesting;
+import io.spine.annotation.VisibleForTesting;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.environment.Environment;
 import io.spine.environment.EnvironmentType;
