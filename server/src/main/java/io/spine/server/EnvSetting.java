@@ -147,12 +147,17 @@ public final class EnvSetting<V> {
      *         the environment type
      * @param operation
      *         operation to run
+     * @throws IllegalStateException in case of the operation failure
      */
     public void ifPresentForEnvironment(Class<? extends EnvironmentType<?>> type,
-                                        SettingOperation<V> operation) throws Exception {
+                                        SettingOperation<V> operation) {
         var value = valueFor(type);
         if (value.isPresent()) {
-            operation.accept(value.get());
+            try {
+                operation.accept(value.get());
+            } catch (Exception e) {
+                throw illegalStateWithCauseOf(e);
+            }
         }
     }
 
@@ -164,6 +169,8 @@ public final class EnvSetting<V> {
      *
      * @param operation
      *         the operation to apply
+     * @throws IllegalStateException
+     *         in case of the operation failure
      * @apiNote The not yet run {@linkplain #fallbacks fallback suppliers} are ignored
      *         to avoid an unnecessary value instantiation.
      */
