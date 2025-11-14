@@ -43,8 +43,6 @@ public final class ReactorClassDelegate<T extends EventReceiver>
         extends EventReceivingClassDelegate<T, EventClass, EventReactorMethod>
         implements ReactingClass {
 
-    private static final long serialVersionUID = 0L;
-
     public ReactorClassDelegate(Class<T> cls) {
         super(cls, new EventReactorSignature());
     }
