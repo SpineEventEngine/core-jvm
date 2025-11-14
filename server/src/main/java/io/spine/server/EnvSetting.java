@@ -114,7 +114,7 @@ public final class EnvSetting<V> {
      * {@link #value(Class)} and {@link #optionalValue(Class)} return the {@code fallback} result.
      */
     public EnvSetting(Class<? extends EnvironmentType<?>> type, Supplier<V> fallback) {
-        writeWithLock(() -> this.fallbacks.put(type, fallback));
+        this.fallbacks.put(type, fallback);
     }
 
     /**
