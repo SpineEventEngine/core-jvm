@@ -188,6 +188,10 @@ public final class EnvSetting<V> {
      *
      * <p>In case there is no value set for the current environment, returns a fallback value.
      * If no fallback was configured, an {@code IllegalStateException} is thrown.
+     *
+     * @throws IllegalStateException
+     *         if both the configured value and the fallback value are not set
+     *         for the current environment
      */
     public V value() {
         var environment = Environment.instance();
