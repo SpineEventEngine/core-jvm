@@ -206,7 +206,7 @@ public final class EnvSetting<V> {
         if (value == null) {
             return Optional.empty();
         }
-        return Optional.of(value.value);
+        return Optional.of(value.get());
     }
 
     /**
