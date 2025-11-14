@@ -235,6 +235,7 @@ public final class EnvSetting<V> {
      *         value to assign to one of environments
      * @param type
      *         the type of the environment
+     * @return this instance for call chaining
      */
     @CanIgnoreReturnValue
     public EnvSetting<V> use(V value, Class<? extends EnvironmentType<?>> type) {
