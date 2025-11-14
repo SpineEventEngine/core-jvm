@@ -112,6 +112,11 @@ public final class EnvSetting<V> {
      *
      * <p>If a value for {@code type} is not {@linkplain #use(Object, Class) set explicitly},
      * {@link #value(Class)} and {@link #optionalValue(Class)} return the {@code fallback} result.
+     *
+     * @param type
+     *         the environment type to set the fallback for
+     * @param fallback
+     *         the supplier of a default value for the passed environment type
      */
     public EnvSetting(Class<? extends EnvironmentType<?>> type, Supplier<V> fallback) {
         this.fallbacks.put(type, fallback);
@@ -120,6 +125,9 @@ public final class EnvSetting<V> {
     /**
      * If the value for the specified environment has been configured, returns it. Returns an
      * empty {@code Optional} otherwise.
+     *
+     * @param type
+     *         the environment type for which to retrieve the value
      */
     public Optional<V> optionalValue(Class<? extends EnvironmentType<?>> type) {
         return valueFor(type);
@@ -132,6 +140,8 @@ public final class EnvSetting<V> {
      * <p>If you wish to run an operation that doesn't throw, use {@code
      * optionalValue(type).ifPresent(operation)}.
      *
+     * @param type
+     *         the environment type
      * @param operation
      *         operation to run
      */
@@ -194,6 +204,7 @@ public final class EnvSetting<V> {
      * <p>In case there is no value set for the current environment, returns a fallback value.
      * If no fallback was configured, an {@code IllegalStateException} is thrown.
      *
+     * @return the value corresponding to the current environment type, or a fallback value
      * @throws IllegalStateException
      *         if both the configured value and the fallback value are not set
      *         for the current environment
@@ -351,7 +362,12 @@ public final class EnvSetting<V> {
      */
     public interface SettingOperation<V> {
 
-        /** Performs this operation on the specified value. */
+        /**
+         * Performs this operation on the specified value.
+         *
+         * @param value
+         *         the value to use in this operation
+         */
         void accept(V value) throws Exception;
     }
 
