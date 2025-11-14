@@ -26,14 +26,13 @@
 
 package io.spine.server;
 
-import io.spine.annotation.VisibleForTesting;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.environment.Environment;
 import io.spine.environment.EnvironmentType;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
