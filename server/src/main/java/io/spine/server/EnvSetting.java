@@ -292,7 +292,7 @@ public final class EnvSetting<V> {
     }
 
     /**
-     * Executes the provided read operation under the write lock on the value.
+     * Executes the provided write operation under the write lock on the value.
      *
      * <p>While the write lock is held, all potential concurrent read and write operations
      * are put on hold. Once the lock is released, they are automatically resumed.
