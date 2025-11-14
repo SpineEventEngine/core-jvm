@@ -44,8 +44,9 @@ public final class ClientTestContext {
 
     public static BoundedContextBuilder users() {
         return BoundedContext.singleTenant(USERS_NAME)
-                             .add(LoginProcess.class)
-                             .add(new ActiveUsersProjection.Repository());
+                .add(LoginProcess.class)
+                .add(new ActiveUsersProjection.Repository())
+                .addEventDispatcher(new PasswordChangeReaction());
     }
 
     public static BoundedContextBuilder tasks() {

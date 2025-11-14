@@ -1,11 +1,11 @@
 /*
- * Copyright 2023, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -24,148 +24,152 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.client;
+package io.spine.client
 
-import com.google.common.collect.ImmutableList;
-import io.spine.base.CommandMessage;
-import io.spine.server.BoundedContextBuilder;
-import io.spine.test.client.tasks.CTask;
-import io.spine.test.client.tasks.CTaskId;
-import io.spine.testing.logging.mute.MuteLogging;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.extensions.proto.ProtoTruth.assertThat;
-import static com.google.common.util.concurrent.Uninterruptibles.sleepUninterruptibly;
-import static io.spine.client.given.ClientTasksTestEnv.archiveCTask;
-import static io.spine.client.given.ClientTasksTestEnv.createCTask;
-import static io.spine.client.given.ClientTasksTestEnv.deleteCTask;
-import static io.spine.client.given.ClientTasksTestEnv.restoreCTask;
-import static io.spine.client.given.ClientTasksTestEnv.stateAfter;
-import static io.spine.client.given.ClientTasksTestEnv.unarchiveCTask;
-import static io.spine.test.client.ClientTestContext.tasks;
-import static java.time.Duration.ofSeconds;
+import com.google.common.truth.extensions.proto.ProtoTruth.assertThat
+import com.google.common.util.concurrent.Uninterruptibles.sleepUninterruptibly
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.shouldBe
+import io.spine.base.CommandMessage
+import io.spine.client.given.ClientTasksTestEnv.archiveCTask
+import io.spine.client.given.ClientTasksTestEnv.createCTask
+import io.spine.client.given.ClientTasksTestEnv.deleteCTask
+import io.spine.client.given.ClientTasksTestEnv.restoreCTask
+import io.spine.client.given.ClientTasksTestEnv.stateAfter
+import io.spine.client.given.ClientTasksTestEnv.unarchiveCTask
+import io.spine.server.BoundedContextBuilder
+import io.spine.test.client.ClientTestContext
+import io.spine.test.client.tasks.CTask
+import io.spine.test.client.tasks.CTaskId
+import io.spine.testing.logging.mute.MuteLogging
+import java.time.Duration
+import java.util.concurrent.atomic.AtomicBoolean
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 
 @MuteLogging
-@DisplayName("Subscription API for `Client` should allow subscribe to ")
-final class ClientSubscriptionsTest extends AbstractClientTest {
+@DisplayName("Subscription API for `Client` should allow subscribing to ")
+internal class ClientSubscriptionsTest : AbstractClientTest() {
 
-    @Override
-    protected List<BoundedContextBuilder> contexts() {
-        return ImmutableList.of(tasks());
+    override fun contexts(): List<BoundedContextBuilder> {
+        return listOf(ClientTestContext.tasks())
     }
 
+    @Nested
     @DisplayName("changes")
-    @Nested
-    class Changes {
+    internal inner class Changes {
 
         @Test
-        @DisplayName("in state of an Aggregate")
-        void aggregate() {
-            var updateReceived = new AtomicBoolean(false);
-            var client = client();
+        fun `in state of an 'Aggregate'`() {
+            val updateReceived = AtomicBoolean(false)
+            val client = client()
 
-            var createTask = createCTask("My task");
-            var expectedState = stateAfter(createTask);
+            val createTask = createCTask("My task")
+            val expectedState = stateAfter(createTask)
             client.asGuest()
-                  .subscribeTo(CTask.class)
-                  .observe(update -> {
-                      updateReceived.set(true);
-                      assertThat(update)
-                              .comparingExpectedFieldsOnly()
-                              .isEqualTo(expectedState);
-                  })
-                  .post();
-            postAndForget(client, createTask);
-            sleepUninterruptibly(ofSeconds(1));
-            assertThat(updateReceived.get())
-                    .isTrue();
+                .subscribeTo(CTask::class.java)
+                .observe { update: CTask ->
+                    updateReceived.set(true)
+                    assertThat(update)
+                        .comparingExpectedFieldsOnly()
+                        .isEqualTo(expectedState)
+                }
+                .post()
+            client.postAndForget(createTask)
+            sleepUninterruptibly(Duration.ofSeconds(1))
+
+            updateReceived.get() shouldBe true
         }
     }
 
+    @Nested
     @DisplayName("deletion and restoration")
-    @Nested
-    class Deletion {
+    internal inner class Deletion {
 
         @Test
-        @DisplayName("of an Aggregate")
-        void aggregate() {
-            List<CTask> updates = new ArrayList<>();
-            List<CTaskId> noLongerMatchingIds = new ArrayList<>();
+        fun `of an 'Aggregate'`() {
+            val updates = ArrayList<CTask>()
+            val noLongerMatchingIds = ArrayList<CTaskId>()
 
-            var client = client();
-            var createTask = createCTask("Soon to be deleted and restored");
-            var id = createTask.getId();
-            var deleteTask = deleteCTask(id);
-            var restoreTask = restoreCTask(id);
+            val client = client()
+            val createTask = createCTask("Soon to be deleted and restored")
+            val id = createTask.id
+            val deleteTask = deleteCTask(id)
+            val restoreTask = restoreCTask(id)
             client.asGuest()
-                  .subscribeTo(CTask.class)
-                  .observe(updates::add)
-                  .whenNoLongerMatching(CTaskId.class, noLongerMatchingIds::add)
-                  .post();
+                .subscribeTo(CTask::class.java)
+                .observe { t: CTask -> updates.add(t) }
+                .whenNoLongerMatching(CTaskId::class.java) { id: CTaskId ->
+                    noLongerMatchingIds.add(id)
+                }
+                .post()
 
-            assertThat(noLongerMatchingIds).isEmpty();
-            assertNumOfUpdates(updates, 1, client, createTask);
+            noLongerMatchingIds.shouldBeEmpty()
 
-            assertNumOfUpdates(updates, 1, client, deleteTask);
+            client.assertNumOfUpdates(createTask, 1, updates)
+
+            // Marking as deleted does not count as an update. So, we still have one.
+            client.assertNumOfUpdates(deleteTask, 1, updates)
+
             // `CTask` became deleted. It should stop matching the subscription criteria.
-            assertThat(noLongerMatchingIds).containsExactly(id);
+            noLongerMatchingIds.shouldContainExactly(id)
 
-            assertNumOfUpdates(updates, 2, client, restoreTask);
-            assertThat(noLongerMatchingIds).containsExactly(id);
+            // Restoring "shows" the task back. So, it is an update.
+            client.assertNumOfUpdates(restoreTask, 2, updates)
+
+            // This is the task which was once marked as deleted.
+            noLongerMatchingIds.shouldContainExactly(id)
         }
     }
 
-    @DisplayName("archiving and un-archiving")
     @Nested
-    class Archiving {
+    @DisplayName("archiving and un-archiving")
+    internal inner class Archiving {
 
         @Test
-        @DisplayName("of an Aggregate")
-        void aggregate() {
-            List<CTask> updates = new ArrayList<>();
-            List<CTaskId> noLongerMatchingIds = new ArrayList<>();
+        fun `of an 'Aggregate'`() {
+            val updates = ArrayList<CTask>()
+            val noLongerMatchingIds = ArrayList<CTaskId>()
 
-            var client = client();
-            var createTask = createCTask("Soon to be archived and un-archived");
-            var id = createTask.getId();
-            var archiveTask = archiveCTask(id);
-            var unarchiveCTask = unarchiveCTask(id);
+            val client = client()
+            val createTask = createCTask("Soon to be archived and un-archived")
+            val id = createTask.id
+            val archiveTask = archiveCTask(id)
+            val unarchiveCTask = unarchiveCTask(id)
             client.asGuest()
-                  .subscribeTo(CTask.class)
-                  .observe(updates::add)
-                  .whenNoLongerMatching(CTaskId.class, noLongerMatchingIds::add)
-                  .post();
+                .subscribeTo(CTask::class.java)
+                .observe { t: CTask -> updates.add(t) }
+                .whenNoLongerMatching(
+                    CTaskId::class.java
+                ) { id: CTaskId -> noLongerMatchingIds.add(id) }
+                .post()
 
-            assertThat(noLongerMatchingIds).isEmpty();
-            assertNumOfUpdates(updates, 1, client, createTask);
+            noLongerMatchingIds.shouldBeEmpty()
+            client.assertNumOfUpdates(createTask, 1, updates)
 
-            assertNumOfUpdates(updates, 1, client, archiveTask);
+            // Archiving does not count as an update. We still have one.
+            client.assertNumOfUpdates(archiveTask, 1, updates)
+
             // `CTask` became archived. It should stop matching the subscription criteria.
-            assertThat(noLongerMatchingIds).containsExactly(id);
+            noLongerMatchingIds.shouldContainExactly(id)
 
-            assertNumOfUpdates(updates, 2, client, unarchiveCTask);
-            assertThat(noLongerMatchingIds).containsExactly(id);
+            client.assertNumOfUpdates(unarchiveCTask, 2, updates)
+            noLongerMatchingIds.shouldContainExactly(id)
         }
     }
+}
 
-    private static void postAndForget(Client client, CommandMessage command) {
-        client.asGuest()
-              .command(command)
-              .postAndForget();
-    }
+private fun Client.postAndForget(command: CommandMessage) =
+    asGuest().command(command).postAndForget()
 
-    private static void assertNumOfUpdates(List<CTask> updates, int expectedCount,
-                                           Client client, CommandMessage cmd) {
-        postAndForget(client, cmd);
-        sleepUninterruptibly(ofSeconds(1));
-        assertThat(updates.size())
-                .isEqualTo(expectedCount);
-    }
+private fun Client.assertNumOfUpdates(
+    cmd: CommandMessage,
+    expectedCount: Int,
+    updates: List<CTask>
+) {
+    postAndForget(cmd)
+    sleepUninterruptibly(Duration.ofSeconds(1))
+    updates.size shouldBe expectedCount
 }
