@@ -32,6 +32,7 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.spine.base.CommandMessage
+import io.spine.base.EventMessage
 import io.spine.client.given.ClientTasksTestEnv.archiveCTask
 import io.spine.client.given.ClientTasksTestEnv.createCTask
 import io.spine.client.given.ClientTasksTestEnv.deleteCTask
@@ -39,9 +40,13 @@ import io.spine.client.given.ClientTasksTestEnv.restoreCTask
 import io.spine.client.given.ClientTasksTestEnv.stateAfter
 import io.spine.client.given.ClientTasksTestEnv.unarchiveCTask
 import io.spine.server.BoundedContextBuilder
-import io.spine.test.client.ClientTestContext
+import io.spine.test.client.ClientTestContext.tasks
+import io.spine.test.client.ClientTestContext.users
 import io.spine.test.client.tasks.CTask
 import io.spine.test.client.tasks.CTaskId
+import io.spine.test.client.users.command.changePassword
+import io.spine.test.client.users.event.UserAuthenticationRequired
+import io.spine.testing.core.given.GivenUserId
 import io.spine.testing.logging.mute.MuteLogging
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicBoolean
@@ -54,7 +59,7 @@ import org.junit.jupiter.api.Test
 internal class ClientSubscriptionsSpec : AbstractClientTest() {
 
     override fun contexts(): List<BoundedContextBuilder> {
-        return listOf(ClientTestContext.tasks())
+        return listOf(tasks(), users())
     }
 
     @Nested
@@ -158,6 +163,29 @@ internal class ClientSubscriptionsSpec : AbstractClientTest() {
             client.assertNumOfUpdates(unarchiveCTask, 2, updates)
             noLongerMatchingIds.shouldContainExactly(id)
         }
+    }
+
+    @Test
+    fun `subscribe to events produced by 'EventReactor'`() {
+        val events = ArrayList<EventMessage>()
+        val client = client()
+        client.asGuest()
+            .subscribeToEvent(UserAuthenticationRequired::class.java)
+            .observe {
+                e: EventMessage -> events.add(e)
+            }
+            .post()
+        val userId = GivenUserId.generated()
+        val command = changePassword {
+            user = userId
+            previousPassword = "test"
+            newPassword = "new-test"
+        }
+        client.asGuest()
+            .command(command)
+            .postAndForget()
+
+        events.size shouldBe 1
     }
 }
 

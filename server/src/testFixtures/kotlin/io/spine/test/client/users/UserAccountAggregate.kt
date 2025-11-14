@@ -24,30 +24,30 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.test.client;
+package io.spine.test.client.users
 
-import io.spine.client.given.TaskAggregate;
-import io.spine.server.BoundedContext;
-import io.spine.server.BoundedContextBuilder;
-import io.spine.test.client.users.Context;
+import io.spine.core.UserId
+import io.spine.server.aggregate.Aggregate
+import io.spine.server.aggregate.Apply
+import io.spine.server.command.Assign
+import io.spine.test.client.users.command.ChangePassword
+import io.spine.test.client.users.event.PasswordChanged
+import io.spine.test.client.users.event.passwordChanged
 
-/**
- * Configures Bounded Context for the purpose of {@link io.spine.client.ClientSpec}.
- */
-public final class ClientTestContext {
+internal class UserAccountAggregate : Aggregate<UserId, UserAccount, UserAccount.Builder>() {
 
-    private static final String TASKS_NAME = "Test Tasks";
+    /**
+     * This is a naïve implementation of password change handling.
+     *
+     * Real word apps should handle it by checking the current password,
+     * the strength of the password, the history, etc.
+     */
+    @Assign
+    fun handle(c: ChangePassword): PasswordChanged =
+        passwordChanged {
+            user = c.user
+        }
 
-    /** Prevents instantiation of this configuration class. */
-    private ClientTestContext() {
-    }
-
-    public static BoundedContextBuilder users() {
-        return Context.builder();
-    }
-
-    public static BoundedContextBuilder tasks() {
-        return BoundedContext.singleTenant(TASKS_NAME)
-                             .add(TaskAggregate.class);
-    }
+    @Apply
+    fun event(@Suppress("unused") ignored: PasswordChanged) = Unit
 }

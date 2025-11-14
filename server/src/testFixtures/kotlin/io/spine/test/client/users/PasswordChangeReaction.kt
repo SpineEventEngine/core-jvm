@@ -24,30 +24,24 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.test.client;
+package io.spine.test.client.users
 
-import io.spine.client.given.TaskAggregate;
-import io.spine.server.BoundedContext;
-import io.spine.server.BoundedContextBuilder;
-import io.spine.test.client.users.Context;
+import io.spine.server.event.Just
+import io.spine.server.event.React
+import io.spine.server.event.Reaction
+import io.spine.server.event.just
+import io.spine.test.client.users.event.PasswordChanged
+import io.spine.test.client.users.event.UserAuthenticationRequired
+import io.spine.test.client.users.event.userAuthenticationRequired
 
 /**
- * Configures Bounded Context for the purpose of {@link io.spine.client.ClientSpec}.
+ * Requires user authentication in response to the user change.
  */
-public final class ClientTestContext {
+internal class PasswordChangeReaction : Reaction<PasswordChanged>() {
 
-    private static final String TASKS_NAME = "Test Tasks";
-
-    /** Prevents instantiation of this configuration class. */
-    private ClientTestContext() {
-    }
-
-    public static BoundedContextBuilder users() {
-        return Context.builder();
-    }
-
-    public static BoundedContextBuilder tasks() {
-        return BoundedContext.singleTenant(TASKS_NAME)
-                             .add(TaskAggregate.class);
-    }
+    @React
+    override fun whenever(event: PasswordChanged): Just<UserAuthenticationRequired> =
+        userAuthenticationRequired {
+            user = event.user
+        }.just()
 }

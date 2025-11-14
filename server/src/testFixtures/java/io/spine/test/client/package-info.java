@@ -29,7 +29,6 @@
  */
 @CheckReturnValue
 @NullMarked
-@BoundedContext(ClientTestContext.USERS_NAME)
 package io.spine.test.client;
 
 import com.google.errorprone.annotations.CheckReturnValue;

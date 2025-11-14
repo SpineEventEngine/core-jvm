@@ -24,26 +24,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.test.client;
+@CheckReturnValue
+@NullMarked
+@BoundedContext(Context.NAME)
+package io.spine.test.client.users;
 
-import io.spine.server.event.Just;
-import io.spine.server.event.React;
-import io.spine.server.event.Reaction;
-import io.spine.test.client.users.event.PasswordChanged;
-import io.spine.test.client.users.event.UserAuthenticationRequired;
-
-import static io.spine.server.event.Just.just;
-
-/**
- * Requires user authentication in response to the user change.
- */
-final class PasswordChangeReaction extends Reaction<PasswordChanged> {
-
-    @React
-    @Override
-    protected Just<UserAuthenticationRequired> whenever(PasswordChanged event) {
-        return just(UserAuthenticationRequired.newBuilder()
-                            .setUser(event.getUser())
-                            .build());
-    }
-}
+import com.google.errorprone.annotations.CheckReturnValue;
+import io.spine.core.BoundedContext;
+import org.jspecify.annotations.NullMarked;
