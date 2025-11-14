@@ -182,7 +182,7 @@ public final class EnvSetting<V> {
      * Returns the value corresponding to the current environment type.
      *
      * <p>If for the current environment, there is no value set in this setting
-     * return a fallback value. If no fallback was configured,
+     * returns a fallback value. If no fallback was configured,
      * an {@code IllegalStateException} is thrown.
      */
     public V value() {
