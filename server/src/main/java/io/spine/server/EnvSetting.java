@@ -36,6 +36,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.StampedLock;
 import java.util.function.Supplier;
 
@@ -94,10 +95,10 @@ import static io.spine.util.Exceptions.newIllegalStateException;
 public final class EnvSetting<V> {
 
     private final Map<Class<? extends EnvironmentType<?>>, Value<V>> environmentValues =
-            new HashMap<>();
+            new ConcurrentHashMap<>();
 
     private final Map<Class<? extends EnvironmentType<?>>, Supplier<V>> fallbacks =
-            new HashMap<>();
+            new ConcurrentHashMap<>();
 
     private final StampedLock locker = new StampedLock();
 
