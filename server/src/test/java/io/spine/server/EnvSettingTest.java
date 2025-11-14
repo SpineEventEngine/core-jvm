@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -26,6 +26,7 @@
 
 package io.spine.server;
 
+import io.spine.environment.Environment;
 import io.spine.environment.EnvironmentType;
 import io.spine.environment.DefaultMode;
 import io.spine.environment.Tests;
@@ -33,15 +34,28 @@ import io.spine.server.given.environment.Local;
 import io.spine.server.storage.StorageFactory;
 import io.spine.server.storage.memory.InMemoryStorageFactory;
 import io.spine.server.storage.system.given.MemoizingStorageFactory;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.util.concurrent.Uninterruptibles.awaitUninterruptibly;
+import static com.google.common.util.concurrent.Uninterruptibles.sleepUninterruptibly;
 import static io.spine.testing.Assertions.assertNpe;
+import static io.spine.util.Exceptions.illegalStateWithCauseOf;
+import static java.util.UUID.randomUUID;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 @DisplayName("`EnvSetting` should")
 @SuppressWarnings("DuplicateStringLiteralInspection")
@@ -77,8 +91,11 @@ class EnvSettingTest {
             assertNpe(() -> setting.use(InMemoryStorageFactory.newInstance(), null));
         }
 
-        @SuppressWarnings("ThrowableNotThrown")
-        private void testNoNullsForEnv(Class<? extends EnvironmentType<?>> envType) {
+        @SuppressWarnings({
+                "ThrowableNotThrown",
+                "DataFlowIssue"     /* Passing `null`s as parameters. */
+        })
+        private static void testNoNullsForEnv(Class<? extends EnvironmentType<?>> envType) {
             EnvSetting<?> setting = new EnvSetting<Void>();
             assertNpe(() -> setting.use(null, envType));
             assertNpe(() -> setting.lazyUse(null, envType));
@@ -108,7 +125,17 @@ class EnvSettingTest {
             testReturnsForEnv(Local.class);
         }
 
-        private void testReturnsForEnv(Class<? extends EnvironmentType<?>> type) {
+        @Test
+        @DisplayName("for the current environment type")
+        void forCurrentEnv() {
+            var environment = Environment.instance();
+            var factory = InMemoryStorageFactory.newInstance();
+            var storageFactory = new EnvSetting<StorageFactory>();
+            storageFactory.use(factory, environment.type());
+            assertThat(storageFactory.value()).isSameInstanceAs(factory);
+        }
+
+        private static void testReturnsForEnv(Class<? extends EnvironmentType<?>> type) {
             var factory = InMemoryStorageFactory.newInstance();
             var storageFactory = new EnvSetting<StorageFactory>();
             storageFactory.use(factory, type);
@@ -201,8 +228,7 @@ class EnvSettingTest {
             testLazyForEnv(Local.class);
         }
 
-        @SuppressWarnings("OptionalGetWithoutIsPresent")
-        private void testLazyForEnv(Class<? extends EnvironmentType<?>> type) {
+        private static void testLazyForEnv(Class<? extends EnvironmentType<?>> type) {
             var factory = InMemoryStorageFactory.newInstance();
             var storageFactory = new EnvSetting<StorageFactory>();
             var resolved = new AtomicBoolean(false);
@@ -213,10 +239,135 @@ class EnvSettingTest {
             assertThat(resolved.get()).isFalse();
 
             var actual = storageFactory.optionalValue(type);
-            assertThat(actual)
-                    .isPresent();
+
+            assertThat(actual).isPresent();
             assertThat(resolved.get()).isTrue();
             assertThat(actual.get()).isSameInstanceAs(factory);
+        }
+    }
+
+    @Nested
+    @DisplayName("be thread-safe")
+    class ThreadSafety {
+
+        private ExecutorService readWriteExecutors;
+        private CountDownLatch latch;
+        private EnvSetting<UUID> setting;
+
+        @BeforeEach
+        void setUp() {
+            readWriteExecutors = Executors.newFixedThreadPool(3);
+            latch = new CountDownLatch(1);
+            setting = new EnvSetting<>();
+        }
+
+        @Test
+        @DisplayName("allowing multiple threads to read simultaneously " +
+                "without affecting the stored value")
+        void testReadOperations() {
+            var initialValue = randomUUID();
+            setting.use(initialValue, Local.class);
+
+            var readBlockingFuture = runBlockingReadOperation(Local.class, initialValue);
+            sleepUninterruptibly(100, MILLISECONDS);
+
+            var actualValue = setting.value(Local.class);
+            assertThat(actualValue).isEqualTo(initialValue);
+
+            latch.countDown();
+            await(readBlockingFuture);
+        }
+
+        @Test
+        @DisplayName("allowing a write operation to holds exclusive access, " +
+                "blocking concurrent reads and writes until complete")
+        void testWriteOperations() {
+            var initialValue = randomUUID();
+            var writeBlockingFuture = runBlockingWriteOperation(Local.class, initialValue);
+            sleepUninterruptibly(100, MILLISECONDS);
+
+            var rewrittenValue = randomUUID();
+            var writeFuture =
+                    runVerifyingWriteOperation(Local.class, rewrittenValue, initialValue);
+            sleepUninterruptibly(100, MILLISECONDS);
+
+            latch.countDown();
+            await(writeFuture);
+            await(writeBlockingFuture);
+
+            assertThat(setting.value(Local.class)).isEqualTo(rewrittenValue);
+        }
+
+        @AfterEach
+        void tearDown() throws InterruptedException {
+            readWriteExecutors.shutdownNow();
+            readWriteExecutors.awaitTermination(500, MILLISECONDS);
+        }
+
+        /**
+         * Submits a blocking read operation to the setting and verifies the retrieved value.
+         *
+         * @param type
+         *         the environment type for which to read the value
+         * @param expectedValue
+         *         the expected value to verify the result of the read operation
+         */
+        private Future<?>
+        runBlockingReadOperation(Class<? extends EnvironmentType<?>> type, UUID expectedValue) {
+            return readWriteExecutors.submit(() -> {
+                var actualValue = setting.valueFor(() -> {
+                    awaitUninterruptibly(latch);
+                    return type;
+                });
+                assertThat(actualValue).isPresent();
+                assertThat(actualValue.get()).isEqualTo(expectedValue);
+            });
+        }
+
+        /**
+         * Submits a blocking write operation to the setting.
+         *
+         * @param type
+         *         the environment type for which to set the value
+         * @param valueToSet
+         *         the value to set
+         */
+        private Future<?>
+        runBlockingWriteOperation(Class<? extends EnvironmentType<?>> type, UUID valueToSet) {
+            return readWriteExecutors.submit(() -> {
+                setting.useViaInit(() -> {
+                    awaitUninterruptibly(latch);
+                    return valueToSet;
+                }, type);
+            });
+        }
+
+        /**
+         * Submits a non-blocking write operation to the setting and verifies
+         * the current value in the setting before its update.
+         *
+         * @param type
+         *         the environment type for which to set and verify the value
+         * @param valueToSet
+         *         the new value to set
+         * @param currentValue
+         *         the expected current value to verify before updating
+         */
+        private Future<?> runVerifyingWriteOperation(Class<? extends EnvironmentType<?>> type,
+                                                     UUID valueToSet,
+                                                     UUID currentValue) {
+            return readWriteExecutors.submit(() -> {
+                assertThat(setting.value(type)).isEqualTo(currentValue);
+                setting.useViaInit(() -> valueToSet, type);
+            });
+        }
+
+        private static void await(Future<?> future) {
+            try {
+                future.get();
+            } catch (InterruptedException | ExecutionException e) {
+                throw illegalStateWithCauseOf(e);
+            }
         }
     }
 
@@ -228,9 +379,9 @@ class EnvSettingTest {
         var localStorageFactory = InMemoryStorageFactory.newInstance();
 
         var storageFactory = new EnvSetting<StorageFactory>();
-        storageFactory.use(prodStorageFactory, DefaultMode.class);
-        storageFactory.use(testingStorageFactory, Tests.class);
-        storageFactory.use(localStorageFactory, Local.class);
+        storageFactory.use(prodStorageFactory, DefaultMode.class)
+                      .use(testingStorageFactory, Tests.class)
+                      .use(localStorageFactory, Local.class);
 
         storageFactory.reset();
 
@@ -254,16 +405,16 @@ class EnvSettingTest {
 
     @Test
     @DisplayName("run an operation for all present values")
-    void runOperationForAll() throws Exception {
+    void runOperationForAll() {
         var prodStorageFactory = new MemoizingStorageFactory();
         var testingStorageFactory = new MemoizingStorageFactory();
         var localStorageFactory = new MemoizingStorageFactory();
 
         var storageSetting = new EnvSetting<StorageFactory>();
 
-        storageSetting.use(prodStorageFactory, DefaultMode.class);
-        storageSetting.use(testingStorageFactory, Tests.class);
-        storageSetting.use(localStorageFactory, Local.class);
+        storageSetting.use(prodStorageFactory, DefaultMode.class)
+                      .use(testingStorageFactory, Tests.class)
+                      .use(localStorageFactory, Local.class);
 
         storageSetting.apply(AutoCloseable::close);
 
