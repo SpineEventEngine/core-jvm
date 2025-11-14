@@ -41,5 +41,9 @@ message UserAccount {
     option (entity) = { kind: AGGREGATE visibility: SUBSCRIBE };
     core.UserId user = 1;
     people.PersonName name = 2;
+
+    // This is a naïve implementation for the purposes of the test.
+    // Real-world implementations should not expose passwords in such a way.
+    string password = 3;
 }
 

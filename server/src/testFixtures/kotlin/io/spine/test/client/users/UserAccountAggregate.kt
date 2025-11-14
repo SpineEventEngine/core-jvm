@@ -24,9 +24,30 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- *  The version of this library.
- *
- * For versions of Spine-based dependencies, please see [io.spine.dependency.local.Spine].
- */
-val versionToPublish: String by extra("2.0.0-SNAPSHOT.352")
+package io.spine.test.client.users
+
+import io.spine.core.UserId
+import io.spine.server.aggregate.Aggregate
+import io.spine.server.aggregate.Apply
+import io.spine.server.command.Assign
+import io.spine.test.client.users.command.ChangePassword
+import io.spine.test.client.users.event.PasswordChanged
+import io.spine.test.client.users.event.passwordChanged
+
+internal class UserAccountAggregate : Aggregate<UserId, UserAccount, UserAccount.Builder>() {
+
+    /**
+     * This is a naïve implementation of password change handling.
+     *
+     * Real world apps should handle it by checking the current password,
+     * the strength of the password, the history, etc.
+     */
+    @Assign
+    fun handle(c: ChangePassword): PasswordChanged =
+        passwordChanged {
+            user = c.user
+        }
+
+    @Apply
+    fun event(@Suppress("unused") ignored: PasswordChanged) = Unit
+}

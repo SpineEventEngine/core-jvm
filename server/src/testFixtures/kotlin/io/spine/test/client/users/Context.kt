@@ -24,9 +24,18 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- *  The version of this library.
- *
- * For versions of Spine-based dependencies, please see [io.spine.dependency.local.Spine].
- */
-val versionToPublish: String by extra("2.0.0-SNAPSHOT.352")
+@file:JvmName("Context")
+
+package io.spine.test.client.users
+
+import io.spine.server.BoundedContext
+import io.spine.server.BoundedContextBuilder
+
+const val NAME = "Test Users"
+
+fun builder(): BoundedContextBuilder =
+    BoundedContext.singleTenant(NAME)
+        .add(UserAccountAggregate::class.java)
+        .add(LoginProcess::class.java)
+        .add(ActiveUsersProjection.Repository())
+        .addEventDispatcher(PasswordChangeReaction())

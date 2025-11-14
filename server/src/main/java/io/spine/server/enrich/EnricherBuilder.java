@@ -41,7 +41,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.type.MessageClass.interfacesOf;
 
 /**
- * Allows to register enrichment functions used by the {@link Enricher}.
+ * Allows registering enrichment functions used by the {@link Enricher}.
  *
  * @param <M>
  *         the type of the enriched messages
@@ -61,10 +61,11 @@ public abstract class EnricherBuilder<M extends Message,
      */
     private final Map<Key, EnrichmentFn<? extends M, C, ?>> functions = new HashMap<>();
 
-    /** Creates new instance. */
+    /**
+     * Creates a new instance.
+     */
     protected EnricherBuilder() {
     }
-
 
     /**
      * Adds an enrichment function to the builder.

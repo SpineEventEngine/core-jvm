@@ -29,13 +29,13 @@ package io.spine.test.client;
 import io.spine.client.given.TaskAggregate;
 import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
+import io.spine.test.client.users.Context;
 
 /**
  * Configures Bounded Context for the purpose of {@link io.spine.client.ClientSpec}.
  */
 public final class ClientTestContext {
 
-    static final String USERS_NAME = "Test Users";
     private static final String TASKS_NAME = "Test Tasks";
 
     /** Prevents instantiation of this configuration class. */
@@ -43,9 +43,7 @@ public final class ClientTestContext {
     }
 
     public static BoundedContextBuilder users() {
-        return BoundedContext.singleTenant(USERS_NAME)
-                             .add(LoginProcess.class)
-                             .add(new ActiveUsersProjection.Repository());
+        return Context.builder();
     }
 
     public static BoundedContextBuilder tasks() {

@@ -54,6 +54,7 @@ import io.spine.server.tenant.TenantAwareOperation;
 import io.spine.server.type.EventEnvelope;
 import io.spine.system.server.event.EntityStateChanged;
 import io.spine.type.TypeUrl;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
@@ -82,6 +83,7 @@ import static io.spine.grpc.StreamObservers.ack;
  * @see <a href="https://spine.io/docs/concepts/diagrams/spine-architecture-diagram-full-screen.html">
  *     Spine Architecture Diagram</a>
  */
+@SuppressWarnings("OverlyCoupledClass")
 public class Stand implements Closeable {
 
     /**
@@ -294,7 +296,8 @@ public class Stand implements Closeable {
     }
 
     /**
-     * Reads all event types produced by the repositories associated with this {@code Stand}.
+     * Reads all event types produced by repositories and event producers
+     * associated with this {@code Stand}.
      *
      * @return the set of types as {@link TypeUrl} instances
      */
@@ -426,10 +429,10 @@ public class Stand implements Closeable {
         private final TypeRegistry typeRegistry = InMemoryTypeRegistry.newInstance();
         private final EventRegistry eventRegistry = InMemoryEventRegistry.newInstance();
 
-        private SubscriptionRegistry subscriptionRegistry;
-        private TopicValidator topicValidator;
-        private QueryValidator queryValidator;
-        private SubscriptionValidator subscriptionValidator;
+        private @MonotonicNonNull SubscriptionRegistry subscriptionRegistry;
+        private @MonotonicNonNull TopicValidator topicValidator;
+        private @MonotonicNonNull QueryValidator queryValidator;
+        private @MonotonicNonNull SubscriptionValidator subscriptionValidator;
 
         @CanIgnoreReturnValue
         @Internal
@@ -480,7 +483,7 @@ public class Stand implements Closeable {
          * <p>This method is supposed to be called internally when building aggregating
          * {@code BoundedContext}.
          *
-         * @return new instance of Stand
+         * @return a new instance of {@code Stand}
          */
         @Internal
         public Stand build() {

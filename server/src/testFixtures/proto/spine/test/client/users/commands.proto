@@ -55,3 +55,9 @@ message CreateUserAccount {
 message UnsupportedCommand {
     core.UserId user = 1;
 }
+
+message ChangePassword {
+    core.UserId user = 1;
+    string previous_password = 2 [(required) = true];
+    string new_password = 3 [(required) = true];
+}

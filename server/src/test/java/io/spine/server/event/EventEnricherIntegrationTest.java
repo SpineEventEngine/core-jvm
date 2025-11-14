@@ -40,7 +40,7 @@ import static io.spine.server.enrich.given.EitEnricherSetup.createEnricher;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DisplayName("`Enricher` should")
-public class EventEnricherIntegrationTest {
+class EventEnricherIntegrationTest {
 
     private BlackBox context;
 

@@ -28,7 +28,6 @@ package io.spine.server.tenant;
 
 import io.spine.annotation.Internal;
 import io.spine.core.TenantId;
-import org.jspecify.annotations.NonNull;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.protobuf.Messages.isDefault;
@@ -94,7 +93,7 @@ abstract class TenantAware {
         return CurrentTenant.ensure();
     }
 
-    final @NonNull TenantId tenantId() {
+    final TenantId tenantId() {
         return tenantId;
     }
 }

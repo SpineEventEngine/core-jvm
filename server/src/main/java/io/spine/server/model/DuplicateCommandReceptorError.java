@@ -30,6 +30,7 @@ import io.spine.server.command.model.CommandHandlingClass;
 import io.spine.server.command.model.CommandReceptor;
 import io.spine.server.type.CommandClass;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -47,6 +48,7 @@ import static java.lang.String.format;
  */
 public final class DuplicateCommandReceptorError extends ModelError {
 
+    @Serial
     private static final long serialVersionUID = 0L;
 
     DuplicateCommandReceptorError(
