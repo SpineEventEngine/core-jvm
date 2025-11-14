@@ -51,7 +51,7 @@ import org.junit.jupiter.api.Test
 
 @MuteLogging
 @DisplayName("Subscription API for `Client` should allow subscribing to ")
-internal class ClientSubscriptionsTest : AbstractClientTest() {
+internal class ClientSubscriptionsSpec : AbstractClientTest() {
 
     override fun contexts(): List<BoundedContextBuilder> {
         return listOf(ClientTestContext.tasks())
