@@ -149,9 +149,8 @@ public final class EnvSetting<V> {
      * <p>This means the operation is applied to all passed setting {@linkplain #environmentValues
      * values} on a per-environment basis.
      *
-     * @apiNote The not yet run {@linkplain #fallbacks fallback suppliers} are ignored to
-     *         avoid an
-     *         unnecessary value instantiation.
+     * @apiNote The not yet run {@linkplain #fallbacks fallback suppliers} are ignored
+     *         to avoid an unnecessary value instantiation.
      */
     public void apply(SettingOperation<V> operation) {
         writeWithLock(() -> {
@@ -185,9 +184,8 @@ public final class EnvSetting<V> {
     /**
      * Returns the value corresponding to the current environment type.
      *
-     * <p>If for the current environment, there is no value set in this setting
-     * returns a fallback value. If no fallback was configured,
-     * an {@code IllegalStateException} is thrown.
+     * <p>In case there is no value set for the current environment, returns a fallback value.
+     * If no fallback was configured, an {@code IllegalStateException} is thrown.
      */
     public V value() {
         var environment = Environment.instance();
@@ -214,7 +212,7 @@ public final class EnvSetting<V> {
     }
 
     /**
-     * Clears this setting, forgetting all the configured values.
+     * Clears this setting, removing all configured values.
      *
      * <p>The cached "default" values are also cleared.
      * They will be recalculated using the {@code Supplier} passed
