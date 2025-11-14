@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,27 +23,27 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-syntax = "proto3";
 
-package spine.test.client.users;
+package io.spine.test.client;
 
-import "spine/options.proto";
+import io.spine.server.event.Just;
+import io.spine.server.event.React;
+import io.spine.server.event.Reaction;
+import io.spine.test.client.users.event.PasswordChanged;
+import io.spine.test.client.users.event.UserAuthenticationRequired;
 
-option (type_url_prefix) = "type.spine.io";
-option java_package = "io.spine.test.client.users";
-option java_outer_classname = "UserAccountProto";
-option java_multiple_files = true;
+import static io.spine.server.event.Just.just;
 
-import "spine/core/user_id.proto";
-import "spine/people/person_name.proto";
+/**
+ * Requires user authentication in response to the user change.
+ */
+final class PasswordChangeReaction extends Reaction<PasswordChanged> {
 
-message UserAccount {
-    option (entity) = { kind: AGGREGATE visibility: SUBSCRIBE };
-    core.UserId user = 1;
-    people.PersonName name = 2;
-
-    // This is a naïve implementation for the purposes of the test.
-    // Real-world implementations should not expose passwords in such a way.
-    string password = 3;
+    @React
+    @Override
+    protected Just<UserAuthenticationRequired> whenever(PasswordChanged event) {
+        return just(UserAuthenticationRequired.newBuilder()
+                            .setUser(event.getUser())
+                            .build());
+    }
 }
-

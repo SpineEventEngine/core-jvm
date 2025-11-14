@@ -50,3 +50,11 @@ message UserAccountCreated {
     core.UserId user = 1;
     UserAccount account = 2;
 }
+
+message PasswordChanged {
+    core.UserId user = 1;
+}
+
+message UserAuthenticationRequired {
+    core.UserId user = 1;
+}
