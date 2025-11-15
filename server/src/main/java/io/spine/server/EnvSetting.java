@@ -294,6 +294,8 @@ public final class EnvSetting<V> {
          *
          * @param value
          *         the value to use in this operation
+         * @throws Exception
+         *         in case of a failure
          */
         void accept(V value) throws Exception;
     }
