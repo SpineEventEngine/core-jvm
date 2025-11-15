@@ -26,38 +26,25 @@
 
 package io.spine.server;
 
+import io.spine.environment.DefaultMode;
 import io.spine.environment.Environment;
 import io.spine.environment.EnvironmentType;
-import io.spine.environment.DefaultMode;
 import io.spine.environment.Tests;
 import io.spine.server.given.environment.Local;
 import io.spine.server.storage.StorageFactory;
 import io.spine.server.storage.memory.InMemoryStorageFactory;
 import io.spine.server.storage.system.given.MemoizingStorageFactory;
 import io.spine.testing.TestValues;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.util.concurrent.Uninterruptibles.awaitUninterruptibly;
-import static com.google.common.util.concurrent.Uninterruptibles.sleepUninterruptibly;
 import static io.spine.testing.Assertions.assertNpe;
 import static io.spine.testing.TestValues.nullRef;
-import static io.spine.util.Exceptions.illegalStateWithCauseOf;
-import static java.util.UUID.randomUUID;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 @DisplayName("`EnvSetting` should")
 @SuppressWarnings("DuplicateStringLiteralInspection")
@@ -255,146 +242,6 @@ class EnvSettingTest {
         }
     }
 
-    @Nested
-    @DisplayName("be thread-safe")
-    class ThreadSafety {
-
-        private ExecutorService readWriteExecutors;
-        private CountDownLatch latch;
-        private EnvSetting<UUID> setting;
-
-        @BeforeEach
-        void setUp() {
-            readWriteExecutors = Executors.newFixedThreadPool(5);
-            latch = new CountDownLatch(1);
-            setting = new EnvSetting<>();
-        }
-
-        @Test
-        @DisplayName("allowing multiple threads to read simultaneously " +
-                "but postpone concurrent write operations")
-        void testReadOperations() {
-            var initialValue = randomUUID();
-            setting.use(initialValue, Local.class);
-
-            var readBlockingFuture = runBlockingReadOperation(Local.class, initialValue);
-            sleepUninterruptibly(100, MILLISECONDS);
-
-            var actualValue = setting.value(Local.class);
-            assertThat(actualValue).isEqualTo(initialValue);
-
-            // This "write" operation should be waiting until the lock is released
-            // via `latch.countDown()`.
-            var rewrittenValue = randomUUID();
-            readWriteExecutors.submit(() -> {
-                setting.use(rewrittenValue, Local.class);
-            });
-            sleepUninterruptibly(100, MILLISECONDS);
-
-            var stillSameValue = setting.value(Local.class);
-            assertThat(stillSameValue).isEqualTo(initialValue);
-
-            latch.countDown();
-            await(readBlockingFuture);
-
-            var newValue = setting.value(Local.class);
-            assertThat(newValue).isEqualTo(rewrittenValue);
-        }
-
-        @Test
-        @DisplayName("allowing a write operation to hold exclusive access, " +
-                "blocking concurrent reads and writes until complete")
-        void testWriteOperations() {
-            var initialValue = randomUUID();
-            var writeBlockingFuture = runBlockingWriteOperation(Local.class, initialValue);
-            sleepUninterruptibly(100, MILLISECONDS);
-
-            var rewrittenValue = randomUUID();
-            var writeFuture =
-                    runVerifyingWriteOperation(Local.class, rewrittenValue, initialValue);
-            sleepUninterruptibly(100, MILLISECONDS);
-
-            latch.countDown();
-            await(writeFuture);
-            await(writeBlockingFuture);
-
-            assertThat(setting.value(Local.class)).isEqualTo(rewrittenValue);
-        }
-
-        @AfterEach
-        void tearDown() throws InterruptedException {
-            readWriteExecutors.shutdownNow();
-            readWriteExecutors.awaitTermination(500, MILLISECONDS);
-        }
-
-        /**
-         * Runs a blocking read operation over the `setting` instance under test,
-         * and verifies the retrieved value.
-         *
-         * @param type
-         *         the environment type for which to read the value
-         * @param expectedValue
-         *         the expected value to verify the result of the read operation
-         */
-        private Future<?>
-        runBlockingReadOperation(Class<? extends EnvironmentType<?>> type, UUID expectedValue) {
-            return readWriteExecutors.submit(() -> {
-                var actualValue = setting.valueFor(() -> {
-                    awaitUninterruptibly(latch);
-                    return type;
-                });
-                assertThat(actualValue).isPresent();
-                assertThat(actualValue.get()).isEqualTo(expectedValue);
-            });
-        }
-
-        /**
-         * Runs a blocking write operation over the `setting` instance under test.
-         *
-         * @param type
-         *         the environment type for which to set the value
-         * @param valueToSet
-         *         the value to set
-         */
-        private Future<?>
-        runBlockingWriteOperation(Class<? extends EnvironmentType<?>> type, UUID valueToSet) {
-            return readWriteExecutors.submit(() -> {
-                setting.useViaInit(() -> {
-                    awaitUninterruptibly(latch);
-                    return valueToSet;
-                }, type);
-            });
-        }
-
-        /**
-         * Submits a non-blocking write operation to the setting and verifies
-         * the current value in the setting before its update.
-         *
-         * @param type
-         *         the environment type for which to set and verify the value
-         * @param valueToSet
-         *         the new value to set
-         * @param currentValue
-         *         the expected current value to verify before updating
-         */
-        private Future<?> runVerifyingWriteOperation(Class<? extends EnvironmentType<?>> type,
-                                                     UUID valueToSet,
-                                                     UUID currentValue) {
-            return readWriteExecutors.submit(() -> {
-                assertThat(setting.value(type)).isEqualTo(currentValue);
-                setting.useViaInit(() -> valueToSet, type);
-            });
-        }
-
-        private static void await(Future<?> future) {
-            try {
-                future.get();
-            } catch (InterruptedException | ExecutionException e) {
-                throw illegalStateWithCauseOf(e);
-            }
-        }
-    }
-
     @Test
     @DisplayName("reset the value for all environments")
     void resetTheValues() {
@@ -416,7 +263,7 @@ class EnvSettingTest {
 
     @Test
     @DisplayName("run an operation against a value if it's present")
-    void runThrowableConsumer() throws Exception {
+    void runThrowableConsumer() {
         var storageFactory = new MemoizingStorageFactory();
 
         var storageSetting = new EnvSetting<StorageFactory>();

@@ -27,16 +27,13 @@
 package io.spine.server;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import io.spine.annotation.VisibleForTesting;
 import io.spine.environment.Environment;
 import io.spine.environment.EnvironmentType;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.StampedLock;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -84,12 +81,10 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  *     StorageFactory theSameFactory = setting.value();
  * }</pre>
  *
- * <p>This type provides thread safety in accessing the configured values.
+ * <p>This type is NOT thread-safe.
  *
  * @param <V>
  *         the type of value
- * @implNote The access synchronization is implemented on top of {@link StampedLock}.
- *         See its documentation for more info on the potential limitations.
  */
 public final class EnvSetting<V> {
 
@@ -98,8 +93,6 @@ public final class EnvSetting<V> {
 
     private final Map<Class<? extends EnvironmentType<?>>, Supplier<V>> fallbacks =
             new ConcurrentHashMap<>();
-
-    private final StampedLock locker = new StampedLock();
 
     /**
      * Creates a new instance without any fallback configuration.
@@ -146,7 +139,8 @@ public final class EnvSetting<V> {
      *         the environment type
      * @param operation
      *         operation to run
-     * @throws IllegalStateException in case of the operation failure
+     * @throws IllegalStateException
+     *         in case of the operation failure
      */
     public void ifPresentForEnvironment(Class<? extends EnvironmentType<?>> type,
                                         SettingOperation<V> operation) {
@@ -174,18 +168,16 @@ public final class EnvSetting<V> {
      *         to avoid an unnecessary value instantiation.
      */
     public void apply(SettingOperation<V> operation) {
-        writeWithLock(() -> {
-            for (var v : environmentValues.values()) {
-                if (v.isResolved()) {
-                    var value = v.get();
-                    try {
-                        operation.accept(value);
-                    } catch (Exception e) {
-                        throw illegalStateWithCauseOf(e);
-                    }
+        for (var v : environmentValues.values()) {
+            if (v.isResolved()) {
+                var value = v.get();
+                try {
+                    operation.accept(value);
+                } catch (Exception e) {
+                    throw illegalStateWithCauseOf(e);
                 }
             }
-        });
+        }
     }
 
     /**
@@ -224,25 +216,6 @@ public final class EnvSetting<V> {
     }
 
     /**
-     * Returns the value for an environment type passed through a {@code Supplier}.
-     *
-     * <p>This operation is performed under the read lock. Any concurrent write operations
-     * are postponed until the lock is released.
-     */
-    @VisibleForTesting
-    Optional<V> valueFor(Supplier<Class<? extends EnvironmentType<?>>> type) {
-        var value = readWithLock(() -> {
-            var envType = type.get();
-            checkNotNull(envType);
-            return this.environmentValues.get(envType);
-        });
-        if (value == null) {
-            return Optional.empty();
-        }
-        return Optional.of(value.get());
-    }
-
-    /**
      * Clears this setting, removing all configured values.
      *
      * <p>The cached "default" values are also cleared.
@@ -250,7 +223,7 @@ public final class EnvSetting<V> {
      * to the {@linkplain #EnvSetting(Class, Supplier) constructor}.
      */
     public void reset() {
-        writeWithLock(environmentValues::clear);
+        environmentValues.clear();
     }
 
     /**
@@ -266,25 +239,7 @@ public final class EnvSetting<V> {
     public EnvSetting<V> use(V value, Class<? extends EnvironmentType<?>> type) {
         checkNotNull(value);
         checkNotNull(type);
-        writeWithLock(() -> this.environmentValues.put(type, new Value<>(value)));
-        return this;
-    }
-
-    /**
-     * Sets the value for the specified environment type using the provided initializer.
-     *
-     * <p>This operation is performed under the write lock.
-     * All concurrent read and write operations are postponed until the lock is released.
-     */
-    @CanIgnoreReturnValue
-    @VisibleForTesting
-    EnvSetting<V> useViaInit(Supplier<V> initializer, Class<? extends EnvironmentType<?>> type) {
-        checkNotNull(type);
-        writeWithLock(() -> {
-            var value = initializer.get();
-            checkNotNull(value);
-            this.environmentValues.put(type, new Value<>(value));
-        });
+        this.environmentValues.put(type, new Value<>(value));
         return this;
     }
 
@@ -305,15 +260,15 @@ public final class EnvSetting<V> {
     public EnvSetting<V> lazyUse(Supplier<V> value, Class<? extends EnvironmentType<?>> type) {
         checkNotNull(value);
         checkNotNull(type);
-        writeWithLock(() -> this.environmentValues.put(type, new Value<>(value)));
+        this.environmentValues.put(type, new Value<>(value));
         return this;
     }
 
     private Optional<V> valueFor(Class<? extends EnvironmentType<?>> type) {
         checkNotNull(type);
-        var value = readWithLock(() -> this.environmentValues.get(type));
+        var value = this.environmentValues.get(type);
         if (value == null) {
-            var resultSupplier = readWithLock(() -> this.fallbacks.get(type));
+            var resultSupplier = this.fallbacks.get(type);
             if (resultSupplier == null) {
                 return Optional.empty();
             }
@@ -324,43 +279,6 @@ public final class EnvSetting<V> {
         }
         var result = value.get();
         return Optional.of(result);
-    }
-
-    /**
-     * Executes the provided write operation under the write lock on the value.
-     *
-     * <p>While the write lock is held, all potential concurrent read and write operations
-     * are put on hold. Once the lock is released, they are automatically resumed.
-     *
-     * @param operation
-     *         the operation to execute
-     */
-    private void writeWithLock(Runnable operation) {
-        var stamp = locker.writeLock(); // acquire write lock
-        try {
-            operation.run();
-        } finally {
-            locker.unlockWrite(stamp); // release write lock
-        }
-    }
-
-    /**
-     * Executes the provided read operation under the read lock on the value,
-     * and returns the result.
-     *
-     * <p>While the read lock is held, multiple threads may perform their reads simultaneously.
-     * Any write operations are put on hold until the lock is released.
-     *
-     * @param operation
-     *         the operation to execute
-     */
-    private <T> @Nullable T readWithLock(Supplier<@Nullable T> operation) {
-        var stamp = locker.readLock();
-        try {
-            return operation.get();
-        } finally {
-            locker.unlockRead(stamp);
-        }
     }
 
     /**
