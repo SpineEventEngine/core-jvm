@@ -31,9 +31,9 @@ import io.spine.environment.Environment;
 import io.spine.environment.EnvironmentType;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -89,10 +89,10 @@ import static io.spine.util.Exceptions.newIllegalStateException;
 public final class EnvSetting<V> {
 
     private final Map<Class<? extends EnvironmentType<?>>, Value<V>> environmentValues =
-            new ConcurrentHashMap<>();
+            new HashMap<>();
 
     private final Map<Class<? extends EnvironmentType<?>>, Supplier<V>> fallbacks =
-            new ConcurrentHashMap<>();
+            new HashMap<>();
 
     /**
      * Creates a new instance without any fallback configuration.
