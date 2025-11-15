@@ -157,7 +157,7 @@ public final class EnvSetting<V> {
     /**
      * Applies the passed operation to this setting regardless of the current environment.
      *
-     * <p>This means the operation is applied to all passed setting {@linkplain #environmentValues
+     * <p>This means the operation is applied to all configured {@linkplain #environmentValues
      * values} on a per-environment basis.
      *
      * @param operation
