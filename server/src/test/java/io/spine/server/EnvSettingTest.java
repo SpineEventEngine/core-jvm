@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -26,13 +26,15 @@
 
 package io.spine.server;
 
-import io.spine.environment.EnvironmentType;
 import io.spine.environment.DefaultMode;
+import io.spine.environment.Environment;
+import io.spine.environment.EnvironmentType;
 import io.spine.environment.Tests;
 import io.spine.server.given.environment.Local;
 import io.spine.server.storage.StorageFactory;
 import io.spine.server.storage.memory.InMemoryStorageFactory;
 import io.spine.server.storage.system.given.MemoizingStorageFactory;
+import io.spine.testing.TestValues;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -42,6 +44,7 @@ import java.util.stream.Stream;
 
 import static com.google.common.truth.Truth.assertThat;
 import static io.spine.testing.Assertions.assertNpe;
+import static io.spine.testing.TestValues.nullRef;
 
 @DisplayName("`EnvSetting` should")
 @SuppressWarnings("DuplicateStringLiteralInspection")
@@ -50,6 +53,13 @@ class EnvSettingTest {
     @Nested
     @DisplayName("not allow to configure a `null` value ")
     class NoNulls {
+
+        @Test
+        @DisplayName("when using a ctor to define the fallback value")
+        void forCtor() {
+            assertNpe(() -> new EnvSetting<StorageFactory>(nullRef(), TestValues::nullRef));
+            assertNpe(() -> new EnvSetting<StorageFactory>(DefaultMode.class, nullRef()));
+        }
 
         @Test
         @DisplayName("for the `DefaultMode` environment")
@@ -77,8 +87,11 @@ class EnvSettingTest {
             assertNpe(() -> setting.use(InMemoryStorageFactory.newInstance(), null));
         }
 
-        @SuppressWarnings("ThrowableNotThrown")
-        private void testNoNullsForEnv(Class<? extends EnvironmentType<?>> envType) {
+        @SuppressWarnings({
+                "ThrowableNotThrown",
+                "DataFlowIssue"     /* Passing `null`s as parameters. */
+        })
+        private static void testNoNullsForEnv(Class<? extends EnvironmentType<?>> envType) {
             EnvSetting<?> setting = new EnvSetting<Void>();
             assertNpe(() -> setting.use(null, envType));
             assertNpe(() -> setting.lazyUse(null, envType));
@@ -108,7 +121,17 @@ class EnvSettingTest {
             testReturnsForEnv(Local.class);
         }
 
-        private void testReturnsForEnv(Class<? extends EnvironmentType<?>> type) {
+        @Test
+        @DisplayName("for the current environment type")
+        void forCurrentEnv() {
+            var environment = Environment.instance();
+            var factory = InMemoryStorageFactory.newInstance();
+            var storageFactory = new EnvSetting<StorageFactory>();
+            storageFactory.use(factory, environment.type());
+            assertThat(storageFactory.value()).isSameInstanceAs(factory);
+        }
+
+        private static void testReturnsForEnv(Class<? extends EnvironmentType<?>> type) {
             var factory = InMemoryStorageFactory.newInstance();
             var storageFactory = new EnvSetting<StorageFactory>();
             storageFactory.use(factory, type);
@@ -201,8 +224,7 @@ class EnvSettingTest {
             testLazyForEnv(Local.class);
         }
 
-        @SuppressWarnings("OptionalGetWithoutIsPresent")
-        private void testLazyForEnv(Class<? extends EnvironmentType<?>> type) {
+        private static void testLazyForEnv(Class<? extends EnvironmentType<?>> type) {
             var factory = InMemoryStorageFactory.newInstance();
             var storageFactory = new EnvSetting<StorageFactory>();
             var resolved = new AtomicBoolean(false);
@@ -213,8 +235,8 @@ class EnvSettingTest {
             assertThat(resolved.get()).isFalse();
 
             var actual = storageFactory.optionalValue(type);
-            assertThat(actual)
-                    .isPresent();
+
+            assertThat(actual).isPresent();
             assertThat(resolved.get()).isTrue();
             assertThat(actual.get()).isSameInstanceAs(factory);
         }
@@ -228,9 +250,9 @@ class EnvSettingTest {
         var localStorageFactory = InMemoryStorageFactory.newInstance();
 
         var storageFactory = new EnvSetting<StorageFactory>();
-        storageFactory.use(prodStorageFactory, DefaultMode.class);
-        storageFactory.use(testingStorageFactory, Tests.class);
-        storageFactory.use(localStorageFactory, Local.class);
+        storageFactory.use(prodStorageFactory, DefaultMode.class)
+                      .use(testingStorageFactory, Tests.class)
+                      .use(localStorageFactory, Local.class);
 
         storageFactory.reset();
 
@@ -241,7 +263,7 @@ class EnvSettingTest {
 
     @Test
     @DisplayName("run an operation against a value if it's present")
-    void runThrowableConsumer() throws Exception {
+    void runThrowableConsumer() {
         var storageFactory = new MemoizingStorageFactory();
 
         var storageSetting = new EnvSetting<StorageFactory>();
@@ -254,16 +276,16 @@ class EnvSettingTest {
 
     @Test
     @DisplayName("run an operation for all present values")
-    void runOperationForAll() throws Exception {
+    void runOperationForAll() {
         var prodStorageFactory = new MemoizingStorageFactory();
         var testingStorageFactory = new MemoizingStorageFactory();
         var localStorageFactory = new MemoizingStorageFactory();
 
         var storageSetting = new EnvSetting<StorageFactory>();
 
-        storageSetting.use(prodStorageFactory, DefaultMode.class);
-        storageSetting.use(testingStorageFactory, Tests.class);
-        storageSetting.use(localStorageFactory, Local.class);
+        storageSetting.use(prodStorageFactory, DefaultMode.class)
+                      .use(testingStorageFactory, Tests.class)
+                      .use(localStorageFactory, Local.class);
 
         storageSetting.apply(AutoCloseable::close);
 

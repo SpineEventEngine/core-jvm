@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2025, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -26,7 +26,8 @@
 
 package io.spine.server;
 
-import io.spine.annotation.VisibleForTesting;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import io.spine.environment.Environment;
 import io.spine.environment.EnvironmentType;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -36,63 +37,56 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static io.spine.util.Exceptions.illegalStateWithCauseOf;
 import static io.spine.util.Exceptions.newIllegalStateException;
 
 /**
  * A mutable value that may differ between {@linkplain EnvironmentType environment types}.
  *
  * <p>For example:
- * <pre>
- * {@literal EnvSetting<StorageFactory>} storageFactory ={@literal new EnvSetting<>();}
- * storageFactory.use(InMemoryStorageFactory.newInstance(), Production.class);
+ * <pre>{@code
+ *     EnvSetting<StorageFactory> storageFactory = new EnvSetting<>();
+ *     storageFactory.use(InMemoryStorageFactory.newInstance(), Production.class)
+ *                   .use(new MemoizingStorageFactory(), Tests.class);
  *
- * assertThat(storageFactory.optionalValue(Production.class)).isPresent();
- * assertThat(storageFactory.optionalValue(Tests.class)).isEmpty();
- * </pre>
+ *     // Provides the `StorageFactory` for the current environment of the application.
+ *     StorageFactory currentStorageFactory = storageFactory.value();
+ * }</pre>
  *
  * <h2>Fallback</h2>
  * <p>{@code EnvSetting} allows to configure a default value for an environment type. It is used
  * when the value for the environment hasn't been {@linkplain #use(Object, Class) set explicitly}.
- * <pre>
+ * <pre>{@code
  *      // Assuming the environment is `Tests`.
- *
- *      StorageFactory fallbackStorageFactory = createStorageFactory();
- *     {@literal EnvSetting<StorageFactory>} setting =
- *          {@literal new EnvSetting<>(Tests.class, () -> fallbackStorageFactory)};
+ *     StorageFactory fallbackStorageFactory = createStorageFactory();
+ *     EnvSetting<StorageFactory> setting =
+ *         new EnvSetting<>(Tests.class, () -> fallbackStorageFactory);
  *
  *     // `use` was never called, so the fallback value is calculated and returned.
- *     assertThat(setting.optionalValue()).isPresent();
+ *     assertThat(setting.optionalValue(Tests.class)).isPresent();
  *     assertThat(setting.value()).isSameInstanceAs(fallbackStorageFactory);
- * </pre>
+ * }</pre>
  *
  * <p>Fallback values are calculated once on first {@linkplain #value(Class) access} for the
  * specified environment. Every subsequent access returns the cached value.
- *
- * <pre>
+ * <pre>{@code
  *      // This `Supplier` is calculated only once.
- *     {@literal Supplier<StorageFactory>} fallbackStorage = InMemoryStorageFactory::newInstance;
- *
- *     {@literal EnvSetting<StorageFactory>} setting =
- *     {@literal new EnvSetting<>(Tests.class, fallbackStorage);}
+ *     Supplier<StorageFactory> fallbackStorage = InMemoryStorageFactory::newInstance;
+ *     EnvSetting<StorageFactory> setting = new EnvSetting<>(Tests.class, fallbackStorage);
  *
  *     // `Supplier` is calculated and cached.
  *     StorageFactory storageFactory = setting.value();
  *
  *     // Fallback value is taken from cache.
  *     StorageFactory theSameFactory = setting.value();
- * </pre>
+ * }</pre>
  *
- * <p>{@code EnvSetting} values do not determine the environment themselves: it's up to the
- * caller to ask for the appropriate one.
- *
- * <p>This implementation does <b>not</b> perform any synchronization, thus, if different threads
- * {@linkplain #use(Object, Class) configure} and {@linkplain #value(Class) read the value},
- * no effort is made to ensure any consistency.
+ * <p>This type is NOT thread-safe.
  *
  * @param <V>
  *         the type of value
  */
-final class EnvSetting<V> {
+public final class EnvSetting<V> {
 
     private final Map<Class<? extends EnvironmentType<?>>, Value<V>> environmentValues =
             new HashMap<>();
@@ -103,7 +97,7 @@ final class EnvSetting<V> {
     /**
      * Creates a new instance without any fallback configuration.
      */
-    EnvSetting() {
+    public EnvSetting() {
     }
 
     /**
@@ -111,18 +105,27 @@ final class EnvSetting<V> {
      *
      * <p>If a value for {@code type} is not {@linkplain #use(Object, Class) set explicitly},
      * {@link #value(Class)} and {@link #optionalValue(Class)} return the {@code fallback} result.
+     *
+     * @param type
+     *         the environment type to set the fallback for
+     * @param fallback
+     *         the supplier of a default value for the passed environment type
      */
-    EnvSetting(Class<? extends EnvironmentType<?>> type, Supplier<V> fallback) {
+    public EnvSetting(Class<? extends EnvironmentType<?>> type, Supplier<V> fallback) {
+        checkNotNull(type);
+        checkNotNull(fallback);
         this.fallbacks.put(type, fallback);
     }
 
     /**
      * If the value for the specified environment has been configured, returns it. Returns an
      * empty {@code Optional} otherwise.
+     *
+     * @param type
+     *         the environment type for which to retrieve the value
      */
-    Optional<V> optionalValue(Class<? extends EnvironmentType<?>> type) {
-        var result = valueFor(type);
-        return result;
+    public Optional<V> optionalValue(Class<? extends EnvironmentType<?>> type) {
+        return valueFor(type);
     }
 
     /**
@@ -132,31 +135,47 @@ final class EnvSetting<V> {
      * <p>If you wish to run an operation that doesn't throw, use {@code
      * optionalValue(type).ifPresent(operation)}.
      *
+     * @param type
+     *         the environment type
      * @param operation
      *         operation to run
+     * @throws IllegalStateException
+     *         in case of the operation failure
      */
-    void ifPresentForEnvironment(Class<? extends EnvironmentType<?>> type,
-                                 SettingOperation<V> operation) throws Exception {
+    public void ifPresentForEnvironment(Class<? extends EnvironmentType<?>> type,
+                                        SettingOperation<V> operation) {
         var value = valueFor(type);
         if (value.isPresent()) {
-            operation.accept(value.get());
+            try {
+                operation.accept(value.get());
+            } catch (Exception e) {
+                throw illegalStateWithCauseOf(e);
+            }
         }
     }
 
     /**
      * Applies the passed operation to this setting regardless of the current environment.
      *
-     * <p>This means the operation is applied to all passed setting {@linkplain #environmentValues
+     * <p>This means the operation is applied to all configured {@linkplain #environmentValues
      * values} on a per-environment basis.
      *
-     * @apiNote The not yet run {@linkplain #fallbacks fallback suppliers} are ignored to avoid an
-     *        unnecessary value instantiation.
+     * @param operation
+     *         the operation to apply
+     * @throws IllegalStateException
+     *         in case of the operation failure
+     * @apiNote The not yet run {@linkplain #fallbacks fallback suppliers} are ignored
+     *         to avoid an unnecessary value instantiation.
      */
-    void apply(SettingOperation<V> operation) throws Exception {
+    public void apply(SettingOperation<V> operation) {
         for (var v : environmentValues.values()) {
-            if(v.isResolved()) {
+            if (v.isResolved()) {
                 var value = v.get();
-                operation.accept(value);
+                try {
+                    operation.accept(value);
+                } catch (Exception e) {
+                    throw illegalStateWithCauseOf(e);
+                }
             }
         }
     }
@@ -166,8 +185,13 @@ final class EnvSetting<V> {
      *
      * <p>If it is not set, returns a fallback value. If no fallback was configured, an
      * {@code IllegalStateException} is thrown.
+     *
+     * @param type
+     *         the environment type for which to retrieve the value
+     * @throws IllegalStateException
+     *         if no value is set and no fallback is configured for the type
      */
-    V value(Class<? extends EnvironmentType<?>> type) {
+    public V value(Class<? extends EnvironmentType<?>> type) {
         checkNotNull(type);
         var result = valueFor(type);
         return result.orElseThrow(
@@ -176,13 +200,29 @@ final class EnvSetting<V> {
     }
 
     /**
-     * Clears this setting, forgetting all of the configured values.
+     * Returns the value corresponding to the current environment type.
      *
-     * <p>Cached default values are also cleared and will be recalculated using the {@code
-     * Supplier} passed to the {@linkplain #EnvSetting(Class, Supplier) constructor}.
+     * <p>In case there is no value set for the current environment, returns a fallback value.
+     * If no fallback was configured, an {@code IllegalStateException} is thrown.
+     *
+     * @return the value corresponding to the current environment type, or a fallback value
+     * @throws IllegalStateException
+     *         if both the configured value and the fallback value are not set
+     *         for the current environment
      */
-    @VisibleForTesting
-    void reset() {
+    public V value() {
+        var environment = Environment.instance();
+        return value(environment.type());
+    }
+
+    /**
+     * Clears this setting, removing all configured values.
+     *
+     * <p>The cached "default" values are also cleared.
+     * They will be recalculated using the {@code Supplier} passed
+     * to the {@linkplain #EnvSetting(Class, Supplier) constructor}.
+     */
+    public void reset() {
         environmentValues.clear();
     }
 
@@ -193,11 +233,14 @@ final class EnvSetting<V> {
      *         value to assign to one of environments
      * @param type
      *         the type of the environment
+     * @return this instance for call chaining
      */
-    void use(V value, Class<? extends EnvironmentType<?>> type) {
+    @CanIgnoreReturnValue
+    public EnvSetting<V> use(V value, Class<? extends EnvironmentType<?>> type) {
         checkNotNull(value);
         checkNotNull(type);
         this.environmentValues.put(type, new Value<>(value));
+        return this;
     }
 
     /**
@@ -211,11 +254,14 @@ final class EnvSetting<V> {
      *         supplier of the value to assign to one of environments
      * @param type
      *         the type of the environment
+     * @return this instance for call chaining
      */
-    void lazyUse(Supplier<V> value, Class<? extends EnvironmentType<?>> type) {
+    @CanIgnoreReturnValue
+    public EnvSetting<V> lazyUse(Supplier<V> value, Class<? extends EnvironmentType<?>> type) {
         checkNotNull(value);
         checkNotNull(type);
         this.environmentValues.put(type, new Value<>(value));
+        return this;
     }
 
     private Optional<V> valueFor(Class<? extends EnvironmentType<?>> type) {
@@ -236,14 +282,21 @@ final class EnvSetting<V> {
     }
 
     /**
-     * Represents an operation over the setting that returns no result and may finish with an error.
+     * An operation over the setting that returns no result and may finish with an error.
      *
      * @param <V>
      *         the type of setting to perform the operation over
      */
-    interface SettingOperation<V> {
+    public interface SettingOperation<V> {
 
-        /** Performs this operation on the specified value. */
+        /**
+         * Performs this operation on the specified value.
+         *
+         * @param value
+         *         the value to use in this operation
+         * @throws Exception
+         *         in case of a failure
+         */
         void accept(V value) throws Exception;
     }
 
