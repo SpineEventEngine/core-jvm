@@ -29,7 +29,7 @@ package io.spine.dependency.local
 /**
  * Spine Base module.
  *
- * @see <a href="https://github.com/SpineEventEngine/base">spine-base</a>
+ * @see <a href="https://github.com/SpineEventEngine/base-libraries">spine-base-libraries</a>
  */
 @Suppress("ConstPropertyName", "unused")
 object Base {

@@ -36,7 +36,7 @@ object Validation {
     /**
      * The version of the Validation library artifacts.
      */
-    const val version = "2.0.0-SNAPSHOT.352"
+    const val version = "2.0.0-SNAPSHOT.354"
 
     /**
      * The last version of Validation compatible with ProtoData.
