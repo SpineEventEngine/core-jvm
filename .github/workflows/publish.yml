@@ -58,6 +58,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FORMAL_GIT_HUB_PAGES_AUTHOR: developers@spine.io
           # https://docs.github.com/en/actions/reference/environment-variables
-          REPO_SLUG: $GITHUB_REPOSITORY    # e.g. SpineEventEngine/core-java
+          REPO_SLUG: ${{ github.repository }}    # e.g. SpineEventEngine/core-java
           GOOGLE_APPLICATION_CREDENTIALS: ./maven-publisher.json
           NPM_TOKEN: ${{ secrets.NPM_SECRET }}
