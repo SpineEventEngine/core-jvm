@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>SubscriptionServiceGrpc</title>
+    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
+        <script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+      if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      } else {
+        const savedDarkMode = JSON.parse(storage)
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../../ui-kit/ui-kit.min.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/safe-local-storage_blocking.js"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../ui-kit/ui-kit.min.js" defer="defer"></script>
+<link href="../../../images/logo-icon.svg">
+<link href="../../../styles/custom-styles.css" rel="Stylesheet">
+</head>
+<body>
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+            <a class="library-name--link" href="../../../index.html" tabindex="1">
+                    client
+            </a>
+        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle"
+                type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">
+2.0.0-SNAPSHOT.356        </div>
+        <div class="navigation-controls">
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector jvm-like" data-active="" aria-pressed="true"
+                        data-filter=":client/main">jvm</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
+                        data-role="dropdown-toggle"
+                        aria-controls="platform-tags-listbox"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-label="Toggle source sets"
+                ></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option jvm-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":client/main"
+                                       data-filter=":client/main"/>
+                                <span class="checkbox--icon"></span>
+                                jvm
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </ul>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
+                    type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
+        </div>
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config='{"defaultSize": 280, "minSize": 200, "maxSize": 400}'>
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list"
+                    data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
+                            <span>
+                                    client
+                            </span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
+<div class="main-content" data-page-type="classlike" id="content" pageIds="client::io.spine.client.grpc/SubscriptionServiceGrpc///PointingToDeclaration//-1083565173">
+  <div class="breadcrumbs"><a href="../../../index.html">client</a><span class="delimiter">/</span><a href="../index.html">io.spine.client.grpc</a><span class="delimiter">/</span><span class="current">SubscriptionServiceGrpc</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>Subscription</span><wbr></wbr><span>Service</span><wbr></wbr><span><span>Grpc</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":client/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="index.html">SubscriptionServiceGrpc</a></div><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">A service for subscribing to receive updates by a specified topic.
+The subscription topic define a type in updates of which the client code is interested in, and
+filtering conditions (e.g. by values of fields or identity).
+Creating a subscriptions consists of two steps:
+ * Step 1: creating `Subscription` instance. This steps verifies that type specified in
+   the `Topic` is available at the server, and prepares backend structures for delivering
+   updates. Subscription is created by the `Subscribe(Topic)` call.
+   together with the contexts of the events.
+ * Step 2: activating the subscription. This step turns the subscription on.
+   Activation is performed by the `Activate(Subscription)` call.
+The client will receive updates until the subscription is cancelled via `Cancel(Subscription)`.
+</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="TYPE">
+        <h2 class="tableheader">Types</h2>
+        <div class="table"><a data-name="1708666079%2FClasslikes%2F-1083565173" anchor-label="AsyncService" id="1708666079%2FClasslikes%2F-1083565173" data-filterable-set=":client/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":client/main" data-filterable-set=":client/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-async-service/index.html"><span>Async</span><wbr></wbr><span><span>Service</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1708666079%2FClasslikes%2F-1083565173"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":client/main"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-async-service/index.html">AsyncService</a></div><div class="brief "><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">A service for subscribing to receive updates by a specified topic.
+The subscription topic define a type in updates of which the client code is interested in, and
+filtering conditions (e.g. by values of fields or identity).
+Creating a subscriptions consists of two steps:
+ * Step 1: creating `Subscription` instance. This steps verifies that type specified in
+   the `Topic` is available at the server, and prepares backend structures for delivering
+   updates. Subscription is created by the `Subscribe(Topic)` call.
+   together with the contexts of the events.
+ * Step 2: activating the subscription. This step turns the subscription on.
+   Activation is performed by the `Activate(Subscription)` call.
+The client will receive updates until the subscription is cancelled via `Cancel(Subscription)`.
+</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-630072177%2FClasslikes%2F-1083565173" anchor-label="SubscriptionServiceBlockingStub" id="-630072177%2FClasslikes%2F-1083565173" data-filterable-set=":client/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":client/main" data-filterable-set=":client/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-subscription-service-blocking-stub/index.html"><span>Subscription</span><wbr></wbr><span>Service</span><wbr></wbr><span>Blocking</span><wbr></wbr><span><span>Stub</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-630072177%2FClasslikes%2F-1083565173"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":client/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="-subscription-service-blocking-stub/index.html">SubscriptionServiceBlockingStub</a> : <span data-unresolved-link="io.grpc.stub/AbstractBlockingStub///PointingToDeclaration/">AbstractBlockingStub</span><span class="token operator">&lt;</span><a href="-subscription-service-blocking-stub/index.html">SubscriptionServiceGrpc.SubscriptionServiceBlockingStub</a><span class="token operator">&gt; </span></div><div class="brief ">A stub to allow clients to do limited synchronous rpc calls to service SubscriptionService.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1110735987%2FClasslikes%2F-1083565173" anchor-label="SubscriptionServiceBlockingV2Stub" id="1110735987%2FClasslikes%2F-1083565173" data-filterable-set=":client/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":client/main" data-filterable-set=":client/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-subscription-service-blocking-v2-stub/index.html"><span>Subscription</span><wbr></wbr><span>Service</span><wbr></wbr><span>Blocking</span><wbr></wbr><span><span>V2Stub</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1110735987%2FClasslikes%2F-1083565173"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":client/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="-subscription-service-blocking-v2-stub/index.html">SubscriptionServiceBlockingV2Stub</a> : <span data-unresolved-link="io.grpc.stub/AbstractBlockingStub///PointingToDeclaration/">AbstractBlockingStub</span><span class="token operator">&lt;</span><a href="-subscription-service-blocking-v2-stub/index.html">SubscriptionServiceGrpc.SubscriptionServiceBlockingV2Stub</a><span class="token operator">&gt; </span></div><div class="brief ">A stub to allow clients to do synchronous rpc calls to service SubscriptionService.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="444824065%2FClasslikes%2F-1083565173" anchor-label="SubscriptionServiceFutureStub" id="444824065%2FClasslikes%2F-1083565173" data-filterable-set=":client/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":client/main" data-filterable-set=":client/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-subscription-service-future-stub/index.html"><span>Subscription</span><wbr></wbr><span>Service</span><wbr></wbr><span>Future</span><wbr></wbr><span><span>Stub</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="444824065%2FClasslikes%2F-1083565173"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":client/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="-subscription-service-future-stub/index.html">SubscriptionServiceFutureStub</a> : <span data-unresolved-link="io.grpc.stub/AbstractFutureStub///PointingToDeclaration/">AbstractFutureStub</span><span class="token operator">&lt;</span><a href="-subscription-service-future-stub/index.html">SubscriptionServiceGrpc.SubscriptionServiceFutureStub</a><span class="token operator">&gt; </span></div><div class="brief ">A stub to allow clients to do ListenableFuture-style rpc calls to service SubscriptionService.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="786799169%2FClasslikes%2F-1083565173" anchor-label="SubscriptionServiceImplBase" id="786799169%2FClasslikes%2F-1083565173" data-filterable-set=":client/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":client/main" data-filterable-set=":client/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-subscription-service-impl-base/index.html"><span>Subscription</span><wbr></wbr><span>Service</span><wbr></wbr><span>Impl</span><wbr></wbr><span><span>Base</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="786799169%2FClasslikes%2F-1083565173"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":client/main"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">class </span><a href="-subscription-service-impl-base/index.html">SubscriptionServiceImplBase</a> : <span data-unresolved-link="io.grpc/BindableService///PointingToDeclaration/">BindableService</span>, <a href="-async-service/index.html">SubscriptionServiceGrpc.AsyncService</a></div><div class="brief ">Base class for the server implementation of the service SubscriptionService.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1046289980%2FClasslikes%2F-1083565173" anchor-label="SubscriptionServiceStub" id="-1046289980%2FClasslikes%2F-1083565173" data-filterable-set=":client/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":client/main" data-filterable-set=":client/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-subscription-service-stub/index.html"><span>Subscription</span><wbr></wbr><span>Service</span><wbr></wbr><span><span>Stub</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1046289980%2FClasslikes%2F-1083565173"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":client/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="-subscription-service-stub/index.html">SubscriptionServiceStub</a> : <span data-unresolved-link="io.grpc.stub/AbstractAsyncStub///PointingToDeclaration/">AbstractAsyncStub</span><span class="token operator">&lt;</span><a href="-subscription-service-stub/index.html">SubscriptionServiceGrpc.SubscriptionServiceStub</a><span class="token operator">&gt; </span></div><div class="brief ">A stub to allow clients to do asynchronous rpc calls to service SubscriptionService.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="PROPERTY">
+        <h2 class="tableheader">Properties</h2>
+        <div class="table"><a data-name="-580144818%2FProperties%2F-1083565173" anchor-label="SERVICE_NAME" id="-580144818%2FProperties%2F-1083565173" data-filterable-set=":client/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":client/main" data-filterable-set=":client/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-s-e-r-v-i-c-e_-n-a-m-e.html"><span>SERVICE_</span><wbr></wbr><span>NAME</span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-580144818%2FProperties%2F-1083565173"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":client/main"><div class="symbol monospace"><span class="token keyword">val </span><a href="-s-e-r-v-i-c-e_-n-a-m-e.html">SERVICE_NAME</a><span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html">String</a><span class="token operator"> = </span><span class="token string">&quot;spine.client.SubscriptionService&quot;</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1802679789%2FProperties%2F-1083565173" anchor-label="serviceDescriptor" id="-1802679789%2FProperties%2F-1083565173" data-filterable-set=":client/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":client/main" data-filterable-set=":client/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="service-descriptor.html"><span>service</span><wbr></wbr><span><span>Descriptor</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1802679789%2FProperties%2F-1083565173"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":client/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">val </span><a href="service-descriptor.html">serviceDescriptor</a><span class="token operator">: </span><span data-unresolved-link="io.grpc/ServiceDescriptor///PointingToDeclaration/">ServiceDescriptor</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="FUNCTION">
+        <h2 class="tableheader">Functions</h2>
+        <div class="table"><a data-name="596272722%2FFunctions%2F-1083565173" anchor-label="bindService" id="596272722%2FFunctions%2F-1083565173" data-filterable-set=":client/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":client/main" data-filterable-set=":client/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="bind-service.html"><span>bind</span><wbr></wbr><span><span>Service</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="596272722%2FFunctions%2F-1083565173"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":client/main"><div class="symbol monospace"><span class="token keyword">fun </span><a href="bind-service.html"><span class="token function">bindService</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">service<span class="token operator">: </span><a href="-async-service/index.html">SubscriptionServiceGrpc.AsyncService</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.grpc/ServerServiceDefinition///PointingToDeclaration/">ServerServiceDefinition</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="223439917%2FFunctions%2F-1083565173" anchor-label="getActivateMethod" id="223439917%2FFunctions%2F-1083565173" data-filterable-set=":client/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":client/main" data-filterable-set=":client/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-activate-method.html"><span>get</span><wbr></wbr><span>Activate</span><wbr></wbr><span><span>Method</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="223439917%2FFunctions%2F-1083565173"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":client/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="get-activate-method.html"><span class="token function">getActivateMethod</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.grpc/MethodDescriptor///PointingToDeclaration/">MethodDescriptor</span><span class="token operator">&lt;</span><a href="../../io.spine.client/-subscription/index.html">Subscription</a><span class="token punctuation">, </span><a href="../../io.spine.client/-subscription-update/index.html">SubscriptionUpdate</a><span class="token operator">&gt;</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="23509702%2FFunctions%2F-1083565173" anchor-label="getCancelMethod" id="23509702%2FFunctions%2F-1083565173" data-filterable-set=":client/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":client/main" data-filterable-set=":client/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-cancel-method.html"><span>get</span><wbr></wbr><span>Cancel</span><wbr></wbr><span><span>Method</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="23509702%2FFunctions%2F-1083565173"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":client/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="get-cancel-method.html"><span class="token function">getCancelMethod</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.grpc/MethodDescriptor///PointingToDeclaration/">MethodDescriptor</span><span class="token operator">&lt;</span><a href="../../io.spine.client/-subscription/index.html">Subscription</a><span class="token punctuation">, </span><span data-unresolved-link="io.spine.core/Response///PointingToDeclaration/">Response</span><span class="token operator">&gt;</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1135721938%2FFunctions%2F-1083565173" anchor-label="getSubscribeMethod" id="-1135721938%2FFunctions%2F-1083565173" data-filterable-set=":client/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":client/main" data-filterable-set=":client/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-subscribe-method.html"><span>get</span><wbr></wbr><span>Subscribe</span><wbr></wbr><span><span>Method</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1135721938%2FFunctions%2F-1083565173"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":client/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="get-subscribe-method.html"><span class="token function">getSubscribeMethod</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.grpc/MethodDescriptor///PointingToDeclaration/">MethodDescriptor</span><span class="token operator">&lt;</span><a href="../../io.spine.client/-topic/index.html">Topic</a><span class="token punctuation">, </span><a href="../../io.spine.client/-subscription/index.html">Subscription</a><span class="token operator">&gt;</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1518653267%2FFunctions%2F-1083565173" anchor-label="newBlockingStub" id="1518653267%2FFunctions%2F-1083565173" data-filterable-set=":client/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":client/main" data-filterable-set=":client/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="new-blocking-stub.html"><span>new</span><wbr></wbr><span>Blocking</span><wbr></wbr><span><span>Stub</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1518653267%2FFunctions%2F-1083565173"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":client/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="new-blocking-stub.html"><span class="token function">newBlockingStub</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">channel<span class="token operator">: </span><span data-unresolved-link="io.grpc/Channel///PointingToDeclaration/">Channel</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-subscription-service-blocking-stub/index.html">SubscriptionServiceGrpc.SubscriptionServiceBlockingStub</a></div><div class="brief ">Creates a new blocking-style stub that supports unary and streaming output calls on the service</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-926411473%2FFunctions%2F-1083565173" anchor-label="newBlockingV2Stub" id="-926411473%2FFunctions%2F-1083565173" data-filterable-set=":client/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":client/main" data-filterable-set=":client/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="new-blocking-v2-stub.html"><span>new</span><wbr></wbr><span>Blocking</span><wbr></wbr><span><span>V2Stub</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-926411473%2FFunctions%2F-1083565173"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":client/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="new-blocking-v2-stub.html"><span class="token function">newBlockingV2Stub</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">channel<span class="token operator">: </span><span data-unresolved-link="io.grpc/Channel///PointingToDeclaration/">Channel</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-subscription-service-blocking-v2-stub/index.html">SubscriptionServiceGrpc.SubscriptionServiceBlockingV2Stub</a></div><div class="brief ">Creates a new blocking-style stub that supports all types of calls on the service</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1798920863%2FFunctions%2F-1083565173" anchor-label="newFutureStub" id="-1798920863%2FFunctions%2F-1083565173" data-filterable-set=":client/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":client/main" data-filterable-set=":client/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="new-future-stub.html"><span>new</span><wbr></wbr><span>Future</span><wbr></wbr><span><span>Stub</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1798920863%2FFunctions%2F-1083565173"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":client/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="new-future-stub.html"><span class="token function">newFutureStub</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">channel<span class="token operator">: </span><span data-unresolved-link="io.grpc/Channel///PointingToDeclaration/">Channel</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-subscription-service-future-stub/index.html">SubscriptionServiceGrpc.SubscriptionServiceFutureStub</a></div><div class="brief ">Creates a new ListenableFuture-style stub that supports unary calls on the service</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1495019394%2FFunctions%2F-1083565173" anchor-label="newStub" id="-1495019394%2FFunctions%2F-1083565173" data-filterable-set=":client/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":client/main" data-filterable-set=":client/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="new-stub.html"><span>new</span><wbr></wbr><span><span>Stub</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1495019394%2FFunctions%2F-1083565173"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":client/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="new-stub.html"><span class="token function">newStub</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">channel<span class="token operator">: </span><span data-unresolved-link="io.grpc/Channel///PointingToDeclaration/">Channel</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-subscription-service-stub/index.html">SubscriptionServiceGrpc.SubscriptionServiceStub</a></div><div class="brief ">Creates a new async stub that supports all call types for the service</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    <div class="footer">
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>Copyright 2025, TeamDev</div>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>Filters</title>
+    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
+        <script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+      if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      } else {
+        const savedDarkMode = JSON.parse(storage)
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../../ui-kit/ui-kit.min.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/safe-local-storage_blocking.js"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../ui-kit/ui-kit.min.js" defer="defer"></script>
+<link href="../../../images/logo-icon.svg">
+<link href="../../../styles/custom-styles.css" rel="Stylesheet">
+</head>
+<body>
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+            <a class="library-name--link" href="../../../index.html" tabindex="1">
+                    client
+            </a>
+        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle"
+                type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">
+2.0.0-SNAPSHOT.356        </div>
+        <div class="navigation-controls">
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector jvm-like" data-active="" aria-pressed="true"
+                        data-filter=":client/main">jvm</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
+                        data-role="dropdown-toggle"
+                        aria-controls="platform-tags-listbox"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-label="Toggle source sets"
+                ></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option jvm-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":client/main"
+                                       data-filter=":client/main"/>
+                                <span class="checkbox--icon"></span>
+                                jvm
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </ul>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
+                    type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
+        </div>
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config='{"defaultSize": 280, "minSize": 200, "maxSize": 400}'>
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list"
+                    data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
+                            <span>
+                                    client
+                            </span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
+<div class="main-content" data-page-type="classlike" id="content" pageIds="client::io.spine.client/Filters///PointingToDeclaration//-1083565173">
+  <div class="breadcrumbs"><a href="../../../index.html">client</a><span class="delimiter">/</span><a href="../index.html">io.spine.client</a><span class="delimiter">/</span><span class="current">Filters</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span><span>Filters</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":client/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="index.html">Filters</a></div><p class="paragraph">A factory of <a href="../-filter/index.html">Filter</a> instances. </p><p class="paragraph">Public methods of this class represent the recommended way to create a <a href="../-filter/index.html">Filter</a>. </p><h3 class="">Supported Types</h3><p class="paragraph">The filters allow to put criteria on fields with comparison operations. The criteria either define the particular values for the fields or specify some ordering. </p><p class="paragraph">The equality comparison supports any data type for the compared objects. </p><p class="paragraph">The ordering comparison (&gt;, &lt;, &gt;, =, &lt;, =) supports only the following types: </p><ul><li><span data-unresolved-link="com.google.protobuf/Timestamp///PointingToDeclaration/">com.google.protobuf.Timestamp</span>; </li><li><span data-unresolved-link="io.spine.core/Version///PointingToDeclaration/">io.spine.core.Version</span>; </li><li>Java primitive number types; </li><li><code class="lang-kotlin">String</code>. </li></ul><h4 class="tableheader">See also</h4><div class="table"><div class="table-row table-row_content" data-filterable-current=":client/main" data-filterable-set=":client/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-query-builder/index.html"><span>Query</span><wbr></wbr><span><span>Builder</span></span></a></div></span></div><div><div class="title"><p class="paragraph">for the application</p></div></div></div></div><div class="table-row table-row_content" data-filterable-current=":client/main" data-filterable-set=":client/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-query-filter/index.html"><span>Query</span><wbr></wbr><span><span>Filter</span></span></a></div></span></div><div></div></div></div><div class="table-row table-row_content" data-filterable-current=":client/main" data-filterable-set=":client/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-entity-state-filter/index.html"><span>Entity</span><wbr></wbr><span>State</span><wbr></wbr><span><span>Filter</span></span></a></div></span></div><div></div></div></div><div class="table-row table-row_content" data-filterable-current=":client/main" data-filterable-set=":client/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-event-filter/index.html"><span>Event</span><wbr></wbr><span><span>Filter</span></span></a></div></span></div><div></div></div></div></div></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="FUNCTION">
+        <h2 class="tableheader">Functions</h2>
+        <div class="table"><a data-name="-1347940906%2FFunctions%2F-1083565173" anchor-label="all" id="-1347940906%2FFunctions%2F-1083565173" data-filterable-set=":client/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":client/main" data-filterable-set=":client/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="all.html"><span><span>all</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1347940906%2FFunctions%2F-1083565173"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":client/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="all.html"><span class="token function">all</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">first<span class="token operator">: </span><a href="../-filter/index.html">Filter</a><span class="token punctuation">, </span></span><span class="parameter ">rest<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html">Array</a><span class="token operator">&lt;</span><a href="../-filter/index.html">Filter</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-composite-filter/index.html">CompositeFilter</a></div><div class="brief ">Creates a new conjunction composite filter.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="714594760%2FFunctions%2F-1083565173" anchor-label="either" id="714594760%2FFunctions%2F-1083565173" data-filterable-set=":client/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":client/main" data-filterable-set=":client/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="either.html"><span><span>either</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="714594760%2FFunctions%2F-1083565173"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":client/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="either.html"><span class="token function">either</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">first<span class="token operator">: </span><a href="../-filter/index.html">Filter</a><span class="token punctuation">, </span></span><span class="parameter ">rest<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html">Array</a><span class="token operator">&lt;</span><a href="../-filter/index.html">Filter</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-composite-filter/index.html">CompositeFilter</a></div><div class="brief ">Creates a new disjunction composite filter.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-448499217%2FFunctions%2F-1083565173" anchor-label="eq" id="-448499217%2FFunctions%2F-1083565173" data-filterable-set=":client/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":client/main" data-filterable-set=":client/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="eq.html"><span><span>eq</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-448499217%2FFunctions%2F-1083565173"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":client/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="eq.html"><span class="token function">eq</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">field<span class="token operator">: </span><span data-unresolved-link="io.spine.base/EventMessageField///PointingToDeclaration/">EventMessageField</span><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-filter/index.html">Filter</a></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="eq.html"><span class="token function">eq</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">field<span class="token operator">: </span><span data-unresolved-link="io.spine.core/EventContextField///PointingToDeclaration/">EventContextField</span><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-filter/index.html">Filter</a></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="eq.html">V</a><span class="token operator">&gt; </span><a href="eq.html"><span class="token function">eq</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">column<span class="token operator">: </span><span data-unresolved-link="io.spine.query/Column///PointingToDeclaration/">Column</span><span class="token operator">&lt;</span><span class="token keyword">out </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token punctuation">, </span><a href="eq.html">V</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="eq.html">V</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-filter/index.html">Filter</a></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="eq.html"><span class="token function">eq</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">field<span class="token operator">: </span><span data-unresolved-link="io.spine.query/EntityStateField///PointingToDeclaration/">EntityStateField</span><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-filter/index.html">Filter</a></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="eq.html"><span class="token function">eq</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">fieldPath<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-filter/index.html">Filter</a></div><div class="brief ">Creates a new equality <a href="../-filter/index.html">Filter</a>.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1066946081%2FFunctions%2F-1083565173" anchor-label="ge" id="1066946081%2FFunctions%2F-1083565173" data-filterable-set=":client/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":client/main" data-filterable-set=":client/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="ge.html"><span><span>ge</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1066946081%2FFunctions%2F-1083565173"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":client/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="ge.html"><span class="token function">ge</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">field<span class="token operator">: </span><span data-unresolved-link="io.spine.base/EventMessageField///PointingToDeclaration/">EventMessageField</span><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-filter/index.html">Filter</a></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="ge.html"><span class="token function">ge</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">field<span class="token operator">: </span><span data-unresolved-link="io.spine.core/EventContextField///PointingToDeclaration/">EventContextField</span><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-filter/index.html">Filter</a></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="ge.html">V</a><span class="token operator">&gt; </span><a href="ge.html"><span class="token function">ge</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">column<span class="token operator">: </span><span data-unresolved-link="io.spine.query/Column///PointingToDeclaration/">Column</span><span class="token operator">&lt;</span><span class="token keyword">out </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token punctuation">, </span><a href="ge.html">V</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="ge.html">V</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-filter/index.html">Filter</a></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="ge.html"><span class="token function">ge</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">field<span class="token operator">: </span><span data-unresolved-link="io.spine.query/EntityStateField///PointingToDeclaration/">EntityStateField</span><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-filter/index.html">Filter</a></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="ge.html"><span class="token function">ge</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">fieldPath<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-filter/index.html">Filter</a></div><div class="brief ">Creates a new &quot;greater or equal&quot; <a href="../-filter/index.html">Filter</a>.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1951076400%2FFunctions%2F-1083565173" anchor-label="gt" id="1951076400%2FFunctions%2F-1083565173" data-filterable-set=":client/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":client/main" data-filterable-set=":client/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="gt.html"><span><span>gt</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1951076400%2FFunctions%2F-1083565173"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":client/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="gt.html"><span class="token function">gt</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">field<span class="token operator">: </span><span data-unresolved-link="io.spine.base/EventMessageField///PointingToDeclaration/">EventMessageField</span><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-filter/index.html">Filter</a></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="gt.html"><span class="token function">gt</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">field<span class="token operator">: </span><span data-unresolved-link="io.spine.core/EventContextField///PointingToDeclaration/">EventContextField</span><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-filter/index.html">Filter</a></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="gt.html">V</a><span class="token operator">&gt; </span><a href="gt.html"><span class="token function">gt</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">column<span class="token operator">: </span><span data-unresolved-link="io.spine.query/Column///PointingToDeclaration/">Column</span><span class="token operator">&lt;</span><span class="token keyword">out </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token punctuation">, </span><a href="gt.html">V</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="gt.html">V</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-filter/index.html">Filter</a></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="gt.html"><span class="token function">gt</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">field<span class="token operator">: </span><span data-unresolved-link="io.spine.query/EntityStateField///PointingToDeclaration/">EntityStateField</span><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-filter/index.html">Filter</a></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="gt.html"><span class="token function">gt</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">fieldPath<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-filter/index.html">Filter</a></div><div class="brief ">Creates a new &quot;greater than&quot; <a href="../-filter/index.html">Filter</a>.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="181369020%2FFunctions%2F-1083565173" anchor-label="le" id="181369020%2FFunctions%2F-1083565173" data-filterable-set=":client/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":client/main" data-filterable-set=":client/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="le.html"><span><span>le</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="181369020%2FFunctions%2F-1083565173"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":client/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="le.html"><span class="token function">le</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">field<span class="token operator">: </span><span data-unresolved-link="io.spine.base/EventMessageField///PointingToDeclaration/">EventMessageField</span><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-filter/index.html">Filter</a></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="le.html"><span class="token function">le</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">field<span class="token operator">: </span><span data-unresolved-link="io.spine.core/EventContextField///PointingToDeclaration/">EventContextField</span><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-filter/index.html">Filter</a></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="le.html">V</a><span class="token operator">&gt; </span><a href="le.html"><span class="token function">le</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">column<span class="token operator">: </span><span data-unresolved-link="io.spine.query/Column///PointingToDeclaration/">Column</span><span class="token operator">&lt;</span><span class="token keyword">out </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token punctuation">, </span><a href="le.html">V</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="le.html">V</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-filter/index.html">Filter</a></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="le.html"><span class="token function">le</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">field<span class="token operator">: </span><span data-unresolved-link="io.spine.query/EntityStateField///PointingToDeclaration/">EntityStateField</span><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-filter/index.html">Filter</a></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="le.html"><span class="token function">le</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">fieldPath<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-filter/index.html">Filter</a></div><div class="brief ">Creates a new &quot;less or equal&quot; <a href="../-filter/index.html">Filter</a>.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1065499339%2FFunctions%2F-1083565173" anchor-label="lt" id="1065499339%2FFunctions%2F-1083565173" data-filterable-set=":client/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":client/main" data-filterable-set=":client/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="lt.html"><span><span>lt</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1065499339%2FFunctions%2F-1083565173"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":client/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="lt.html"><span class="token function">lt</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">field<span class="token operator">: </span><span data-unresolved-link="io.spine.base/EventMessageField///PointingToDeclaration/">EventMessageField</span><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-filter/index.html">Filter</a></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="lt.html"><span class="token function">lt</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">field<span class="token operator">: </span><span data-unresolved-link="io.spine.core/EventContextField///PointingToDeclaration/">EventContextField</span><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-filter/index.html">Filter</a></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="lt.html">V</a><span class="token operator">&gt; </span><a href="lt.html"><span class="token function">lt</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">column<span class="token operator">: </span><span data-unresolved-link="io.spine.query/Column///PointingToDeclaration/">Column</span><span class="token operator">&lt;</span><span class="token keyword">out </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token punctuation">, </span><a href="lt.html">V</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="lt.html">V</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-filter/index.html">Filter</a></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="lt.html"><span class="token function">lt</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">field<span class="token operator">: </span><span data-unresolved-link="io.spine.query/EntityStateField///PointingToDeclaration/">EntityStateField</span><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-filter/index.html">Filter</a></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="lt.html"><span class="token function">lt</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">fieldPath<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-filter/index.html">Filter</a></div><div class="brief ">Creates a new &quot;less than&quot; <a href="../-filter/index.html">Filter</a>.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    <div class="footer">
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>Copyright 2025, TeamDev</div>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
