@@ -1,0 +1,958 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en"><head>
+    <title>Package io.spine.core </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="dc.created" content="2020-03-25">
+    <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../dokka-javadoc-stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../jquery/jquery-ui.css" title="Style">
+    <script type="text/javascript" src="../../../jquery/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="../../../jquery/jquery-migrate-3.4.0.min.js"></script>
+    <script type="text/javascript" src="../../../jquery/jquery-ui.js"></script>
+
+    <script type="text/javascript" src="../../../search.js"></script>
+    <script async type="text/javascript" src="../../../module-search-index.js"></script>
+    <script async type="text/javascript" src="../../../package-search-index.js"></script>
+    <script async type="text/javascript" src="../../../type-search-index.js"></script>
+    <script async type="text/javascript" src="../../../member-search-index.js"></script>
+    <script async type="text/javascript" src="../../../tag-search-index.js"></script>
+</head><body>
+<script type="text/javascript">
+var pathtoroot = "../../../";
+</script>
+<noscript>
+    <div>JavaScript is disabled on your browser.</div>
+</noscript><header role="banner">
+    <nav role="navigation">
+        <div class="fixedNav">
+            <!-- ========= START OF TOP NAVBAR ======= -->
+            <div class="topNav"><a id="navbar.top">
+                <!--   -->
+            </a>
+                <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a>
+                </div>
+                <a id="navbar.top.firstrow">
+                    <!--   -->
+                </a>
+                <ul class="navList" title="Navigation">
+    <li><a href="../../../index.html">Overview</a></li>
+    
+    <li class="navBarCell1Rev">Package</li>
+    
+    <li>Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+            <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" class="ui-autocomplete-input" autocomplete="off" placeholder="Search">
+<input type="reset" id="reset" value="reset">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ========= END OF TOP NAVBAR ========= -->
+        </div>
+        <div class="navPadding">&nbsp;</div>
+        <script type="text/javascript"><!--
+        $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+        //-->
+        </script>
+    </nav>
+</header>
+<main role="main">
+    <div class="header">
+        <h1 title="Package" class="title">Package io.spine.core </h1>
+    </div>
+        <div class="header">
+            <div class="subtitle">
+                <div class="block"><p>This package provides generated classes and interfaces with general data types for building event-sourcing applications.</p></div>
+            </div>
+            <p>See: <a href="#overview_description">Description</a></p>
+        </div>
+    <div class="contentContainer">
+        
+            <ul class="blockList">
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Annotation Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Annotation</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AcceptsContracts.html>AcceptsContracts</a></th><td class="colLast">Marks a receptor annotation which supports abstract <a href=ContractFor.html>ContractFor</a> methods.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=BoundedContext.html>BoundedContext</a></th><td class="colLast">Marks a package as one belonging to a Bounded Context with the <a href=BoundedContext.html#value()>specified name</a>.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Subscribe.html>Subscribe</a></th><td class="colLast">Marks a method as a subscriber for the output of a command such as events, rejections, or entity state updates.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AcceptsExternal.html>AcceptsExternal</a></th><td class="colLast">Marks a receptor annotation which may accept external messages.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=External.html>External</a></th><td class="colLast">Marks a receptor parameter to be of an external origin.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AcceptsFilters.html>AcceptsFilters</a></th><td class="colLast">Marks a receptor annotation which supports filtering events by fields using <a href=Where.html>Where</a>.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ContractFor.html>ContractFor</a></th><td class="colLast">Marks an abstract handler method.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Where.html>Where</a></th><td class="colLast">Filters events delivered to a handler method.</td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventContextField.html>EventContextField</a></th><td class="colLast">A subscribable field of an event context.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Versions.html>Versions</a></th><td class="colLast">Utilities for working with <a href=Version.html>Version</a>.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Events.html>Events</a></th><td class="colLast">Utility class for working with <a href=Event.html>Event</a> objects.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Responses.html>Responses</a></th><td class="colLast">Utilities for working with <a href=Response.html>Response</a> objects.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Commands.html>Commands</a></th><td class="colLast">Client-side utilities for working with commands.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Acks.html>Acks</a></th><td class="colLast">Utilities for working with <a href=Ack.html>acknowledgements</a>.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventField.html>EventField</a></th><td class="colLast">A subscribable field of an <code>Event</code> object.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=BoundedContextNames.html>BoundedContextNames</a></th><td class="colLast">Utility class for working with Bounded Context names.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EmptyContext.Builder.html>Builder</a></th><td class="colLast"><pre><code>An empty context is used in combination with message types that do not have a context
+to conform APIs that require both message and its context.
+
+Handlers of command and message may accept both command and event message and their context.
+Updated entity states when propagated to subscribers do not have a context.
+
+The primary purpose of this type is to serve as a placeholder in Java code where
+`io.spine.core.MessageContext` is needed in combination with message types (like entity sate)
+which does not have a context. In other words, what `google.protobuf.Empty` is for message,
+this type is for `io.spine.base.MessageContext`.
+</code></pre> Protobuf type <code>spine.core.EmptyContext</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EmptyContext.html>EmptyContext</a></th><td class="colLast"><pre><code>An empty context is used in combination with message types that do not have a context
+to conform APIs that require both message and its context.
+
+Handlers of command and message may accept both command and event message and their context.
+Updated entity states when propagated to subscribers do not have a context.
+
+The primary purpose of this type is to serve as a placeholder in Java code where
+`io.spine.core.MessageContext` is needed in combination with message types (like entity sate)
+which does not have a context. In other words, what `google.protobuf.Empty` is for message,
+this type is for `io.spine.base.MessageContext`.
+</code></pre> Protobuf type <code>spine.core.EmptyContext</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Status.Builder.html>Builder</a></th><td class="colLast"><pre><code>The response status.
+</code></pre> Protobuf type <code>spine.core.Status</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Status.html>Status</a></th><td class="colLast"><pre><code>The response status.
+</code></pre> Protobuf type <code>spine.core.Status</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventId.Builder.html>Builder</a></th><td class="colLast"><pre><code>Event identifier.
+</code></pre> Protobuf type <code>spine.core.EventId</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventId.html>EventId</a></th><td class="colLast"><pre><code>Event identifier.
+</code></pre> Protobuf type <code>spine.core.EventId</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ActorContextProto.html>ActorContextProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=TenantId.Builder.html>Builder</a></th><td class="colLast"><pre><code>An identifier of a tenant in a multi-tenant application.
+
+Commands sent in such application must have non-default value of
+the `tenant_id` field in `CommandContext`.
+</code></pre> Protobuf type <code>spine.core.TenantId</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=TenantId.html>TenantId</a></th><td class="colLast"><pre><code>An identifier of a tenant in a multi-tenant application.
+
+Commands sent in such application must have non-default value of
+the `tenant_id` field in `CommandContext`.
+</code></pre> Protobuf type <code>spine.core.TenantId</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ActorContext.Builder.html>Builder</a></th><td class="colLast"><pre><code>Service metadata for the requests generated by the user.
+</code></pre> Protobuf type <code>spine.core.ActorContext</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ActorContext.html>ActorContext</a></th><td class="colLast"><pre><code>Service metadata for the requests generated by the user.
+</code></pre> Protobuf type <code>spine.core.ActorContext</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventContext.Builder.html>Builder</a></th><td class="colLast"><pre><code>Meta-information for an event.
+</code></pre> Protobuf type <code>spine.core.EventContext</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventContext.Field.TimestampField.html>TimestampField</a></th><td class="colLast">Provides fields of the com.google.protobuf.Timestamp message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventContext.Field.CommandContextField.html>CommandContextField</a></th><td class="colLast">Provides fields of the <a href=CommandContext.html>io.spine.core.CommandContext</a> message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventContext.Field.EventContextField.html>EventContextField</a></th><td class="colLast">Provides fields of the <a href=EventContext.html>io.spine.core.EventContext</a> message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventContext.Field.OriginField.html>OriginField</a></th><td class="colLast">Provides fields of the <a href=Origin.html>io.spine.core.Origin</a> message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventContext.Field.ActorContextField.html>ActorContextField</a></th><td class="colLast">Provides fields of the <a href=ActorContext.html>io.spine.core.ActorContext</a> message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventContext.Field.CommandIdField.html>CommandIdField</a></th><td class="colLast">Provides fields of the <a href=CommandId.html>io.spine.core.CommandId</a> message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventContext.Field.EventIdField.html>EventIdField</a></th><td class="colLast">Provides fields of the <a href=EventId.html>io.spine.core.EventId</a> message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventContext.Field.AnyField.html>AnyField</a></th><td class="colLast">Provides fields of the com.google.protobuf.Any message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventContext.Field.VersionField.html>VersionField</a></th><td class="colLast">Provides fields of the <a href=Version.html>io.spine.core.Version</a> message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventContext.Field.EnrichmentField.html>EnrichmentField</a></th><td class="colLast">Provides fields of the <a href=Enrichment.html>io.spine.core.Enrichment</a> message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventContext.Field.RejectionEventContextField.html>RejectionEventContextField</a></th><td class="colLast">Provides fields of the <a href=RejectionEventContext.html>io.spine.core.RejectionEventContext</a> message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventContext.Field.CommandContextScheduleField.html>CommandContextScheduleField</a></th><td class="colLast">Provides fields of the <a href=CommandContext.Schedule.html>io.spine.core.CommandContext.Schedule</a> message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventContext.Field.MessageIdField.html>MessageIdField</a></th><td class="colLast">Provides fields of the <a href=MessageId.html>io.spine.core.MessageId</a> message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventContext.Field.TenantIdField.html>TenantIdField</a></th><td class="colLast">Provides fields of the <a href=TenantId.html>io.spine.core.TenantId</a> message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventContext.Field.UserIdField.html>UserIdField</a></th><td class="colLast">Provides fields of the <a href=UserId.html>io.spine.core.UserId</a> message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventContext.Field.ZoneOffsetField.html>ZoneOffsetField</a></th><td class="colLast">Provides fields of the io.spine.time.ZoneOffset message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventContext.Field.ZoneIdField.html>ZoneIdField</a></th><td class="colLast">Provides fields of the io.spine.time.ZoneId message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventContext.Field.EnrichmentContainerField.html>EnrichmentContainerField</a></th><td class="colLast">Provides fields of the <a href=Enrichment.Container.html>io.spine.core.Enrichment.Container</a> message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventContext.Field.CommandField.html>CommandField</a></th><td class="colLast">Provides fields of the <a href=Command.html>io.spine.core.Command</a> message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventContext.Field.DurationField.html>DurationField</a></th><td class="colLast">Provides fields of the com.google.protobuf.Duration message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventContext.Field.InternetDomainField.html>InternetDomainField</a></th><td class="colLast">Provides fields of the io.spine.net.InternetDomain message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventContext.Field.EmailAddressField.html>EmailAddressField</a></th><td class="colLast">Provides fields of the io.spine.net.EmailAddress message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventContext.Field.CommandSystemPropertiesField.html>CommandSystemPropertiesField</a></th><td class="colLast">Provides fields of the io.spine.core.Command.SystemProperties message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventContext.Field.html>Field</a></th><td class="colLast">The listing of <a href=EventContext.html>EventContext</a> fields to be used for creating a subscription filter.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventContext.html>EventContext</a></th><td class="colLast"><pre><code>Meta-information for an event.
+</code></pre> Protobuf type <code>spine.core.EventContext</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Command.Builder.html>Builder</a></th><td class="colLast"><pre><code>`Command` is an instruction to do something.
+
+A command consists of two parts: command message and command context.
+
+The `message` is the domain model part of command. The type of the command is defined by
+the type of its message. When we speak about a 'command' as a typed thing, we refer to
+the message of the command.
+
+The context contains attributes common for all commands.
+
+A command can hold any valid Protobuf message, but in most cases, it would be a type
+defined in `commands.proto` file of the corresponding aggregate or process manager.
+
+There should be one and only one command handler associated with the type of the command.
+</code></pre> Protobuf type <code>spine.core.Command</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Command.html>Command</a></th><td class="colLast"><pre><code>`Command` is an instruction to do something.
+
+A command consists of two parts: command message and command context.
+
+The `message` is the domain model part of command. The type of the command is defined by
+the type of its message. When we speak about a 'command' as a typed thing, we refer to
+the message of the command.
+
+The context contains attributes common for all commands.
+
+A command can hold any valid Protobuf message, but in most cases, it would be a type
+defined in `commands.proto` file of the corresponding aggregate or process manager.
+
+There should be one and only one command handler associated with the type of the command.
+</code></pre> Protobuf type <code>spine.core.Command</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=BusProto.html>BusProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Enrichment.Container.Builder.html>Builder</a></th><td class="colLast"><pre><code>A container for event enrichments.
+
+This wrapper type is required because maps are not allowed in `oneof`s.
+</code></pre> Protobuf type <code>spine.core.Enrichment.Container</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Enrichment.Container.html>Container</a></th><td class="colLast"><pre><code>A container for event enrichments.
+
+This wrapper type is required because maps are not allowed in `oneof`s.
+</code></pre> Protobuf type <code>spine.core.Enrichment.Container</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Enrichment.Builder.html>Builder</a></th><td class="colLast"><pre><code>Attributes with additional information (enrichment) for an outer message.
+
+A message can be enriched with one or more messages. For example, an `Event` can be enriched with
+information for easier building of user interface projections. A `Rejection` can be enriched with
+additional information on why the command was rejected.
+
+If message enrichment should not be performed (e.g. because of performance or security
+considerations), it can be disabled by setting the `do_not_enrich` attrubute to `true`.
+</code></pre> Protobuf type <code>spine.core.Enrichment</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Enrichment.html>Enrichment</a></th><td class="colLast"><pre><code>Attributes with additional information (enrichment) for an outer message.
+
+A message can be enriched with one or more messages. For example, an `Event` can be enriched with
+information for easier building of user interface projections. A `Rejection` can be enriched with
+additional information on why the command was rejected.
+
+If message enrichment should not be performed (e.g. because of performance or security
+considerations), it can be disabled by setting the `do_not_enrich` attrubute to `true`.
+</code></pre> Protobuf type <code>spine.core.Enrichment</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Version.Builder.html>Builder</a></th><td class="colLast"><pre><code>A version number with timestamp of the version creation.
+</code></pre> Protobuf type <code>spine.core.Version</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Version.html>Version</a></th><td class="colLast"><pre><code>A version number with timestamp of the version creation.
+</code></pre> Protobuf type <code>spine.core.Version</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventProto.html>EventProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=DiagnosticsProto.html>DiagnosticsProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Ack.Builder.html>Builder</a></th><td class="colLast"><pre><code>An acknowledgement of posting a message for asynchronous processing at the server-side.
+
+This response means that a message was either accepted for further processing, or rejected
+(e.g. because of a validation error).
+
+The acknowledgement does not mean that the message was handled or even delivered to recipients.
+</code></pre> Protobuf type <code>spine.core.Ack</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Ack.html>Ack</a></th><td class="colLast"><pre><code>An acknowledgement of posting a message for asynchronous processing at the server-side.
+
+This response means that a message was either accepted for further processing, or rejected
+(e.g. because of a validation error).
+
+The acknowledgement does not mean that the message was handled or even delivered to recipients.
+</code></pre> Protobuf type <code>spine.core.Ack</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=UserIdProto.html>UserIdProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=BoundedContextName.Builder.html>Builder</a></th><td class="colLast"><pre><code>A name of `BoundedContext` used to distinguish an instance of bounded context among other
+bounded contexts that exist in the same application.
+
+Must be unique in scope of the application.
+</code></pre> Protobuf type <code>spine.core.BoundedContextName</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=BoundedContextName.html>BoundedContextName</a></th><td class="colLast"><pre><code>A name of `BoundedContext` used to distinguish an instance of bounded context among other
+bounded contexts that exist in the same application.
+
+Must be unique in scope of the application.
+</code></pre> Protobuf type <code>spine.core.BoundedContextName</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=MessageId.Builder.html>Builder</a></th><td class="colLast"><pre><code>An identifier of a domain message, such as a signal, or an entity state.
+</code></pre> Protobuf type <code>spine.core.MessageId</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=MessageId.html>MessageId</a></th><td class="colLast"><pre><code>An identifier of a domain message, such as a signal, or an entity state.
+</code></pre> Protobuf type <code>spine.core.MessageId</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Origin.Builder.html>Builder</a></th><td class="colLast"><pre><code>An origin of a message.
+
+Describes the message chain which led to the associated message to be produced.
+</code></pre> Protobuf type <code>spine.core.Origin</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Origin.html>Origin</a></th><td class="colLast"><pre><code>An origin of a message.
+
+Describes the message chain which led to the associated message to be produced.
+</code></pre> Protobuf type <code>spine.core.Origin</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=VersionProto.html>VersionProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EnrichmentProto.html>EnrichmentProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CommandContext.Schedule.Builder.html>Builder</a></th><td class="colLast"><pre><code>A command may be scheduled. This type defines scheduling options.
+</code></pre> Protobuf type <code>spine.core.CommandContext.Schedule</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandContext.Schedule.html>Schedule</a></th><td class="colLast"><pre><code>A command may be scheduled. This type defines scheduling options.
+</code></pre> Protobuf type <code>spine.core.CommandContext.Schedule</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CommandContext.Builder.html>Builder</a></th><td class="colLast"><pre><code>Meta-information about the command and the environment, which generated the command.
+</code></pre> Protobuf type <code>spine.core.CommandContext</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandContext.html>CommandContext</a></th><td class="colLast"><pre><code>Meta-information about the command and the environment, which generated the command.
+</code></pre> Protobuf type <code>spine.core.CommandContext</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=RejectionEventContext.Builder.html>Builder</a></th><td class="colLast"><pre><code>Meta-information about a rejection event.
+</code></pre> Protobuf type <code>spine.core.RejectionEventContext</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=RejectionEventContext.html>RejectionEventContext</a></th><td class="colLast"><pre><code>Meta-information about a rejection event.
+</code></pre> Protobuf type <code>spine.core.RejectionEventContext</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=UserId.Builder.html>Builder</a></th><td class="colLast"><pre><code>A string-based identifier of the user.
+</code></pre> Protobuf type <code>spine.core.UserId</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=UserId.html>UserId</a></th><td class="colLast"><pre><code>A string-based identifier of the user.
+</code></pre> Protobuf type <code>spine.core.UserId</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Response.Builder.html>Builder</a></th><td class="colLast"><pre><code>The result of a call returned by a service.
+
+A service may return either `ok` or an `error` (technical problem) or a `rejection`.
+The client may expect results (returned via a separate call to read-side or via event stream)
+only upon receiving the `ok` status.
+</code></pre> Protobuf type <code>spine.core.Response</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Response.html>Response</a></th><td class="colLast"><pre><code>The result of a call returned by a service.
+
+A service may return either `ok` or an `error` (technical problem) or a `rejection`.
+The client may expect results (returned via a separate call to read-side or via event stream)
+only upon receiving the `ok` status.
+</code></pre> Protobuf type <code>spine.core.Response</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EmptyContextProto.html>EmptyContextProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Event.Builder.html>Builder</a></th><td class="colLast"><pre><code>`Event` is something, which happened in the past.
+
+An event consists of two parts: event message and its context.
+
+The `message` is the domain model part of the event.
+Event messages are named in the past tense.
+
+The type of the event is defined by the type of the enclosed message.
+When we speak about an 'event' as a typed thing, we refer to the message of the event.
+
+An event subscriber uses the type of the event message to receive events of this type.
+
+There can be multiple subscribers per event type.
+
+The event context contains attributes common for all events.
+It can also contain additional attributes added by the code handling the event.
+
+There is a special case of an event - a rejection event.
+A rejection event represents erroneous conditions in business, which do not allow to execute
+a command. The event is a rejection event if the `EventContext.rejection` field is present.
+
+See `EventContext.rejection` to determine the event kind.
+</code></pre> Protobuf type <code>spine.core.Event</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Event.Field.EventIdField.html>EventIdField</a></th><td class="colLast">Provides fields of the <a href=EventId.html>io.spine.core.EventId</a> message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Event.Field.AnyField.html>AnyField</a></th><td class="colLast">Provides fields of the com.google.protobuf.Any message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Event.Field.EventContextField.html>EventContextField</a></th><td class="colLast">Provides fields of the <a href=EventContext.html>io.spine.core.EventContext</a> message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Event.Field.TimestampField.html>TimestampField</a></th><td class="colLast">Provides fields of the com.google.protobuf.Timestamp message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Event.Field.CommandContextField.html>CommandContextField</a></th><td class="colLast">Provides fields of the <a href=CommandContext.html>io.spine.core.CommandContext</a> message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Event.Field.OriginField.html>OriginField</a></th><td class="colLast">Provides fields of the <a href=Origin.html>io.spine.core.Origin</a> message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Event.Field.ActorContextField.html>ActorContextField</a></th><td class="colLast">Provides fields of the <a href=ActorContext.html>io.spine.core.ActorContext</a> message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Event.Field.CommandIdField.html>CommandIdField</a></th><td class="colLast">Provides fields of the <a href=CommandId.html>io.spine.core.CommandId</a> message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Event.Field.VersionField.html>VersionField</a></th><td class="colLast">Provides fields of the <a href=Version.html>io.spine.core.Version</a> message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Event.Field.EnrichmentField.html>EnrichmentField</a></th><td class="colLast">Provides fields of the <a href=Enrichment.html>io.spine.core.Enrichment</a> message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Event.Field.RejectionEventContextField.html>RejectionEventContextField</a></th><td class="colLast">Provides fields of the <a href=RejectionEventContext.html>io.spine.core.RejectionEventContext</a> message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Event.Field.CommandContextScheduleField.html>CommandContextScheduleField</a></th><td class="colLast">Provides fields of the <a href=CommandContext.Schedule.html>io.spine.core.CommandContext.Schedule</a> message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Event.Field.MessageIdField.html>MessageIdField</a></th><td class="colLast">Provides fields of the <a href=MessageId.html>io.spine.core.MessageId</a> message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Event.Field.TenantIdField.html>TenantIdField</a></th><td class="colLast">Provides fields of the <a href=TenantId.html>io.spine.core.TenantId</a> message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Event.Field.UserIdField.html>UserIdField</a></th><td class="colLast">Provides fields of the <a href=UserId.html>io.spine.core.UserId</a> message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Event.Field.ZoneOffsetField.html>ZoneOffsetField</a></th><td class="colLast">Provides fields of the io.spine.time.ZoneOffset message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Event.Field.ZoneIdField.html>ZoneIdField</a></th><td class="colLast">Provides fields of the io.spine.time.ZoneId message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Event.Field.EnrichmentContainerField.html>EnrichmentContainerField</a></th><td class="colLast">Provides fields of the <a href=Enrichment.Container.html>io.spine.core.Enrichment.Container</a> message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Event.Field.CommandField.html>CommandField</a></th><td class="colLast">Provides fields of the <a href=Command.html>io.spine.core.Command</a> message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Event.Field.DurationField.html>DurationField</a></th><td class="colLast">Provides fields of the com.google.protobuf.Duration message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Event.Field.InternetDomainField.html>InternetDomainField</a></th><td class="colLast">Provides fields of the io.spine.net.InternetDomain message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Event.Field.EmailAddressField.html>EmailAddressField</a></th><td class="colLast">Provides fields of the io.spine.net.EmailAddress message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Event.Field.CommandSystemPropertiesField.html>CommandSystemPropertiesField</a></th><td class="colLast">Provides fields of the io.spine.core.Command.SystemProperties message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Event.Field.html>Field</a></th><td class="colLast">The listing of <a href=Event.html>Event</a> fields to be used for creating a subscription filter.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Event.html>Event</a></th><td class="colLast"><pre><code>`Event` is something, which happened in the past.
+
+An event consists of two parts: event message and its context.
+
+The `message` is the domain model part of the event.
+Event messages are named in the past tense.
+
+The type of the event is defined by the type of the enclosed message.
+When we speak about an 'event' as a typed thing, we refer to the message of the event.
+
+An event subscriber uses the type of the event message to receive events of this type.
+
+There can be multiple subscribers per event type.
+
+The event context contains attributes common for all events.
+It can also contain additional attributes added by the code handling the event.
+
+There is a special case of an event - a rejection event.
+A rejection event represents erroneous conditions in business, which do not allow to execute
+a command. The event is a rejection event if the `EventContext.rejection` field is present.
+
+See `EventContext.rejection` to determine the event kind.
+</code></pre> Protobuf type <code>spine.core.Event</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandProto.html>CommandProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=TenantIdProto.html>TenantIdProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=BoundedContextProto.html>BoundedContextProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CommandId.Builder.html>Builder</a></th><td class="colLast"><pre><code>Command identifier.
+</code></pre> Protobuf type <code>spine.core.CommandId</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandId.html>CommandId</a></th><td class="colLast"><pre><code>Command identifier.
+</code></pre> Protobuf type <code>spine.core.CommandId</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ResponseProto.html>ResponseProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AckKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ActorContextKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=BoundedContextNameKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CommandContextKt.Dsl.AttributesProxy.html>AttributesProxy</a></th><td class="colLast">An uninstantiable, behaviorless type to represent the field in generics.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandContextKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CommandContextKt.ScheduleKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandIdKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CommandKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandKt.SystemPropertiesKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EmptyContextKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EnrichmentKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EnrichmentKt.ContainerKt.Dsl.ItemsProxy.html>ItemsProxy</a></th><td class="colLast">An uninstantiable, behaviorless type to represent the field in generics.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EnrichmentKt.ContainerKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventContextKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventIdKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=MessageIdKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=OriginKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=RejectionEventContextKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ResponseKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=StatusKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=TenantIdKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=UserIdKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=VersionKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AckKtKt.html>AckKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ResponseKtKt.html>ResponseKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ActorContextKtKt.html>ActorContextKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventContextKtKt.html>EventContextKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=VersionKtKt.html>VersionKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CommandContextKtKt.html>CommandContextKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=OriginKtKt.html>OriginKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CommandKtKt.html>CommandKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventKtKt.html>EventKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=MessageIdKtKt.html>MessageIdKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EnrichmentKtKt.html>EnrichmentKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=StatusKtKt.html>StatusKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=RejectionEventContextKtKt.html>RejectionEventContextKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=TenantIdKtKt.html>TenantIdKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=BoundedContextNameKtKt.html>BoundedContextNameKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CommandIdKtKt.html>CommandIdKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EmptyContextKtKt.html>EmptyContextKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventIdKtKt.html>EventIdKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=UserIdKtKt.html>UserIdKtKt</a></th><td class="colLast"></td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Interface</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=VersionMixin.html>VersionMixin</a></th><td class="colLast">A mixin interface for the <a href=Version.html>Version</a> message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EnrichableMessageContext.html>EnrichableMessageContext</a></th><td class="colLast">A common interface for message contexts that hold enrichments.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=WithActor.html>WithActor</a></th><td class="colLast">An object associated with an acting user.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=WithTime.html>WithTime</a></th><td class="colLast">An object with associated point in time.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Signal.html>Signal</a></th><td class="colLast">A message which can be dispatched and cause other messages.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=SignalContext.html>SignalContext</a></th><td class="colLast">A context of a signal message such as CommandMessage or EventMessage.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EnrichmentOrBuilder.html>EnrichmentOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=RejectionEventContextOrBuilder.html>RejectionEventContextOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ActorContextOrBuilder.html>ActorContextOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventContextOrBuilder.html>EventContextOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Enrichment.ContainerOrBuilder.html>ContainerOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EmptyContextOrBuilder.html>EmptyContextOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=OriginOrBuilder.html>OriginOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=VersionOrBuilder.html>VersionOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandContextOrBuilder.html>CommandContextOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=MessageIdOrBuilder.html>MessageIdOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AckOrBuilder.html>AckOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=TenantIdOrBuilder.html>TenantIdOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandContext.ScheduleOrBuilder.html>ScheduleOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventIdOrBuilder.html>EventIdOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=BoundedContextNameOrBuilder.html>BoundedContextNameOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventOrBuilder.html>EventOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=UserIdOrBuilder.html>UserIdOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CommandIdOrBuilder.html>CommandIdOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=StatusOrBuilder.html>StatusOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ResponseOrBuilder.html>ResponseOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandOrBuilder.html>CommandOrBuilder</a></th><td class="colLast"></td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Enum Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Enum</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Status.StatusCase.html>StatusCase</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=TenantId.KindCase.html>KindCase</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventContext.OriginCase.html>OriginCase</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventContext.OriginIdCase.html>OriginIdCase</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Enrichment.ModeCase.html>ModeCase</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CommandValidationError.html>CommandValidationError</a></th><td class="colLast"><pre><code>Enumeration of possible errors when validating a command.
+</code></pre> Protobuf enum <code>spine.core.CommandValidationError</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventValidationError.html>EventValidationError</a></th><td class="colLast"><pre><code>Enumeration of possible event validation technical error reasons.
+</code></pre> Protobuf enum <code>spine.core.EventValidationError</code></td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Object Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Object</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AckKt.html>AckKt</a></th><td class="colLast"><pre><code>An acknowledgement of posting a message for asynchronous processing at the server-side.
+
+This response means that a message was either accepted for further processing, or rejected
+(e.g. because of a validation error).
+
+The acknowledgement does not mean that the message was handled or even delivered to recipients.</code></pre>Protobuf type <code>spine.core.Ack</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ActorContextKt.html>ActorContextKt</a></th><td class="colLast"><pre><code>Service metadata for the requests generated by the user.</code></pre>Protobuf type <code>spine.core.ActorContext</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=BoundedContextNameKt.html>BoundedContextNameKt</a></th><td class="colLast"><pre><code>A name of `BoundedContext` used to distinguish an instance of bounded context among other
+bounded contexts that exist in the same application.
+
+Must be unique in scope of the application.</code></pre>Protobuf type <code>spine.core.BoundedContextName</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CommandContextKt.ScheduleKt.html>ScheduleKt</a></th><td class="colLast"><pre><code>A command may be scheduled. This type defines scheduling options.</code></pre>Protobuf type <code>spine.core.CommandContext.Schedule</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandContextKt.html>CommandContextKt</a></th><td class="colLast"><pre><code>Meta-information about the command and the environment, which generated the command.</code></pre>Protobuf type <code>spine.core.CommandContext</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CommandIdKt.html>CommandIdKt</a></th><td class="colLast"><pre><code>Command identifier.</code></pre>Protobuf type <code>spine.core.CommandId</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandKt.SystemPropertiesKt.html>SystemPropertiesKt</a></th><td class="colLast"><pre><code>Properties that may be set by the framework as the command is delivered and handled.
+
+All fields of this type are reserved for internal framework needs, and are not visible to
+the business logic code of an application.</code></pre>Protobuf type <code>spine.core.Command.SystemProperties</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CommandKt.html>CommandKt</a></th><td class="colLast"><pre><code>`Command` is an instruction to do something.
+
+A command consists of two parts: command message and command context.
+
+The `message` is the domain model part of command. The type of the command is defined by
+the type of its message. When we speak about a 'command' as a typed thing, we refer to
+the message of the command.
+
+The context contains attributes common for all commands.
+
+A command can hold any valid Protobuf message, but in most cases, it would be a type
+defined in `commands.proto` file of the corresponding aggregate or process manager.
+
+There should be one and only one command handler associated with the type of the command.</code></pre>Protobuf type <code>spine.core.Command</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EmptyContextKt.html>EmptyContextKt</a></th><td class="colLast"><pre><code>An empty context is used in combination with message types that do not have a context
+to conform APIs that require both message and its context.
+
+Handlers of command and message may accept both command and event message and their context.
+Updated entity states when propagated to subscribers do not have a context.
+
+The primary purpose of this type is to serve as a placeholder in Java code where
+`io.spine.core.MessageContext` is needed in combination with message types (like entity sate)
+which does not have a context. In other words, what `google.protobuf.Empty` is for message,
+this type is for `io.spine.base.MessageContext`.</code></pre>Protobuf type <code>spine.core.EmptyContext</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EnrichmentKt.ContainerKt.html>ContainerKt</a></th><td class="colLast"><pre><code>A container for event enrichments.
+
+This wrapper type is required because maps are not allowed in `oneof`s.</code></pre>Protobuf type <code>spine.core.Enrichment.Container</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EnrichmentKt.html>EnrichmentKt</a></th><td class="colLast"><pre><code>Attributes with additional information (enrichment) for an outer message.
+
+A message can be enriched with one or more messages. For example, an `Event` can be enriched with
+information for easier building of user interface projections. A `Rejection` can be enriched with
+additional information on why the command was rejected.
+
+If message enrichment should not be performed (e.g. because of performance or security
+considerations), it can be disabled by setting the `do_not_enrich` attrubute to `true`.</code></pre>Protobuf type <code>spine.core.Enrichment</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventContextKt.html>EventContextKt</a></th><td class="colLast"><pre><code>Meta-information for an event.</code></pre>Protobuf type <code>spine.core.EventContext</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventIdKt.html>EventIdKt</a></th><td class="colLast"><pre><code>Event identifier.</code></pre>Protobuf type <code>spine.core.EventId</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventKt.html>EventKt</a></th><td class="colLast"><pre><code>`Event` is something, which happened in the past.
+
+An event consists of two parts: event message and its context.
+
+The `message` is the domain model part of the event.
+Event messages are named in the past tense.
+
+The type of the event is defined by the type of the enclosed message.
+When we speak about an 'event' as a typed thing, we refer to the message of the event.
+
+An event subscriber uses the type of the event message to receive events of this type.
+
+There can be multiple subscribers per event type.
+
+The event context contains attributes common for all events.
+It can also contain additional attributes added by the code handling the event.
+
+There is a special case of an event - a rejection event.
+A rejection event represents erroneous conditions in business, which do not allow to execute
+a command. The event is a rejection event if the `EventContext.rejection` field is present.
+
+See `EventContext.rejection` to determine the event kind.</code></pre>Protobuf type <code>spine.core.Event</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=MessageIdKt.html>MessageIdKt</a></th><td class="colLast"><pre><code>An identifier of a domain message, such as a signal, or an entity state.</code></pre>Protobuf type <code>spine.core.MessageId</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=OriginKt.html>OriginKt</a></th><td class="colLast"><pre><code>An origin of a message.
+
+Describes the message chain which led to the associated message to be produced.</code></pre>Protobuf type <code>spine.core.Origin</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=RejectionEventContextKt.html>RejectionEventContextKt</a></th><td class="colLast"><pre><code>Meta-information about a rejection event.</code></pre>Protobuf type <code>spine.core.RejectionEventContext</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ResponseKt.html>ResponseKt</a></th><td class="colLast"><pre><code>The result of a call returned by a service.
+
+A service may return either `ok` or an `error` (technical problem) or a `rejection`.
+The client may expect results (returned via a separate call to read-side or via event stream)
+only upon receiving the `ok` status.</code></pre>Protobuf type <code>spine.core.Response</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=StatusKt.html>StatusKt</a></th><td class="colLast"><pre><code>The response status.</code></pre>Protobuf type <code>spine.core.Status</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=TenantIdKt.html>TenantIdKt</a></th><td class="colLast"><pre><code>An identifier of a tenant in a multi-tenant application.
+
+Commands sent in such application must have non-default value of
+the `tenant_id` field in `CommandContext`.</code></pre>Protobuf type <code>spine.core.TenantId</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=UserIdKt.html>UserIdKt</a></th><td class="colLast"><pre><code>A string-based identifier of the user.</code></pre>Protobuf type <code>spine.core.UserId</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=VersionKt.html>VersionKt</a></th><td class="colLast"><pre><code>A version number with timestamp of the version creation.</code></pre>Protobuf type <code>spine.core.Version</code></td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+            </ul>
+        
+    </div>
+</main>
+<footer role="contentinfo">
+    <nav role="navigation">
+        <!-- ======= START OF BOTTOM NAVBAR ====== -->
+        <div class="bottomNav"><a id="navbar.bottom">
+            <!--   -->
+        </a>
+            <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a>
+            </div>
+            <a id="navbar.bottom.firstrow">
+                <!--   -->
+            </a>
+            <ul class="navList" title="Navigation">
+    <li><a href="../../../index.html">Overview</a></li>
+    
+    <li class="navBarCell1Rev">Package</li>
+    
+    <li>Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+        <a id="skip.navbar.bottom">
+            <!--   -->
+        </a>
+        <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ======== END OF BOTTOM NAVBAR ======= -->
+    </nav>
+</footer><ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" id="ui-id-1" tabindex="0"
+    style="display: none;"></ul>
+<span role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></span>
+</body>
+</html>

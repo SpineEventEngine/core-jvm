@@ -1,0 +1,1268 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en"><head>
+    <title>Builder 2.0.0-SNAPSHOT.356 API </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="dc.created" content="2020-03-25">
+    <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../dokka-javadoc-stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../jquery/jquery-ui.css" title="Style">
+    <script type="text/javascript" src="../../../jquery/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="../../../jquery/jquery-migrate-3.4.0.min.js"></script>
+    <script type="text/javascript" src="../../../jquery/jquery-ui.js"></script>
+
+    <script type="text/javascript" src="../../../search.js"></script>
+    <script async type="text/javascript" src="../../../module-search-index.js"></script>
+    <script async type="text/javascript" src="../../../package-search-index.js"></script>
+    <script async type="text/javascript" src="../../../type-search-index.js"></script>
+    <script async type="text/javascript" src="../../../member-search-index.js"></script>
+    <script async type="text/javascript" src="../../../tag-search-index.js"></script>
+</head><body>
+<script type="text/javascript">
+var pathtoroot = "../../../";
+</script>
+<noscript>
+    <div>JavaScript is disabled on your browser.</div>
+</noscript><header role="banner">
+    <nav role="navigation">
+        <div class="fixedNav">
+            <!-- ========= START OF TOP NAVBAR ======= -->
+            <div class="topNav"><a id="navbar.top">
+                <!--   -->
+            </a>
+                <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a>
+                </div>
+                <a id="navbar.top.firstrow">
+                    <!--   -->
+                </a>
+                <ul class="navList" title="Navigation">
+    <li><a href="../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+            <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" class="ui-autocomplete-input" autocomplete="off" placeholder="Search">
+<input type="reset" id="reset" value="reset">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ========= END OF TOP NAVBAR ========= -->
+        </div>
+        <div class="navPadding">&nbsp;</div>
+        <script type="text/javascript"><!--
+        $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+        //-->
+        </script>
+    </nav>
+</header>
+
+<main role="main">
+    <div class="header">
+        <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">io.spine.core</a></div>
+        <h2 title="Class Enrichment.Builder" class="title">Class Enrichment.Builder</h2>
+    </div>
+    <div class="contentContainer">
+        <!-- <ul class="inheritance">
+            <li>java.lang.Object</li>
+            <li>
+                <ul class="inheritance">
+                    <li>adaptation.Adaptation</li>
+                </ul>
+            </li>
+        </ul> TODO inheritance tree -->
+        <div class="description">
+            <ul class="blockList">
+                <li class="blockList">
+                    
+                    <dl>
+                        <dt>All Implemented Interfaces:</dt>
+                        <dd>
+                            
+                            <code>com.google.protobuf.Message.Builder</code>
+                            
+                            ,
+                            
+                            
+                            <code>com.google.protobuf.MessageLite.Builder</code>
+                            
+                            ,
+                            
+                            
+                            <code>com.google.protobuf.MessageLiteOrBuilder</code>
+                            
+                            ,
+                            
+                            
+                            <code>com.google.protobuf.MessageOrBuilder</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.core.EnrichmentOrBuilder</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.validate.ValidatingBuilder</code>
+                            
+                            ,
+                            
+                            
+                            <code>java.lang.Cloneable</code>
+                            
+                            
+                        </dd>
+                    </dl>
+                    
+                    <hr>
+                    <pre class="wrap-overflow">
+
+public final class <span class="typeNameLabel"><a href=Enrichment.Builder.html>Enrichment.Builder</a></span>
+extends GeneratedMessage.Builder&lt;<a href=Enrichment.Builder.html>Enrichment.Builder</a>&gt; implements <a href=EnrichmentOrBuilder.html>EnrichmentOrBuilder</a>, ValidatingBuilder&lt;<a href=Enrichment.html>Enrichment</a>&gt;
+                    </pre>
+                    <div class="block"><pre><code>Attributes with additional information (enrichment) for an outer message.
+
+A message can be enriched with one or more messages. For example, an `Event` can be enriched with
+information for easier building of user interface projections. A `Rejection` can be enriched with
+additional information on why the command was rejected.
+
+If message enrichment should not be performed (e.g. because of performance or security
+considerations), it can be disabled by setting the `do_not_enrich` attrubute to `true`.
+</code></pre> Protobuf type <code>spine.core.Enrichment</code></div>
+
+                    <dl>
+
+                    
+
+                    
+
+                    </dl>
+                </li>
+            </ul>
+        </div>
+        <div class="summary">
+            <ul class="blockList">
+                <li class="blockList">
+                <!-- ======== NESTED CLASS SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="nested.class.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Nested Class Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Class</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== FIELD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="field.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Field Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Field</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>protected  boolean</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=CommandId.Builder.html#isClean()>isClean</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tbody>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Constructor</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+
+                                        
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== ENUM CONSTANT SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="enum.constant.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Enum Constant Summary</h3>
+                                <table class="memberSummary">
+                                    <caption><span>Enum Constants</span><span class="tabEnd">&nbsp;</span></caption>
+                                    <tr>
+                                        <th class="colFirst" scope="col">Enum Constant</th>
+                                        <th class="colLast" scope="col">Description</th>
+                                    </tr>
+                                    
+                                </table>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ========== METHOD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Method Summary</h3>
+                                <div class="memberSummary">
+                                    <div role="tablist" aria-orientation="horizontal">
+                                        <button role="tab" aria-selected="true" aria-controls="memberSummary_tabpanel" tabindex="0" onkeydown="switchTab(event)" id="t0" class="activeTableTab">All Methods</button>
+                                        <!-- TODO: Instance and Concrete Methods #1118 -->
+                                    </div>
+                                    <div id="memberSummary_tabpanel" role="tabpanel">
+                                    <table aria-labelledby="t0">
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Method</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                        <tr id="i0" class="altColor">
+                                            <td class="colFirst"><code>final static Descriptors.Descriptor</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Enrichment.Builder.html#getDescriptor()>getDescriptor</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i1" class="rowColor">
+                                            <td class="colFirst"><code>GeneratedMessage.FieldAccessorTable</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Enrichment.Builder.html#internalGetFieldAccessorTable()>internalGetFieldAccessorTable</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i2" class="altColor">
+                                            <td class="colFirst"><code><a href=Enrichment.Builder.html>Enrichment.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Enrichment.Builder.html#clear()>clear</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i3" class="rowColor">
+                                            <td class="colFirst"><code>Descriptors.Descriptor</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Enrichment.Builder.html#getDescriptorForType()>getDescriptorForType</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i4" class="altColor">
+                                            <td class="colFirst"><code><a href=Enrichment.html>Enrichment</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Enrichment.Builder.html#getDefaultInstanceForType()>getDefaultInstanceForType</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i5" class="rowColor">
+                                            <td class="colFirst"><code><a href=Enrichment.html>Enrichment</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Enrichment.Builder.html#build()>build</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i6" class="altColor">
+                                            <td class="colFirst"><code><a href=Enrichment.html>Enrichment</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Enrichment.Builder.html#buildPartial()>buildPartial</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i7" class="rowColor">
+                                            <td class="colFirst"><code><a href=Enrichment.Builder.html>Enrichment.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Enrichment.Builder.html#mergeFrom(com.google.protobuf.Message)>mergeFrom</a>(Message other) </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i8" class="altColor">
+                                            <td class="colFirst"><code><a href=Enrichment.Builder.html>Enrichment.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Enrichment.Builder.html#mergeFrom(io.spine.core.Enrichment)>mergeFrom</a>(<a href=Enrichment.html>Enrichment</a> other) </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i9" class="rowColor">
+                                            <td class="colFirst"><code>final boolean</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Enrichment.Builder.html#isInitialized()>isInitialized</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i10" class="altColor">
+                                            <td class="colFirst"><code><a href=Enrichment.Builder.html>Enrichment.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Enrichment.Builder.html#mergeFrom(com.google.protobuf.CodedInputStream,com.google.protobuf.ExtensionRegistryLite)>mergeFrom</a>(CodedInputStream input, ExtensionRegistryLite extensionRegistry) </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i11" class="rowColor">
+                                            <td class="colFirst"><code><a href=Enrichment.ModeCase.html>Enrichment.ModeCase</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Enrichment.Builder.html#getModeCase()>getModeCase</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i12" class="altColor">
+                                            <td class="colFirst"><code><a href=Enrichment.Builder.html>Enrichment.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Enrichment.Builder.html#clearMode()>clearMode</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i13" class="rowColor">
+                                            <td class="colFirst"><code>boolean</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Enrichment.Builder.html#hasDoNotEnrich()>hasDoNotEnrich</a>() </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The instruction not to enrich the outer message.
+</code></pre><code>bool do_not_enrich = 1;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i14" class="altColor">
+                                            <td class="colFirst"><code>boolean</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Enrichment.Builder.html#getDoNotEnrich()>getDoNotEnrich</a>() </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The instruction not to enrich the outer message.
+</code></pre><code>bool do_not_enrich = 1;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i15" class="rowColor">
+                                            <td class="colFirst"><code><a href=Enrichment.Builder.html>Enrichment.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Enrichment.Builder.html#setDoNotEnrich(boolean)>setDoNotEnrich</a>(boolean value) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The instruction not to enrich the outer message.
+</code></pre><code>bool do_not_enrich = 1;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i16" class="altColor">
+                                            <td class="colFirst"><code><a href=Enrichment.Builder.html>Enrichment.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Enrichment.Builder.html#clearDoNotEnrich()>clearDoNotEnrich</a>() </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The instruction not to enrich the outer message.
+</code></pre><code>bool do_not_enrich = 1;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i17" class="rowColor">
+                                            <td class="colFirst"><code>boolean</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Enrichment.Builder.html#hasContainer()>hasContainer</a>() </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The container for the enrichments.
+</code></pre><code>.spine.core.Enrichment.Container container = 2;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i18" class="altColor">
+                                            <td class="colFirst"><code><a href=Enrichment.Container.html>Enrichment.Container</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Enrichment.Builder.html#getContainer()>getContainer</a>() </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The container for the enrichments.
+</code></pre><code>.spine.core.Enrichment.Container container = 2;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i19" class="rowColor">
+                                            <td class="colFirst"><code><a href=Enrichment.Builder.html>Enrichment.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Enrichment.Builder.html#setContainer(io.spine.core.Enrichment.Container)>setContainer</a>(<a href=Enrichment.Container.html>Enrichment.Container</a> value) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The container for the enrichments.
+</code></pre><code>.spine.core.Enrichment.Container container = 2;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i20" class="altColor">
+                                            <td class="colFirst"><code><a href=Enrichment.Builder.html>Enrichment.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Enrichment.Builder.html#setContainer(io.spine.core.Enrichment.Container.Builder)>setContainer</a>(<a href=Enrichment.Container.Builder.html>Enrichment.Container.Builder</a> builderForValue) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The container for the enrichments.
+</code></pre><code>.spine.core.Enrichment.Container container = 2;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i21" class="rowColor">
+                                            <td class="colFirst"><code><a href=Enrichment.Builder.html>Enrichment.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Enrichment.Builder.html#mergeContainer(io.spine.core.Enrichment.Container)>mergeContainer</a>(<a href=Enrichment.Container.html>Enrichment.Container</a> value) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The container for the enrichments.
+</code></pre><code>.spine.core.Enrichment.Container container = 2;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i22" class="altColor">
+                                            <td class="colFirst"><code><a href=Enrichment.Builder.html>Enrichment.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Enrichment.Builder.html#clearContainer()>clearContainer</a>() </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The container for the enrichments.
+</code></pre><code>.spine.core.Enrichment.Container container = 2;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i23" class="rowColor">
+                                            <td class="colFirst"><code><a href=Enrichment.Container.Builder.html>Enrichment.Container.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Enrichment.Builder.html#getContainerBuilder()>getContainerBuilder</a>() </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The container for the enrichments.
+</code></pre><code>.spine.core.Enrichment.Container container = 2;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i24" class="altColor">
+                                            <td class="colFirst"><code><a href=Enrichment.ContainerOrBuilder.html>Enrichment.ContainerOrBuilder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Enrichment.Builder.html#getContainerOrBuilder()>getContainerOrBuilder</a>() </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The container for the enrichments.
+</code></pre><code>.spine.core.Enrichment.Container container = 2;</code></td>
+                                        </tr>
+                                        
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <ul class="blockList">
+                                
+                                    <li class="blockList"><a id="methods.inherited.from.class.com.google.protobuf.GeneratedMessage.Builder">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;com.google.protobuf.GeneratedMessage.Builder</h3>
+                                            <code>addRepeatedField, clearField, clearOneof, clone, getAllFields, getField, getFieldBuilder, getOneofFieldDescriptor, getParentForChildren, getRepeatedField, getRepeatedFieldBuilder, getRepeatedFieldCount, getUnknownFieldSetBuilder, getUnknownFields, hasField, hasOneof, internalGetMapField, internalGetMapFieldReflection, internalGetMutableMapField, internalGetMutableMapFieldReflection, isClean, markClean, mergeUnknownFields, mergeUnknownLengthDelimitedField, mergeUnknownVarintField, newBuilderForField, onBuilt, onChanged, parseUnknownField, setField, setRepeatedField, setUnknownFieldSetBuilder, setUnknownFields, setUnknownFieldsProto3</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.validate.ValidatingBuilder">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.validate.ValidatingBuilder</h3>
+                                            <code>vBuild</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.com.google.protobuf.AbstractMessage.Builder">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;com.google.protobuf.AbstractMessage.Builder</h3>
+                                            <code>clear, clearOneof, clone, findInitializationErrors, getInitializationErrorString, internalMergeFrom, mergeUnknownFields, newUninitializedMessageException, toString</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.com.google.protobuf.AbstractMessageLite.Builder">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;com.google.protobuf.AbstractMessageLite.Builder</h3>
+                                            <code>addAll, mergeDelimitedFrom</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.com.google.protobuf.Message.Builder">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;com.google.protobuf.Message.Builder</h3>
+                                            <code>addRepeatedField, clearField, clearOneof, clone, mergeUnknownFields, setField, setRepeatedField, setUnknownFields</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.com.google.protobuf.MessageLite.Builder">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;com.google.protobuf.MessageLite.Builder</h3>
+                                            <code>build, buildPartial</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.com.google.protobuf.MessageLiteOrBuilder">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;com.google.protobuf.MessageLiteOrBuilder</h3>
+                                            <code>getDefaultInstanceForType</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+                                        <!--   -->
+                                    </a>
+                                        <h3>Methods inherited from class&nbsp;java.lang.Object</h3>
+                                        <code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString,
+                                            wait, wait, wait</code></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+        <div class="details">
+            <ul class="blockList">
+                <li class="blockList">
+                    <!-- ========= CONSTRUCTOR DETAIL ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Detail</h3>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ============ METHOD DETAIL ========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Method Detail</h3>
+                                
+                                <a id="getDescriptor()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getDescriptor</h4>
+                                        <pre class="methodSignature"> final static Descriptors.Descriptor <a href=Enrichment.Builder.html#getDescriptor()>getDescriptor</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="internalGetFieldAccessorTable()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>internalGetFieldAccessorTable</h4>
+                                        <pre class="methodSignature"> GeneratedMessage.FieldAccessorTable <a href=Enrichment.Builder.html#internalGetFieldAccessorTable()>internalGetFieldAccessorTable</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="clear()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>clear</h4>
+                                        <pre class="methodSignature"> <a href=Enrichment.Builder.html>Enrichment.Builder</a> <a href=Enrichment.Builder.html#clear()>clear</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getDescriptorForType()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getDescriptorForType</h4>
+                                        <pre class="methodSignature"> Descriptors.Descriptor <a href=Enrichment.Builder.html#getDescriptorForType()>getDescriptorForType</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getDefaultInstanceForType()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getDefaultInstanceForType</h4>
+                                        <pre class="methodSignature"> <a href=Enrichment.html>Enrichment</a> <a href=Enrichment.Builder.html#getDefaultInstanceForType()>getDefaultInstanceForType</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="build()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>build</h4>
+                                        <pre class="methodSignature"> <a href=Enrichment.html>Enrichment</a> <a href=Enrichment.Builder.html#build()>build</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="buildPartial()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>buildPartial</h4>
+                                        <pre class="methodSignature"> <a href=Enrichment.html>Enrichment</a> <a href=Enrichment.Builder.html#buildPartial()>buildPartial</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="mergeFrom(com.google.protobuf.Message)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>mergeFrom</h4>
+                                        <pre class="methodSignature"> <a href=Enrichment.Builder.html>Enrichment.Builder</a> <a href=Enrichment.Builder.html#mergeFrom(com.google.protobuf.Message)>mergeFrom</a>(Message other)</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="mergeFrom(io.spine.core.Enrichment)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>mergeFrom</h4>
+                                        <pre class="methodSignature"> <a href=Enrichment.Builder.html>Enrichment.Builder</a> <a href=Enrichment.Builder.html#mergeFrom(io.spine.core.Enrichment)>mergeFrom</a>(<a href=Enrichment.html>Enrichment</a> other)</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="isInitialized()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>isInitialized</h4>
+                                        <pre class="methodSignature"> final boolean <a href=Enrichment.Builder.html#isInitialized()>isInitialized</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="mergeFrom(com.google.protobuf.CodedInputStream,com.google.protobuf.ExtensionRegistryLite)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>mergeFrom</h4>
+                                        <pre class="methodSignature"> <a href=Enrichment.Builder.html>Enrichment.Builder</a> <a href=Enrichment.Builder.html#mergeFrom(com.google.protobuf.CodedInputStream,com.google.protobuf.ExtensionRegistryLite)>mergeFrom</a>(CodedInputStream input, ExtensionRegistryLite extensionRegistry)</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getModeCase()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getModeCase</h4>
+                                        <pre class="methodSignature"> <a href=Enrichment.ModeCase.html>Enrichment.ModeCase</a> <a href=Enrichment.Builder.html#getModeCase()>getModeCase</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="clearMode()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>clearMode</h4>
+                                        <pre class="methodSignature"> <a href=Enrichment.Builder.html>Enrichment.Builder</a> <a href=Enrichment.Builder.html#clearMode()>clearMode</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="hasDoNotEnrich()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>hasDoNotEnrich</h4>
+                                        <pre class="methodSignature"> boolean <a href=Enrichment.Builder.html#hasDoNotEnrich()>hasDoNotEnrich</a>()</pre>
+                                        <div class="block"><pre><code>The instruction not to enrich the outer message.
+</code></pre><code>bool do_not_enrich = 1;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>Whether the doNotEnrich field is set.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getDoNotEnrich()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getDoNotEnrich</h4>
+                                        <pre class="methodSignature"> boolean <a href=Enrichment.Builder.html#getDoNotEnrich()>getDoNotEnrich</a>()</pre>
+                                        <div class="block"><pre><code>The instruction not to enrich the outer message.
+</code></pre><code>bool do_not_enrich = 1;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>The doNotEnrich.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="setDoNotEnrich(boolean)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setDoNotEnrich</h4>
+                                        <pre class="methodSignature"> <a href=Enrichment.Builder.html>Enrichment.Builder</a> <a href=Enrichment.Builder.html#setDoNotEnrich(boolean)>setDoNotEnrich</a>(boolean value)</pre>
+                                        <div class="block"><pre><code>The instruction not to enrich the outer message.
+</code></pre><code>bool do_not_enrich = 1;</code></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>value</code> - The doNotEnrich to set.</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>This builder for chaining.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="clearDoNotEnrich()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>clearDoNotEnrich</h4>
+                                        <pre class="methodSignature"> <a href=Enrichment.Builder.html>Enrichment.Builder</a> <a href=Enrichment.Builder.html#clearDoNotEnrich()>clearDoNotEnrich</a>()</pre>
+                                        <div class="block"><pre><code>The instruction not to enrich the outer message.
+</code></pre><code>bool do_not_enrich = 1;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>This builder for chaining.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="hasContainer()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>hasContainer</h4>
+                                        <pre class="methodSignature"> boolean <a href=Enrichment.Builder.html#hasContainer()>hasContainer</a>()</pre>
+                                        <div class="block"><pre><code>The container for the enrichments.
+</code></pre><code>.spine.core.Enrichment.Container container = 2;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>Whether the container field is set.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getContainer()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getContainer</h4>
+                                        <pre class="methodSignature"> <a href=Enrichment.Container.html>Enrichment.Container</a> <a href=Enrichment.Builder.html#getContainer()>getContainer</a>()</pre>
+                                        <div class="block"><pre><code>The container for the enrichments.
+</code></pre><code>.spine.core.Enrichment.Container container = 2;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>The container.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="setContainer(io.spine.core.Enrichment.Container)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setContainer</h4>
+                                        <pre class="methodSignature"> <a href=Enrichment.Builder.html>Enrichment.Builder</a> <a href=Enrichment.Builder.html#setContainer(io.spine.core.Enrichment.Container)>setContainer</a>(<a href=Enrichment.Container.html>Enrichment.Container</a> value)</pre>
+                                        <div class="block"><pre><code>The container for the enrichments.
+</code></pre><code>.spine.core.Enrichment.Container container = 2;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="setContainer(io.spine.core.Enrichment.Container.Builder)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setContainer</h4>
+                                        <pre class="methodSignature"> <a href=Enrichment.Builder.html>Enrichment.Builder</a> <a href=Enrichment.Builder.html#setContainer(io.spine.core.Enrichment.Container.Builder)>setContainer</a>(<a href=Enrichment.Container.Builder.html>Enrichment.Container.Builder</a> builderForValue)</pre>
+                                        <div class="block"><pre><code>The container for the enrichments.
+</code></pre><code>.spine.core.Enrichment.Container container = 2;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="mergeContainer(io.spine.core.Enrichment.Container)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>mergeContainer</h4>
+                                        <pre class="methodSignature"> <a href=Enrichment.Builder.html>Enrichment.Builder</a> <a href=Enrichment.Builder.html#mergeContainer(io.spine.core.Enrichment.Container)>mergeContainer</a>(<a href=Enrichment.Container.html>Enrichment.Container</a> value)</pre>
+                                        <div class="block"><pre><code>The container for the enrichments.
+</code></pre><code>.spine.core.Enrichment.Container container = 2;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="clearContainer()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>clearContainer</h4>
+                                        <pre class="methodSignature"> <a href=Enrichment.Builder.html>Enrichment.Builder</a> <a href=Enrichment.Builder.html#clearContainer()>clearContainer</a>()</pre>
+                                        <div class="block"><pre><code>The container for the enrichments.
+</code></pre><code>.spine.core.Enrichment.Container container = 2;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getContainerBuilder()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getContainerBuilder</h4>
+                                        <pre class="methodSignature"> <a href=Enrichment.Container.Builder.html>Enrichment.Container.Builder</a> <a href=Enrichment.Builder.html#getContainerBuilder()>getContainerBuilder</a>()</pre>
+                                        <div class="block"><pre><code>The container for the enrichments.
+</code></pre><code>.spine.core.Enrichment.Container container = 2;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getContainerOrBuilder()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockListLast"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getContainerOrBuilder</h4>
+                                        <pre class="methodSignature"> <a href=Enrichment.ContainerOrBuilder.html>Enrichment.ContainerOrBuilder</a> <a href=Enrichment.Builder.html#getContainerOrBuilder()>getContainerOrBuilder</a>()</pre>
+                                        <div class="block"><pre><code>The container for the enrichments.
+</code></pre><code>.spine.core.Enrichment.Container container = 2;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+    </div>
+</main>
+<footer role="contentinfo">
+    <nav role="navigation">
+        <!-- ======= START OF BOTTOM NAVBAR ====== -->
+        <div class="bottomNav"><a id="navbar.bottom">
+            <!--   -->
+        </a>
+            <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a>
+            </div>
+            <a id="navbar.bottom.firstrow">
+                <!--   -->
+            </a>
+            <ul class="navList" title="Navigation">
+    <li><a href="../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+        <a id="skip.navbar.bottom">
+            <!--   -->
+        </a>
+        <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ======== END OF BOTTOM NAVBAR ======= -->
+    </nav>
+</footer><ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" id="ui-id-1" tabindex="0"
+    style="display: none;"></ul>
+<span role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></span>
+</body>
+</html>
