@@ -1,0 +1,771 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en"><head>
+    <title>MessageRouting 2.0.0-SNAPSHOT.356 API </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="dc.created" content="2020-03-25">
+    <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../dokka-javadoc-stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../jquery/jquery-ui.css" title="Style">
+    <script type="text/javascript" src="../../../../jquery/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-migrate-3.4.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
+
+    <script type="text/javascript" src="../../../../search.js"></script>
+    <script async type="text/javascript" src="../../../../module-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../package-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../type-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../member-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../tag-search-index.js"></script>
+</head><body>
+<script type="text/javascript">
+var pathtoroot = "../../../../";
+</script>
+<noscript>
+    <div>JavaScript is disabled on your browser.</div>
+</noscript><header role="banner">
+    <nav role="navigation">
+        <div class="fixedNav">
+            <!-- ========= START OF TOP NAVBAR ======= -->
+            <div class="topNav"><a id="navbar.top">
+                <!--   -->
+            </a>
+                <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a>
+                </div>
+                <a id="navbar.top.firstrow">
+                    <!--   -->
+                </a>
+                <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+            <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" class="ui-autocomplete-input" autocomplete="off" placeholder="Search">
+<input type="reset" id="reset" value="reset">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ========= END OF TOP NAVBAR ========= -->
+        </div>
+        <div class="navPadding">&nbsp;</div>
+        <script type="text/javascript"><!--
+        $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+        //-->
+        </script>
+    </nav>
+</header>
+
+<main role="main">
+    <div class="header">
+        <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">io.spine.server.route</a></div>
+        <h2 title="Class MessageRouting" class="title">Class MessageRouting</h2>
+    </div>
+    <div class="contentContainer">
+        <!-- <ul class="inheritance">
+            <li>java.lang.Object</li>
+            <li>
+                <ul class="inheritance">
+                    <li>adaptation.Adaptation</li>
+                </ul>
+            </li>
+        </ul> TODO inheritance tree -->
+        <div class="description">
+            <ul class="blockList">
+                <li class="blockList">
+                    
+                    <dl>
+                        <dt>All Implemented Interfaces:</dt>
+                        <dd>
+                            
+                            <code>io.spine.server.route.RouteFn</code>
+                            
+                            
+                        </dd>
+                    </dl>
+                    
+                    <hr>
+                    <pre class="wrap-overflow">
+
+public class <span class="typeNameLabel"><a href=MessageRouting.html>MessageRouting</a>&lt;I extends <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>, M extends Routable, C extends SignalContext, R extends <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>, S extends <a href=MessageRouting.html>MessageRouting</a>&lt;<a href=MessageRouting.html>I</a>, <a href=MessageRouting.html>M</a>, <a href=MessageRouting.html>C</a>, <a href=MessageRouting.html>R</a>, <a href=MessageRouting.html>S</a>&gt;&gt;</span>
+ implements <a href=RouteFn.html>RouteFn</a>&lt;<a href=MessageRouting.html>M</a>, <a href=MessageRouting.html>C</a>, <a href=MessageRouting.html>R</a>&gt;
+                    </pre>
+                    <div class="block"><p>An abstract base for classes implementing routing schemas for routable messages such as commands, events, rejections, or entity states.</p><p>Routing schemas are used by <a href=../entity/Repository.html>repositories</a> for delivering messages to entities. The identifiers of the target entities are calculated by these schemas.</p><p>A routing schema consists of a default route and custom routes per a message class or an interface. The default route is used when none of the routing functions added to the schema for a class or an interface matches the incoming message.</p><p>A routing schema is composed using the <a href=StateUpdateRouting.html#route(io.spine.server.route.RouteFn)>route</a> functions:</p><pre><code>routing.route&lt;MyClass1&gt; { message, context -&gt; ... }
+       .route&lt;MyClass2&gt; { message -&gt;  ... }
+       .route&lt;MyInterface&gt; { message, context -&gt;  ... }
+       .route&lt;MoreAbstractInterface&gt; { message -&gt;  ... }</code></pre><p>Entries for classes must come before those for interfaces. Entries for more specific interfaces must be added before entries for super-interfaces of the already added interface entries. There rules ensure correct routing of messages. If these rules are not followed, <code>IllegalStateException</code> will be thrown when calling a <a href=StateUpdateRouting.html#route(io.spine.server.route.RouteFn)>route</a> function which attempts to add a violating entry.</p><p>A routing function may accept two parameters <code>message</code> and <code>context</code>, or only single <code>message</code> parameter, if the message context does not participate in the routing.</p><p>Repositories create <a href=MessageRouting.html>MessageRouting</a> instances for their needs providing default routes that match the nature of the dispatched messages. An alternative default route can be set using the <a href=StateUpdateRouting.html#replaceDefault(io.spine.server.route.RouteFn)>replaceDefault</a> function.</p></div>
+
+                    <dl>
+
+                    
+
+                    
+
+                    </dl>
+                </li>
+            </ul>
+        </div>
+        <div class="summary">
+            <ul class="blockList">
+                <li class="blockList">
+                <!-- ======== NESTED CLASS SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="nested.class.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Nested Class Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Class</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== FIELD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="field.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Field Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Field</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tbody>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Constructor</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+
+                                        
+                                            <tr class="altColor">
+                                                <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a
+                                                        href="#MessageRouting(io.spine.server.route.RouteFn)">MessageRouting</a></span>(<a href=RouteFn.html>RouteFn</a>&lt;<a href=MessageRouting.html>M</a>, <a href=MessageRouting.html>C</a>, <a href=MessageRouting.html>R</a>&gt; defaultRoute)</code></th>
+                                                <td class="colLast"></td>
+                                            </tr>
+                                        
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== ENUM CONSTANT SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="enum.constant.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Enum Constant Summary</h3>
+                                <table class="memberSummary">
+                                    <caption><span>Enum Constants</span><span class="tabEnd">&nbsp;</span></caption>
+                                    <tr>
+                                        <th class="colFirst" scope="col">Enum Constant</th>
+                                        <th class="colLast" scope="col">Description</th>
+                                    </tr>
+                                    
+                                </table>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ========== METHOD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Method Summary</h3>
+                                <div class="memberSummary">
+                                    <div role="tablist" aria-orientation="horizontal">
+                                        <button role="tab" aria-selected="true" aria-controls="memberSummary_tabpanel" tabindex="0" onkeydown="switchTab(event)" id="t0" class="activeTableTab">All Methods</button>
+                                        <!-- TODO: Instance and Concrete Methods #1118 -->
+                                    </div>
+                                    <div id="memberSummary_tabpanel" role="tabpanel">
+                                    <table aria-labelledby="t0">
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Method</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                        <tr id="i0" class="altColor">
+                                            <td class="colFirst"><code>final <a href=RouteFn.html>RouteFn</a>&lt;<a href=MessageRouting.html>M</a>, <a href=MessageRouting.html>C</a>, <a href=MessageRouting.html>R</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=StateUpdateRouting.html#defaultRoute()>defaultRoute</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains the default route to be used when none of the added entries match the argument passed to the <a href=StateUpdateRouting.html#invoke(io.spine.base.EntityState,io.spine.core.EventContext)>invoke</a> function.</td>
+                                        </tr>
+                                        
+                                        <tr id="i1" class="rowColor">
+                                            <td class="colFirst"><code>abstract <a href=MessageRouting.html>S</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=MulticastRouting.html#self()>self</a>() </code>
+                                            </th>
+                                            <td class="colLast">Provides the type reference to <code>this</code> for covariance of the type returned by <a href=StateUpdateRouting.html#route(io.spine.server.route.RouteFn)>route</a> functions.</td>
+                                        </tr>
+                                        
+                                        <tr id="i2" class="altColor">
+                                            <td class="colFirst"><code>final <a href=MessageRouting.html>S</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=StateUpdateRouting.html#replaceDefault(io.spine.server.route.RouteFn)>replaceDefault</a>(<a href=RouteFn.html>RouteFn</a>&lt;<a href=MessageRouting.html>M</a>, <a href=MessageRouting.html>C</a>, out <a href=MessageRouting.html>R</a>&gt; newDefault) </code>
+                                            </th>
+                                            <td class="colLast">Sets a new default route in the schema.</td>
+                                        </tr>
+                                        
+                                        <tr id="i3" class="rowColor">
+                                            <td class="colFirst"><code>final &lt;N extends <a href=MessageRouting.html>M</a>&gt; <a href=MessageRouting.html>S</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=StateUpdateRouting.html#route(io.spine.server.route.RouteFn)>route</a>(<a href=RouteFn.html>RouteFn</a>&lt;<a href=StateUpdateRouting.html#route(io.spine.server.route.RouteFn)>N</a>, <a href=MessageRouting.html>C</a>, <a href=MessageRouting.html>R</a>&gt; via) </code>
+                                            </th>
+                                            <td class="colLast">Adds a route for the given message type <a href=StateUpdateRouting.html#route(io.spine.server.route.RouteFn)>N</a>.</td>
+                                        </tr>
+                                        
+                                        <tr id="i4" class="altColor">
+                                            <td class="colFirst"><code>final &lt;N extends <a href=MessageRouting.html>M</a>&gt; <a href=MessageRouting.html>S</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=StateUpdateRouting.html#route(kotlin.jvm.functions.Function1)>route</a>(Function1&lt;<a href=StateUpdateRouting.html#route(kotlin.jvm.functions.Function1)>N</a>, <a href=MessageRouting.html>R</a>&gt; via) </code>
+                                            </th>
+                                            <td class="colLast">Adds a route for the messages with the given type <a href=StateUpdateRouting.html#route(kotlin.jvm.functions.Function1)>N</a>.</td>
+                                        </tr>
+                                        
+                                        <tr id="i5" class="rowColor">
+                                            <td class="colFirst"><code>final &lt;N extends <a href=MessageRouting.html>M</a>&gt; <a href=MessageRouting.html>S</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=StateUpdateRouting.html#route(java.lang.Class,io.spine.server.route.RouteFn)>route</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;<a href=StateUpdateRouting.html#route(java.lang.Class,io.spine.server.route.RouteFn)>N</a>&gt; msgClass, <a href=RouteFn.html>RouteFn</a>&lt;<a href=StateUpdateRouting.html#route(java.lang.Class,io.spine.server.route.RouteFn)>N</a>, <a href=MessageRouting.html>C</a>, <a href=MessageRouting.html>R</a>&gt; via) </code>
+                                            </th>
+                                            <td class="colLast">Adds a route for the given message type <a href=StateUpdateRouting.html#route(java.lang.Class,io.spine.server.route.RouteFn)>N</a>.</td>
+                                        </tr>
+                                        
+                                        <tr id="i6" class="altColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=MulticastRouting.html#supports(java.lang.Class)>supports</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;out <a href=MessageRouting.html>M</a>&gt; messageType) </code>
+                                            </th>
+                                            <td class="colLast">Checks if the passed message type is supported by this routing schema.</td>
+                                        </tr>
+                                        
+                                        <tr id="i7" class="rowColor">
+                                            <td class="colFirst"><code>&lt;N extends <a href=MessageRouting.html>M</a>&gt; <a href=RouteFn.html>RouteFn</a>&lt;<a href=StateUpdateRouting.html#find(java.lang.Class)>N</a>, <a href=MessageRouting.html>C</a>, <a href=MessageRouting.html>R</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=StateUpdateRouting.html#find(java.lang.Class)>find</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;<a href=StateUpdateRouting.html#find(java.lang.Class)>N</a>&gt; cls) </code>
+                                            </th>
+                                            <td class="colLast">Obtains a routing function for the given class of messages, or <code>null</code> if the schema does not serve the class via non-default routes.</td>
+                                        </tr>
+                                        
+                                        <tr id="i8" class="altColor">
+                                            <td class="colFirst"><code>final <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=StateUpdateRouting.html#remove(java.lang.Class)>remove</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;out <a href=MessageRouting.html>M</a>&gt; messageClass) </code>
+                                            </th>
+                                            <td class="colLast">Removes a route for the passed message class.</td>
+                                        </tr>
+                                        
+                                        <tr id="i9" class="rowColor">
+                                            <td class="colFirst"><code>final &lt;N extends <a href=MessageRouting.html>M</a>&gt; <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=StateUpdateRouting.html#remove()>remove</a>() </code>
+                                            </th>
+                                            <td class="colLast">Removes a route for the given message class.</td>
+                                        </tr>
+                                        
+                                        <tr id="i10" class="altColor">
+                                            <td class="colFirst"><code><a href=MessageRouting.html>R</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=StateUpdateRouting.html#invoke(io.spine.base.EntityState,io.spine.core.EventContext)>invoke</a>(<a href=MessageRouting.html>M</a> message, <a href=MessageRouting.html>C</a> context) </code>
+                                            </th>
+                                            <td class="colLast">Obtains IDs of entities to which the passed message should be delivered.</td>
+                                        </tr>
+                                        
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <ul class="blockList">
+                                
+                                    <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+                                        <!--   -->
+                                    </a>
+                                        <h3>Methods inherited from class&nbsp;java.lang.Object</h3>
+                                        <code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString,
+                                            wait, wait, wait</code></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+        <div class="details">
+            <ul class="blockList">
+                <li class="blockList">
+                    <!-- ========= CONSTRUCTOR DETAIL ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Detail</h3>
+                                
+                                <a name="MessageRouting(io.spine.server.route.RouteFn)"></a>
+                                <ul class="blockList">
+                                    <li class="blockList">
+                                        <h4>MessageRouting</h4>
+                                        <pre>MessageRouting(<a href=RouteFn.html>RouteFn</a>&lt;<a href=MessageRouting.html>M</a>, <a href=MessageRouting.html>C</a>, <a href=MessageRouting.html>R</a>&gt; defaultRoute)</pre>
+                                        <div class="block"></div>
+                                        
+                                    </li>
+                                </ul>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ============ METHOD DETAIL ========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Method Detail</h3>
+                                
+                                <a id="defaultRoute()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>defaultRoute</h4>
+                                        <pre class="methodSignature">@VisibleForTesting() final <a href=RouteFn.html>RouteFn</a>&lt;<a href=MessageRouting.html>M</a>, <a href=MessageRouting.html>C</a>, <a href=MessageRouting.html>R</a>&gt; <a href=StateUpdateRouting.html#defaultRoute()>defaultRoute</a>()</pre>
+                                        <div class="block"><p>Obtains the default route to be used when none of the added entries match the argument passed to the <a href=StateUpdateRouting.html#invoke(io.spine.base.EntityState,io.spine.core.EventContext)>invoke</a> function.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="self()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>self</h4>
+                                        <pre class="methodSignature"> abstract <a href=MessageRouting.html>S</a> <a href=MulticastRouting.html#self()>self</a>()</pre>
+                                        <div class="block"><p>Provides the type reference to <code>this</code> for covariance of the type returned by <a href=StateUpdateRouting.html#route(io.spine.server.route.RouteFn)>route</a> functions.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="replaceDefault(io.spine.server.route.RouteFn)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>replaceDefault</h4>
+                                        <pre class="methodSignature">@CanIgnoreReturnValue() final <a href=MessageRouting.html>S</a> <a href=StateUpdateRouting.html#replaceDefault(io.spine.server.route.RouteFn)>replaceDefault</a>(<a href=RouteFn.html>RouteFn</a>&lt;<a href=MessageRouting.html>M</a>, <a href=MessageRouting.html>C</a>, out <a href=MessageRouting.html>R</a>&gt; newDefault)</pre>
+                                        <div class="block"><p>Sets a new default route in the schema.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>newDefault</code> - The new route to be used as default.</dd>
+                                            
+                                            
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="route(io.spine.server.route.RouteFn)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>route</h4>
+                                        <pre class="methodSignature">@CanIgnoreReturnValue() final &lt;N extends <a href=MessageRouting.html>M</a>&gt; <a href=MessageRouting.html>S</a> <a href=StateUpdateRouting.html#route(io.spine.server.route.RouteFn)>route</a>(<a href=RouteFn.html>RouteFn</a>&lt;<a href=StateUpdateRouting.html#route(io.spine.server.route.RouteFn)>N</a>, <a href=MessageRouting.html>C</a>, <a href=MessageRouting.html>R</a>&gt; via)</pre>
+                                        <div class="block"><p>Adds a route for the given message type <a href=StateUpdateRouting.html#route(io.spine.server.route.RouteFn)>N</a>.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>via</code> - The route to be used for this type of messages.</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p><code>this</code> to allow chained calls when configuring the routing.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="route(kotlin.jvm.functions.Function1)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>route</h4>
+                                        <pre class="methodSignature">@CanIgnoreReturnValue() final &lt;N extends <a href=MessageRouting.html>M</a>&gt; <a href=MessageRouting.html>S</a> <a href=StateUpdateRouting.html#route(kotlin.jvm.functions.Function1)>route</a>(Function1&lt;<a href=StateUpdateRouting.html#route(kotlin.jvm.functions.Function1)>N</a>, <a href=MessageRouting.html>R</a>&gt; via)</pre>
+                                        <div class="block"><p>Adds a route for the messages with the given type <a href=StateUpdateRouting.html#route(kotlin.jvm.functions.Function1)>N</a>.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>via</code> - The route function to be used for this type of messages.</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p><code>this</code> to allow chained calls when configuring the routing.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="route(java.lang.Class,io.spine.server.route.RouteFn)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>route</h4>
+                                        <pre class="methodSignature">@CanIgnoreReturnValue() final &lt;N extends <a href=MessageRouting.html>M</a>&gt; <a href=MessageRouting.html>S</a> <a href=StateUpdateRouting.html#route(java.lang.Class,io.spine.server.route.RouteFn)>route</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;<a href=StateUpdateRouting.html#route(java.lang.Class,io.spine.server.route.RouteFn)>N</a>&gt; msgClass, <a href=RouteFn.html>RouteFn</a>&lt;<a href=StateUpdateRouting.html#route(java.lang.Class,io.spine.server.route.RouteFn)>N</a>, <a href=MessageRouting.html>C</a>, <a href=MessageRouting.html>R</a>&gt; via)</pre>
+                                        <div class="block"><p>Adds a route for the given message type <a href=StateUpdateRouting.html#route(java.lang.Class,io.spine.server.route.RouteFn)>N</a>.</p><p>This is the Java version of <code>public inline fun</code> <a href=StateUpdateRouting.html#route(java.lang.Class,io.spine.server.route.RouteFn)>route</a>.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            
+                                            
+                                            <dd><code>via</code> - The route function to be used for this type of messages.</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p><code>this</code> to allow chained calls when configuring the routing.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="supports(java.lang.Class)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>supports</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a> <a href=MulticastRouting.html#supports(java.lang.Class)>supports</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;out <a href=MessageRouting.html>M</a>&gt; messageType)</pre>
+                                        <div class="block"><p>Checks if the passed message type is supported by this routing schema.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="find(java.lang.Class)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>find</h4>
+                                        <pre class="methodSignature"> &lt;N extends <a href=MessageRouting.html>M</a>&gt; <a href=RouteFn.html>RouteFn</a>&lt;<a href=StateUpdateRouting.html#find(java.lang.Class)>N</a>, <a href=MessageRouting.html>C</a>, <a href=MessageRouting.html>R</a>&gt; <a href=StateUpdateRouting.html#find(java.lang.Class)>find</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;<a href=StateUpdateRouting.html#find(java.lang.Class)>N</a>&gt; cls)</pre>
+                                        <div class="block"><p>Obtains a routing function for the given class of messages, or <code>null</code> if the schema does not serve the class via non-default routes.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="remove(java.lang.Class)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>remove</h4>
+                                        <pre class="methodSignature"> final <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a> <a href=StateUpdateRouting.html#remove(java.lang.Class)>remove</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;out <a href=MessageRouting.html>M</a>&gt; messageClass)</pre>
+                                        <div class="block"><p>Removes a route for the passed message class.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="remove()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>remove</h4>
+                                        <pre class="methodSignature"> final &lt;N extends <a href=MessageRouting.html>M</a>&gt; <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a> <a href=StateUpdateRouting.html#remove()>remove</a>()</pre>
+                                        <div class="block"><p>Removes a route for the given message class.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="invoke(M,C)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockListLast"
+                                          >
+                                    <li class="blockList">
+                                        <h4>invoke</h4>
+                                        <pre class="methodSignature"> <a href=MessageRouting.html>R</a> <a href=StateUpdateRouting.html#invoke(io.spine.base.EntityState,io.spine.core.EventContext)>invoke</a>(<a href=MessageRouting.html>M</a> message, <a href=MessageRouting.html>C</a> context)</pre>
+                                        <div class="block"><p>Obtains IDs of entities to which the passed message should be delivered.</p><p>If there is no function for the passed message, applies the default function.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>message</code> - The message to route.</dd>
+                                            
+                                            
+                                            
+                                            <dd><code>context</code> - The context of the message.</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>the set of entity IDs to which the message should be delivered.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+    </div>
+</main>
+<footer role="contentinfo">
+    <nav role="navigation">
+        <!-- ======= START OF BOTTOM NAVBAR ====== -->
+        <div class="bottomNav"><a id="navbar.bottom">
+            <!--   -->
+        </a>
+            <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a>
+            </div>
+            <a id="navbar.bottom.firstrow">
+                <!--   -->
+            </a>
+            <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+        <a id="skip.navbar.bottom">
+            <!--   -->
+        </a>
+        <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ======== END OF BOTTOM NAVBAR ======= -->
+    </nav>
+</footer><ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" id="ui-id-1" tabindex="0"
+    style="display: none;"></ul>
+<span role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></span>
+</body>
+</html>

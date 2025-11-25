@@ -1,0 +1,859 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en"><head>
+    <title>Aggregate 2.0.0-SNAPSHOT.356 API </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="dc.created" content="2020-03-25">
+    <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../dokka-javadoc-stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../jquery/jquery-ui.css" title="Style">
+    <script type="text/javascript" src="../../../../jquery/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-migrate-3.4.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
+
+    <script type="text/javascript" src="../../../../search.js"></script>
+    <script async type="text/javascript" src="../../../../module-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../package-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../type-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../member-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../tag-search-index.js"></script>
+</head><body>
+<script type="text/javascript">
+var pathtoroot = "../../../../";
+</script>
+<noscript>
+    <div>JavaScript is disabled on your browser.</div>
+</noscript><header role="banner">
+    <nav role="navigation">
+        <div class="fixedNav">
+            <!-- ========= START OF TOP NAVBAR ======= -->
+            <div class="topNav"><a id="navbar.top">
+                <!--   -->
+            </a>
+                <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a>
+                </div>
+                <a id="navbar.top.firstrow">
+                    <!--   -->
+                </a>
+                <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+            <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" class="ui-autocomplete-input" autocomplete="off" placeholder="Search">
+<input type="reset" id="reset" value="reset">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ========= END OF TOP NAVBAR ========= -->
+        </div>
+        <div class="navPadding">&nbsp;</div>
+        <script type="text/javascript"><!--
+        $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+        //-->
+        </script>
+    </nav>
+</header>
+
+<main role="main">
+    <div class="header">
+        <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">io.spine.server.aggregate</a></div>
+        <h2 title="Class Aggregate" class="title">Class Aggregate</h2>
+    </div>
+    <div class="contentContainer">
+        <!-- <ul class="inheritance">
+            <li>java.lang.Object</li>
+            <li>
+                <ul class="inheritance">
+                    <li>adaptation.Adaptation</li>
+                </ul>
+            </li>
+        </ul> TODO inheritance tree -->
+        <div class="description">
+            <ul class="blockList">
+                <li class="blockList">
+                    
+                    <dl>
+                        <dt>All Implemented Interfaces:</dt>
+                        <dd>
+                            
+                            <code>io.spine.server.EventProducer</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.command.Assignee</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.command.CommandReceiver</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.entity.Entity</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.entity.EventPlayer</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.entity.HasLifecycleColumns</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.entity.WithLifecycle</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.event.EventReactor</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.event.EventReceiver</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.log.ReceptorLifecycle</code>
+                            
+                            
+                        </dd>
+                    </dl>
+                    
+                    <hr>
+                    <pre class="wrap-overflow">
+
+public abstract class <span class="typeNameLabel"><a href=Aggregate.html>Aggregate</a>&lt;I, S extends AggregateState&lt;<a href=Aggregate.html>I</a>&gt;, B extends ValidatingBuilder&lt;<a href=Aggregate.html>S</a>&gt;&gt;</span>
+extends <a href=../command/AssigneeEntity.html>AssigneeEntity</a>&lt;<a href=Aggregate.html>I</a>, <a href=Aggregate.html>S</a>, <a href=Aggregate.html>B</a>&gt; implements EventPlayer, <a href=../event/EventReactor.html>EventReactor</a>, HasLifecycleColumns&lt;<a href=Aggregate.html>I</a>, <a href=Aggregate.html>S</a>&gt;
+                    </pre>
+                    <div class="block"><p>Abstract base for aggregates. </p><p>An aggregate is the main building block of a business model. Aggregates guarantee the consistency of data modifications in response to commands they receive. </p><p>An aggregate modifies its state in response to a command and produces one or more events. These events are used later to restore the state of the aggregate. </p><p>To create a new aggregate class: </p><ul><li>Select a type for identifiers of the aggregate. If you select to use a typed identifier (which is recommended), define a protobuf message for the ID type. </li><li>Define the structure of the aggregate state as a Protobuf message. </li><li>Generate Java code for ID and state types. </li><li>Create new Java class derived from <code>Aggregate</code> passing ID and state types as generic parameters. </li></ul><p>Command receptors of an <code>Aggregate</code> are defined in the same way as described in <a href=../command/AssigneeEntity.html>AssigneeEntity</a>. Please also refer to <a href=../command/Assign.html>Assign</a>. </p><p>Event(s) returned by command-handling methods are posted to the EventBus automatically by <a href=AggregateRepository.html>AggregateRepository</a>. </p><p>Aggregate data is stored as a sequence of events it produces. The state of the aggregate is restored by re-playing the history of events and invoking corresponding event applier methods. </p><p>An event applier is a method that changes the state of the aggregate in response to an event. An event applier takes a single parameter of the event message it handles and returns <code>void</code>. Please see <a href=Apply.html>Apply</a> for more details. </p><p>The modification of the state is done using a builder instance obtained from <a href=AggregatePart.html#builder()>builder()</a>. All changes to state become reflected in <a href=../projection/Projection.html#state()>state()</a>, after all events (obtained from aggregate's history when loading an aggregate, or emitted by command handlers during the command dispatching) are played. </p><p>End-users must not call <code>state()</code> method within an event applier. It is so, because event appliers are invoked in scope of an active transaction, which accumulates the model updates in aggregate's <code>builder()</code>, and not in <code>state()</code>. Therefore, <code>state()</code> invocation from the applier's code may return some inconsistent result, and thus is prone to errors. All such attempts will result in a <code>RuntimeException</code>. </p><p>An <code>Aggregate</code> class must have applier methods for all types of the events that it produces. </p><p>To improve performance of loading aggregates, an <a href=AggregateRepository.html>AggregateRepository</a> periodically stores aggregate snapshots. See <a href=AggregateRepository.html#setSnapshotTrigger(int)>setSnapshotTrigger</a> for details.</p></div>
+
+                    <dl>
+
+                    
+
+                    
+
+                    </dl>
+                </li>
+            </ul>
+        </div>
+        <div class="summary">
+            <ul class="blockList">
+                <li class="blockList">
+                <!-- ======== NESTED CLASS SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="nested.class.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Nested Class Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Class</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== FIELD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="field.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Field Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Field</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>public  volatile <a href=../entity/LifecycleFlags.html>LifecycleFlags</a></code></td>
+                                            <th class="colSecond" scope="row"><code><a href=../projection/Projection.html#lifecycleFlags>lifecycleFlags</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tbody>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Constructor</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+
+                                        
+                                            <tr class="altColor">
+                                                <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a
+                                                        href="#Aggregate()">Aggregate</a></span>()</code></th>
+                                                <td class="colLast">Creates a new instance.</td>
+                                            </tr>
+                                        
+                                            <tr class="rowColor">
+                                                <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a
+                                                        href="#Aggregate(I)">Aggregate</a></span>(<a href=Aggregate.html>I</a> id)</code></th>
+                                                <td class="colLast">Creates a new instance.</td>
+                                            </tr>
+                                        
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== ENUM CONSTANT SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="enum.constant.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Enum Constant Summary</h3>
+                                <table class="memberSummary">
+                                    <caption><span>Enum Constants</span><span class="tabEnd">&nbsp;</span></caption>
+                                    <tr>
+                                        <th class="colFirst" scope="col">Enum Constant</th>
+                                        <th class="colLast" scope="col">Description</th>
+                                    </tr>
+                                    
+                                </table>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ========== METHOD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Method Summary</h3>
+                                <div class="memberSummary">
+                                    <div role="tablist" aria-orientation="horizontal">
+                                        <button role="tab" aria-selected="true" aria-controls="memberSummary_tabpanel" tabindex="0" onkeydown="switchTab(event)" id="t0" class="activeTableTab">All Methods</button>
+                                        <!-- TODO: Instance and Concrete Methods #1118 -->
+                                    </div>
+                                    <div id="memberSummary_tabpanel" role="tabpanel">
+                                    <table aria-labelledby="t0">
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Method</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                        <tr id="i0" class="altColor">
+                                            <td class="colFirst"><code><a href=model/AggregateClass.html>AggregateClass</a>&lt;out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Aggregate.html#thisClass()>thisClass</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains model class for this aggregate.</td>
+                                        </tr>
+                                        
+                                        <tr id="i1" class="rowColor">
+                                            <td class="colFirst"><code>final <a href=Aggregate.html>B</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregatePart.html#builder()>builder</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains the instance of the state builder.</td>
+                                        </tr>
+                                        
+                                        <tr id="i2" class="altColor">
+                                            <td class="colFirst"><code>void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregatePart.html#ensureAccessToState()>ensureAccessToState</a>() </code>
+                                            </th>
+                                            <td class="colLast">Prohibits invoking <a href=../projection/Projection.html#state()>state()</a> method from within an applier method.</td>
+                                        </tr>
+                                        
+                                        <tr id="i3" class="rowColor">
+                                            <td class="colFirst"><code>DispatchOutcome</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregatePart.html#dispatchCommand(io.spine.server.type.CommandEnvelope)>dispatchCommand</a>(<a href=../type/CommandEnvelope.html>CommandEnvelope</a> command) </code>
+                                            </th>
+                                            <td class="colLast">Obtains a method for the passed command and invokes it.</td>
+                                        </tr>
+                                        
+                                        <tr id="i4" class="altColor">
+                                            <td class="colFirst"><code>final BatchDispatchOutcome</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregatePart.html#play(java.lang.Iterable)>play</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Iterable.html>Iterable</a>&lt;Event&gt; events) </code>
+                                            </th>
+                                            <td class="colLast">Plays the given events against the underlying entity.</td>
+                                        </tr>
+                                        
+                                        <tr id="i5" class="rowColor">
+                                            <td class="colFirst"><code>final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregatePart.html#missingTxMessage()>missingTxMessage</a>() </code>
+                                            </th>
+                                            <td class="colLast">Instructs to modify the state of an aggregate only within an event applier method.</td>
+                                        </tr>
+                                        
+                                        <tr id="i6" class="altColor">
+                                            <td class="colFirst"><code>final void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregatePart.html#clearRecentHistory()>clearRecentHistory</a>() </code>
+                                            </th>
+                                            <td class="colLast">Clears #recentHistory() recent history.</td>
+                                        </tr>
+                                        
+                                        <tr id="i7" class="rowColor">
+                                            <td class="colFirst"><code>final <a href=../entity/RecentHistory.html>RecentHistory</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregatePart.html#recentHistory()>recentHistory</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains recent history of events of this entity.</td>
+                                        </tr>
+                                        
+                                        <tr id="i8" class="altColor">
+                                            <td class="colFirst"><code>final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Iterator.html>Iterator</a>&lt;Event&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregatePart.html#historyBackward()>historyBackward</a>() </code>
+                                            </th>
+                                            <td class="colLast">Creates an iterator of the aggregate event history with reverse traversal.</td>
+                                        </tr>
+                                        
+                                        <tr id="i9" class="rowColor">
+                                            <td class="colFirst"><code>final boolean</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregatePart.html#historyContains(java.util.function.Predicate)>historyContains</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Predicate.html>Predicate</a>&lt;Event&gt; predicate) </code>
+                                            </th>
+                                            <td class="colLast">Verifies if the aggregate history contains an event which satisfies the passed predicate.</td>
+                                        </tr>
+                                        
+                                        <tr id="i10" class="altColor">
+                                            <td class="colFirst"><code>final int</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregatePart.html#versionNumber()>versionNumber</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains the version number of the entity.</td>
+                                        </tr>
+                                        
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <ul class="blockList">
+                                
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.TransactionalEntity">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.TransactionalEntity</h3>
+                                            <code>appendToRecentHistory, getLifecycleFlags, onBeforeCommit, setArchived, setDeleted, setInitialState, tx</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.command.AssigneeEntity">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.command.AssigneeEntity</h3>
+                                            <code>expectedDefault, expectedEmpty, expectedNotDefault, expectedNotDefault, expectedNotEmpty, producerId, unexpectedValue, unexpectedValue</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.EventPlayer">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.EventPlayer</h3>
+                                            <code>forTransactionOf, play</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.HasLifecycleColumns">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.HasLifecycleColumns</h3>
+                                            <code>getArchived, getDeleted</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.AbstractEntity">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.AbstractEntity</h3>
+                                            <code>afterInvoke, beforeInvoke, checkEntityState, checkNotArchived, checkNotDeleted, defaultState, equals, hashCode, id, idAsString, isArchived, isDeleted, lifecycleFlagsChanged, state, toString, version, whenModified</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.log.ReceptorLifecycle">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.log.ReceptorLifecycle</h3>
+                                            <code>afterInvoke, beforeInvoke</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.WithLifecycle">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.WithLifecycle</h3>
+                                            <code>isActive, lifecycleFlags</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.EventProducer">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.EventProducer</h3>
+                                            <code>noReaction, nothing</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+                                        <!--   -->
+                                    </a>
+                                        <h3>Methods inherited from class&nbsp;java.lang.Object</h3>
+                                        <code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString,
+                                            wait, wait, wait</code></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+        <div class="details">
+            <ul class="blockList">
+                <li class="blockList">
+                    <!-- ========= CONSTRUCTOR DETAIL ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Detail</h3>
+                                
+                                <a name="Aggregate()"></a>
+                                <ul class="blockList">
+                                    <li class="blockList">
+                                        <h4>Aggregate</h4>
+                                        <pre>Aggregate()</pre>
+                                        <div class="block"><p>Creates a new instance.</p></div>
+                                        
+                                    </li>
+                                </ul>
+                                
+                                <a name="Aggregate(I)"></a>
+                                <ul class="blockList">
+                                    <li class="blockList">
+                                        <h4>Aggregate</h4>
+                                        <pre>Aggregate(<a href=Aggregate.html>I</a> id)</pre>
+                                        <div class="block"><p>Creates a new instance.</p></div>
+                                        
+                                        <dl>
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>id</code> - the ID for the new aggregate</dd>
+                                            
+                                            
+                                        </dl>
+                                        
+                                    </li>
+                                </ul>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ============ METHOD DETAIL ========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Method Detail</h3>
+                                
+                                <a id="thisClass()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>thisClass</h4>
+                                        <pre class="methodSignature"> <a href=model/AggregateClass.html>AggregateClass</a>&lt;out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt; <a href=Aggregate.html#thisClass()>thisClass</a>()</pre>
+                                        <div class="block"><p>Obtains model class for this aggregate.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="builder()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>builder</h4>
+                                        <pre class="methodSignature"> final <a href=Aggregate.html>B</a> <a href=AggregatePart.html#builder()>builder</a>()</pre>
+                                        <div class="block"><p>Obtains the instance of the state builder. </p><p>This method must be called only from within an active transaction. </p><p>In <code>Aggregate</code> this method must be called only from within an event applier.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="ensureAccessToState()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>ensureAccessToState</h4>
+                                        <pre class="methodSignature"> void <a href=AggregatePart.html#ensureAccessToState()>ensureAccessToState</a>()</pre>
+                                        <div class="block"><p>Prohibits invoking <a href=../projection/Projection.html#state()>state()</a> method from within an applier method. </p><p>All applier methods are always invoked in scope of an active transaction. Until this transaction is completed, the <code>state()</code> of the corresponding aggregate is not up-to-date. Therefore, relying upon it in code is prone to errors, and is prohibited for good sake.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="dispatchCommand(io.spine.server.type.CommandEnvelope)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>dispatchCommand</h4>
+                                        <pre class="methodSignature"> DispatchOutcome <a href=AggregatePart.html#dispatchCommand(io.spine.server.type.CommandEnvelope)>dispatchCommand</a>(<a href=../type/CommandEnvelope.html>CommandEnvelope</a> command)</pre>
+                                        <div class="block"><p>Obtains a method for the passed command and invokes it. </p><p>Dispatching the commands results in emitting event messages. All the empty messages are filtered out from the result.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>command</code> - the envelope with the command to dispatch</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>a list of event messages that the aggregate produces by handling the command</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="play(java.lang.Iterable)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>play</h4>
+                                        <pre class="methodSignature"> final BatchDispatchOutcome <a href=AggregatePart.html#play(java.lang.Iterable)>play</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Iterable.html>Iterable</a>&lt;Event&gt; events)</pre>
+                                        <div class="block"><p>Plays the given events against the underlying entity. </p><p>Typically, the entity state is changed during this operation.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>events</code> - the event stream to play</dd>
+                                            
+                                            
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="missingTxMessage()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>missingTxMessage</h4>
+                                        <pre class="methodSignature"> final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> <a href=AggregatePart.html#missingTxMessage()>missingTxMessage</a>()</pre>
+                                        <div class="block"><p>Instructs to modify the state of an aggregate only within an event applier method.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="clearRecentHistory()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>clearRecentHistory</h4>
+                                        <pre class="methodSignature"> final void <a href=AggregatePart.html#clearRecentHistory()>clearRecentHistory</a>()</pre>
+                                        <div class="block"><p>Clears #recentHistory() recent history. </p><p>Opens the method for the repository.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="recentHistory()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>recentHistory</h4>
+                                        <pre class="methodSignature">@VisibleForTesting() final <a href=../entity/RecentHistory.html>RecentHistory</a> <a href=AggregatePart.html#recentHistory()>recentHistory</a>()</pre>
+                                        <div class="block"><p>Obtains recent history of events of this entity. </p><p>Opens the method to this package for testing.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="historyBackward()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>historyBackward</h4>
+                                        <pre class="methodSignature"> final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Iterator.html>Iterator</a>&lt;Event&gt; <a href=AggregatePart.html#historyBackward()>historyBackward</a>()</pre>
+                                        <div class="block"><p>Creates an iterator of the aggregate event history with reverse traversal. </p><p>The records are returned sorted by timestamp in descending order (from newer to older). </p><p>The iterator is empty if there's no history for the aggregate.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>new iterator instance</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="historyContains(java.util.function.Predicate)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>historyContains</h4>
+                                        <pre class="methodSignature"> final boolean <a href=AggregatePart.html#historyContains(java.util.function.Predicate)>historyContains</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Predicate.html>Predicate</a>&lt;Event&gt; predicate)</pre>
+                                        <div class="block"><p>Verifies if the aggregate history contains an event which satisfies the passed predicate.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="versionNumber()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockListLast"
+                                          >
+                                    <li class="blockList">
+                                        <h4>versionNumber</h4>
+                                        <pre class="methodSignature">@VisibleForTesting() final int <a href=AggregatePart.html#versionNumber()>versionNumber</a>()</pre>
+                                        <div class="block"><p>Obtains the version number of the entity. </p><p>Overrides to expose the method to the package.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+    </div>
+</main>
+<footer role="contentinfo">
+    <nav role="navigation">
+        <!-- ======= START OF BOTTOM NAVBAR ====== -->
+        <div class="bottomNav"><a id="navbar.bottom">
+            <!--   -->
+        </a>
+            <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a>
+            </div>
+            <a id="navbar.bottom.firstrow">
+                <!--   -->
+            </a>
+            <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+        <a id="skip.navbar.bottom">
+            <!--   -->
+        </a>
+        <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ======== END OF BOTTOM NAVBAR ======= -->
+    </nav>
+</footer><ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" id="ui-id-1" tabindex="0"
+    style="display: none;"></ul>
+<span role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></span>
+</body>
+</html>

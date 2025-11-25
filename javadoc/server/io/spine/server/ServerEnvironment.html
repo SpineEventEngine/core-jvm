@@ -1,0 +1,876 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en"><head>
+    <title>ServerEnvironment 2.0.0-SNAPSHOT.356 API </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="dc.created" content="2020-03-25">
+    <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../dokka-javadoc-stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../jquery/jquery-ui.css" title="Style">
+    <script type="text/javascript" src="../../../jquery/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="../../../jquery/jquery-migrate-3.4.0.min.js"></script>
+    <script type="text/javascript" src="../../../jquery/jquery-ui.js"></script>
+
+    <script type="text/javascript" src="../../../search.js"></script>
+    <script async type="text/javascript" src="../../../module-search-index.js"></script>
+    <script async type="text/javascript" src="../../../package-search-index.js"></script>
+    <script async type="text/javascript" src="../../../type-search-index.js"></script>
+    <script async type="text/javascript" src="../../../member-search-index.js"></script>
+    <script async type="text/javascript" src="../../../tag-search-index.js"></script>
+</head><body>
+<script type="text/javascript">
+var pathtoroot = "../../../";
+</script>
+<noscript>
+    <div>JavaScript is disabled on your browser.</div>
+</noscript><header role="banner">
+    <nav role="navigation">
+        <div class="fixedNav">
+            <!-- ========= START OF TOP NAVBAR ======= -->
+            <div class="topNav"><a id="navbar.top">
+                <!--   -->
+            </a>
+                <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a>
+                </div>
+                <a id="navbar.top.firstrow">
+                    <!--   -->
+                </a>
+                <ul class="navList" title="Navigation">
+    <li><a href="../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+            <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" class="ui-autocomplete-input" autocomplete="off" placeholder="Search">
+<input type="reset" id="reset" value="reset">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ========= END OF TOP NAVBAR ========= -->
+        </div>
+        <div class="navPadding">&nbsp;</div>
+        <script type="text/javascript"><!--
+        $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+        //-->
+        </script>
+    </nav>
+</header>
+
+<main role="main">
+    <div class="header">
+        <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">io.spine.server</a></div>
+        <h2 title="Class ServerEnvironment" class="title">Class ServerEnvironment</h2>
+    </div>
+    <div class="contentContainer">
+        <!-- <ul class="inheritance">
+            <li>java.lang.Object</li>
+            <li>
+                <ul class="inheritance">
+                    <li>adaptation.Adaptation</li>
+                </ul>
+            </li>
+        </ul> TODO inheritance tree -->
+        <div class="description">
+            <ul class="blockList">
+                <li class="blockList">
+                    
+                    <dl>
+                        <dt>All Implemented Interfaces:</dt>
+                        <dd>
+                            
+                            <code>io.spine.server.Closeable</code>
+                            
+                            ,
+                            
+                            
+                            <code>java.io.Closeable</code>
+                            
+                            ,
+                            
+                            
+                            <code>java.lang.AutoCloseable</code>
+                            
+                            
+                        </dd>
+                    </dl>
+                    
+                    <hr>
+                    <pre class="wrap-overflow">
+
+public final class <span class="typeNameLabel"><a href=ServerEnvironment.html>ServerEnvironment</a></span>
+ implements <a href=Closeable.html>Closeable</a>
+                    </pre>
+                    <div class="block"><p>The server conditions and configuration under which the application operates. </p><p>Some parts of the <code>ServerEnvironment</code> can be customized based on the <code>
+EnvironmentType</code>. To do so, one of the overloads of the <code>use</code> method can be called. Two environment types exist out of the box: Tests and DefaultMode. For example: </p><pre><code>
+    ServerEnvironment.when(Production.class)
+                     .use(productionStorageFactory)
+                     .use(memoizingTracerFactory);
+    ServerEnvironment.when(Tests.class)
+                     .use(testingStorageFactory);
+</code></pre> A custom environment type may also be used: <pre><code>
+    final class StagingEnvironment extends EnvironmentType {
+        ...
+    }
+
+    ServerEnvironment.when(Staging.class)
+                     .use(inMemoryStorageFactory);
+</code></pre><p>If <code>Staging</code> is enabled, the specified value is going to be returned on <a href=ServerEnvironment.html#storageFactory()>storageFactory</a>. </p><p>A <code>ServerEnvironment</code> instance is a singleton. It means that all Bounded Contexts which are deployed within the same JVM share the configuration of the server environment. Namely, under the same environment type, all Bounded Contexts will share the same storage factory, transport factory, delivery and tracing tools. </p><p>If one decides that some of the Bounded Contexts of an application requires custom settings, they should arrange a separate deployable artifact and distinct configuration of the respective <code>ServerEnvironment</code> for those Bounded Contexts. In this way, the Contexts would reside in their own JVMs and not overlap on interacting with this singleton.</p></div>
+
+                    <dl>
+
+                    
+
+                    
+
+                    </dl>
+                </li>
+            </ul>
+        </div>
+        <div class="summary">
+            <ul class="blockList">
+                <li class="blockList">
+                <!-- ======== NESTED CLASS SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="nested.class.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Nested Class Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Class</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>public class</code></td>
+                                            <th class="colSecond" scope="row"><code><a href="ServerEnvironment.TypeConfigurator.html">ServerEnvironment.TypeConfigurator</a></span></code>
+                                            </th>
+                                            <td class="colLast"><p>Allows configuring values used by the <code>ServerEnvironment</code> for the given type.</p></td>
+                                        </tr>
+                                        
+                                        <tr class="rowColor">
+                                            <td class="colFirst"><code>public interface</code></td>
+                                            <th class="colSecond" scope="row"><code><a href="ServerEnvironment.Fn.html">ServerEnvironment.Fn</a></span></code>
+                                            </th>
+                                            <td class="colLast"><p>A function which accepts a class of EnvironmentType and returns a value <a href=ServerEnvironment.html#when(java.lang.Class)>configured</a> in a <code>ServerEnvironment</code>.</p></td>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== FIELD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="field.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Field Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Field</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tbody>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Constructor</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+
+                                        
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== ENUM CONSTANT SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="enum.constant.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Enum Constant Summary</h3>
+                                <table class="memberSummary">
+                                    <caption><span>Enum Constants</span><span class="tabEnd">&nbsp;</span></caption>
+                                    <tr>
+                                        <th class="colFirst" scope="col">Enum Constant</th>
+                                        <th class="colLast" scope="col">Description</th>
+                                    </tr>
+                                    
+                                </table>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ========== METHOD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Method Summary</h3>
+                                <div class="memberSummary">
+                                    <div role="tablist" aria-orientation="horizontal">
+                                        <button role="tab" aria-selected="true" aria-controls="memberSummary_tabpanel" tabindex="0" onkeydown="switchTab(event)" id="t0" class="activeTableTab">All Methods</button>
+                                        <!-- TODO: Instance and Concrete Methods #1118 -->
+                                    </div>
+                                    <div id="memberSummary_tabpanel" role="tabpanel">
+                                    <table aria-labelledby="t0">
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Method</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                        <tr id="i0" class="altColor">
+                                            <td class="colFirst"><code>static <a href=ServerEnvironment.html>ServerEnvironment</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ServerEnvironment.html#instance()>instance</a>() </code>
+                                            </th>
+                                            <td class="colLast">Returns a singleton instance.</td>
+                                        </tr>
+                                        
+                                        <tr id="i1" class="rowColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;out EnvironmentType&lt;out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt;&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ServerEnvironment.html#type()>type</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains the type of the current server environment.</td>
+                                        </tr>
+                                        
+                                        <tr id="i2" class="altColor">
+                                            <td class="colFirst"><code><a href=DeploymentType.html>DeploymentType</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ServerEnvironment.html#deploymentType()>deploymentType</a>() </code>
+                                            </th>
+                                            <td class="colLast">The type of the environment application is deployed to.</td>
+                                        </tr>
+                                        
+                                        <tr id="i3" class="rowColor">
+                                            <td class="colFirst"><code>synchronized <a href=delivery/Delivery.html>Delivery</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ServerEnvironment.html#delivery()>delivery</a>() </code>
+                                            </th>
+                                            <td class="colLast">Returns the delivery mechanism specific to this environment.</td>
+                                        </tr>
+                                        
+                                        <tr id="i4" class="altColor">
+                                            <td class="colFirst"><code><a href=commandbus/CommandScheduler.html>CommandScheduler</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ServerEnvironment.html#newCommandScheduler()>newCommandScheduler</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains command scheduling mechanism used by <code>CommandBus</code> in this environment.</td>
+                                        </tr>
+                                        
+                                        <tr id="i5" class="rowColor">
+                                            <td class="colFirst"><code>void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ServerEnvironment.html#scheduleCommandsUsing(java.util.function.Supplier)>scheduleCommandsUsing</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html>Supplier</a>&lt;<a href=commandbus/CommandScheduler.html>CommandScheduler</a>&gt; commandScheduler) </code>
+                                            </th>
+                                            <td class="colLast">Assigns command scheduling mechanism used at this environment by all <code>CommandBus</code> instances.</td>
+                                        </tr>
+                                        
+                                        <tr id="i6" class="altColor">
+                                            <td class="colFirst"><code><a href=NodeId.html>NodeId</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ServerEnvironment.html#nodeId()>nodeId</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains the identifier of the server node, on which this code is running at the moment.</td>
+                                        </tr>
+                                        
+                                        <tr id="i7" class="rowColor">
+                                            <td class="colFirst"><code>void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ServerEnvironment.html#configureDeployment(java.util.function.Supplier)>configureDeployment</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html>Supplier</a>&lt;<a href=DeploymentType.html>DeploymentType</a>&gt; supplier) </code>
+                                            </th>
+                                            <td class="colLast">Makes the <a href=ServerEnvironment.html#deploymentType()>deploymentType</a> return the values from the provided supplier.</td>
+                                        </tr>
+                                        
+                                        <tr id="i8" class="altColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html>Optional</a>&lt;<a href=trace/TracerFactory.html>TracerFactory</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ServerEnvironment.html#tracing()>tracing</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains the <a href=trace/TracerFactory.html>TracerFactory</a> associated with the current environment, if it was set.</td>
+                                        </tr>
+                                        
+                                        <tr id="i9" class="rowColor">
+                                            <td class="colFirst"><code><a href=storage/StorageFactory.html>StorageFactory</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ServerEnvironment.html#storageFactory()>storageFactory</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains the storage factory for the current environment.</td>
+                                        </tr>
+                                        
+                                        <tr id="i10" class="altColor">
+                                            <td class="colFirst"><code><a href=transport/TransportFactory.html>TransportFactory</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ServerEnvironment.html#transportFactory()>transportFactory</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains the transport factory for the current environment.</td>
+                                        </tr>
+                                        
+                                        <tr id="i11" class="rowColor">
+                                            <td class="colFirst"><code>void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ServerEnvironment.html#reset()>reset</a>() </code>
+                                            </th>
+                                            <td class="colLast">This is test-only method required for cleaning of the server environment instance in tests.</td>
+                                        </tr>
+                                        
+                                        <tr id="i12" class="altColor">
+                                            <td class="colFirst"><code>boolean</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ServerEnvironment.html#isOpen()>isOpen</a>() </code>
+                                            </th>
+                                            <td class="colLast">Tells if the environment is still open.</td>
+                                        </tr>
+                                        
+                                        <tr id="i13" class="rowColor">
+                                            <td class="colFirst"><code>void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ServerEnvironment.html#close()>close</a>() </code>
+                                            </th>
+                                            <td class="colLast">Releases resources associated with this instance.</td>
+                                        </tr>
+                                        
+                                        <tr id="i14" class="altColor">
+                                            <td class="colFirst"><code>static <a href=ServerEnvironment.TypeConfigurator.html>ServerEnvironment.TypeConfigurator</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ServerEnvironment.html#when(java.lang.Class)>when</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;out EnvironmentType&lt;out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt;&gt; type) </code>
+                                            </th>
+                                            <td class="colLast">Starts flowing API chain for configuring <code>ServerEnvironment</code> for the passed type.</td>
+                                        </tr>
+                                        
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <ul class="blockList">
+                                
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.Closeable">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.Closeable</h3>
+                                            <code>checkOpen, closeIfOpen</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.java.io.Closeable">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;java.io.Closeable</h3>
+                                            <code>close</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+                                        <!--   -->
+                                    </a>
+                                        <h3>Methods inherited from class&nbsp;java.lang.Object</h3>
+                                        <code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString,
+                                            wait, wait, wait</code></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+        <div class="details">
+            <ul class="blockList">
+                <li class="blockList">
+                    <!-- ========= CONSTRUCTOR DETAIL ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Detail</h3>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ============ METHOD DETAIL ========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Method Detail</h3>
+                                
+                                <a id="instance()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>instance</h4>
+                                        <pre class="methodSignature"> static <a href=ServerEnvironment.html>ServerEnvironment</a> <a href=ServerEnvironment.html#instance()>instance</a>()</pre>
+                                        <div class="block"><p>Returns a singleton instance.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="type()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>type</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;out EnvironmentType&lt;out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt;&gt; <a href=ServerEnvironment.html#type()>type</a>()</pre>
+                                        <div class="block"><p>Obtains the type of the current server environment.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="deploymentType()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>deploymentType</h4>
+                                        <pre class="methodSignature"> <a href=DeploymentType.html>DeploymentType</a> <a href=ServerEnvironment.html#deploymentType()>deploymentType</a>()</pre>
+                                        <div class="block"><p>The type of the environment application is deployed to.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="delivery()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>delivery</h4>
+                                        <pre class="methodSignature"> synchronized <a href=delivery/Delivery.html>Delivery</a> <a href=ServerEnvironment.html#delivery()>delivery</a>()</pre>
+                                        <div class="block"><p>Returns the delivery mechanism specific to this environment. </p><p>Unless <a href=ServerEnvironment.TypeConfigurator.html#use(io.spine.server.delivery.Delivery)>updated manually</a>, returns a <a href=delivery/Delivery.html#local()>local implementation</a> of <code>Delivery</code>.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="newCommandScheduler()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>newCommandScheduler</h4>
+                                        <pre class="methodSignature"> <a href=commandbus/CommandScheduler.html>CommandScheduler</a> <a href=ServerEnvironment.html#newCommandScheduler()>newCommandScheduler</a>()</pre>
+                                        <div class="block"><p>Obtains command scheduling mechanism used by <code>CommandBus</code> in this environment.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="scheduleCommandsUsing(java.util.function.Supplier)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>scheduleCommandsUsing</h4>
+                                        <pre class="methodSignature"> void <a href=ServerEnvironment.html#scheduleCommandsUsing(java.util.function.Supplier)>scheduleCommandsUsing</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html>Supplier</a>&lt;<a href=commandbus/CommandScheduler.html>CommandScheduler</a>&gt; commandScheduler)</pre>
+                                        <div class="block"><p>Assigns command scheduling mechanism used at this environment by all <code>CommandBus</code> instances. </p><p>If not configured, <a href=commandbus/ExecutorCommandScheduler.html>ExecutorCommandScheduler</a> is used.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="nodeId()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>nodeId</h4>
+                                        <pre class="methodSignature"> <a href=NodeId.html>NodeId</a> <a href=ServerEnvironment.html#nodeId()>nodeId</a>()</pre>
+                                        <div class="block"><p>Obtains the identifier of the server node, on which this code is running at the moment. </p><p>At the moment, the node identifier is always UUID-generated. In future versions of the framework it is expected to become configurable.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="configureDeployment(java.util.function.Supplier)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>configureDeployment</h4>
+                                        <pre class="methodSignature">@VisibleForTesting() void <a href=ServerEnvironment.html#configureDeployment(java.util.function.Supplier)>configureDeployment</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html>Supplier</a>&lt;<a href=DeploymentType.html>DeploymentType</a>&gt; supplier)</pre>
+                                        <div class="block"><p>Makes the <a href=ServerEnvironment.html#deploymentType()>deploymentType</a> return the values from the provided supplier. </p><p>When supplying your own deployment type in tests, remember to <a href=ServerEnvironment.html#reset()>reset it</a> during tear down.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="tracing()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>tracing</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html>Optional</a>&lt;<a href=trace/TracerFactory.html>TracerFactory</a>&gt; <a href=ServerEnvironment.html#tracing()>tracing</a>()</pre>
+                                        <div class="block"><p>Obtains the <a href=trace/TracerFactory.html>TracerFactory</a> associated with the current environment, if it was set.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="storageFactory()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>storageFactory</h4>
+                                        <pre class="methodSignature"> <a href=storage/StorageFactory.html>StorageFactory</a> <a href=ServerEnvironment.html#storageFactory()>storageFactory</a>()</pre>
+                                        <div class="block"><p>Obtains the storage factory for the current environment. </p><p>For tests, if the value was not set, defaults to a new <code>InMemoryStorageFactory</code>. </p><p>For other environments, if the value was not set, throws a <code>IllegalStateException</code>.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p><code>StorageFactory</code> instance for the storage for the current environment</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="transportFactory()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>transportFactory</h4>
+                                        <pre class="methodSignature"> <a href=transport/TransportFactory.html>TransportFactory</a> <a href=ServerEnvironment.html#transportFactory()>transportFactory</a>()</pre>
+                                        <div class="block"><p>Obtains the transport factory for the current environment. </p><p>In the testing environment, if the factory was not assigned, assigns a new <code>InMemoryTransportFactory</code> and returns it. </p><p>For all other environment types, throws an <code>IllegalStateException</code>. </p><p>If the factory is not assigned in the Tests mode, assigns the instance of <a href=transport/memory/InMemoryTransportFactory.html>InMemoryTransportFactory</a> and returns it.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="reset()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>reset</h4>
+                                        <pre class="methodSignature">@VisibleForTesting() void <a href=ServerEnvironment.html#reset()>reset</a>()</pre>
+                                        <div class="block"><p>This is test-only method required for cleaning of the server environment instance in tests.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="isOpen()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>isOpen</h4>
+                                        <pre class="methodSignature"> boolean <a href=ServerEnvironment.html#isOpen()>isOpen</a>()</pre>
+                                        <div class="block"><p>Tells if the environment is still open.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="close()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>close</h4>
+                                        <pre class="methodSignature"> void <a href=ServerEnvironment.html#close()>close</a>()</pre>
+                                        <div class="block"><p>Releases resources associated with this instance.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="when(java.lang.Class)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockListLast"
+                                          >
+                                    <li class="blockList">
+                                        <h4>when</h4>
+                                        <pre class="methodSignature"> static <a href=ServerEnvironment.TypeConfigurator.html>ServerEnvironment.TypeConfigurator</a> <a href=ServerEnvironment.html#when(java.lang.Class)>when</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;out EnvironmentType&lt;out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt;&gt; type)</pre>
+                                        <div class="block"><p>Starts flowing API chain for configuring <code>ServerEnvironment</code> for the passed type.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+    </div>
+</main>
+<footer role="contentinfo">
+    <nav role="navigation">
+        <!-- ======= START OF BOTTOM NAVBAR ====== -->
+        <div class="bottomNav"><a id="navbar.bottom">
+            <!--   -->
+        </a>
+            <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a>
+            </div>
+            <a id="navbar.bottom.firstrow">
+                <!--   -->
+            </a>
+            <ul class="navList" title="Navigation">
+    <li><a href="../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+        <a id="skip.navbar.bottom">
+            <!--   -->
+        </a>
+        <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ======== END OF BOTTOM NAVBAR ======= -->
+    </nav>
+</footer><ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" id="ui-id-1" tabindex="0"
+    style="display: none;"></ul>
+<span role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></span>
+</body>
+</html>

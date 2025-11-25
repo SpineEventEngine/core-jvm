@@ -1,0 +1,212 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en"><head>
+    <title>Package io.spine.server.tuple </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="dc.created" content="2020-03-25">
+    <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../dokka-javadoc-stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../jquery/jquery-ui.css" title="Style">
+    <script type="text/javascript" src="../../../../jquery/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-migrate-3.4.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
+
+    <script type="text/javascript" src="../../../../search.js"></script>
+    <script async type="text/javascript" src="../../../../module-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../package-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../type-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../member-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../tag-search-index.js"></script>
+</head><body>
+<script type="text/javascript">
+var pathtoroot = "../../../../";
+</script>
+<noscript>
+    <div>JavaScript is disabled on your browser.</div>
+</noscript><header role="banner">
+    <nav role="navigation">
+        <div class="fixedNav">
+            <!-- ========= START OF TOP NAVBAR ======= -->
+            <div class="topNav"><a id="navbar.top">
+                <!--   -->
+            </a>
+                <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a>
+                </div>
+                <a id="navbar.top.firstrow">
+                    <!--   -->
+                </a>
+                <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li class="navBarCell1Rev">Package</li>
+    
+    <li>Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+            <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" class="ui-autocomplete-input" autocomplete="off" placeholder="Search">
+<input type="reset" id="reset" value="reset">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ========= END OF TOP NAVBAR ========= -->
+        </div>
+        <div class="navPadding">&nbsp;</div>
+        <script type="text/javascript"><!--
+        $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+        //-->
+        </script>
+    </nav>
+</header>
+<main role="main">
+    <div class="header">
+        <h1 title="Package" class="title">Package io.spine.server.tuple </h1>
+    </div>
+        <div class="header">
+            <div class="subtitle">
+                <div class="block"><p>This package provides classes for return values from message-handling methods. </p><p>Although tuples are <a href=https://github.com/google/guava/wiki/IdeaGraveyard#tuples-for-n--2.html> considered harmful</a> in general, they are useful for describing types of several messages returned by a method. Consider the following example. </p><p>The return value of the below method does not say much about the number and types of returned event messages. We just know that there may be more than one of them. </p><pre><code>@Assign
+    List&lt;EventMessage&gt; on(CreateTask cmd) { ... }
+</code></pre> The below declaration gives both the number and types of the returned events: <pre><code>@Assign
+    Pair&lt;TaskCreated, Optional&lt;TaskAssigned&gt;&gt; on(CreateTask cmd) { ... }
+</code></pre><p>Why do we suggest returning a tuple (a <code>Pair</code> in the example above) instead of creating a message type which would aggregate those of interest as our colleagues from the Guava team <a href=https://github.com/google/guava/wiki/IdeaGraveyard#tuples-for-n--2.html>suggest</a>? </p><p>Messages returned from a handling method are loosely coupled. They may not be created together all the time. The example above tells that <code>TaskAssigned</code> may not happen upon the creation of the task. It's possible that a task can be assigned sometime later. In this case combining returned messages does not reflect the domain language. Returning a tuple tells a part of the story in terms of the domain language right in the method signature. Details of this story are obtained from the method body. </p><p>It should be re-iterated that the purpose of this package is limited to the scenarios of handling messages. Programmers are strongly discouraged from using this package for other purposes. </p> This package provides two groups of classes: <ul><li><a href=Tuple.html>Tuple</a> classes are for returning more than one message. </li><li>Alternatives -- classes derived from <a href=Either.html>Either</a> -- are for returning only one message belonging the known set of types. </li></ul><p>Classes provided by this package can support up to 5 generic parameters. These parameters are named from <code>&lt;A&gt;</code> through <code>&lt;E&gt;</code>. Types that can be passed to these parameters are described in the sections below. </p><p>The following tuple classes are provided: </p><ul><li><a href=Pair.html>Pair&lt;A, B&gt;</a></li><li><a href=Triplet.html>Triplet&lt;A, B, C&gt;</a></li><li><a href=Quartet.html>Quartet&lt;A, B, C, D&gt;</a></li><li><a href=Quintet.html>Quintet&lt;A, B, C, D, E&gt;</a></li></ul><p>The first generic parameter <code>&lt;A&gt;</code> must always be a specific Message class. </p><p>Tuple classes allow <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html>Optional</a> starting from the second generic argument. The example below shows the method which always returns the <code>TaskCreated</code> event, and returns the <code>TaskAssigned</code> event only if the <code>CreateTask</code> command instructs to assign the task to a person. </p><pre><code>@Assign
+    Pair&lt;TaskCreated, Optional&lt;TaskAssigned&gt;&gt; on(CreateTask cmd) { ... }
+</code></pre><p>In some cases it is needed to return one message from a limited set of possible options. For example, the following method issues a command <code>MoveToTrash</code> if no work was reported on the task, and <code>CancelTask</code> if some work has been already logged. </p><pre><code>@Command
+    EitherOf2&lt;MoveToTrash, CancelTask&gt; handle(RemoveTask cmd) { ... }
+</code></pre><p>In order to define alternatively returned values, please use the following classes: </p><ul><li><a href=EitherOf2.html>EitherOf2&lt;A, B&gt;</a></li><li><a href=EitherOf3.html>EitherOf3&lt;A, B, C&gt;</a></li><li><a href=EitherOf4.html>EitherOf4&lt;A, B, C, D&gt;</a></li><li><a href=EitherOf5.html>EitherOf5&lt;A, B, C, D, E&gt;</a></li></ul><p>Generic parameters for alternatives accept only Message classes. </p><p>We believe that a list of alternatives longer than five is hard to understand. If you face a such a need, consider splitting incoming message into two or more independent ones so that their outcome is more obvious. </p><p>A <a href=Pair.html>Pair</a> can be defined with the second parameter being one of the <a href=Either.html>Either</a> subclasses, and created using <a href=Pair.html#withEither(A,B)>Pair.withEither()</a>.</p></div>
+            </div>
+            <p>See: <a href="#overview_description">Description</a></p>
+        </div>
+    <div class="contentContainer">
+        
+            <ul class="blockList">
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Triplet.html>Triplet</a></th><td class="colLast">A tuple with three elements.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Pair.html>Pair</a></th><td class="colLast">A tuple with two elements.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EitherOf3.html>EitherOf3</a></th><td class="colLast">A value which can be one of three possible types.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EitherOf2.html>EitherOf2</a></th><td class="colLast">A value which can be one of two possible types.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Single.html>Single</a></th><td class="colLast">A tuple containing only one element.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Either.html>Either</a></th><td class="colLast">Abstract base for values that can be one of the possible types.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EitherOf4.html>EitherOf4</a></th><td class="colLast">A value which can be one of four possible types.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Quartet.html>Quartet</a></th><td class="colLast">A tuple with four elements.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Tuple.html>Tuple</a></th><td class="colLast">Abstract base for tuple classes.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Quintet.html>Quintet</a></th><td class="colLast">A tuple of five elements.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EitherOf5.html>EitherOf5</a></th><td class="colLast">A value which can be one of five possible types.</td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+            </ul>
+        
+    </div>
+</main>
+<footer role="contentinfo">
+    <nav role="navigation">
+        <!-- ======= START OF BOTTOM NAVBAR ====== -->
+        <div class="bottomNav"><a id="navbar.bottom">
+            <!--   -->
+        </a>
+            <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a>
+            </div>
+            <a id="navbar.bottom.firstrow">
+                <!--   -->
+            </a>
+            <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li class="navBarCell1Rev">Package</li>
+    
+    <li>Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+        <a id="skip.navbar.bottom">
+            <!--   -->
+        </a>
+        <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ======== END OF BOTTOM NAVBAR ======= -->
+    </nav>
+</footer><ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" id="ui-id-1" tabindex="0"
+    style="display: none;"></ul>
+<span role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></span>
+</body>
+</html>

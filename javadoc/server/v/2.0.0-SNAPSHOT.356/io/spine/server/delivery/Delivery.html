@@ -1,0 +1,693 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en"><head>
+    <title>Delivery 2.0.0-SNAPSHOT.356 API </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="dc.created" content="2020-03-25">
+    <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../dokka-javadoc-stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../jquery/jquery-ui.css" title="Style">
+    <script type="text/javascript" src="../../../../jquery/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-migrate-3.4.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
+
+    <script type="text/javascript" src="../../../../search.js"></script>
+    <script async type="text/javascript" src="../../../../module-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../package-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../type-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../member-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../tag-search-index.js"></script>
+</head><body>
+<script type="text/javascript">
+var pathtoroot = "../../../../";
+</script>
+<noscript>
+    <div>JavaScript is disabled on your browser.</div>
+</noscript><header role="banner">
+    <nav role="navigation">
+        <div class="fixedNav">
+            <!-- ========= START OF TOP NAVBAR ======= -->
+            <div class="topNav"><a id="navbar.top">
+                <!--   -->
+            </a>
+                <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a>
+                </div>
+                <a id="navbar.top.firstrow">
+                    <!--   -->
+                </a>
+                <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+            <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" class="ui-autocomplete-input" autocomplete="off" placeholder="Search">
+<input type="reset" id="reset" value="reset">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ========= END OF TOP NAVBAR ========= -->
+        </div>
+        <div class="navPadding">&nbsp;</div>
+        <script type="text/javascript"><!--
+        $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+        //-->
+        </script>
+    </nav>
+</header>
+
+<main role="main">
+    <div class="header">
+        <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">io.spine.server.delivery</a></div>
+        <h2 title="Class Delivery" class="title">Class Delivery</h2>
+    </div>
+    <div class="contentContainer">
+        <!-- <ul class="inheritance">
+            <li>java.lang.Object</li>
+            <li>
+                <ul class="inheritance">
+                    <li>adaptation.Adaptation</li>
+                </ul>
+            </li>
+        </ul> TODO inheritance tree -->
+        <div class="description">
+            <ul class="blockList">
+                <li class="blockList">
+                    
+                    <dl>
+                        <dt>All Implemented Interfaces:</dt>
+                        <dd>
+                            
+                            <code>io.spine.logging.WithLogging</code>
+                            
+                            
+                        </dd>
+                    </dl>
+                    
+                    <hr>
+                    <pre class="wrap-overflow">
+
+public final class <span class="typeNameLabel"><a href=Delivery.html>Delivery</a></span>
+ implements WithLogging
+                    </pre>
+                    <div class="block"><p>Delivers the messages to the entities. </p><p>Splits the incoming messages into shards and allows to deliver the messages to their destinations on a per-shard basis. Guarantees that one and only one application server node serves the messages from the given shard at a time, thus preventing any concurrent modifications of entity state. </p><p>Delegates the message dispatching and low-level handling of message duplicates to <a href=Delivery.html#newInbox(io.spine.type.TypeUrl)>Inbox</a>es of each target entity. The respective <code>Inbox</code> instances should be created in each of <code>Entity</code> repositories. </p><p>By default, a shard is assigned according to the identifier of the target entity. The messages heading to a single entity will always reside in a single shard. However, the framework users may <a href=DeliveryBuilder.html#setStrategy(io.spine.server.delivery.DeliveryStrategy)>customize</a> this behavior. </p><p>The typical customization would be to specify the same shard index for the related targets. E.g. if there is an <code>OrderAggregate</code>, <code>OrderItemAggregate</code> and <code>OrderItemProjection</code>, they could share the same shard index. In this way the messages headed to these entities will be dispatched and processed together. In turn, that will reduce the eventual consistency lag between <code>C</code> side (i.e. aggregate state updates) and <code>Q</code> side (i.e. the respective updates in projections). </p><p>As long as the underlying storage and transport mechanisms are restricted by the CAP theorem, there may be duplicates in the messages written, read or dispatched. The <code>Delivery</code> responds to it by storing some of the already delivered messages for longer and using them as a source for deduplication. </p><p><a href=DeliveryBuilder.html#setDeduplicationWindow(com.google.protobuf.Duration)>Provides</a> the time-based deduplication capabilities to eliminate the messages, which may have been already delivered to their targets. The duplicates will be detected among the messages, which are not older, than <code>now - [deduplication window]</code>. </p><p><code>Delivery</code> is responsible for providing the <a href=InboxStorage.html>InboxStorage</a> for every inbox registered. Framework users may <a href=DeliveryBuilder.html#setInboxStorage(io.spine.server.delivery.InboxStorage)>configure</a> the storage. By default, the <code>InboxStorage</code> for the delivery is provided by the environment-specific <a href=../ServerEnvironment.html#storageFactory()>storage factory</a> and is single-tenant. In case there is at least one multi-tenant <code>BoundedContext</code> served by the <code>Delivery</code>, the <code>InboxStorage</code> should be configured to support the multi-tenancy. </p><p>In addition to delivering the messages sent in a real-time, <code>Delivery</code> dispatches the historical events sent to the catching-up projections. These events are dispatched through the same shards as the live messages. A special CatchUpStation is responsible for handling this use-case. See more on that in the respective section. </p><p>To control how many historical events are read and put into shards, the end-users may configure the <a href=DeliveryBuilder.html#setCatchUpPageSize(int)>maximum number of messages</a> read from the history at a time. This is helpful to balance the per-shard throughput, so that the live messages are still dispatched through the same shards in a reasonable time. </p><p>The statuses of the ongoing catch-up processes are stored in a dedicated <a href=CatchUpStorage.html>CatchUpStorage</a>. The <code>DeliveryBuilder</code><a href=DeliveryBuilder.html#setCatchUpStorage(io.spine.server.delivery.CatchUpStorage)> exposes an API</a> for the customization of this storage. By default, the <code>CatchUpStorage</code> is single-tenant. However, as with the <code>InboxStorage</code> used by the <code>Delivery</code>, it should be configured as multi-tenant if at least one <code>BoundedContext</code> served by the <code>Delivery</code> is multi-tenant. </p><p>Once a message is written to the <code>Inbox</code>, the <a href=Delivery.html#subscribe(io.spine.server.delivery.ShardObserver)>pre-configured shard observers</a> are <a href=ShardObserver.html#onMessage(io.spine.server.delivery.InboxMessage)>notified</a>. In this way any third-party environment planners, load balancers, and schedulers may plug into the delivery and perform various routines to enable the further processing of the sharded messages. In a distributed environment a message queue may be used to notify the node cluster of a shard that has some messages pending for the delivery. </p><p>Once an application node picks the shard to deliver the messages from it, it registers itself in a <a href=ShardedWorkRegistry.html>ShardedWorkRegistry</a>. It serves as a list of locks-per-shard that only allows to pick a shard to a single node at a time. The framework users may configure the implementation of the registry by calling <a href=DeliveryBuilder.html#setWorkRegistry(io.spine.server.delivery.ShardedWorkRegistry)>setWorkRegistry</a>. </p>Delivery stages<p>The delivery process for each shard index is split into DeliveryStages. In scope of each stage, a certain number of messages is read from the respective shard of the <code>Inbox</code>. The messages are grouped per-target and delivered in batches if possible. The maximum number of the messages within a <code>DeliveryStage</code> can be <a href=DeliveryBuilder.html#setPageSize(int)>configured</a>. </p><p>After each <code>DeliveryStage</code> it is possible to stop the delivery by <a href=DeliveryBuilder.html#setMonitor(io.spine.server.delivery.DeliveryMonitor)>supplying</a> a custom delivery monitor. Please refer to the <a href=DeliveryMonitor.html>documentation</a> for the details. </p>Conveyor and stations<p>In a scope of <code>DeliveryStage</code> the page of the <code>InboxMessage</code>s is placed to the Conveyor responsible for tracking the status of each message. The conveyor is run through the pipeline of stations, each modifying the state of the messages. At the end of the pipeline, the changed made to the messages are committed to the underlying <code>InboxStorage</code> in a bulk. Such an approach allows to minimize the number of the requests sent to the storage. </p><p>As long as the new <code>DeliveryStage</code> is started, the new instance of the <code>Conveyor</code> is created. </p><p>Below is the list of the conveyor stations in the pipeline. 1. Catch-up station</p><p>This station is responsible for dispatching the historical events in <a href=InboxMessageStatus.html#TO_CATCH_UP>TO_CATCH_UP</a> status to the respective targets. Also, while the target entity is under a catch-up, all the live messages headed to it are ignored. Once the catch-up is completed, this station handles the transition period, in which the last batch of the historical events and live messages are dispatched together. See CatchUpStation for more details. 2. Live delivery station</p><p>This station is responsible for dispatching the messages sent in a real-time. It ignores the messages in <a href=InboxMessageStatus.html#TO_CATCH_UP>TO_CATCH_UP</a> status. Another responsibility of this station is to set for how long the delivered messages should be kept according to the <a href=DeliveryBuilder.html#setDeduplicationWindow(com.google.protobuf.Duration)>deduplication window</a> settings. See LiveDeliveryStation for more details. 3. Cleanup station</p><p>This station removes the messages which are already delivered and are no longer needed for the deduplication. See CleanupStation for the description. Deduplication</p><p>During the dispatching, <code>Conveyor</code> keeps track of the delivered messages. The stations performing the actual message dispatching rely onto this knowledge and deduplicate the messages prior to calling the target's endpoint. </p><p>Additionally, the <code>Delivery</code> provides a cache of recently delivered messages. Each instance of the <code>Conveyor</code> has an access to it and uses it in deduplication procedures. </p><p>By default, the delivery is configured to <a href=Delivery.html#local()>run locally</a>. It uses <a href=LocalDispatchingObserver.html>see-and-dispatch observer</a>, which delivers the messages from the observed shard once a message is passed to its <a href=LocalDispatchingObserver.html#onMessage(io.spine.server.delivery.InboxMessage)>onMessage(InboxMessage)</a> method. This process is synchronous. </p><p>To deal with the multi-threaded access in a local mode, an <a href=memory/InMemoryShardedWorkRegistry.html>InMemoryShardedWorkRegistry</a> is used. It operates on top of the <code>synchronized</code> in-memory data structures and prevents several threads from picking up the same shard. </p><p>To perform the maintenance procedures, the <code>Delivery</code> requires all the <code>
+BoundedContext</code>s to register themselves in it. Upon this registration, a special ShardMaintenanceProcess is registered as an event dispatcher in a passed <code>BoundedContext</code>. Such a registration is performed automatically when the context is <a href=../BoundedContextBuilder.html#build()>built</a>.</p></div>
+
+                    <dl>
+
+                    
+
+                    
+
+                    </dl>
+                </li>
+            </ul>
+        </div>
+        <div class="summary">
+            <ul class="blockList">
+                <li class="blockList">
+                <!-- ======== NESTED CLASS SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="nested.class.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Nested Class Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Class</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== FIELD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="field.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Field Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Field</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tbody>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Constructor</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+
+                                        
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== ENUM CONSTANT SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="enum.constant.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Enum Constant Summary</h3>
+                                <table class="memberSummary">
+                                    <caption><span>Enum Constants</span><span class="tabEnd">&nbsp;</span></caption>
+                                    <tr>
+                                        <th class="colFirst" scope="col">Enum Constant</th>
+                                        <th class="colLast" scope="col">Description</th>
+                                    </tr>
+                                    
+                                </table>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ========== METHOD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Method Summary</h3>
+                                <div class="memberSummary">
+                                    <div role="tablist" aria-orientation="horizontal">
+                                        <button role="tab" aria-selected="true" aria-controls="memberSummary_tabpanel" tabindex="0" onkeydown="switchTab(event)" id="t0" class="activeTableTab">All Methods</button>
+                                        <!-- TODO: Instance and Concrete Methods #1118 -->
+                                    </div>
+                                    <div id="memberSummary_tabpanel" role="tabpanel">
+                                    <table aria-labelledby="t0">
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Method</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                        <tr id="i0" class="altColor">
+                                            <td class="colFirst"><code>static <a href=DeliveryBuilder.html>DeliveryBuilder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Delivery.html#newBuilder()>newBuilder</a>() </code>
+                                            </th>
+                                            <td class="colLast">Creates an instance of new <code>Builder</code> of <code>Delivery</code>.</td>
+                                        </tr>
+                                        
+                                        <tr id="i1" class="rowColor">
+                                            <td class="colFirst"><code>static <a href=Delivery.html>Delivery</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Delivery.html#local()>local</a>() </code>
+                                            </th>
+                                            <td class="colLast">Creates a new instance of <code>Delivery</code> suitable for local and development environment.</td>
+                                        </tr>
+                                        
+                                        <tr id="i2" class="altColor">
+                                            <td class="colFirst"><code>static <a href=Delivery.html>Delivery</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Delivery.html#localAsync()>localAsync</a>() </code>
+                                            </th>
+                                            <td class="colLast">Creates a new instance of <code>Delivery</code> for local and development environment.</td>
+                                        </tr>
+                                        
+                                        <tr id="i3" class="rowColor">
+                                            <td class="colFirst"><code>static <a href=Delivery.html>Delivery</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Delivery.html#direct()>direct</a>() </code>
+                                            </th>
+                                            <td class="colLast">Creates a new instance of <code>Delivery</code> which makes all signals to skip the <code>Inbox</code>es and be delivered straight to their respective targets.</td>
+                                        </tr>
+                                        
+                                        <tr id="i4" class="altColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html>Optional</a>&lt;<a href=DeliveryStats.html>DeliveryStats</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Delivery.html#deliverMessagesFrom(io.spine.server.delivery.ShardIndex)>deliverMessagesFrom</a>(ShardIndex index) </code>
+                                            </th>
+                                            <td class="colLast">Delivers the messages put into the shard with the passed index to their targets.</td>
+                                        </tr>
+                                        
+                                        <tr id="i5" class="rowColor">
+                                            <td class="colFirst"><code>&lt;I&gt; Inbox.Builder&lt;<a href=Delivery.html#newInbox(io.spine.type.TypeUrl)>I</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Delivery.html#newInbox(io.spine.type.TypeUrl)>newInbox</a>(TypeUrl entityType) </code>
+                                            </th>
+                                            <td class="colLast">Creates an instance of Inbox.Builder for the given entity type.</td>
+                                        </tr>
+                                        
+                                        <tr id="i6" class="altColor">
+                                            <td class="colFirst"><code>&lt;I&gt; <a href=CatchUpProcessBuilder.html>CatchUpProcessBuilder</a>&lt;<a href=Delivery.html#newCatchUpProcess(io.spine.server.projection.ProjectionRepository)>I</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Delivery.html#newCatchUpProcess(io.spine.server.projection.ProjectionRepository)>newCatchUpProcess</a>(<a href=../projection/ProjectionRepository.html>ProjectionRepository</a>&lt;<a href=Delivery.html#newCatchUpProcess(io.spine.server.projection.ProjectionRepository)>I</a>, out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>, out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt; repo) </code>
+                                            </th>
+                                            <td class="colLast">Creates a new instance of the builder for <a href=CatchUpProcess.html>CatchUpProcess</a>.</td>
+                                        </tr>
+                                        
+                                        <tr id="i7" class="rowColor">
+                                            <td class="colFirst"><code>void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Delivery.html#subscribe(io.spine.server.delivery.ShardObserver)>subscribe</a>(<a href=ShardObserver.html>ShardObserver</a> observer) </code>
+                                            </th>
+                                            <td class="colLast">Subscribes to the updates of shard contents.</td>
+                                        </tr>
+                                        
+                                        <tr id="i8" class="altColor">
+                                            <td class="colFirst"><code>static <a href=../ContextSpec.html>ContextSpec</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Delivery.html#contextSpec(boolean)>contextSpec</a>(boolean multitenant) </code>
+                                            </th>
+                                            <td class="colLast">Returns the specification of a Bounded Context describing the <code>Delivery</code> flow.</td>
+                                        </tr>
+                                        
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <ul class="blockList">
+                                
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.logging.WithLogging">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.logging.WithLogging</h3>
+                                            <code>getAtConfig, getAtDebug, getAtError, getAtFine, getAtFiner, getAtFinest, getAtInfo, getAtSevere, getAtTrace, getAtWarning, getLogger, logger</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+                                        <!--   -->
+                                    </a>
+                                        <h3>Methods inherited from class&nbsp;java.lang.Object</h3>
+                                        <code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString,
+                                            wait, wait, wait</code></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+        <div class="details">
+            <ul class="blockList">
+                <li class="blockList">
+                    <!-- ========= CONSTRUCTOR DETAIL ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Detail</h3>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ============ METHOD DETAIL ========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Method Detail</h3>
+                                
+                                <a id="newBuilder()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>newBuilder</h4>
+                                        <pre class="methodSignature"> static <a href=DeliveryBuilder.html>DeliveryBuilder</a> <a href=Delivery.html#newBuilder()>newBuilder</a>()</pre>
+                                        <div class="block"><p>Creates an instance of new <code>Builder</code> of <code>Delivery</code>.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="local()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>local</h4>
+                                        <pre class="methodSignature"> static <a href=Delivery.html>Delivery</a> <a href=Delivery.html#local()>local</a>()</pre>
+                                        <div class="block"><p>Creates a new instance of <code>Delivery</code> suitable for local and development environment. </p><p>In this setup, the <code>InboxMessage</code>s are delivered to their targets synchronously. </p><p>Uses a <a href=UniformAcrossAllShards.html#singleShard()>single-shard</a> splitting. </p><p>To construct a <code>Delivery</code> instance, a <code>StorageFactory</code> is needed. If it was not configured in the <code>ServerEnvironment</code>, uses a new <code>
+InMemoryStorageFactory</code>.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="localAsync()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>localAsync</h4>
+                                        <pre class="methodSignature"> static <a href=Delivery.html>Delivery</a> <a href=Delivery.html#localAsync()>localAsync</a>()</pre>
+                                        <div class="block"><p>Creates a new instance of <code>Delivery</code> for local and development environment. </p><p>The <code>InboxMessage</code>s are delivered to their targets asynchronously. </p><p>The returned instance of <code>Delivery</code> is configured to use <a href=UniformAcrossAllShards.html#singleShard()>the single shard</a>. </p><p>To construct a <code>Delivery</code> instance, a <code>StorageFactory</code> is needed. If it was not configured in the <code>ServerEnvironment</code>, a new <code>
+InMemoryStorageFactory</code> used.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="direct()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>direct</h4>
+                                        <pre class="methodSignature">@Experimental() static <a href=Delivery.html>Delivery</a> <a href=Delivery.html#direct()>direct</a>()</pre>
+                                        <div class="block"><p>Creates a new instance of <code>Delivery</code> which makes all signals to skip the <code>Inbox</code>es and be delivered straight to their respective targets. </p><p>In this mode, no signals are stored in the <code>InboxStorage</code>. Also, the signals are not sharded. </p><p>This mode only suits the applications which operate in a single-thread mode and in scope of a single JVM. Typically, that would be some tools executing linear-style jobs, which aim for the maximum performance under the strictly controlled circumstances. </p><p>Any concurrent dispatching of signals (command posting, receiving external events, etc.) will likely break the consistency of their target entities. </p><p>This API is experimental. Use with caution.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>a new instance of <code>Delivery</code></p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="deliverMessagesFrom(io.spine.server.delivery.ShardIndex)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>deliverMessagesFrom</h4>
+                                        <pre class="methodSignature">@CanIgnoreReturnValue() <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html>Optional</a>&lt;<a href=DeliveryStats.html>DeliveryStats</a>&gt; <a href=Delivery.html#deliverMessagesFrom(io.spine.server.delivery.ShardIndex)>deliverMessagesFrom</a>(ShardIndex index)</pre>
+                                        <div class="block"><p>Delivers the messages put into the shard with the passed index to their targets. </p><p>At a given moment of time, exactly one application node may serve messages from a particular shard. Therefore, in scope of this delivery, an approach based on pessimistic locking per-<code>ShardIndex</code> is applied. </p><p>In case the given shard is already processed by some node, this method does nothing and returns <code>Optional.empty()</code>. </p><p>The content of the shard is read and delivered on page-by-page basis. The runtime exceptions occurring while a page is being delivered are accumulated and then the first exception is rethrown, if any. </p><p>After all the pages are read, the delivery process is launched again for the same shard. It is required in order to handle the messages, that may have been put to the same shard as an outcome of the first-wave messages. </p><p>Once the shard has no more messages to deliver, the delivery process ends, releasing the lock for the respective <code>ShardIndex</code>.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>index</code> - the shard index to deliver the messages from.</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>the statistics on the performed delivery, or <code>Optional.empty()</code> if there were no delivery performed</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="newInbox(io.spine.type.TypeUrl)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>newInbox</h4>
+                                        <pre class="methodSignature"> &lt;I&gt; Inbox.Builder&lt;<a href=Delivery.html#newInbox(io.spine.type.TypeUrl)>I</a>&gt; <a href=Delivery.html#newInbox(io.spine.type.TypeUrl)>newInbox</a>(TypeUrl entityType)</pre>
+                                        <div class="block"><p>Creates an instance of Inbox.Builder for the given entity type.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>entityType</code> - the type of the entity, to which the inbox will belong</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>the builder for the <code>Inbox</code></p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="newCatchUpProcess(io.spine.server.projection.ProjectionRepository)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>newCatchUpProcess</h4>
+                                        <pre class="methodSignature"> &lt;I&gt; <a href=CatchUpProcessBuilder.html>CatchUpProcessBuilder</a>&lt;<a href=Delivery.html#newCatchUpProcess(io.spine.server.projection.ProjectionRepository)>I</a>&gt; <a href=Delivery.html#newCatchUpProcess(io.spine.server.projection.ProjectionRepository)>newCatchUpProcess</a>(<a href=../projection/ProjectionRepository.html>ProjectionRepository</a>&lt;<a href=Delivery.html#newCatchUpProcess(io.spine.server.projection.ProjectionRepository)>I</a>, out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>, out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt; repo)</pre>
+                                        <div class="block"><p>Creates a new instance of the builder for <a href=CatchUpProcess.html>CatchUpProcess</a>.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>repo</code> - projection repository for which the catch-up process will be created</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>new builder for the <code>CatchUpProcess</code></p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="subscribe(io.spine.server.delivery.ShardObserver)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>subscribe</h4>
+                                        <pre class="methodSignature"> void <a href=Delivery.html#subscribe(io.spine.server.delivery.ShardObserver)>subscribe</a>(<a href=ShardObserver.html>ShardObserver</a> observer)</pre>
+                                        <div class="block"><p>Subscribes to the updates of shard contents. </p><p>The passed observer will be notified that the contents of a shard with a particular index were changed.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>observer</code> - an observer to notify of updates.</dd>
+                                            
+                                            
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="contextSpec(boolean)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockListLast"
+                                          >
+                                    <li class="blockList">
+                                        <h4>contextSpec</h4>
+                                        <pre class="methodSignature"> static <a href=../ContextSpec.html>ContextSpec</a> <a href=Delivery.html#contextSpec(boolean)>contextSpec</a>(boolean multitenant)</pre>
+                                        <div class="block"><p>Returns the specification of a Bounded Context describing the <code>Delivery</code> flow. </p><p>Usually, this context is single-tenant, as the batch processing of <code>InboxMessage</code>s is more effective when the batches are not split across tenants.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>multitenant</code> - whether the Bounded Context supports multi-tenancy</dd>
+                                            
+                                            
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+    </div>
+</main>
+<footer role="contentinfo">
+    <nav role="navigation">
+        <!-- ======= START OF BOTTOM NAVBAR ====== -->
+        <div class="bottomNav"><a id="navbar.bottom">
+            <!--   -->
+        </a>
+            <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a>
+            </div>
+            <a id="navbar.bottom.firstrow">
+                <!--   -->
+            </a>
+            <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+        <a id="skip.navbar.bottom">
+            <!--   -->
+        </a>
+        <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ======== END OF BOTTOM NAVBAR ======= -->
+    </nav>
+</footer><ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" id="ui-id-1" tabindex="0"
+    style="display: none;"></ul>
+<span role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></span>
+</body>
+</html>

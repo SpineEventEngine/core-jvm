@@ -1,0 +1,999 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en"><head>
+    <title>Reaction 2.0.0-SNAPSHOT.356 API </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="dc.created" content="2020-03-25">
+    <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../dokka-javadoc-stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../jquery/jquery-ui.css" title="Style">
+    <script type="text/javascript" src="../../../../jquery/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-migrate-3.4.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
+
+    <script type="text/javascript" src="../../../../search.js"></script>
+    <script async type="text/javascript" src="../../../../module-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../package-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../type-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../member-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../tag-search-index.js"></script>
+</head><body>
+<script type="text/javascript">
+var pathtoroot = "../../../../";
+</script>
+<noscript>
+    <div>JavaScript is disabled on your browser.</div>
+</noscript><header role="banner">
+    <nav role="navigation">
+        <div class="fixedNav">
+            <!-- ========= START OF TOP NAVBAR ======= -->
+            <div class="topNav"><a id="navbar.top">
+                <!--   -->
+            </a>
+                <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a>
+                </div>
+                <a id="navbar.top.firstrow">
+                    <!--   -->
+                </a>
+                <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+            <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" class="ui-autocomplete-input" autocomplete="off" placeholder="Search">
+<input type="reset" id="reset" value="reset">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ========= END OF TOP NAVBAR ========= -->
+        </div>
+        <div class="navPadding">&nbsp;</div>
+        <script type="text/javascript"><!--
+        $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+        //-->
+        </script>
+    </nav>
+</header>
+
+<main role="main">
+    <div class="header">
+        <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">io.spine.server.event</a></div>
+        <h2 title="Class Reaction" class="title">Class Reaction</h2>
+    </div>
+    <div class="contentContainer">
+        <!-- <ul class="inheritance">
+            <li>java.lang.Object</li>
+            <li>
+                <ul class="inheritance">
+                    <li>adaptation.Adaptation</li>
+                </ul>
+            </li>
+        </ul> TODO inheritance tree -->
+        <div class="description">
+            <ul class="blockList">
+                <li class="blockList">
+                    
+                    <dl>
+                        <dt>All Implemented Interfaces:</dt>
+                        <dd>
+                            
+                            <code>io.spine.logging.WithLogging</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.ContextAware</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.EventProducer</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.bus.MessageDispatcher</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.bus.MulticastDispatcher</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.event.EventDispatcher</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.event.EventReactor</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.event.EventReceiver</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.event.Whenever</code>
+                            
+                            
+                        </dd>
+                    </dl>
+                    
+                    <hr>
+                    <pre class="wrap-overflow">
+
+public abstract class <span class="typeNameLabel"><a href=Reaction.html>Reaction</a>&lt;E extends EventMessage&gt;</span>
+extends <a href=AbstractEventReactor.html>AbstractEventReactor</a> implements <a href=Whenever.html>Whenever</a>&lt;<a href=Reaction.html>E</a>&gt;
+                    </pre>
+                    <div class="block"><p>A reaction is a simplified pattern for event handling that converts &lt;em&gt;one&lt;/em&gt; incoming event directly into zero or more output events, without intermediate commands.</p><p>Traditionally, the Policy pattern follows this structure:</p><pre><code>Whenever &lt;something happens&gt;, then do &lt;what you need about it&gt;.</code></pre><p>In this approach, a Policy generates a command in response to an incoming event, and handling that command generates one or more events. The flow is:</p><pre><code>Event → Policy → Command → (Aggregate/ProcessManager/Command Handler) → Event(s).</code></pre><p>Oftentimes, the experience of applying this pattern to various business domains shows that the command merely bears the same information from the incoming event, and the handler merely converts the command data into another event.</p><p>Moreover, the presence of the &quot;intermediate&quot; command in relatively simple scenarios does not add any business value because information of an event-sourced application is stored in events, not commands.</p><p>That's why we suggest adding the Reaction pattern which reads like:</p><pre><code>Whenever &lt;something happens&gt;, then &lt;something else happened&gt;.</code></pre><p>For example, a Reaction rule can be expressed as:</p><pre><code>Whenever a field option is discovered, a validation rule is added.</code></pre><p>To implement a reaction, override the <a href=Reaction.html#whenever(E)>whenever</a> method to define what event messages should be produced in response to the incoming event.</p><p>Here's how the example above would be implemented:</p><pre><code>class ValidationRuleReaction : Reaction&lt;FieldOptionDiscovered&gt;() {
+
+    @React
+    override fun whenever(event: FieldOptionDiscovered): Just&lt;ValidationRuleAdded&gt; {
+        // Produce the event.
+    }
+}</code></pre><p>When you need to indicate that no events should be produced:</p><ul><li><p>Declare the return type as <code>Just&lt;[NoReaction][io.spine.server.event.NoReaction]&gt;</code></p></li><li><p>In Kotlin: return the <a href=Just.Companion.html#noReaction>Just.noReaction</a> property</p></li><li><p>In Java: call <a href=Just.Companion.html#noReaction>Just.noReaction()</a></p></li></ul><p>To return one message, declare <code>Just&lt;MyEvent&gt;</code> as the return type of the <a href=Reaction.html#whenever(E)>whenever</a> method. Use the <a href=Just.html>Just</a> constructor from Kotlin or <a href=Just.html#just(E)>Just.just</a><code>()</code> static method from Java.</p><p>To make your return type more readable, consider using the following classes from the <code>io.spine.server.tuple</code> package: <a href=../tuple/Pair.html>Pair</a>, <a href=../tuple/Triplet.html>Triplet</a>, <a href=../tuple/Quartet.html>Quartet</a>, <a href=../tuple/Quintet.html>Quintet</a>, with the corresponding number of elements declared in the return type of the <a href=Reaction.html#whenever(E)>whenever</a> method. For example, <code>Pair&lt;MyEvent, MyOtherEvent&gt;</code>.</p><p>For returning more than five events, use <code>Iterable&lt;Message&gt;</code>, as usually.</p></div>
+
+                    <dl>
+
+                    
+
+                    
+
+                    </dl>
+                </li>
+            </ul>
+        </div>
+        <div class="summary">
+            <ul class="blockList">
+                <li class="blockList">
+                <!-- ======== NESTED CLASS SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="nested.class.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Nested Class Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Class</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== FIELD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="field.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Field Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Field</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>private  <a href=../BoundedContext.html>BoundedContext</a></code></td>
+                                            <th class="colSecond" scope="row"><code><a href=Reaction.html#context>context</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="rowColor">
+                                            <td class="colFirst"><code>private final Logger</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=../projection/migration/RemoveProjectionFromStorage.html#logger()>logger</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>private final Logger.Api</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=Reaction.html#atError>atError</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="rowColor">
+                                            <td class="colFirst"><code>private final Logger.Api</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=Reaction.html#atSevere>atSevere</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>private final Logger.Api</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=Reaction.html#atWarning>atWarning</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="rowColor">
+                                            <td class="colFirst"><code>private final Logger.Api</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=Reaction.html#atInfo>atInfo</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>private final Logger.Api</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=Reaction.html#atConfig>atConfig</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="rowColor">
+                                            <td class="colFirst"><code>private final Logger.Api</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=Reaction.html#atDebug>atDebug</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>private final Logger.Api</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=Reaction.html#atFine>atFine</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="rowColor">
+                                            <td class="colFirst"><code>private final Logger.Api</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=Reaction.html#atFiner>atFiner</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>private final Logger.Api</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=Reaction.html#atTrace>atTrace</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="rowColor">
+                                            <td class="colFirst"><code>private final Logger.Api</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=Reaction.html#atFinest>atFinest</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>private final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a></code></td>
+                                            <th class="colSecond" scope="row"><code><a href=../delivery/CatchUpProcess.html#isRegistered()>isRegistered</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tbody>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Constructor</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+
+                                        
+                                            <tr class="altColor">
+                                                <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a
+                                                        href="#Reaction()">Reaction</a></span>()</code></th>
+                                                <td class="colLast"></td>
+                                            </tr>
+                                        
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== ENUM CONSTANT SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="enum.constant.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Enum Constant Summary</h3>
+                                <table class="memberSummary">
+                                    <caption><span>Enum Constants</span><span class="tabEnd">&nbsp;</span></caption>
+                                    <tr>
+                                        <th class="colFirst" scope="col">Enum Constant</th>
+                                        <th class="colLast" scope="col">Description</th>
+                                    </tr>
+                                    
+                                </table>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ========== METHOD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Method Summary</h3>
+                                <div class="memberSummary">
+                                    <div role="tablist" aria-orientation="horizontal">
+                                        <button role="tab" aria-selected="true" aria-controls="memberSummary_tabpanel" tabindex="0" onkeydown="switchTab(event)" id="t0" class="activeTableTab">All Methods</button>
+                                        <!-- TODO: Instance and Concrete Methods #1118 -->
+                                    </div>
+                                    <div id="memberSummary_tabpanel" role="tabpanel">
+                                    <table aria-labelledby="t0">
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Method</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                        <tr id="i0" class="altColor">
+                                            <td class="colFirst"><code>final <a href=../BoundedContext.html>BoundedContext</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Reaction.html#getContext()>getContext</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i1" class="rowColor">
+                                            <td class="colFirst"><code>final <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Reaction.html#setContext(io.spine.server.BoundedContext)>setContext</a>(<a href=../BoundedContext.html>BoundedContext</a> value) </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i2" class="altColor">
+                                            <td class="colFirst"><code>Logger</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../projection/migration/RemoveProjectionFromStorage.html#getLogger()>getLogger</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i3" class="rowColor">
+                                            <td class="colFirst"><code>Logger.Api</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../projection/migration/RemoveProjectionFromStorage.html#getAtError()>getAtError</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i4" class="altColor">
+                                            <td class="colFirst"><code>Logger.Api</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../projection/migration/RemoveProjectionFromStorage.html#getAtSevere()>getAtSevere</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i5" class="rowColor">
+                                            <td class="colFirst"><code>Logger.Api</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../projection/migration/RemoveProjectionFromStorage.html#getAtWarning()>getAtWarning</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i6" class="altColor">
+                                            <td class="colFirst"><code>Logger.Api</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../projection/migration/RemoveProjectionFromStorage.html#getAtInfo()>getAtInfo</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i7" class="rowColor">
+                                            <td class="colFirst"><code>Logger.Api</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../projection/migration/RemoveProjectionFromStorage.html#getAtConfig()>getAtConfig</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i8" class="altColor">
+                                            <td class="colFirst"><code>Logger.Api</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../projection/migration/RemoveProjectionFromStorage.html#getAtDebug()>getAtDebug</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i9" class="rowColor">
+                                            <td class="colFirst"><code>Logger.Api</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../projection/migration/RemoveProjectionFromStorage.html#getAtFine()>getAtFine</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i10" class="altColor">
+                                            <td class="colFirst"><code>Logger.Api</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../projection/migration/RemoveProjectionFromStorage.html#getAtFiner()>getAtFiner</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i11" class="rowColor">
+                                            <td class="colFirst"><code>Logger.Api</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../projection/migration/RemoveProjectionFromStorage.html#getAtTrace()>getAtTrace</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i12" class="altColor">
+                                            <td class="colFirst"><code>Logger.Api</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../projection/migration/RemoveProjectionFromStorage.html#getAtFinest()>getAtFinest</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i13" class="rowColor">
+                                            <td class="colFirst"><code>abstract <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Iterable.html>Iterable</a>&lt;Message&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Reaction.html#whenever(E)>whenever</a>(<a href=Reaction.html>E</a> event) </code>
+                                            </th>
+                                            <td class="colLast">Handles an event and produces zero or more events in response.</td>
+                                        </tr>
+                                        
+                                        <tr id="i14" class="altColor">
+                                            <td class="colFirst"><code>final <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Reaction.html#registerWith(io.spine.server.BoundedContext)>registerWith</a>(<a href=../BoundedContext.html>BoundedContext</a> context) </code>
+                                            </th>
+                                            <td class="colLast">Registers this instance as a part of the given Bounded Context.</td>
+                                        </tr>
+                                        
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <ul class="blockList">
+                                
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.event.AbstractEventReactor">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.event.AbstractEventReactor</h3>
+                                            <code>isRegistered</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.EventProducer">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.EventProducer</h3>
+                                            <code>noReaction, nothing, producedEvents, producerId, version</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.bus.MessageDispatcher">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.bus.MessageDispatcher</h3>
+                                            <code>canDispatch, dispatch, messageClasses</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.event.EventDispatcher">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.event.EventDispatcher</h3>
+                                            <code>dispatchesEvents, dispatchesExternalEvents, domesticEventClasses, eventClasses, externalEventClasses</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.ContextAware">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.ContextAware</h3>
+                                            <code>checkNotRegistered, checkRegistered, unregister</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.logging.WithLogging">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.logging.WithLogging</h3>
+                                            <code>logger</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+                                        <!--   -->
+                                    </a>
+                                        <h3>Methods inherited from class&nbsp;java.lang.Object</h3>
+                                        <code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString,
+                                            wait, wait, wait</code></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+        <div class="details">
+            <ul class="blockList">
+                <li class="blockList">
+                    <!-- ========= CONSTRUCTOR DETAIL ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Detail</h3>
+                                
+                                <a name="Reaction()"></a>
+                                <ul class="blockList">
+                                    <li class="blockList">
+                                        <h4>Reaction</h4>
+                                        <pre>Reaction()</pre>
+                                        <div class="block"></div>
+                                        
+                                    </li>
+                                </ul>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ============ METHOD DETAIL ========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Method Detail</h3>
+                                
+                                <a id="getContext()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getContext</h4>
+                                        <pre class="methodSignature"> final <a href=../BoundedContext.html>BoundedContext</a> <a href=Reaction.html#getContext()>getContext</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="setContext(io.spine.server.BoundedContext)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setContext</h4>
+                                        <pre class="methodSignature"> final <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a> <a href=Reaction.html#setContext(io.spine.server.BoundedContext)>setContext</a>(<a href=../BoundedContext.html>BoundedContext</a> value)</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getLogger()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getLogger</h4>
+                                        <pre class="methodSignature"> Logger <a href=../projection/migration/RemoveProjectionFromStorage.html#getLogger()>getLogger</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getAtError()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getAtError</h4>
+                                        <pre class="methodSignature"> Logger.Api <a href=../projection/migration/RemoveProjectionFromStorage.html#getAtError()>getAtError</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getAtSevere()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getAtSevere</h4>
+                                        <pre class="methodSignature"> Logger.Api <a href=../projection/migration/RemoveProjectionFromStorage.html#getAtSevere()>getAtSevere</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getAtWarning()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getAtWarning</h4>
+                                        <pre class="methodSignature"> Logger.Api <a href=../projection/migration/RemoveProjectionFromStorage.html#getAtWarning()>getAtWarning</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getAtInfo()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getAtInfo</h4>
+                                        <pre class="methodSignature"> Logger.Api <a href=../projection/migration/RemoveProjectionFromStorage.html#getAtInfo()>getAtInfo</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getAtConfig()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getAtConfig</h4>
+                                        <pre class="methodSignature"> Logger.Api <a href=../projection/migration/RemoveProjectionFromStorage.html#getAtConfig()>getAtConfig</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getAtDebug()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getAtDebug</h4>
+                                        <pre class="methodSignature"> Logger.Api <a href=../projection/migration/RemoveProjectionFromStorage.html#getAtDebug()>getAtDebug</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getAtFine()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getAtFine</h4>
+                                        <pre class="methodSignature"> Logger.Api <a href=../projection/migration/RemoveProjectionFromStorage.html#getAtFine()>getAtFine</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getAtFiner()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getAtFiner</h4>
+                                        <pre class="methodSignature"> Logger.Api <a href=../projection/migration/RemoveProjectionFromStorage.html#getAtFiner()>getAtFiner</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getAtTrace()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getAtTrace</h4>
+                                        <pre class="methodSignature"> Logger.Api <a href=../projection/migration/RemoveProjectionFromStorage.html#getAtTrace()>getAtTrace</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getAtFinest()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getAtFinest</h4>
+                                        <pre class="methodSignature"> Logger.Api <a href=../projection/migration/RemoveProjectionFromStorage.html#getAtFinest()>getAtFinest</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="whenever(E)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>whenever</h4>
+                                        <pre class="methodSignature"> abstract <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Iterable.html>Iterable</a>&lt;Message&gt; <a href=Reaction.html#whenever(E)>whenever</a>(<a href=Reaction.html>E</a> event)</pre>
+                                        <div class="block"><p>Handles an event and produces zero or more events in response.</p><p>This method returns <code>Iterable&lt;Message&gt;</code> instead of <code>Iterable&lt;EventMessage&gt;</code> to allow implementing classes to declare return types using classes that descend from <a href=../tuple/Either.html>Either</a>, such as <code>EitherOf2&lt;Event1, Event2&gt;</code>.</p><p><code>Either</code> implements <code>Iterable&lt;Message&gt;</code>. Classes extending <code>Either</code> have two or more generic parameters bounded by <code>Message</code>, not <code>EventMessage</code>. Therefore, these classes will not be accepted as return types of the overridden methods because <code>Iterable&lt;EventMessage&gt;</code> will not be a super type for them.</p><p>For implementation examples and return type options, see the class-level documentation.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="registerWith(io.spine.server.BoundedContext)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockListLast"
+                                          >
+                                    <li class="blockList">
+                                        <h4>registerWith</h4>
+                                        <pre class="methodSignature"> final <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a> <a href=Reaction.html#registerWith(io.spine.server.BoundedContext)>registerWith</a>(<a href=../BoundedContext.html>BoundedContext</a> context)</pre>
+                                        <div class="block"><p>Registers this instance as a part of the given Bounded Context. </p><p>This method should be only called once. However, it is allowed to register a single instance many times with the same Bounded Context. If the same instance is registered with different Contexts, a runtime exception is thrown.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+    </div>
+</main>
+<footer role="contentinfo">
+    <nav role="navigation">
+        <!-- ======= START OF BOTTOM NAVBAR ====== -->
+        <div class="bottomNav"><a id="navbar.bottom">
+            <!--   -->
+        </a>
+            <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a>
+            </div>
+            <a id="navbar.bottom.firstrow">
+                <!--   -->
+            </a>
+            <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+        <a id="skip.navbar.bottom">
+            <!--   -->
+        </a>
+        <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ======== END OF BOTTOM NAVBAR ======= -->
+    </nav>
+</footer><ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" id="ui-id-1" tabindex="0"
+    style="display: none;"></ul>
+<span role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></span>
+</body>
+</html>

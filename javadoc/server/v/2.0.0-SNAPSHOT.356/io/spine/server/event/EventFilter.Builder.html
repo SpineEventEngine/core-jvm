@@ -1,0 +1,2760 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en"><head>
+    <title>Builder 2.0.0-SNAPSHOT.356 API </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="dc.created" content="2020-03-25">
+    <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../dokka-javadoc-stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../jquery/jquery-ui.css" title="Style">
+    <script type="text/javascript" src="../../../../jquery/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-migrate-3.4.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
+
+    <script type="text/javascript" src="../../../../search.js"></script>
+    <script async type="text/javascript" src="../../../../module-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../package-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../type-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../member-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../tag-search-index.js"></script>
+</head><body>
+<script type="text/javascript">
+var pathtoroot = "../../../../";
+</script>
+<noscript>
+    <div>JavaScript is disabled on your browser.</div>
+</noscript><header role="banner">
+    <nav role="navigation">
+        <div class="fixedNav">
+            <!-- ========= START OF TOP NAVBAR ======= -->
+            <div class="topNav"><a id="navbar.top">
+                <!--   -->
+            </a>
+                <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a>
+                </div>
+                <a id="navbar.top.firstrow">
+                    <!--   -->
+                </a>
+                <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+            <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" class="ui-autocomplete-input" autocomplete="off" placeholder="Search">
+<input type="reset" id="reset" value="reset">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ========= END OF TOP NAVBAR ========= -->
+        </div>
+        <div class="navPadding">&nbsp;</div>
+        <script type="text/javascript"><!--
+        $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+        //-->
+        </script>
+    </nav>
+</header>
+
+<main role="main">
+    <div class="header">
+        <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">io.spine.server.event</a></div>
+        <h2 title="Class EventFilter.Builder" class="title">Class EventFilter.Builder</h2>
+    </div>
+    <div class="contentContainer">
+        <!-- <ul class="inheritance">
+            <li>java.lang.Object</li>
+            <li>
+                <ul class="inheritance">
+                    <li>adaptation.Adaptation</li>
+                </ul>
+            </li>
+        </ul> TODO inheritance tree -->
+        <div class="description">
+            <ul class="blockList">
+                <li class="blockList">
+                    
+                    <dl>
+                        <dt>All Implemented Interfaces:</dt>
+                        <dd>
+                            
+                            <code>com.google.protobuf.Message.Builder</code>
+                            
+                            ,
+                            
+                            
+                            <code>com.google.protobuf.MessageLite.Builder</code>
+                            
+                            ,
+                            
+                            
+                            <code>com.google.protobuf.MessageLiteOrBuilder</code>
+                            
+                            ,
+                            
+                            
+                            <code>com.google.protobuf.MessageOrBuilder</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.event.EventFilterOrBuilder</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.validate.ValidatingBuilder</code>
+                            
+                            ,
+                            
+                            
+                            <code>java.lang.Cloneable</code>
+                            
+                            
+                        </dd>
+                    </dl>
+                    
+                    <hr>
+                    <pre class="wrap-overflow">
+
+public final class <span class="typeNameLabel"><a href=EventFilter.Builder.html>EventFilter.Builder</a></span>
+extends GeneratedMessage.Builder&lt;<a href=EventFilter.Builder.html>EventFilter.Builder</a>&gt; implements <a href=EventFilterOrBuilder.html>EventFilterOrBuilder</a>, ValidatingBuilder&lt;<a href=EventFilter.html>EventFilter</a>&gt;
+                    </pre>
+                    <div class="block"><pre><code>Filters `Event`s by:
+1. the type of the event message,
+2. aggregate ID,
+3. event message field values,
+4. values stored in `event_context` field of the event.
+
+The time of the event is filtered by `before` and `after` attributes of `EventStreamQuery`.
+</code></pre> Protobuf type <code>spine.server.event.EventFilter</code></div>
+
+                    <dl>
+
+                    
+
+                    
+
+                    </dl>
+                </li>
+            </ul>
+        </div>
+        <div class="summary">
+            <ul class="blockList">
+                <li class="blockList">
+                <!-- ======== NESTED CLASS SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="nested.class.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Nested Class Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Class</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== FIELD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="field.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Field Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Field</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>protected  boolean</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=../tenant/event/TenantAdded.Builder.html#isClean()>isClean</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tbody>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Constructor</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+
+                                        
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== ENUM CONSTANT SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="enum.constant.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Enum Constant Summary</h3>
+                                <table class="memberSummary">
+                                    <caption><span>Enum Constants</span><span class="tabEnd">&nbsp;</span></caption>
+                                    <tr>
+                                        <th class="colFirst" scope="col">Enum Constant</th>
+                                        <th class="colLast" scope="col">Description</th>
+                                    </tr>
+                                    
+                                </table>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ========== METHOD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Method Summary</h3>
+                                <div class="memberSummary">
+                                    <div role="tablist" aria-orientation="horizontal">
+                                        <button role="tab" aria-selected="true" aria-controls="memberSummary_tabpanel" tabindex="0" onkeydown="switchTab(event)" id="t0" class="activeTableTab">All Methods</button>
+                                        <!-- TODO: Instance and Concrete Methods #1118 -->
+                                    </div>
+                                    <div id="memberSummary_tabpanel" role="tabpanel">
+                                    <table aria-labelledby="t0">
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Method</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                        <tr id="i0" class="altColor">
+                                            <td class="colFirst"><code>final static Descriptors.Descriptor</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#getDescriptor()>getDescriptor</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i1" class="rowColor">
+                                            <td class="colFirst"><code>GeneratedMessage.FieldAccessorTable</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#internalGetFieldAccessorTable()>internalGetFieldAccessorTable</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i2" class="altColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#clear()>clear</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i3" class="rowColor">
+                                            <td class="colFirst"><code>Descriptors.Descriptor</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#getDescriptorForType()>getDescriptorForType</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i4" class="altColor">
+                                            <td class="colFirst"><code><a href=EventFilter.html>EventFilter</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#getDefaultInstanceForType()>getDefaultInstanceForType</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i5" class="rowColor">
+                                            <td class="colFirst"><code><a href=EventFilter.html>EventFilter</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#build()>build</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i6" class="altColor">
+                                            <td class="colFirst"><code><a href=EventFilter.html>EventFilter</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#buildPartial()>buildPartial</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i7" class="rowColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#mergeFrom(com.google.protobuf.Message)>mergeFrom</a>(Message other) </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i8" class="altColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#mergeFrom(io.spine.server.event.EventFilter)>mergeFrom</a>(<a href=EventFilter.html>EventFilter</a> other) </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i9" class="rowColor">
+                                            <td class="colFirst"><code>final boolean</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#isInitialized()>isInitialized</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i10" class="altColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#mergeFrom(com.google.protobuf.CodedInputStream,com.google.protobuf.ExtensionRegistryLite)>mergeFrom</a>(CodedInputStream input, ExtensionRegistryLite extensionRegistry) </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i11" class="rowColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#getEventType()>getEventType</a>() </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The full protobuf type name of the event message.
+</code></pre><code>string event_type = 1;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i12" class="altColor">
+                                            <td class="colFirst"><code>ByteString</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#getEventTypeBytes()>getEventTypeBytes</a>() </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The full protobuf type name of the event message.
+</code></pre><code>string event_type = 1;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i13" class="rowColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#setEventType(java.lang.String)>setEventType</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> value) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The full protobuf type name of the event message.
+</code></pre><code>string event_type = 1;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i14" class="altColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#clearEventType()>clearEventType</a>() </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The full protobuf type name of the event message.
+</code></pre><code>string event_type = 1;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i15" class="rowColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#setEventTypeBytes(com.google.protobuf.ByteString)>setEventTypeBytes</a>(ByteString value) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The full protobuf type name of the event message.
+</code></pre><code>string event_type = 1;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i16" class="altColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html>List</a>&lt;Any&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#getAggregateIdList()>getAggregateIdList</a>() </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i17" class="rowColor">
+                                            <td class="colFirst"><code>int</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#getAggregateIdCount()>getAggregateIdCount</a>() </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i18" class="altColor">
+                                            <td class="colFirst"><code>Any</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#getAggregateId(int)>getAggregateId</a>(int index) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i19" class="rowColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#setAggregateId(int,com.google.protobuf.Any)>setAggregateId</a>(int index, Any value) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i20" class="altColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#setAggregateId(int,com.google.protobuf.Any.Builder)>setAggregateId</a>(int index, Any.Builder builderForValue) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i21" class="rowColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#addAggregateId(com.google.protobuf.Any)>addAggregateId</a>(Any value) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i22" class="altColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#addAggregateId(int,com.google.protobuf.Any)>addAggregateId</a>(int index, Any value) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i23" class="rowColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#addAggregateId(com.google.protobuf.Any.Builder)>addAggregateId</a>(Any.Builder builderForValue) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i24" class="altColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#addAggregateId(int,com.google.protobuf.Any.Builder)>addAggregateId</a>(int index, Any.Builder builderForValue) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i25" class="rowColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#addAllAggregateId(java.lang.Iterable)>addAllAggregateId</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Iterable.html>Iterable</a>&lt;out Any&gt; values) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i26" class="altColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#clearAggregateId()>clearAggregateId</a>() </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i27" class="rowColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#removeAggregateId(int)>removeAggregateId</a>(int index) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i28" class="altColor">
+                                            <td class="colFirst"><code>Any.Builder</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#getAggregateIdBuilder(int)>getAggregateIdBuilder</a>(int index) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i29" class="rowColor">
+                                            <td class="colFirst"><code>AnyOrBuilder</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#getAggregateIdOrBuilder(int)>getAggregateIdOrBuilder</a>(int index) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i30" class="altColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html>List</a>&lt;out AnyOrBuilder&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#getAggregateIdOrBuilderList()>getAggregateIdOrBuilderList</a>() </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i31" class="rowColor">
+                                            <td class="colFirst"><code>Any.Builder</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#addAggregateIdBuilder()>addAggregateIdBuilder</a>() </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i32" class="altColor">
+                                            <td class="colFirst"><code>Any.Builder</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#addAggregateIdBuilder(int)>addAggregateIdBuilder</a>(int index) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i33" class="rowColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html>List</a>&lt;Any.Builder&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#getAggregateIdBuilderList()>getAggregateIdBuilderList</a>() </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i34" class="altColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html>List</a>&lt;FieldFilter&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#getEventFieldFilterList()>getEventFieldFilterList</a>() </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i35" class="rowColor">
+                                            <td class="colFirst"><code>int</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#getEventFieldFilterCount()>getEventFieldFilterCount</a>() </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i36" class="altColor">
+                                            <td class="colFirst"><code>FieldFilter</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#getEventFieldFilter(int)>getEventFieldFilter</a>(int index) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i37" class="rowColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#setEventFieldFilter(int,io.spine.base.FieldFilter)>setEventFieldFilter</a>(int index, FieldFilter value) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i38" class="altColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#setEventFieldFilter(int,io.spine.base.FieldFilter.Builder)>setEventFieldFilter</a>(int index, FieldFilter.Builder builderForValue) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i39" class="rowColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#addEventFieldFilter(io.spine.base.FieldFilter)>addEventFieldFilter</a>(FieldFilter value) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i40" class="altColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#addEventFieldFilter(int,io.spine.base.FieldFilter)>addEventFieldFilter</a>(int index, FieldFilter value) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i41" class="rowColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#addEventFieldFilter(io.spine.base.FieldFilter.Builder)>addEventFieldFilter</a>(FieldFilter.Builder builderForValue) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i42" class="altColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#addEventFieldFilter(int,io.spine.base.FieldFilter.Builder)>addEventFieldFilter</a>(int index, FieldFilter.Builder builderForValue) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i43" class="rowColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#addAllEventFieldFilter(java.lang.Iterable)>addAllEventFieldFilter</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Iterable.html>Iterable</a>&lt;out FieldFilter&gt; values) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i44" class="altColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#clearEventFieldFilter()>clearEventFieldFilter</a>() </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i45" class="rowColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#removeEventFieldFilter(int)>removeEventFieldFilter</a>(int index) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i46" class="altColor">
+                                            <td class="colFirst"><code>FieldFilter.Builder</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#getEventFieldFilterBuilder(int)>getEventFieldFilterBuilder</a>(int index) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i47" class="rowColor">
+                                            <td class="colFirst"><code>FieldFilterOrBuilder</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#getEventFieldFilterOrBuilder(int)>getEventFieldFilterOrBuilder</a>(int index) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i48" class="altColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html>List</a>&lt;out FieldFilterOrBuilder&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#getEventFieldFilterOrBuilderList()>getEventFieldFilterOrBuilderList</a>() </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i49" class="rowColor">
+                                            <td class="colFirst"><code>FieldFilter.Builder</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#addEventFieldFilterBuilder()>addEventFieldFilterBuilder</a>() </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i50" class="altColor">
+                                            <td class="colFirst"><code>FieldFilter.Builder</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#addEventFieldFilterBuilder(int)>addEventFieldFilterBuilder</a>(int index) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i51" class="rowColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html>List</a>&lt;FieldFilter.Builder&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#getEventFieldFilterBuilderList()>getEventFieldFilterBuilderList</a>() </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i52" class="altColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html>List</a>&lt;FieldFilter&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#getContextFieldFilterList()>getContextFieldFilterList</a>() </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i53" class="rowColor">
+                                            <td class="colFirst"><code>int</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#getContextFieldFilterCount()>getContextFieldFilterCount</a>() </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i54" class="altColor">
+                                            <td class="colFirst"><code>FieldFilter</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#getContextFieldFilter(int)>getContextFieldFilter</a>(int index) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i55" class="rowColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#setContextFieldFilter(int,io.spine.base.FieldFilter)>setContextFieldFilter</a>(int index, FieldFilter value) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i56" class="altColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#setContextFieldFilter(int,io.spine.base.FieldFilter.Builder)>setContextFieldFilter</a>(int index, FieldFilter.Builder builderForValue) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i57" class="rowColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#addContextFieldFilter(io.spine.base.FieldFilter)>addContextFieldFilter</a>(FieldFilter value) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i58" class="altColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#addContextFieldFilter(int,io.spine.base.FieldFilter)>addContextFieldFilter</a>(int index, FieldFilter value) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i59" class="rowColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#addContextFieldFilter(io.spine.base.FieldFilter.Builder)>addContextFieldFilter</a>(FieldFilter.Builder builderForValue) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i60" class="altColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#addContextFieldFilter(int,io.spine.base.FieldFilter.Builder)>addContextFieldFilter</a>(int index, FieldFilter.Builder builderForValue) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i61" class="rowColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#addAllContextFieldFilter(java.lang.Iterable)>addAllContextFieldFilter</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Iterable.html>Iterable</a>&lt;out FieldFilter&gt; values) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i62" class="altColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#clearContextFieldFilter()>clearContextFieldFilter</a>() </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i63" class="rowColor">
+                                            <td class="colFirst"><code><a href=EventFilter.Builder.html>EventFilter.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#removeContextFieldFilter(int)>removeContextFieldFilter</a>(int index) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i64" class="altColor">
+                                            <td class="colFirst"><code>FieldFilter.Builder</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#getContextFieldFilterBuilder(int)>getContextFieldFilterBuilder</a>(int index) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i65" class="rowColor">
+                                            <td class="colFirst"><code>FieldFilterOrBuilder</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#getContextFieldFilterOrBuilder(int)>getContextFieldFilterOrBuilder</a>(int index) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i66" class="altColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html>List</a>&lt;out FieldFilterOrBuilder&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#getContextFieldFilterOrBuilderList()>getContextFieldFilterOrBuilderList</a>() </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i67" class="rowColor">
+                                            <td class="colFirst"><code>FieldFilter.Builder</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#addContextFieldFilterBuilder()>addContextFieldFilterBuilder</a>() </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i68" class="altColor">
+                                            <td class="colFirst"><code>FieldFilter.Builder</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#addContextFieldFilterBuilder(int)>addContextFieldFilterBuilder</a>(int index) </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></td>
+                                        </tr>
+                                        
+                                        <tr id="i69" class="rowColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html>List</a>&lt;FieldFilter.Builder&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventFilter.Builder.html#getContextFieldFilterBuilderList()>getContextFieldFilterBuilderList</a>() </code>
+                                            </th>
+                                            <td class="colLast"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></td>
+                                        </tr>
+                                        
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <ul class="blockList">
+                                
+                                    <li class="blockList"><a id="methods.inherited.from.class.com.google.protobuf.GeneratedMessage.Builder">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;com.google.protobuf.GeneratedMessage.Builder</h3>
+                                            <code>addRepeatedField, clearField, clearOneof, clone, getAllFields, getField, getFieldBuilder, getOneofFieldDescriptor, getParentForChildren, getRepeatedField, getRepeatedFieldBuilder, getRepeatedFieldCount, getUnknownFieldSetBuilder, getUnknownFields, hasField, hasOneof, internalGetMapField, internalGetMapFieldReflection, internalGetMutableMapField, internalGetMutableMapFieldReflection, isClean, markClean, mergeUnknownFields, mergeUnknownLengthDelimitedField, mergeUnknownVarintField, newBuilderForField, onBuilt, onChanged, parseUnknownField, setField, setRepeatedField, setUnknownFieldSetBuilder, setUnknownFields, setUnknownFieldsProto3</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.validate.ValidatingBuilder">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.validate.ValidatingBuilder</h3>
+                                            <code>vBuild</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.com.google.protobuf.AbstractMessage.Builder">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;com.google.protobuf.AbstractMessage.Builder</h3>
+                                            <code>clear, clearOneof, clone, findInitializationErrors, getInitializationErrorString, internalMergeFrom, mergeUnknownFields, newUninitializedMessageException, toString</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.com.google.protobuf.AbstractMessageLite.Builder">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;com.google.protobuf.AbstractMessageLite.Builder</h3>
+                                            <code>addAll, mergeDelimitedFrom</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.com.google.protobuf.Message.Builder">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;com.google.protobuf.Message.Builder</h3>
+                                            <code>addRepeatedField, clearField, clearOneof, clone, mergeUnknownFields, setField, setRepeatedField, setUnknownFields</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.com.google.protobuf.MessageLite.Builder">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;com.google.protobuf.MessageLite.Builder</h3>
+                                            <code>build, buildPartial</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.com.google.protobuf.MessageLiteOrBuilder">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;com.google.protobuf.MessageLiteOrBuilder</h3>
+                                            <code>getDefaultInstanceForType</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+                                        <!--   -->
+                                    </a>
+                                        <h3>Methods inherited from class&nbsp;java.lang.Object</h3>
+                                        <code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString,
+                                            wait, wait, wait</code></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+        <div class="details">
+            <ul class="blockList">
+                <li class="blockList">
+                    <!-- ========= CONSTRUCTOR DETAIL ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Detail</h3>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ============ METHOD DETAIL ========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Method Detail</h3>
+                                
+                                <a id="getDescriptor()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getDescriptor</h4>
+                                        <pre class="methodSignature"> final static Descriptors.Descriptor <a href=EventFilter.Builder.html#getDescriptor()>getDescriptor</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="internalGetFieldAccessorTable()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>internalGetFieldAccessorTable</h4>
+                                        <pre class="methodSignature"> GeneratedMessage.FieldAccessorTable <a href=EventFilter.Builder.html#internalGetFieldAccessorTable()>internalGetFieldAccessorTable</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="clear()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>clear</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#clear()>clear</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getDescriptorForType()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getDescriptorForType</h4>
+                                        <pre class="methodSignature"> Descriptors.Descriptor <a href=EventFilter.Builder.html#getDescriptorForType()>getDescriptorForType</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getDefaultInstanceForType()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getDefaultInstanceForType</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.html>EventFilter</a> <a href=EventFilter.Builder.html#getDefaultInstanceForType()>getDefaultInstanceForType</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="build()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>build</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.html>EventFilter</a> <a href=EventFilter.Builder.html#build()>build</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="buildPartial()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>buildPartial</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.html>EventFilter</a> <a href=EventFilter.Builder.html#buildPartial()>buildPartial</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="mergeFrom(com.google.protobuf.Message)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>mergeFrom</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#mergeFrom(com.google.protobuf.Message)>mergeFrom</a>(Message other)</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="mergeFrom(io.spine.server.event.EventFilter)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>mergeFrom</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#mergeFrom(io.spine.server.event.EventFilter)>mergeFrom</a>(<a href=EventFilter.html>EventFilter</a> other)</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="isInitialized()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>isInitialized</h4>
+                                        <pre class="methodSignature"> final boolean <a href=EventFilter.Builder.html#isInitialized()>isInitialized</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="mergeFrom(com.google.protobuf.CodedInputStream,com.google.protobuf.ExtensionRegistryLite)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>mergeFrom</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#mergeFrom(com.google.protobuf.CodedInputStream,com.google.protobuf.ExtensionRegistryLite)>mergeFrom</a>(CodedInputStream input, ExtensionRegistryLite extensionRegistry)</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getEventType()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getEventType</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> <a href=EventFilter.Builder.html#getEventType()>getEventType</a>()</pre>
+                                        <div class="block"><pre><code>The full protobuf type name of the event message.
+</code></pre><code>string event_type = 1;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>The eventType.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getEventTypeBytes()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getEventTypeBytes</h4>
+                                        <pre class="methodSignature"> ByteString <a href=EventFilter.Builder.html#getEventTypeBytes()>getEventTypeBytes</a>()</pre>
+                                        <div class="block"><pre><code>The full protobuf type name of the event message.
+</code></pre><code>string event_type = 1;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>The bytes for eventType.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="setEventType(java.lang.String)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setEventType</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#setEventType(java.lang.String)>setEventType</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> value)</pre>
+                                        <div class="block"><pre><code>The full protobuf type name of the event message.
+</code></pre><code>string event_type = 1;</code></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>value</code> - The eventType to set.</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>This builder for chaining.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="clearEventType()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>clearEventType</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#clearEventType()>clearEventType</a>()</pre>
+                                        <div class="block"><pre><code>The full protobuf type name of the event message.
+</code></pre><code>string event_type = 1;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>This builder for chaining.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="setEventTypeBytes(com.google.protobuf.ByteString)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setEventTypeBytes</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#setEventTypeBytes(com.google.protobuf.ByteString)>setEventTypeBytes</a>(ByteString value)</pre>
+                                        <div class="block"><pre><code>The full protobuf type name of the event message.
+</code></pre><code>string event_type = 1;</code></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>value</code> - The bytes for eventType to set.</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>This builder for chaining.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getAggregateIdList()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getAggregateIdList</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html>List</a>&lt;Any&gt; <a href=EventFilter.Builder.html#getAggregateIdList()>getAggregateIdList</a>()</pre>
+                                        <div class="block"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getAggregateIdCount()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getAggregateIdCount</h4>
+                                        <pre class="methodSignature"> int <a href=EventFilter.Builder.html#getAggregateIdCount()>getAggregateIdCount</a>()</pre>
+                                        <div class="block"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getAggregateId(int)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getAggregateId</h4>
+                                        <pre class="methodSignature"> Any <a href=EventFilter.Builder.html#getAggregateId(int)>getAggregateId</a>(int index)</pre>
+                                        <div class="block"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="setAggregateId(int,com.google.protobuf.Any)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setAggregateId</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#setAggregateId(int,com.google.protobuf.Any)>setAggregateId</a>(int index, Any value)</pre>
+                                        <div class="block"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="setAggregateId(int,com.google.protobuf.Any.Builder)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setAggregateId</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#setAggregateId(int,com.google.protobuf.Any.Builder)>setAggregateId</a>(int index, Any.Builder builderForValue)</pre>
+                                        <div class="block"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="addAggregateId(com.google.protobuf.Any)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>addAggregateId</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#addAggregateId(com.google.protobuf.Any)>addAggregateId</a>(Any value)</pre>
+                                        <div class="block"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="addAggregateId(int,com.google.protobuf.Any)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>addAggregateId</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#addAggregateId(int,com.google.protobuf.Any)>addAggregateId</a>(int index, Any value)</pre>
+                                        <div class="block"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="addAggregateId(com.google.protobuf.Any.Builder)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>addAggregateId</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#addAggregateId(com.google.protobuf.Any.Builder)>addAggregateId</a>(Any.Builder builderForValue)</pre>
+                                        <div class="block"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="addAggregateId(int,com.google.protobuf.Any.Builder)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>addAggregateId</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#addAggregateId(int,com.google.protobuf.Any.Builder)>addAggregateId</a>(int index, Any.Builder builderForValue)</pre>
+                                        <div class="block"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="addAllAggregateId(java.lang.Iterable)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>addAllAggregateId</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#addAllAggregateId(java.lang.Iterable)>addAllAggregateId</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Iterable.html>Iterable</a>&lt;out Any&gt; values)</pre>
+                                        <div class="block"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="clearAggregateId()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>clearAggregateId</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#clearAggregateId()>clearAggregateId</a>()</pre>
+                                        <div class="block"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="removeAggregateId(int)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>removeAggregateId</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#removeAggregateId(int)>removeAggregateId</a>(int index)</pre>
+                                        <div class="block"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getAggregateIdBuilder(int)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getAggregateIdBuilder</h4>
+                                        <pre class="methodSignature"> Any.Builder <a href=EventFilter.Builder.html#getAggregateIdBuilder(int)>getAggregateIdBuilder</a>(int index)</pre>
+                                        <div class="block"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getAggregateIdOrBuilder(int)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getAggregateIdOrBuilder</h4>
+                                        <pre class="methodSignature"> AnyOrBuilder <a href=EventFilter.Builder.html#getAggregateIdOrBuilder(int)>getAggregateIdOrBuilder</a>(int index)</pre>
+                                        <div class="block"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getAggregateIdOrBuilderList()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getAggregateIdOrBuilderList</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html>List</a>&lt;out AnyOrBuilder&gt; <a href=EventFilter.Builder.html#getAggregateIdOrBuilderList()>getAggregateIdOrBuilderList</a>()</pre>
+                                        <div class="block"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="addAggregateIdBuilder()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>addAggregateIdBuilder</h4>
+                                        <pre class="methodSignature"> Any.Builder <a href=EventFilter.Builder.html#addAggregateIdBuilder()>addAggregateIdBuilder</a>()</pre>
+                                        <div class="block"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="addAggregateIdBuilder(int)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>addAggregateIdBuilder</h4>
+                                        <pre class="methodSignature"> Any.Builder <a href=EventFilter.Builder.html#addAggregateIdBuilder(int)>addAggregateIdBuilder</a>(int index)</pre>
+                                        <div class="block"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getAggregateIdBuilderList()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getAggregateIdBuilderList</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html>List</a>&lt;Any.Builder&gt; <a href=EventFilter.Builder.html#getAggregateIdBuilderList()>getAggregateIdBuilderList</a>()</pre>
+                                        <div class="block"><pre><code>The list of aggregate IDs of interest. Or empty, if include events for all aggregates.
+</code></pre><code>repeated .google.protobuf.Any aggregate_id = 2;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getEventFieldFilterList()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getEventFieldFilterList</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html>List</a>&lt;FieldFilter&gt; <a href=EventFilter.Builder.html#getEventFieldFilterList()>getEventFieldFilterList</a>()</pre>
+                                        <div class="block"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getEventFieldFilterCount()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getEventFieldFilterCount</h4>
+                                        <pre class="methodSignature"> int <a href=EventFilter.Builder.html#getEventFieldFilterCount()>getEventFieldFilterCount</a>()</pre>
+                                        <div class="block"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getEventFieldFilter(int)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getEventFieldFilter</h4>
+                                        <pre class="methodSignature"> FieldFilter <a href=EventFilter.Builder.html#getEventFieldFilter(int)>getEventFieldFilter</a>(int index)</pre>
+                                        <div class="block"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="setEventFieldFilter(int,io.spine.base.FieldFilter)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setEventFieldFilter</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#setEventFieldFilter(int,io.spine.base.FieldFilter)>setEventFieldFilter</a>(int index, FieldFilter value)</pre>
+                                        <div class="block"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="setEventFieldFilter(int,io.spine.base.FieldFilter.Builder)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setEventFieldFilter</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#setEventFieldFilter(int,io.spine.base.FieldFilter.Builder)>setEventFieldFilter</a>(int index, FieldFilter.Builder builderForValue)</pre>
+                                        <div class="block"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="addEventFieldFilter(io.spine.base.FieldFilter)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>addEventFieldFilter</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#addEventFieldFilter(io.spine.base.FieldFilter)>addEventFieldFilter</a>(FieldFilter value)</pre>
+                                        <div class="block"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="addEventFieldFilter(int,io.spine.base.FieldFilter)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>addEventFieldFilter</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#addEventFieldFilter(int,io.spine.base.FieldFilter)>addEventFieldFilter</a>(int index, FieldFilter value)</pre>
+                                        <div class="block"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="addEventFieldFilter(io.spine.base.FieldFilter.Builder)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>addEventFieldFilter</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#addEventFieldFilter(io.spine.base.FieldFilter.Builder)>addEventFieldFilter</a>(FieldFilter.Builder builderForValue)</pre>
+                                        <div class="block"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="addEventFieldFilter(int,io.spine.base.FieldFilter.Builder)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>addEventFieldFilter</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#addEventFieldFilter(int,io.spine.base.FieldFilter.Builder)>addEventFieldFilter</a>(int index, FieldFilter.Builder builderForValue)</pre>
+                                        <div class="block"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="addAllEventFieldFilter(java.lang.Iterable)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>addAllEventFieldFilter</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#addAllEventFieldFilter(java.lang.Iterable)>addAllEventFieldFilter</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Iterable.html>Iterable</a>&lt;out FieldFilter&gt; values)</pre>
+                                        <div class="block"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="clearEventFieldFilter()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>clearEventFieldFilter</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#clearEventFieldFilter()>clearEventFieldFilter</a>()</pre>
+                                        <div class="block"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="removeEventFieldFilter(int)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>removeEventFieldFilter</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#removeEventFieldFilter(int)>removeEventFieldFilter</a>(int index)</pre>
+                                        <div class="block"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getEventFieldFilterBuilder(int)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getEventFieldFilterBuilder</h4>
+                                        <pre class="methodSignature"> FieldFilter.Builder <a href=EventFilter.Builder.html#getEventFieldFilterBuilder(int)>getEventFieldFilterBuilder</a>(int index)</pre>
+                                        <div class="block"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getEventFieldFilterOrBuilder(int)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getEventFieldFilterOrBuilder</h4>
+                                        <pre class="methodSignature"> FieldFilterOrBuilder <a href=EventFilter.Builder.html#getEventFieldFilterOrBuilder(int)>getEventFieldFilterOrBuilder</a>(int index)</pre>
+                                        <div class="block"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getEventFieldFilterOrBuilderList()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getEventFieldFilterOrBuilderList</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html>List</a>&lt;out FieldFilterOrBuilder&gt; <a href=EventFilter.Builder.html#getEventFieldFilterOrBuilderList()>getEventFieldFilterOrBuilderList</a>()</pre>
+                                        <div class="block"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="addEventFieldFilterBuilder()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>addEventFieldFilterBuilder</h4>
+                                        <pre class="methodSignature"> FieldFilter.Builder <a href=EventFilter.Builder.html#addEventFieldFilterBuilder()>addEventFieldFilterBuilder</a>()</pre>
+                                        <div class="block"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="addEventFieldFilterBuilder(int)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>addEventFieldFilterBuilder</h4>
+                                        <pre class="methodSignature"> FieldFilter.Builder <a href=EventFilter.Builder.html#addEventFieldFilterBuilder(int)>addEventFieldFilterBuilder</a>(int index)</pre>
+                                        <div class="block"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getEventFieldFilterBuilderList()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getEventFieldFilterBuilderList</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html>List</a>&lt;FieldFilter.Builder&gt; <a href=EventFilter.Builder.html#getEventFieldFilterBuilderList()>getEventFieldFilterBuilderList</a>()</pre>
+                                        <div class="block"><pre><code>Accepted event message field values.
+</code></pre><code>repeated .spine.base.FieldFilter event_field_filter = 3;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getContextFieldFilterList()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getContextFieldFilterList</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html>List</a>&lt;FieldFilter&gt; <a href=EventFilter.Builder.html#getContextFieldFilterList()>getContextFieldFilterList</a>()</pre>
+                                        <div class="block"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getContextFieldFilterCount()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getContextFieldFilterCount</h4>
+                                        <pre class="methodSignature"> int <a href=EventFilter.Builder.html#getContextFieldFilterCount()>getContextFieldFilterCount</a>()</pre>
+                                        <div class="block"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getContextFieldFilter(int)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getContextFieldFilter</h4>
+                                        <pre class="methodSignature"> FieldFilter <a href=EventFilter.Builder.html#getContextFieldFilter(int)>getContextFieldFilter</a>(int index)</pre>
+                                        <div class="block"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="setContextFieldFilter(int,io.spine.base.FieldFilter)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setContextFieldFilter</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#setContextFieldFilter(int,io.spine.base.FieldFilter)>setContextFieldFilter</a>(int index, FieldFilter value)</pre>
+                                        <div class="block"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="setContextFieldFilter(int,io.spine.base.FieldFilter.Builder)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setContextFieldFilter</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#setContextFieldFilter(int,io.spine.base.FieldFilter.Builder)>setContextFieldFilter</a>(int index, FieldFilter.Builder builderForValue)</pre>
+                                        <div class="block"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="addContextFieldFilter(io.spine.base.FieldFilter)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>addContextFieldFilter</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#addContextFieldFilter(io.spine.base.FieldFilter)>addContextFieldFilter</a>(FieldFilter value)</pre>
+                                        <div class="block"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="addContextFieldFilter(int,io.spine.base.FieldFilter)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>addContextFieldFilter</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#addContextFieldFilter(int,io.spine.base.FieldFilter)>addContextFieldFilter</a>(int index, FieldFilter value)</pre>
+                                        <div class="block"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="addContextFieldFilter(io.spine.base.FieldFilter.Builder)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>addContextFieldFilter</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#addContextFieldFilter(io.spine.base.FieldFilter.Builder)>addContextFieldFilter</a>(FieldFilter.Builder builderForValue)</pre>
+                                        <div class="block"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="addContextFieldFilter(int,io.spine.base.FieldFilter.Builder)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>addContextFieldFilter</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#addContextFieldFilter(int,io.spine.base.FieldFilter.Builder)>addContextFieldFilter</a>(int index, FieldFilter.Builder builderForValue)</pre>
+                                        <div class="block"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="addAllContextFieldFilter(java.lang.Iterable)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>addAllContextFieldFilter</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#addAllContextFieldFilter(java.lang.Iterable)>addAllContextFieldFilter</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Iterable.html>Iterable</a>&lt;out FieldFilter&gt; values)</pre>
+                                        <div class="block"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="clearContextFieldFilter()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>clearContextFieldFilter</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#clearContextFieldFilter()>clearContextFieldFilter</a>()</pre>
+                                        <div class="block"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="removeContextFieldFilter(int)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>removeContextFieldFilter</h4>
+                                        <pre class="methodSignature"> <a href=EventFilter.Builder.html>EventFilter.Builder</a> <a href=EventFilter.Builder.html#removeContextFieldFilter(int)>removeContextFieldFilter</a>(int index)</pre>
+                                        <div class="block"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getContextFieldFilterBuilder(int)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getContextFieldFilterBuilder</h4>
+                                        <pre class="methodSignature"> FieldFilter.Builder <a href=EventFilter.Builder.html#getContextFieldFilterBuilder(int)>getContextFieldFilterBuilder</a>(int index)</pre>
+                                        <div class="block"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getContextFieldFilterOrBuilder(int)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getContextFieldFilterOrBuilder</h4>
+                                        <pre class="methodSignature"> FieldFilterOrBuilder <a href=EventFilter.Builder.html#getContextFieldFilterOrBuilder(int)>getContextFieldFilterOrBuilder</a>(int index)</pre>
+                                        <div class="block"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getContextFieldFilterOrBuilderList()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getContextFieldFilterOrBuilderList</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html>List</a>&lt;out FieldFilterOrBuilder&gt; <a href=EventFilter.Builder.html#getContextFieldFilterOrBuilderList()>getContextFieldFilterOrBuilderList</a>()</pre>
+                                        <div class="block"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="addContextFieldFilterBuilder()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>addContextFieldFilterBuilder</h4>
+                                        <pre class="methodSignature"> FieldFilter.Builder <a href=EventFilter.Builder.html#addContextFieldFilterBuilder()>addContextFieldFilterBuilder</a>()</pre>
+                                        <div class="block"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="addContextFieldFilterBuilder(int)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>addContextFieldFilterBuilder</h4>
+                                        <pre class="methodSignature"> FieldFilter.Builder <a href=EventFilter.Builder.html#addContextFieldFilterBuilder(int)>addContextFieldFilterBuilder</a>(int index)</pre>
+                                        <div class="block"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getContextFieldFilterBuilderList()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockListLast"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getContextFieldFilterBuilderList</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html>List</a>&lt;FieldFilter.Builder&gt; <a href=EventFilter.Builder.html#getContextFieldFilterBuilderList()>getContextFieldFilterBuilderList</a>()</pre>
+                                        <div class="block"><pre><code>Accepted `EventContext` field values.
+</code></pre><code>repeated .spine.base.FieldFilter context_field_filter = 4;</code></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+    </div>
+</main>
+<footer role="contentinfo">
+    <nav role="navigation">
+        <!-- ======= START OF BOTTOM NAVBAR ====== -->
+        <div class="bottomNav"><a id="navbar.bottom">
+            <!--   -->
+        </a>
+            <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a>
+            </div>
+            <a id="navbar.bottom.firstrow">
+                <!--   -->
+            </a>
+            <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+        <a id="skip.navbar.bottom">
+            <!--   -->
+        </a>
+        <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ======== END OF BOTTOM NAVBAR ======= -->
+    </nav>
+</footer><ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" id="ui-id-1" tabindex="0"
+    style="display: none;"></ul>
+<span role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></span>
+</body>
+</html>

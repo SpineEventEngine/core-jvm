@@ -1,0 +1,1016 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en"><head>
+    <title>ProjectionRepository 2.0.0-SNAPSHOT.356 API </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="dc.created" content="2020-03-25">
+    <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../dokka-javadoc-stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../jquery/jquery-ui.css" title="Style">
+    <script type="text/javascript" src="../../../../jquery/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-migrate-3.4.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
+
+    <script type="text/javascript" src="../../../../search.js"></script>
+    <script async type="text/javascript" src="../../../../module-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../package-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../type-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../member-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../tag-search-index.js"></script>
+</head><body>
+<script type="text/javascript">
+var pathtoroot = "../../../../";
+</script>
+<noscript>
+    <div>JavaScript is disabled on your browser.</div>
+</noscript><header role="banner">
+    <nav role="navigation">
+        <div class="fixedNav">
+            <!-- ========= START OF TOP NAVBAR ======= -->
+            <div class="topNav"><a id="navbar.top">
+                <!--   -->
+            </a>
+                <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a>
+                </div>
+                <a id="navbar.top.firstrow">
+                    <!--   -->
+                </a>
+                <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+            <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" class="ui-autocomplete-input" autocomplete="off" placeholder="Search">
+<input type="reset" id="reset" value="reset">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ========= END OF TOP NAVBAR ========= -->
+        </div>
+        <div class="navPadding">&nbsp;</div>
+        <script type="text/javascript"><!--
+        $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+        //-->
+        </script>
+    </nav>
+</header>
+
+<main role="main">
+    <div class="header">
+        <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">io.spine.server.projection</a></div>
+        <h2 title="Class ProjectionRepository" class="title">Class ProjectionRepository</h2>
+    </div>
+    <div class="contentContainer">
+        <!-- <ul class="inheritance">
+            <li>java.lang.Object</li>
+            <li>
+                <ul class="inheritance">
+                    <li>adaptation.Adaptation</li>
+                </ul>
+            </li>
+        </ul> TODO inheritance tree -->
+        <div class="description">
+            <ul class="blockList">
+                <li class="blockList">
+                    
+                    <dl>
+                        <dt>All Implemented Interfaces:</dt>
+                        <dd>
+                            
+                            <code>io.spine.logging.WithLogging</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.Closeable</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.ContextAware</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.bus.MessageDispatcher</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.bus.MulticastDispatcher</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.entity.QueryableRepository</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.event.EventDispatcher</code>
+                            
+                            ,
+                            
+                            
+                            <code>java.io.Closeable</code>
+                            
+                            ,
+                            
+                            
+                            <code>java.lang.AutoCloseable</code>
+                            
+                            
+                        </dd>
+                    </dl>
+                    
+                    <hr>
+                    <pre class="wrap-overflow">
+
+public abstract class <span class="typeNameLabel"><a href=ProjectionRepository.html>ProjectionRepository</a>&lt;I, P extends <a href=Projection.html>Projection</a>&lt;<a href=ProjectionRepository.html>I</a>, <a href=ProjectionRepository.html>S</a>, out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt;, S extends ProjectionState&lt;<a href=ProjectionRepository.html>I</a>&gt;&gt;</span>
+extends <a href=../entity/EventDispatchingRepository.html>EventDispatchingRepository</a>&lt;<a href=ProjectionRepository.html>I</a>, <a href=ProjectionRepository.html>P</a>, <a href=ProjectionRepository.html>S</a>&gt;
+                    </pre>
+                    <div class="block"><p>Abstract base for repositories managing <a href=Projection.html>Projection</a>s. </p><p><a href=ProjectionRepository.html#catchUp(com.google.protobuf.Timestamp,java.util.Set)>Provides an API</a> for the entity catch-up. During this process, the framework re-builds the states of all or the selected projection instances by replaying the historical events from the <code>EventStore</code> of its Bounded Context. The catch-up process is fully automated and may be scaled across instances. </p><p>To start the catch-up, one should call a corresponding method (see below). </p><pre><code>    var repository = new TaskViewRepository();
+
+    var builder = BoundedContext.singleTenant(&quot;Tasks&quot;)
+            .add(repository)
+            .build();
+    // ...
+
+    //Start the catch-up when needed:
+    Timestamp replayHistorySince = ...
+    repository.catchUp(replayHistorySince, ImmutableSet.of(outdatedTaskId, anotherOne));
+</code></pre><p>All the live events dispatched to the entities-under-catch-up are not lost. They are preserved and dispatched to the projections in a proper historical order. </p><p>After the catch-up is completed, the framework automatically switches back to the propagation of the live events.</p></div>
+
+                    <dl>
+
+                    
+
+                    
+
+                    </dl>
+                </li>
+            </ul>
+        </div>
+        <div class="summary">
+            <ul class="blockList">
+                <li class="blockList">
+                <!-- ======== NESTED CLASS SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="nested.class.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Nested Class Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Class</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== FIELD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="field.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Field Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Field</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tbody>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Constructor</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+
+                                        
+                                            <tr class="altColor">
+                                                <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a
+                                                        href="#ProjectionRepository()">ProjectionRepository</a></span>()</code></th>
+                                                <td class="colLast"></td>
+                                            </tr>
+                                        
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== ENUM CONSTANT SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="enum.constant.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Enum Constant Summary</h3>
+                                <table class="memberSummary">
+                                    <caption><span>Enum Constants</span><span class="tabEnd">&nbsp;</span></caption>
+                                    <tr>
+                                        <th class="colFirst" scope="col">Enum Constant</th>
+                                        <th class="colLast" scope="col">Description</th>
+                                    </tr>
+                                    
+                                </table>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ========== METHOD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Method Summary</h3>
+                                <div class="memberSummary">
+                                    <div role="tablist" aria-orientation="horizontal">
+                                        <button role="tab" aria-selected="true" aria-controls="memberSummary_tabpanel" tabindex="0" onkeydown="switchTab(event)" id="t0" class="activeTableTab">All Methods</button>
+                                        <!-- TODO: Instance and Concrete Methods #1118 -->
+                                    </div>
+                                    <div id="memberSummary_tabpanel" role="tabpanel">
+                                    <table aria-labelledby="t0">
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Method</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                        <tr id="i0" class="altColor">
+                                            <td class="colFirst"><code>void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProjectionRepository.html#registerWith(io.spine.server.BoundedContext)>registerWith</a>(<a href=../BoundedContext.html>BoundedContext</a> context) </code>
+                                            </th>
+                                            <td class="colLast">Initializes the repository.</td>
+                                        </tr>
+                                        
+                                        <tr id="i1" class="rowColor">
+                                            <td class="colFirst"><code>void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProjectionRepository.html#setupEventRouting(io.spine.server.route.EventRouting)>setupEventRouting</a>(<a href=../route/EventRouting.html>EventRouting</a>&lt;<a href=ProjectionRepository.html>I</a>&gt; routing) </code>
+                                            </th>
+                                            <td class="colLast">A callback for derived repository classes to customize routing schema for events.</td>
+                                        </tr>
+                                        
+                                        <tr id="i2" class="altColor">
+                                            <td class="colFirst"><code>void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProjectionRepository.html#setupStateRouting(io.spine.server.route.StateUpdateRouting)>setupStateRouting</a>(<a href=../route/StateUpdateRouting.html>StateUpdateRouting</a>&lt;<a href=ProjectionRepository.html>I</a>&gt; routing) </code>
+                                            </th>
+                                            <td class="colLast">A callback for derived repository classes to customize routing schema for delivering updated state to subscribed entities, if the default schema does not satisfy the routing needs.</td>
+                                        </tr>
+                                        
+                                        <tr id="i3" class="rowColor">
+                                            <td class="colFirst"><code><a href=ProjectionRepository.html>P</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProjectionRepository.html#create(I)>create</a>(<a href=ProjectionRepository.html>I</a> id) </code>
+                                            </th>
+                                            <td class="colLast">Create a new entity instance with its default state.</td>
+                                        </tr>
+                                        
+                                        <tr id="i4" class="altColor">
+                                            <td class="colFirst"><code>final <a href=../entity/storage/EntityRecordStorage.html>EntityRecordStorage</a>&lt;<a href=ProjectionRepository.html>I</a>, <a href=ProjectionRepository.html>S</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProjectionRepository.html#recordStorage()>recordStorage</a>() </code>
+                                            </th>
+                                            <td class="colLast">Ensures that the repository has the storage.</td>
+                                        </tr>
+                                        
+                                        <tr id="i5" class="rowColor">
+                                            <td class="colFirst"><code>final <a href=ProjectionRepository.html>P</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProjectionRepository.html#findOrCreate(I)>findOrCreate</a>(<a href=ProjectionRepository.html>I</a> id) </code>
+                                            </th>
+                                            <td class="colLast">Loads an entity by the passed ID or creates a new one, if the entity was not found.</td>
+                                        </tr>
+                                        
+                                        <tr id="i6" class="altColor">
+                                            <td class="colFirst"><code>final void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProjectionRepository.html#store(P)>store</a>(<a href=ProjectionRepository.html>P</a> entity) </code>
+                                            </th>
+                                            <td class="colLast">Stores the passed object.</td>
+                                        </tr>
+                                        
+                                        <tr id="i7" class="rowColor">
+                                            <td class="colFirst"><code>final ImmutableSet&lt;<a href=../type/EventClass.html>EventClass</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProjectionRepository.html#messageClasses()>messageClasses</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains a set of message classes that can be processed by this dispatcher.</td>
+                                        </tr>
+                                        
+                                        <tr id="i8" class="altColor">
+                                            <td class="colFirst"><code>final ImmutableSet&lt;<a href=../type/EventClass.html>EventClass</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProjectionRepository.html#domesticEventClasses()>domesticEventClasses</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains classes of domestic events processed by this dispatcher.</td>
+                                        </tr>
+                                        
+                                        <tr id="i9" class="rowColor">
+                                            <td class="colFirst"><code>final ImmutableSet&lt;<a href=../type/EventClass.html>EventClass</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProjectionRepository.html#externalEventClasses()>externalEventClasses</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains classes of external events processed by this dispatcher.</td>
+                                        </tr>
+                                        
+                                        <tr id="i10" class="altColor">
+                                            <td class="colFirst"><code>final boolean</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProjectionRepository.html#canDispatch(io.spine.server.type.EventEnvelope)>canDispatch</a>(<a href=../type/EventEnvelope.html>EventEnvelope</a> event) </code>
+                                            </th>
+                                            <td class="colLast">Checks if this dispatcher can dispatch the given message.</td>
+                                        </tr>
+                                        
+                                        <tr id="i11" class="rowColor">
+                                            <td class="colFirst"><code>final DispatchOutcome</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProjectionRepository.html#dispatchTo(java.util.Set,io.spine.server.type.EventEnvelope)>dispatchTo</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html>Set</a>&lt;<a href=ProjectionRepository.html>I</a>&gt; ids, <a href=../type/EventEnvelope.html>EventEnvelope</a> event) </code>
+                                            </th>
+                                            <td class="colLast">Dispatches the given event to entities with the given identifiers and returns the dispatch outcome.</td>
+                                        </tr>
+                                        
+                                        <tr id="i12" class="altColor">
+                                            <td class="colFirst"><code><a href=../delivery/CatchUpId.html>CatchUpId</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProjectionRepository.html#catchUp(com.google.protobuf.Timestamp,java.util.Set)>catchUp</a>(Timestamp since, @Nullable() <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html>Set</a>&lt;<a href=ProjectionRepository.html>I</a>&gt; ids) </code>
+                                            </th>
+                                            <td class="colLast">Repeats the dispatching of the events from the event log to the requested entities since the specified time.</td>
+                                        </tr>
+                                        
+                                        <tr id="i13" class="rowColor">
+                                            <td class="colFirst"><code><a href=../delivery/CatchUpId.html>CatchUpId</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProjectionRepository.html#catchUpAll(com.google.protobuf.Timestamp)>catchUpAll</a>(Timestamp since) </code>
+                                            </th>
+                                            <td class="colLast">Starts the catch-up of all entities in this repository.</td>
+                                        </tr>
+                                        
+                                        <tr id="i14" class="altColor">
+                                            <td class="colFirst"><code>void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProjectionRepository.html#close()>close</a>() </code>
+                                            </th>
+                                            <td class="colLast">Closes the repository by closing the underlying storage.</td>
+                                        </tr>
+                                        
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <ul class="blockList">
+                                
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.EventDispatchingRepository">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.EventDispatchingRepository</h3>
+                                            <code>dispatch, route</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.DefaultRecordBasedRepository">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.DefaultRecordBasedRepository</h3>
+                                            <code>entityFactory, storageConverter</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.event.EventDispatcher">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.event.EventDispatcher</h3>
+                                            <code>dispatchesEvents, dispatchesExternalEvents, eventClasses</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.RecordBasedRepository">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.RecordBasedRepository</h3>
+                                            <code>applyMigration, applyMigration, createStorage, find, find, find, findActive, findStates, iterator, loadAll, loadAll, store, toEntity</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.Repository">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.Repository</h3>
+                                            <code>checkStorage, context, createStorage, entityClass, entityStateType, eventFilter, hasContext, idClass, index, isOpen, isRegistered, onRegistered, open, storage, storageAssigned, store</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.QueryableRepository">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.QueryableRepository</h3>
+                                            <code>stateFrom</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.ContextAware">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.ContextAware</h3>
+                                            <code>checkNotRegistered, checkRegistered, unregister</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.Closeable">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.Closeable</h3>
+                                            <code>checkOpen, closeIfOpen</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.logging.WithLogging">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.logging.WithLogging</h3>
+                                            <code>getAtConfig, getAtDebug, getAtError, getAtFine, getAtFiner, getAtFinest, getAtInfo, getAtSevere, getAtTrace, getAtWarning, getLogger, logger</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.java.io.Closeable">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;java.io.Closeable</h3>
+                                            <code>close</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.bus.MessageDispatcher">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.bus.MessageDispatcher</h3>
+                                            <code>dispatch</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+                                        <!--   -->
+                                    </a>
+                                        <h3>Methods inherited from class&nbsp;java.lang.Object</h3>
+                                        <code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString,
+                                            wait, wait, wait</code></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+        <div class="details">
+            <ul class="blockList">
+                <li class="blockList">
+                    <!-- ========= CONSTRUCTOR DETAIL ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Detail</h3>
+                                
+                                <a name="ProjectionRepository()"></a>
+                                <ul class="blockList">
+                                    <li class="blockList">
+                                        <h4>ProjectionRepository</h4>
+                                        <pre>ProjectionRepository()</pre>
+                                        <div class="block"></div>
+                                        
+                                    </li>
+                                </ul>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ============ METHOD DETAIL ========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Method Detail</h3>
+                                
+                                <a id="registerWith(io.spine.server.BoundedContext)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>registerWith</h4>
+                                        <pre class="methodSignature">@OverridingMethodsMustInvokeSuper() void <a href=ProjectionRepository.html#registerWith(io.spine.server.BoundedContext)>registerWith</a>(<a href=../BoundedContext.html>BoundedContext</a> context)</pre>
+                                        <div class="block"><p>Initializes the repository. </p><p>Ensures there is at least one event subscriber method (external or domestic) declared by the class of the projection. Throws an <code>IllegalStateException</code> otherwise. </p><p>If projections of this repository are subscribed to entity state updates, a routing for state updates is created and <a href=ProjectionRepository.html#setupStateRouting(io.spine.server.route.StateUpdateRouting)>configured</a>. If one of the states of entities cannot be routed during the created schema, <code>IllegalStateException</code> will be thrown. </p><p>Initializes the Inboxes for the instances of this repository and creates a RepositoryCache to optimize the delivery of the event batches. </p><p>Creates an instance of the <a href=../delivery/CatchUpProcess.html>CatchUpProcess</a> enabling this repository <a href=ProjectionRepository.html#catchUp(com.google.protobuf.Timestamp,java.util.Set)> to catch-up</a> its instances.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>context</code> - the <code>BoundedContext</code> of this repository</dd>
+                                            
+                                            
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="setupEventRouting(io.spine.server.route.EventRouting)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setupEventRouting</h4>
+                                        <pre class="methodSignature">@OverridingMethodsMustInvokeSuper() void <a href=ProjectionRepository.html#setupEventRouting(io.spine.server.route.EventRouting)>setupEventRouting</a>(<a href=../route/EventRouting.html>EventRouting</a>&lt;<a href=ProjectionRepository.html>I</a>&gt; routing)</pre>
+                                        <div class="block"><p>A callback for derived repository classes to customize routing schema for events. </p><p>Default routing returns the ID of the entity which produced the event. This allows to “link” different kinds of entities by having the same class of IDs. More complex scenarios (e.g., one-to-many relationships) may require custom routing schemas.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>routing</code> - the routing schema to customize</dd>
+                                            
+                                            
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="setupStateRouting(io.spine.server.route.StateUpdateRouting)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setupStateRouting</h4>
+                                        <pre class="methodSignature"> void <a href=ProjectionRepository.html#setupStateRouting(io.spine.server.route.StateUpdateRouting)>setupStateRouting</a>(<a href=../route/StateUpdateRouting.html>StateUpdateRouting</a>&lt;<a href=ProjectionRepository.html>I</a>&gt; routing)</pre>
+                                        <div class="block"><p>A callback for derived repository classes to customize routing schema for delivering updated state to subscribed entities, if the default schema does not satisfy the routing needs.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>routing</code> - the routing to customize</dd>
+                                            
+                                            
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="create(I)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>create</h4>
+                                        <pre class="methodSignature">@OverridingMethodsMustInvokeSuper() <a href=ProjectionRepository.html>P</a> <a href=ProjectionRepository.html#create(I)>create</a>(<a href=ProjectionRepository.html>I</a> id)</pre>
+                                        <div class="block"><p>Create a new entity instance with its default state.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>id</code> - the id of the entity</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>new entity instance</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="recordStorage()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>recordStorage</h4>
+                                        <pre class="methodSignature"> final <a href=../entity/storage/EntityRecordStorage.html>EntityRecordStorage</a>&lt;<a href=ProjectionRepository.html>I</a>, <a href=ProjectionRepository.html>S</a>&gt; <a href=ProjectionRepository.html#recordStorage()>recordStorage</a>()</pre>
+                                        <div class="block"><p>Ensures that the repository has the storage. </p><p>Overrides the parent method to expose it to this package.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="findOrCreate(I)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>findOrCreate</h4>
+                                        <pre class="methodSignature"> final <a href=ProjectionRepository.html>P</a> <a href=ProjectionRepository.html#findOrCreate(I)>findOrCreate</a>(<a href=ProjectionRepository.html>I</a> id)</pre>
+                                        <div class="block"><p>Loads an entity by the passed ID or creates a new one, if the entity was not found. </p><p>An entity will be loaded whether its WithLifecycle#isActive() active or not. </p><p>The new entity is created if and only if there is no record with the corresponding ID. </p><p>Overrides to perform finding using the cache.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="store(P)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>store</h4>
+                                        <pre class="methodSignature"> final void <a href=ProjectionRepository.html#store(P)>store</a>(<a href=ProjectionRepository.html>P</a> entity)</pre>
+                                        <div class="block"><p>Stores the passed object. </p><p>Note: The storage must be assigned before calling this method.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="messageClasses()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>messageClasses</h4>
+                                        <pre class="methodSignature"> final ImmutableSet&lt;<a href=../type/EventClass.html>EventClass</a>&gt; <a href=ProjectionRepository.html#messageClasses()>messageClasses</a>()</pre>
+                                        <div class="block"><p>Obtains a set of message classes that can be processed by this dispatcher.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>non-empty set of message classes</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="domesticEventClasses()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>domesticEventClasses</h4>
+                                        <pre class="methodSignature"> final ImmutableSet&lt;<a href=../type/EventClass.html>EventClass</a>&gt; <a href=ProjectionRepository.html#domesticEventClasses()>domesticEventClasses</a>()</pre>
+                                        <div class="block"><p>Obtains classes of domestic events processed by this dispatcher.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="externalEventClasses()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>externalEventClasses</h4>
+                                        <pre class="methodSignature"> final ImmutableSet&lt;<a href=../type/EventClass.html>EventClass</a>&gt; <a href=ProjectionRepository.html#externalEventClasses()>externalEventClasses</a>()</pre>
+                                        <div class="block"><p>Obtains classes of external events processed by this dispatcher.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="canDispatch(io.spine.server.type.EventEnvelope)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>canDispatch</h4>
+                                        <pre class="methodSignature">@OverridingMethodsMustInvokeSuper() final boolean <a href=ProjectionRepository.html#canDispatch(io.spine.server.type.EventEnvelope)>canDispatch</a>(<a href=../type/EventEnvelope.html>EventEnvelope</a> event)</pre>
+                                        <div class="block"><p>Checks if this dispatcher can dispatch the given message. </p><p>This method does not check that the type of the message is one of the <a href=../delivery/CatchUpProcess.html#messageClasses()>dispatched message classes</a>. Instead, it validates the message upon some custom rules of this dispatcher. </p><p>Extend this method to forbid messages from being dispatched to this instance.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p><code>true</code> is the given message can be dispatched by this dispatcher, <code>false</code> otherwise</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="dispatchTo(java.util.Set,io.spine.server.type.EventEnvelope)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>dispatchTo</h4>
+                                        <pre class="methodSignature"> final DispatchOutcome <a href=ProjectionRepository.html#dispatchTo(java.util.Set,io.spine.server.type.EventEnvelope)>dispatchTo</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html>Set</a>&lt;<a href=ProjectionRepository.html>I</a>&gt; ids, <a href=../type/EventEnvelope.html>EventEnvelope</a> event)</pre>
+                                        <div class="block"><p>Dispatches the given event to entities with the given identifiers and returns the dispatch outcome. </p><p>Sends the given event to the <code>Inbox</code>es of respective entities.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="catchUp(com.google.protobuf.Timestamp,java.util.Set)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>catchUp</h4>
+                                        <pre class="methodSignature"> <a href=../delivery/CatchUpId.html>CatchUpId</a> <a href=ProjectionRepository.html#catchUp(com.google.protobuf.Timestamp,java.util.Set)>catchUp</a>(Timestamp since, @Nullable() <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html>Set</a>&lt;<a href=ProjectionRepository.html>I</a>&gt; ids)</pre>
+                                        <div class="block"><p>Repeats the dispatching of the events from the event log to the requested entities since the specified time. </p><p>At the beginning of the process the state of each of the entities is set to the default. </p><p>During this process, the entities receive continuous updates to their state. After the catch-up is completed, the framework automatically resumes the dispatching of ongoing live events. When the catch-up is completed, a CatchUpCompleted event is emitted. One may use the identifier of the catch-up process and subscribe to the events of this type to understand whether the operation is done. </p><p>The subscriptions to the entity state updates (i.e. EntityStateChanged) events are not supported in the catch-up.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>since</code> - point in the past, since which the catch-up should be performed</dd>
+                                            
+                                            
+                                            
+                                            <dd><code>ids</code> - identifiers of the entities to catch up, <code>null</code> means that all entities should be caught up</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>identifier of the catch-up operation</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="catchUpAll(com.google.protobuf.Timestamp)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>catchUpAll</h4>
+                                        <pre class="methodSignature"> <a href=../delivery/CatchUpId.html>CatchUpId</a> <a href=ProjectionRepository.html#catchUpAll(com.google.protobuf.Timestamp)>catchUpAll</a>(Timestamp since)</pre>
+                                        <div class="block"><p>Starts the catch-up of all entities in this repository. </p><p>This is a shortcut method for <a href=ProjectionRepository.html#catchUp(com.google.protobuf.Timestamp,java.util.Set)>catchUp(since, null)</a>.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>since</code> - point in the past, since which the catch-up should be performed</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>identifier of the catch-up operation</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="close()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockListLast"
+                                          >
+                                    <li class="blockList">
+                                        <h4>close</h4>
+                                        <pre class="methodSignature">@OverridingMethodsMustInvokeSuper() void <a href=ProjectionRepository.html#close()>close</a>()</pre>
+                                        <div class="block"><p>Closes the repository by closing the underlying storage. </p><p>The reference to the storage becomes null after this call.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+    </div>
+</main>
+<footer role="contentinfo">
+    <nav role="navigation">
+        <!-- ======= START OF BOTTOM NAVBAR ====== -->
+        <div class="bottomNav"><a id="navbar.bottom">
+            <!--   -->
+        </a>
+            <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a>
+            </div>
+            <a id="navbar.bottom.firstrow">
+                <!--   -->
+            </a>
+            <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+        <a id="skip.navbar.bottom">
+            <!--   -->
+        </a>
+        <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ======== END OF BOTTOM NAVBAR ======= -->
+    </nav>
+</footer><ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" id="ui-id-1" tabindex="0"
+    style="display: none;"></ul>
+<span role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></span>
+</body>
+</html>

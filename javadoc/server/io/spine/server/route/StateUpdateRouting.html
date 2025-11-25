@@ -1,0 +1,569 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en"><head>
+    <title>StateUpdateRouting 2.0.0-SNAPSHOT.356 API </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="dc.created" content="2020-03-25">
+    <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../dokka-javadoc-stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../jquery/jquery-ui.css" title="Style">
+    <script type="text/javascript" src="../../../../jquery/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-migrate-3.4.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
+
+    <script type="text/javascript" src="../../../../search.js"></script>
+    <script async type="text/javascript" src="../../../../module-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../package-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../type-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../member-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../tag-search-index.js"></script>
+</head><body>
+<script type="text/javascript">
+var pathtoroot = "../../../../";
+</script>
+<noscript>
+    <div>JavaScript is disabled on your browser.</div>
+</noscript><header role="banner">
+    <nav role="navigation">
+        <div class="fixedNav">
+            <!-- ========= START OF TOP NAVBAR ======= -->
+            <div class="topNav"><a id="navbar.top">
+                <!--   -->
+            </a>
+                <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a>
+                </div>
+                <a id="navbar.top.firstrow">
+                    <!--   -->
+                </a>
+                <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+            <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" class="ui-autocomplete-input" autocomplete="off" placeholder="Search">
+<input type="reset" id="reset" value="reset">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ========= END OF TOP NAVBAR ========= -->
+        </div>
+        <div class="navPadding">&nbsp;</div>
+        <script type="text/javascript"><!--
+        $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+        //-->
+        </script>
+    </nav>
+</header>
+
+<main role="main">
+    <div class="header">
+        <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">io.spine.server.route</a></div>
+        <h2 title="Class StateUpdateRouting" class="title">Class StateUpdateRouting</h2>
+    </div>
+    <div class="contentContainer">
+        <!-- <ul class="inheritance">
+            <li>java.lang.Object</li>
+            <li>
+                <ul class="inheritance">
+                    <li>adaptation.Adaptation</li>
+                </ul>
+            </li>
+        </ul> TODO inheritance tree -->
+        <div class="description">
+            <ul class="blockList">
+                <li class="blockList">
+                    
+                    <dl>
+                        <dt>All Implemented Interfaces:</dt>
+                        <dd>
+                            
+                            <code>io.spine.server.route.RouteFn</code>
+                            
+                            
+                        </dd>
+                    </dl>
+                    
+                    <hr>
+                    <pre class="wrap-overflow">
+
+public final class <span class="typeNameLabel"><a href=StateUpdateRouting.html>StateUpdateRouting</a>&lt;I extends <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt;</span>
+extends <a href=MulticastRouting.html>MulticastRouting</a>&lt;<a href=StateUpdateRouting.html>I</a>, EntityState&lt;?&gt;, EventContext, <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-set/index.html>Set</a>&lt;<a href=StateUpdateRouting.html>I</a>&gt;, <a href=StateUpdateRouting.html>StateUpdateRouting</a>&lt;<a href=StateUpdateRouting.html>I</a>&gt;&gt;
+                    </pre>
+                    <div class="block"><p>A <a href=MessageRouting.html>routing schema</a> designed for delivering entity state updates.</p><p>Entities sometimes require updates based on the state of other entities. For instance, a summary report might need to aggregate information from several detailed reports. While subscribing to the same events as those used for detailed reports is an option, it often results in duplicated or near-identical code.</p><p>A more efficient approach is to subscribe to messages that are subclasses of EntityState.</p><p>By default, the entity state route selects the value of the first field whose type matches the type parameter <a href=StateUpdateRouting.html>I</a> of the target entities. This behavior can be customized by using the replaceDefault function.</p><p>Like <a href=EventRouting.html>EventRouting</a>, entity state routes support <a href=Multicast.html>multicast</a> delivery. Custom routes that deliver an entity state to multiple entities can be defined using the route functions, which accept implementations of the <a href=StateUpdateRoute.html>StateUpdateRoute</a> functional interface.</p><p>For cases where an entity state should be routed to a single target, use the unicast functions.</p></div>
+
+                    <dl>
+
+                    
+
+                    
+
+                    </dl>
+                </li>
+            </ul>
+        </div>
+        <div class="summary">
+            <ul class="blockList">
+                <li class="blockList">
+                <!-- ======== NESTED CLASS SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="nested.class.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Nested Class Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Class</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== FIELD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="field.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Field Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Field</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tbody>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Constructor</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+
+                                        
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== ENUM CONSTANT SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="enum.constant.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Enum Constant Summary</h3>
+                                <table class="memberSummary">
+                                    <caption><span>Enum Constants</span><span class="tabEnd">&nbsp;</span></caption>
+                                    <tr>
+                                        <th class="colFirst" scope="col">Enum Constant</th>
+                                        <th class="colLast" scope="col">Description</th>
+                                    </tr>
+                                    
+                                </table>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ========== METHOD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Method Summary</h3>
+                                <div class="memberSummary">
+                                    <div role="tablist" aria-orientation="horizontal">
+                                        <button role="tab" aria-selected="true" aria-controls="memberSummary_tabpanel" tabindex="0" onkeydown="switchTab(event)" id="t0" class="activeTableTab">All Methods</button>
+                                        <!-- TODO: Instance and Concrete Methods #1118 -->
+                                    </div>
+                                    <div id="memberSummary_tabpanel" role="tabpanel">
+                                    <table aria-labelledby="t0">
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Method</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                        <tr id="i0" class="altColor">
+                                            <td class="colFirst"><code><a href=StateUpdateRouting.html>StateUpdateRouting</a>&lt;<a href=StateUpdateRouting.html>I</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=StateUpdateRouting.html#self()>self</a>() </code>
+                                            </th>
+                                            <td class="colLast">Provides the type reference to <code>this</code> for covariance of the type returned by <a href=StateUpdateRouting.html#route(io.spine.server.route.RouteFn)>route</a> functions.</td>
+                                        </tr>
+                                        
+                                        <tr id="i1" class="rowColor">
+                                            <td class="colFirst"><code>&lt;E extends EntityState&lt;?&gt;&gt; <a href=StateUpdateRoute.html>StateUpdateRoute</a>&lt;<a href=StateUpdateRouting.html>I</a>, <a href=StateUpdateRouting.html#createUnicastRoute(kotlin.jvm.functions.Function2)>E</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=StateUpdateRouting.html#createUnicastRoute(kotlin.jvm.functions.Function2)>createUnicastRoute</a>(Function2&lt;<a href=StateUpdateRouting.html#createUnicastRoute(kotlin.jvm.functions.Function2)>E</a>, EventContext, <a href=StateUpdateRouting.html>I</a>&gt; via) </code>
+                                            </th>
+                                            <td class="colLast">Adapts the function with two parameters to <a href=RouteFn.html>RouteFn</a> instance of the type used by the descendant of this class.</td>
+                                        </tr>
+                                        
+                                        <tr id="i2" class="altColor">
+                                            <td class="colFirst"><code>&lt;E extends EntityState&lt;?&gt;&gt; <a href=StateUpdateRoute.html>StateUpdateRoute</a>&lt;<a href=StateUpdateRouting.html>I</a>, <a href=StateUpdateRouting.html#createUnicastRoute(kotlin.jvm.functions.Function1)>E</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=StateUpdateRouting.html#createUnicastRoute(kotlin.jvm.functions.Function1)>createUnicastRoute</a>(Function1&lt;<a href=StateUpdateRouting.html#createUnicastRoute(kotlin.jvm.functions.Function1)>E</a>, <a href=StateUpdateRouting.html>I</a>&gt; via) </code>
+                                            </th>
+                                            <td class="colLast">Adapt the single parameter function to <a href=RouteFn.html>RouteFn</a> instance of the type used by the descendant of this class.</td>
+                                        </tr>
+                                        
+                                        <tr id="i3" class="rowColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=StateUpdateRouting.html#supports(java.lang.Class)>supports</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;out EntityState&lt;?&gt;&gt; messageType) </code>
+                                            </th>
+                                            <td class="colLast">Verifies if the passed state type can be routed by a custom route, or the message has a field matching the type of identifiers served by this routing.</td>
+                                        </tr>
+                                        
+                                        <tr id="i4" class="altColor">
+                                            <td class="colFirst"><code>final <a href=EventRoute.html>EventRoute</a>&lt;<a href=StateUpdateRouting.html>I</a>, EntityStateChanged&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=StateUpdateRouting.html#eventRoute()>eventRoute</a>() </code>
+                                            </th>
+                                            <td class="colLast">Creates an <a href=EventRoute.html>EventRoute</a> for EntityStateChanged events based on this routing.</td>
+                                        </tr>
+                                        
+                                        <tr id="i5" class="rowColor">
+                                            <td class="colFirst"><code>final static &lt;I extends <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html>Any</a>&gt; <a href=StateUpdateRouting.html>StateUpdateRouting</a>&lt;<a href=StateUpdateRouting.html#newInstance(java.lang.Class)>I</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=StateUpdateRouting.html#newInstance(java.lang.Class)>newInstance</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;<a href=StateUpdateRouting.html#newInstance(java.lang.Class)>I</a>&gt; idClass) </code>
+                                            </th>
+                                            <td class="colLast">Creates a new <code>StateUpdateRouting</code>.</td>
+                                        </tr>
+                                        
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <ul class="blockList">
+                                
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.route.MulticastRouting">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.route.MulticastRouting</h3>
+                                            <code>unicast, unicast, unicast, unicast</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.route.MessageRouting">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.route.MessageRouting</h3>
+                                            <code>defaultRoute, find, invoke, remove, remove, replaceDefault, route, route, route</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+                                        <!--   -->
+                                    </a>
+                                        <h3>Methods inherited from class&nbsp;java.lang.Object</h3>
+                                        <code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString,
+                                            wait, wait, wait</code></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+        <div class="details">
+            <ul class="blockList">
+                <li class="blockList">
+                    <!-- ========= CONSTRUCTOR DETAIL ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Detail</h3>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ============ METHOD DETAIL ========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Method Detail</h3>
+                                
+                                <a id="self()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>self</h4>
+                                        <pre class="methodSignature"> <a href=StateUpdateRouting.html>StateUpdateRouting</a>&lt;<a href=StateUpdateRouting.html>I</a>&gt; <a href=StateUpdateRouting.html#self()>self</a>()</pre>
+                                        <div class="block"><p>Provides the type reference to <code>this</code> for covariance of the type returned by <a href=StateUpdateRouting.html#route(io.spine.server.route.RouteFn)>route</a> functions.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="createUnicastRoute(kotlin.jvm.functions.Function2)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>createUnicastRoute</h4>
+                                        <pre class="methodSignature"> &lt;E extends EntityState&lt;?&gt;&gt; <a href=StateUpdateRoute.html>StateUpdateRoute</a>&lt;<a href=StateUpdateRouting.html>I</a>, <a href=StateUpdateRouting.html#createUnicastRoute(kotlin.jvm.functions.Function2)>E</a>&gt; <a href=StateUpdateRouting.html#createUnicastRoute(kotlin.jvm.functions.Function2)>createUnicastRoute</a>(Function2&lt;<a href=StateUpdateRouting.html#createUnicastRoute(kotlin.jvm.functions.Function2)>E</a>, EventContext, <a href=StateUpdateRouting.html>I</a>&gt; via)</pre>
+                                        <div class="block"><p>Adapts the function with two parameters to <a href=RouteFn.html>RouteFn</a> instance of the type used by the descendant of this class.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="createUnicastRoute(kotlin.jvm.functions.Function1)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>createUnicastRoute</h4>
+                                        <pre class="methodSignature"> &lt;E extends EntityState&lt;?&gt;&gt; <a href=StateUpdateRoute.html>StateUpdateRoute</a>&lt;<a href=StateUpdateRouting.html>I</a>, <a href=StateUpdateRouting.html#createUnicastRoute(kotlin.jvm.functions.Function1)>E</a>&gt; <a href=StateUpdateRouting.html#createUnicastRoute(kotlin.jvm.functions.Function1)>createUnicastRoute</a>(Function1&lt;<a href=StateUpdateRouting.html#createUnicastRoute(kotlin.jvm.functions.Function1)>E</a>, <a href=StateUpdateRouting.html>I</a>&gt; via)</pre>
+                                        <div class="block"><p>Adapt the single parameter function to <a href=RouteFn.html>RouteFn</a> instance of the type used by the descendant of this class.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="supports(java.lang.Class)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>supports</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a> <a href=StateUpdateRouting.html#supports(java.lang.Class)>supports</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;out EntityState&lt;?&gt;&gt; messageType)</pre>
+                                        <div class="block"><p>Verifies if the passed state type can be routed by a custom route, or the message has a field matching the type of identifiers served by this routing.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="eventRoute()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>eventRoute</h4>
+                                        <pre class="methodSignature"> final <a href=EventRoute.html>EventRoute</a>&lt;<a href=StateUpdateRouting.html>I</a>, EntityStateChanged&gt; <a href=StateUpdateRouting.html#eventRoute()>eventRoute</a>()</pre>
+                                        <div class="block"><p>Creates an <a href=EventRoute.html>EventRoute</a> for EntityStateChanged events based on this routing.</p><p>The entity state is extracted from the event and passed to this routing schema.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>event route for EntityStateChanged events.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="newInstance(java.lang.Class)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockListLast"
+                                          >
+                                    <li class="blockList">
+                                        <h4>newInstance</h4>
+                                        <pre class="methodSignature"> final static &lt;I extends <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html>Any</a>&gt; <a href=StateUpdateRouting.html>StateUpdateRouting</a>&lt;<a href=StateUpdateRouting.html#newInstance(java.lang.Class)>I</a>&gt; <a href=StateUpdateRouting.html#newInstance(java.lang.Class)>newInstance</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;<a href=StateUpdateRouting.html#newInstance(java.lang.Class)>I</a>&gt; idClass)</pre>
+                                        <div class="block"><p>Creates a new <code>StateUpdateRouting</code>.</p><p>The resulting routing schema has the ignoring default route, i.e., if a custom route is not set, the entity state update is ignored.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>idClass</code> - The class of identifiers served by this routing.</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>new <code>StateUpdateRouting</code>.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+    </div>
+</main>
+<footer role="contentinfo">
+    <nav role="navigation">
+        <!-- ======= START OF BOTTOM NAVBAR ====== -->
+        <div class="bottomNav"><a id="navbar.bottom">
+            <!--   -->
+        </a>
+            <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a>
+            </div>
+            <a id="navbar.bottom.firstrow">
+                <!--   -->
+            </a>
+            <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+        <a id="skip.navbar.bottom">
+            <!--   -->
+        </a>
+        <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ======== END OF BOTTOM NAVBAR ======= -->
+    </nav>
+</footer><ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" id="ui-id-1" tabindex="0"
+    style="display: none;"></ul>
+<span role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></span>
+</body>
+</html>

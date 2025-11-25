@@ -1,0 +1,762 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en"><head>
+    <title>ProcessManager 2.0.0-SNAPSHOT.356 API </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="dc.created" content="2020-03-25">
+    <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../dokka-javadoc-stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../jquery/jquery-ui.css" title="Style">
+    <script type="text/javascript" src="../../../../jquery/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-migrate-3.4.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
+
+    <script type="text/javascript" src="../../../../search.js"></script>
+    <script async type="text/javascript" src="../../../../module-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../package-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../type-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../member-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../tag-search-index.js"></script>
+</head><body>
+<script type="text/javascript">
+var pathtoroot = "../../../../";
+</script>
+<noscript>
+    <div>JavaScript is disabled on your browser.</div>
+</noscript><header role="banner">
+    <nav role="navigation">
+        <div class="fixedNav">
+            <!-- ========= START OF TOP NAVBAR ======= -->
+            <div class="topNav"><a id="navbar.top">
+                <!--   -->
+            </a>
+                <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a>
+                </div>
+                <a id="navbar.top.firstrow">
+                    <!--   -->
+                </a>
+                <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+            <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" class="ui-autocomplete-input" autocomplete="off" placeholder="Search">
+<input type="reset" id="reset" value="reset">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ========= END OF TOP NAVBAR ========= -->
+        </div>
+        <div class="navPadding">&nbsp;</div>
+        <script type="text/javascript"><!--
+        $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+        //-->
+        </script>
+    </nav>
+</header>
+
+<main role="main">
+    <div class="header">
+        <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">io.spine.server.procman</a></div>
+        <h2 title="Class ProcessManager" class="title">Class ProcessManager</h2>
+    </div>
+    <div class="contentContainer">
+        <!-- <ul class="inheritance">
+            <li>java.lang.Object</li>
+            <li>
+                <ul class="inheritance">
+                    <li>adaptation.Adaptation</li>
+                </ul>
+            </li>
+        </ul> TODO inheritance tree -->
+        <div class="description">
+            <ul class="blockList">
+                <li class="blockList">
+                    
+                    <dl>
+                        <dt>All Implemented Interfaces:</dt>
+                        <dd>
+                            
+                            <code>io.spine.logging.WithLogging</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.EventProducer</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.command.Assignee</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.command.CommandReceiver</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.command.Commander</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.entity.Entity</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.entity.HasLifecycleColumns</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.entity.HasVersionColumn</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.entity.WithLifecycle</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.event.EventReactor</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.event.EventReceiver</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.log.ReceptorLifecycle</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.query.Querying</code>
+                            
+                            
+                        </dd>
+                    </dl>
+                    
+                    <hr>
+                    <pre class="wrap-overflow">
+
+public abstract class <span class="typeNameLabel"><a href=ProcessManager.html>ProcessManager</a>&lt;I, S extends ProcessManagerState&lt;<a href=ProcessManager.html>I</a>&gt;, B extends ValidatingBuilder&lt;<a href=ProcessManager.html>S</a>&gt;&gt;</span>
+extends <a href=../command/AssigneeEntity.html>AssigneeEntity</a>&lt;<a href=ProcessManager.html>I</a>, <a href=ProcessManager.html>S</a>, <a href=ProcessManager.html>B</a>&gt; implements <a href=../event/EventReactor.html>EventReactor</a>, <a href=../command/Commander.html>Commander</a>, HasVersionColumn&lt;<a href=ProcessManager.html>I</a>, <a href=ProcessManager.html>S</a>&gt;, HasLifecycleColumns&lt;<a href=ProcessManager.html>I</a>, <a href=ProcessManager.html>S</a>&gt;, <a href=../query/Querying.html>Querying</a>, WithLogging
+                    </pre>
+                    <div class="block"><p>A central processing unit used to maintain the state of the business process and determine the next processing step based on intermediate results. </p><p>A process manager reacts to domain events in a cross-aggregate, eventually consistent manner. </p><p>Event- and command-handling methods are invoked by the <a href=ProcessManagerRepository.html>ProcessManagerRepository</a> that manages instances of a process manager class. </p><p>For more information on Process Managers, please see: </p><ul><li><a href=http://www.enterpriseintegrationpatterns.com/patterns/messaging/ProcessManager.html> Process Manager Pattern</a></li><li><a href=http://web.archive.org/web/20161205130022/http://kellabyte.com/2012/05/30/clarifying-the-saga-pattern/.html> Clarifying the Saga pattern</a> — the difference between Process Manager and Saga </li><li><a href=https://dzone.com/articles/are-sagas-and-workflows-same-t.html> Are Sagas and Workflows the same...</a></li><li><a href=https://msdn.microsoft.com/en-us/library/jj591569.aspx.html> CQRS Journey Guide: A Saga on Sagas</a></li></ul></div>
+
+                    <dl>
+
+                    
+
+                    
+
+                    </dl>
+                </li>
+            </ul>
+        </div>
+        <div class="summary">
+            <ul class="blockList">
+                <li class="blockList">
+                <!-- ======== NESTED CLASS SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="nested.class.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Nested Class Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Class</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== FIELD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="field.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Field Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Field</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>public  volatile <a href=../entity/LifecycleFlags.html>LifecycleFlags</a></code></td>
+                                            <th class="colSecond" scope="row"><code><a href=../projection/Projection.html#lifecycleFlags>lifecycleFlags</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tbody>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Constructor</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+
+                                        
+                                            <tr class="altColor">
+                                                <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a
+                                                        href="#ProcessManager()">ProcessManager</a></span>()</code></th>
+                                                <td class="colLast">Creates a new instance.</td>
+                                            </tr>
+                                        
+                                            <tr class="rowColor">
+                                                <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a
+                                                        href="#ProcessManager(I)">ProcessManager</a></span>(<a href=ProcessManager.html>I</a> id)</code></th>
+                                                <td class="colLast">Creates a new instance.</td>
+                                            </tr>
+                                        
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== ENUM CONSTANT SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="enum.constant.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Enum Constant Summary</h3>
+                                <table class="memberSummary">
+                                    <caption><span>Enum Constants</span><span class="tabEnd">&nbsp;</span></caption>
+                                    <tr>
+                                        <th class="colFirst" scope="col">Enum Constant</th>
+                                        <th class="colLast" scope="col">Description</th>
+                                    </tr>
+                                    
+                                </table>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ========== METHOD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Method Summary</h3>
+                                <div class="memberSummary">
+                                    <div role="tablist" aria-orientation="horizontal">
+                                        <button role="tab" aria-selected="true" aria-controls="memberSummary_tabpanel" tabindex="0" onkeydown="switchTab(event)" id="t0" class="activeTableTab">All Methods</button>
+                                        <!-- TODO: Instance and Concrete Methods #1118 -->
+                                    </div>
+                                    <div id="memberSummary_tabpanel" role="tabpanel">
+                                    <table aria-labelledby="t0">
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Method</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                        <tr id="i0" class="altColor">
+                                            <td class="colFirst"><code>&lt;P extends EntityState&lt;out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt;&gt; <a href=../query/QueryingClient.html>QueryingClient</a>&lt;<a href=ProcessManager.html#select(java.lang.Class)>P</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManager.html#select(java.lang.Class)>select</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;<a href=ProcessManager.html#select(java.lang.Class)>P</a>&gt; type) </code>
+                                            </th>
+                                            <td class="colLast">Returns a new instance of <a href=../query/QueryingClient.html>QueryingClient</a> for querying the state of entities of the specified type.</td>
+                                        </tr>
+                                        
+                                        <tr id="i1" class="rowColor">
+                                            <td class="colFirst"><code><a href=model/ProcessManagerClass.html>ProcessManagerClass</a>&lt;out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManager.html#thisClass()>thisClass</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains model class for this entity.</td>
+                                        </tr>
+                                        
+                                        <tr id="i2" class="altColor">
+                                            <td class="colFirst"><code>ImmutableSet&lt;<a href=../type/EventClass.html>EventClass</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManager.html#producedEvents()>producedEvents</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains classes of the events produced by this object.</td>
+                                        </tr>
+                                        
+                                        <tr id="i3" class="rowColor">
+                                            <td class="colFirst"><code>final <a href=ProcessManager.html>B</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManager.html#builder()>builder</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains the instance of the state builder.</td>
+                                        </tr>
+                                        
+                                        <tr id="i4" class="altColor">
+                                            <td class="colFirst"><code>Transaction&lt;<a href=ProcessManager.html>I</a>, out <a href=../entity/TransactionalEntity.html>TransactionalEntity</a>&lt;<a href=ProcessManager.html>I</a>, <a href=ProcessManager.html>S</a>, <a href=ProcessManager.html>B</a>&gt;, <a href=ProcessManager.html>S</a>, <a href=ProcessManager.html>B</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManager.html#tx()>tx</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains the transaction used for modifying the entity.</td>
+                                        </tr>
+                                        
+                                        <tr id="i5" class="rowColor">
+                                            <td class="colFirst"><code>DispatchOutcome</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManager.html#dispatchCommand(io.spine.server.type.CommandEnvelope)>dispatchCommand</a>(<a href=../type/CommandEnvelope.html>CommandEnvelope</a> command) </code>
+                                            </th>
+                                            <td class="colLast">Dispatches the command to the handling method.</td>
+                                        </tr>
+                                        
+                                        <tr id="i6" class="altColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManager.html#missingTxMessage()>missingTxMessage</a>() </code>
+                                            </th>
+                                            <td class="colLast">Provides error message text for the case of not having an active transaction when a state modification call is made.</td>
+                                        </tr>
+                                        
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <ul class="blockList">
+                                
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.TransactionalEntity">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.TransactionalEntity</h3>
+                                            <code>appendToRecentHistory, clearRecentHistory, getLifecycleFlags, onBeforeCommit, recentHistory, setArchived, setDeleted, setInitialState</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.command.AssigneeEntity">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.command.AssigneeEntity</h3>
+                                            <code>expectedDefault, expectedEmpty, expectedNotDefault, expectedNotDefault, expectedNotEmpty, producerId, unexpectedValue, unexpectedValue</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.command.Commander">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.command.Commander</h3>
+                                            <code>doNothing</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.HasVersionColumn">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.HasVersionColumn</h3>
+                                            <code>getVersion</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.HasLifecycleColumns">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.HasLifecycleColumns</h3>
+                                            <code>getArchived, getDeleted</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.logging.WithLogging">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.logging.WithLogging</h3>
+                                            <code>getAtConfig, getAtDebug, getAtError, getAtFine, getAtFiner, getAtFinest, getAtInfo, getAtSevere, getAtTrace, getAtWarning, getLogger, logger</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.AbstractEntity">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.AbstractEntity</h3>
+                                            <code>afterInvoke, beforeInvoke, checkEntityState, checkNotArchived, checkNotDeleted, defaultState, equals, hashCode, id, idAsString, isArchived, isDeleted, lifecycleFlagsChanged, state, toString, version, versionNumber, whenModified</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.log.ReceptorLifecycle">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.log.ReceptorLifecycle</h3>
+                                            <code>afterInvoke, beforeInvoke</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.WithLifecycle">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.WithLifecycle</h3>
+                                            <code>isActive, lifecycleFlags</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.EventProducer">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.EventProducer</h3>
+                                            <code>noReaction, nothing</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+                                        <!--   -->
+                                    </a>
+                                        <h3>Methods inherited from class&nbsp;java.lang.Object</h3>
+                                        <code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString,
+                                            wait, wait, wait</code></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+        <div class="details">
+            <ul class="blockList">
+                <li class="blockList">
+                    <!-- ========= CONSTRUCTOR DETAIL ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Detail</h3>
+                                
+                                <a name="ProcessManager()"></a>
+                                <ul class="blockList">
+                                    <li class="blockList">
+                                        <h4>ProcessManager</h4>
+                                        <pre>ProcessManager()</pre>
+                                        <div class="block"><p>Creates a new instance.</p></div>
+                                        
+                                    </li>
+                                </ul>
+                                
+                                <a name="ProcessManager(I)"></a>
+                                <ul class="blockList">
+                                    <li class="blockList">
+                                        <h4>ProcessManager</h4>
+                                        <pre>ProcessManager(<a href=ProcessManager.html>I</a> id)</pre>
+                                        <div class="block"><p>Creates a new instance.</p></div>
+                                        
+                                        <dl>
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>id</code> - an ID for the new instance</dd>
+                                            
+                                            
+                                        </dl>
+                                        
+                                    </li>
+                                </ul>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ============ METHOD DETAIL ========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Method Detail</h3>
+                                
+                                <a id="select(java.lang.Class)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>select</h4>
+                                        <pre class="methodSignature"> &lt;P extends EntityState&lt;out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt;&gt; <a href=../query/QueryingClient.html>QueryingClient</a>&lt;<a href=ProcessManager.html#select(java.lang.Class)>P</a>&gt; <a href=ProcessManager.html#select(java.lang.Class)>select</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;<a href=ProcessManager.html#select(java.lang.Class)>P</a>&gt; type)</pre>
+                                        <div class="block"><p>Returns a new instance of <a href=../query/QueryingClient.html>QueryingClient</a> for querying the state of entities of the specified type.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>type</code> - the entity state type</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>a new instance of <code>QueryingClient</code></p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="thisClass()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>thisClass</h4>
+                                        <pre class="methodSignature"> <a href=model/ProcessManagerClass.html>ProcessManagerClass</a>&lt;out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt; <a href=ProcessManager.html#thisClass()>thisClass</a>()</pre>
+                                        <div class="block"><p>Obtains model class for this entity.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="producedEvents()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>producedEvents</h4>
+                                        <pre class="methodSignature"> ImmutableSet&lt;<a href=../type/EventClass.html>EventClass</a>&gt; <a href=ProcessManager.html#producedEvents()>producedEvents</a>()</pre>
+                                        <div class="block"><p>Obtains classes of the events produced by this object.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="builder()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>builder</h4>
+                                        <pre class="methodSignature">@VisibleForTesting() final <a href=ProcessManager.html>B</a> <a href=ProcessManager.html#builder()>builder</a>()</pre>
+                                        <div class="block"><p>Obtains the instance of the state builder. </p><p>This method must be called only from within an active transaction. </p><p>In <code>ProcessManager</code>, this method must be called from an event reactor, a rejection reactor, or a command assignee.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="tx()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>tx</h4>
+                                        <pre class="methodSignature"> Transaction&lt;<a href=ProcessManager.html>I</a>, out <a href=../entity/TransactionalEntity.html>TransactionalEntity</a>&lt;<a href=ProcessManager.html>I</a>, <a href=ProcessManager.html>S</a>, <a href=ProcessManager.html>B</a>&gt;, <a href=ProcessManager.html>S</a>, <a href=ProcessManager.html>B</a>&gt; <a href=ProcessManager.html#tx()>tx</a>()</pre>
+                                        <div class="block"><p>Obtains the transaction used for modifying the entity. </p><p>The method is overridden to be accessible from the <code>procman</code> package.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="dispatchCommand(io.spine.server.type.CommandEnvelope)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>dispatchCommand</h4>
+                                        <pre class="methodSignature"> DispatchOutcome <a href=ProcessManager.html#dispatchCommand(io.spine.server.type.CommandEnvelope)>dispatchCommand</a>(<a href=../type/CommandEnvelope.html>CommandEnvelope</a> command)</pre>
+                                        <div class="block"><p>Dispatches the command to the handling method.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>command</code> - the envelope with the command to dispatch</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>the list of events generated as the result of handling the command, if the process manager handles the event. Empty list, if the process manager substitutes the command</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="missingTxMessage()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockListLast"
+                                          >
+                                    <li class="blockList">
+                                        <h4>missingTxMessage</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> <a href=ProcessManager.html#missingTxMessage()>missingTxMessage</a>()</pre>
+                                        <div class="block"><p>Provides error message text for the case of not having an active transaction when a state modification call is made.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+    </div>
+</main>
+<footer role="contentinfo">
+    <nav role="navigation">
+        <!-- ======= START OF BOTTOM NAVBAR ====== -->
+        <div class="bottomNav"><a id="navbar.bottom">
+            <!--   -->
+        </a>
+            <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a>
+            </div>
+            <a id="navbar.bottom.firstrow">
+                <!--   -->
+            </a>
+            <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+        <a id="skip.navbar.bottom">
+            <!--   -->
+        </a>
+        <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ======== END OF BOTTOM NAVBAR ======= -->
+    </nav>
+</footer><ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" id="ui-id-1" tabindex="0"
+    style="display: none;"></ul>
+<span role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></span>
+</body>
+</html>

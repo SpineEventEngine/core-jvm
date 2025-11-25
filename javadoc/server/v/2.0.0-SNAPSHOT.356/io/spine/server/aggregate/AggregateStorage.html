@@ -1,0 +1,941 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en"><head>
+    <title>AggregateStorage 2.0.0-SNAPSHOT.356 API </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="dc.created" content="2020-03-25">
+    <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../dokka-javadoc-stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../jquery/jquery-ui.css" title="Style">
+    <script type="text/javascript" src="../../../../jquery/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-migrate-3.4.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
+
+    <script type="text/javascript" src="../../../../search.js"></script>
+    <script async type="text/javascript" src="../../../../module-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../package-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../type-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../member-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../tag-search-index.js"></script>
+</head><body>
+<script type="text/javascript">
+var pathtoroot = "../../../../";
+</script>
+<noscript>
+    <div>JavaScript is disabled on your browser.</div>
+</noscript><header role="banner">
+    <nav role="navigation">
+        <div class="fixedNav">
+            <!-- ========= START OF TOP NAVBAR ======= -->
+            <div class="topNav"><a id="navbar.top">
+                <!--   -->
+            </a>
+                <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a>
+                </div>
+                <a id="navbar.top.firstrow">
+                    <!--   -->
+                </a>
+                <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+            <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" class="ui-autocomplete-input" autocomplete="off" placeholder="Search">
+<input type="reset" id="reset" value="reset">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ========= END OF TOP NAVBAR ========= -->
+        </div>
+        <div class="navPadding">&nbsp;</div>
+        <script type="text/javascript"><!--
+        $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+        //-->
+        </script>
+    </nav>
+</header>
+
+<main role="main">
+    <div class="header">
+        <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">io.spine.server.aggregate</a></div>
+        <h2 title="Class AggregateStorage" class="title">Class AggregateStorage</h2>
+    </div>
+    <div class="contentContainer">
+        <!-- <ul class="inheritance">
+            <li>java.lang.Object</li>
+            <li>
+                <ul class="inheritance">
+                    <li>adaptation.Adaptation</li>
+                </ul>
+            </li>
+        </ul> TODO inheritance tree -->
+        <div class="description">
+            <ul class="blockList">
+                <li class="blockList">
+                    
+                    <dl>
+                        <dt>All Implemented Interfaces:</dt>
+                        <dd>
+                            
+                            <code>io.spine.server.Closeable</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.storage.Storage</code>
+                            
+                            ,
+                            
+                            
+                            <code>java.io.Closeable</code>
+                            
+                            ,
+                            
+                            
+                            <code>java.lang.AutoCloseable</code>
+                            
+                            
+                        </dd>
+                    </dl>
+                    
+                    <hr>
+                    <pre class="wrap-overflow">
+@SPI() 
+public class <span class="typeNameLabel"><a href=AggregateStorage.html>AggregateStorage</a>&lt;I, S extends AggregateState&lt;<a href=AggregateStorage.html>I</a>&gt;&gt;</span>
+extends <a href=../storage/AbstractStorage.html>AbstractStorage</a>&lt;<a href=AggregateStorage.html>I</a>, <a href=AggregateHistory.html>AggregateHistory</a>&gt;
+                    </pre>
+                    <div class="block"><p>A storage of aggregate events, snapshots and the most recent aggregate states. </p><p>The instances of this type solve two problems. </p><ul><li>efficient loading of an Aggregate instance from its events; </li><li>storing the latest state of an Aggregate along with its lifecycle flags to allow its further querying. </li></ul><p>Each Aggregate is an event-sourced Entity. To load an Aggregate instance, one plays all the events emitted by it, eventually obtaining the last known state. While the Event Store of a Bounded Context, to which some Aggregate belongs, stores all domain events, using it for the sake of loading an Aggregate is inefficient in most cases. An overwhelming number of the domain events emitted in a Bounded Context and the restrictions applied by an underlying storage tools make searching for the events of a particular Aggregate a difficult task, given that the events are constantly being appended to the respective Event Store. </p><p>This storage duplicates a portion of events emitted by the Aggregates of a certain type. It dramatically narrows down the number of storage records to traverse when loading. Additionally, this storage is responsible for storing the intermediate snapshots of Aggregate states, incorporating them into an optimized loading routines. The history of an Aggregate is being read from the most recent event till its most recent snapshot, which reduces the I/O between the underlying storage and application even more and enhances the overall system performance. </p><p>In order to store events and snapshots, an intermediate <a href=AggregateEventStorage.html>AggregateEventStorage</a> is created. It persists data as Protobuf message records in its pre-configured <a href=../storage/RecordStorage.html>RecordStorage</a>. </p><p>End-users of the framework are able to set the visibility level for each Aggregate state by using an (entity).visibility option in the Protobuf message corresponding to the Aggregate state. For those Aggregates which are visible, the framework routines enable this storage to persist the latest states of Aggregates and allow their further <a href=AggregateStorage.html#readStates(io.spine.client.TargetFilters,io.spine.client.ResponseFormat)>querying</a>. To some extent, it makes this storage a part of an application's read-side. </p><p>Similar to storages of other Entity types, <code>AggregateStorage</code> supports querying the Aggregate states by the values of their declared entity columns. See <code>io.spine.query</code> package docs for more details on the query language. </p><p>However, even if the Aggregate visibility is set to NONE, the storage still persists the essential bits of Aggregate as-an-Entity. Namely, its identifier, its lifecycle flags and version. Such a behavior allows to speed up the execution of calls such as <a href=AggregateStorage.html#index()>obtaining an index</a> of Aggregate identifiers, which otherwise would involve major scans of event storage, with <code>DISTINCT</code> group operation applied. </p><p>As long as the Aggregate states are no different in their persistence from other Entities, the <code>AggregateStorage</code> uses an intermediate <a href=../entity/storage/EntityRecordStorage.html>EntityRecordStorage</a> by delegating all state-related operations to it.</p></div>
+
+                    <dl>
+
+                    
+
+                    
+
+                    </dl>
+                </li>
+            </ul>
+        </div>
+        <div class="summary">
+            <ul class="blockList">
+                <li class="blockList">
+                <!-- ======== NESTED CLASS SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="nested.class.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Nested Class Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Class</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== FIELD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="field.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Field Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Field</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tbody>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Constructor</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+
+                                        
+                                            <tr class="altColor">
+                                                <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a
+                                                        href="#AggregateStorage(io.spine.server.ContextSpec,java.lang.Class,io.spine.server.storage.StorageFactory)">AggregateStorage</a></span>(<a href=../ContextSpec.html>ContextSpec</a> context, <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;out <a href=Aggregate.html>Aggregate</a>&lt;<a href=AggregateStorage.html>I</a>, <a href=AggregateStorage.html>S</a>, out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt;&gt; aggregateClass, <a href=../storage/StorageFactory.html>StorageFactory</a> factory)</code></th>
+                                                <td class="colLast">Creates an instance of the storage for a certain aggregate class registered in a specific context.</td>
+                                            </tr>
+                                        
+                                            <tr class="rowColor">
+                                                <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a
+                                                        href="#AggregateStorage(io.spine.server.aggregate.AggregateStorage)">AggregateStorage</a></span>(<a href=AggregateStorage.html>AggregateStorage</a>&lt;<a href=AggregateStorage.html>I</a>, <a href=AggregateStorage.html>S</a>&gt; delegate)</code></th>
+                                                <td class="colLast"></td>
+                                            </tr>
+                                        
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== ENUM CONSTANT SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="enum.constant.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Enum Constant Summary</h3>
+                                <table class="memberSummary">
+                                    <caption><span>Enum Constants</span><span class="tabEnd">&nbsp;</span></caption>
+                                    <tr>
+                                        <th class="colFirst" scope="col">Enum Constant</th>
+                                        <th class="colLast" scope="col">Description</th>
+                                    </tr>
+                                    
+                                </table>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ========== METHOD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Method Summary</h3>
+                                <div class="memberSummary">
+                                    <div role="tablist" aria-orientation="horizontal">
+                                        <button role="tab" aria-selected="true" aria-controls="memberSummary_tabpanel" tabindex="0" onkeydown="switchTab(event)" id="t0" class="activeTableTab">All Methods</button>
+                                        <!-- TODO: Instance and Concrete Methods #1118 -->
+                                    </div>
+                                    <div id="memberSummary_tabpanel" role="tabpanel">
+                                    <table aria-labelledby="t0">
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Method</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                        <tr id="i0" class="altColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Iterator.html>Iterator</a>&lt;<a href=AggregateStorage.html>I</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregateStorage.html#index()>index</a>() </code>
+                                            </th>
+                                            <td class="colLast">Returns an iterator over identifiers of Aggregates served by this storage.</td>
+                                        </tr>
+                                        
+                                        <tr id="i1" class="rowColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html>Optional</a>&lt;<a href=AggregateHistory.html>AggregateHistory</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregateStorage.html#read(I,int)>read</a>(<a href=AggregateStorage.html>I</a> id, int batchSize) </code>
+                                            </th>
+                                            <td class="colLast">Forms and returns an <a href=AggregateHistory.html>AggregateHistory</a> based on the historyBackward aggregate history}.</td>
+                                        </tr>
+                                        
+                                        <tr id="i2" class="altColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html>Optional</a>&lt;<a href=AggregateHistory.html>AggregateHistory</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregateStorage.html#read(I)>read</a>(<a href=AggregateStorage.html>I</a> id) </code>
+                                            </th>
+                                            <td class="colLast">Reads a record from the storage by the specified record identifier.</td>
+                                        </tr>
+                                        
+                                        <tr id="i3" class="rowColor">
+                                            <td class="colFirst"><code>void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregateStorage.html#write(I,io.spine.server.aggregate.AggregateHistory)>write</a>(<a href=AggregateStorage.html>I</a> id, <a href=AggregateHistory.html>AggregateHistory</a> events) </code>
+                                            </th>
+                                            <td class="colLast">Writes events into the storage.</td>
+                                        </tr>
+                                        
+                                        <tr id="i4" class="altColor">
+                                            <td class="colFirst"><code>void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregateStorage.html#writeEventRecord(I,io.spine.server.aggregate.AggregateEventRecord)>writeEventRecord</a>(<a href=AggregateStorage.html>I</a> id, <a href=AggregateEventRecord.html>AggregateEventRecord</a> record) </code>
+                                            </th>
+                                            <td class="colLast">Writes the passed record into the storage.</td>
+                                        </tr>
+                                        
+                                        <tr id="i5" class="rowColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Iterator.html>Iterator</a>&lt;<a href=../entity/EntityRecord.html>EntityRecord</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregateStorage.html#readStates(io.spine.client.TargetFilters,io.spine.client.ResponseFormat)>readStates</a>(TargetFilters filters, ResponseFormat format) </code>
+                                            </th>
+                                            <td class="colLast">Queries the storage for the Aggregate states according to the passed filters and returns the results in the specified response format.</td>
+                                        </tr>
+                                        
+                                        <tr id="i6" class="altColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Iterator.html>Iterator</a>&lt;<a href=../entity/EntityRecord.html>EntityRecord</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregateStorage.html#readStates(io.spine.client.ResponseFormat)>readStates</a>(ResponseFormat format) </code>
+                                            </th>
+                                            <td class="colLast">Reads the aggregate states from the storage and returns the results in the specified format.</td>
+                                        </tr>
+                                        
+                                        <tr id="i7" class="rowColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Iterator.html>Iterator</a>&lt;<a href=../entity/EntityRecord.html>EntityRecord</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregateStorage.html#readStates(io.spine.query.EntityQuery)>readStates</a>(EntityQuery&lt;<a href=AggregateStorage.html>I</a>, <a href=AggregateStorage.html>S</a>, out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt; query) </code>
+                                            </th>
+                                            <td class="colLast">Reads the aggregate states from the storage according to the specified query.</td>
+                                        </tr>
+                                        
+                                        <tr id="i8" class="altColor">
+                                            <td class="colFirst"><code>void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregateStorage.html#writeState(io.spine.server.aggregate.Aggregate)>writeState</a>(<a href=Aggregate.html>Aggregate</a>&lt;<a href=AggregateStorage.html>I</a>, out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>, out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt; aggregate) </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i9" class="rowColor">
+                                            <td class="colFirst"><code>void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregateStorage.html#writeAll(io.spine.server.aggregate.Aggregate,com.google.common.collect.ImmutableList)>writeAll</a>(<a href=Aggregate.html>Aggregate</a>&lt;<a href=AggregateStorage.html>I</a>, out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>, out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt; aggregate, ImmutableList&lt;<a href=AggregateHistory.html>AggregateHistory</a>&gt; historySegments) </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i10" class="altColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Iterator.html>Iterator</a>&lt;<a href=AggregateEventRecord.html>AggregateEventRecord</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregateStorage.html#historyBackward(I,int,io.spine.core.Version)>historyBackward</a>(<a href=AggregateStorage.html>I</a> id, int batchSize, @Nullable() Version startingFrom) </code>
+                                            </th>
+                                            <td class="colLast">Acts similar to historyBackward(id, batchSize), but also allows to set the Aggregate version to start the reading from.</td>
+                                        </tr>
+                                        
+                                        <tr id="i11" class="rowColor">
+                                            <td class="colFirst"><code>void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregateStorage.html#doTruncate(int)>doTruncate</a>(int snapshotIndex) </code>
+                                            </th>
+                                            <td class="colLast">Drops all records which occur before the N-th snapshot for each entity.</td>
+                                        </tr>
+                                        
+                                        <tr id="i12" class="altColor">
+                                            <td class="colFirst"><code>void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregateStorage.html#doTruncate(int,com.google.protobuf.Timestamp)>doTruncate</a>(int snapshotIndex, Timestamp date) </code>
+                                            </th>
+                                            <td class="colLast">Drops all records older than <code>date</code> but not newer than the N-th snapshot for each entity.</td>
+                                        </tr>
+                                        
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <ul class="blockList">
+                                
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.storage.AbstractStorage">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.storage.AbstractStorage</h3>
+                                            <code>checkNotClosed, checkNotClosed, close, isClosed, isMultitenant, isOpen</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.Closeable">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.Closeable</h3>
+                                            <code>checkOpen, closeIfOpen</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.java.io.Closeable">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;java.io.Closeable</h3>
+                                            <code>close</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+                                        <!--   -->
+                                    </a>
+                                        <h3>Methods inherited from class&nbsp;java.lang.Object</h3>
+                                        <code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString,
+                                            wait, wait, wait</code></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+        <div class="details">
+            <ul class="blockList">
+                <li class="blockList">
+                    <!-- ========= CONSTRUCTOR DETAIL ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Detail</h3>
+                                
+                                <a name="AggregateStorage(io.spine.server.ContextSpec,java.lang.Class,io.spine.server.storage.StorageFactory)"></a>
+                                <ul class="blockList">
+                                    <li class="blockList">
+                                        <h4>AggregateStorage</h4>
+                                        <pre>AggregateStorage(<a href=../ContextSpec.html>ContextSpec</a> context, <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;out <a href=Aggregate.html>Aggregate</a>&lt;<a href=AggregateStorage.html>I</a>, <a href=AggregateStorage.html>S</a>, out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt;&gt; aggregateClass, <a href=../storage/StorageFactory.html>StorageFactory</a> factory)</pre>
+                                        <div class="block"><p>Creates an instance of the storage for a certain aggregate class registered in a specific context.</p></div>
+                                        
+                                        <dl>
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>context</code> - the specification of the context within which this storage is being created</dd>
+                                            
+                                            
+                                            
+                                            <dd><code>aggregateClass</code> - the class of stored aggregates</dd>
+                                            
+                                            
+                                            
+                                            <dd><code>factory</code> - a storage factory to create the underlying storages for event/snapshot records and aggregate states</dd>
+                                            
+                                            
+                                        </dl>
+                                        
+                                    </li>
+                                </ul>
+                                
+                                <a name="AggregateStorage(io.spine.server.aggregate.AggregateStorage)"></a>
+                                <ul class="blockList">
+                                    <li class="blockList">
+                                        <h4>AggregateStorage</h4>
+                                        <pre>AggregateStorage(<a href=AggregateStorage.html>AggregateStorage</a>&lt;<a href=AggregateStorage.html>I</a>, <a href=AggregateStorage.html>S</a>&gt; delegate)</pre>
+                                        <div class="block"></div>
+                                        
+                                    </li>
+                                </ul>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ============ METHOD DETAIL ========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Method Detail</h3>
+                                
+                                <a id="index()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>index</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Iterator.html>Iterator</a>&lt;<a href=AggregateStorage.html>I</a>&gt; <a href=AggregateStorage.html#index()>index</a>()</pre>
+                                        <div class="block"><p>Returns an iterator over identifiers of Aggregates served by this storage. </p><p>The results include IDs corresponding only to those Aggregate instances which were <a href=AggregateStorage.html#writeState(io.spine.server.aggregate.Aggregate)>explicitly written</a> to this storage. The Aggregate identifiers which are included into the persisted events are not taken into account by this method due to a performance considerations, as too many event records must be scanned and de-duplicated for this.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="read(I,int)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>read</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html>Optional</a>&lt;<a href=AggregateHistory.html>AggregateHistory</a>&gt; <a href=AggregateStorage.html#read(I,int)>read</a>(<a href=AggregateStorage.html>I</a> id, int batchSize)</pre>
+                                        <div class="block"><p>Forms and returns an <a href=AggregateHistory.html>AggregateHistory</a> based on the historyBackward aggregate history}.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>id</code> - the identifier of the aggregate for which to return the history</dd>
+                                            
+                                            
+                                            
+                                            <dd><code>batchSize</code> - the maximum number of the events to read</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>the record instance or <code>Optional.empty()</code> if the aggregate history is empty</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="read(I)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>read</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html>Optional</a>&lt;<a href=AggregateHistory.html>AggregateHistory</a>&gt; <a href=AggregateStorage.html#read(I)>read</a>(<a href=AggregateStorage.html>I</a> id)</pre>
+                                        <div class="block"><p>Reads a record from the storage by the specified record identifier.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>id</code> - the identifier of the record to read</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>a record instance or <code>Optional.empty()</code> if there is no record matching this request</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="write(I,io.spine.server.aggregate.AggregateHistory)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>write</h4>
+                                        <pre class="methodSignature"> void <a href=AggregateStorage.html#write(I,io.spine.server.aggregate.AggregateHistory)>write</a>(<a href=AggregateStorage.html>I</a> id, <a href=AggregateHistory.html>AggregateHistory</a> events)</pre>
+                                        <div class="block"><p>Writes events into the storage. </p><p>NOTE: This method does not rewrite any events, just appends them. Many events can be associated with a single aggregate ID.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>id</code> - the ID for the record</dd>
+                                            
+                                            
+                                            
+                                            <dd><code>events</code> - non-empty piece of <code>AggregateHistory</code> to store</dd>
+                                            
+                                            
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="writeEventRecord(I,io.spine.server.aggregate.AggregateEventRecord)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>writeEventRecord</h4>
+                                        <pre class="methodSignature"> void <a href=AggregateStorage.html#writeEventRecord(I,io.spine.server.aggregate.AggregateEventRecord)>writeEventRecord</a>(<a href=AggregateStorage.html>I</a> id, <a href=AggregateEventRecord.html>AggregateEventRecord</a> record)</pre>
+                                        <div class="block"><p>Writes the passed record into the storage.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>id</code> - the aggregate ID</dd>
+                                            
+                                            
+                                            
+                                            <dd><code>record</code> - the record to write</dd>
+                                            
+                                            
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="readStates(io.spine.client.TargetFilters,io.spine.client.ResponseFormat)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>readStates</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Iterator.html>Iterator</a>&lt;<a href=../entity/EntityRecord.html>EntityRecord</a>&gt; <a href=AggregateStorage.html#readStates(io.spine.client.TargetFilters,io.spine.client.ResponseFormat)>readStates</a>(TargetFilters filters, ResponseFormat format)</pre>
+                                        <div class="block"><p>Queries the storage for the Aggregate states according to the passed filters and returns the results in the specified response format. </p><p>The results of this call are eventually consistent with the latest states of aggregates, as instances are not restored from their events for querying. Instead, this method works on top of the storage of the latest known aggregate states, for better performance. In a distributed environment, the records in this storage may be outdated, as new events may have been emitted by an aggregate instance on other server nodes.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>filters</code> - the filters to use when querying the aggregate states</dd>
+                                            
+                                            
+                                            
+                                            <dd><code>format</code> - the format of the response</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>an iterator over the matching <code>EntityRecord</code>s</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="readStates(io.spine.client.ResponseFormat)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>readStates</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Iterator.html>Iterator</a>&lt;<a href=../entity/EntityRecord.html>EntityRecord</a>&gt; <a href=AggregateStorage.html#readStates(io.spine.client.ResponseFormat)>readStates</a>(ResponseFormat format)</pre>
+                                        <div class="block"><p>Reads the aggregate states from the storage and returns the results in the specified format. </p><p>This method performs no filtering. Other than that, it works in the same manner as <a href=AggregateStorage.html#readStates(io.spine.client.TargetFilters,io.spine.client.ResponseFormat)>readStates(filters, format)</a>.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>format</code> - the format of the response</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>an iterator over the records</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="readStates(io.spine.query.EntityQuery)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>readStates</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Iterator.html>Iterator</a>&lt;<a href=../entity/EntityRecord.html>EntityRecord</a>&gt; <a href=AggregateStorage.html#readStates(io.spine.query.EntityQuery)>readStates</a>(EntityQuery&lt;<a href=AggregateStorage.html>I</a>, <a href=AggregateStorage.html>S</a>, out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt; query)</pre>
+                                        <div class="block"><p>Reads the aggregate states from the storage according to the specified query.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>query</code> - the query to execute</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>an iterator over the records</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="writeState(io.spine.server.aggregate.Aggregate)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>writeState</h4>
+                                        <pre class="methodSignature"> void <a href=AggregateStorage.html#writeState(io.spine.server.aggregate.Aggregate)>writeState</a>(<a href=Aggregate.html>Aggregate</a>&lt;<a href=AggregateStorage.html>I</a>, out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>, out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt; aggregate)</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="writeAll(io.spine.server.aggregate.Aggregate,com.google.common.collect.ImmutableList)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>writeAll</h4>
+                                        <pre class="methodSignature"> void <a href=AggregateStorage.html#writeAll(io.spine.server.aggregate.Aggregate,com.google.common.collect.ImmutableList)>writeAll</a>(<a href=Aggregate.html>Aggregate</a>&lt;<a href=AggregateStorage.html>I</a>, out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>, out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt; aggregate, ImmutableList&lt;<a href=AggregateHistory.html>AggregateHistory</a>&gt; historySegments)</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="historyBackward(I,int,io.spine.core.Version)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>historyBackward</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Iterator.html>Iterator</a>&lt;<a href=AggregateEventRecord.html>AggregateEventRecord</a>&gt; <a href=AggregateStorage.html#historyBackward(I,int,io.spine.core.Version)>historyBackward</a>(<a href=AggregateStorage.html>I</a> id, int batchSize, @Nullable() Version startingFrom)</pre>
+                                        <div class="block"><p>Acts similar to historyBackward(id, batchSize), but also allows to set the Aggregate version to start the reading from.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>id</code> - identifier of the Aggregate</dd>
+                                            
+                                            
+                                            
+                                            <dd><code>batchSize</code> - the maximum number of the history records to read</dd>
+                                            
+                                            
+                                            
+                                            <dd><code>startingFrom</code> - an Aggregate version from which the historical events are read</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>a new instance of iterator over the results</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="doTruncate(int)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>doTruncate</h4>
+                                        <pre class="methodSignature"> void <a href=AggregateStorage.html#doTruncate(int)>doTruncate</a>(int snapshotIndex)</pre>
+                                        <div class="block"><p>Drops all records which occur before the N-th snapshot for each entity.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="doTruncate(int,com.google.protobuf.Timestamp)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockListLast"
+                                          >
+                                    <li class="blockList">
+                                        <h4>doTruncate</h4>
+                                        <pre class="methodSignature"> void <a href=AggregateStorage.html#doTruncate(int,com.google.protobuf.Timestamp)>doTruncate</a>(int snapshotIndex, Timestamp date)</pre>
+                                        <div class="block"><p>Drops all records older than <code>date</code> but not newer than the N-th snapshot for each entity.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+    </div>
+</main>
+<footer role="contentinfo">
+    <nav role="navigation">
+        <!-- ======= START OF BOTTOM NAVBAR ====== -->
+        <div class="bottomNav"><a id="navbar.bottom">
+            <!--   -->
+        </a>
+            <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a>
+            </div>
+            <a id="navbar.bottom.firstrow">
+                <!--   -->
+            </a>
+            <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+        <a id="skip.navbar.bottom">
+            <!--   -->
+        </a>
+        <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ======== END OF BOTTOM NAVBAR ======= -->
+    </nav>
+</footer><ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" id="ui-id-1" tabindex="0"
+    style="display: none;"></ul>
+<span role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></span>
+</body>
+</html>

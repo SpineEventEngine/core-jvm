@@ -1,0 +1,759 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en"><head>
+    <title>Deprecated </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="dc.created" content="2020-03-25">
+    <link rel="stylesheet" type="text/css" href="stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="dokka-javadoc-stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="jquery/jquery-ui.css" title="Style">
+    <script type="text/javascript" src="jquery/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="jquery/jquery-migrate-3.4.0.min.js"></script>
+    <script type="text/javascript" src="jquery/jquery-ui.js"></script>
+
+    <script type="text/javascript" src="search.js"></script>
+    <script async type="text/javascript" src="module-search-index.js"></script>
+    <script async type="text/javascript" src="package-search-index.js"></script>
+    <script async type="text/javascript" src="type-search-index.js"></script>
+    <script async type="text/javascript" src="member-search-index.js"></script>
+    <script async type="text/javascript" src="tag-search-index.js"></script>
+</head><body>
+<script type="text/javascript">
+var pathtoroot = "";
+</script>
+<noscript>
+    <div>JavaScript is disabled on your browser.</div>
+</noscript><header role="banner">
+    <nav role="navigation">
+        <div class="fixedNav">
+            <!-- ========= START OF TOP NAVBAR ======= -->
+            <div class="topNav"><a id="navbar.top">
+                <!--   -->
+            </a>
+                <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a>
+                </div>
+                <a id="navbar.top.firstrow">
+                    <!--   -->
+                </a>
+                <ul class="navList" title="Navigation">
+    <li><a href="index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li>Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="deprecated.html">Deprecated</a></li>
+    <li><a href="index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+            <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" class="ui-autocomplete-input" autocomplete="off" placeholder="Search">
+<input type="reset" id="reset" value="reset">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ========= END OF TOP NAVBAR ========= -->
+        </div>
+        <div class="navPadding">&nbsp;</div>
+        <script type="text/javascript"><!--
+        $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+        //-->
+        </script>
+    </nav>
+</header>
+
+<main role="main">
+    <div class="header">
+        <h1 title="Deprecated API" class="title">Deprecated API</h1>
+        <h2 title="Contents">Contents</h2>
+        <ul>
+        
+            <li><a href="#interface">Interfaces</a></li>
+        
+            <li><a href="#class">Classes</a></li>
+        
+            <li><a href="#method">Methods</a></li>
+        
+        </ul>
+    </div>
+    <div class="contentContainer">
+        
+            <a id="interface"></a>
+            <ul class="blockList">
+                <li class="blockList">
+                    <div class="deprecatedSummary">
+                        <table>
+                            <caption><span>Interfaces</span><span class="tabEnd">&nbsp;</span></caption>
+                            <tr>
+                                <th class="colFirst" scope="col">Interface</th>
+                                <th class="colLast" scope="col">Description</th>
+                            </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/model/NothingOrBuilder.html">io.spine.server.model.NothingOrBuilder</a>
+                                    </th>
+                                    <td class="colLast"></td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/model/DoNothingOrBuilder.html">io.spine.server.model.DoNothingOrBuilder</a>
+                                    </th>
+                                    <td class="colLast"></td>
+                                </tr>
+                            
+                        </table>
+                    </div>
+                </li>
+            </ul>
+        
+            <a id="class"></a>
+            <ul class="blockList">
+                <li class="blockList">
+                    <div class="deprecatedSummary">
+                        <table>
+                            <caption><span>Classes</span><span class="tabEnd">&nbsp;</span></caption>
+                            <tr>
+                                <th class="colFirst" scope="col">Class</th>
+                                <th class="colLast" scope="col">Description</th>
+                            </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/model/DoNothing.html">io.spine.server.model.DoNothing</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>A system command that implies no action.
+
+Use this command type when a commanding method does not produce any output in response to
+an event.
+
+This type is treated by the framework in a special way. A `DoNothing` command is never posted
+for processing after being emitted. Neither is it stored.
+
+There can be no handlers for a `DoNothing` command.
+
+Deprecated: please use `spine.server.command.DoNothing` instead.
+</code></pre> Protobuf type <code>spine.server.model.DoNothing</code></td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/model/Nothing.html">io.spine.server.model.Nothing</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>Deprecated: please use `spine.server.event.NoReaction` instead.
+</code></pre> Protobuf type <code>spine.server.model.Nothing</code></td>
+                                </tr>
+                            
+                        </table>
+                    </div>
+                </li>
+            </ul>
+        
+            <a id="method"></a>
+            <ul class="blockList">
+                <li class="blockList">
+                    <div class="deprecatedSummary">
+                        <table>
+                            <caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+                            <tr>
+                                <th class="colFirst" scope="col">Method</th>
+                                <th class="colLast" scope="col">Description</th>
+                            </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/integration/ExternalMessageValidationError.html#valueOf(int)">io.spine.server.integration.valueOf(int)</a>
+                                    </th>
+                                    <td class="colLast"></td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/Server.Builder.html#port()">io.spine.server.port()</a>
+                                    </th>
+                                    <td class="colLast">Obtains the port of the connection, or empty <code>Optional</code> for in-process connection.</td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/Server.Builder.html#serverName()">io.spine.server.serverName()</a>
+                                    </th>
+                                    <td class="colLast">Obtains the name of the in-process connection, or empty <code>Optional</code> if the connection is made via a port.</td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/BoundedContextBuilder.html#tenantIndex()">io.spine.server.tenantIndex()</a>
+                                    </th>
+                                    <td class="colLast">Obtains <code>TenantIndex</code> implementation associated with the Bounded Context.</td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/delivery/CatchUpProcess.html#nothing()">io.spine.server.nothing()</a>
+                                    </th>
+                                    <td class="colLast">Obtains the <a href=io/spine/server/model/Nothing.html>Nothing</a> event message.</td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/GrpcContainer.html#port()">io.spine.server.port()</a>
+                                    </th>
+                                    <td class="colLast">Obtains the port at which the container is exposed, or empty <code>Optional</code> if this is an in-process container.</td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/GrpcContainer.html#serverName()">io.spine.server.serverName()</a>
+                                    </th>
+                                    <td class="colLast">Obtains the name of the in-process server, or empty <code>Optinal</code> if the container is exposed at a port.</td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/DeploymentType.html#valueOf(int)">io.spine.server.valueOf(int)</a>
+                                    </th>
+                                    <td class="colLast"></td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/aggregate/AggregateEventRecord.KindCase.html#valueOf(int)">io.spine.server.aggregate.valueOf(int)</a>
+                                    </th>
+                                    <td class="colLast"></td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/event/EventReactor.html#nothing()">io.spine.server.nothing()</a>
+                                    </th>
+                                    <td class="colLast">Obtains the <a href=io/spine/server/model/Nothing.html>Nothing</a> event message.</td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/event/Just.Companion.html#nothing">io.spine.server.event.nothing()</a>
+                                    </th>
+                                    <td class="colLast">Obtains the instance of <code>Just&lt;Noting&gt;</code> for Java code.</td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/entity/EntityStateValidationError.html#valueOf(int)">io.spine.server.entity.valueOf(int)</a>
+                                    </th>
+                                    <td class="colLast"></td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/command/Commander.html#nothing()">io.spine.server.nothing()</a>
+                                    </th>
+                                    <td class="colLast">Obtains the <a href=io/spine/server/model/Nothing.html>Nothing</a> event message.</td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/command/CommandReceiver.html#nothing()">io.spine.server.nothing()</a>
+                                    </th>
+                                    <td class="colLast">Obtains the <a href=io/spine/server/model/Nothing.html>Nothing</a> event message.</td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/command/Assignee.html#nothing()">io.spine.server.nothing()</a>
+                                    </th>
+                                    <td class="colLast">Obtains the <a href=io/spine/server/model/Nothing.html>Nothing</a> event message.</td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/delivery/DeliveryBuilder.html#inboxStorage()">io.spine.server.delivery.inboxStorage()</a>
+                                    </th>
+                                    <td class="colLast">Returns the value of the configured <code>InboxStorage</code> or <code>Optional.empty()</code> if no such value was configured.</td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/delivery/DeliveryBuilder.html#catchUpStorage()">io.spine.server.delivery.catchUpStorage()</a>
+                                    </th>
+                                    <td class="colLast">Returns the value of the configured <code>CatchUpStorage</code> or <code>Optional.empty()</code> if no such value was configured.</td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/delivery/DeliveryBuilder.html#strategy()">io.spine.server.delivery.strategy()</a>
+                                    </th>
+                                    <td class="colLast">Returns the value of the configured <code>DeliveryStrategy</code> or <code>Optional.empty()</code> if no such value was configured.</td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/delivery/DeliveryBuilder.html#workRegistry()">io.spine.server.delivery.workRegistry()</a>
+                                    </th>
+                                    <td class="colLast">Returns the value of the configured <code>ShardedWorkRegistry</code> or <code>Optional.empty()</code> if no such value was configured.</td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/delivery/DeliveryBuilder.html#deduplicationWindow()">io.spine.server.delivery.deduplicationWindow()</a>
+                                    </th>
+                                    <td class="colLast">Returns the value of the configured deduplication window or <code>Optional.empty()</code> if no such value was configured.</td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/delivery/DeliveryBuilder.html#deliveryMonitor()">io.spine.server.delivery.deliveryMonitor()</a>
+                                    </th>
+                                    <td class="colLast">Returns the value of the configured <code>DeliveryMonitor</code> or <code>Optional.empty()</code> if no such value was configured.</td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/delivery/DeliveryBuilder.html#pageSize()">io.spine.server.delivery.pageSize()</a>
+                                    </th>
+                                    <td class="colLast">Returns the value of the configured page size or <code>Optional.empty()</code> if no such value was configured.</td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/delivery/DeliveryBuilder.html#catchUpPageSize()">io.spine.server.delivery.catchUpPageSize()</a>
+                                    </th>
+                                    <td class="colLast">Returns the value of the configured catch-up page size or <code>Optional.empty()</code> if no such value was configured.</td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/delivery/InboxMessageStatus.html#valueOf(int)">io.spine.server.delivery.valueOf(int)</a>
+                                    </th>
+                                    <td class="colLast"></td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/delivery/InboxLabel.html#valueOf(int)">io.spine.server.delivery.valueOf(int)</a>
+                                    </th>
+                                    <td class="colLast"></td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/delivery/CatchUpStatus.html#valueOf(int)">io.spine.server.delivery.valueOf(int)</a>
+                                    </th>
+                                    <td class="colLast"></td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/EntityTypeName.ImplCase.html#valueOf(int)">io.spine.system.server.valueOf(int)</a>
+                                    </th>
+                                    <td class="colLast"></td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/EntityColumnsOrBuilder.html#getColumns()">io.spine.system.server.getColumns()</a>
+                                    </th>
+                                    <td class="colLast">Use <a href=io/spine/system/server/EntityColumnsOrBuilder.html#getColumnsMap()>getColumnsMap</a> instead.</td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/CannotDispatchDuplicateEvent.Builder.html#hasEvent()">io.spine.system.server.hasEvent()</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>ID of the duplicate event.
+
+Deprecated: use `duplicate_event` instead.
+</code></pre><code>.spine.core.EventId event = 2 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/CannotDispatchDuplicateEvent.Builder.html#getEvent()">io.spine.system.server.getEvent()</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>ID of the duplicate event.
+
+Deprecated: use `duplicate_event` instead.
+</code></pre><code>.spine.core.EventId event = 2 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/CannotDispatchDuplicateEvent.Builder.html#setEvent(io.spine.core.EventId)">io.spine.system.server.setEvent(io.spine.core.EventId)</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>ID of the duplicate event.
+
+Deprecated: use `duplicate_event` instead.
+</code></pre><code>.spine.core.EventId event = 2 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/CannotDispatchDuplicateEvent.Builder.html#setEvent(io.spine.core.EventId.Builder)">io.spine.system.server.setEvent(io.spine.core.EventId.Builder)</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>ID of the duplicate event.
+
+Deprecated: use `duplicate_event` instead.
+</code></pre><code>.spine.core.EventId event = 2 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/CannotDispatchDuplicateEvent.Builder.html#mergeEvent(io.spine.core.EventId)">io.spine.system.server.mergeEvent(io.spine.core.EventId)</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>ID of the duplicate event.
+
+Deprecated: use `duplicate_event` instead.
+</code></pre><code>.spine.core.EventId event = 2 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/CannotDispatchDuplicateEvent.Builder.html#clearEvent()">io.spine.system.server.clearEvent()</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>ID of the duplicate event.
+
+Deprecated: use `duplicate_event` instead.
+</code></pre><code>.spine.core.EventId event = 2 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/CannotDispatchDuplicateEvent.Builder.html#getEventBuilder()">io.spine.system.server.getEventBuilder()</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>ID of the duplicate event.
+
+Deprecated: use `duplicate_event` instead.
+</code></pre><code>.spine.core.EventId event = 2 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/CannotDispatchDuplicateEvent.Builder.html#getEventOrBuilder()">io.spine.system.server.getEventOrBuilder()</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>ID of the duplicate event.
+
+Deprecated: use `duplicate_event` instead.
+</code></pre><code>.spine.core.EventId event = 2 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/CannotDispatchDuplicateEvent.html#hasEvent()">io.spine.system.server.hasEvent()</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>ID of the duplicate event.
+
+Deprecated: use `duplicate_event` instead.
+</code></pre><code>.spine.core.EventId event = 2 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/CannotDispatchDuplicateEvent.html#getEvent()">io.spine.system.server.getEvent()</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>ID of the duplicate event.
+
+Deprecated: use `duplicate_event` instead.
+</code></pre><code>.spine.core.EventId event = 2 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/CannotDispatchDuplicateEvent.html#getEventOrBuilder()">io.spine.system.server.getEventOrBuilder()</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>ID of the duplicate event.
+
+Deprecated: use `duplicate_event` instead.
+</code></pre><code>.spine.core.EventId event = 2 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/CannotDispatchDuplicateCommand.Builder.html#hasCommand()">io.spine.system.server.hasCommand()</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>ID of the duplicate command.
+
+Deprecated: use `duplicate_command` instead.
+</code></pre><code>.spine.core.CommandId command = 2 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/CannotDispatchDuplicateCommand.Builder.html#getCommand()">io.spine.system.server.getCommand()</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>ID of the duplicate command.
+
+Deprecated: use `duplicate_command` instead.
+</code></pre><code>.spine.core.CommandId command = 2 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/CannotDispatchDuplicateCommand.Builder.html#setCommand(io.spine.core.CommandId)">io.spine.system.server.setCommand(io.spine.core.CommandId)</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>ID of the duplicate command.
+
+Deprecated: use `duplicate_command` instead.
+</code></pre><code>.spine.core.CommandId command = 2 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/CannotDispatchDuplicateCommand.Builder.html#setCommand(io.spine.core.CommandId.Builder)">io.spine.system.server.setCommand(io.spine.core.CommandId.Builder)</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>ID of the duplicate command.
+
+Deprecated: use `duplicate_command` instead.
+</code></pre><code>.spine.core.CommandId command = 2 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/CannotDispatchDuplicateCommand.Builder.html#mergeCommand(io.spine.core.CommandId)">io.spine.system.server.mergeCommand(io.spine.core.CommandId)</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>ID of the duplicate command.
+
+Deprecated: use `duplicate_command` instead.
+</code></pre><code>.spine.core.CommandId command = 2 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/CannotDispatchDuplicateCommand.Builder.html#clearCommand()">io.spine.system.server.clearCommand()</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>ID of the duplicate command.
+
+Deprecated: use `duplicate_command` instead.
+</code></pre><code>.spine.core.CommandId command = 2 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/CannotDispatchDuplicateCommand.Builder.html#getCommandBuilder()">io.spine.system.server.getCommandBuilder()</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>ID of the duplicate command.
+
+Deprecated: use `duplicate_command` instead.
+</code></pre><code>.spine.core.CommandId command = 2 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/CannotDispatchDuplicateCommand.Builder.html#getCommandOrBuilder()">io.spine.system.server.getCommandOrBuilder()</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>ID of the duplicate command.
+
+Deprecated: use `duplicate_command` instead.
+</code></pre><code>.spine.core.CommandId command = 2 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/CannotDispatchDuplicateCommand.html#hasCommand()">io.spine.system.server.hasCommand()</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>ID of the duplicate command.
+
+Deprecated: use `duplicate_command` instead.
+</code></pre><code>.spine.core.CommandId command = 2 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/CannotDispatchDuplicateCommand.html#getCommand()">io.spine.system.server.getCommand()</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>ID of the duplicate command.
+
+Deprecated: use `duplicate_command` instead.
+</code></pre><code>.spine.core.CommandId command = 2 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/CannotDispatchDuplicateCommand.html#getCommandOrBuilder()">io.spine.system.server.getCommandOrBuilder()</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>ID of the duplicate command.
+
+Deprecated: use `duplicate_command` instead.
+</code></pre><code>.spine.core.CommandId command = 2 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/CannotDispatchDuplicateEventOrBuilder.html#hasEvent()">io.spine.system.server.hasEvent()</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>ID of the duplicate event.
+
+Deprecated: use `duplicate_event` instead.
+</code></pre><code>.spine.core.EventId event = 2 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/CannotDispatchDuplicateEventOrBuilder.html#getEvent()">io.spine.system.server.getEvent()</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>ID of the duplicate event.
+
+Deprecated: use `duplicate_event` instead.
+</code></pre><code>.spine.core.EventId event = 2 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/CannotDispatchDuplicateEventOrBuilder.html#getEventOrBuilder()">io.spine.system.server.getEventOrBuilder()</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>ID of the duplicate event.
+
+Deprecated: use `duplicate_event` instead.
+</code></pre><code>.spine.core.EventId event = 2 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/CannotDispatchDuplicateCommandOrBuilder.html#hasCommand()">io.spine.system.server.hasCommand()</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>ID of the duplicate command.
+
+Deprecated: use `duplicate_command` instead.
+</code></pre><code>.spine.core.CommandId command = 2 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/CannotDispatchDuplicateCommandOrBuilder.html#getCommand()">io.spine.system.server.getCommand()</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>ID of the duplicate command.
+
+Deprecated: use `duplicate_command` instead.
+</code></pre><code>.spine.core.CommandId command = 2 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/CannotDispatchDuplicateCommandOrBuilder.html#getCommandOrBuilder()">io.spine.system.server.getCommandOrBuilder()</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>ID of the duplicate command.
+
+Deprecated: use `duplicate_command` instead.
+</code></pre><code>.spine.core.CommandId command = 2 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/EntityColumns.Builder.html#getColumns()">io.spine.system.server.getColumns()</a>
+                                    </th>
+                                    <td class="colLast">Use <a href=io/spine/system/server/EntityColumns.Builder.html#getColumnsMap()>getColumnsMap</a> instead.</td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/EntityColumns.Builder.html#getMutableColumns()">io.spine.system.server.getMutableColumns()</a>
+                                    </th>
+                                    <td class="colLast">Use alternate mutation accessors instead.</td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/EntityColumns.html#getColumns()">io.spine.system.server.getColumns()</a>
+                                    </th>
+                                    <td class="colLast">Use <a href=io/spine/system/server/EntityColumns.html#getColumnsMap()>getColumnsMap</a> instead.</td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/query/QueryingClient.html#find(java.lang.Object)">io.spine.server.query.find(java.lang.Object)</a>
+                                    </th>
+                                    <td class="colLast">Obtains a state of an entity by its ID.</td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/query/QueryingClient.html#withId(java.lang.Object)">io.spine.server.query.withId(java.lang.Object)</a>
+                                    </th>
+                                    <td class="colLast">Obtains a state of an entity by its ID.</td>
+                                </tr>
+                            
+                        </table>
+                    </div>
+                </li>
+            </ul>
+        
+    </div>
+</main><footer role="contentinfo">
+    <nav role="navigation">
+        <!-- ======= START OF BOTTOM NAVBAR ====== -->
+        <div class="bottomNav"><a id="navbar.bottom">
+            <!--   -->
+        </a>
+            <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a>
+            </div>
+            <a id="navbar.bottom.firstrow">
+                <!--   -->
+            </a>
+            <ul class="navList" title="Navigation">
+    <li><a href="index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li>Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="deprecated.html">Deprecated</a></li>
+    <li><a href="index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+        <a id="skip.navbar.bottom">
+            <!--   -->
+        </a>
+        <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ======== END OF BOTTOM NAVBAR ======= -->
+    </nav>
+</footer><ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" id="ui-id-1" tabindex="0"
+    style="display: none;"></ul>
+<span role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></span>
+</body>
+</html>

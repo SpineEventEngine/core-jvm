@@ -1,0 +1,671 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en"><head>
+    <title>EventDispatchingRepository 2.0.0-SNAPSHOT.356 API </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="dc.created" content="2020-03-25">
+    <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../dokka-javadoc-stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../jquery/jquery-ui.css" title="Style">
+    <script type="text/javascript" src="../../../../jquery/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-migrate-3.4.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
+
+    <script type="text/javascript" src="../../../../search.js"></script>
+    <script async type="text/javascript" src="../../../../module-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../package-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../type-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../member-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../tag-search-index.js"></script>
+</head><body>
+<script type="text/javascript">
+var pathtoroot = "../../../../";
+</script>
+<noscript>
+    <div>JavaScript is disabled on your browser.</div>
+</noscript><header role="banner">
+    <nav role="navigation">
+        <div class="fixedNav">
+            <!-- ========= START OF TOP NAVBAR ======= -->
+            <div class="topNav"><a id="navbar.top">
+                <!--   -->
+            </a>
+                <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a>
+                </div>
+                <a id="navbar.top.firstrow">
+                    <!--   -->
+                </a>
+                <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+            <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" class="ui-autocomplete-input" autocomplete="off" placeholder="Search">
+<input type="reset" id="reset" value="reset">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ========= END OF TOP NAVBAR ========= -->
+        </div>
+        <div class="navPadding">&nbsp;</div>
+        <script type="text/javascript"><!--
+        $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+        //-->
+        </script>
+    </nav>
+</header>
+
+<main role="main">
+    <div class="header">
+        <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">io.spine.server.entity</a></div>
+        <h2 title="Class EventDispatchingRepository" class="title">Class EventDispatchingRepository</h2>
+    </div>
+    <div class="contentContainer">
+        <!-- <ul class="inheritance">
+            <li>java.lang.Object</li>
+            <li>
+                <ul class="inheritance">
+                    <li>adaptation.Adaptation</li>
+                </ul>
+            </li>
+        </ul> TODO inheritance tree -->
+        <div class="description">
+            <ul class="blockList">
+                <li class="blockList">
+                    
+                    <dl>
+                        <dt>All Implemented Interfaces:</dt>
+                        <dd>
+                            
+                            <code>io.spine.logging.WithLogging</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.Closeable</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.ContextAware</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.bus.MessageDispatcher</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.bus.MulticastDispatcher</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.entity.QueryableRepository</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.event.EventDispatcher</code>
+                            
+                            ,
+                            
+                            
+                            <code>java.io.Closeable</code>
+                            
+                            ,
+                            
+                            
+                            <code>java.lang.AutoCloseable</code>
+                            
+                            
+                        </dd>
+                    </dl>
+                    
+                    <hr>
+                    <pre class="wrap-overflow">
+
+public abstract class <span class="typeNameLabel"><a href=EventDispatchingRepository.html>EventDispatchingRepository</a>&lt;I, E extends <a href=AbstractEntity.html>AbstractEntity</a>&lt;<a href=EventDispatchingRepository.html>I</a>, <a href=EventDispatchingRepository.html>S</a>&gt;, S extends EntityState&lt;<a href=EventDispatchingRepository.html>I</a>&gt;&gt;</span>
+extends <a href=DefaultRecordBasedRepository.html>DefaultRecordBasedRepository</a>&lt;<a href=EventDispatchingRepository.html>I</a>, <a href=EventDispatchingRepository.html>E</a>, <a href=EventDispatchingRepository.html>S</a>&gt; implements <a href=../event/EventDispatcher.html>EventDispatcher</a>
+                    </pre>
+                    <div class="block"><p>Abstract base for repositories that deliver events to entities they manage.</p></div>
+
+                    <dl>
+
+                    
+
+                    
+
+                    </dl>
+                </li>
+            </ul>
+        </div>
+        <div class="summary">
+            <ul class="blockList">
+                <li class="blockList">
+                <!-- ======== NESTED CLASS SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="nested.class.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Nested Class Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Class</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== FIELD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="field.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Field Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Field</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tbody>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Constructor</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+
+                                        
+                                            <tr class="altColor">
+                                                <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a
+                                                        href="#EventDispatchingRepository()">EventDispatchingRepository</a></span>()</code></th>
+                                                <td class="colLast"></td>
+                                            </tr>
+                                        
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== ENUM CONSTANT SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="enum.constant.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Enum Constant Summary</h3>
+                                <table class="memberSummary">
+                                    <caption><span>Enum Constants</span><span class="tabEnd">&nbsp;</span></caption>
+                                    <tr>
+                                        <th class="colFirst" scope="col">Enum Constant</th>
+                                        <th class="colLast" scope="col">Description</th>
+                                    </tr>
+                                    
+                                </table>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ========== METHOD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Method Summary</h3>
+                                <div class="memberSummary">
+                                    <div role="tablist" aria-orientation="horizontal">
+                                        <button role="tab" aria-selected="true" aria-controls="memberSummary_tabpanel" tabindex="0" onkeydown="switchTab(event)" id="t0" class="activeTableTab">All Methods</button>
+                                        <!-- TODO: Instance and Concrete Methods #1118 -->
+                                    </div>
+                                    <div id="memberSummary_tabpanel" role="tabpanel">
+                                    <table aria-labelledby="t0">
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Method</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                        <tr id="i0" class="altColor">
+                                            <td class="colFirst"><code>void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventDispatchingRepository.html#registerWith(io.spine.server.BoundedContext)>registerWith</a>(<a href=../BoundedContext.html>BoundedContext</a> context) </code>
+                                            </th>
+                                            <td class="colLast">Registers itself as an event dispatcher with the parent <code>BoundedContext</code>.</td>
+                                        </tr>
+                                        
+                                        <tr id="i1" class="rowColor">
+                                            <td class="colFirst"><code>void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventDispatchingRepository.html#setupEventRouting(io.spine.server.route.EventRouting)>setupEventRouting</a>(<a href=../route/EventRouting.html>EventRouting</a>&lt;<a href=EventDispatchingRepository.html>I</a>&gt; routing) </code>
+                                            </th>
+                                            <td class="colLast">A callback for derived repository classes to customize routing schema for events.</td>
+                                        </tr>
+                                        
+                                        <tr id="i2" class="altColor">
+                                            <td class="colFirst"><code>final DispatchOutcome</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../projection/ProjectionRepository.html#dispatch(io.spine.server.type.EventEnvelope)>dispatch</a>(<a href=../type/EventEnvelope.html>EventEnvelope</a> event) </code>
+                                            </th>
+                                            <td class="colLast">Dispatches the event to the corresponding entities.</td>
+                                        </tr>
+                                        
+                                        <tr id="i3" class="rowColor">
+                                            <td class="colFirst"><code>abstract DispatchOutcome</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=EventDispatchingRepository.html#dispatchTo(java.util.Set,io.spine.server.type.EventEnvelope)>dispatchTo</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html>Set</a>&lt;<a href=EventDispatchingRepository.html>I</a>&gt; ids, <a href=../type/EventEnvelope.html>EventEnvelope</a> event) </code>
+                                            </th>
+                                            <td class="colLast">Dispatches the given event to entities with the given identifiers and returns the dispatch outcome.</td>
+                                        </tr>
+                                        
+                                        <tr id="i4" class="altColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html>Set</a>&lt;<a href=EventDispatchingRepository.html>I</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../projection/ProjectionRepository.html#route(io.spine.server.type.EventEnvelope)>route</a>(<a href=../type/EventEnvelope.html>EventEnvelope</a> event) </code>
+                                            </th>
+                                            <td class="colLast">Determines the targets of the given event.</td>
+                                        </tr>
+                                        
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <ul class="blockList">
+                                
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.DefaultRecordBasedRepository">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.DefaultRecordBasedRepository</h3>
+                                            <code>entityFactory, storageConverter</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.event.EventDispatcher">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.event.EventDispatcher</h3>
+                                            <code>dispatchesEvents, dispatchesExternalEvents, domesticEventClasses, eventClasses, externalEventClasses</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.RecordBasedRepository">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.RecordBasedRepository</h3>
+                                            <code>applyMigration, applyMigration, create, createStorage, find, find, find, findActive, findOrCreate, findStates, iterator, loadAll, loadAll, recordStorage, store, store, toEntity</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.Repository">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.Repository</h3>
+                                            <code>checkStorage, close, context, createStorage, entityClass, entityStateType, eventFilter, hasContext, idClass, index, isOpen, isRegistered, onRegistered, open, storage, storageAssigned, store</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.QueryableRepository">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.QueryableRepository</h3>
+                                            <code>stateFrom</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.ContextAware">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.ContextAware</h3>
+                                            <code>checkNotRegistered, checkRegistered, unregister</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.Closeable">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.Closeable</h3>
+                                            <code>checkOpen, closeIfOpen</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.logging.WithLogging">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.logging.WithLogging</h3>
+                                            <code>getAtConfig, getAtDebug, getAtError, getAtFine, getAtFiner, getAtFinest, getAtInfo, getAtSevere, getAtTrace, getAtWarning, getLogger, logger</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.java.io.Closeable">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;java.io.Closeable</h3>
+                                            <code>close</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.bus.MessageDispatcher">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.bus.MessageDispatcher</h3>
+                                            <code>canDispatch, messageClasses</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+                                        <!--   -->
+                                    </a>
+                                        <h3>Methods inherited from class&nbsp;java.lang.Object</h3>
+                                        <code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString,
+                                            wait, wait, wait</code></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+        <div class="details">
+            <ul class="blockList">
+                <li class="blockList">
+                    <!-- ========= CONSTRUCTOR DETAIL ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Detail</h3>
+                                
+                                <a name="EventDispatchingRepository()"></a>
+                                <ul class="blockList">
+                                    <li class="blockList">
+                                        <h4>EventDispatchingRepository</h4>
+                                        <pre>EventDispatchingRepository()</pre>
+                                        <div class="block"></div>
+                                        
+                                    </li>
+                                </ul>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ============ METHOD DETAIL ========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Method Detail</h3>
+                                
+                                <a id="registerWith(io.spine.server.BoundedContext)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>registerWith</h4>
+                                        <pre class="methodSignature">@OverridingMethodsMustInvokeSuper() void <a href=EventDispatchingRepository.html#registerWith(io.spine.server.BoundedContext)>registerWith</a>(<a href=../BoundedContext.html>BoundedContext</a> context)</pre>
+                                        <div class="block"><p>Registers itself as an event dispatcher with the parent <code>BoundedContext</code>.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>context</code> - the <code>BoundedContext</code> of this repository</dd>
+                                            
+                                            
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="setupEventRouting(io.spine.server.route.EventRouting)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setupEventRouting</h4>
+                                        <pre class="methodSignature"> void <a href=EventDispatchingRepository.html#setupEventRouting(io.spine.server.route.EventRouting)>setupEventRouting</a>(<a href=../route/EventRouting.html>EventRouting</a>&lt;<a href=EventDispatchingRepository.html>I</a>&gt; routing)</pre>
+                                        <div class="block"><p>A callback for derived repository classes to customize routing schema for events. </p><p>Default routing returns the ID of the entity which produced the event. This allows to “link” different kinds of entities by having the same class of IDs. More complex scenarios (e.g., one-to-many relationships) may require custom routing schemas.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>routing</code> - the routing schema to customize</dd>
+                                            
+                                            
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="dispatch(io.spine.server.type.EventEnvelope)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>dispatch</h4>
+                                        <pre class="methodSignature"> final DispatchOutcome <a href=../projection/ProjectionRepository.html#dispatch(io.spine.server.type.EventEnvelope)>dispatch</a>(<a href=../type/EventEnvelope.html>EventEnvelope</a> event)</pre>
+                                        <div class="block"><p>Dispatches the event to the corresponding entities. </p><p>If there is no stored entity with such an ID, a new one is created and stored after it handles the passed event.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>event</code> - the event to dispatch</dd>
+                                            
+                                            
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="dispatchTo(java.util.Set,io.spine.server.type.EventEnvelope)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>dispatchTo</h4>
+                                        <pre class="methodSignature"> abstract DispatchOutcome <a href=EventDispatchingRepository.html#dispatchTo(java.util.Set,io.spine.server.type.EventEnvelope)>dispatchTo</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html>Set</a>&lt;<a href=EventDispatchingRepository.html>I</a>&gt; ids, <a href=../type/EventEnvelope.html>EventEnvelope</a> event)</pre>
+                                        <div class="block"><p>Dispatches the given event to entities with the given identifiers and returns the dispatch outcome.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>ids</code> - the identifiers of the target entities</dd>
+                                            
+                                            
+                                            
+                                            <dd><code>event</code> - the event to dispatch</dd>
+                                            
+                                            
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="route(io.spine.server.type.EventEnvelope)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockListLast"
+                                          >
+                                    <li class="blockList">
+                                        <h4>route</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html>Set</a>&lt;<a href=EventDispatchingRepository.html>I</a>&gt; <a href=../projection/ProjectionRepository.html#route(io.spine.server.type.EventEnvelope)>route</a>(<a href=../type/EventEnvelope.html>EventEnvelope</a> event)</pre>
+                                        <div class="block"><p>Determines the targets of the given event.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>event</code> - the event to find targets for</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>a set of IDs of projections to dispatch the given event to</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+    </div>
+</main>
+<footer role="contentinfo">
+    <nav role="navigation">
+        <!-- ======= START OF BOTTOM NAVBAR ====== -->
+        <div class="bottomNav"><a id="navbar.bottom">
+            <!--   -->
+        </a>
+            <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a>
+            </div>
+            <a id="navbar.bottom.firstrow">
+                <!--   -->
+            </a>
+            <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+        <a id="skip.navbar.bottom">
+            <!--   -->
+        </a>
+        <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ======== END OF BOTTOM NAVBAR ======= -->
+    </nav>
+</footer><ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" id="ui-id-1" tabindex="0"
+    style="display: none;"></ul>
+<span role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></span>
+</body>
+</html>
