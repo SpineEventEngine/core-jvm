@@ -60,7 +60,6 @@ internal class SshKey(
         log { "Located the SSH key file at ${sshConfigFile.absolutePath}." }
         sshConfigFile.appendPublisher(gitHubAccessKey)
         log { "SSH config file appended." }
-        log { "Contents: ${sshConfigFile.readText()}." }
 
         execute(
             "${rootProjectFolder.absolutePath}/config/scripts/register-ssh-key.sh",
