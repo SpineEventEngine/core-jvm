@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>React</title>
+    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
+        <script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+      if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      } else {
+        const savedDarkMode = JSON.parse(storage)
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../../ui-kit/ui-kit.min.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/safe-local-storage_blocking.js"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../ui-kit/ui-kit.min.js" defer="defer"></script>
+<link href="../../../images/logo-icon.svg">
+<link href="../../../styles/custom-styles.css" rel="Stylesheet">
+</head>
+<body>
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+            <a class="library-name--link" href="../../../index.html" tabindex="1">
+                    server
+            </a>
+        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle"
+                type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">
+2.0.0-SNAPSHOT.356        </div>
+        <div class="navigation-controls">
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector jvm-like" data-active="" aria-pressed="true"
+                        data-filter=":server/main">jvm</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
+                        data-role="dropdown-toggle"
+                        aria-controls="platform-tags-listbox"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-label="Toggle source sets"
+                ></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option jvm-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":server/main"
+                                       data-filter=":server/main"/>
+                                <span class="checkbox--icon"></span>
+                                jvm
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </ul>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
+                    type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
+        </div>
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config='{"defaultSize": 280, "minSize": 200, "maxSize": 400}'>
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list"
+                    data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
+                            <span>
+                                    server
+                            </span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
+<div class="main-content" data-page-type="classlike" id="content" pageIds="server::io.spine.server.event/React///PointingToDeclaration//332232451">
+  <div class="breadcrumbs"><a href="../../../index.html">server</a><span class="delimiter">/</span><a href="../index.html">io.spine.server.event</a><span class="delimiter">/</span><span class="current">React</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span><span>React</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Retention.html"><span class="token annotation builtin">Retention</span></a><span class="token punctuation">(</span><span>value<span class="token operator"> = </span><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/RetentionPolicy.html">RetentionPolicy.RUNTIME</a></span><wbr></wbr><span class="token punctuation">)</span></div><div class="block"><span class="token annotation builtin">@</span><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Target.html"><span class="token annotation builtin">Target</span></a><span class="token punctuation">(</span><span>value<span class="token operator"> = </span><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/ElementType.html">ElementType.METHOD</a></span><wbr></wbr><span class="token punctuation">)</span></div><div class="block"><span class="token annotation builtin">@</span><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Documented.html"><span class="token annotation builtin">Documented</span></a></div><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="io.spine.core/AcceptsExternal///PointingToDeclaration/"><span class="token annotation builtin">AcceptsExternal</span></span></div><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="io.spine.core/AcceptsFilters///PointingToDeclaration/"><span class="token annotation builtin">AcceptsFilters</span></span></div><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="io.spine.core/AcceptsContracts///PointingToDeclaration/"><span class="token annotation builtin">AcceptsContracts</span></span></div></div><span class="token keyword">annotation class </span><a href="index.html">React</a></div><p class="paragraph">Marks a method of an entity as one that may modify the state of the entity in response to some domain event. </p><p class="paragraph">A reacting method must be annotated <a href="index.html">@React</a>. </p><p class="paragraph">Like other message-handling methods, event reactors are designed to be called by the framework only. Therefore, it is recommended to declare them package-private (or <code class="lang-kotlin">internal</code> in Kotlin). It discourages developers from calling these methods directly from anywhere. It is also acceptable to use <code class="lang-kotlin">protected</code> if the declaring class inherits the method from a superclass. </p><p class="paragraph">This level of access still declares that an event reactor method is a part of the Bounded Context-level API. See the <span data-unresolved-link="io.spine.core/BoundedContext///PointingToDeclaration/">BoundedContext</span> description on how the packages and Bounded Contexts relate. </p><h2 class="">Accepted Parameters</h2><p class="paragraph">Each reacting method must accept an event message derived from <span data-unresolved-link="io.spine.base/EventMessage///PointingToDeclaration/">EventMessage</span> as the first parameter. Optionally, one may pass some additional parameters and put the incoming message into some perspective. Available sets of parameters are described below. </p><h3 class="">Single event message</h3><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">@React
+ EngineStopped on(CarStopped event) { ... }
+</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div><h3 class="">An event message along with its <span data-unresolved-link="io.spine.core/EventContext///PointingToDeclaration/">context</span></h3><p class="paragraph">The context brings some properties related to the event, such as the <span data-unresolved-link="io.spine.core/WithActor/actor/#/PointingToDeclaration/">actor ID</span> or the <span data-unresolved-link="io.spine.core/EventContextMixin/timestamp/#/PointingToDeclaration/">timestamp</span> of the event emission: </p><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">@React
+ ProjectOwnerAssigned on(ProjectCreated event, EventContext context) { ... }
+</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div><h3 class="">Rejection message with an original command message</h3><p class="paragraph">If an event is a <span data-unresolved-link="io.spine.base/RejectionMessage///PointingToDeclaration/">rejection</span>, one may additionally specify the command message, which led to this rejection. This will act like a filter. In the example below, rejections of the <code class="lang-kotlin">CannotAllocateCargo</code> type only caused by the rejected <code class="lang-kotlin">DeliverOrder</code> command will be dispatched: </p><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">@React
+ OrderDeliveryFailed on(CannotAllocateCargo event, DeliverOrder command) { ... }
+</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div><p class="paragraph">It is also possible to add the context of the origin command to access even more properties: </p><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">@React
+ ProjectRenameFailed on(ProjectAlreadyCompleted event, RenameProject command, CommandContext ctx) { ... }
+</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div><h2 class="">Return Types</h2><p class="paragraph">The essence of a reacting method is an emission of one or several events in a reaction to the dispatched event. </p><p class="paragraph">As long as an entity may have a complex logic of determining which event to emit in reaction, the <code class="lang-kotlin">React</code>-marked methods allow a variety of options for the returned types. A reacting method must return one of the following. </p><h3 class="">An event message</h3><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">@React
+ TaskReassigned on(UserDeactivated event) { ... }
+</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div><h3 class="">An <code class="lang-kotlin">Optional</code> event message</h3><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">@React
+Optional&lt;PersonAllowedToBuyAlcohol&gt; on(PersonAgeChanged event) { ... }
+</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div><h3 class="">One of particular events</h3><p class="paragraph">Use one of the <a href="../../io.spine.server.tuple/-either/index.html">Either</a> types to explicitly tell alternatives returned by the function. This way you can also return a special <a href="../-no-reaction/index.html">NoReaction</a> event stating that the entity may choose not to emit an event as its reaction at all: </p><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">@React
+EitherOf3&lt;ProjectCompleted, ProjectEstimateUpdated, NoReaction&gt; on(TaskCompleted event) { ... }
+</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div><h3 class="">An <code class="lang-kotlin">Iterable</code> of event messages</h3><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">@React
+Iterable&lt;StoryMovedToBacklog&gt; on(SprintCompleted event) { ... }
+</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div><h3 class="">A <a href="../../io.spine.server.tuple/-tuple/index.html">tuple</a> of event messages</h3><p class="paragraph">Being similar to <code class="lang-kotlin">Iterable</code>, tuples allow declaring the exact types of returning values, including <code class="lang-kotlin">Optional</code> values: </p><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">@React
+Pair&lt;ProjectOwnerAssigned, ProjectDueDateChanged&gt; on(ProjectCreated event) { ... }
+
+@React
+Pair&lt;TaskAssigned, Optional&lt;TaskStarted&gt;&gt; on(TaskAdded event) { ... }
+</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div><h2 class="">Handling Incorrect Signatures</h2><p class="paragraph">If the annotation is applied to a method which does not satisfy either of these requirements, this method will not be registering for receiving events.</p></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"></div>
+    <div class="tabs-section-body"></div>
+  </div>
+</div>
+    <div class="footer">
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>Copyright 2025, TeamDev</div>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>io.spine.server.delivery</title>
+    <link href="../../images/logo-icon.svg" rel="icon" type="image/svg">
+        <script>var pathToRoot = "../../";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+      if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      } else {
+        const savedDarkMode = JSON.parse(storage)
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../styles/style.css" rel="Stylesheet">
+<link href="../../styles/main.css" rel="Stylesheet">
+<link href="../../styles/prism.css" rel="Stylesheet">
+<link href="../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../ui-kit/ui-kit.min.css" rel="Stylesheet">
+<script type="text/javascript" src="../../scripts/safe-local-storage_blocking.js"></script>
+<script type="text/javascript" src="../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../ui-kit/ui-kit.min.js" defer="defer"></script>
+<link href="../../images/logo-icon.svg">
+<link href="../../styles/custom-styles.css" rel="Stylesheet">
+</head>
+<body>
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+            <a class="library-name--link" href="../../index.html" tabindex="1">
+                    server
+            </a>
+        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle"
+                type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">
+2.0.0-SNAPSHOT.356        </div>
+        <div class="navigation-controls">
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector jvm-like" data-active="" aria-pressed="true"
+                        data-filter=":server/main">jvm</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
+                        data-role="dropdown-toggle"
+                        aria-controls="platform-tags-listbox"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-label="Toggle source sets"
+                ></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option jvm-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":server/main"
+                                       data-filter=":server/main"/>
+                                <span class="checkbox--icon"></span>
+                                jvm
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </ul>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
+                    type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
+        </div>
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config='{"defaultSize": 280, "minSize": 200, "maxSize": 400}'>
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list"
+                    data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
+                            <span>
+                                    server
+                            </span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
+<div class="main-content" data-page-type="package" id="content" pageIds="server::io.spine.server.delivery////PointingToDeclaration//332232451">
+  <div class="breadcrumbs"><a href="../../index.html">server</a><span class="delimiter">/</span><span class="current">io.spine.server.delivery</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span><span>Package-level</span></span> <span><span>declarations</span></span></h1>
+    <div class="platform-hinted UnderCoverText" data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><p class="paragraph">This package is devoted to message delivery mechanism.</p></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="TYPE">Types</button><button class="section-tab" data-togglable="FUNCTION,EXTENSION_FUNCTION">Functions</button><button class="section-tab" data-togglable="PROPERTY,EXTENSION_PROPERTY">Properties</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="TYPE">
+        <h2 class="tableheader">Types</h2>
+        <div class="table"><a data-name="373255038%2FClasslikes%2F332232451" anchor-label="AbstractWorkRegistry" id="373255038%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-abstract-work-registry/index.html"><span>Abstract</span><wbr></wbr><span>Work</span><wbr></wbr><span><span>Registry</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="373255038%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="io.spine.annotation/SPI///PointingToDeclaration/"><span class="token annotation builtin">SPI</span></span></div></div><span class="token keyword">abstract </span><span class="token keyword">class </span><a href="-abstract-work-registry/index.html">AbstractWorkRegistry</a> : <a href="-sharded-work-registry/index.html">ShardedWorkRegistry</a></div><div class="brief ">An implementation base for <a href="-sharded-work-registry/index.html">ShardedWorkRegistries</a> based on a specific persistence mechanism.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1313402687%2FClasslikes%2F332232451" anchor-label="AlreadyPickedUp" id="-1313402687%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-already-picked-up/index.html"><span>Already</span><wbr></wbr><span>Picked</span><wbr></wbr><span><span>Up</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1313402687%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="-already-picked-up/index.html">AlreadyPickedUp</a> : <a href="-failed-pick-up/index.html">FailedPickUp</a></div><div class="brief ">Represents a scenario when shard could not be picked up, as it's already picked up by another worker.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="172285170%2FClasslikes%2F332232451" anchor-label="BatchDeliveryListener" id="172285170%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-batch-delivery-listener/index.html"><span>Batch</span><wbr></wbr><span>Delivery</span><wbr></wbr><span><span>Listener</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="172285170%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-batch-delivery-listener/index.html">BatchDeliveryListener</a><span class="token operator">&lt;</span><a href="-batch-delivery-listener/index.html">I</a><span class="token operator">&gt;</span></div><div class="brief ">Listens to start and end of the <code class="lang-kotlin">Inbox</code> batch delivery.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-372607458%2FClasslikes%2F332232451" anchor-label="CatchUp" id="-372607458%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-catch-up/index.html"><span>Catch</span><wbr></wbr><span><span>Up</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-372607458%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.protobuf/Generated///PointingToDeclaration/"><span class="token annotation builtin">Generated</span></span></div></div><span class="token keyword">class </span><a href="-catch-up/index.html">CatchUp</a> : <span data-unresolved-link="com.google.protobuf/GeneratedMessage///PointingToDeclaration/">GeneratedMessage</span>, <a href="-catch-up-or-builder/index.html">CatchUpOrBuilder</a>, <span data-unresolved-link="io.spine.validate/ValidatableMessage///PointingToDeclaration/">ValidatableMessage</span>, <span data-unresolved-link="io.spine.server.delivery/CatchUpMixin///PointingToDeclaration/">CatchUpMixin</span></div><div class="brief "><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">A state of a catch-up process.
+</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div> Protobuf type <code class="lang-kotlin">spine.server.catchup.CatchUp</code></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="736609598%2FClasslikes%2F332232451" anchor-label="CatchUpAlreadyStartedException" id="736609598%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-catch-up-already-started-exception/index.html"><span>Catch</span><wbr></wbr><span>Up</span><wbr></wbr><span>Already</span><wbr></wbr><span>Started</span><wbr></wbr><span><span>Exception</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="736609598%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="-catch-up-already-started-exception/index.html">CatchUpAlreadyStartedException</a> : <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html">IllegalStateException</a></div><div class="brief ">An exception telling that the projection catch-up cannot be started, since some of the requested entities are already catching up.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-804683352%2FClasslikes%2F332232451" anchor-label="CatchUpColumn" id="-804683352%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-catch-up-column/index.html"><span>Catch</span><wbr></wbr><span>Up</span><wbr></wbr><span><span>Column</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-804683352%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="io.spine.query/RecordColumns///PointingToDeclaration/"><span class="token annotation builtin">RecordColumns</span></span><span class="token punctuation">(</span><span>ofType<span class="token operator"> = </span><a href="-catch-up/index.html">CatchUp::class</a></span><wbr></wbr><span class="token punctuation">)</span></div></div><span class="token keyword">open </span><span class="token keyword">class </span><a href="-catch-up-column/index.html">CatchUpColumn</a></div><div class="brief ">The columns stored for <a href="-catch-up/index.html">CatchUp</a> states.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-2092667389%2FClasslikes%2F332232451" anchor-label="CatchUpId" id="-2092667389%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-catch-up-id/index.html"><span>Catch</span><wbr></wbr><span>Up</span><wbr></wbr><span><span>Id</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2092667389%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.protobuf/Generated///PointingToDeclaration/"><span class="token annotation builtin">Generated</span></span></div></div><span class="token keyword">class </span><a href="-catch-up-id/index.html">CatchUpId</a> : <span data-unresolved-link="com.google.protobuf/GeneratedMessage///PointingToDeclaration/">GeneratedMessage</span>, <a href="-catch-up-id-or-builder/index.html">CatchUpIdOrBuilder</a>, <span data-unresolved-link="io.spine.validate/ValidatableMessage///PointingToDeclaration/">ValidatableMessage</span></div><div class="brief "><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">An ID of a catch-up process.
+</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div> Protobuf type <code class="lang-kotlin">spine.server.catchup.CatchUpId</code></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="911692826%2FClasslikes%2F332232451" anchor-label="CatchUpIdKt" id="911692826%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-catch-up-id-kt/index.html"><span>Catch</span><wbr></wbr><span>Up</span><wbr></wbr><span>Id</span><wbr></wbr><span><span>Kt</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="911692826%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">object </span><a href="-catch-up-id-kt/index.html">CatchUpIdKt</a></div><div class="brief "><p class="paragraph">Protobuf type <code class="lang-kotlin">spine.server.catchup.CatchUpId</code></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1965264505%2FClasslikes%2F332232451" anchor-label="CatchUpIdOrBuilder" id="-1965264505%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-catch-up-id-or-builder/index.html"><span>Catch</span><wbr></wbr><span>Up</span><wbr></wbr><span>Id</span><wbr></wbr><span>Or</span><wbr></wbr><span><span>Builder</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1965264505%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.protobuf/Generated///PointingToDeclaration/"><span class="token annotation builtin">Generated</span></span></div></div><span class="token keyword">interface </span><a href="-catch-up-id-or-builder/index.html">CatchUpIdOrBuilder</a> : <span data-unresolved-link="com.google.protobuf/MessageOrBuilder///PointingToDeclaration/">MessageOrBuilder</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="326877557%2FClasslikes%2F332232451" anchor-label="CatchUpKt" id="326877557%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-catch-up-kt/index.html"><span>Catch</span><wbr></wbr><span>Up</span><wbr></wbr><span><span>Kt</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="326877557%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">object </span><a href="-catch-up-kt/index.html">CatchUpKt</a></div><div class="brief "><p class="paragraph">Protobuf type <code class="lang-kotlin">spine.server.catchup.CatchUp</code></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="710825932%2FClasslikes%2F332232451" anchor-label="CatchUpOrBuilder" id="710825932%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-catch-up-or-builder/index.html"><span>Catch</span><wbr></wbr><span>Up</span><wbr></wbr><span>Or</span><wbr></wbr><span><span>Builder</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="710825932%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.protobuf/Generated///PointingToDeclaration/"><span class="token annotation builtin">Generated</span></span></div></div><span class="token keyword">interface </span><a href="-catch-up-or-builder/index.html">CatchUpOrBuilder</a> : <span data-unresolved-link="com.google.protobuf/MessageOrBuilder///PointingToDeclaration/">MessageOrBuilder</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="133403189%2FClasslikes%2F332232451" anchor-label="CatchUpProcess" id="133403189%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-catch-up-process/index.html"><span>Catch</span><wbr></wbr><span>Up</span><wbr></wbr><span><span>Process</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="133403189%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="-catch-up-process/index.html">CatchUpProcess</a><span class="token operator">&lt;</span><a href="-catch-up-process/index.html">I</a><span class="token operator">&gt;</span> : <a href="../io.spine.server.event/-abstract-stateful-reactor/index.html">AbstractStatefulReactor</a><span class="token operator">&lt;</span><a href="-catch-up-id/index.html">CatchUpId</a><span class="token punctuation">, </span><a href="-catch-up/index.html">CatchUp</a><span class="token punctuation">, </span><a href="-catch-up/-builder/index.html">CatchUp.Builder</a><span class="token operator">&gt; </span></div><div class="brief ">A process that performs a projection catch-up.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1989056146%2FClasslikes%2F332232451" anchor-label="CatchUpProcessBuilder" id="1989056146%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-catch-up-process-builder/index.html"><span>Catch</span><wbr></wbr><span>Up</span><wbr></wbr><span>Process</span><wbr></wbr><span><span>Builder</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1989056146%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="-catch-up-process-builder/index.html">CatchUpProcessBuilder</a><span class="token operator">&lt;</span><a href="-catch-up-process-builder/index.html">I</a><span class="token operator">&gt;</span></div><div class="brief ">A builder for <a href="-catch-up-process/index.html">CatchUpProcess</a>.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1395369572%2FClasslikes%2F332232451" anchor-label="CatchUpProto" id="-1395369572%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-catch-up-proto/index.html"><span>Catch</span><wbr></wbr><span>Up</span><wbr></wbr><span><span>Proto</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1395369572%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.protobuf/Generated///PointingToDeclaration/"><span class="token annotation builtin">Generated</span></span></div></div><span class="token keyword">class </span><a href="-catch-up-proto/index.html">CatchUpProto</a> : <span data-unresolved-link="com.google.protobuf/GeneratedFile///PointingToDeclaration/">GeneratedFile</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="46392982%2FClasslikes%2F332232451" anchor-label="CatchUpSignal" id="46392982%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-catch-up-signal/index.html"><span>Catch</span><wbr></wbr><span>Up</span><wbr></wbr><span><span>Signal</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="46392982%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.errorprone.annotations/Immutable///PointingToDeclaration/"><span class="token annotation builtin">Immutable</span></span></div></div><span class="token keyword">interface </span><a href="-catch-up-signal/index.html">CatchUpSignal</a> : <span data-unresolved-link="io.spine.base/EventMessage///PointingToDeclaration/">EventMessage</span></div><div class="brief ">A marker interface for the signals controlling the execution of catch-up processes.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1048358028%2FClasslikes%2F332232451" anchor-label="CatchUpStatus" id="1048358028%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-catch-up-status/index.html"><span>Catch</span><wbr></wbr><span>Up</span><wbr></wbr><span><span>Status</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1048358028%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.protobuf/Generated///PointingToDeclaration/"><span class="token annotation builtin">Generated</span></span></div></div><span class="token keyword">enum </span><a href="-catch-up-status/index.html">CatchUpStatus</a> : <span data-unresolved-link="com.google.protobuf/ProtocolMessageEnum///PointingToDeclaration/">ProtocolMessageEnum</span></div><div class="brief "><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">The status of a catch-up process.
+</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div> Protobuf enum <code class="lang-kotlin">spine.server.catchup.CatchUpStatus</code></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1458515031%2FClasslikes%2F332232451" anchor-label="CatchUpStorage" id="-1458515031%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-catch-up-storage/index.html"><span>Catch</span><wbr></wbr><span>Up</span><wbr></wbr><span><span>Storage</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1458515031%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="io.spine.annotation/SPI///PointingToDeclaration/"><span class="token annotation builtin">SPI</span></span></div></div><span class="token keyword">open </span><span class="token keyword">class </span><a href="-catch-up-storage/index.html">CatchUpStorage</a> : <a href="../io.spine.server.storage/-message-storage/index.html">MessageStorage</a><span class="token operator">&lt;</span><a href="-catch-up-id/index.html">CatchUpId</a><span class="token punctuation">, </span><a href="-catch-up/index.html">CatchUp</a><span class="token operator">&gt; </span></div><div class="brief ">A storage for the state of the ongoing catch-up processes.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1125377260%2FClasslikes%2F332232451" anchor-label="CommandEndpoint" id="-1125377260%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-command-endpoint/index.html"><span>Command</span><wbr></wbr><span><span>Endpoint</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1125377260%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-command-endpoint/index.html">CommandEndpoint</a><span class="token operator">&lt;</span><a href="-command-endpoint/index.html">I</a><span class="token operator">&gt;</span> : <span data-unresolved-link="io.spine.server.delivery/MessageEndpoint///PointingToDeclaration/">MessageEndpoint</span><span class="token operator">&lt;</span><a href="-command-endpoint/index.html">I</a><span class="token punctuation">, </span><a href="../io.spine.server.type/-command-envelope/index.html">CommandEnvelope</a><span class="token operator">&gt; </span></div><div class="brief ">An endpoint which accepts commands.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="322310970%2FClasslikes%2F332232451" anchor-label="Delivery" id="322310970%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-delivery/index.html"><span><span>Delivery</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="322310970%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="-delivery/index.html">Delivery</a> : <span data-unresolved-link="io.spine.logging/WithLogging///PointingToDeclaration/">WithLogging</span></div><div class="brief ">Delivers the messages to the entities.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="470734317%2FClasslikes%2F332232451" anchor-label="DeliveryBuilder" id="470734317%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-delivery-builder/index.html"><span>Delivery</span><wbr></wbr><span><span>Builder</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="470734317%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="-delivery-builder/index.html">DeliveryBuilder</a></div><div class="brief ">A builder for <code class="lang-kotlin">Delivery</code> instances.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1247259918%2FClasslikes%2F332232451" anchor-label="DeliveryMonitor" id="1247259918%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-delivery-monitor/index.html"><span>Delivery</span><wbr></wbr><span><span>Monitor</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1247259918%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="io.spine.annotation/SPI///PointingToDeclaration/"><span class="token annotation builtin">SPI</span></span></div></div><span class="token keyword">open </span><span class="token keyword">class </span><a href="-delivery-monitor/index.html">DeliveryMonitor</a></div><div class="brief ">A controlling monitor of an <a href="-delivery/index.html">Inbox Delivery</a> process.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-957706752%2FClasslikes%2F332232451" anchor-label="DeliveryProto" id="-957706752%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-delivery-proto/index.html"><span>Delivery</span><wbr></wbr><span><span>Proto</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-957706752%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.protobuf/Generated///PointingToDeclaration/"><span class="token annotation builtin">Generated</span></span></div></div><span class="token keyword">class </span><a href="-delivery-proto/index.html">DeliveryProto</a> : <span data-unresolved-link="com.google.protobuf/GeneratedFile///PointingToDeclaration/">GeneratedFile</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1025700730%2FClasslikes%2F332232451" anchor-label="DeliveryRunInfoKt" id="-1025700730%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-delivery-run-info-kt/index.html"><span>Delivery</span><wbr></wbr><span>Run</span><wbr></wbr><span>Info</span><wbr></wbr><span><span>Kt</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1025700730%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">object </span><a href="-delivery-run-info-kt/index.html">DeliveryRunInfoKt</a></div><div class="brief "><p class="paragraph">Protobuf type <code class="lang-kotlin">spine.server.delivery.DeliveryRunInfo</code></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1621979649%2FClasslikes%2F332232451" anchor-label="DeliveryStageKt" id="1621979649%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-delivery-stage-kt/index.html"><span>Delivery</span><wbr></wbr><span>Stage</span><wbr></wbr><span><span>Kt</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1621979649%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">object </span><a href="-delivery-stage-kt/index.html">DeliveryStageKt</a></div><div class="brief "><p class="paragraph">Protobuf type <code class="lang-kotlin">spine.server.delivery.DeliveryStage</code></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-142131415%2FClasslikes%2F332232451" anchor-label="DeliveryStats" id="-142131415%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-delivery-stats/index.html"><span>Delivery</span><wbr></wbr><span><span>Stats</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-142131415%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="-delivery-stats/index.html">DeliveryStats</a></div><div class="brief ">The statistics on <a href="-delivery/deliver-messages-from.html">delivering the messages</a> from a certain shard.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="309825031%2FClasslikes%2F332232451" anchor-label="DeliveryStrategy" id="309825031%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-delivery-strategy/index.html"><span>Delivery</span><wbr></wbr><span><span>Strategy</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="309825031%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">class </span><a href="-delivery-strategy/index.html">DeliveryStrategy</a></div><div class="brief ">Determines the <span data-unresolved-link="io.spine.server.delivery/ShardIndex///PointingToDeclaration/">index of a shard</span> for the given identifier of an entity.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-471152027%2FClasslikes%2F332232451" anchor-label="EventEndpoint" id="-471152027%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-event-endpoint/index.html"><span>Event</span><wbr></wbr><span><span>Endpoint</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-471152027%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-event-endpoint/index.html">EventEndpoint</a><span class="token operator">&lt;</span><a href="-event-endpoint/index.html">I</a><span class="token operator">&gt;</span> : <span data-unresolved-link="io.spine.server.delivery/MessageEndpoint///PointingToDeclaration/">MessageEndpoint</span><span class="token operator">&lt;</span><a href="-event-endpoint/index.html">I</a><span class="token punctuation">, </span><a href="../io.spine.server.type/-event-envelope/index.html">EventEnvelope</a><span class="token operator">&gt; </span></div><div class="brief ">An endpoint which accepts events.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="2042596117%2FClasslikes%2F332232451" anchor-label="FailedPickUp" id="2042596117%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-failed-pick-up/index.html"><span>Failed</span><wbr></wbr><span>Pick</span><wbr></wbr><span><span>Up</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2042596117%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">class </span><a href="-failed-pick-up/index.html">FailedPickUp</a></div><div class="brief ">An abstract base for shard pick-up-related failures.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1641686462%2FClasslikes%2F332232451" anchor-label="FailedReception" id="-1641686462%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-failed-reception/index.html"><span>Failed</span><wbr></wbr><span><span>Reception</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1641686462%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="-failed-reception/index.html">FailedReception</a></div><div class="brief ">The evidence of an <span data-unresolved-link="io.spine.server.delivery/InboxMessage///PointingToDeclaration/">InboxMessage</span> which has failed to be handled by its receptor, such as an event or a command handler method.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="36219032%2FClasslikes%2F332232451" anchor-label="InboxColumn" id="36219032%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-inbox-column/index.html"><span>Inbox</span><wbr></wbr><span><span>Column</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="36219032%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="io.spine.query/RecordColumns///PointingToDeclaration/"><span class="token annotation builtin">RecordColumns</span></span><span class="token punctuation">(</span><span>ofType<span class="token operator"> = </span><span data-unresolved-link="io.spine.server.delivery/InboxMessage///PointingToDeclaration/">InboxMessage::class</span></span><wbr></wbr><span class="token punctuation">)</span></div><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="io.spine.annotation/SPI///PointingToDeclaration/"><span class="token annotation builtin">SPI</span></span></div></div><span class="token keyword">class </span><a href="-inbox-column/index.html">InboxColumn</a></div><div class="brief ">Columns stored along with each <span data-unresolved-link="io.spine.server.delivery/InboxMessage///PointingToDeclaration/">InboxMessage</span>.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="519272202%2FClasslikes%2F332232451" anchor-label="InboxIdKt" id="519272202%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-inbox-id-kt/index.html"><span>Inbox</span><wbr></wbr><span>Id</span><wbr></wbr><span><span>Kt</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="519272202%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">object </span><a href="-inbox-id-kt/index.html">InboxIdKt</a></div><div class="brief "><p class="paragraph">Protobuf type <code class="lang-kotlin">spine.server.delivery.InboxId</code></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="2060608800%2FClasslikes%2F332232451" anchor-label="InboxLabel" id="2060608800%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-inbox-label/index.html"><span>Inbox</span><wbr></wbr><span><span>Label</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2060608800%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.protobuf/Generated///PointingToDeclaration/"><span class="token annotation builtin">Generated</span></span></div></div><span class="token keyword">enum </span><a href="-inbox-label/index.html">InboxLabel</a> : <span data-unresolved-link="com.google.protobuf/ProtocolMessageEnum///PointingToDeclaration/">ProtocolMessageEnum</span></div><div class="brief "><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">A label telling how to dispatch a message, residing in the `Inbox`.
+</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div> Protobuf enum <code class="lang-kotlin">spine.server.delivery.InboxLabel</code></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1978261801%2FClasslikes%2F332232451" anchor-label="InboxMessageIdKt" id="1978261801%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-inbox-message-id-kt/index.html"><span>Inbox</span><wbr></wbr><span>Message</span><wbr></wbr><span>Id</span><wbr></wbr><span><span>Kt</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1978261801%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">object </span><a href="-inbox-message-id-kt/index.html">InboxMessageIdKt</a></div><div class="brief "><p class="paragraph">Protobuf type <code class="lang-kotlin">spine.server.delivery.InboxMessageId</code></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="958154308%2FClasslikes%2F332232451" anchor-label="InboxMessageKt" id="958154308%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-inbox-message-kt/index.html"><span>Inbox</span><wbr></wbr><span>Message</span><wbr></wbr><span><span>Kt</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="958154308%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">object </span><a href="-inbox-message-kt/index.html">InboxMessageKt</a></div><div class="brief "><p class="paragraph">Protobuf type <code class="lang-kotlin">spine.server.delivery.InboxMessage</code></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-476040741%2FClasslikes%2F332232451" anchor-label="InboxMessageStatus" id="-476040741%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-inbox-message-status/index.html"><span>Inbox</span><wbr></wbr><span>Message</span><wbr></wbr><span><span>Status</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-476040741%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.protobuf/Generated///PointingToDeclaration/"><span class="token annotation builtin">Generated</span></span></div></div><span class="token keyword">enum </span><a href="-inbox-message-status/index.html">InboxMessageStatus</a> : <span data-unresolved-link="com.google.protobuf/ProtocolMessageEnum///PointingToDeclaration/">ProtocolMessageEnum</span></div><div class="brief "><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">A status of the message in the `Inbox`.
+</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div> Protobuf enum <code class="lang-kotlin">spine.server.delivery.InboxMessageStatus</code></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1764649281%2FClasslikes%2F332232451" anchor-label="InboxPage" id="-1764649281%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-inbox-page/index.html"><span>Inbox</span><wbr></wbr><span><span>Page</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1764649281%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="-inbox-page/index.html">InboxPage</a> : <a href="-page/index.html">Page</a><span class="token operator">&lt;</span><span data-unresolved-link="io.spine.server.delivery/InboxMessage///PointingToDeclaration/">InboxMessage</span><span class="token operator">&gt; </span></div><div class="brief ">A single page of the messages read from the <a href="-inbox-storage/index.html">InboxStorage</a>.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-675507028%2FClasslikes%2F332232451" anchor-label="InboxProto" id="-675507028%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-inbox-proto/index.html"><span>Inbox</span><wbr></wbr><span><span>Proto</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-675507028%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.protobuf/Generated///PointingToDeclaration/"><span class="token annotation builtin">Generated</span></span></div></div><span class="token keyword">class </span><a href="-inbox-proto/index.html">InboxProto</a> : <span data-unresolved-link="com.google.protobuf/GeneratedFile///PointingToDeclaration/">GeneratedFile</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1962543230%2FClasslikes%2F332232451" anchor-label="InboxSignalIdKt" id="-1962543230%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-inbox-signal-id-kt/index.html"><span>Inbox</span><wbr></wbr><span>Signal</span><wbr></wbr><span>Id</span><wbr></wbr><span><span>Kt</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1962543230%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">object </span><a href="-inbox-signal-id-kt/index.html">InboxSignalIdKt</a></div><div class="brief "><p class="paragraph">Protobuf type <code class="lang-kotlin">spine.server.delivery.InboxSignalId</code></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1160344903%2FClasslikes%2F332232451" anchor-label="InboxStorage" id="-1160344903%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-inbox-storage/index.html"><span>Inbox</span><wbr></wbr><span><span>Storage</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1160344903%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="io.spine.annotation/SPI///PointingToDeclaration/"><span class="token annotation builtin">SPI</span></span></div></div><span class="token keyword">open </span><span class="token keyword">class </span><a href="-inbox-storage/index.html">InboxStorage</a> : <a href="../io.spine.server.storage/-message-storage/index.html">MessageStorage</a><span class="token operator">&lt;</span><span data-unresolved-link="io.spine.server.delivery/InboxMessageId///PointingToDeclaration/">InboxMessageId</span><span class="token punctuation">, </span><span data-unresolved-link="io.spine.server.delivery/InboxMessage///PointingToDeclaration/">InboxMessage</span><span class="token operator">&gt; </span></div><div class="brief ">A contract for storages of <span data-unresolved-link="io.spine.server.delivery/Inbox///PointingToDeclaration/">Inbox</span> messages.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1880612699%2FClasslikes%2F332232451" anchor-label="LocalDispatchingObserver" id="1880612699%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-local-dispatching-observer/index.html"><span>Local</span><wbr></wbr><span>Dispatching</span><wbr></wbr><span><span>Observer</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1880612699%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="io.spine.annotation/VisibleForTesting///PointingToDeclaration/"><span class="token annotation builtin">VisibleForTesting</span></span></div></div><span class="token keyword">class </span><a href="-local-dispatching-observer/index.html">LocalDispatchingObserver</a> : <a href="-shard-observer/index.html">ShardObserver</a></div><div class="brief ">An observer of changes to the shard contents, which triggers immediate delivery of the sharded messages.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1895540607%2FClasslikes%2F332232451" anchor-label="Page" id="1895540607%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-page/index.html"><span><span>Page</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1895540607%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="io.spine.annotation/SPI///PointingToDeclaration/"><span class="token annotation builtin">SPI</span></span></div></div><span class="token keyword">interface </span><a href="-page/index.html">Page</a><span class="token operator">&lt;</span><a href="-page/index.html">M</a><span class="token operator"> : </span><span data-unresolved-link="io.spine.server.delivery/ShardedRecord///PointingToDeclaration/">ShardedRecord</span><span class="token operator">?</span><span class="token operator">&gt;</span></div><div class="brief ">A page of messages obtained from a sharded storage in a read operation.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1643666219%2FClasslikes%2F332232451" anchor-label="PickUpOutcomeKt" id="-1643666219%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-pick-up-outcome-kt/index.html"><span>Pick</span><wbr></wbr><span>Up</span><wbr></wbr><span>Outcome</span><wbr></wbr><span><span>Kt</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1643666219%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">object </span><a href="-pick-up-outcome-kt/index.html">PickUpOutcomeKt</a></div><div class="brief "><p class="paragraph">Protobuf type <code class="lang-kotlin">spine.server.delivery.PickUpOutcome</code></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="49571267%2FClasslikes%2F332232451" anchor-label="PickUpOutcomeMixin" id="49571267%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-pick-up-outcome-mixin/index.html"><span>Pick</span><wbr></wbr><span>Up</span><wbr></wbr><span>Outcome</span><wbr></wbr><span><span>Mixin</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="49571267%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="io.spine.annotation/GeneratedMixin///PointingToDeclaration/"><span class="token annotation builtin">GeneratedMixin</span></span></div></div><span class="token keyword">interface </span><a href="-pick-up-outcome-mixin/index.html">PickUpOutcomeMixin</a> : <span data-unresolved-link="io.spine.server.delivery/PickUpOutcomeOrBuilder///PointingToDeclaration/">PickUpOutcomeOrBuilder</span></div><div class="brief ">A mixin of the <span data-unresolved-link="io.spine.server.delivery/PickUpOutcome///PointingToDeclaration/">PickUpOutcome</span> providing a convenience API over the Proto message.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-644860772%2FClasslikes%2F332232451" anchor-label="RuntimeFailure" id="-644860772%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-runtime-failure/index.html"><span>Runtime</span><wbr></wbr><span><span>Failure</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-644860772%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="-runtime-failure/index.html">RuntimeFailure</a> : <a href="-failed-pick-up/index.html">FailedPickUp</a></div><div class="brief ">Represents a scenario when shard could not be picked because of some <code class="lang-kotlin">RuntimeException</code>.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-660269200%2FClasslikes%2F332232451" anchor-label="ShardAlreadyPickedUpKt" id="-660269200%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-shard-already-picked-up-kt/index.html"><span>Shard</span><wbr></wbr><span>Already</span><wbr></wbr><span>Picked</span><wbr></wbr><span>Up</span><wbr></wbr><span><span>Kt</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-660269200%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">object </span><a href="-shard-already-picked-up-kt/index.html">ShardAlreadyPickedUpKt</a></div><div class="brief "><p class="paragraph">Protobuf type <code class="lang-kotlin">spine.server.delivery.ShardAlreadyPickedUp</code></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-883731991%2FClasslikes%2F332232451" anchor-label="ShardedWorkRegistry" id="-883731991%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-sharded-work-registry/index.html"><span>Sharded</span><wbr></wbr><span>Work</span><wbr></wbr><span><span>Registry</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-883731991%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="io.spine.annotation/SPI///PointingToDeclaration/"><span class="token annotation builtin">SPI</span></span></div></div><span class="token keyword">interface </span><a href="-sharded-work-registry/index.html">ShardedWorkRegistry</a></div><div class="brief ">The registry of the shard indexes along with the identifiers of the nodes, which process the messages corresponding to each index.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-882253647%2FClasslikes%2F332232451" anchor-label="ShardIndexKt" id="-882253647%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-shard-index-kt/index.html"><span>Shard</span><wbr></wbr><span>Index</span><wbr></wbr><span><span>Kt</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-882253647%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">object </span><a href="-shard-index-kt/index.html">ShardIndexKt</a></div><div class="brief "><p class="paragraph">Protobuf type <code class="lang-kotlin">spine.server.delivery.ShardIndex</code></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-568554096%2FClasslikes%2F332232451" anchor-label="ShardMaintenanceKt" id="-568554096%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-shard-maintenance-kt/index.html"><span>Shard</span><wbr></wbr><span>Maintenance</span><wbr></wbr><span><span>Kt</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-568554096%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">object </span><a href="-shard-maintenance-kt/index.html">ShardMaintenanceKt</a></div><div class="brief "><p class="paragraph">Protobuf type <code class="lang-kotlin">spine.server.delivery.ShardMaintenance</code></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-2062603392%2FClasslikes%2F332232451" anchor-label="ShardObserver" id="-2062603392%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-shard-observer/index.html"><span>Shard</span><wbr></wbr><span><span>Observer</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2062603392%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="io.spine.annotation/SPI///PointingToDeclaration/"><span class="token annotation builtin">SPI</span></span></div></div><span class="token keyword">interface </span><a href="-shard-observer/index.html">ShardObserver</a></div><div class="brief ">An abstract base for observers of the updates made to the contents of shards.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1370389047%2FClasslikes%2F332232451" anchor-label="ShardProcessingSession" id="-1370389047%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-shard-processing-session/index.html"><span>Shard</span><wbr></wbr><span>Processing</span><wbr></wbr><span><span>Session</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1370389047%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="io.spine.annotation/SPI///PointingToDeclaration/"><span class="token annotation builtin">SPI</span></span></div></div><span class="token keyword">abstract </span><span class="token keyword">class </span><a href="-shard-processing-session/index.html">ShardProcessingSession</a></div><div class="brief ">The session of processing the messages, which reside in a shard.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1155374372%2FClasslikes%2F332232451" anchor-label="ShardSessionRecordKt" id="-1155374372%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-shard-session-record-kt/index.html"><span>Shard</span><wbr></wbr><span>Session</span><wbr></wbr><span>Record</span><wbr></wbr><span><span>Kt</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1155374372%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">object </span><a href="-shard-session-record-kt/index.html">ShardSessionRecordKt</a></div><div class="brief "><p class="paragraph">Protobuf type <code class="lang-kotlin">spine.server.delivery.ShardSessionRecord</code></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1608069131%2FClasslikes%2F332232451" anchor-label="UniformAcrossAllShards" id="1608069131%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-uniform-across-all-shards/index.html"><span>Uniform</span><wbr></wbr><span>Across</span><wbr></wbr><span>All</span><wbr></wbr><span><span>Shards</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1608069131%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.errorprone.annotations/Immutable///PointingToDeclaration/"><span class="token annotation builtin">Immutable</span></span></div></div><span class="token keyword">class </span><a href="-uniform-across-all-shards/index.html">UniformAcrossAllShards</a> : <a href="-delivery-strategy/index.html">DeliveryStrategy</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html">Serializable</a></div><div class="brief ">The strategy of splitting the entities into a number of shards uniformly.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-543847636%2FClasslikes%2F332232451" anchor-label="WorkerIdKt" id="-543847636%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-worker-id-kt/index.html"><span>Worker</span><wbr></wbr><span>Id</span><wbr></wbr><span><span>Kt</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-543847636%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">object </span><a href="-worker-id-kt/index.html">WorkerIdKt</a></div><div class="brief "><p class="paragraph">Protobuf type <code class="lang-kotlin">spine.server.delivery.WorkerId</code></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="EXTENSION_PROPERTY">
+        <h2 class="tableheader">Inherited properties</h2>
+        <div class="table"><a data-name="1964963961%2FProperties%2F332232451" anchor-label="alreadyPickedOrNull" id="1964963961%2FProperties%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="already-picked-or-null.html"><span>already</span><wbr></wbr><span>Picked</span><wbr></wbr><span>Or</span><wbr></wbr><span><span>Null</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1964963961%2FProperties%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">val </span><span data-unresolved-link="io.spine.server.delivery/PickUpOutcomeOrBuilder///PointingToDeclaration/">PickUpOutcomeOrBuilder</span><span class="token punctuation">.</span><a href="already-picked-or-null.html">alreadyPickedOrNull</a><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/ShardAlreadyPickedUp///PointingToDeclaration/">ShardAlreadyPickedUp</span><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1046795671%2FProperties%2F332232451" anchor-label="commandOrNull" id="-1046795671%2FProperties%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="command-or-null.html"><span>command</span><wbr></wbr><span>Or</span><wbr></wbr><span><span>Null</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1046795671%2FProperties%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">val </span><span data-unresolved-link="io.spine.server.delivery/InboxMessageOrBuilder///PointingToDeclaration/">InboxMessageOrBuilder</span><span class="token punctuation">.</span><a href="command-or-null.html">commandOrNull</a><span class="token operator">: </span><span data-unresolved-link="io.spine.core/Command///PointingToDeclaration/">Command</span><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="339757292%2FProperties%2F332232451" anchor-label="entityIdOrNull" id="339757292%2FProperties%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="entity-id-or-null.html"><span>entity</span><wbr></wbr><span>Id</span><wbr></wbr><span>Or</span><wbr></wbr><span><span>Null</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="339757292%2FProperties%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">val </span><span data-unresolved-link="io.spine.server.delivery/InboxIdOrBuilder///PointingToDeclaration/">InboxIdOrBuilder</span><span class="token punctuation">.</span><a href="entity-id-or-null.html">entityIdOrNull</a><span class="token operator">: </span><span data-unresolved-link="io.spine.client/EntityId///PointingToDeclaration/">EntityId</span><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="817916538%2FProperties%2F332232451" anchor-label="eventOrNull" id="817916538%2FProperties%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="event-or-null.html"><span>event</span><wbr></wbr><span>Or</span><wbr></wbr><span><span>Null</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="817916538%2FProperties%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">val </span><span data-unresolved-link="io.spine.server.delivery/InboxMessageOrBuilder///PointingToDeclaration/">InboxMessageOrBuilder</span><span class="token punctuation">.</span><a href="event-or-null.html">eventOrNull</a><span class="token operator">: </span><span data-unresolved-link="io.spine.core/Event///PointingToDeclaration/">Event</span><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1620183040%2FProperties%2F332232451" anchor-label="idOrNull" id="-1620183040%2FProperties%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="id-or-null.html"><span>id</span><wbr></wbr><span>Or</span><wbr></wbr><span><span>Null</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1620183040%2FProperties%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">val </span><a href="-catch-up-or-builder/index.html">CatchUpOrBuilder</a><span class="token punctuation">.</span><a href="id-or-null.html">idOrNull</a><span class="token operator">: </span><a href="-catch-up-id/index.html">CatchUpId</a><span class="token operator">?</span></div><div class="symbol monospace"><span class="token keyword">val </span><span data-unresolved-link="io.spine.server.delivery/InboxMessageOrBuilder///PointingToDeclaration/">InboxMessageOrBuilder</span><span class="token punctuation">.</span><a href="id-or-null.html">idOrNull</a><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/InboxMessageId///PointingToDeclaration/">InboxMessageId</span><span class="token operator">?</span></div><div class="symbol monospace"><span class="token keyword">val </span><span data-unresolved-link="io.spine.server.delivery/ShardMaintenanceOrBuilder///PointingToDeclaration/">ShardMaintenanceOrBuilder</span><span class="token punctuation">.</span><a href="id-or-null.html">idOrNull</a><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/ShardIndex///PointingToDeclaration/">ShardIndex</span><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1902384947%2FProperties%2F332232451" anchor-label="inboxIdOrNull" id="1902384947%2FProperties%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="inbox-id-or-null.html"><span>inbox</span><wbr></wbr><span>Id</span><wbr></wbr><span>Or</span><wbr></wbr><span><span>Null</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1902384947%2FProperties%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">val </span><span data-unresolved-link="io.spine.server.delivery/InboxMessageOrBuilder///PointingToDeclaration/">InboxMessageOrBuilder</span><span class="token punctuation">.</span><a href="inbox-id-or-null.html">inboxIdOrNull</a><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/InboxId///PointingToDeclaration/">InboxId</span><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1887601368%2FProperties%2F332232451" anchor-label="indexOrNull" id="-1887601368%2FProperties%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index-or-null.html"><span>index</span><wbr></wbr><span>Or</span><wbr></wbr><span><span>Null</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1887601368%2FProperties%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">val </span><span data-unresolved-link="io.spine.server.delivery/DeliveryStageOrBuilder///PointingToDeclaration/">DeliveryStageOrBuilder</span><span class="token punctuation">.</span><a href="index-or-null.html">indexOrNull</a><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/ShardIndex///PointingToDeclaration/">ShardIndex</span><span class="token operator">?</span></div><div class="symbol monospace"><span class="token keyword">val </span><span data-unresolved-link="io.spine.server.delivery/InboxMessageIdOrBuilder///PointingToDeclaration/">InboxMessageIdOrBuilder</span><span class="token punctuation">.</span><a href="index-or-null.html">indexOrNull</a><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/ShardIndex///PointingToDeclaration/">ShardIndex</span><span class="token operator">?</span></div><div class="symbol monospace"><span class="token keyword">val </span><span data-unresolved-link="io.spine.server.delivery/ShardSessionRecordOrBuilder///PointingToDeclaration/">ShardSessionRecordOrBuilder</span><span class="token punctuation">.</span><a href="index-or-null.html">indexOrNull</a><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/ShardIndex///PointingToDeclaration/">ShardIndex</span><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1768956261%2FProperties%2F332232451" anchor-label="keepUntilOrNull" id="-1768956261%2FProperties%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="keep-until-or-null.html"><span>keep</span><wbr></wbr><span>Until</span><wbr></wbr><span>Or</span><wbr></wbr><span><span>Null</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1768956261%2FProperties%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">val </span><span data-unresolved-link="io.spine.server.delivery/InboxMessageOrBuilder///PointingToDeclaration/">InboxMessageOrBuilder</span><span class="token punctuation">.</span><a href="keep-until-or-null.html">keepUntilOrNull</a><span class="token operator">: </span><span data-unresolved-link="com.google.protobuf/Timestamp///PointingToDeclaration/">Timestamp</span><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-206057849%2FProperties%2F332232451" anchor-label="nodeIdOrNull" id="-206057849%2FProperties%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="node-id-or-null.html"><span>node</span><wbr></wbr><span>Id</span><wbr></wbr><span>Or</span><wbr></wbr><span><span>Null</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-206057849%2FProperties%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">val </span><span data-unresolved-link="io.spine.server.delivery/WorkerIdOrBuilder///PointingToDeclaration/">WorkerIdOrBuilder</span><span class="token punctuation">.</span><a href="node-id-or-null.html">nodeIdOrNull</a><span class="token operator">: </span><a href="../io.spine.server/-node-id/index.html">NodeId</a><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1516568880%2FProperties%2F332232451" anchor-label="requestOrNull" id="1516568880%2FProperties%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="request-or-null.html"><span>request</span><wbr></wbr><span>Or</span><wbr></wbr><span><span>Null</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1516568880%2FProperties%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">val </span><a href="-catch-up-or-builder/index.html">CatchUpOrBuilder</a><span class="token punctuation">.</span><a href="request-or-null.html">requestOrNull</a><span class="token operator">: </span><a href="-catch-up/-request/index.html">CatchUp.Request</a><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-597020009%2FProperties%2F332232451" anchor-label="sessionOrNull" id="-597020009%2FProperties%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="session-or-null.html"><span>session</span><wbr></wbr><span>Or</span><wbr></wbr><span><span>Null</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-597020009%2FProperties%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">val </span><span data-unresolved-link="io.spine.server.delivery/PickUpOutcomeOrBuilder///PointingToDeclaration/">PickUpOutcomeOrBuilder</span><span class="token punctuation">.</span><a href="session-or-null.html">sessionOrNull</a><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/ShardSessionRecord///PointingToDeclaration/">ShardSessionRecord</span><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="287900345%2FProperties%2F332232451" anchor-label="signalIdOrNull" id="287900345%2FProperties%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="signal-id-or-null.html"><span>signal</span><wbr></wbr><span>Id</span><wbr></wbr><span>Or</span><wbr></wbr><span><span>Null</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="287900345%2FProperties%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">val </span><span data-unresolved-link="io.spine.server.delivery/InboxMessageOrBuilder///PointingToDeclaration/">InboxMessageOrBuilder</span><span class="token punctuation">.</span><a href="signal-id-or-null.html">signalIdOrNull</a><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/InboxSignalId///PointingToDeclaration/">InboxSignalId</span><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1782459180%2FProperties%2F332232451" anchor-label="sinceWhenOrNull" id="-1782459180%2FProperties%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="since-when-or-null.html"><span>since</span><wbr></wbr><span>When</span><wbr></wbr><span>Or</span><wbr></wbr><span><span>Null</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1782459180%2FProperties%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">val </span><a href="-catch-up/-request-or-builder/index.html">CatchUp.RequestOrBuilder</a><span class="token punctuation">.</span><a href="since-when-or-null.html">sinceWhenOrNull</a><span class="token operator">: </span><span data-unresolved-link="com.google.protobuf/Timestamp///PointingToDeclaration/">Timestamp</span><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1397110852%2FProperties%2F332232451" anchor-label="whenLastPickedOrNull" id="1397110852%2FProperties%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="when-last-picked-or-null.html"><span>when</span><wbr></wbr><span>Last</span><wbr></wbr><span>Picked</span><wbr></wbr><span>Or</span><wbr></wbr><span><span>Null</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1397110852%2FProperties%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">val </span><span data-unresolved-link="io.spine.server.delivery/ShardSessionRecordOrBuilder///PointingToDeclaration/">ShardSessionRecordOrBuilder</span><span class="token punctuation">.</span><a href="when-last-picked-or-null.html">whenLastPickedOrNull</a><span class="token operator">: </span><span data-unresolved-link="com.google.protobuf/Timestamp///PointingToDeclaration/">Timestamp</span><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="426140511%2FProperties%2F332232451" anchor-label="whenLastReadOrNull" id="426140511%2FProperties%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="when-last-read-or-null.html"><span>when</span><wbr></wbr><span>Last</span><wbr></wbr><span>Read</span><wbr></wbr><span>Or</span><wbr></wbr><span><span>Null</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="426140511%2FProperties%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">val </span><a href="-catch-up-or-builder/index.html">CatchUpOrBuilder</a><span class="token punctuation">.</span><a href="when-last-read-or-null.html">whenLastReadOrNull</a><span class="token operator">: </span><span data-unresolved-link="com.google.protobuf/Timestamp///PointingToDeclaration/">Timestamp</span><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1020573902%2FProperties%2F332232451" anchor-label="whenPickedOrNull" id="1020573902%2FProperties%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="when-picked-or-null.html"><span>when</span><wbr></wbr><span>Picked</span><wbr></wbr><span>Or</span><wbr></wbr><span><span>Null</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1020573902%2FProperties%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">val </span><span data-unresolved-link="io.spine.server.delivery/ShardAlreadyPickedUpOrBuilder///PointingToDeclaration/">ShardAlreadyPickedUpOrBuilder</span><span class="token punctuation">.</span><a href="when-picked-or-null.html">whenPickedOrNull</a><span class="token operator">: </span><span data-unresolved-link="com.google.protobuf/Timestamp///PointingToDeclaration/">Timestamp</span><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1647081887%2FProperties%2F332232451" anchor-label="whenReceivedOrNull" id="-1647081887%2FProperties%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="when-received-or-null.html"><span>when</span><wbr></wbr><span>Received</span><wbr></wbr><span>Or</span><wbr></wbr><span><span>Null</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1647081887%2FProperties%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">val </span><span data-unresolved-link="io.spine.server.delivery/InboxMessageOrBuilder///PointingToDeclaration/">InboxMessageOrBuilder</span><span class="token punctuation">.</span><a href="when-received-or-null.html">whenReceivedOrNull</a><span class="token operator">: </span><span data-unresolved-link="com.google.protobuf/Timestamp///PointingToDeclaration/">Timestamp</span><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1555278408%2FProperties%2F332232451" anchor-label="workerOrNull" id="-1555278408%2FProperties%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="worker-or-null.html"><span>worker</span><wbr></wbr><span>Or</span><wbr></wbr><span><span>Null</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1555278408%2FProperties%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">val </span><span data-unresolved-link="io.spine.server.delivery/ShardAlreadyPickedUpOrBuilder///PointingToDeclaration/">ShardAlreadyPickedUpOrBuilder</span><span class="token punctuation">.</span><a href="worker-or-null.html">workerOrNull</a><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/WorkerId///PointingToDeclaration/">WorkerId</span><span class="token operator">?</span></div><div class="symbol monospace"><span class="token keyword">val </span><span data-unresolved-link="io.spine.server.delivery/ShardSessionRecordOrBuilder///PointingToDeclaration/">ShardSessionRecordOrBuilder</span><span class="token punctuation">.</span><a href="worker-or-null.html">workerOrNull</a><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/WorkerId///PointingToDeclaration/">WorkerId</span><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="FUNCTION">
+        <h2 class="tableheader">Functions</h2>
+        <div class="table"><a data-name="-2033178570%2FFunctions%2F332232451" anchor-label="catchUp" id="-2033178570%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="catch-up.html"><span>catch</span><wbr></wbr><span><span>Up</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2033178570%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.jvm/-jvm-name/index.html"><span class="token annotation builtin">JvmName</span></a><span class="token punctuation">(</span><span>name<span class="token operator"> = </span><span class="breakable-word"><span class="token string">&quot;-initializecatchUp&quot;</span></span></span><wbr></wbr><span class="token punctuation">)</span></div></div><span class="token keyword">inline </span><span class="token keyword">fun </span><a href="catch-up.html"><span class="token function">catchUp</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-catch-up-kt/-dsl/index.html">CatchUpKt.Dsl</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-catch-up/index.html">CatchUp</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-580203434%2FFunctions%2F332232451" anchor-label="catchUpId" id="-580203434%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="catch-up-id.html"><span>catch</span><wbr></wbr><span>Up</span><wbr></wbr><span><span>Id</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-580203434%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.jvm/-jvm-name/index.html"><span class="token annotation builtin">JvmName</span></a><span class="token punctuation">(</span><span>name<span class="token operator"> = </span><span class="breakable-word"><span class="token string">&quot;-initializecatchUpId&quot;</span></span></span><wbr></wbr><span class="token punctuation">)</span></div></div><span class="token keyword">inline </span><span class="token keyword">fun </span><a href="catch-up-id.html"><span class="token function">catchUpId</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-catch-up-id-kt/-dsl/index.html">CatchUpIdKt.Dsl</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-catch-up-id/index.html">CatchUpId</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-498200618%2FFunctions%2F332232451" anchor-label="deliveryRunInfo" id="-498200618%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="delivery-run-info.html"><span>delivery</span><wbr></wbr><span>Run</span><wbr></wbr><span><span>Info</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-498200618%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.jvm/-jvm-name/index.html"><span class="token annotation builtin">JvmName</span></a><span class="token punctuation">(</span><span>name<span class="token operator"> = </span><span class="breakable-word"><span class="token string">&quot;-initializedeliveryRunInfo&quot;</span></span></span><wbr></wbr><span class="token punctuation">)</span></div></div><span class="token keyword">inline </span><span class="token keyword">fun </span><a href="delivery-run-info.html"><span class="token function">deliveryRunInfo</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-delivery-run-info-kt/-dsl/index.html">DeliveryRunInfoKt.Dsl</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/DeliveryRunInfo///PointingToDeclaration/">DeliveryRunInfo</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="660959862%2FFunctions%2F332232451" anchor-label="deliveryStage" id="660959862%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="delivery-stage.html"><span>delivery</span><wbr></wbr><span><span>Stage</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="660959862%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.jvm/-jvm-name/index.html"><span class="token annotation builtin">JvmName</span></a><span class="token punctuation">(</span><span>name<span class="token operator"> = </span><span class="breakable-word"><span class="token string">&quot;-initializedeliveryStage&quot;</span></span></span><wbr></wbr><span class="token punctuation">)</span></div></div><span class="token keyword">inline </span><span class="token keyword">fun </span><a href="delivery-stage.html"><span class="token function">deliveryStage</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-delivery-stage-kt/-dsl/index.html">DeliveryStageKt.Dsl</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/DeliveryStage///PointingToDeclaration/">DeliveryStage</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="806449750%2FFunctions%2F332232451" anchor-label="inboxId" id="806449750%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="inbox-id.html"><span>inbox</span><wbr></wbr><span><span>Id</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="806449750%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.jvm/-jvm-name/index.html"><span class="token annotation builtin">JvmName</span></a><span class="token punctuation">(</span><span>name<span class="token operator"> = </span><span class="breakable-word"><span class="token string">&quot;-initializeinboxId&quot;</span></span></span><wbr></wbr><span class="token punctuation">)</span></div></div><span class="token keyword">inline </span><span class="token keyword">fun </span><a href="inbox-id.html"><span class="token function">inboxId</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-inbox-id-kt/-dsl/index.html">InboxIdKt.Dsl</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/InboxId///PointingToDeclaration/">InboxId</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1314399450%2FFunctions%2F332232451" anchor-label="inboxMessage" id="-1314399450%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="inbox-message.html"><span>inbox</span><wbr></wbr><span><span>Message</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1314399450%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.jvm/-jvm-name/index.html"><span class="token annotation builtin">JvmName</span></a><span class="token punctuation">(</span><span>name<span class="token operator"> = </span><span class="breakable-word"><span class="token string">&quot;-initializeinboxMessage&quot;</span></span></span><wbr></wbr><span class="token punctuation">)</span></div></div><span class="token keyword">inline </span><span class="token keyword">fun </span><a href="inbox-message.html"><span class="token function">inboxMessage</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-inbox-message-kt/-dsl/index.html">InboxMessageKt.Dsl</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/InboxMessage///PointingToDeclaration/">InboxMessage</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1399406116%2FFunctions%2F332232451" anchor-label="inboxMessageId" id="-1399406116%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="inbox-message-id.html"><span>inbox</span><wbr></wbr><span>Message</span><wbr></wbr><span><span>Id</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1399406116%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.jvm/-jvm-name/index.html"><span class="token annotation builtin">JvmName</span></a><span class="token punctuation">(</span><span>name<span class="token operator"> = </span><span class="breakable-word"><span class="token string">&quot;-initializeinboxMessageId&quot;</span></span></span><wbr></wbr><span class="token punctuation">)</span></div></div><span class="token keyword">inline </span><span class="token keyword">fun </span><a href="inbox-message-id.html"><span class="token function">inboxMessageId</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-inbox-message-id-kt/-dsl/index.html">InboxMessageIdKt.Dsl</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/InboxMessageId///PointingToDeclaration/">InboxMessageId</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-2094135466%2FFunctions%2F332232451" anchor-label="inboxSignalId" id="-2094135466%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="inbox-signal-id.html"><span>inbox</span><wbr></wbr><span>Signal</span><wbr></wbr><span><span>Id</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2094135466%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.jvm/-jvm-name/index.html"><span class="token annotation builtin">JvmName</span></a><span class="token punctuation">(</span><span>name<span class="token operator"> = </span><span class="breakable-word"><span class="token string">&quot;-initializeinboxSignalId&quot;</span></span></span><wbr></wbr><span class="token punctuation">)</span></div></div><span class="token keyword">inline </span><span class="token keyword">fun </span><a href="inbox-signal-id.html"><span class="token function">inboxSignalId</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-inbox-signal-id-kt/-dsl/index.html">InboxSignalIdKt.Dsl</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/InboxSignalId///PointingToDeclaration/">InboxSignalId</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="826293238%2FFunctions%2F332232451" anchor-label="pickUpOutcome" id="826293238%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="pick-up-outcome.html"><span>pick</span><wbr></wbr><span>Up</span><wbr></wbr><span><span>Outcome</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="826293238%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.jvm/-jvm-name/index.html"><span class="token annotation builtin">JvmName</span></a><span class="token punctuation">(</span><span>name<span class="token operator"> = </span><span class="breakable-word"><span class="token string">&quot;-initializepickUpOutcome&quot;</span></span></span><wbr></wbr><span class="token punctuation">)</span></div></div><span class="token keyword">inline </span><span class="token keyword">fun </span><a href="pick-up-outcome.html"><span class="token function">pickUpOutcome</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-pick-up-outcome-kt/-dsl/index.html">PickUpOutcomeKt.Dsl</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/PickUpOutcome///PointingToDeclaration/">PickUpOutcome</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1130972110%2FFunctions%2F332232451" anchor-label="shardAlreadyPickedUp" id="1130972110%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="shard-already-picked-up.html"><span>shard</span><wbr></wbr><span>Already</span><wbr></wbr><span>Picked</span><wbr></wbr><span><span>Up</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1130972110%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.jvm/-jvm-name/index.html"><span class="token annotation builtin">JvmName</span></a><span class="token punctuation">(</span><span>name<span class="token operator"> = </span><span class="breakable-word"><span class="token string">&quot;-initializeshardAlreadyPickedUp&quot;</span></span></span><wbr></wbr><span class="token punctuation">)</span></div></div><span class="token keyword">inline </span><span class="token keyword">fun </span><a href="shard-already-picked-up.html"><span class="token function">shardAlreadyPickedUp</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-shard-already-picked-up-kt/-dsl/index.html">ShardAlreadyPickedUpKt.Dsl</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/ShardAlreadyPickedUp///PointingToDeclaration/">ShardAlreadyPickedUp</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-712427188%2FFunctions%2F332232451" anchor-label="shardIndex" id="-712427188%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="shard-index.html"><span>shard</span><wbr></wbr><span><span>Index</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-712427188%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.jvm/-jvm-name/index.html"><span class="token annotation builtin">JvmName</span></a><span class="token punctuation">(</span><span>name<span class="token operator"> = </span><span class="breakable-word"><span class="token string">&quot;-initializeshardIndex&quot;</span></span></span><wbr></wbr><span class="token punctuation">)</span></div></div><span class="token keyword">inline </span><span class="token keyword">fun </span><a href="shard-index.html"><span class="token function">shardIndex</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-shard-index-kt/-dsl/index.html">ShardIndexKt.Dsl</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/ShardIndex///PointingToDeclaration/">ShardIndex</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-772688242%2FFunctions%2F332232451" anchor-label="shardMaintenance" id="-772688242%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="shard-maintenance.html"><span>shard</span><wbr></wbr><span><span>Maintenance</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-772688242%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.jvm/-jvm-name/index.html"><span class="token annotation builtin">JvmName</span></a><span class="token punctuation">(</span><span>name<span class="token operator"> = </span><span class="breakable-word"><span class="token string">&quot;-initializeshardMaintenance&quot;</span></span></span><wbr></wbr><span class="token punctuation">)</span></div></div><span class="token keyword">inline </span><span class="token keyword">fun </span><a href="shard-maintenance.html"><span class="token function">shardMaintenance</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-shard-maintenance-kt/-dsl/index.html">ShardMaintenanceKt.Dsl</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/ShardMaintenance///PointingToDeclaration/">ShardMaintenance</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="157905526%2FFunctions%2F332232451" anchor-label="shardSessionRecord" id="157905526%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="shard-session-record.html"><span>shard</span><wbr></wbr><span>Session</span><wbr></wbr><span><span>Record</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="157905526%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.jvm/-jvm-name/index.html"><span class="token annotation builtin">JvmName</span></a><span class="token punctuation">(</span><span>name<span class="token operator"> = </span><span class="breakable-word"><span class="token string">&quot;-initializeshardSessionRecord&quot;</span></span></span><wbr></wbr><span class="token punctuation">)</span></div></div><span class="token keyword">inline </span><span class="token keyword">fun </span><a href="shard-session-record.html"><span class="token function">shardSessionRecord</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-shard-session-record-kt/-dsl/index.html">ShardSessionRecordKt.Dsl</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/ShardSessionRecord///PointingToDeclaration/">ShardSessionRecord</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="242403414%2FFunctions%2F332232451" anchor-label="workerId" id="242403414%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="worker-id.html"><span>worker</span><wbr></wbr><span><span>Id</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="242403414%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.jvm/-jvm-name/index.html"><span class="token annotation builtin">JvmName</span></a><span class="token punctuation">(</span><span>name<span class="token operator"> = </span><span class="breakable-word"><span class="token string">&quot;-initializeworkerId&quot;</span></span></span><wbr></wbr><span class="token punctuation">)</span></div></div><span class="token keyword">inline </span><span class="token keyword">fun </span><a href="worker-id.html"><span class="token function">workerId</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-worker-id-kt/-dsl/index.html">WorkerIdKt.Dsl</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/WorkerId///PointingToDeclaration/">WorkerId</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="EXTENSION_FUNCTION">
+        <h2 class="tableheader">Inherited functions</h2>
+        <div class="table"><a data-name="-1978566408%2FFunctions%2F332232451" anchor-label="copy" id="-1978566408%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="copy.html"><span><span>copy</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1978566408%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">inline </span><span class="token keyword">fun </span><a href="-catch-up/index.html">CatchUp</a><span class="token punctuation">.</span><a href="copy.html"><span class="token function">copy</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-catch-up-kt/-dsl/index.html">CatchUpKt.Dsl</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-catch-up/index.html">CatchUp</a></div><div class="symbol monospace"><span class="token keyword">inline </span><span class="token keyword">fun </span><a href="-catch-up/-request/index.html">CatchUp.Request</a><span class="token punctuation">.</span><a href="copy.html"><span class="token function">copy</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-catch-up-kt/-request-kt/-dsl/index.html">CatchUpKt.RequestKt.Dsl</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-catch-up/-request/index.html">CatchUp.Request</a></div><div class="symbol monospace"><span class="token keyword">inline </span><span class="token keyword">fun </span><a href="-catch-up-id/index.html">CatchUpId</a><span class="token punctuation">.</span><a href="copy.html"><span class="token function">copy</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-catch-up-id-kt/-dsl/index.html">CatchUpIdKt.Dsl</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-catch-up-id/index.html">CatchUpId</a></div><div class="symbol monospace"><span class="token keyword">inline </span><span class="token keyword">fun </span><span data-unresolved-link="io.spine.server.delivery/DeliveryRunInfo///PointingToDeclaration/">DeliveryRunInfo</span><span class="token punctuation">.</span><a href="copy.html"><span class="token function">copy</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-delivery-run-info-kt/-dsl/index.html">DeliveryRunInfoKt.Dsl</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/DeliveryRunInfo///PointingToDeclaration/">DeliveryRunInfo</span></div><div class="symbol monospace"><span class="token keyword">inline </span><span class="token keyword">fun </span><span data-unresolved-link="io.spine.server.delivery/DeliveryStage///PointingToDeclaration/">DeliveryStage</span><span class="token punctuation">.</span><a href="copy.html"><span class="token function">copy</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-delivery-stage-kt/-dsl/index.html">DeliveryStageKt.Dsl</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/DeliveryStage///PointingToDeclaration/">DeliveryStage</span></div><div class="symbol monospace"><span class="token keyword">inline </span><span class="token keyword">fun </span><span data-unresolved-link="io.spine.server.delivery/InboxId///PointingToDeclaration/">InboxId</span><span class="token punctuation">.</span><a href="copy.html"><span class="token function">copy</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-inbox-id-kt/-dsl/index.html">InboxIdKt.Dsl</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/InboxId///PointingToDeclaration/">InboxId</span></div><div class="symbol monospace"><span class="token keyword">inline </span><span class="token keyword">fun </span><span data-unresolved-link="io.spine.server.delivery/InboxMessage///PointingToDeclaration/">InboxMessage</span><span class="token punctuation">.</span><a href="copy.html"><span class="token function">copy</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-inbox-message-kt/-dsl/index.html">InboxMessageKt.Dsl</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/InboxMessage///PointingToDeclaration/">InboxMessage</span></div><div class="symbol monospace"><span class="token keyword">inline </span><span class="token keyword">fun </span><span data-unresolved-link="io.spine.server.delivery/InboxMessageId///PointingToDeclaration/">InboxMessageId</span><span class="token punctuation">.</span><a href="copy.html"><span class="token function">copy</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-inbox-message-id-kt/-dsl/index.html">InboxMessageIdKt.Dsl</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/InboxMessageId///PointingToDeclaration/">InboxMessageId</span></div><div class="symbol monospace"><span class="token keyword">inline </span><span class="token keyword">fun </span><span data-unresolved-link="io.spine.server.delivery/InboxSignalId///PointingToDeclaration/">InboxSignalId</span><span class="token punctuation">.</span><a href="copy.html"><span class="token function">copy</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-inbox-signal-id-kt/-dsl/index.html">InboxSignalIdKt.Dsl</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/InboxSignalId///PointingToDeclaration/">InboxSignalId</span></div><div class="symbol monospace"><span class="token keyword">inline </span><span class="token keyword">fun </span><span data-unresolved-link="io.spine.server.delivery/PickUpOutcome///PointingToDeclaration/">PickUpOutcome</span><span class="token punctuation">.</span><a href="copy.html"><span class="token function">copy</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-pick-up-outcome-kt/-dsl/index.html">PickUpOutcomeKt.Dsl</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/PickUpOutcome///PointingToDeclaration/">PickUpOutcome</span></div><div class="symbol monospace"><span class="token keyword">inline </span><span class="token keyword">fun </span><span data-unresolved-link="io.spine.server.delivery/ShardAlreadyPickedUp///PointingToDeclaration/">ShardAlreadyPickedUp</span><span class="token punctuation">.</span><a href="copy.html"><span class="token function">copy</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-shard-already-picked-up-kt/-dsl/index.html">ShardAlreadyPickedUpKt.Dsl</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/ShardAlreadyPickedUp///PointingToDeclaration/">ShardAlreadyPickedUp</span></div><div class="symbol monospace"><span class="token keyword">inline </span><span class="token keyword">fun </span><span data-unresolved-link="io.spine.server.delivery/ShardIndex///PointingToDeclaration/">ShardIndex</span><span class="token punctuation">.</span><a href="copy.html"><span class="token function">copy</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-shard-index-kt/-dsl/index.html">ShardIndexKt.Dsl</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/ShardIndex///PointingToDeclaration/">ShardIndex</span></div><div class="symbol monospace"><span class="token keyword">inline </span><span class="token keyword">fun </span><span data-unresolved-link="io.spine.server.delivery/ShardMaintenance///PointingToDeclaration/">ShardMaintenance</span><span class="token punctuation">.</span><a href="copy.html"><span class="token function">copy</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-shard-maintenance-kt/-dsl/index.html">ShardMaintenanceKt.Dsl</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/ShardMaintenance///PointingToDeclaration/">ShardMaintenance</span></div><div class="symbol monospace"><span class="token keyword">inline </span><span class="token keyword">fun </span><span data-unresolved-link="io.spine.server.delivery/ShardSessionRecord///PointingToDeclaration/">ShardSessionRecord</span><span class="token punctuation">.</span><a href="copy.html"><span class="token function">copy</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-shard-session-record-kt/-dsl/index.html">ShardSessionRecordKt.Dsl</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/ShardSessionRecord///PointingToDeclaration/">ShardSessionRecord</span></div><div class="symbol monospace"><span class="token keyword">inline </span><span class="token keyword">fun </span><span data-unresolved-link="io.spine.server.delivery/WorkerId///PointingToDeclaration/">WorkerId</span><span class="token punctuation">.</span><a href="copy.html"><span class="token function">copy</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="-worker-id-kt/-dsl/index.html">WorkerIdKt.Dsl</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/WorkerId///PointingToDeclaration/">WorkerId</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    <div class="footer">
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>Copyright 2025, TeamDev</div>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

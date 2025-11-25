@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>io.spine.server.tuple</title>
+    <link href="../../images/logo-icon.svg" rel="icon" type="image/svg">
+        <script>var pathToRoot = "../../";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+      if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      } else {
+        const savedDarkMode = JSON.parse(storage)
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../styles/style.css" rel="Stylesheet">
+<link href="../../styles/main.css" rel="Stylesheet">
+<link href="../../styles/prism.css" rel="Stylesheet">
+<link href="../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../ui-kit/ui-kit.min.css" rel="Stylesheet">
+<script type="text/javascript" src="../../scripts/safe-local-storage_blocking.js"></script>
+<script type="text/javascript" src="../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../ui-kit/ui-kit.min.js" defer="defer"></script>
+<link href="../../images/logo-icon.svg">
+<link href="../../styles/custom-styles.css" rel="Stylesheet">
+</head>
+<body>
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+            <a class="library-name--link" href="../../index.html" tabindex="1">
+                    server
+            </a>
+        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle"
+                type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">
+2.0.0-SNAPSHOT.356        </div>
+        <div class="navigation-controls">
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector jvm-like" data-active="" aria-pressed="true"
+                        data-filter=":server/main">jvm</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
+                        data-role="dropdown-toggle"
+                        aria-controls="platform-tags-listbox"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-label="Toggle source sets"
+                ></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option jvm-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":server/main"
+                                       data-filter=":server/main"/>
+                                <span class="checkbox--icon"></span>
+                                jvm
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </ul>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
+                    type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
+        </div>
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config='{"defaultSize": 280, "minSize": 200, "maxSize": 400}'>
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list"
+                    data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
+                            <span>
+                                    server
+                            </span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
+<div class="main-content" data-page-type="package" id="content" pageIds="server::io.spine.server.tuple////PointingToDeclaration//332232451">
+  <div class="breadcrumbs"><a href="../../index.html">server</a><span class="delimiter">/</span><span class="current">io.spine.server.tuple</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span><span>Package-level</span></span> <span><span>declarations</span></span></h1>
+    <div class="platform-hinted UnderCoverText" data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><p class="paragraph">This package provides classes for return values from message-handling methods. </p><h3 class="">Overview</h3><p class="paragraph">Although tuples are <a href="https://github.com/google/guava/wiki/IdeaGraveyard#tuples-for-n--2"> considered harmful</a> in general, they are useful for describing types of several messages returned by a method. Consider the following example. </p><p class="paragraph">The return value of the below method does not say much about the number and types of returned event messages. We just know that there may be more than one of them. </p><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">@Assign
+    List&lt;EventMessage&gt; on(CreateTask cmd) { ... }
+</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div> The below declaration gives both the number and types of the returned events: <div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">@Assign
+    Pair&lt;TaskCreated, Optional&lt;TaskAssigned&gt;&gt; on(CreateTask cmd) { ... }
+</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div><p class="paragraph">Why do we suggest returning a tuple (a <code class="lang-kotlin">Pair</code> in the example above) instead of creating a message type which would aggregate those of interest as our colleagues from the Guava team <a href="https://github.com/google/guava/wiki/IdeaGraveyard#tuples-for-n--2">suggest</a>? </p><p class="paragraph">Messages returned from a handling method are loosely coupled. They may not be created together all the time. The example above tells that <code class="lang-kotlin">TaskAssigned</code> may not happen upon the creation of the task. It's possible that a task can be assigned sometime later. In this case combining returned messages does not reflect the domain language. Returning a tuple tells a part of the story in terms of the domain language right in the method signature. Details of this story are obtained from the method body. </p><p class="paragraph">It should be re-iterated that the purpose of this package is limited to the scenarios of handling messages. Programmers are strongly discouraged from using this package for other purposes. </p><h3 class="">Two groups of classes</h3> This package provides two groups of classes: <ol><li><a href="-tuple/index.html">Tuple</a> classes are for returning more than one message. </li><li>Alternatives -- classes derived from <a href="-either/index.html">Either</a> -- are for returning only one message belonging the known set of types. </li></ol><h3 class="">Generic Parameters</h3><p class="paragraph">Classes provided by this package can support up to 5 generic parameters. These parameters are named from <code class="lang-kotlin">&lt;A&gt;</code> through <code class="lang-kotlin">&lt;E&gt;</code>. Types that can be passed to these parameters are described in the sections below. </p><h3 class="">Tuples</h3><p class="paragraph">The following tuple classes are provided: </p><ul><li><a href="-pair/index.html">Pair<A, B></a></li><li><a href="-triplet/index.html">Triplet<A, B, C></a></li><li><a href="-quartet/index.html">Quartet<A, B, C, D></a></li><li><a href="-quintet/index.html">Quintet<A, B, C, D, E></a></li></ul><p class="paragraph">The first generic parameter <code class="lang-kotlin">&lt;A&gt;</code> must always be a specific <span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span> class. </p><p class="paragraph">Tuple classes allow <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html">Optional</a> starting from the second generic argument. The example below shows the method which always returns the <code class="lang-kotlin">TaskCreated</code> event, and returns the <code class="lang-kotlin">TaskAssigned</code> event only if the <code class="lang-kotlin">CreateTask</code> command instructs to assign the task to a person. </p><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">@Assign
+    Pair&lt;TaskCreated, Optional&lt;TaskAssigned&gt;&gt; on(CreateTask cmd) { ... }
+</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div><h3 class="">Alternatives</h3><p class="paragraph">In some cases it is needed to return one message from a limited set of possible options. For example, the following method issues a command <code class="lang-kotlin">MoveToTrash</code> if no work was reported on the task, and <code class="lang-kotlin">CancelTask</code> if some work has been already logged. </p><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">@Command
+    EitherOf2&lt;MoveToTrash, CancelTask&gt; handle(RemoveTask cmd) { ... }
+</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div><p class="paragraph">In order to define alternatively returned values, please use the following classes: </p><ul><li><a href="-either-of2/index.html">EitherOf2<A, B></a></li><li><a href="-either-of3/index.html">EitherOf3<A, B, C></a></li><li><a href="-either-of4/index.html">EitherOf4<A, B, C, D></a></li><li><a href="-either-of5/index.html">EitherOf5<A, B, C, D, E></a></li></ul><p class="paragraph">Generic parameters for alternatives accept only <span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span> classes. </p><p class="paragraph">We believe that a list of alternatives longer than five is hard to understand. If you face a such a need, consider splitting incoming message into two or more independent ones so that their outcome is more obvious. </p><h3 class="">Using Tuples with Alternatives</h3><p class="paragraph">A <a href="-pair/index.html">Pair</a> can be defined with the second parameter being one of the <a href="-either/index.html">Either</a> subclasses, and created using <a href="-pair/with-either.html">Pair.withEither()</a>.</p></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="TYPE">Types</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="TYPE">
+        <h2 class="tableheader">Types</h2>
+        <div class="table"><a data-name="2123138477%2FClasslikes%2F332232451" anchor-label="Either" id="2123138477%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-either/index.html"><span><span>Either</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2123138477%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">class </span><a href="-either/index.html">Either</a> : <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Iterable.html">Iterable</a><span class="token operator">&lt;</span><span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span><span class="token operator">&gt; </span>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html">Serializable</a></div><div class="brief ">Abstract base for values that can be one of the possible types.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1562487686%2FClasslikes%2F332232451" anchor-label="EitherOf2" id="-1562487686%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-either-of2/index.html"><span>Either</span><wbr></wbr><span><span>Of2</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1562487686%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="-either-of2/index.html">EitherOf2</a><span class="token operator">&lt;</span><a href="-either-of2/index.html">A</a><span class="token operator"> : </span><span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span><span class="token operator">?</span><span class="token punctuation">, </span><a href="-either-of2/index.html">B</a><span class="token operator"> : </span><span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span><span class="token operator">?</span><span class="token operator">&gt;</span> : <a href="-either/index.html">Either</a>, <span data-unresolved-link="io.spine.server.tuple/Element.AValue///PointingToDeclaration/">Element.AValue</span><span class="token operator">&lt;</span><a href="-either-of2/index.html">A</a><span class="token operator">&gt; </span>, <span data-unresolved-link="io.spine.server.tuple/Element.BValue///PointingToDeclaration/">Element.BValue</span><span class="token operator">&lt;</span><a href="-either-of2/index.html">B</a><span class="token operator">&gt; </span></div><div class="brief ">A value which can be one of two possible types.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1531467879%2FClasslikes%2F332232451" anchor-label="EitherOf3" id="-1531467879%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-either-of3/index.html"><span>Either</span><wbr></wbr><span><span>Of3</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1531467879%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="-either-of3/index.html">EitherOf3</a><span class="token operator">&lt;</span><a href="-either-of3/index.html">A</a><span class="token operator"> : </span><span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span><span class="token operator">?</span><span class="token punctuation">, </span><a href="-either-of3/index.html">B</a><span class="token operator"> : </span><span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span><span class="token operator">?</span><span class="token punctuation">, </span><a href="-either-of3/index.html">C</a><span class="token operator"> : </span><span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span><span class="token operator">?</span><span class="token operator">&gt;</span> : <a href="-either/index.html">Either</a>, <span data-unresolved-link="io.spine.server.tuple/Element.AValue///PointingToDeclaration/">Element.AValue</span><span class="token operator">&lt;</span><a href="-either-of3/index.html">A</a><span class="token operator">&gt; </span>, <span data-unresolved-link="io.spine.server.tuple/Element.BValue///PointingToDeclaration/">Element.BValue</span><span class="token operator">&lt;</span><a href="-either-of3/index.html">B</a><span class="token operator">&gt; </span>, <span data-unresolved-link="io.spine.server.tuple/Element.CValue///PointingToDeclaration/">Element.CValue</span><span class="token operator">&lt;</span><a href="-either-of3/index.html">C</a><span class="token operator">&gt; </span></div><div class="brief ">A value which can be one of three possible types.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1500448072%2FClasslikes%2F332232451" anchor-label="EitherOf4" id="-1500448072%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-either-of4/index.html"><span>Either</span><wbr></wbr><span><span>Of4</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1500448072%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="-either-of4/index.html">EitherOf4</a><span class="token operator">&lt;</span><a href="-either-of4/index.html">A</a><span class="token operator"> : </span><span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span><span class="token operator">?</span><span class="token punctuation">, </span><a href="-either-of4/index.html">B</a><span class="token operator"> : </span><span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span><span class="token operator">?</span><span class="token punctuation">, </span><a href="-either-of4/index.html">C</a><span class="token operator"> : </span><span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span><span class="token operator">?</span><span class="token punctuation">, </span><a href="-either-of4/index.html">D</a><span class="token operator"> : </span><span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span><span class="token operator">?</span><span class="token operator">&gt;</span> : <a href="-either/index.html">Either</a>, <span data-unresolved-link="io.spine.server.tuple/Element.AValue///PointingToDeclaration/">Element.AValue</span><span class="token operator">&lt;</span><a href="-either-of4/index.html">A</a><span class="token operator">&gt; </span>, <span data-unresolved-link="io.spine.server.tuple/Element.BValue///PointingToDeclaration/">Element.BValue</span><span class="token operator">&lt;</span><a href="-either-of4/index.html">B</a><span class="token operator">&gt; </span>, <span data-unresolved-link="io.spine.server.tuple/Element.CValue///PointingToDeclaration/">Element.CValue</span><span class="token operator">&lt;</span><a href="-either-of4/index.html">C</a><span class="token operator">&gt; </span>, <span data-unresolved-link="io.spine.server.tuple/Element.DValue///PointingToDeclaration/">Element.DValue</span><span class="token operator">&lt;</span><a href="-either-of4/index.html">D</a><span class="token operator">&gt; </span></div><div class="brief ">A value which can be one of four possible types.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1469428265%2FClasslikes%2F332232451" anchor-label="EitherOf5" id="-1469428265%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-either-of5/index.html"><span>Either</span><wbr></wbr><span><span>Of5</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1469428265%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">class </span><a href="-either-of5/index.html">EitherOf5</a><span class="token operator">&lt;</span><a href="-either-of5/index.html">A</a><span class="token operator"> : </span><span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span><span class="token operator">?</span><span class="token punctuation">, </span><a href="-either-of5/index.html">B</a><span class="token operator"> : </span><span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span><span class="token operator">?</span><span class="token punctuation">, </span><a href="-either-of5/index.html">C</a><span class="token operator"> : </span><span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span><span class="token operator">?</span><span class="token punctuation">, </span><a href="-either-of5/index.html">D</a><span class="token operator"> : </span><span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span><span class="token operator">?</span><span class="token punctuation">, </span><a href="-either-of5/index.html">E</a><span class="token operator"> : </span><span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span><span class="token operator">?</span><span class="token operator">&gt;</span> : <a href="-either/index.html">Either</a>, <span data-unresolved-link="io.spine.server.tuple/Element.AValue///PointingToDeclaration/">Element.AValue</span><span class="token operator">&lt;</span><a href="-either-of5/index.html">A</a><span class="token operator">&gt; </span>, <span data-unresolved-link="io.spine.server.tuple/Element.BValue///PointingToDeclaration/">Element.BValue</span><span class="token operator">&lt;</span><a href="-either-of5/index.html">B</a><span class="token operator">&gt; </span>, <span data-unresolved-link="io.spine.server.tuple/Element.CValue///PointingToDeclaration/">Element.CValue</span><span class="token operator">&lt;</span><a href="-either-of5/index.html">C</a><span class="token operator">&gt; </span>, <span data-unresolved-link="io.spine.server.tuple/Element.DValue///PointingToDeclaration/">Element.DValue</span><span class="token operator">&lt;</span><a href="-either-of5/index.html">D</a><span class="token operator">&gt; </span>, <span data-unresolved-link="io.spine.server.tuple/Element.EValue///PointingToDeclaration/">Element.EValue</span><span class="token operator">&lt;</span><a href="-either-of5/index.html">E</a><span class="token operator">&gt; </span></div><div class="brief ">A value which can be one of five possible types.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1020112520%2FClasslikes%2F332232451" anchor-label="Pair" id="-1020112520%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-pair/index.html"><span><span>Pair</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1020112520%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="-pair/index.html">Pair</a><span class="token operator">&lt;</span><a href="-pair/index.html">A</a><span class="token operator"> : </span><span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span><span class="token operator">?</span><span class="token punctuation">, </span><a href="-pair/index.html">B</a><span class="token operator">&gt;</span> : <a href="-tuple/index.html">Tuple</a>, <span data-unresolved-link="io.spine.server.tuple/Element.AValue///PointingToDeclaration/">Element.AValue</span><span class="token operator">&lt;</span><a href="-pair/index.html">A</a><span class="token operator">&gt; </span>, <span data-unresolved-link="io.spine.server.tuple/Element.BValue///PointingToDeclaration/">Element.BValue</span><span class="token operator">&lt;</span><a href="-pair/index.html">B</a><span class="token operator">&gt; </span></div><div class="brief ">A tuple with two elements.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1889789634%2FClasslikes%2F332232451" anchor-label="Quartet" id="1889789634%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-quartet/index.html"><span><span>Quartet</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1889789634%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="-quartet/index.html">Quartet</a><span class="token operator">&lt;</span><a href="-quartet/index.html">A</a><span class="token operator"> : </span><span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span><span class="token operator">?</span><span class="token punctuation">, </span><a href="-quartet/index.html">B</a><span class="token punctuation">, </span><a href="-quartet/index.html">C</a><span class="token punctuation">, </span><a href="-quartet/index.html">D</a><span class="token operator">&gt;</span> : <a href="-tuple/index.html">Tuple</a>, <span data-unresolved-link="io.spine.server.tuple/Element.AValue///PointingToDeclaration/">Element.AValue</span><span class="token operator">&lt;</span><a href="-quartet/index.html">A</a><span class="token operator">&gt; </span>, <span data-unresolved-link="io.spine.server.tuple/Element.BValue///PointingToDeclaration/">Element.BValue</span><span class="token operator">&lt;</span><a href="-quartet/index.html">B</a><span class="token operator">&gt; </span>, <span data-unresolved-link="io.spine.server.tuple/Element.CValue///PointingToDeclaration/">Element.CValue</span><span class="token operator">&lt;</span><a href="-quartet/index.html">C</a><span class="token operator">&gt; </span>, <span data-unresolved-link="io.spine.server.tuple/Element.DValue///PointingToDeclaration/">Element.DValue</span><span class="token operator">&lt;</span><a href="-quartet/index.html">D</a><span class="token operator">&gt; </span></div><div class="brief ">A tuple with four elements.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-792088138%2FClasslikes%2F332232451" anchor-label="Quintet" id="-792088138%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-quintet/index.html"><span><span>Quintet</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-792088138%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="-quintet/index.html">Quintet</a><span class="token operator">&lt;</span><a href="-quintet/index.html">A</a><span class="token operator"> : </span><span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span><span class="token operator">?</span><span class="token punctuation">, </span><a href="-quintet/index.html">B</a><span class="token punctuation">, </span><a href="-quintet/index.html">C</a><span class="token punctuation">, </span><a href="-quintet/index.html">D</a><span class="token punctuation">, </span><a href="-quintet/index.html">E</a><span class="token operator">&gt;</span> : <a href="-tuple/index.html">Tuple</a>, <span data-unresolved-link="io.spine.server.tuple/Element.AValue///PointingToDeclaration/">Element.AValue</span><span class="token operator">&lt;</span><a href="-quintet/index.html">A</a><span class="token operator">&gt; </span>, <span data-unresolved-link="io.spine.server.tuple/Element.BValue///PointingToDeclaration/">Element.BValue</span><span class="token operator">&lt;</span><a href="-quintet/index.html">B</a><span class="token operator">&gt; </span>, <span data-unresolved-link="io.spine.server.tuple/Element.CValue///PointingToDeclaration/">Element.CValue</span><span class="token operator">&lt;</span><a href="-quintet/index.html">C</a><span class="token operator">&gt; </span>, <span data-unresolved-link="io.spine.server.tuple/Element.DValue///PointingToDeclaration/">Element.DValue</span><span class="token operator">&lt;</span><a href="-quintet/index.html">D</a><span class="token operator">&gt; </span>, <span data-unresolved-link="io.spine.server.tuple/Element.EValue///PointingToDeclaration/">Element.EValue</span><span class="token operator">&lt;</span><a href="-quintet/index.html">E</a><span class="token operator">&gt; </span></div><div class="brief ">A tuple of five elements.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="868569994%2FClasslikes%2F332232451" anchor-label="Single" id="868569994%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-single/index.html"><span><span>Single</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="868569994%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">class </span><a href="-single/index.html">Single</a><span class="token operator">&lt;</span><a href="-single/index.html">A</a><span class="token operator"> : </span><span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span><span class="token operator">?</span><span class="token operator">&gt;</span> : <a href="-tuple/index.html">Tuple</a>, <span data-unresolved-link="io.spine.server.tuple/Element.AValue///PointingToDeclaration/">Element.AValue</span><span class="token operator">&lt;</span><a href="-single/index.html">A</a><span class="token operator">&gt; </span></div><div class="brief ">A tuple containing only one element.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-155736422%2FClasslikes%2F332232451" anchor-label="Triplet" id="-155736422%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-triplet/index.html"><span><span>Triplet</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-155736422%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="-triplet/index.html">Triplet</a><span class="token operator">&lt;</span><a href="-triplet/index.html">A</a><span class="token operator"> : </span><span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span><span class="token operator">?</span><span class="token punctuation">, </span><a href="-triplet/index.html">B</a><span class="token punctuation">, </span><a href="-triplet/index.html">C</a><span class="token operator">&gt;</span> : <a href="-tuple/index.html">Tuple</a>, <span data-unresolved-link="io.spine.server.tuple/Element.AValue///PointingToDeclaration/">Element.AValue</span><span class="token operator">&lt;</span><a href="-triplet/index.html">A</a><span class="token operator">&gt; </span>, <span data-unresolved-link="io.spine.server.tuple/Element.BValue///PointingToDeclaration/">Element.BValue</span><span class="token operator">&lt;</span><a href="-triplet/index.html">B</a><span class="token operator">&gt; </span>, <span data-unresolved-link="io.spine.server.tuple/Element.CValue///PointingToDeclaration/">Element.CValue</span><span class="token operator">&lt;</span><a href="-triplet/index.html">C</a><span class="token operator">&gt; </span></div><div class="brief ">A tuple with three elements.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-14621016%2FClasslikes%2F332232451" anchor-label="Tuple" id="-14621016%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-tuple/index.html"><span><span>Tuple</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-14621016%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">class </span><a href="-tuple/index.html">Tuple</a> : <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Iterable.html">Iterable</a><span class="token operator">&lt;</span><span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span><span class="token operator">&gt; </span>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html">Serializable</a></div><div class="brief ">Abstract base for tuple classes.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    <div class="footer">
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>Copyright 2025, TeamDev</div>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

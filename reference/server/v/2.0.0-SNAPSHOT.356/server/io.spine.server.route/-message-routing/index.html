@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>MessageRouting</title>
+    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
+        <script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+      if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      } else {
+        const savedDarkMode = JSON.parse(storage)
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../../ui-kit/ui-kit.min.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/safe-local-storage_blocking.js"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../ui-kit/ui-kit.min.js" defer="defer"></script>
+<link href="../../../images/logo-icon.svg">
+<link href="../../../styles/custom-styles.css" rel="Stylesheet">
+</head>
+<body>
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+            <a class="library-name--link" href="../../../index.html" tabindex="1">
+                    server
+            </a>
+        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle"
+                type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">
+2.0.0-SNAPSHOT.356        </div>
+        <div class="navigation-controls">
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector jvm-like" data-active="" aria-pressed="true"
+                        data-filter=":server/main">jvm</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
+                        data-role="dropdown-toggle"
+                        aria-controls="platform-tags-listbox"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-label="Toggle source sets"
+                ></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option jvm-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":server/main"
+                                       data-filter=":server/main"/>
+                                <span class="checkbox--icon"></span>
+                                jvm
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </ul>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
+                    type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
+        </div>
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config='{"defaultSize": 280, "minSize": 200, "maxSize": 400}'>
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list"
+                    data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
+                            <span>
+                                    server
+                            </span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
+<div class="main-content" data-page-type="classlike" id="content" pageIds="server::io.spine.server.route/MessageRouting///PointingToDeclaration//332232451">
+  <div class="breadcrumbs"><a href="../../../index.html">server</a><span class="delimiter">/</span><a href="../index.html">io.spine.server.route</a><span class="delimiter">/</span><span class="current">MessageRouting</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>Message</span><wbr></wbr><span><span>Routing</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">sealed </span><span class="token keyword">class </span><a href="index.html">MessageRouting</a><span class="token operator">&lt;</span><a href="index.html">I</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token punctuation">, </span><a href="index.html">M</a><span class="token operator"> : </span><span data-unresolved-link="io.spine.base/Routable///PointingToDeclaration/">Routable</span><span class="token punctuation">, </span><a href="index.html">C</a><span class="token operator"> : </span><span data-unresolved-link="io.spine.core/SignalContext///PointingToDeclaration/">SignalContext</span><span class="token punctuation">, </span><a href="index.html">R</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token punctuation">, </span><a href="index.html">S</a><span class="token operator"> : </span><a href="index.html">MessageRouting</a><span class="token operator">&lt;</span><a href="index.html">I</a><span class="token punctuation">, </span><a href="index.html">M</a><span class="token punctuation">, </span><a href="index.html">C</a><span class="token punctuation">, </span><a href="index.html">R</a><span class="token punctuation">, </span><a href="index.html">S</a><span class="token operator">&gt;</span><span class="token operator">&gt;</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">defaultRoute<span class="token operator">: </span><a href="../-route-fn/index.html">RouteFn</a><span class="token operator">&lt;</span><a href="index.html">M</a><span class="token punctuation">, </span><a href="index.html">C</a><span class="token punctuation">, </span><a href="index.html">R</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span> : <a href="../-route-fn/index.html">RouteFn</a><span class="token operator">&lt;</span><a href="index.html">M</a><span class="token punctuation">, </span><a href="index.html">C</a><span class="token punctuation">, </span><a href="index.html">R</a><span class="token operator">&gt; </span><span class="source-link-wrapper"><span class="source-link" data-element-type="source-link">(<a href="https://github.com/SpineEventEngine/spine-core-jvm/tree/master/server/src/main/kotlin/io/spine/server/route/MessageRouting.kt#L81">source</a>)</span></span></div><p class="paragraph">An abstract base for classes implementing routing schemas for <span data-unresolved-link="io.spine.base/Routable///PointingToDeclaration/">routable</span> messages such as commands, events, rejections, or entity states.</p><p class="paragraph">Routing schemas are used by <a href="../../io.spine.server.entity/-repository/index.html">repositories</a> for delivering messages to entities. The identifiers of the target entities are calculated by these schemas.</p><p class="paragraph">A routing schema consists of a <span data-unresolved-link="io.spine.server.route/MessageRouting//#io.spine.server.route.RouteFn[TypeParam(bounds=[io.spine.base.Routable]),TypeParam(bounds=[io.spine.core.SignalContext]),TypeParam(bounds=[kotlin.Any])]/PointingToCallableParameters(0)/">default route</span> and custom routes per a message class or an interface. The default route is used when none of the routing functions added to the schema for a class or an interface matches the incoming message.</p><h2 class="">Composing a routing schema</h2><p class="paragraph">A routing schema is composed using the <a href="route.html">route</a> functions:</p><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">routing.route&lt;MyClass1&gt; { message, context -&gt; ... }<br>       .route&lt;MyClass2&gt; { message -&gt;  ... }<br>       .route&lt;MyInterface&gt; { message, context -&gt;  ... }<br>       .route&lt;MoreAbstractInterface&gt; { message -&gt;  ... }</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div><p class="paragraph">Entries for classes must come before those for interfaces. Entries for more specific interfaces must be added before entries for super-interfaces of the already added interface entries. There rules ensure correct routing of messages. If these rules are not followed, <code class="lang-kotlin">IllegalStateException</code> will be thrown when calling a <a href="route.html">route</a> function which attempts to add a violating entry.</p><h2 class="">Optional <code class="lang-kotlin">context</code> parameter</h2><p class="paragraph">A routing function may accept two parameters <code class="lang-kotlin">message</code> and <code class="lang-kotlin">context</code>, or only single <code class="lang-kotlin">message</code> parameter, if the message context does not participate in the routing.</p><h2 class="">Replacing the default route</h2><p class="paragraph">Repositories create <a href="index.html">MessageRouting</a> instances for their needs providing default routes that match the nature of the dispatched messages. An alternative default route can be set using the <a href="replace-default.html">replaceDefault</a> function.</p><h4 class="tableheader">Parameters</h4><div class="table"><div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span><span>I</span></span></u></div></span></div><div><div class="title"><p class="paragraph">The type of identifiers used in the routing.</p></div></div></div></div><div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span><span>M</span></span></u></div></span></div><div><div class="title"><p class="paragraph">The common supertype of messages to route.</p></div></div></div></div><div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span><span>C</span></span></u></div></span></div><div><div class="title"><p class="paragraph">The type of message context.</p></div></div></div></div><div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span><span>R</span></span></u></div></span></div><div><div class="title"><p class="paragraph">The type returned by a <a href="../-route-fn/invoke.html">routing function</a>. For unicast routing it would be the same as <a href="index.html">I</a>, and <code class="lang-kotlin">Set&lt;I&gt;</code> for multicast routing.</p></div></div></div></div><div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span><span>S</span></span></u></div></span></div><div><div class="title"><p class="paragraph">The type of message routing for covariance in return types.</p></div></div></div></div></div><h4 class="tableheader">Inheritors</h4><div class="table"><div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-command-routing/index.html">CommandRouting</a></div></span></div><div></div></div></div><div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-multicast-routing/index.html">MulticastRouting</a></div></span></div><div></div></div></div></div></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="CONSTRUCTOR">
+        <h2 class="tableheader">Constructors</h2>
+        <div class="table"><a data-name="-2117621712%2FConstructors%2F332232451" anchor-label="MessageRouting" id="-2117621712%2FConstructors%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-togglable="CONSTRUCTOR" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-message-routing.html"><span>Message</span><wbr></wbr><span><span>Routing</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2117621712%2FConstructors%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">protected </span><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">defaultRoute<span class="token operator">: </span><a href="../-route-fn/index.html">RouteFn</a><span class="token operator">&lt;</span><a href="index.html">M</a><span class="token punctuation">, </span><a href="index.html">C</a><span class="token punctuation">, </span><a href="index.html">R</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="FUNCTION">
+        <h2 class="tableheader">Functions</h2>
+        <div class="table"><a data-name="1721904899%2FFunctions%2F332232451" anchor-label="defaultRoute" id="1721904899%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="default-route.html"><span>default</span><wbr></wbr><span><span>Route</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1721904899%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="io.spine.annotation/VisibleForTesting///PointingToDeclaration/"><span class="token annotation builtin">VisibleForTesting</span></span></div></div><span class="token keyword">fun </span><a href="default-route.html"><span class="token function">defaultRoute</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-route-fn/index.html">RouteFn</a><span class="token operator">&lt;</span><a href="index.html">M</a><span class="token punctuation">, </span><a href="index.html">C</a><span class="token punctuation">, </span><a href="index.html">R</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Obtains the default route to be used when none of the added entries match the argument passed to the <a href="invoke.html">invoke</a> function.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1626960334%2FFunctions%2F332232451" anchor-label="find" id="-1626960334%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="find.html"><span><span>find</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1626960334%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">protected </span><span class="token keyword">open </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="find.html">N</a><span class="token operator"> : </span><a href="index.html">M</a><span class="token operator">&gt; </span><a href="find.html"><span class="token function">find</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">cls<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html">Class</a><span class="token operator">&lt;</span><a href="find.html">N</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-route-fn/index.html">RouteFn</a><span class="token operator">&lt;</span><a href="find.html">N</a><span class="token punctuation">, </span><a href="index.html">C</a><span class="token punctuation">, </span><a href="index.html">R</a><span class="token operator">&gt;</span><span class="token operator">?</span></div><div class="brief "><p class="paragraph">Obtains a routing function for the given class of messages, or <code class="lang-kotlin">null</code> if the schema does not serve the class via non-default routes.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="699780371%2FFunctions%2F332232451" anchor-label="invoke" id="699780371%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="invoke.html"><span><span>invoke</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="699780371%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">operator override </span><span class="token keyword">fun </span><a href="invoke.html"><span class="token function">invoke</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">message<span class="token operator">: </span><a href="index.html">M</a><span class="token punctuation">, </span></span><span class="parameter ">context<span class="token operator">: </span><a href="index.html">C</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">R</a></div><div class="brief "><p class="paragraph">Obtains IDs of entities to which the passed message should be delivered.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-45989874%2FFunctions%2F332232451" anchor-label="remove" id="-45989874%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="remove.html"><span><span>remove</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-45989874%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">inline </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="remove.html">N</a><span class="token operator"> : </span><a href="index.html">M</a><span class="token operator">&gt; </span><a href="remove.html"><span class="token function">remove</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Removes a route for the given message class.</p></div><div class="symbol monospace"><span class="token keyword">fun </span><a href="remove.html"><span class="token function">remove</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">messageClass<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html">Class</a><span class="token operator">&lt;</span><span class="token keyword">out </span><a href="index.html">M</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Removes a route for the passed message class.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1763978270%2FFunctions%2F332232451" anchor-label="replaceDefault" id="-1763978270%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="replace-default.html"><span>replace</span><wbr></wbr><span><span>Default</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1763978270%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.errorprone.annotations/CanIgnoreReturnValue///PointingToDeclaration/"><span class="token annotation builtin">CanIgnoreReturnValue</span></span></div></div><span class="token keyword">fun </span><a href="replace-default.html"><span class="token function">replaceDefault</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">newDefault<span class="token operator">: </span><a href="../-route-fn/index.html">RouteFn</a><span class="token operator">&lt;</span><a href="index.html">M</a><span class="token punctuation">, </span><a href="index.html">C</a><span class="token punctuation">, </span><span class="token keyword">out </span><a href="index.html">R</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">S</a></div><div class="brief "><p class="paragraph">Sets a new default route in the schema.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1358787426%2FFunctions%2F332232451" anchor-label="route" id="1358787426%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="route.html"><span><span>route</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1358787426%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.errorprone.annotations/CanIgnoreReturnValue///PointingToDeclaration/"><span class="token annotation builtin">CanIgnoreReturnValue</span></span></div></div><span class="token keyword">inline </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="route.html">N</a><span class="token operator"> : </span><a href="index.html">M</a><span class="token operator">&gt; </span><a href="route.html"><span class="token function">route</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">via<span class="token operator">: </span><a href="../-route-fn/index.html">RouteFn</a><span class="token operator">&lt;</span><a href="route.html">N</a><span class="token punctuation">, </span><a href="index.html">C</a><span class="token punctuation">, </span><a href="index.html">R</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">S</a></div><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.errorprone.annotations/CanIgnoreReturnValue///PointingToDeclaration/"><span class="token annotation builtin">CanIgnoreReturnValue</span></span></div></div><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="route.html">N</a><span class="token operator"> : </span><a href="index.html">M</a><span class="token operator">&gt; </span><a href="route.html"><span class="token function">route</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">msgClass<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html">Class</a><span class="token operator">&lt;</span><a href="route.html">N</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">via<span class="token operator">: </span><a href="../-route-fn/index.html">RouteFn</a><span class="token operator">&lt;</span><a href="route.html">N</a><span class="token punctuation">, </span><a href="index.html">C</a><span class="token punctuation">, </span><a href="index.html">R</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">S</a></div><div class="brief "><p class="paragraph">Adds a route for the given message type <a href="route.html">N</a>.</p></div><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.errorprone.annotations/CanIgnoreReturnValue///PointingToDeclaration/"><span class="token annotation builtin">CanIgnoreReturnValue</span></span></div></div><span class="token keyword">inline </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="route.html">N</a><span class="token operator"> : </span><a href="index.html">M</a><span class="token operator">&gt; </span><a href="route.html"><span class="token function">route</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">noinline </span>via<span class="token operator">: </span><span class="token punctuation">(</span><a href="route.html">N</a><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="index.html">R</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">S</a></div><div class="brief "><p class="paragraph">Adds a route for the messages with the given type <a href="route.html">N</a>.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1301700929%2FFunctions%2F332232451" anchor-label="self" id="-1301700929%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="self.html"><span><span>self</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1301700929%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">protected </span><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="self.html"><span class="token function">self</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">S</a></div><div class="brief "><p class="paragraph">Provides the type reference to <code class="lang-kotlin">this</code> for covariance of the type returned by <a href="route.html">route</a> functions.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1808763305%2FFunctions%2F332232451" anchor-label="supports" id="1808763305%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="supports.html"><span><span>supports</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1808763305%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="supports.html"><span class="token function">supports</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">messageType<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html">Class</a><span class="token operator">&lt;</span><span class="token keyword">out </span><a href="index.html">M</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div><div class="brief "><p class="paragraph">Checks if the passed message type is supported by this routing schema.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    <div class="footer">
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>Copyright 2025, TeamDev</div>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

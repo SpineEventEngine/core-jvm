@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>Delivery</title>
+    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
+        <script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+      if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      } else {
+        const savedDarkMode = JSON.parse(storage)
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../../ui-kit/ui-kit.min.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/safe-local-storage_blocking.js"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../ui-kit/ui-kit.min.js" defer="defer"></script>
+<link href="../../../images/logo-icon.svg">
+<link href="../../../styles/custom-styles.css" rel="Stylesheet">
+</head>
+<body>
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+            <a class="library-name--link" href="../../../index.html" tabindex="1">
+                    server
+            </a>
+        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle"
+                type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">
+2.0.0-SNAPSHOT.356        </div>
+        <div class="navigation-controls">
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector jvm-like" data-active="" aria-pressed="true"
+                        data-filter=":server/main">jvm</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
+                        data-role="dropdown-toggle"
+                        aria-controls="platform-tags-listbox"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-label="Toggle source sets"
+                ></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option jvm-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":server/main"
+                                       data-filter=":server/main"/>
+                                <span class="checkbox--icon"></span>
+                                jvm
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </ul>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
+                    type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
+        </div>
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config='{"defaultSize": 280, "minSize": 200, "maxSize": 400}'>
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list"
+                    data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
+                            <span>
+                                    server
+                            </span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
+<div class="main-content" data-page-type="classlike" id="content" pageIds="server::io.spine.server.delivery/Delivery///PointingToDeclaration//332232451">
+  <div class="breadcrumbs"><a href="../../../index.html">server</a><span class="delimiter">/</span><a href="../index.html">io.spine.server.delivery</a><span class="delimiter">/</span><span class="current">Delivery</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span><span>Delivery</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="index.html">Delivery</a> : <span data-unresolved-link="io.spine.logging/WithLogging///PointingToDeclaration/">WithLogging</span></div><p class="paragraph">Delivers the messages to the entities. </p><p class="paragraph">Splits the incoming messages into shards and allows to deliver the messages to their destinations on a per-shard basis. Guarantees that one and only one application server node serves the messages from the given shard at a time, thus preventing any concurrent modifications of entity state. </p><p class="paragraph">Delegates the message dispatching and low-level handling of message duplicates to <a href="new-inbox.html">Inbox</a>es of each target entity. The respective <code class="lang-kotlin">Inbox</code> instances should be created in each of <code class="lang-kotlin">Entity</code> repositories. </p><h2 class="">Configuration</h2><h3 class="">Delivery Strategy</h3><p class="paragraph">By default, a shard is assigned according to the identifier of the target entity. The messages heading to a single entity will always reside in a single shard. However, the framework users may <span data-unresolved-link="io.spine.server.delivery/DeliveryBuilder/setStrategy/#io.spine.server.delivery.DeliveryStrategy/PointingToDeclaration/">customize</span> this behavior. </p><p class="paragraph">The typical customization would be to specify the same shard index for the related targets. E.g. if there is an <code class="lang-kotlin">OrderAggregate</code>, <code class="lang-kotlin">OrderItemAggregate</code> and <code class="lang-kotlin">OrderItemProjection</code>, they could share the same shard index. In this way the messages headed to these entities will be dispatched and processed together. In turn, that will reduce the eventual consistency lag between <code class="lang-kotlin">C</code> side (i.e. aggregate state updates) and <code class="lang-kotlin">Q</code> side (i.e. the respective updates in projections). </p><h3 class="">Deduplication</h3><p class="paragraph">As long as the underlying storage and transport mechanisms are restricted by the CAP theorem, there may be duplicates in the messages written, read or dispatched. The <code class="lang-kotlin">Delivery</code> responds to it by storing some of the already delivered messages for longer and using them as a source for deduplication. </p><p class="paragraph"><span data-unresolved-link="io.spine.server.delivery/DeliveryBuilder/setDeduplicationWindow/#com.google.protobuf.Duration/PointingToDeclaration/">Provides</span> the time-based deduplication capabilities to eliminate the messages, which may have been already delivered to their targets. The duplicates will be detected among the messages, which are not older, than <code class="lang-kotlin">now - [deduplication window]</code>. </p><h3 class="">Customizing <code class="lang-kotlin">InboxStorage</code></h3><p class="paragraph"><code class="lang-kotlin">Delivery</code> is responsible for providing the <a href="../-inbox-storage/index.html">InboxStorage</a> for every inbox registered. Framework users may <span data-unresolved-link="io.spine.server.delivery/DeliveryBuilder/setInboxStorage/#io.spine.server.delivery.InboxStorage/PointingToDeclaration/">configure</span> the storage. By default, the <code class="lang-kotlin">InboxStorage</code> for the delivery is provided by the environment-specific <a href="../../io.spine.server/-server-environment/storage-factory.html">storage factory</a> and is single-tenant. In case there is at least one multi-tenant <code class="lang-kotlin">BoundedContext</code> served by the <code class="lang-kotlin">Delivery</code>, the <code class="lang-kotlin">InboxStorage</code> should be configured to support the multi-tenancy. </p><h3 class="">Catch-up</h3><p class="paragraph">In addition to delivering the messages sent in a real-time, <code class="lang-kotlin">Delivery</code> dispatches the historical events sent to the catching-up projections. These events are dispatched through the same shards as the live messages. A special <span data-unresolved-link="io.spine.server.delivery/CatchUpStation///PointingToDeclaration/">CatchUpStation</span> is responsible for handling this use-case. See more on that in the respective section. </p><p class="paragraph">To control how many historical events are read and put into shards, the end-users may configure the <a href="../-delivery-builder/set-catch-up-page-size.html">maximum number of messages</a> read from the history at a time. This is helpful to balance the per-shard throughput, so that the live messages are still dispatched through the same shards in a reasonable time. </p><p class="paragraph">The statuses of the ongoing catch-up processes are stored in a dedicated <a href="../-catch-up-storage/index.html">CatchUpStorage</a>. The <code class="lang-kotlin">DeliveryBuilder</code><span data-unresolved-link="io.spine.server.delivery/DeliveryBuilder/setCatchUpStorage/#io.spine.server.delivery.CatchUpStorage/PointingToDeclaration/"> exposes an API</span> for the customization of this storage. By default, the <code class="lang-kotlin">CatchUpStorage</code> is single-tenant. However, as with the <code class="lang-kotlin">InboxStorage</code> used by the <code class="lang-kotlin">Delivery</code>, it should be configured as multi-tenant if at least one <code class="lang-kotlin">BoundedContext</code> served by the <code class="lang-kotlin">Delivery</code> is multi-tenant. </p><h3 class="">Observers</h3><p class="paragraph">Once a message is written to the <code class="lang-kotlin">Inbox</code>, the <a href="subscribe.html">pre-configured shard observers</a> are <a href="../-shard-observer/on-message.html">notified</a>. In this way any third-party environment planners, load balancers, and schedulers may plug into the delivery and perform various routines to enable the further processing of the sharded messages. In a distributed environment a message queue may be used to notify the node cluster of a shard that has some messages pending for the delivery. </p><h3 class="">Work registry</h3><p class="paragraph">Once an application node picks the shard to deliver the messages from it, it registers itself in a <a href="../-sharded-work-registry/index.html">ShardedWorkRegistry</a>. It serves as a list of locks-per-shard that only allows to pick a shard to a single node at a time. The framework users may configure the implementation of the registry by calling <span data-unresolved-link="io.spine.server.delivery/DeliveryBuilder/setWorkRegistry/#io.spine.server.delivery.ShardedWorkRegistry/PointingToDeclaration/">setWorkRegistry</span>. </p><h3 class="">Dispatching messages</h3>Delivery stages<p class="paragraph">The delivery process for each shard index is split into <span data-unresolved-link="io.spine.server.delivery/DeliveryStage///PointingToDeclaration/">DeliveryStage</span>s. In scope of each stage, a certain number of messages is read from the respective shard of the <code class="lang-kotlin">Inbox</code>. The messages are grouped per-target and delivered in batches if possible. The maximum number of the messages within a <code class="lang-kotlin">DeliveryStage</code> can be <a href="../-delivery-builder/set-page-size.html">configured</a>. </p><p class="paragraph">After each <code class="lang-kotlin">DeliveryStage</code> it is possible to stop the delivery by <a href="../-delivery-builder/set-monitor.html">supplying</a> a custom delivery monitor. Please refer to the <a href="../-delivery-monitor/index.html">documentation</a> for the details. </p>Conveyor and stations<p class="paragraph">In a scope of <code class="lang-kotlin">DeliveryStage</code> the page of the <code class="lang-kotlin">InboxMessage</code>s is placed to the <span data-unresolved-link="io.spine.server.delivery/Conveyor///PointingToDeclaration/">Conveyor</span> responsible for tracking the status of each message. The conveyor is run through the pipeline of stations, each modifying the state of the messages. At the end of the pipeline, the changed made to the messages are committed to the underlying <code class="lang-kotlin">InboxStorage</code> in a bulk. Such an approach allows to minimize the number of the requests sent to the storage. </p><p class="paragraph">As long as the new <code class="lang-kotlin">DeliveryStage</code> is started, the new instance of the <code class="lang-kotlin">Conveyor</code> is created. </p><p class="paragraph">Below is the list of the conveyor stations in the pipeline. <strong>1. Catch-up station</strong></p><p class="paragraph">This station is responsible for dispatching the historical events in <a href="../-inbox-message-status/-t-o_-c-a-t-c-h_-u-p/index.html">TO_CATCH_UP</a> status to the respective targets. Also, while the target entity is under a catch-up, all the live messages headed to it are ignored. Once the catch-up is completed, this station handles the transition period, in which the last batch of the historical events and live messages are dispatched together. See <span data-unresolved-link="io.spine.server.delivery/CatchUpStation///PointingToDeclaration/">CatchUpStation</span> for more details. <strong>2. Live delivery station</strong></p><p class="paragraph">This station is responsible for dispatching the messages sent in a real-time. It ignores the messages in <a href="../-inbox-message-status/-t-o_-c-a-t-c-h_-u-p/index.html">TO_CATCH_UP</a> status. Another responsibility of this station is to set for how long the delivered messages should be kept according to the <span data-unresolved-link="io.spine.server.delivery/DeliveryBuilder/setDeduplicationWindow/#com.google.protobuf.Duration/PointingToDeclaration/">deduplication window</span> settings. See <span data-unresolved-link="io.spine.server.delivery/LiveDeliveryStation///PointingToDeclaration/">LiveDeliveryStation</span> for more details. <strong>3. Cleanup station</strong></p><p class="paragraph">This station removes the messages which are already delivered and are no longer needed for the deduplication. See <span data-unresolved-link="io.spine.server.delivery/CleanupStation///PointingToDeclaration/">CleanupStation</span> for the description. <strong>Deduplication</strong></p><p class="paragraph">During the dispatching, <code class="lang-kotlin">Conveyor</code> keeps track of the delivered messages. The stations performing the actual message dispatching rely onto this knowledge and deduplicate the messages prior to calling the target's endpoint. </p><p class="paragraph">Additionally, the <code class="lang-kotlin">Delivery</code> provides a <span data-unresolved-link="io.spine.server.delivery/DeliveredMessagesCache///PointingToDeclaration/">cache of recently delivered messages</span>. Each instance of the <code class="lang-kotlin">Conveyor</code> has an access to it and uses it in deduplication procedures. </p><h3 class="">Local environment</h3><p class="paragraph">By default, the delivery is configured to <a href="local.html">run locally</a>. It uses <a href="../-local-dispatching-observer/index.html">see-and-dispatch observer</a>, which delivers the messages from the observed shard once a message is passed to its <a href="../-local-dispatching-observer/on-message.html">onMessage(InboxMessage)</a> method. This process is synchronous. </p><p class="paragraph">To deal with the multi-threaded access in a local mode, an <a href="../../io.spine.server.delivery.memory/-in-memory-sharded-work-registry/index.html">InMemoryShardedWorkRegistry</a> is used. It operates on top of the <code class="lang-kotlin">synchronized</code> in-memory data structures and prevents several threads from picking up the same shard. </p><h3 class="">Shard maintenance</h3><p class="paragraph">To perform the maintenance procedures, the <code class="lang-kotlin">Delivery</code> requires all the <code class="lang-kotlin">
+BoundedContext</code>s to register themselves in it. Upon this registration, a special <span data-unresolved-link="io.spine.server.delivery/ShardMaintenanceProcess///PointingToDeclaration/">ShardMaintenanceProcess</span> is registered as an event dispatcher in a passed <code class="lang-kotlin">BoundedContext</code>. Such a registration is performed automatically when the context is <a href="../../io.spine.server/-bounded-context-builder/build.html">built</a>.</p></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="FUNCTION">
+        <h2 class="tableheader">Functions</h2>
+        <div class="table"><a data-name="686819471%2FFunctions%2F332232451" anchor-label="contextSpec" id="686819471%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="context-spec.html"><span>context</span><wbr></wbr><span><span>Spec</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="686819471%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="context-spec.html"><span class="token function">contextSpec</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">multitenant<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../io.spine.server/-context-spec/index.html">ContextSpec</a></div><div class="brief ">Returns the specification of a Bounded Context describing the <code class="lang-kotlin">Delivery</code> flow.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-379699118%2FFunctions%2F332232451" anchor-label="deliverMessagesFrom" id="-379699118%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="deliver-messages-from.html"><span>deliver</span><wbr></wbr><span>Messages</span><wbr></wbr><span><span>From</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-379699118%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.errorprone.annotations/CanIgnoreReturnValue///PointingToDeclaration/"><span class="token annotation builtin">CanIgnoreReturnValue</span></span></div></div><span class="token keyword">open </span><span class="token keyword">fun </span><a href="deliver-messages-from.html"><span class="token function">deliverMessagesFrom</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">index<span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/ShardIndex///PointingToDeclaration/">ShardIndex</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html">Optional</a><span class="token operator">&lt;</span><a href="../-delivery-stats/index.html">DeliveryStats</a><span class="token operator">&gt;</span></div><div class="brief ">Delivers the messages put into the shard with the passed index to their targets.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1186136252%2FFunctions%2F332232451" anchor-label="direct" id="1186136252%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="direct.html"><span><span>direct</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1186136252%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="io.spine.annotation/Experimental///PointingToDeclaration/"><span class="token annotation builtin">Experimental</span></span></div></div><span class="token keyword">open </span><span class="token keyword">fun </span><a href="direct.html"><span class="token function">direct</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">Delivery</a></div><div class="brief ">Creates a new instance of <code class="lang-kotlin">Delivery</code> which makes all signals to skip the <code class="lang-kotlin">Inbox</code>es and be delivered straight to their respective targets.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1580153066%2FFunctions%2F332232451" anchor-label="local" id="1580153066%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="local.html"><span><span>local</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1580153066%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="local.html"><span class="token function">local</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">Delivery</a></div><div class="brief ">Creates a new instance of <code class="lang-kotlin">Delivery</code> suitable for local and development environment.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-131641388%2FFunctions%2F332232451" anchor-label="localAsync" id="-131641388%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="local-async.html"><span>local</span><wbr></wbr><span><span>Async</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-131641388%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="local-async.html"><span class="token function">localAsync</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">Delivery</a></div><div class="brief ">Creates a new instance of <code class="lang-kotlin">Delivery</code> for local and development environment.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-967482614%2FFunctions%2F332232451" anchor-label="newBuilder" id="-967482614%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="new-builder.html"><span>new</span><wbr></wbr><span><span>Builder</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-967482614%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="new-builder.html"><span class="token function">newBuilder</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-delivery-builder/index.html">DeliveryBuilder</a></div><div class="brief ">Creates an instance of new <code class="lang-kotlin">Builder</code> of <code class="lang-kotlin">Delivery</code>.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-2071733231%2FFunctions%2F332232451" anchor-label="newCatchUpProcess" id="-2071733231%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="new-catch-up-process.html"><span>new</span><wbr></wbr><span>Catch</span><wbr></wbr><span>Up</span><wbr></wbr><span><span>Process</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2071733231%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="new-catch-up-process.html">I</a><span class="token operator">&gt; </span><a href="new-catch-up-process.html"><span class="token function">newCatchUpProcess</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">repo<span class="token operator">: </span><a href="../../io.spine.server.projection/-projection-repository/index.html">ProjectionRepository</a><span class="token operator">&lt;</span><a href="new-catch-up-process.html">I</a><span class="token punctuation">, </span><span class="token keyword">out </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token punctuation">, </span><span class="token keyword">out </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-catch-up-process-builder/index.html">CatchUpProcessBuilder</a><span class="token operator">&lt;</span><a href="new-catch-up-process.html">I</a><span class="token operator">&gt;</span></div><div class="brief ">Creates a new instance of the builder for <a href="../-catch-up-process/index.html">CatchUpProcess</a>.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1946977425%2FFunctions%2F332232451" anchor-label="newInbox" id="-1946977425%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="new-inbox.html"><span>new</span><wbr></wbr><span><span>Inbox</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1946977425%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="new-inbox.html">I</a><span class="token operator">&gt; </span><a href="new-inbox.html"><span class="token function">newInbox</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">entityType<span class="token operator">: </span><span data-unresolved-link="io.spine.type/TypeUrl///PointingToDeclaration/">TypeUrl</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.spine.server.delivery/Inbox.Builder///PointingToDeclaration/">Inbox.Builder</span><span class="token operator">&lt;</span><a href="new-inbox.html">I</a><span class="token operator">&gt;</span></div><div class="brief ">Creates an instance of <span data-unresolved-link="io.spine.server.delivery/Inbox.Builder///PointingToDeclaration/">Inbox.Builder</span> for the given entity type.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-612581895%2FFunctions%2F332232451" anchor-label="subscribe" id="-612581895%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="subscribe.html"><span><span>subscribe</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-612581895%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="subscribe.html"><span class="token function">subscribe</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">observer<span class="token operator">: </span><a href="../-shard-observer/index.html">ShardObserver</a></span></span><span class="token punctuation">)</span></div><div class="brief ">Subscribes to the updates of shard contents.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    <div class="footer">
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>Copyright 2025, TeamDev</div>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>EventRouting</title>
+    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
+        <script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+      if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      } else {
+        const savedDarkMode = JSON.parse(storage)
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../../ui-kit/ui-kit.min.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/safe-local-storage_blocking.js"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../ui-kit/ui-kit.min.js" defer="defer"></script>
+<link href="../../../images/logo-icon.svg">
+<link href="../../../styles/custom-styles.css" rel="Stylesheet">
+</head>
+<body>
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+            <a class="library-name--link" href="../../../index.html" tabindex="1">
+                    server
+            </a>
+        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle"
+                type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">
+2.0.0-SNAPSHOT.356        </div>
+        <div class="navigation-controls">
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector jvm-like" data-active="" aria-pressed="true"
+                        data-filter=":server/main">jvm</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
+                        data-role="dropdown-toggle"
+                        aria-controls="platform-tags-listbox"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-label="Toggle source sets"
+                ></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option jvm-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":server/main"
+                                       data-filter=":server/main"/>
+                                <span class="checkbox--icon"></span>
+                                jvm
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </ul>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
+                    type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
+        </div>
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config='{"defaultSize": 280, "minSize": 200, "maxSize": 400}'>
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list"
+                    data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
+                            <span>
+                                    server
+                            </span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
+<div class="main-content" data-page-type="classlike" id="content" pageIds="server::io.spine.server.route/EventRouting///PointingToDeclaration//332232451">
+  <div class="breadcrumbs"><a href="../../../index.html">server</a><span class="delimiter">/</span><a href="../index.html">io.spine.server.route</a><span class="delimiter">/</span><span class="current">EventRouting</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>Event</span><wbr></wbr><span><span>Routing</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="index.html">EventRouting</a><span class="token operator">&lt;</span><a href="index.html">I</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt;</span> : <a href="../-multicast-routing/index.html">MulticastRouting</a><span class="token operator">&lt;</span><a href="index.html">I</a><span class="token punctuation">, </span><span data-unresolved-link="io.spine.base/EventMessage///PointingToDeclaration/">EventMessage</span><span class="token punctuation">, </span><span data-unresolved-link="io.spine.core/EventContext///PointingToDeclaration/">EventContext</span><span class="token punctuation">, </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-set/index.html">Set</a><span class="token operator">&lt;</span><a href="index.html">I</a><span class="token operator">&gt;</span><span class="token punctuation">, </span><a href="index.html">EventRouting</a><span class="token operator">&lt;</span><a href="index.html">I</a><span class="token operator">&gt;</span><span class="token operator">&gt; </span>, <a href="../-event-route/index.html">EventRoute</a><span class="token operator">&lt;</span><a href="index.html">I</a><span class="token punctuation">, </span><span data-unresolved-link="io.spine.base/EventMessage///PointingToDeclaration/">EventMessage</span><span class="token operator">&gt; </span><span class="source-link-wrapper"><span class="source-link" data-element-type="source-link">(<a href="https://github.com/SpineEventEngine/spine-core-jvm/tree/master/server/src/main/kotlin/io/spine/server/route/EventRouting.kt#L90">source</a>)</span></span></div><p class="paragraph">A <a href="../-message-routing/index.html">routing schema</a> for events.</p><p class="paragraph">Events are typically delivered to multiple entities, following the <a href="../-multicast/index.html">multicast</a> strategy. The <code class="lang-kotlin">EventRouting</code> schema contains entries that implement the <a href="../-event-route/index.html">EventRoute</a> interface, a functional type that returns a set of entity identifiers of type <a href="index.html">I</a>.</p><p class="paragraph">Routing functions for events can also follow a <a href="../-unicast/index.html">unicast</a> strategy, where an event is routed to a single entity. Such routes can be added using <span data-unresolved-link="io.spine.server.route/EventRouting/unicast/#kotlin.Function2[TypeParam(bounds=[io.spine.base.EventMessage]),io.spine.core.EventContext,TypeParam(bounds=[kotlin.Any])]/PointingToDeclaration/">unicast</span> functions. These functions adapt their arguments to the <a href="../-event-route/index.html">EventRoute</a> interface.</p><h2 class="">Default event route</h2><p class="paragraph">By default, the <code class="lang-kotlin">EventRouting</code> schema uses the producer's ID from the <span data-unresolved-link="io.spine.core/EventContext/getProducerId/#/PointingToDeclaration/">EventContext</span> to determine the route. This behavior is specified when <code class="lang-kotlin">EventRouting</code> is <a href="-companion/with-default-by-producer-id-or-first-field.html">created</a> by a repository.</p><p class="paragraph">To override the default routing, use <span data-unresolved-link="io.spine.server.route/EventRouting/replaceDefault/#io.spine.server.route.RouteFn[io.spine.base.EventMessage,io.spine.core.EventContext,kotlin.collections.Set[TypeParam(bounds=[kotlin.Any])]]/PointingToDeclaration/">replaceDefault</span> in the <code class="lang-kotlin">setupCommandRouting</code> method of the corresponding repository class. One option for an alternative default route is <a href="../-event-route/-companion/by-first-message-field.html">EventRoute.byFirstMessageField</a>.</p><h2 class="">Adding custom routes</h2><p class="paragraph">Custom routes can be added using <span data-unresolved-link="io.spine.server.route/EventRouting/route/#io.spine.server.route.RouteFn[TypeParam(bounds=[io.spine.base.EventMessage]),io.spine.core.EventContext,kotlin.collections.Set[TypeParam(bounds=[kotlin.Any])]]/PointingToDeclaration/">route</span> functions that accept <a href="../-event-route/index.html">EventRoute</a> implementations. If an event should be routed to a single entity taking the event message or its context, use the <span data-unresolved-link="io.spine.server.route/EventRouting/unicast/#kotlin.Function2[TypeParam(bounds=[io.spine.base.EventMessage]),io.spine.core.EventContext,TypeParam(bounds=[kotlin.Any])]/PointingToDeclaration/">unicast</span> functions.</p><h2 class="">Routing events with a common interface</h2><p class="paragraph">Routing entries can be defined for both specific event classes and interfaces. If you need to route events for both classes and their implemented interfaces, define interface routes <i>after</i> entries for specific classes:</p><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">routing.route&lt;MyEventClass&gt; { event, context -&gt; ... }<br>       .route&lt;AnotherEvent&gt; { event -&gt; ... }<br>       .route&lt;MyInterface&gt; { event, context -&gt; ... }<br>       .route&lt;MySuperInterface&gt; { event -&gt; ... }</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div><p class="paragraph">Additionally, define entries for interfaces starting with more specific interfaces before their super-interfaces. If this order is not followed, calling <span data-unresolved-link="io.spine.server.route/EventRouting/route/#io.spine.server.route.RouteFn[TypeParam(bounds=[io.spine.base.EventMessage]),io.spine.core.EventContext,kotlin.collections.Set[TypeParam(bounds=[kotlin.Any])]]/PointingToDeclaration/">route</span> or <span data-unresolved-link="io.spine.server.route/EventRouting/unicast/#kotlin.Function2[TypeParam(bounds=[io.spine.base.EventMessage]),io.spine.core.EventContext,TypeParam(bounds=[kotlin.Any])]/PointingToDeclaration/">unicast</span> will result in an <code class="lang-kotlin">IllegalStateException</code>.</p><h4 class="tableheader">Parameters</h4><div class="table"><div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span><span>I</span></span></u></div></span></div><div><div class="title"><p class="paragraph">The type of entity IDs to which events are routed.</p></div></div></div></div><div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span>default</span><wbr></wbr><span><span>Route</span></span></u></div></span></div><div><div class="title"><p class="paragraph">The fallback route to use when no custom route is provided via <span data-unresolved-link="io.spine.server.route/EventRouting/route/#io.spine.server.route.RouteFn[TypeParam(bounds=[io.spine.base.EventMessage]),io.spine.core.EventContext,kotlin.collections.Set[TypeParam(bounds=[kotlin.Any])]]/PointingToDeclaration/">route</span> or <span data-unresolved-link="io.spine.server.route/EventRouting/invoke/#io.spine.base.EventMessage#io.spine.core.EventContext/PointingToDeclaration/">invoke</span>.</p></div></div></div></div></div></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="TYPE">
+        <h2 class="tableheader">Types</h2>
+        <div class="table"><a data-name="-123218871%2FClasslikes%2F332232451" anchor-label="Companion" id="-123218871%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-companion/index.html"><span><span>Companion</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-123218871%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">object </span><a href="-companion/index.html">Companion</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="FUNCTION">
+        <h2 class="tableheader">Functions</h2>
+        <div class="table"><a data-name="-1875905060%2FFunctions%2F332232451" anchor-label="createUnicastRoute" id="-1875905060%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="create-unicast-route.html"><span>create</span><wbr></wbr><span>Unicast</span><wbr></wbr><span><span>Route</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1875905060%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">protected </span><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="create-unicast-route.html">E</a><span class="token operator"> : </span><span data-unresolved-link="io.spine.base/EventMessage///PointingToDeclaration/">EventMessage</span><span class="token operator">&gt; </span><a href="create-unicast-route.html"><span class="token function">createUnicastRoute</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">via<span class="token operator">: </span><span class="token punctuation">(</span><a href="create-unicast-route.html">E</a><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="index.html">I</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-event-route/index.html">EventRoute</a><span class="token operator">&lt;</span><a href="index.html">I</a><span class="token punctuation">, </span><a href="create-unicast-route.html">E</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Adapt the single parameter function to <a href="../-route-fn/index.html">RouteFn</a> instance of the type used by the descendant of this class.</p></div><div class="symbol monospace"><span class="token keyword">protected </span><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="create-unicast-route.html">E</a><span class="token operator"> : </span><span data-unresolved-link="io.spine.base/EventMessage///PointingToDeclaration/">EventMessage</span><span class="token operator">&gt; </span><a href="create-unicast-route.html"><span class="token function">createUnicastRoute</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">via<span class="token operator">: </span><span class="token punctuation">(</span><a href="create-unicast-route.html">E</a><span class="token punctuation">, </span><span data-unresolved-link="io.spine.core/EventContext///PointingToDeclaration/">EventContext</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="index.html">I</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-event-route/index.html">EventRoute</a><span class="token operator">&lt;</span><a href="index.html">I</a><span class="token punctuation">, </span><a href="create-unicast-route.html">E</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Adapts the function with two parameters to <a href="../-route-fn/index.html">RouteFn</a> instance of the type used by the descendant of this class.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1990003061%2FFunctions%2F332232451" anchor-label="find" id="1990003061%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="find.html"><span><span>find</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1990003061%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">inline </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="find.html">E</a><span class="token operator"> : </span><span data-unresolved-link="io.spine.base/EventMessage///PointingToDeclaration/">EventMessage</span><span class="token operator">&gt; </span><a href="find.html"><span class="token function">find</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-event-route/index.html">EventRoute</a><span class="token operator">&lt;</span><a href="index.html">I</a><span class="token punctuation">, </span><a href="find.html">E</a><span class="token operator">&gt;</span><span class="token operator">?</span></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="find.html">E</a><span class="token operator"> : </span><span data-unresolved-link="io.spine.base/EventMessage///PointingToDeclaration/">EventMessage</span><span class="token operator">&gt; </span><a href="find.html"><span class="token function">find</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">cls<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html">Class</a><span class="token operator">&lt;</span><a href="find.html">E</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-event-route/index.html">EventRoute</a><span class="token operator">&lt;</span><a href="index.html">I</a><span class="token punctuation">, </span><a href="find.html">E</a><span class="token operator">&gt;</span><span class="token operator">?</span></div><div class="brief "><p class="paragraph">Obtains a route for the passed event class.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1373329080%2FFunctions%2F332232451" anchor-label="routeStateUpdates" id="-1373329080%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="route-state-updates.html"><span>route</span><wbr></wbr><span>State</span><wbr></wbr><span><span>Updates</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1373329080%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.errorprone.annotations/CanIgnoreReturnValue///PointingToDeclaration/"><span class="token annotation builtin">CanIgnoreReturnValue</span></span></div></div><span class="token keyword">fun </span><a href="route-state-updates.html"><span class="token function">routeStateUpdates</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">routing<span class="token operator">: </span><a href="../-state-update-routing/index.html">StateUpdateRouting</a><span class="token operator">&lt;</span><a href="index.html">I</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">EventRouting</a><span class="token operator">&lt;</span><a href="index.html">I</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Sets a custom routing schema for entity state updates.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="337824652%2FFunctions%2F332232451" anchor-label="self" id="337824652%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="self.html"><span><span>self</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="337824652%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">protected </span><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="self.html"><span class="token function">self</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">EventRouting</a><span class="token operator">&lt;</span><a href="index.html">I</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Provides the type reference to <code class="lang-kotlin">this</code> for covariance of the type returned by <a href="../-message-routing/route.html">route</a> functions.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    <div class="footer">
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>Copyright 2025, TeamDev</div>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

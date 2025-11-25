@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>io.spine.server.storage</title>
+    <link href="../../images/logo-icon.svg" rel="icon" type="image/svg">
+        <script>var pathToRoot = "../../";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+      if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      } else {
+        const savedDarkMode = JSON.parse(storage)
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../styles/style.css" rel="Stylesheet">
+<link href="../../styles/main.css" rel="Stylesheet">
+<link href="../../styles/prism.css" rel="Stylesheet">
+<link href="../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../ui-kit/ui-kit.min.css" rel="Stylesheet">
+<script type="text/javascript" src="../../scripts/safe-local-storage_blocking.js"></script>
+<script type="text/javascript" src="../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../ui-kit/ui-kit.min.js" defer="defer"></script>
+<link href="../../images/logo-icon.svg">
+<link href="../../styles/custom-styles.css" rel="Stylesheet">
+</head>
+<body>
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+            <a class="library-name--link" href="../../index.html" tabindex="1">
+                    server
+            </a>
+        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle"
+                type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">
+2.0.0-SNAPSHOT.356        </div>
+        <div class="navigation-controls">
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector jvm-like" data-active="" aria-pressed="true"
+                        data-filter=":server/main">jvm</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
+                        data-role="dropdown-toggle"
+                        aria-controls="platform-tags-listbox"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-label="Toggle source sets"
+                ></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option jvm-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":server/main"
+                                       data-filter=":server/main"/>
+                                <span class="checkbox--icon"></span>
+                                jvm
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </ul>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
+                    type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
+        </div>
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config='{"defaultSize": 280, "minSize": 200, "maxSize": 400}'>
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list"
+                    data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
+                            <span>
+                                    server
+                            </span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
+<div class="main-content" data-page-type="package" id="content" pageIds="server::io.spine.server.storage////PointingToDeclaration//332232451">
+  <div class="breadcrumbs"><a href="../../index.html">server</a><span class="delimiter">/</span><span class="current">io.spine.server.storage</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span><span>Package-level</span></span> <span><span>declarations</span></span></h1>
+    <div class="platform-hinted UnderCoverText" data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><p class="paragraph">This package provides interfaces and base classes for storages.</p></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="TYPE">Types</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="TYPE">
+        <h2 class="tableheader">Types</h2>
+        <div class="table"><a data-name="-1156230265%2FClasslikes%2F332232451" anchor-label="AbstractColumnMapping" id="-1156230265%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-abstract-column-mapping/index.html"><span>Abstract</span><wbr></wbr><span>Column</span><wbr></wbr><span><span>Mapping</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1156230265%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">class </span><a href="-abstract-column-mapping/index.html">AbstractColumnMapping</a><span class="token operator">&lt;</span><a href="-abstract-column-mapping/index.html">R</a><span class="token operator">&gt;</span> : <a href="-column-mapping/index.html">ColumnMapping</a><span class="token operator">&lt;</span><a href="-abstract-column-mapping/index.html">R</a><span class="token operator">&gt; </span></div><div class="brief ">The base implementation of mapping rules for the <span data-unresolved-link="io.spine.query/Column///PointingToDeclaration/">column values</span> of a stored record.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-289488508%2FClasslikes%2F332232451" anchor-label="AbstractStorage" id="-289488508%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-abstract-storage/index.html"><span>Abstract</span><wbr></wbr><span><span>Storage</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-289488508%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">class </span><a href="-abstract-storage/index.html">AbstractStorage</a><span class="token operator">&lt;</span><a href="-abstract-storage/index.html">I</a><span class="token punctuation">, </span><a href="-abstract-storage/index.html">M</a><span class="token operator"> : </span><span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span><span class="token operator">?</span><span class="token operator">&gt;</span> : <a href="-storage/index.html">Storage</a><span class="token operator">&lt;</span><a href="-abstract-storage/index.html">I</a><span class="token punctuation">, </span><a href="-abstract-storage/index.html">M</a><span class="token operator">&gt; </span></div><div class="brief ">Abstract base for storages.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-589624123%2FClasslikes%2F332232451" anchor-label="ColumnMapping" id="-589624123%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-column-mapping/index.html"><span>Column</span><wbr></wbr><span><span>Mapping</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-589624123%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-column-mapping/index.html">ColumnMapping</a><span class="token operator">&lt;</span><a href="-column-mapping/index.html">R</a><span class="token operator">&gt;</span></div><div class="brief ">The value mapping rules of record <span data-unresolved-link="io.spine.query/Column///PointingToDeclaration/">columns</span>.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1536452833%2FClasslikes%2F332232451" anchor-label="ColumnTypeMapping" id="-1536452833%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-column-type-mapping/index.html"><span>Column</span><wbr></wbr><span>Type</span><wbr></wbr><span><span>Mapping</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1536452833%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-column-type-mapping/index.html">ColumnTypeMapping</a><span class="token operator">&lt;</span><a href="-column-type-mapping/index.html">T</a><span class="token punctuation">, </span><a href="-column-type-mapping/index.html">R</a><span class="token operator">&gt;</span> : <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html">Function</a><span class="token operator">&lt;</span><a href="-column-type-mapping/index.html">T</a><span class="token punctuation">, </span><a href="-column-type-mapping/index.html">R</a><span class="token operator">&gt; </span></div><div class="brief ">A persistence strategy of an entity <span data-unresolved-link="io.spine.query/Column///PointingToDeclaration/">column</span>.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-54397810%2FClasslikes%2F332232451" anchor-label="DefaultColumnMapping" id="-54397810%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-default-column-mapping/index.html"><span>Default</span><wbr></wbr><span>Column</span><wbr></wbr><span><span>Mapping</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-54397810%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="-default-column-mapping/index.html">DefaultColumnMapping</a> : <a href="-abstract-column-mapping/index.html">AbstractColumnMapping</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt; </span></div><div class="brief ">A default column mapping which stores all values &quot;as-is&quot;.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="772298624%2FClasslikes%2F332232451" anchor-label="FieldMaskApplier" id="772298624%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-field-mask-applier/index.html"><span>Field</span><wbr></wbr><span>Mask</span><wbr></wbr><span><span>Applier</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="772298624%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="-field-mask-applier/index.html">FieldMaskApplier</a><span class="token operator">&lt;</span><a href="-field-mask-applier/index.html">R</a><span class="token operator"> : </span><span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span><span class="token operator">?</span><span class="token operator">&gt;</span> : <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html">Function</a><span class="token operator">&lt;</span><a href="-field-mask-applier/index.html">R</a><span class="token punctuation">, </span><a href="-field-mask-applier/index.html">R</a><span class="token operator">&gt; </span></div><div class="brief ">A <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html">Function</a> transforming the storage record by applying the given <span data-unresolved-link="com.google.protobuf/FieldMask///PointingToDeclaration/">FieldMask</span> to it.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1251146351%2FClasslikes%2F332232451" anchor-label="MessageStorage" id="-1251146351%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-message-storage/index.html"><span>Message</span><wbr></wbr><span><span>Storage</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1251146351%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">class </span><a href="-message-storage/index.html">MessageStorage</a><span class="token operator">&lt;</span><a href="-message-storage/index.html">I</a><span class="token punctuation">, </span><a href="-message-storage/index.html">M</a><span class="token operator"> : </span><span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span><span class="token operator">?</span><span class="token operator">&gt;</span> : <a href="-record-storage-delegate/index.html">RecordStorageDelegate</a><span class="token operator">&lt;</span><a href="-message-storage/index.html">I</a><span class="token punctuation">, </span><a href="-message-storage/index.html">M</a><span class="token operator">&gt; </span></div><div class="brief ">A storage which allows persisting the <span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span>s as storage records.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1653202125%2FClasslikes%2F332232451" anchor-label="QueryConverter" id="1653202125%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-query-converter/index.html"><span>Query</span><wbr></wbr><span><span>Converter</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1653202125%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="-query-converter/index.html">QueryConverter</a></div><div class="brief ">Converts the queries defined in Protobuf into the language of <code class="lang-kotlin">io.spine.query</code> package.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1789471577%2FClasslikes%2F332232451" anchor-label="RecordSpec" id="1789471577%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-record-spec/index.html"><span>Record</span><wbr></wbr><span><span>Spec</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1789471577%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="-record-spec/index.html">RecordSpec</a><span class="token operator">&lt;</span><a href="-record-spec/index.html">I</a><span class="token punctuation">, </span><a href="-record-spec/index.html">R</a><span class="token operator"> : </span><span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span><span class="token operator">?</span><span class="token operator">&gt;</span></div><div class="brief ">Defines the specification of a record in a storage.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1997464397%2FClasslikes%2F332232451" anchor-label="RecordStorage" id="-1997464397%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-record-storage/index.html"><span>Record</span><wbr></wbr><span><span>Storage</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1997464397%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">class </span><a href="-record-storage/index.html">RecordStorage</a><span class="token operator">&lt;</span><a href="-record-storage/index.html">I</a><span class="token punctuation">, </span><a href="-record-storage/index.html">R</a><span class="token operator"> : </span><span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span><span class="token operator">?</span><span class="token operator">&gt;</span> : <a href="-abstract-storage/index.html">AbstractStorage</a><span class="token operator">&lt;</span><a href="-record-storage/index.html">I</a><span class="token punctuation">, </span><a href="-record-storage/index.html">R</a><span class="token operator">&gt; </span></div><div class="brief ">An abstract base for storage implementations, which store the Protobuf messages as records.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="738782382%2FClasslikes%2F332232451" anchor-label="RecordStorageDelegate" id="738782382%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-record-storage-delegate/index.html"><span>Record</span><wbr></wbr><span>Storage</span><wbr></wbr><span><span>Delegate</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="738782382%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">class </span><a href="-record-storage-delegate/index.html">RecordStorageDelegate</a><span class="token operator">&lt;</span><a href="-record-storage-delegate/index.html">I</a><span class="token punctuation">, </span><a href="-record-storage-delegate/index.html">R</a><span class="token operator"> : </span><span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span><span class="token operator">?</span><span class="token operator">&gt;</span> : <a href="-record-storage/index.html">RecordStorage</a><span class="token operator">&lt;</span><a href="-record-storage-delegate/index.html">I</a><span class="token punctuation">, </span><a href="-record-storage-delegate/index.html">R</a><span class="token operator">&gt; </span></div><div class="brief ">A <a href="-record-storage/index.html">RecordStorage</a> which delegates all of its operations to another instance of <code class="lang-kotlin">RecordStorage</code>.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-965427209%2FClasslikes%2F332232451" anchor-label="RecordWithColumns" id="-965427209%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-record-with-columns/index.html"><span>Record</span><wbr></wbr><span>With</span><wbr></wbr><span><span>Columns</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-965427209%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="-record-with-columns/index.html">RecordWithColumns</a><span class="token operator">&lt;</span><a href="-record-with-columns/index.html">I</a><span class="token punctuation">, </span><a href="-record-with-columns/index.html">R</a><span class="token operator"> : </span><span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span><span class="token operator">?</span><span class="token operator">&gt;</span></div><div class="brief ">A value of some message record along with the values of its <span data-unresolved-link="io.spine.query/Column///PointingToDeclaration/">columns</span>.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1621082434%2FClasslikes%2F332232451" anchor-label="Storage" id="1621082434%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-storage/index.html"><span><span>Storage</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1621082434%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-storage/index.html">Storage</a><span class="token operator">&lt;</span><a href="-storage/index.html">I</a><span class="token punctuation">, </span><a href="-storage/index.html">M</a><span class="token operator"> : </span><span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span><span class="token operator">?</span><span class="token operator">&gt;</span> : <a href="../io.spine.server/-closeable/index.html">Closeable</a></div><div class="brief ">The base interface for storages.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-165824426%2FClasslikes%2F332232451" anchor-label="StorageFactory" id="-165824426%2FClasslikes%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-storage-factory/index.html"><span>Storage</span><wbr></wbr><span><span>Factory</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-165824426%2FClasslikes%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-storage-factory/index.html">StorageFactory</a> : <a href="../io.spine.server/-closeable/index.html">Closeable</a></div><div class="brief ">A factory for creating storages used by repositories, <a href="../io.spine.server.event/-event-store/index.html">EventStore</a> and <a href="../io.spine.server.delivery/-delivery/index.html">io.spine.server.delivery.Delivery</a>.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    <div class="footer">
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>Copyright 2025, TeamDev</div>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

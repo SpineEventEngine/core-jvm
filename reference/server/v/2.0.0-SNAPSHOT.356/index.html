@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>server</title>
+    <link href="images/logo-icon.svg" rel="icon" type="image/svg">
+        <script>var pathToRoot = "";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+      if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      } else {
+        const savedDarkMode = JSON.parse(storage)
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async="async"></script>
+<script type="text/javascript" src="scripts/sourceset_dependencies.js" async="async"></script>
+<link href="styles/style.css" rel="Stylesheet">
+<link href="styles/main.css" rel="Stylesheet">
+<link href="styles/prism.css" rel="Stylesheet">
+<link href="styles/logo-styles.css" rel="Stylesheet">
+<link href="ui-kit/ui-kit.min.css" rel="Stylesheet">
+<script type="text/javascript" src="scripts/safe-local-storage_blocking.js"></script>
+<script type="text/javascript" src="scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="ui-kit/ui-kit.min.js" defer="defer"></script>
+<link href="images/logo-icon.svg">
+<link href="styles/custom-styles.css" rel="Stylesheet">
+</head>
+<body>
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+            <a class="library-name--link" href="index.html" tabindex="1">
+                    server
+            </a>
+        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle"
+                type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">
+2.0.0-SNAPSHOT.356        </div>
+        <div class="navigation-controls">
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector jvm-like" data-active="" aria-pressed="true"
+                        data-filter=":server/main">jvm</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
+                        data-role="dropdown-toggle"
+                        aria-controls="platform-tags-listbox"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-label="Toggle source sets"
+                ></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option jvm-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":server/main"
+                                       data-filter=":server/main"/>
+                                <span class="checkbox--icon"></span>
+                                jvm
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </ul>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
+                    type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
+        </div>
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config='{"defaultSize": 280, "minSize": 200, "maxSize": 400}'>
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list"
+                    data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
+                            <span>
+                                    server
+                            </span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
+<div class="main-content" id="content" pageIds="server::////PointingToDeclaration//332232451">
+  <div class="breadcrumbs"></div>
+  <div class="cover ">
+    <h1 class="cover"><span><span>server</span></span></h1>
+  </div>
+  <h2 class="">Packages</h2>
+  <div class="table"><a data-name="1398570072%2FPackages%2F332232451" anchor-label="io.spine.server" id="1398570072%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server/index.html">io.spine.server</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1398570072%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="1398570072%2FPackages%2F332232451" anchor-label="io.spine.server" id="1398570072%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package provides classes and interfaces for backend part of the system. </p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="-262308119%2FPackages%2F332232451" anchor-label="io.spine.server.aggregate" id="-262308119%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.aggregate/index.html">io.spine.server.aggregate</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-262308119%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div></div>
+      </div>
+    </div>
+<a data-name="1634468260%2FPackages%2F332232451" anchor-label="io.spine.server.aggregate.model" id="1634468260%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.aggregate.model/index.html">io.spine.server.aggregate.model</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1634468260%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="1634468260%2FPackages%2F332232451" anchor-label="io.spine.server.aggregate.model" id="1634468260%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package provides model classes for the <code class="lang-kotlin">io.spine.server.aggregate</code> package.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="1505822314%2FPackages%2F332232451" anchor-label="io.spine.server.bus" id="1505822314%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.bus/index.html">io.spine.server.bus</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1505822314%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="1505822314%2FPackages%2F332232451" anchor-label="io.spine.server.bus" id="1505822314%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package contains classes and interfaces for abstract <code class="lang-kotlin">Bus</code>.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="113699701%2FPackages%2F332232451" anchor-label="io.spine.server.command" id="113699701%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.command/index.html">io.spine.server.command</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="113699701%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="113699701%2FPackages%2F332232451" anchor-label="io.spine.server.command" id="113699701%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package provides classes and interfaces related to command processing at the server side.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="1409078576%2FPackages%2F332232451" anchor-label="io.spine.server.command.model" id="1409078576%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.command.model/index.html">io.spine.server.command.model</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1409078576%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="1409078576%2FPackages%2F332232451" anchor-label="io.spine.server.command.model" id="1409078576%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package provides model classes and interfaces for <code class="lang-kotlin">io.spine.server.command</code>.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="-2077476881%2FPackages%2F332232451" anchor-label="io.spine.server.commandbus" id="-2077476881%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.commandbus/index.html">io.spine.server.commandbus</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2077476881%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="-2077476881%2FPackages%2F332232451" anchor-label="io.spine.server.commandbus" id="-2077476881%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package provides classes and interfaces related to <span data-unresolved-link="io.spine.server.commandbus/CommandBus///PointingToDeclaration/">CommandBus</span> and its configuration.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="496894414%2FPackages%2F332232451" anchor-label="io.spine.server.delivery" id="496894414%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.delivery/index.html">io.spine.server.delivery</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="496894414%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="496894414%2FPackages%2F332232451" anchor-label="io.spine.server.delivery" id="496894414%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package is devoted to message delivery mechanism.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="-1554374406%2FPackages%2F332232451" anchor-label="io.spine.server.delivery.event" id="-1554374406%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.delivery.event/index.html">io.spine.server.delivery.event</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1554374406%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div></div>
+      </div>
+    </div>
+<a data-name="32040037%2FPackages%2F332232451" anchor-label="io.spine.server.delivery.memory" id="32040037%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.delivery.memory/index.html">io.spine.server.delivery.memory</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="32040037%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="32040037%2FPackages%2F332232451" anchor-label="io.spine.server.delivery.memory" id="32040037%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package contains in-memory implementations of delivery routines.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="-745607468%2FPackages%2F332232451" anchor-label="io.spine.server.dispatch" id="-745607468%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.dispatch/index.html">io.spine.server.dispatch</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-745607468%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="-745607468%2FPackages%2F332232451" anchor-label="io.spine.server.dispatch" id="-745607468%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">Contains types related to signal dispatching. </p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="1689967007%2FPackages%2F332232451" anchor-label="io.spine.server.enrich" id="1689967007%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.enrich/index.html">io.spine.server.enrich</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1689967007%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="1689967007%2FPackages%2F332232451" anchor-label="io.spine.server.enrich" id="1689967007%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package contains classes and interfaces related to enrichment of events.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="844614397%2FPackages%2F332232451" anchor-label="io.spine.server.entity" id="844614397%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.entity/index.html">io.spine.server.entity</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="844614397%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="844614397%2FPackages%2F332232451" anchor-label="io.spine.server.entity" id="844614397%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package contains classes and interfaces defining entity-oriented API and base functionality.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="997846712%2FPackages%2F332232451" anchor-label="io.spine.server.entity.model" id="997846712%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.entity.model/index.html">io.spine.server.entity.model</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="997846712%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="997846712%2FPackages%2F332232451" anchor-label="io.spine.server.entity.model" id="997846712%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package provides model classes and interfaces for <code class="lang-kotlin">io.spine.server.entity</code>.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="-1712953064%2FPackages%2F332232451" anchor-label="io.spine.server.entity.rejection" id="-1712953064%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.entity.rejection/index.html">io.spine.server.entity.rejection</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1712953064%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="-1712953064%2FPackages%2F332232451" anchor-label="io.spine.server.entity.rejection" id="-1712953064%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package contains classes and interfaces for rejections related to lifecycle of entities.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="2078772298%2FPackages%2F332232451" anchor-label="io.spine.server.entity.storage" id="2078772298%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.entity.storage/index.html">io.spine.server.entity.storage</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2078772298%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="2078772298%2FPackages%2F332232451" anchor-label="io.spine.server.entity.storage" id="2078772298%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package contains classes and interfaces for working with <a href="server/io.spine.server.entity/-entity/index.html">entity</a> storage representation.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="1324420100%2FPackages%2F332232451" anchor-label="io.spine.server.event" id="1324420100%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.event/index.html">io.spine.server.event</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1324420100%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="1324420100%2FPackages%2F332232451" anchor-label="io.spine.server.event" id="1324420100%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package provides classes for server-side event processing.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="-1465250177%2FPackages%2F332232451" anchor-label="io.spine.server.event.model" id="-1465250177%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.event.model/index.html">io.spine.server.event.model</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1465250177%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="-1465250177%2FPackages%2F332232451" anchor-label="io.spine.server.event.model" id="-1465250177%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package provides model classes for <code class="lang-kotlin">io.spine.server.event</code>.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="-1722624457%2FPackages%2F332232451" anchor-label="io.spine.server.event.store" id="-1722624457%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.event.store/index.html">io.spine.server.event.store</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1722624457%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="-1722624457%2FPackages%2F332232451" anchor-label="io.spine.server.event.store" id="-1722624457%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">Provides default implementation of <a href="server/io.spine.server.event/-event-store/index.html">io.spine.server.event.EventStore</a>.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="-1332529986%2FPackages%2F332232451" anchor-label="io.spine.server.integration" id="-1332529986%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.integration/index.html">io.spine.server.integration</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1332529986%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="-1332529986%2FPackages%2F332232451" anchor-label="io.spine.server.integration" id="-1332529986%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package contains classes and interfaces for communications between bounded contexts.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="-1574109650%2FPackages%2F332232451" anchor-label="io.spine.server.log" id="-1574109650%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.log/index.html">io.spine.server.log</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1574109650%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="-1574109650%2FPackages%2F332232451" anchor-label="io.spine.server.log" id="-1574109650%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">Contains utilities which work with server-side logs.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="1934632953%2FPackages%2F332232451" anchor-label="io.spine.server.migration.mirror" id="1934632953%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.migration.mirror/index.html">io.spine.server.migration.mirror</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1934632953%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="1934632953%2FPackages%2F332232451" anchor-label="io.spine.server.migration.mirror" id="1934632953%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">The package provides a migration assistant for legacy data that used deprecated <a href="server/io.spine.system.server/-mirror/index.html">Mirror</a> projection.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="-2041778221%2FPackages%2F332232451" anchor-label="io.spine.server.model" id="-2041778221%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.model/index.html">io.spine.server.model</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2041778221%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="-2041778221%2FPackages%2F332232451" anchor-label="io.spine.server.model" id="-2041778221%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package provides classes and interfaces for the message processing model of a Spine-based application.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="413864238%2FPackages%2F332232451" anchor-label="io.spine.server.procman" id="413864238%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.procman/index.html">io.spine.server.procman</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="413864238%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="413864238%2FPackages%2F332232451" anchor-label="io.spine.server.procman" id="413864238%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package provides classes related to Process Managers.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="914239886%2FPackages%2F332232451" anchor-label="io.spine.server.procman.migration" id="914239886%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.procman.migration/index.html">io.spine.server.procman.migration</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="914239886%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="914239886%2FPackages%2F332232451" anchor-label="io.spine.server.procman.migration" id="914239886%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package contains standard Spine <a href="server/io.spine.server.entity/-migration/index.html">migrations</a> available for process managers.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="-338555863%2FPackages%2F332232451" anchor-label="io.spine.server.procman.model" id="-338555863%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.procman.model/index.html">io.spine.server.procman.model</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-338555863%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="-338555863%2FPackages%2F332232451" anchor-label="io.spine.server.procman.model" id="-338555863%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package provides model classes for <code class="lang-kotlin">io.spine.server.procman</code>.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="1138984553%2FPackages%2F332232451" anchor-label="io.spine.server.projection" id="1138984553%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.projection/index.html">io.spine.server.projection</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1138984553%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="1138984553%2FPackages%2F332232451" anchor-label="io.spine.server.projection" id="1138984553%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package provides classes for working with event stream projections.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="-1843554039%2FPackages%2F332232451" anchor-label="io.spine.server.projection.migration" id="-1843554039%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.projection.migration/index.html">io.spine.server.projection.migration</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1843554039%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="-1843554039%2FPackages%2F332232451" anchor-label="io.spine.server.projection.migration" id="-1843554039%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package contains standard Spine <a href="server/io.spine.server.entity/-migration/index.html">migrations</a> available for projections.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="925788452%2FPackages%2F332232451" anchor-label="io.spine.server.projection.model" id="925788452%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.projection.model/index.html">io.spine.server.projection.model</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="925788452%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="925788452%2FPackages%2F332232451" anchor-label="io.spine.server.projection.model" id="925788452%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package provides model classes for <code class="lang-kotlin">io.spine.server.projection</code>.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="721892530%2FPackages%2F332232451" anchor-label="io.spine.server.query" id="721892530%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.query/index.html">io.spine.server.query</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="721892530%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div></div>
+      </div>
+    </div>
+<a data-name="942604019%2FPackages%2F332232451" anchor-label="io.spine.server.route" id="942604019%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.route/index.html">io.spine.server.route</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="942604019%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="942604019%2FPackages%2F332232451" anchor-label="io.spine.server.route" id="942604019%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package contains classes and interfaces for obtaining entity identifiers.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="-182136702%2FPackages%2F332232451" anchor-label="io.spine.server.route.setup" id="-182136702%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.route.setup/index.html">io.spine.server.route.setup</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-182136702%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div></div>
+      </div>
+    </div>
+<a data-name="1742771738%2FPackages%2F332232451" anchor-label="io.spine.server.security" id="1742771738%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.security/index.html">io.spine.server.security</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1742771738%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div></div>
+      </div>
+    </div>
+<a data-name="939657792%2FPackages%2F332232451" anchor-label="io.spine.server.stand" id="939657792%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.stand/index.html">io.spine.server.stand</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="939657792%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="939657792%2FPackages%2F332232451" anchor-label="io.spine.server.stand" id="939657792%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package provides classes for working with Stand.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="1576972965%2FPackages%2F332232451" anchor-label="io.spine.server.storage" id="1576972965%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.storage/index.html">io.spine.server.storage</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1576972965%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="1576972965%2FPackages%2F332232451" anchor-label="io.spine.server.storage" id="1576972965%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package provides interfaces and base classes for storages.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="-1568742482%2FPackages%2F332232451" anchor-label="io.spine.server.storage.memory" id="-1568742482%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.storage.memory/index.html">io.spine.server.storage.memory</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1568742482%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="-1568742482%2FPackages%2F332232451" anchor-label="io.spine.server.storage.memory" id="-1568742482%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package provides implementation of in-memory storages. </p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="1577147228%2FPackages%2F332232451" anchor-label="io.spine.server.storage.system" id="1577147228%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.storage.system.html">io.spine.server.storage.system</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1577147228%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="1577147228%2FPackages%2F332232451" anchor-label="io.spine.server.storage.system" id="1577147228%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">Contains an implementation of <a href="server/io.spine.server.storage/-storage-factory/index.html">io.spine.server.storage.StorageFactory</a> aware of the system context specifics.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="1593169156%2FPackages%2F332232451" anchor-label="io.spine.server.tenant" id="1593169156%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.tenant/index.html">io.spine.server.tenant</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1593169156%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="1593169156%2FPackages%2F332232451" anchor-label="io.spine.server.tenant" id="1593169156%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package contains classes and interfaces for supporting multi-tenancy.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="853029808%2FPackages%2F332232451" anchor-label="io.spine.server.tenant.event" id="853029808%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.tenant.event/index.html">io.spine.server.tenant.event</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="853029808%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div></div>
+      </div>
+    </div>
+<a data-name="736574191%2FPackages%2F332232451" anchor-label="io.spine.server.trace" id="736574191%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.trace/index.html">io.spine.server.trace</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="736574191%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="736574191%2FPackages%2F332232451" anchor-label="io.spine.server.trace" id="736574191%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package defines the Spine Trace API. </p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="105588691%2FPackages%2F332232451" anchor-label="io.spine.server.transport" id="105588691%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.transport/index.html">io.spine.server.transport</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="105588691%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="105588691%2FPackages%2F332232451" anchor-label="io.spine.server.transport" id="105588691%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package contains classes and interfaces that connect Spine with the infrastructure of the outer world. </p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="-525672768%2FPackages%2F332232451" anchor-label="io.spine.server.transport.memory" id="-525672768%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.transport.memory/index.html">io.spine.server.transport.memory</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-525672768%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="-525672768%2FPackages%2F332232451" anchor-label="io.spine.server.transport.memory" id="-525672768%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package provides implementation of in-memory <a href="server/io.spine.server.transport/-transport-factory/index.html">TransportFactory</a> routines. </p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="284484530%2FPackages%2F332232451" anchor-label="io.spine.server.tuple" id="284484530%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.tuple/index.html">io.spine.server.tuple</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="284484530%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="284484530%2FPackages%2F332232451" anchor-label="io.spine.server.tuple" id="284484530%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">This package provides classes for return values from message-handling methods. </p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="1373242772%2FPackages%2F332232451" anchor-label="io.spine.server.type" id="1373242772%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.server.type/index.html">io.spine.server.type</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1373242772%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="1373242772%2FPackages%2F332232451" anchor-label="io.spine.server.type" id="1373242772%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">Provides classes and interfaces for server-side type information.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="-418813711%2FPackages%2F332232451" anchor-label="io.spine.system.server" id="-418813711%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.system.server/index.html">io.spine.system.server</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-418813711%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="-418813711%2FPackages%2F332232451" anchor-label="io.spine.system.server" id="-418813711%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+            <p class="paragraph">Provides implementation of the System Bounded Context.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="1305895389%2FPackages%2F332232451" anchor-label="io.spine.system.server.event" id="1305895389%2FPackages%2F332232451" data-filterable-set=":server/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":server/main" data-filterable-set=":server/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="server/io.spine.system.server.event/index.html">io.spine.system.server.event</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1305895389%2FPackages%2F332232451"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div></div>
+      </div>
+    </div>
+  </div>
+</div>
+    <div class="footer">
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>Copyright 2025, TeamDev</div>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
