@@ -29,6 +29,7 @@ package io.spine.gradle.publish
 import LicenseSettings
 import io.spine.gradle.isSnapshot
 import io.spine.gradle.repo.Repository
+import io.spine.gradle.report.pom.InceptionYear
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.invocation.BuildInvocationDetails
@@ -146,11 +147,19 @@ internal sealed class PublicationHandler(
         }
         version = project.version.toString()
         pom.description.set(project.description)
-
+        pom.inceptionYear.set(InceptionYear.value)
         pom.licenses {
             license {
                 name.set(LicenseSettings.name)
                 url.set(LicenseSettings.url)
+                distribution.set(LicenseSettings.url)
+            }
+        }
+        pom.scm {
+            DocumentationSettings.run {
+                url.set(repoUrl(project))
+                connection.set(connectionUrl(project))
+                developerConnection.set(developerConnectionUrl(project))
             }
         }
     }

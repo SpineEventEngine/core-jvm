@@ -38,65 +38,41 @@ import org.gradle.kotlin.dsl.property
  * Configures the `updateGitHubPages` extension.
  */
 @Suppress("unused")
-fun Project.updateGitHubPages(excludeInternalDocletVersion: String,
-                              action: UpdateGitHubPagesExtension.() -> Unit) {
+fun Project.updateGitHubPages(
+    action: UpdateGitHubPagesExtension.() -> Unit
+) {
     apply<UpdateGitHubPages>()
 
     val extension = extensions.getByType(UpdateGitHubPagesExtension::class)
-    extension.excludeInternalDocletVersion = excludeInternalDocletVersion
     extension.action()
 }
 
 /**
  * The extension for configuring the [UpdateGitHubPages] plugin.
+ *
+ * @property rootFolder The root folder of the repository to which the updated `Project` belongs.
+ * @property includeInputs The external inputs, which output should be included
+ *   into the GitHub Pages update. The values are interpreted according to
+ *   [Copy.from][org.gradle.api.tasks.Copy.from] specification.
+ *   This property is optional.
  */
-class UpdateGitHubPagesExtension
-private constructor(
-
-    /**
-     * Tells whether the types marked `@Internal` should be included into
-     * the doc generation.
-     */
-    val allowInternalJavadoc: Property<Boolean>,
-
-    /**
-     * The root folder of the repository to which the updated `Project` belongs.
-     */
+class UpdateGitHubPagesExtension private constructor(
     var rootFolder: Property<File>,
-
-    /**
-     * The external inputs, which output should be included into
-     * the GitHub Pages update.
-     *
-     * The values are interpreted according to
-     * [org.gradle.api.tasks.Copy.from] specification.
-     *
-     * This property is optional.
-     */
     var includeInputs: SetProperty<Any>
 ) {
-
-    /**
-     * The version of the
-     * [ExcludeInternalDoclet][io.spine.gradle.javadoc.ExcludeInternalDoclet]
-     * used when updating documentation at GitHub Pages.
-     *
-     * This value is used when adding dependency on the doclet when the plugin tasks
-     * are registered. Since the doclet dependency is required, its value passed as
-     * a parameter for the extension, rather than a property.
-     */
-    internal lateinit var excludeInternalDocletVersion: String
-
     internal companion object {
 
-        /** The name of the extension. */
+        /**
+         * The name of the extension.
+         */
         const val name = "updateGitHubPages"
 
-        /** Creates a new extension and adds it to the passed project. */
+        /**
+         * Creates a new extension and adds it to the passed project.
+         */
         fun createIn(project: Project): UpdateGitHubPagesExtension {
             val factory = project.objects
             val result = UpdateGitHubPagesExtension(
-                allowInternalJavadoc = factory.property(Boolean::class),
                 rootFolder = factory.property(File::class),
                 includeInputs = factory.setProperty(Any::class.java)
             )
@@ -106,26 +82,14 @@ private constructor(
     }
 
     /**
-     * Returns `true` if the `@Internal`-annotated code should be included into the
-     * generated documentation, `false` otherwise.
-     */
-    fun allowInternalJavadoc(): Boolean {
-        return allowInternalJavadoc.get()
-    }
-
-    /**
      * Returns the local root folder of the repository, to which the handled Gradle
      * Project belongs.
      */
-    fun rootFolder(): File {
-        return rootFolder.get()
-    }
+    fun rootFolder(): File = rootFolder.get()
 
     /**
      * Returns the external inputs, which results should be included into the
      * GitHub Pages update.
      */
-    fun includedInputs(): Set<Any> {
-        return includeInputs.get()
-    }
+    fun includedInputs(): Set<Any> = includeInputs.get()
 }

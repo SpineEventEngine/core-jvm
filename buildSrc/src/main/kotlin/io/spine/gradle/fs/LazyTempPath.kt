@@ -57,7 +57,7 @@ class LazyTempPath(private val prefix: String) : Path {
         vararg modifiers: WatchEvent.Modifier?
     ): WatchKey = delegate.register(watcher, events, *modifiers)
 
-    override fun register(watcher: WatchService, vararg events: WatchEvent.Kind<*>?): WatchKey =
+    override fun register(watcher: WatchService, vararg events: WatchEvent.Kind<*>): WatchKey =
         delegate.register(watcher, *events)
 
     override fun getFileSystem(): FileSystem = delegate.fileSystem
@@ -101,7 +101,7 @@ class LazyTempPath(private val prefix: String) : Path {
 
     override fun toAbsolutePath(): Path = delegate.toAbsolutePath()
 
-    override fun toRealPath(vararg options: LinkOption?): Path = delegate.toRealPath(*options)
+    override fun toRealPath(vararg options: LinkOption): Path = delegate.toRealPath(*options)
 
     override fun toFile(): File = delegate.toFile()
 

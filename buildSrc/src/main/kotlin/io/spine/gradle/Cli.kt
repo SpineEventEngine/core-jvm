@@ -35,13 +35,7 @@ import java.lang.ProcessBuilder.Redirect.PIPE
 import java.util.*
 
 /**
- * Utilities for working with processes from Gradle code.
- */
-@Suppress("unused")
-private const val ABOUT = ""
-
-/**
- * Executor of CLI commands.
+ * Executes a process from Gradle code.
  *
  * Uses the passed [workingFolder] as the directory in which the commands are executed.
  */
@@ -92,7 +86,7 @@ class Cli(private val workingFolder: File) {
  * Asynchronously reads all lines from this [InputStream] and appends them
  * to the passed [StringWriter].
  */
-fun InputStream.pourTo(dest: StringWriter) {
+private fun InputStream.pourTo(dest: StringWriter) {
     Thread {
         val sc = Scanner(this)
         while (sc.hasNextLine()) {

@@ -63,7 +63,7 @@ plugins {
     pmd
     `maven-publish`
     id("pmd-settings")
-    id("dokka-for-java")
+    id("dokka-setup")
     id("module-testing")
     id("detekt-code-analysis")
     idea
@@ -267,8 +267,7 @@ fun Module.forceConfigurations() {
  * Configures publishing for this subproject.
  */
 fun Module.setupPublishing() {
-    updateGitHubPages(project.version.toString()) {
-        allowInternalJavadoc.set(true)
+    updateGitHubPages {
         rootFolder.set(rootDir)
     }
 
