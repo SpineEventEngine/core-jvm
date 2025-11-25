@@ -73,9 +73,9 @@ class Repository private constructor(
      * Executes a command in the [location].
      */
     private fun repoExecute(vararg command: String): String {
-        if (logger.isInfoEnabled) {
+        if (logger.isErrorEnabled) {
             val msg = "[Repository] Executing command: `${command.toList().joinToString(" ")}`."
-            logger.info(msg)
+            logger.error(msg)
         }
         return Cli(location.toFile()).execute(*command)
     }
