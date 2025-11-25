@@ -129,9 +129,12 @@ class Repository private constructor(
 
     /**
      * Pushes the current branch of the repository to the remote.
+     *
+     * Performs a pull with rebase before pushing to ensure the local branch is up-to-date.
      */
     fun push() {
-        repoExecute("git", "push", "--set-upstream", "origin", currentBranch)
+        repoExecute("git", "pull", "--rebase")
+        repoExecute("git", "push")
     }
 
     override fun close() {
