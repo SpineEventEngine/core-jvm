@@ -10,7 +10,7 @@ all modules and does not describe the project structure per-subproject.
  -->
 <groupId>io.spine</groupId>
 <artifactId>spine-core-jvm</artifactId>
-<version>2.0.0-SNAPSHOT.353</version>
+<version>2.0.0-SNAPSHOT.354</version>
 
 <inceptionYear>2015</inceptionYear>
 
@@ -110,7 +110,7 @@ all modules and does not describe the project structure per-subproject.
   <dependency>
     <groupId>io.spine.validation</groupId>
     <artifactId>spine-validation-java-runtime</artifactId>
-    <version>2.0.0-SNAPSHOT.352</version>
+    <version>2.0.0-SNAPSHOT.354</version>
     <scope>compile</scope>
   </dependency>
   <dependency>
@@ -325,32 +325,32 @@ all modules and does not describe the project structure per-subproject.
   <dependency>
     <groupId>org.jetbrains.dokka</groupId>
     <artifactId>all-modules-page-plugin</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
   </dependency>
   <dependency>
     <groupId>org.jetbrains.dokka</groupId>
-    <artifactId>analysis-kotlin-descriptors</artifactId>
-    <version>2.0.0</version>
+    <artifactId>analysis-kotlin-symbols</artifactId>
+    <version>2.1.0</version>
   </dependency>
   <dependency>
     <groupId>org.jetbrains.dokka</groupId>
     <artifactId>dokka-base</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
   </dependency>
   <dependency>
     <groupId>org.jetbrains.dokka</groupId>
     <artifactId>dokka-core</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
   </dependency>
   <dependency>
     <groupId>org.jetbrains.dokka</groupId>
-    <artifactId>kotlin-as-java-plugin</artifactId>
-    <version>2.0.0</version>
+    <artifactId>javadoc-plugin</artifactId>
+    <version>2.1.0</version>
   </dependency>
   <dependency>
     <groupId>org.jetbrains.dokka</groupId>
     <artifactId>templating-plugin</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
   </dependency>
   <dependency>
     <groupId>org.jetbrains.kotlin</groupId>

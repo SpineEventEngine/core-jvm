@@ -41,23 +41,19 @@ import org.gradle.api.logging.Logger
 fun Task.updateGhPages(project: Project) {
     val plugin = project.plugins.getPlugin(UpdateGitHubPages::class.java)
 
-    with(plugin) {
-        SshKey(rootFolder).register()
-    }
+    SshKey(plugin.rootFolder, logger).register()
 
-    val repository = Repository.forPublishingDocumentation()
+    val repository = Repository.forPublishingDocumentation(logger)
 
-    val updateJavadoc = with(plugin) {
-        UpdateJavadoc(project, javadocOutputFolder, repository, logger)
-    }
+    val updateJavadocFormat =
+        UpdateJavadocFormat(project, plugin.javadocOutputFolder, repository, logger)
 
-    val updateDokka = with(plugin) {
-        UpdateDokka(project, dokkaOutputFolder, repository, logger)
-    }
+    val updateHtmlFormat =
+        UpdateHtmlFormat(project, plugin.htmlOutputFolder, repository, logger)
 
     repository.use {
-        updateJavadoc.run()
-        updateDokka.run()
+        updateJavadocFormat.run()
+        updateHtmlFormat.run()
         repository.push()
     }
 }
@@ -80,17 +76,17 @@ private abstract class UpdateDocumentation(
     protected abstract val docsDestinationFolder: String
 
     /**
-     * The name of the tool used to generate the documentation to update.
+     * The name of the format of the documentation to update.
      *
      * This name will appear in logs as part of a message.
      */
-    protected abstract val toolName: String
+    protected abstract val formatName: String
 
     private val mostRecentFolder by lazy {
         File("${repository.location}/${docsDestinationFolder}/${project.name}")
     }
 
-    private fun logDebug(message: () -> String) {
+    private fun log(message: () -> String) {
         if (logger.isDebugEnabled) {
             logger.debug(message())
         }
@@ -98,25 +94,24 @@ private abstract class UpdateDocumentation(
 
     fun run() {
         val module = project.name
-        logDebug {"Update of the $toolName documentation for module `$module` started." }
+        log { "Update of the `$formatName` documentation for the module `$module` started." }
 
         val documentation = replaceMostRecentDocs()
         copyIntoVersionDir(documentation)
 
         val version = project.version
         val updateMessage =
-            "Update `$toolName` documentation for module `$module` as for version $version"
+            "Update `$formatName` documentation for the module" +
+                    " `$module` with the version `$version`."
         repository.commitAllChanges(updateMessage)
 
-        logDebug { "Update of the `$toolName` documentation for `$module` successfully finished." }
+        log { "Update of the `$formatName` documentation for `$module` successfully finished." }
     }
 
     private fun replaceMostRecentDocs(): ConfigurableFileCollection {
         val generatedDocs = project.files(docsSourceFolder)
 
-        logDebug {
-            "Replacing the most recent `$toolName` documentation in `${mostRecentFolder}`."
-        }
+        log { "Replacing the most recent `$formatName` documentation in `$mostRecentFolder`." }
         copyDocs(generatedDocs, mostRecentFolder)
 
         return generatedDocs
@@ -133,14 +128,25 @@ private abstract class UpdateDocumentation(
     private fun copyIntoVersionDir(generatedDocs: ConfigurableFileCollection) {
         val versionedDocDir = File("$mostRecentFolder/v/${project.version}")
 
-        logDebug {
-            "Storing the new version of `$toolName` documentation in `${versionedDocDir}`."
-        }
+        log { "Storing the new version of `$formatName` documentation in `${versionedDocDir}`." }
         copyDocs(generatedDocs, versionedDocDir)
     }
 }
 
-private class UpdateJavadoc(
+private class UpdateJavadocFormat(
+    project: Project,
+    docsSourceFolder: Path,
+    repository: Repository,
+    logger: Logger
+) : UpdateDocumentation(project, docsSourceFolder, repository, logger) {
+
+    override val docsDestinationFolder: String
+        get() = "javadoc"
+    override val formatName: String
+        get() = "javadoc"
+}
+
+private class UpdateHtmlFormat(
     project: Project,
     docsSourceFolder: Path,
     repository: Repository,
@@ -149,19 +155,6 @@ private class UpdateJavadoc(
 
     override val docsDestinationFolder: String
         get() = "reference"
-    override val toolName: String
-        get() = "Javadoc"
-}
-
-private class UpdateDokka(
-    project: Project,
-    docsSourceFolder: Path,
-    repository: Repository,
-    logger: Logger
-) : UpdateDocumentation(project, docsSourceFolder, repository, logger) {
-
-    override val docsDestinationFolder: String
-        get() = "dokka-reference"
-    override val toolName: String
-        get() = "Dokka"
+    override val formatName: String
+        get() = "html"
 }

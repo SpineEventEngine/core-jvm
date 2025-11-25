@@ -29,24 +29,43 @@ package io.spine.gradle.github.pages
 import io.spine.gradle.Cli
 import java.io.File
 import org.gradle.api.GradleException
+import org.gradle.api.logging.Logger
 
 /**
- * Registers SSH key for further operations with GitHub Pages.
+ * Registers the SSH key for further operations with GitHub Pages.
+ *
+ * @property rootProjectFolder The folder of the project for which we build the documentation.
+ * @property logger The logger for placing diagnostic messages of this class.
  */
-internal class SshKey(private val rootProjectFolder: File) {
+internal class SshKey(
+    private val rootProjectFolder: File,
+    private val logger: Logger
+) {
+
+    private fun log(message: () -> String) {
+        if (logger.isInfoEnabled) {
+            logger.info("[SshKey] " + message())
+        }
+    }
+
     /**
      * Creates an SSH key with the credentials and registers it by invoking the
      * `register-ssh-key.sh` script.
      */
     fun register() {
+        log { "Registering using ${rootProjectFolder.absolutePath}." }
         val gitHubAccessKey = gitHubKey()
+        log { "Obtained the key file at ${gitHubAccessKey.absolutePath}." }
         val sshConfigFile = sshConfigFile()
+        log { "Located the SSH key file at ${sshConfigFile.absolutePath}." }
         sshConfigFile.appendPublisher(gitHubAccessKey)
+        log { "SSH config file appended." }
 
         execute(
             "${rootProjectFolder.absolutePath}/config/scripts/register-ssh-key.sh",
             gitHubAccessKey.absolutePath
         )
+        log { "The SSH key registered." }
     }
 
     /**
@@ -59,7 +78,7 @@ internal class SshKey(private val rootProjectFolder: File) {
      * publishing.
      *
      * Thus, we configure the SSH agent to use the `deploy_rsa_key` only for specific
-     * references, namely in `github.com-publish`.
+     * references, namely in `github-publish`.
      *
      * @throws GradleException if `deploy_key_rsa` is not found.
      */
@@ -91,9 +110,10 @@ internal class SshKey(private val rootProjectFolder: File) {
         val nl = System.lineSeparator()
         this.appendText(
             nl +
-                    "Host github.com-publish" + nl +
-                    "User git" + nl +
-                    "IdentityFile ${privateKey.absolutePath}" + nl
+                    "Host github-publish" + nl +
+                    "   HostName github.com" + nl +
+                    "   User git" + nl +
+                    "   IdentityFile ${privateKey.absolutePath}" + nl
         )
     }
 

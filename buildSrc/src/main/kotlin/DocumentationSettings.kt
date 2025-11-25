@@ -24,6 +24,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import org.gradle.api.Project
+
 /**
  * The documentation settings specific to this project.
  *
@@ -32,6 +34,36 @@
  */
 @Suppress("ConstPropertyName")
 object DocumentationSettings {
+
+    /**
+     * The organization infix for the Spine SDK.
+     */
+    private const val orgPath = "github.com/SpineEventEngine"
+
+    /**
+     * The organization URL of the Spine SDK.
+     */
+    private const val orgUrl = "https://$orgPath"
+
+    /**
+     * Obtains the repository URL for the given project.
+     */
+    fun repoUrl(project: Project) = "https://${repoPath(project)}"
+
+    /**
+     * Obtains the repository path for the given project.
+     */
+    private fun repoPath(project: Project) = "$orgPath/${project.rootProject.name}"
+
+    /**
+     * Obtains the connection URL for the given project.
+     */
+    fun connectionUrl(project: Project) = "scm:git:git://${repoPath(project)}.git"
+
+    /**
+     * Obtains the developer connection URL for the given project.
+     */
+    fun developerConnectionUrl(project: Project) = "scm:git:ssh://${repoPath(project)}.git"
 
     /**
      * Settings passed to Dokka for
@@ -43,12 +75,16 @@ object DocumentationSettings {
          * The URL of the remote source code
          * [location][org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceLinkSpec.remoteUrl].
          */
-        const val url: String = "https://github.com/SpineEventEngine/base/tree/master/src"
+        fun url(project: Project): String {
+            val root = project.rootProject.name
+            val module = project.name
+            return "$orgUrl/$root/tree/master/$module/src/main/kotlin"
+        }
 
         /**
          * The suffix used to append the source code line number to the URL.
          *
-         * The suffix depends on the online code repository.
+         * The value depends on the online code repository and is set for GitHub (`#L`).
          *
          * @see <a href="https://kotlinlang.org/docs/dokka-gradle.html#fwor0d_534">
          *     remoteLineSuffix</a>

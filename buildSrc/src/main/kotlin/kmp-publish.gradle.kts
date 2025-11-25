@@ -59,17 +59,17 @@ val about = ""
 
 plugins {
     `maven-publish`
-    id("dokka-for-kotlin")
+    id("dokka-setup")
 }
 
 publishing.publications {
     named<MavenPublication>("kotlinMultiplatform") {
         // Although, the "common artifact" can't be used independently
         // of target artifacts, it is published with documentation.
-        artifact(project.dokkaKotlinJar())
+        artifact(project.htmlDocsJar())
     }
     named<MavenPublication>("jvm") {
         // Includes Kotlin (JVM + common) and Java documentation.
-        artifact(project.dokkaKotlinJar())
+        artifact(project.htmlDocsJar())
     }
 }

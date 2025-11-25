@@ -199,43 +199,34 @@ fun Project.configureTaskDependencies() {
     }
 
     afterEvaluate {
-        val launchProtoData = "launchProtoData"
-        val launchTestProtoData = "launchTestProtoData"
         val generateProto = "generateProto"
         val createVersionFile = "createVersionFile"
         val compileKotlin = "compileKotlin"
         compileKotlin.run {
             dependOn(generateProto)
-            dependOn(launchProtoData)
         }
         val compileTestKotlin = "compileTestKotlin"
-        compileTestKotlin.dependOn(launchTestProtoData)
         val sourcesJar = "sourcesJar"
         val kspKotlin = "kspKotlin"
         sourcesJar.run {
             dependOn(generateProto)
-            dependOn(launchProtoData)
             dependOn(kspKotlin)
             dependOn(createVersionFile)
             dependOn("prepareProtocConfigVersions")
         }
-        val dokkaHtml = "dokkaHtml"
-        dokkaHtml.run {
+        val dokkaGenerate = "dokkaGenerate"
+        dokkaGenerate.run {
             dependOn(generateProto)
-            dependOn(launchProtoData)
             dependOn(kspKotlin)
         }
-        val dokkaJavadoc = "dokkaJavadoc"
-        dokkaJavadoc.run {
-            dependOn(launchProtoData)
-            dependOn(kspKotlin)
-        }
+        val dokkaGeneratePublicationJavadoc = "dokkaGeneratePublicationJavadoc"
+        dokkaGeneratePublicationJavadoc.dependOn(kspKotlin)
         "publishPluginJar".dependOn(createVersionFile)
         compileKotlin.dependOn(kspKotlin)
         compileTestKotlin.dependOn("kspTestKotlin")
         "compileTestFixturesKotlin".dependOn("kspTestFixturesKotlin")
-        "javadocJar".dependOn(dokkaHtml)
-        "dokkaKotlinJar".dependOn(dokkaJavadoc)
+        "javadocJar".dependOn(dokkaGeneratePublicationJavadoc)
+        "htmlDocsJar".dependOn(dokkaGenerate)
     }
 }
 

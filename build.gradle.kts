@@ -56,6 +56,7 @@ buildscript {
                     io.spine.dependency.lib.Kotlin.bom,
                     io.spine.dependency.local.Base.annotations,
                     io.spine.dependency.local.Base.lib,
+                    io.spine.dependency.local.Compiler.api,
                     io.spine.dependency.local.ToolBase.lib,
                     io.spine.dependency.local.CoreJava.server,
                     io.spine.dependency.local.Reflect.lib,
@@ -101,11 +102,6 @@ spinePublishing {
 
     testJar {
         inclusions = setOf("server")
-    }
-
-    dokkaJar {
-        kotlin = true
-        java = true
     }
 }
 

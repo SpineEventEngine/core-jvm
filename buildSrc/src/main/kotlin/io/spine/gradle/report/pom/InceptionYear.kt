@@ -35,7 +35,10 @@ import org.gradle.kotlin.dsl.withGroovyBuilder
  */
 internal object InceptionYear {
 
-    private const val SPINE_INCEPTION_YEAR = "2015"
+    /**
+     * The year of the inception of Spine.
+     */
+    const val value = "2015"
 
     /**
      * Returns a string containing the inception year of Spine in a `pom.xml` format.
@@ -44,7 +47,7 @@ internal object InceptionYear {
         val writer = StringWriter()
         val xml = MarkupBuilder(writer)
         xml.withGroovyBuilder {
-            "inceptionYear" { xml.text(SPINE_INCEPTION_YEAR) }
+            "inceptionYear" { xml.text(value) }
         }
         return writer.toString()
     }

@@ -27,37 +27,6 @@
 package io.spine.gradle.publish
 
 /**
- * A DSL element of [SpinePublishing] extension which configures publishing of
- * [dokkaKotlinJar] artifact.
- *
- * This artifact contains Dokka-generated documentation. By default, it is not published.
- *
- * Take a look at the [SpinePublishing.dokkaJar] for a usage example.
- *
- * @see [artifacts]
- */
-class DokkaJar {
-    /**
-     * Enables publishing `JAR`s with Dokka-generated documentation for all published modules.
-     */
-    @Suppress("unused")
-    @Deprecated("Please use `kotlin` and `java` flags instead.")
-    var enabled = false
-
-    /**
-     * Controls whether [dokkaKotlinJar] artifact should be published.
-     * The default value is `true`.
-     */
-    var kotlin = true
-
-    /**
-     * Controls whether [dokkaJavaJar] artifact should be published.
-     * The default value is `false`.
-     */
-    var java = false
-}
-
-/**
  * A DSL element of [SpinePublishing] extension which allows enabling publishing
  * of [testJar] artifact.
  *
@@ -81,87 +50,24 @@ class TestJar {
 }
 
 /**
- * A DSL element of [SpinePublishing] extension which allows disabling publishing
- * of [protoJar] artifact.
- *
- * This artifact contains all the `.proto` definitions from `sourceSets.main.proto`. By default,
- * it is published.
- *
- * Take a look on [SpinePublishing.protoJar] for a usage example.
- *
- * @see [artifacts]
- */
-class ProtoJar {
-
-    /**
-     * Set of modules, for which a proto JAR will not be published.
-     */
-    var exclusions: Set<String> = emptySet()
-
-    /**
-     * Disables proto JAR publishing for all published modules.
-     */
-    var disabled = false
-}
-
-/**
  * Flags for turning optional JAR artifacts in a project.
+ *
+ * @property sourcesJar Tells whether [sourcesJar] artifact should be published.
+ *    Default value is `true`.
+ * @property publishTestJar Tells whether [testJar] artifact should be published.
  */
 internal data class JarFlags(
-
-    /**
-     * Tells whether [sourcesJar] artifact should be published.
-     *
-     * Default value is `true`.
-     */
     val sourcesJar: Boolean = true,
-
-    /**
-     * Tells whether [javadocJar] artifact should be published.
-     *
-     * Default value is `true`.
-     */
-    val javadocJar: Boolean = true,
-    
-    /**
-     * Tells whether [protoJar] artifact should be published.
-     */
-    val publishProtoJar: Boolean,
-
-    /**
-     * Tells whether [testJar] artifact should be published.
-     */
     val publishTestJar: Boolean,
-
-    /**
-     * Tells whether [dokkaKotlinJar] artifact should be published.
-     */
-    val publishDokkaKotlinJar: Boolean,
-
-    /**
-     * Tells whether [dokkaJavaJar] artifact should be published.
-     */
-    val publishDokkaJavaJar: Boolean
 ) {
     internal companion object {
         /**
          * Creates an instance of [JarFlags] for the project with the given name,
          * taking the setup parameters from JAR DSL elements.
          */
-        fun create(
-            projectName: String,
-            protoJar: ProtoJar,
-            testJar: TestJar,
-            dokkaJar: DokkaJar
-        ): JarFlags {
-            val addProtoJar = (protoJar.exclusions.contains(projectName) || protoJar.disabled).not()
+        fun create(projectName: String, testJar: TestJar): JarFlags {
             val addTestJar = testJar.inclusions.contains(projectName) || testJar.enabled
-            return JarFlags(
-                sourcesJar = true,
-                javadocJar = true,
-                addProtoJar, addTestJar,
-                dokkaJar.kotlin, dokkaJar.java
-            )
+            return JarFlags(sourcesJar = true, addTestJar)
         }
     }
 }

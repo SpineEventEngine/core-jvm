@@ -24,13 +24,34 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.gradle.dokka
+import org.jetbrains.dokka.gradle.tasks.DokkaBaseTask
 
-import org.gradle.api.tasks.TaskContainer
-import org.jetbrains.dokka.gradle.DokkaTask
+plugins {
+    id("org.jetbrains.dokka") // Cannot use `Dokka` dependency object here yet.
+    id("org.jetbrains.dokka-javadoc")
+}
 
-/**
- * Finds the `dokkaHtml` Gradle task.
- */
-@Suppress("unused")
-fun TaskContainer.dokkaHtmlTask() = this.getByName("dokkaHtml") as DokkaTask
+dependencies {
+    useDokkaWithSpineExtensions()
+}
+
+tasks.withType<DokkaBaseTask>().configureEach {
+    onlyIf {
+        isInPublishingGraph()
+    }
+}
+
+afterEvaluate {
+    dokka {
+        configureForKotlin(
+            project,
+            DocumentationSettings.SourceLink.url(project)
+        )
+    }
+    val kspKotlin = tasks.findByName("kspKotlin")
+    kspKotlin?.let {
+        tasks.withType<DokkaBaseTask>().configureEach {
+            dependsOn(kspKotlin)
+        }
+    }
+}

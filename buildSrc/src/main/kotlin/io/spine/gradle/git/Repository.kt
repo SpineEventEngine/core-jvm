@@ -28,6 +28,7 @@ package io.spine.gradle.git
 
 import io.spine.gradle.Cli
 import io.spine.gradle.fs.LazyTempPath
+import org.gradle.api.logging.Logger
 
 /**
  * Interacts with a real Git repository.
@@ -43,26 +44,17 @@ import io.spine.gradle.fs.LazyTempPath
  * NOTE: This class creates a temporal folder, so it holds resources. For the proper
  * release of resources please use the provided functionality inside a `use` block or
  * call the `close` method manually.
+ *
+ * @property sshUrl The GitHub SSH URL to the underlying repository.
+ * @property user Current user configuration.
+ *   This configuration determines what ends up in the `author` and `committer` fields of a commit.
+ * @property currentBranch The currently checked-out branch.
  */
 class Repository private constructor(
-
-    /**
-     * The GitHub SSH URL to the underlying repository.
-     */
     private val sshUrl: String,
-
-    /**
-     * Current user configuration.
-     *
-     * This configuration determines what ends up in author and committer fields of a commit.
-     */
     private var user: UserInfo,
-
-    /**
-     * Currently checked out branch.
-     */
-    private var currentBranch: String
-
+    private var currentBranch: String,
+    private val logger: Logger
 ) : AutoCloseable {
 
     /**
@@ -80,14 +72,22 @@ class Repository private constructor(
     /**
      * Executes a command in the [location].
      */
-    private fun repoExecute(vararg command: String): String =
-        Cli(location.toFile()).execute(*command)
+    private fun repoExecute(vararg command: String): String {
+        if (logger.isInfoEnabled) {
+            val msg = "[Repository] Executing command: `${command.toList().joinToString(" ")}`."
+            logger.info(msg)
+        }
+        return Cli(location.toFile()).execute(*command)
+    }
 
     /**
      * Checks out the branch by its name.
+     *
+     * IMPORTANT. The branch must exist in the upstream repository.
      */
     fun checkout(branch: String) {
         repoExecute("git", "checkout", branch)
+        repoExecute("git", "pull")
 
         currentBranch = branch
     }
@@ -128,10 +128,10 @@ class Repository private constructor(
     }
 
     /**
-     * Pushes local repository to the remote.
+     * Pushes the current branch of the repository to the remote.
      */
     fun push() {
-        repoExecute("git", "push")
+        repoExecute("git", "push", "--set-upstream", "origin", currentBranch)
     }
 
     override fun close() {
@@ -139,18 +139,27 @@ class Repository private constructor(
     }
 
     companion object Factory {
+
         /**
          * Clones the repository with the provided SSH URL in a temporal folder.
-         * Configures the username and the email of the Git user. See [configureUser]
-         * documentation for more information. Performs checkout of the branch in
-         * case it was passed. By default, [master][Branch.master] is checked out.
+         *
+         * Configures the username and the email of the Git user.
+         * See [configureUser] documentation for more information.
+         *
+         * Performs checkout of the branch in case it was passed.
+         * By default, [master][Branch.master] is checked out.
          *
          * @throws IllegalArgumentException if SSH URL is an empty string.
          */
-        fun of(sshUrl: String, user: UserInfo, branch: String = Branch.master): Repository {
+        fun clone(
+            sshUrl: String,
+            user: UserInfo,
+            branch: String = Branch.master,
+            logger: Logger
+        ): Repository {
             require(sshUrl.isNotBlank()) { "SSH URL cannot be an empty string." }
 
-            val repo = Repository(sshUrl, user, branch)
+            val repo = Repository(sshUrl, user, branch, logger)
             repo.clone()
             repo.configureUser(user)
 
