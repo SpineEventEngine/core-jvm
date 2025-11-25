@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>QueryResultSubject</title>
+    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
+        <script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+      if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      } else {
+        const savedDarkMode = JSON.parse(storage)
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../../ui-kit/ui-kit.min.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/safe-local-storage_blocking.js"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../ui-kit/ui-kit.min.js" defer="defer"></script>
+<link href="../../../images/logo-icon.svg">
+<link href="../../../styles/custom-styles.css" rel="Stylesheet">
+</head>
+<body>
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+            <a class="library-name--link" href="../../../index.html" tabindex="1">
+                    server-testlib
+            </a>
+        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle"
+                type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">
+2.0.0-SNAPSHOT.356        </div>
+        <div class="navigation-controls">
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector jvm-like" data-active="" aria-pressed="true"
+                        data-filter=":server-testlib/main">jvm</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
+                        data-role="dropdown-toggle"
+                        aria-controls="platform-tags-listbox"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-label="Toggle source sets"
+                ></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option jvm-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":server-testlib/main"
+                                       data-filter=":server-testlib/main"/>
+                                <span class="checkbox--icon"></span>
+                                jvm
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </ul>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
+                    type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
+        </div>
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config='{"defaultSize": 280, "minSize": 200, "maxSize": 400}'>
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list"
+                    data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
+                            <span>
+                                    server-testlib
+                            </span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
+<div class="main-content" data-page-type="classlike" id="content" pageIds="server-testlib::io.spine.testing.server.query/QueryResultSubject///PointingToDeclaration//1214784233">
+  <div class="breadcrumbs"><a href="../../../index.html">server-testlib</a><span class="delimiter">/</span><a href="../index.html">io.spine.testing.server.query</a><span class="delimiter">/</span><span class="current">QueryResultSubject</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>Query</span><wbr></wbr><span>Result</span><wbr></wbr><span><span>Subject</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="io.spine.annotation/VisibleForTesting///PointingToDeclaration/"><span class="token annotation builtin">VisibleForTesting</span></span></div></div><span class="token keyword">class </span><a href="index.html">QueryResultSubject</a> : <span data-unresolved-link="com.google.common.truth.extensions.proto/IterableOfProtosSubject///PointingToDeclaration/">IterableOfProtosSubject</span><span class="token operator">&lt;</span><span data-unresolved-link="io.spine.base/EntityState///PointingToDeclaration/">EntityState</span><span class="token operator">&lt;</span><span class="token keyword">out </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt;</span><span class="token operator">&gt; </span></div><p class="paragraph">A set of assertions for a <span data-unresolved-link="io.spine.client/Query///PointingToDeclaration/">Query</span> execution result. </p><p class="paragraph">The class base methods check a set of <span data-unresolved-link="io.spine.base/EntityState///PointingToDeclaration/">entity states</span> received in the <span data-unresolved-link="io.spine.client/QueryResponse///PointingToDeclaration/">QueryResponse</span>. The subject can be used as follows: </p><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">context.assertQueryResult(query)
+       .containsExactly(state1, state2);
+</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div><p class="paragraph">If the actual queried messages are required, the subject can return them as follows: </p><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">context.assertQueryResult(query)
+       .actual();
+</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div><p class="paragraph">There are also convenience methods for checking response <span data-unresolved-link="io.spine.core/Status///PointingToDeclaration/">Status</span> and received entity <span data-unresolved-link="io.spine.core/Version///PointingToDeclaration/">versions</span>, as well as some others. </p><p class="paragraph">This class is not a &quot;typical&quot; <span data-unresolved-link="com.google.common.truth/Subject///PointingToDeclaration/">Subject</span> in a sense that it's not accessible to the outer world through it's <span data-unresolved-link="io.spine.testing.server.query/QueryResultSubject/queryResult/#/PointingToDeclaration/">factory</span>, but is rather created with a custom <code class="lang-kotlin">static</code><a href="assert-query-result.html">method</a>.</p></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="FUNCTION">
+        <h2 class="tableheader">Functions</h2>
+        <div class="table"><a data-name="1429983784%2FFunctions%2F1214784233" anchor-label="actual" id="1429983784%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="actual.html"><span><span>actual</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1429983784%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="actual.html"><span class="token function">actual</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="com.google.common.collect/ImmutableList///PointingToDeclaration/">ImmutableList</span><span class="token operator">&lt;</span><span data-unresolved-link="io.spine.base/EntityState///PointingToDeclaration/">EntityState</span><span class="token operator">&lt;</span><span class="token keyword">out </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt;</span><span class="token operator">&gt;</span></div><div class="brief ">Obtains the actually queried entity states.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1651235068%2FFunctions%2F1214784233" anchor-label="assertQueryResult" id="-1651235068%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="assert-query-result.html"><span>assert</span><wbr></wbr><span>Query</span><wbr></wbr><span><span>Result</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1651235068%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="assert-query-result.html"><span class="token function">assertQueryResult</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">queryResponse<span class="token operator">: </span><span data-unresolved-link="io.spine.client/QueryResponse///PointingToDeclaration/">QueryResponse</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">QueryResultSubject</a></div><div class="brief ">Creates a new instance of the subject.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1340914345%2FFunctions%2F1214784233" anchor-label="containsEntityVersionListThat" id="1340914345%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="contains-entity-version-list-that.html"><span>contains</span><wbr></wbr><span>Entity</span><wbr></wbr><span>Version</span><wbr></wbr><span>List</span><wbr></wbr><span><span>That</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1340914345%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="contains-entity-version-list-that.html"><span class="token function">containsEntityVersionListThat</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../io.spine.testing.server.entity/-iterable-entity-version-subject/index.html">IterableEntityVersionSubject</a></div><div class="brief ">Returns a <code class="lang-kotlin">Subject</code> to assess the versions of entities yielded in the <span data-unresolved-link="io.spine.client/QueryResponse///PointingToDeclaration/">QueryResponse</span>.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="630083638%2FFunctions%2F1214784233" anchor-label="containsSingleEntityStateThat" id="630083638%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="contains-single-entity-state-that.html"><span>contains</span><wbr></wbr><span>Single</span><wbr></wbr><span>Entity</span><wbr></wbr><span>State</span><wbr></wbr><span><span>That</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="630083638%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="contains-single-entity-state-that.html"><span class="token function">containsSingleEntityStateThat</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="com.google.common.truth.extensions.proto/ProtoSubject///PointingToDeclaration/">ProtoSubject</span></div><div class="brief ">Verifies that the <span data-unresolved-link="io.spine.client/QueryResponse///PointingToDeclaration/">QueryResponse</span> yields a single entity and returns a <code class="lang-kotlin">ProtoSubject</code> for its <span data-unresolved-link="io.spine.base/EntityState///PointingToDeclaration/">state</span>.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="2123628815%2FFunctions%2F1214784233" anchor-label="containsSingleEntityVersionThat" id="2123628815%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="contains-single-entity-version-that.html"><span>contains</span><wbr></wbr><span>Single</span><wbr></wbr><span>Entity</span><wbr></wbr><span>Version</span><wbr></wbr><span><span>That</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2123628815%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="contains-single-entity-version-that.html"><span class="token function">containsSingleEntityVersionThat</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../io.spine.testing.server.entity/-entity-version-subject/index.html">EntityVersionSubject</a></div><div class="brief ">Verifies that the <span data-unresolved-link="io.spine.client/QueryResponse///PointingToDeclaration/">QueryResponse</span> yields a single entity and returns a <code class="lang-kotlin">Subject</code> for its <span data-unresolved-link="io.spine.core/Version///PointingToDeclaration/">Version</span>.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1697878760%2FFunctions%2F1214784233" anchor-label="hasStatus" id="1697878760%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="has-status.html"><span>has</span><wbr></wbr><span><span>Status</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1697878760%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="has-status.html"><span class="token function">hasStatus</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">status<span class="token operator">: </span><span data-unresolved-link="io.spine.core/Status.StatusCase///PointingToDeclaration/">Status.StatusCase</span></span></span><span class="token punctuation">)</span></div><div class="brief ">Verifies the status of the received <span data-unresolved-link="io.spine.client/QueryResponse///PointingToDeclaration/">QueryResponse</span>.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-2142868015%2FFunctions%2F1214784233" anchor-label="hasStatusThat" id="-2142868015%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="has-status-that.html"><span>has</span><wbr></wbr><span>Status</span><wbr></wbr><span><span>That</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2142868015%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="has-status-that.html"><span class="token function">hasStatusThat</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-response-status-subject/index.html">ResponseStatusSubject</a></div><div class="brief ">Obtains a <code class="lang-kotlin">ResponseStatusSubject</code> for more detailed status checks.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    <div class="footer">
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>Copyright 2025, TeamDev</div>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

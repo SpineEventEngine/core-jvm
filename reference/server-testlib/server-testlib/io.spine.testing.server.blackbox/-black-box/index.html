@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>BlackBox</title>
+    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
+        <script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+      if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      } else {
+        const savedDarkMode = JSON.parse(storage)
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../../ui-kit/ui-kit.min.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/safe-local-storage_blocking.js"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../ui-kit/ui-kit.min.js" defer="defer"></script>
+<link href="../../../images/logo-icon.svg">
+<link href="../../../styles/custom-styles.css" rel="Stylesheet">
+</head>
+<body>
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+            <a class="library-name--link" href="../../../index.html" tabindex="1">
+                    server-testlib
+            </a>
+        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle"
+                type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">
+2.0.0-SNAPSHOT.356        </div>
+        <div class="navigation-controls">
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector jvm-like" data-active="" aria-pressed="true"
+                        data-filter=":server-testlib/main">jvm</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
+                        data-role="dropdown-toggle"
+                        aria-controls="platform-tags-listbox"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-label="Toggle source sets"
+                ></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option jvm-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":server-testlib/main"
+                                       data-filter=":server-testlib/main"/>
+                                <span class="checkbox--icon"></span>
+                                jvm
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </ul>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
+                    type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
+        </div>
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config='{"defaultSize": 280, "minSize": 200, "maxSize": 400}'>
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list"
+                    data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
+                            <span>
+                                    server-testlib
+                            </span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
+<div class="main-content" data-page-type="classlike" id="content" pageIds="server-testlib::io.spine.testing.server.blackbox/BlackBox///PointingToDeclaration//1214784233">
+  <div class="breadcrumbs"><a href="../../../index.html">server-testlib</a><span class="delimiter">/</span><a href="../index.html">io.spine.testing.server.blackbox</a><span class="delimiter">/</span><span class="current">BlackBox</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>Black</span><wbr></wbr><span><span>Box</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="io.spine.annotation/VisibleForTesting///PointingToDeclaration/"><span class="token annotation builtin">VisibleForTesting</span></span></div></div><span class="token keyword">abstract </span><span class="token keyword">class </span><a href="index.html">BlackBox</a> : <span data-unresolved-link="io.spine.logging/WithLogging///PointingToDeclaration/">WithLogging</span>, <span data-unresolved-link="io.spine.server/Closeable///PointingToDeclaration/">Closeable</span></div><p class="paragraph">This class provides means for integration testing of Bounded Contexts. </p><p class="paragraph">Such a test suite would send commands or events to the Bounded Context under the test, and then verify consequences of handling a command or an event.</p></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button><button class="section-tab" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION,EXTENSION_PROPERTY,EXTENSION_FUNCTION">Members &amp; Extensions</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="FUNCTION">
+        <h2 class="tableheader">Functions</h2>
+        <div class="table"><a data-name="1908527387%2FFunctions%2F1214784233" anchor-label="append" id="1908527387%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="append.html"><span><span>append</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1908527387%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.errorprone.annotations/CanIgnoreReturnValue///PointingToDeclaration/"><span class="token annotation builtin">CanIgnoreReturnValue</span></span></div></div><span class="token keyword">fun </span><a href="append.html"><span class="token function">append</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">event<span class="token operator">: </span><span data-unresolved-link="io.spine.core/Event///PointingToDeclaration/">Event</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">BlackBox</a></div><div class="brief ">Appends the passed event to the history of the context under the test.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1771963477%2FFunctions%2F1214784233" anchor-label="assertCommands" id="1771963477%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="assert-commands.html"><span>assert</span><wbr></wbr><span><span>Commands</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1771963477%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><span class="token keyword">fun </span><a href="assert-commands.html"><span class="token function">assertCommands</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../io.spine.testing.server/-command-subject/index.html">CommandSubject</a></div><div class="brief ">Obtains the subject for checking commands generated by the entities of this Bounded Context.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="2023129935%2FFunctions%2F1214784233" anchor-label="assertEntity" id="2023129935%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="assert-entity.html"><span>assert</span><wbr></wbr><span><span>Entity</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2023129935%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="assert-entity.html">I</a><span class="token punctuation">, </span><a href="assert-entity.html">E</a><span class="token operator"> : </span><span data-unresolved-link="io.spine.server.entity/Entity///PointingToDeclaration/">Entity</span><span class="token operator">&lt;</span><a href="assert-entity.html">I</a><span class="token punctuation">, </span><span class="token keyword">out </span><span data-unresolved-link="io.spine.base/EntityState///PointingToDeclaration/">EntityState</span><span class="token operator">&lt;</span><a href="assert-entity.html">I</a><span class="token operator">&gt;</span><span class="token operator">&gt;</span><span class="token operator">?</span><span class="token operator">&gt; </span><a href="assert-entity.html"><span class="token function">assertEntity</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">id<span class="token operator">: </span><a href="assert-entity.html">I</a><span class="token punctuation">, </span></span><span class="parameter ">entityClass<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html">Class</a><span class="token operator">&lt;</span><a href="assert-entity.html">E</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../io.spine.testing.server.entity/-entity-subject/index.html">EntitySubject</a></div><div class="brief ">Obtains a Subject for an entity of the passed class with the given ID.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="67592792%2FFunctions%2F1214784233" anchor-label="assertEntityWithState" id="67592792%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="assert-entity-with-state.html"><span>assert</span><wbr></wbr><span>Entity</span><wbr></wbr><span>With</span><wbr></wbr><span><span>State</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="67592792%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="assert-entity-with-state.html">I</a><span class="token punctuation">, </span><a href="assert-entity-with-state.html">S</a><span class="token operator"> : </span><span data-unresolved-link="io.spine.base/EntityState///PointingToDeclaration/">EntityState</span><span class="token operator">&lt;</span><a href="assert-entity-with-state.html">I</a><span class="token operator">&gt;</span><span class="token operator">?</span><span class="token operator">&gt; </span><a href="assert-entity-with-state.html"><span class="token function">assertEntityWithState</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">id<span class="token operator">: </span><a href="assert-entity-with-state.html">I</a><span class="token punctuation">, </span></span><span class="parameter ">stateClass<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html">Class</a><span class="token operator">&lt;</span><a href="assert-entity-with-state.html">S</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../io.spine.testing.server.entity/-entity-subject/index.html">EntitySubject</a></div><div class="brief ">Obtains a Subject for an entity which has the state of the passed class with the given ID.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1878377080%2FFunctions%2F1214784233" anchor-label="assertEvent" id="1878377080%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="assert-event.html"><span>assert</span><wbr></wbr><span><span>Event</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1878377080%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><span class="token keyword">fun </span><a href="assert-event.html"><span class="token function">assertEvent</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">event<span class="token operator">: </span><span data-unresolved-link="io.spine.base/EventMessage///PointingToDeclaration/">EventMessage</span></span></span><span class="token punctuation">)</span></div><div class="brief ">Asserts that the context emitted only one passed event.</div><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.errorprone.annotations/CanIgnoreReturnValue///PointingToDeclaration/"><span class="token annotation builtin">CanIgnoreReturnValue</span></span></div></div><span class="token keyword">fun </span><a href="assert-event.html"><span class="token function">assertEvent</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">eventClass<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html">Class</a><span class="token operator">&lt;</span><span class="token keyword">out </span><span data-unresolved-link="io.spine.base/EventMessage///PointingToDeclaration/">EventMessage</span><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="com.google.common.truth.extensions.proto/ProtoFluentAssertion///PointingToDeclaration/">ProtoFluentAssertion</span></div><div class="brief ">Asserts that the context emitted only one event of the passed type.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-324892%2FFunctions%2F1214784233" anchor-label="assertEvents" id="-324892%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="assert-events.html"><span>assert</span><wbr></wbr><span><span>Events</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-324892%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><span class="token keyword">fun </span><a href="assert-events.html"><span class="token function">assertEvents</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../io.spine.testing.server/-event-subject/index.html">EventSubject</a></div><div class="brief ">Obtains the subject for checking events emitted by the entities of this Bounded Context.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-789497070%2FFunctions%2F1214784233" anchor-label="assertQueryResult" id="-789497070%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="assert-query-result.html"><span>assert</span><wbr></wbr><span>Query</span><wbr></wbr><span><span>Result</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-789497070%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="assert-query-result.html"><span class="token function">assertQueryResult</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">query<span class="token operator">: </span><span data-unresolved-link="io.spine.client/Query///PointingToDeclaration/">Query</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../io.spine.testing.server.query/-query-result-subject/index.html">QueryResultSubject</a></div><div class="brief ">Obtains the subject for checking the <code class="lang-kotlin">Query</code> execution result.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-59885952%2FFunctions%2F1214784233" anchor-label="assertState" id="-59885952%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="assert-state.html"><span>assert</span><wbr></wbr><span><span>State</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-59885952%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="assert-state.html">I</a><span class="token punctuation">, </span><a href="assert-state.html">S</a><span class="token operator"> : </span><span data-unresolved-link="io.spine.base/EntityState///PointingToDeclaration/">EntityState</span><span class="token operator">&lt;</span><a href="assert-state.html">I</a><span class="token operator">&gt;</span><span class="token operator">?</span><span class="token operator">&gt; </span><a href="assert-state.html"><span class="token function">assertState</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">id<span class="token operator">: </span><a href="assert-state.html">I</a><span class="token punctuation">, </span></span><span class="parameter ">entityState<span class="token operator">: </span><a href="assert-state.html">S</a></span></span><span class="token punctuation">)</span></div><div class="brief ">Asserts that there is an entity with the passed ID and the passed state.</div><div class="symbol monospace"><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="assert-state.html">I</a><span class="token punctuation">, </span><a href="assert-state.html">S</a><span class="token operator"> : </span><span data-unresolved-link="io.spine.base/EntityState///PointingToDeclaration/">EntityState</span><span class="token operator">&lt;</span><a href="assert-state.html">I</a><span class="token operator">&gt;</span><span class="token operator">?</span><span class="token operator">&gt; </span><a href="assert-state.html"><span class="token function">assertState</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">id<span class="token operator">: </span><a href="assert-state.html">I</a><span class="token punctuation">, </span></span><span class="parameter ">stateClass<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html">Class</a><span class="token operator">&lt;</span><a href="assert-state.html">S</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="com.google.common.truth.extensions.proto/ProtoFluentAssertion///PointingToDeclaration/">ProtoFluentAssertion</span></div><div class="brief ">Asserts that there is an entity with the passed ID and the passed type of state.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="355054767%2FFunctions%2F1214784233" anchor-label="clients" id="355054767%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="clients.html"><span><span>clients</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="355054767%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="clients.html"><span class="token function">clients</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-black-box-clients/index.html">BlackBoxClients</a></div><div class="brief ">Returns a factory of <span data-unresolved-link="io.spine.client/Client///PointingToDeclaration/">Client</span>s to this instance of <code class="lang-kotlin">BlackBox</code>.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1541906113%2FFunctions%2F1214784233" anchor-label="close" id="-1541906113%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="close.html"><span><span>close</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1541906113%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><span class="token keyword">fun </span><a href="close.html"><span class="token function">close</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div><div class="brief ">Closes the <code class="lang-kotlin">BlackBox</code> performing all necessary clean-ups.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="2121350587%2FFunctions%2F1214784233" anchor-label="from" id="2121350587%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="from.html"><span><span>from</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2121350587%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="from.html"><span class="token function">from</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">context<span class="token operator">: </span><span data-unresolved-link="io.spine.server/BoundedContext///PointingToDeclaration/">BoundedContext</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">BlackBox</a></div><div class="brief ">Creates a new instance obtaining configuration parameters from the given context instance.</div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="from.html"><span class="token function">from</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">builder<span class="token operator">: </span><span data-unresolved-link="io.spine.server/BoundedContextBuilder///PointingToDeclaration/">BoundedContextBuilder</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">BlackBox</a></div><div class="brief ">Creates a new instance obtaining configuration parameters from the passed builder.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1654940929%2FFunctions%2F1214784233" anchor-label="importsEvent" id="-1654940929%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="imports-event.html"><span>imports</span><wbr></wbr><span><span>Event</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1654940929%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.errorprone.annotations/CanIgnoreReturnValue///PointingToDeclaration/"><span class="token annotation builtin">CanIgnoreReturnValue</span></span></div></div><span class="token keyword">open </span><span class="token keyword">fun </span><a href="imports-event.html"><span class="token function">importsEvent</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">eventOrMessage<span class="token operator">: </span><span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">BlackBox</a></div><div class="brief ">Imports the event into the Bounded Context.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1953353733%2FFunctions%2F1214784233" anchor-label="importsEvents" id="-1953353733%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="imports-events.html"><span>imports</span><wbr></wbr><span><span>Events</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1953353733%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.errorprone.annotations/CanIgnoreReturnValue///PointingToDeclaration/"><span class="token annotation builtin">CanIgnoreReturnValue</span></span></div></div><span class="token keyword">fun </span><a href="imports-events.html"><span class="token function">importsEvents</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">first<span class="token operator">: </span><span data-unresolved-link="io.spine.base/EventMessage///PointingToDeclaration/">EventMessage</span><span class="token punctuation">, </span></span><span class="parameter ">second<span class="token operator">: </span><span data-unresolved-link="io.spine.base/EventMessage///PointingToDeclaration/">EventMessage</span><span class="token punctuation">, </span></span><span class="parameter ">rest<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html">Array</a><span class="token operator">&lt;</span><span data-unresolved-link="io.spine.base/EventMessage///PointingToDeclaration/">EventMessage</span><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">BlackBox</a></div><div class="brief ">Imports passed events into the Bounded Context.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1185685353%2FFunctions%2F1214784233" anchor-label="in" id="1185685353%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="in.html"><span><span>in</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1185685353%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.errorprone.annotations/CanIgnoreReturnValue///PointingToDeclaration/"><span class="token annotation builtin">CanIgnoreReturnValue</span></span></div></div><span class="token keyword">fun </span><a href="in.html"><span class="token function">in</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">zoneId<span class="token operator">: </span><span data-unresolved-link="io.spine.time/ZoneId///PointingToDeclaration/">ZoneId</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">BlackBox</a></div><div class="brief ">Sets the given time zone parameters for the actor requests produced by this context.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1194456465%2FFunctions%2F1214784233" anchor-label="isOpen" id="-1194456465%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="is-open.html"><span>is</span><wbr></wbr><span><span>Open</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1194456465%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="is-open.html"><span class="token function">isOpen</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="767943033%2FFunctions%2F1214784233" anchor-label="multiTenantWith" id="767943033%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="multi-tenant-with.html"><span>multi</span><wbr></wbr><span>Tenant</span><wbr></wbr><span><span>With</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="767943033%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="multi-tenant-with.html"><span class="token function">multiTenantWith</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">components<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html">Array</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">BlackBox</a></div><div class="brief ">Creates a <code class="lang-kotlin">BlackBox</code> over a multi-tenant context with the given components.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-746020904%2FFunctions%2F1214784233" anchor-label="name" id="-746020904%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="name.html"><span><span>name</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-746020904%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="name.html"><span class="token function">name</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.spine.core/BoundedContextName///PointingToDeclaration/">BoundedContextName</span></div><div class="brief ">Obtains the name of the context under the test.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1217644754%2FFunctions%2F1214784233" anchor-label="readOperation" id="1217644754%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="read-operation.html"><span>read</span><wbr></wbr><span><span>Operation</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1217644754%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><span class="token keyword">protected </span><span class="token keyword">open </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="read-operation.html">D</a><span class="token operator">&gt; </span><a href="read-operation.html"><span class="token function">readOperation</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">supplier<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html">Supplier</a><span class="token operator">&lt;</span><a href="read-operation.html">D</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="read-operation.html">D</a></div><div class="brief ">Performs data reading operation in a tenant context.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1070901930%2FFunctions%2F1214784233" anchor-label="receivesCommand" id="-1070901930%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="receives-command.html"><span>receives</span><wbr></wbr><span><span>Command</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1070901930%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.errorprone.annotations/CanIgnoreReturnValue///PointingToDeclaration/"><span class="token annotation builtin">CanIgnoreReturnValue</span></span></div></div><span class="token keyword">fun </span><a href="receives-command.html"><span class="token function">receivesCommand</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">domainCommand<span class="token operator">: </span><span data-unresolved-link="io.spine.base/CommandMessage///PointingToDeclaration/">CommandMessage</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">BlackBox</a></div><div class="brief ">Sends off a provided command to the Bounded Context.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-296828018%2FFunctions%2F1214784233" anchor-label="receivesCommands" id="-296828018%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="receives-commands.html"><span>receives</span><wbr></wbr><span><span>Commands</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-296828018%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.errorprone.annotations/CanIgnoreReturnValue///PointingToDeclaration/"><span class="token annotation builtin">CanIgnoreReturnValue</span></span></div></div><span class="token keyword">fun </span><a href="receives-commands.html"><span class="token function">receivesCommands</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">domainCommands<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html">List</a><span class="token operator">&lt;</span><span data-unresolved-link="io.spine.base/CommandMessage///PointingToDeclaration/">CommandMessage</span><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">BlackBox</a></div><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.errorprone.annotations/CanIgnoreReturnValue///PointingToDeclaration/"><span class="token annotation builtin">CanIgnoreReturnValue</span></span></div></div><span class="token keyword">fun </span><a href="receives-commands.html"><span class="token function">receivesCommands</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">first<span class="token operator">: </span><span data-unresolved-link="io.spine.base/CommandMessage///PointingToDeclaration/">CommandMessage</span><span class="token punctuation">, </span></span><span class="parameter ">second<span class="token operator">: </span><span data-unresolved-link="io.spine.base/CommandMessage///PointingToDeclaration/">CommandMessage</span><span class="token punctuation">, </span></span><span class="parameter ">rest<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html">Array</a><span class="token operator">&lt;</span><span data-unresolved-link="io.spine.base/CommandMessage///PointingToDeclaration/">CommandMessage</span><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">BlackBox</a></div><div class="brief ">Sends off provided commands to the Bounded Context.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-896709770%2FFunctions%2F1214784233" anchor-label="receivesEvent" id="-896709770%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="receives-event.html"><span>receives</span><wbr></wbr><span><span>Event</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-896709770%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.errorprone.annotations/CanIgnoreReturnValue///PointingToDeclaration/"><span class="token annotation builtin">CanIgnoreReturnValue</span></span></div></div><span class="token keyword">fun </span><a href="receives-event.html"><span class="token function">receivesEvent</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">domainEvent<span class="token operator">: </span><span data-unresolved-link="io.spine.base/EventMessage///PointingToDeclaration/">EventMessage</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">BlackBox</a></div><div class="brief ">Sends off a provided event to the Bounded Context.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1768010191%2FFunctions%2F1214784233" anchor-label="receivesEvents" id="-1768010191%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="receives-events.html"><span>receives</span><wbr></wbr><span><span>Events</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1768010191%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.errorprone.annotations/CanIgnoreReturnValue///PointingToDeclaration/"><span class="token annotation builtin">CanIgnoreReturnValue</span></span></div></div><span class="token keyword">fun </span><a href="receives-events.html"><span class="token function">receivesEvents</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">first<span class="token operator">: </span><span data-unresolved-link="io.spine.base/EventMessage///PointingToDeclaration/">EventMessage</span><span class="token punctuation">, </span></span><span class="parameter ">second<span class="token operator">: </span><span data-unresolved-link="io.spine.base/EventMessage///PointingToDeclaration/">EventMessage</span><span class="token punctuation">, </span></span><span class="parameter ">rest<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html">Array</a><span class="token operator">&lt;</span><span data-unresolved-link="io.spine.base/EventMessage///PointingToDeclaration/">EventMessage</span><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">BlackBox</a></div><div class="brief ">Sends off provided events to the Bounded Context.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-572240248%2FFunctions%2F1214784233" anchor-label="receivesEventsProducedBy" id="-572240248%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="receives-events-produced-by.html"><span>receives</span><wbr></wbr><span>Events</span><wbr></wbr><span>Produced</span><wbr></wbr><span><span>By</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-572240248%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.errorprone.annotations/CanIgnoreReturnValue///PointingToDeclaration/"><span class="token annotation builtin">CanIgnoreReturnValue</span></span></div></div><span class="token keyword">fun </span><a href="receives-events-produced-by.html"><span class="token function">receivesEventsProducedBy</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">producerId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token punctuation">, </span></span><span class="parameter ">first<span class="token operator">: </span><span data-unresolved-link="io.spine.base/EventMessage///PointingToDeclaration/">EventMessage</span><span class="token punctuation">, </span></span><span class="parameter ">rest<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html">Array</a><span class="token operator">&lt;</span><span data-unresolved-link="io.spine.base/EventMessage///PointingToDeclaration/">EventMessage</span><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">BlackBox</a></div><div class="brief ">Sends off events using the specified producer to the Bounded Context.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1416175742%2FFunctions%2F1214784233" anchor-label="receivesExternalEvent" id="1416175742%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="receives-external-event.html"><span>receives</span><wbr></wbr><span>External</span><wbr></wbr><span><span>Event</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1416175742%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.errorprone.annotations/CanIgnoreReturnValue///PointingToDeclaration/"><span class="token annotation builtin">CanIgnoreReturnValue</span></span></div></div><span class="token keyword">fun </span><a href="receives-external-event.html"><span class="token function">receivesExternalEvent</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">messageOrEvent<span class="token operator">: </span><span data-unresolved-link="com.google.protobuf/Message///PointingToDeclaration/">Message</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">BlackBox</a></div><div class="brief ">Sends off a provided event to the Bounded Context as event from an external source.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-137968804%2FFunctions%2F1214784233" anchor-label="receivesExternalEvents" id="-137968804%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="receives-external-events.html"><span>receives</span><wbr></wbr><span>External</span><wbr></wbr><span><span>Events</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-137968804%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.errorprone.annotations/CanIgnoreReturnValue///PointingToDeclaration/"><span class="token annotation builtin">CanIgnoreReturnValue</span></span></div></div><span class="token keyword">fun </span><a href="receives-external-events.html"><span class="token function">receivesExternalEvents</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">first<span class="token operator">: </span><span data-unresolved-link="io.spine.base/EventMessage///PointingToDeclaration/">EventMessage</span><span class="token punctuation">, </span></span><span class="parameter ">second<span class="token operator">: </span><span data-unresolved-link="io.spine.base/EventMessage///PointingToDeclaration/">EventMessage</span><span class="token punctuation">, </span></span><span class="parameter ">other<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html">Array</a><span class="token operator">&lt;</span><span data-unresolved-link="io.spine.base/EventMessage///PointingToDeclaration/">EventMessage</span><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">BlackBox</a></div><div class="brief ">Sends off provided events to the Bounded Context as events from an external source.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-795328076%2FFunctions%2F1214784233" anchor-label="singleTenant" id="-795328076%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="single-tenant.html"><span>single</span><wbr></wbr><span><span>Tenant</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-795328076%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="single-tenant.html"><span class="token function">singleTenant</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">name<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">components<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html">Array</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">BlackBox</a></div><div class="brief ">Creates a <code class="lang-kotlin">BlackBox</code> over a single-tenant context with the given name and components.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="632577148%2FFunctions%2F1214784233" anchor-label="singleTenantWith" id="632577148%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="single-tenant-with.html"><span>single</span><wbr></wbr><span>Tenant</span><wbr></wbr><span><span>With</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="632577148%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="single-tenant-with.html"><span class="token function">singleTenantWith</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">components<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html">Array</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">BlackBox</a></div><div class="brief ">Creates a <code class="lang-kotlin">BlackBox</code> over a single-tenant context with the given components.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="759688785%2FFunctions%2F1214784233" anchor-label="subscribeTo" id="759688785%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="subscribe-to.html"><span>subscribe</span><wbr></wbr><span><span>To</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="759688785%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="subscribe-to.html"><span class="token function">subscribeTo</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">topic<span class="token operator">: </span><span data-unresolved-link="io.spine.client/Topic///PointingToDeclaration/">Topic</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-subscription-fixture/index.html">SubscriptionFixture</a></div><div class="brief ">Subscribes and activates the subscription to the passed topic.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="677389638%2FFunctions%2F1214784233" anchor-label="tolerateFailures" id="677389638%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="tolerate-failures.html"><span>tolerate</span><wbr></wbr><span><span>Failures</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="677389638%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.errorprone.annotations/CanIgnoreReturnValue///PointingToDeclaration/"><span class="token annotation builtin">CanIgnoreReturnValue</span></span></div></div><span class="token keyword">fun </span><a href="tolerate-failures.html"><span class="token function">tolerateFailures</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">BlackBox</a></div><div class="brief ">Tells context to log signal handler failures over failing the test.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1425557771%2FFunctions%2F1214784233" anchor-label="with" id="-1425557771%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="with.html"><span><span>with</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1425557771%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="with.html"><span class="token function">with</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">multitenant<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">components<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html">Array</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">BlackBox</a></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="with.html"><span class="token function">with</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">builder<span class="token operator">: </span><span data-unresolved-link="io.spine.server/BoundedContextBuilder///PointingToDeclaration/">BoundedContextBuilder</span><span class="token punctuation">, </span></span><span class="parameter ">components<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html">Array</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">BlackBox</a></div><div class="brief ">Creates a <code class="lang-kotlin">BlackBox</code> over a context with the given components.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-447593018%2FFunctions%2F1214784233" anchor-label="withActor" id="-447593018%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="with-actor.html"><span>with</span><wbr></wbr><span><span>Actor</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-447593018%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.errorprone.annotations/CanIgnoreReturnValue///PointingToDeclaration/"><span class="token annotation builtin">CanIgnoreReturnValue</span></span></div></div><span class="token keyword">fun </span><a href="with-actor.html"><span class="token function">withActor</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">user<span class="token operator">: </span><span data-unresolved-link="io.spine.core/UserId///PointingToDeclaration/">UserId</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">BlackBox</a></div><div class="brief ">Sets the given <span data-unresolved-link="io.spine.core/UserId///PointingToDeclaration/">UserId</span> as the actor ID for the requests produced by this context.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="202925042%2FFunctions%2F1214784233" anchor-label="withTenant" id="202925042%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="with-tenant.html"><span>with</span><wbr></wbr><span><span>Tenant</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="202925042%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="with-tenant.html"><span class="token function">withTenant</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">tenant<span class="token operator">: </span><span data-unresolved-link="io.spine.core/TenantId///PointingToDeclaration/">TenantId</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">BlackBox</a></div><div class="brief ">Makes all future requests to the context come to the tenant with the passed ID.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="EXTENSION_FUNCTION">
+        <h2 class="tableheader">Inherited functions</h2>
+        <div class="table"><a data-name="-671049361%2FFunctions%2F1214784233" anchor-label="assertEntity" id="-671049361%2FFunctions%2F1214784233" data-filterable-set=":server-testlib/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server-testlib/main" data-filterable-set=":server-testlib/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../assert-entity.html"><span>assert</span><wbr></wbr><span><span>Entity</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-671049361%2FFunctions%2F1214784233"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server-testlib/main"><div class="symbol monospace"><span class="token keyword">inline </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="../assert-entity.html">E</a><span class="token operator"> : </span><span data-unresolved-link="io.spine.server.entity/Entity///PointingToDeclaration/">Entity</span><span class="token operator">&lt;</span><a href="../assert-entity.html">I</a><span class="token punctuation">, </span><span class="token keyword">out </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt;</span><span class="token punctuation">, </span><a href="../assert-entity.html">I</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt; </span><a href="index.html">BlackBox</a><span class="token punctuation">.</span><a href="../assert-entity.html"><span class="token function">assertEntity</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">id<span class="token operator">: </span><a href="../assert-entity.html">I</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../io.spine.testing.server.entity/-entity-subject/index.html">EntitySubject</a></div><div class="brief "><p class="paragraph">Creates <a href="../../io.spine.testing.server.entity/-entity-subject/index.html">EntitySubject</a> for the entity of the type <a href="../assert-entity.html">E</a> with the given ID of type <a href="../assert-entity.html">I</a>.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    <div class="footer">
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>Copyright 2025, TeamDev</div>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
