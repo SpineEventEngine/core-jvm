@@ -1,0 +1,724 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en"><head>
+    <title>Client 2.0.0-SNAPSHOT.356 API </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="dc.created" content="2020-03-25">
+    <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../dokka-javadoc-stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../jquery/jquery-ui.css" title="Style">
+    <script type="text/javascript" src="../../../jquery/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="../../../jquery/jquery-migrate-3.4.0.min.js"></script>
+    <script type="text/javascript" src="../../../jquery/jquery-ui.js"></script>
+
+    <script type="text/javascript" src="../../../search.js"></script>
+    <script async type="text/javascript" src="../../../module-search-index.js"></script>
+    <script async type="text/javascript" src="../../../package-search-index.js"></script>
+    <script async type="text/javascript" src="../../../type-search-index.js"></script>
+    <script async type="text/javascript" src="../../../member-search-index.js"></script>
+    <script async type="text/javascript" src="../../../tag-search-index.js"></script>
+</head><body>
+<script type="text/javascript">
+var pathtoroot = "../../../";
+</script>
+<noscript>
+    <div>JavaScript is disabled on your browser.</div>
+</noscript><header role="banner">
+    <nav role="navigation">
+        <div class="fixedNav">
+            <!-- ========= START OF TOP NAVBAR ======= -->
+            <div class="topNav"><a id="navbar.top">
+                <!--   -->
+            </a>
+                <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a>
+                </div>
+                <a id="navbar.top.firstrow">
+                    <!--   -->
+                </a>
+                <ul class="navList" title="Navigation">
+    <li><a href="../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+            <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" class="ui-autocomplete-input" autocomplete="off" placeholder="Search">
+<input type="reset" id="reset" value="reset">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ========= END OF TOP NAVBAR ========= -->
+        </div>
+        <div class="navPadding">&nbsp;</div>
+        <script type="text/javascript"><!--
+        $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+        //-->
+        </script>
+    </nav>
+</header>
+
+<main role="main">
+    <div class="header">
+        <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">io.spine.client</a></div>
+        <h2 title="Class Client" class="title">Class Client</h2>
+    </div>
+    <div class="contentContainer">
+        <!-- <ul class="inheritance">
+            <li>java.lang.Object</li>
+            <li>
+                <ul class="inheritance">
+                    <li>adaptation.Adaptation</li>
+                </ul>
+            </li>
+        </ul> TODO inheritance tree -->
+        <div class="description">
+            <ul class="blockList">
+                <li class="blockList">
+                    
+                    <dl>
+                        <dt>All Implemented Interfaces:</dt>
+                        <dd>
+                            
+                            <code>java.lang.AutoCloseable</code>
+                            
+                            
+                        </dd>
+                    </dl>
+                    
+                    <hr>
+                    <pre class="wrap-overflow">
+
+public final class <span class="typeNameLabel"><a href=Client.html>Client</a></span>
+ implements <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/AutoCloseable.html>AutoCloseable</a>
+                    </pre>
+                    <div class="block"><p>The gRPC-based gateway for backend services such as <code>CommandService</code>, <code>QueryService</code>, or <code>SubscriptionService</code>. </p><p>A connection can be established via <a href=Client.html#connectTo(java.lang.String,int)>host/port</a> combination, or via already available <a href=Client.html#usingChannel(io.grpc.ManagedChannel)>ManagedChannel</a>. </p><p>Multitenant applications need to specify <a href=Client.Builder.html#forTenant(io.spine.core.TenantId)>TenantId</a> for a new client connection. Single-tenant applications do nothing about it. </p><p>Client requests can be created on behalf of a <a href=Client.html#asGuest()>guest user</a>, if the user is not yet authenticated, and on behalf of the <a href=Client.html#onBehalfOf(io.spine.core.UserId)>current user</a> after the user is authenticated. </p><p>Please note that Spine client-side library does not define the authentication process. The <code>Client</code> class simply relies on the fact that UserId passed to the method <a href=Client.html#onBehalfOf(io.spine.core.UserId)>onBehalfOf</a> represents a valid logged-in user, ID of whom the client application got (presumably as field of a <code>UserLoggedIn</code> event) following due authentication process. The server-side code also needs to make sure that the UserId matches security constraints of the backend services. Security arrangements is not a part of the Spine client-side library either. </p><p>Subscriptions to <a href=SubscriptionRequest.html>entity states</a> or <a href=EventSubscriptionRequest.html>events</a> must be <a href=Client.html#cancel(io.spine.client.Subscription)>cancelled</a> when no longer needed to preserve both client-side and backend resources. </p><p>The client connection must be <a href=Client.html#close()>closed</a> when the application finishes its work.</p></div>
+
+                    <dl>
+
+                    
+
+                    
+
+                    </dl>
+                </li>
+            </ul>
+        </div>
+        <div class="summary">
+            <ul class="blockList">
+                <li class="blockList">
+                <!-- ======== NESTED CLASS SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="nested.class.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Nested Class Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Class</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>public final class</code></td>
+                                            <th class="colSecond" scope="row"><code><a href="Client.Builder.html">Client.Builder</a></span></code>
+                                            </th>
+                                            <td class="colLast"><p>The builder for the client.</p></td>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== FIELD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="field.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Field Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Field</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>public final static int</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=Client.html#DEFAULT_CLIENT_SERVICE_PORT>DEFAULT_CLIENT_SERVICE_PORT</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="rowColor">
+                                            <td class="colFirst"><code>public final static <a href=Timeout.html>Timeout</a></code></td>
+                                            <th class="colSecond" scope="row"><code><a href=Client.html#DEFAULT_SHUTDOWN_TIMEOUT>DEFAULT_SHUTDOWN_TIMEOUT</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>public final static UserId</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=Client.html#DEFAULT_GUEST_ID>DEFAULT_GUEST_ID</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tbody>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Constructor</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+
+                                        
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== ENUM CONSTANT SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="enum.constant.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Enum Constant Summary</h3>
+                                <table class="memberSummary">
+                                    <caption><span>Enum Constants</span><span class="tabEnd">&nbsp;</span></caption>
+                                    <tr>
+                                        <th class="colFirst" scope="col">Enum Constant</th>
+                                        <th class="colLast" scope="col">Description</th>
+                                    </tr>
+                                    
+                                </table>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ========== METHOD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Method Summary</h3>
+                                <div class="memberSummary">
+                                    <div role="tablist" aria-orientation="horizontal">
+                                        <button role="tab" aria-selected="true" aria-controls="memberSummary_tabpanel" tabindex="0" onkeydown="switchTab(event)" id="t0" class="activeTableTab">All Methods</button>
+                                        <!-- TODO: Instance and Concrete Methods #1118 -->
+                                    </div>
+                                    <div id="memberSummary_tabpanel" role="tabpanel">
+                                    <table aria-labelledby="t0">
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Method</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                        <tr id="i0" class="altColor">
+                                            <td class="colFirst"><code>static <a href=Client.Builder.html>Client.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Client.html#connectTo(java.lang.String,int)>connectTo</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> host, int port) </code>
+                                            </th>
+                                            <td class="colLast">Creates a builder for a client connected to the specified address.</td>
+                                        </tr>
+                                        
+                                        <tr id="i1" class="rowColor">
+                                            <td class="colFirst"><code>static <a href=Client.Builder.html>Client.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Client.html#usingChannel(io.grpc.ManagedChannel)>usingChannel</a>(ManagedChannel channel) </code>
+                                            </th>
+                                            <td class="colLast">Creates a builder for a client which will use the passed channel for the communication with the backend services.</td>
+                                        </tr>
+                                        
+                                        <tr id="i2" class="altColor">
+                                            <td class="colFirst"><code>static <a href=Client.Builder.html>Client.Builder</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Client.html#inProcess(java.lang.String)>inProcess</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> serverName) </code>
+                                            </th>
+                                            <td class="colLast">Creates a builder for the client which will be connected to the in-process server with the given name.</td>
+                                        </tr>
+                                        
+                                        <tr id="i3" class="rowColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html>Optional</a>&lt;TenantId&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Client.html#tenant()>tenant</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains the tenant of this client connection in a multi-tenant application, and empty <code>Optional</code> in a single-tenant one.</td>
+                                        </tr>
+                                        
+                                        <tr id="i4" class="altColor">
+                                            <td class="colFirst"><code>void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Client.html#close()>close</a>() </code>
+                                            </th>
+                                            <td class="colLast">Closes the client by shutting down the gRPC connection.</td>
+                                        </tr>
+                                        
+                                        <tr id="i5" class="rowColor">
+                                            <td class="colFirst"><code>void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Client.html#shutdown()>shutdown</a>() </code>
+                                            </th>
+                                            <td class="colLast">Same as <a href=Client.html#close()>close</a>.</td>
+                                        </tr>
+                                        
+                                        <tr id="i6" class="altColor">
+                                            <td class="colFirst"><code>boolean</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Client.html#isOpen()>isOpen</a>() </code>
+                                            </th>
+                                            <td class="colLast">Verifies if the client connection is open.</td>
+                                        </tr>
+                                        
+                                        <tr id="i7" class="rowColor">
+                                            <td class="colFirst"><code><a href=ClientRequest.html>ClientRequest</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Client.html#onBehalfOf(io.spine.core.UserId)>onBehalfOf</a>(UserId user) </code>
+                                            </th>
+                                            <td class="colLast">Creates a builder for requests on behalf of the passed user.</td>
+                                        </tr>
+                                        
+                                        <tr id="i8" class="altColor">
+                                            <td class="colFirst"><code><a href=ClientRequest.html>ClientRequest</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Client.html#asGuest()>asGuest</a>() </code>
+                                            </th>
+                                            <td class="colLast">Creates a builder for posting guest requests.</td>
+                                        </tr>
+                                        
+                                        <tr id="i9" class="rowColor">
+                                            <td class="colFirst"><code>void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Client.html#cancel(io.spine.client.Subscription)>cancel</a>(<a href=Subscription.html>Subscription</a> s) </code>
+                                            </th>
+                                            <td class="colLast">Requests cancellation of the passed subscription.</td>
+                                        </tr>
+                                        
+                                        <tr id="i10" class="altColor">
+                                            <td class="colFirst"><code><a href=Subscriptions.html>Subscriptions</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=Client.html#subscriptions()>subscriptions</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains subscriptions created by this client.</td>
+                                        </tr>
+                                        
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <ul class="blockList">
+                                
+                                    <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+                                        <!--   -->
+                                    </a>
+                                        <h3>Methods inherited from class&nbsp;java.lang.Object</h3>
+                                        <code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString,
+                                            wait, wait, wait</code></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+        <div class="details">
+            <ul class="blockList">
+                <li class="blockList">
+                    <!-- ========= CONSTRUCTOR DETAIL ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Detail</h3>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ============ METHOD DETAIL ========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Method Detail</h3>
+                                
+                                <a id="connectTo(java.lang.String,int)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>connectTo</h4>
+                                        <pre class="methodSignature"> static <a href=Client.Builder.html>Client.Builder</a> <a href=Client.html#connectTo(java.lang.String,int)>connectTo</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> host, int port)</pre>
+                                        <div class="block"><p>Creates a builder for a client connected to the specified address. </p><p>The returned builder will create <code>ManagedChannel</code> with the default configuration. For a channel with custom configuration please use <a href=Client.html#usingChannel(io.grpc.ManagedChannel)>usingChannel</a>.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="usingChannel(io.grpc.ManagedChannel)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>usingChannel</h4>
+                                        <pre class="methodSignature"> static <a href=Client.Builder.html>Client.Builder</a> <a href=Client.html#usingChannel(io.grpc.ManagedChannel)>usingChannel</a>(ManagedChannel channel)</pre>
+                                        <div class="block"><p>Creates a builder for a client which will use the passed channel for the communication with the backend services. </p><p>Use this method when a channel with custom configuration is needed for your client application.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="inProcess(java.lang.String)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>inProcess</h4>
+                                        <pre class="methodSignature"> static <a href=Client.Builder.html>Client.Builder</a> <a href=Client.html#inProcess(java.lang.String)>inProcess</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> serverName)</pre>
+                                        <div class="block"><p>Creates a builder for the client which will be connected to the in-process server with the given name. </p><p>The client is fully-featured, high performance, and is useful in testing.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="tenant()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>tenant</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html>Optional</a>&lt;TenantId&gt; <a href=Client.html#tenant()>tenant</a>()</pre>
+                                        <div class="block"><p>Obtains the tenant of this client connection in a multi-tenant application, and empty <code>Optional</code> in a single-tenant one.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="close()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>close</h4>
+                                        <pre class="methodSignature"> void <a href=Client.html#close()>close</a>()</pre>
+                                        <div class="block"><p>Closes the client by shutting down the gRPC connection. </p><p>Subscriptions created by this client which were not cancelled <a href=Client.html#cancel(io.spine.client.Subscription)>directly</a> will be cancelled.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="shutdown()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>shutdown</h4>
+                                        <pre class="methodSignature"> void <a href=Client.html#shutdown()>shutdown</a>()</pre>
+                                        <div class="block"><p>Same as <a href=Client.html#close()>close</a>.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="isOpen()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>isOpen</h4>
+                                        <pre class="methodSignature"> boolean <a href=Client.html#isOpen()>isOpen</a>()</pre>
+                                        <div class="block"><p>Verifies if the client connection is open.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="onBehalfOf(io.spine.core.UserId)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>onBehalfOf</h4>
+                                        <pre class="methodSignature"> <a href=ClientRequest.html>ClientRequest</a> <a href=Client.html#onBehalfOf(io.spine.core.UserId)>onBehalfOf</a>(UserId user)</pre>
+                                        <div class="block"><p>Creates a builder for requests on behalf of the passed user.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="asGuest()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>asGuest</h4>
+                                        <pre class="methodSignature"> <a href=ClientRequest.html>ClientRequest</a> <a href=Client.html#asGuest()>asGuest</a>()</pre>
+                                        <div class="block"><p>Creates a builder for posting guest requests.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="cancel(io.spine.client.Subscription)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>cancel</h4>
+                                        <pre class="methodSignature">@<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Deprecated.html>Deprecated</a>() void <a href=Client.html#cancel(io.spine.client.Subscription)>cancel</a>(<a href=Subscription.html>Subscription</a> s)</pre>
+                                        <div class="block"><p>Requests cancellation of the passed subscription.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="subscriptions()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockListLast"
+                                          >
+                                    <li class="blockList">
+                                        <h4>subscriptions</h4>
+                                        <pre class="methodSignature"> <a href=Subscriptions.html>Subscriptions</a> <a href=Client.html#subscriptions()>subscriptions</a>()</pre>
+                                        <div class="block"><p>Obtains subscriptions created by this client.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+    </div>
+</main>
+<footer role="contentinfo">
+    <nav role="navigation">
+        <!-- ======= START OF BOTTOM NAVBAR ====== -->
+        <div class="bottomNav"><a id="navbar.bottom">
+            <!--   -->
+        </a>
+            <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a>
+            </div>
+            <a id="navbar.bottom.firstrow">
+                <!--   -->
+            </a>
+            <ul class="navList" title="Navigation">
+    <li><a href="../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+        <a id="skip.navbar.bottom">
+            <!--   -->
+        </a>
+        <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ======== END OF BOTTOM NAVBAR ======= -->
+    </nav>
+</footer><ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" id="ui-id-1" tabindex="0"
+    style="display: none;"></ul>
+<span role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></span>
+</body>
+</html>
