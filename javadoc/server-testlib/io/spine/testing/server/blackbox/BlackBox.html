@@ -1,0 +1,1717 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en"><head>
+    <title>BlackBox 2.0.0-SNAPSHOT.356 API </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="dc.created" content="2020-03-25">
+    <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../../dokka-javadoc-stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
+    <script type="text/javascript" src="../../../../../jquery/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="../../../../../jquery/jquery-migrate-3.4.0.min.js"></script>
+    <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
+
+    <script type="text/javascript" src="../../../../../search.js"></script>
+    <script async type="text/javascript" src="../../../../../module-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../../package-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../../type-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../../member-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../../tag-search-index.js"></script>
+</head><body>
+<script type="text/javascript">
+var pathtoroot = "../../../../../";
+</script>
+<noscript>
+    <div>JavaScript is disabled on your browser.</div>
+</noscript><header role="banner">
+    <nav role="navigation">
+        <div class="fixedNav">
+            <!-- ========= START OF TOP NAVBAR ======= -->
+            <div class="topNav"><a id="navbar.top">
+                <!--   -->
+            </a>
+                <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a>
+                </div>
+                <a id="navbar.top.firstrow">
+                    <!--   -->
+                </a>
+                <ul class="navList" title="Navigation">
+    <li><a href="../../../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+            <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" class="ui-autocomplete-input" autocomplete="off" placeholder="Search">
+<input type="reset" id="reset" value="reset">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ========= END OF TOP NAVBAR ========= -->
+        </div>
+        <div class="navPadding">&nbsp;</div>
+        <script type="text/javascript"><!--
+        $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+        //-->
+        </script>
+    </nav>
+</header>
+
+<main role="main">
+    <div class="header">
+        <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">io.spine.testing.server.blackbox</a></div>
+        <h2 title="Class BlackBox" class="title">Class BlackBox</h2>
+    </div>
+    <div class="contentContainer">
+        <!-- <ul class="inheritance">
+            <li>java.lang.Object</li>
+            <li>
+                <ul class="inheritance">
+                    <li>adaptation.Adaptation</li>
+                </ul>
+            </li>
+        </ul> TODO inheritance tree -->
+        <div class="description">
+            <ul class="blockList">
+                <li class="blockList">
+                    
+                    <dl>
+                        <dt>All Implemented Interfaces:</dt>
+                        <dd>
+                            
+                            <code>io.spine.logging.WithLogging</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.Closeable</code>
+                            
+                            ,
+                            
+                            
+                            <code>java.io.Closeable</code>
+                            
+                            ,
+                            
+                            
+                            <code>java.lang.AutoCloseable</code>
+                            
+                            
+                        </dd>
+                    </dl>
+                    
+                    <hr>
+                    <pre class="wrap-overflow">
+@VisibleForTesting() 
+public abstract class <span class="typeNameLabel"><a href=BlackBox.html>BlackBox</a></span>
+ implements WithLogging, Closeable
+                    </pre>
+                    <div class="block"><p>This class provides means for integration testing of Bounded Contexts. </p><p>Such a test suite would send commands or events to the Bounded Context under the test, and then verify consequences of handling a command or an event.</p></div>
+
+                    <dl>
+
+                    
+
+                    
+
+                    </dl>
+                </li>
+            </ul>
+        </div>
+        <div class="summary">
+            <ul class="blockList">
+                <li class="blockList">
+                <!-- ======== NESTED CLASS SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="nested.class.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Nested Class Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Class</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== FIELD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="field.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Field Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Field</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tbody>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Constructor</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+
+                                        
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== ENUM CONSTANT SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="enum.constant.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Enum Constant Summary</h3>
+                                <table class="memberSummary">
+                                    <caption><span>Enum Constants</span><span class="tabEnd">&nbsp;</span></caption>
+                                    <tr>
+                                        <th class="colFirst" scope="col">Enum Constant</th>
+                                        <th class="colLast" scope="col">Description</th>
+                                    </tr>
+                                    
+                                </table>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ========== METHOD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Method Summary</h3>
+                                <div class="memberSummary">
+                                    <div role="tablist" aria-orientation="horizontal">
+                                        <button role="tab" aria-selected="true" aria-controls="memberSummary_tabpanel" tabindex="0" onkeydown="switchTab(event)" id="t0" class="activeTableTab">All Methods</button>
+                                        <!-- TODO: Instance and Concrete Methods #1118 -->
+                                    </div>
+                                    <div id="memberSummary_tabpanel" role="tabpanel">
+                                    <table aria-labelledby="t0">
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Method</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                        <tr id="i0" class="altColor">
+                                            <td class="colFirst"><code>static <a href=BlackBox.html>BlackBox</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#from(io.spine.server.BoundedContext)>from</a>(BoundedContext context) </code>
+                                            </th>
+                                            <td class="colLast">Creates a new instance obtaining configuration parameters from the given context instance.</td>
+                                        </tr>
+                                        
+                                        <tr id="i1" class="rowColor">
+                                            <td class="colFirst"><code>static <a href=BlackBox.html>BlackBox</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#from(io.spine.server.BoundedContextBuilder)>from</a>(BoundedContextBuilder builder) </code>
+                                            </th>
+                                            <td class="colLast">Creates a new instance obtaining configuration parameters from the passed builder.</td>
+                                        </tr>
+                                        
+                                        <tr id="i2" class="altColor">
+                                            <td class="colFirst"><code>static <a href=BlackBox.html>BlackBox</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#singleTenantWith(kotlin.Array)>singleTenantWith</a>(<a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html>Array</a>&lt;<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt; components) </code>
+                                            </th>
+                                            <td class="colLast">Creates a <code>BlackBox</code> over a single-tenant context with the given components.</td>
+                                        </tr>
+                                        
+                                        <tr id="i3" class="rowColor">
+                                            <td class="colFirst"><code>static <a href=BlackBox.html>BlackBox</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#singleTenant(java.lang.String,kotlin.Array)>singleTenant</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> name, <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html>Array</a>&lt;<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt; components) </code>
+                                            </th>
+                                            <td class="colLast">Creates a <code>BlackBox</code> over a single-tenant context with the given name and components.</td>
+                                        </tr>
+                                        
+                                        <tr id="i4" class="altColor">
+                                            <td class="colFirst"><code>static <a href=BlackBox.html>BlackBox</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#multiTenantWith(kotlin.Array)>multiTenantWith</a>(<a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html>Array</a>&lt;<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt; components) </code>
+                                            </th>
+                                            <td class="colLast">Creates a <code>BlackBox</code> over a multi-tenant context with the given components.</td>
+                                        </tr>
+                                        
+                                        <tr id="i5" class="rowColor">
+                                            <td class="colFirst"><code>static <a href=BlackBox.html>BlackBox</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#with(boolean,kotlin.Array)>with</a>(boolean multitenant, <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html>Array</a>&lt;<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt; components) </code>
+                                            </th>
+                                            <td class="colLast">Creates a <code>BlackBox</code> over a context with the given components.</td>
+                                        </tr>
+                                        
+                                        <tr id="i6" class="altColor">
+                                            <td class="colFirst"><code>static <a href=BlackBox.html>BlackBox</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#with(io.spine.server.BoundedContextBuilder,kotlin.Array)>with</a>(BoundedContextBuilder builder, <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html>Array</a>&lt;<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt; components) </code>
+                                            </th>
+                                            <td class="colLast">Creates a <code>BlackBox</code> over a context with the given components.</td>
+                                        </tr>
+                                        
+                                        <tr id="i7" class="rowColor">
+                                            <td class="colFirst"><code>BoundedContextName</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#name()>name</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains the name of the context under the test.</td>
+                                        </tr>
+                                        
+                                        <tr id="i8" class="altColor">
+                                            <td class="colFirst"><code>abstract <a href=BlackBox.html>BlackBox</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#withTenant(io.spine.core.TenantId)>withTenant</a>(TenantId tenant) </code>
+                                            </th>
+                                            <td class="colLast">Makes all future requests to the context come to the tenant with the passed ID.</td>
+                                        </tr>
+                                        
+                                        <tr id="i9" class="rowColor">
+                                            <td class="colFirst"><code>final <a href=BlackBox.html>BlackBox</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#withActor(io.spine.core.UserId)>withActor</a>(UserId user) </code>
+                                            </th>
+                                            <td class="colLast">Sets the given UserId as the actor ID for the requests produced by this context.</td>
+                                        </tr>
+                                        
+                                        <tr id="i10" class="altColor">
+                                            <td class="colFirst"><code>final <a href=BlackBox.html>BlackBox</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#in(io.spine.time.ZoneId)>in</a>(ZoneId zoneId) </code>
+                                            </th>
+                                            <td class="colLast">Sets the given time zone parameters for the actor requests produced by this context.</td>
+                                        </tr>
+                                        
+                                        <tr id="i11" class="rowColor">
+                                            <td class="colFirst"><code>final <a href=BlackBox.html>BlackBox</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#tolerateFailures()>tolerateFailures</a>() </code>
+                                            </th>
+                                            <td class="colLast">Tells context to log signal handler failures over failing the test.</td>
+                                        </tr>
+                                        
+                                        <tr id="i12" class="altColor">
+                                            <td class="colFirst"><code>final <a href=BlackBox.html>BlackBox</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#append(io.spine.core.Event)>append</a>(Event event) </code>
+                                            </th>
+                                            <td class="colLast">Appends the passed event to the history of the context under the test.</td>
+                                        </tr>
+                                        
+                                        <tr id="i13" class="rowColor">
+                                            <td class="colFirst"><code>final <a href=BlackBox.html>BlackBox</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#receivesCommand(io.spine.base.CommandMessage)>receivesCommand</a>(CommandMessage domainCommand) </code>
+                                            </th>
+                                            <td class="colLast">Sends off a provided command to the Bounded Context.</td>
+                                        </tr>
+                                        
+                                        <tr id="i14" class="altColor">
+                                            <td class="colFirst"><code>final <a href=BlackBox.html>BlackBox</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#receivesCommands(io.spine.base.CommandMessage,io.spine.base.CommandMessage,kotlin.Array)>receivesCommands</a>(CommandMessage first, CommandMessage second, <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html>Array</a>&lt;CommandMessage&gt; rest) </code>
+                                            </th>
+                                            <td class="colLast">Sends off provided commands to the Bounded Context.</td>
+                                        </tr>
+                                        
+                                        <tr id="i15" class="rowColor">
+                                            <td class="colFirst"><code>final <a href=BlackBox.html>BlackBox</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#receivesCommands(java.util.List)>receivesCommands</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html>List</a>&lt;CommandMessage&gt; domainCommands) </code>
+                                            </th>
+                                            <td class="colLast">Sends off provided commands to the Bounded Context.</td>
+                                        </tr>
+                                        
+                                        <tr id="i16" class="altColor">
+                                            <td class="colFirst"><code>final <a href=BlackBox.html>BlackBox</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#receivesEvent(io.spine.base.EventMessage)>receivesEvent</a>(EventMessage domainEvent) </code>
+                                            </th>
+                                            <td class="colLast">Sends off a provided event to the Bounded Context.</td>
+                                        </tr>
+                                        
+                                        <tr id="i17" class="rowColor">
+                                            <td class="colFirst"><code>final <a href=BlackBox.html>BlackBox</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#receivesEvents(io.spine.base.EventMessage,io.spine.base.EventMessage,kotlin.Array)>receivesEvents</a>(EventMessage first, EventMessage second, <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html>Array</a>&lt;EventMessage&gt; rest) </code>
+                                            </th>
+                                            <td class="colLast">Sends off provided events to the Bounded Context.</td>
+                                        </tr>
+                                        
+                                        <tr id="i18" class="altColor">
+                                            <td class="colFirst"><code>final <a href=BlackBox.html>BlackBox</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#receivesExternalEvent(com.google.protobuf.Message)>receivesExternalEvent</a>(Message messageOrEvent) </code>
+                                            </th>
+                                            <td class="colLast">Sends off a provided event to the Bounded Context as event from an external source.</td>
+                                        </tr>
+                                        
+                                        <tr id="i19" class="rowColor">
+                                            <td class="colFirst"><code>final <a href=BlackBox.html>BlackBox</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#receivesExternalEvents(io.spine.base.EventMessage,io.spine.base.EventMessage,kotlin.Array)>receivesExternalEvents</a>(EventMessage first, EventMessage second, <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html>Array</a>&lt;EventMessage&gt; other) </code>
+                                            </th>
+                                            <td class="colLast">Sends off provided events to the Bounded Context as events from an external source.</td>
+                                        </tr>
+                                        
+                                        <tr id="i20" class="altColor">
+                                            <td class="colFirst"><code>final <a href=BlackBox.html>BlackBox</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#receivesEventsProducedBy(Object,io.spine.base.EventMessage,kotlin.Array)>receivesEventsProducedBy</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a> producerId, EventMessage first, <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html>Array</a>&lt;EventMessage&gt; rest) </code>
+                                            </th>
+                                            <td class="colLast">Sends off events using the specified producer to the Bounded Context.</td>
+                                        </tr>
+                                        
+                                        <tr id="i21" class="rowColor">
+                                            <td class="colFirst"><code><a href=BlackBox.html>BlackBox</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#importsEvent(com.google.protobuf.Message)>importsEvent</a>(Message eventOrMessage) </code>
+                                            </th>
+                                            <td class="colLast">Imports the event into the Bounded Context.</td>
+                                        </tr>
+                                        
+                                        <tr id="i22" class="altColor">
+                                            <td class="colFirst"><code>final <a href=BlackBox.html>BlackBox</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#importsEvents(io.spine.base.EventMessage,io.spine.base.EventMessage,kotlin.Array)>importsEvents</a>(EventMessage first, EventMessage second, <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html>Array</a>&lt;EventMessage&gt; rest) </code>
+                                            </th>
+                                            <td class="colLast">Imports passed events into the Bounded Context.</td>
+                                        </tr>
+                                        
+                                        <tr id="i23" class="rowColor">
+                                            <td class="colFirst"><code>final void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#close()>close</a>() </code>
+                                            </th>
+                                            <td class="colLast">Closes the <code>BlackBox</code> performing all necessary clean-ups.</td>
+                                        </tr>
+                                        
+                                        <tr id="i24" class="altColor">
+                                            <td class="colFirst"><code>boolean</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#isOpen()>isOpen</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i25" class="rowColor">
+                                            <td class="colFirst"><code>&lt;D extends <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt; <a href=BlackBox.html#readOperation(java.util.function.Supplier)>D</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#readOperation(java.util.function.Supplier)>readOperation</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html>Supplier</a>&lt;<a href=BlackBox.html#readOperation(java.util.function.Supplier)>D</a>&gt; supplier) </code>
+                                            </th>
+                                            <td class="colLast">Performs data reading operation in a tenant context.</td>
+                                        </tr>
+                                        
+                                        <tr id="i26" class="altColor">
+                                            <td class="colFirst"><code>final &lt;I, E extends Entity&lt;<a href=BlackBox.html#assertEntity(I,java.lang.Class)>I</a>, out EntityState&lt;<a href=BlackBox.html#assertEntity(I,java.lang.Class)>I</a>&gt;&gt;&gt; <a href=../entity/EntitySubject.html>EntitySubject</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#assertEntity(I,java.lang.Class)>assertEntity</a>(<a href=BlackBox.html#assertEntity(I,java.lang.Class)>I</a> id, <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;<a href=BlackBox.html#assertEntity(I,java.lang.Class)>E</a>&gt; entityClass) </code>
+                                            </th>
+                                            <td class="colLast">Obtains a Subject for an entity of the passed class with the given ID.</td>
+                                        </tr>
+                                        
+                                        <tr id="i27" class="rowColor">
+                                            <td class="colFirst"><code>final &lt;I, S extends EntityState&lt;<a href=BlackBox.html#assertEntityWithState(I,java.lang.Class)>I</a>&gt;&gt; <a href=../entity/EntitySubject.html>EntitySubject</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#assertEntityWithState(I,java.lang.Class)>assertEntityWithState</a>(<a href=BlackBox.html#assertEntityWithState(I,java.lang.Class)>I</a> id, <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;<a href=BlackBox.html#assertEntityWithState(I,java.lang.Class)>S</a>&gt; stateClass) </code>
+                                            </th>
+                                            <td class="colLast">Obtains a Subject for an entity which has the state of the passed class with the given ID.</td>
+                                        </tr>
+                                        
+                                        <tr id="i28" class="altColor">
+                                            <td class="colFirst"><code>final &lt;I, S extends EntityState&lt;<a href=BlackBox.html#assertState(I,java.lang.Class)>I</a>&gt;&gt; ProtoFluentAssertion</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#assertState(I,java.lang.Class)>assertState</a>(<a href=BlackBox.html#assertState(I,java.lang.Class)>I</a> id, <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;<a href=BlackBox.html#assertState(I,java.lang.Class)>S</a>&gt; stateClass) </code>
+                                            </th>
+                                            <td class="colLast">Asserts that there is an entity with the passed ID and the passed type of state.</td>
+                                        </tr>
+                                        
+                                        <tr id="i29" class="rowColor">
+                                            <td class="colFirst"><code>final &lt;I, S extends EntityState&lt;<a href=BlackBox.html#assertState(I,S)>I</a>&gt;&gt; void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#assertState(I,S)>assertState</a>(<a href=BlackBox.html#assertState(I,S)>I</a> id, <a href=BlackBox.html#assertState(I,S)>S</a> entityState) </code>
+                                            </th>
+                                            <td class="colLast">Asserts that there is an entity with the passed ID and the passed state.</td>
+                                        </tr>
+                                        
+                                        <tr id="i30" class="altColor">
+                                            <td class="colFirst"><code>final <a href=../CommandSubject.html>CommandSubject</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#assertCommands()>assertCommands</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains the subject for checking commands generated by the entities of this Bounded Context.</td>
+                                        </tr>
+                                        
+                                        <tr id="i31" class="rowColor">
+                                            <td class="colFirst"><code>final <a href=../EventSubject.html>EventSubject</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#assertEvents()>assertEvents</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains the subject for checking events emitted by the entities of this Bounded Context.</td>
+                                        </tr>
+                                        
+                                        <tr id="i32" class="altColor">
+                                            <td class="colFirst"><code>final ProtoFluentAssertion</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#assertEvent(java.lang.Class)>assertEvent</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;out EventMessage&gt; eventClass) </code>
+                                            </th>
+                                            <td class="colLast">Asserts that the context emitted only one event of the passed type.</td>
+                                        </tr>
+                                        
+                                        <tr id="i33" class="rowColor">
+                                            <td class="colFirst"><code>final void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#assertEvent(io.spine.base.EventMessage)>assertEvent</a>(EventMessage event) </code>
+                                            </th>
+                                            <td class="colLast">Asserts that the context emitted only one passed event.</td>
+                                        </tr>
+                                        
+                                        <tr id="i34" class="altColor">
+                                            <td class="colFirst"><code><a href=../query/QueryResultSubject.html>QueryResultSubject</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#assertQueryResult(io.spine.client.Query)>assertQueryResult</a>(Query query) </code>
+                                            </th>
+                                            <td class="colLast">Obtains the subject for checking the <code>Query</code> execution result.</td>
+                                        </tr>
+                                        
+                                        <tr id="i35" class="rowColor">
+                                            <td class="colFirst"><code><a href=SubscriptionFixture.html>SubscriptionFixture</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#subscribeTo(io.spine.client.Topic)>subscribeTo</a>(Topic topic) </code>
+                                            </th>
+                                            <td class="colLast">Subscribes and activates the subscription to the passed topic.</td>
+                                        </tr>
+                                        
+                                        <tr id="i36" class="altColor">
+                                            <td class="colFirst"><code><a href=BlackBoxClients.html>BlackBoxClients</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=BlackBox.html#clients()>clients</a>() </code>
+                                            </th>
+                                            <td class="colLast">Returns a factory of Clients to this instance of <code>BlackBox</code>.</td>
+                                        </tr>
+                                        
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <ul class="blockList">
+                                
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.logging.WithLogging">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.logging.WithLogging</h3>
+                                            <code>getAtConfig, getAtDebug, getAtError, getAtFine, getAtFiner, getAtFinest, getAtInfo, getAtSevere, getAtTrace, getAtWarning, getLogger, logger</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.Closeable">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.Closeable</h3>
+                                            <code>checkOpen, closeIfOpen</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+                                        <!--   -->
+                                    </a>
+                                        <h3>Methods inherited from class&nbsp;java.lang.Object</h3>
+                                        <code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString,
+                                            wait, wait, wait</code></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+        <div class="details">
+            <ul class="blockList">
+                <li class="blockList">
+                    <!-- ========= CONSTRUCTOR DETAIL ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Detail</h3>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ============ METHOD DETAIL ========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Method Detail</h3>
+                                
+                                <a id="from(io.spine.server.BoundedContext)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>from</h4>
+                                        <pre class="methodSignature"> static <a href=BlackBox.html>BlackBox</a> <a href=BlackBox.html#from(io.spine.server.BoundedContext)>from</a>(BoundedContext context)</pre>
+                                        <div class="block"><p>Creates a new instance obtaining configuration parameters from the given context instance.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="from(io.spine.server.BoundedContextBuilder)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>from</h4>
+                                        <pre class="methodSignature"> static <a href=BlackBox.html>BlackBox</a> <a href=BlackBox.html#from(io.spine.server.BoundedContextBuilder)>from</a>(BoundedContextBuilder builder)</pre>
+                                        <div class="block"><p>Creates a new instance obtaining configuration parameters from the passed builder.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="singleTenantWith(kotlin.Array)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>singleTenantWith</h4>
+                                        <pre class="methodSignature"> static <a href=BlackBox.html>BlackBox</a> <a href=BlackBox.html#singleTenantWith(kotlin.Array)>singleTenantWith</a>(<a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html>Array</a>&lt;<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt; components)</pre>
+                                        <div class="block"><p>Creates a <code>BlackBox</code> over a single-tenant context with the given components.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="singleTenant(java.lang.String,kotlin.Array)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>singleTenant</h4>
+                                        <pre class="methodSignature"> static <a href=BlackBox.html>BlackBox</a> <a href=BlackBox.html#singleTenant(java.lang.String,kotlin.Array)>singleTenant</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> name, <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html>Array</a>&lt;<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt; components)</pre>
+                                        <div class="block"><p>Creates a <code>BlackBox</code> over a single-tenant context with the given name and components.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="multiTenantWith(kotlin.Array)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>multiTenantWith</h4>
+                                        <pre class="methodSignature"> static <a href=BlackBox.html>BlackBox</a> <a href=BlackBox.html#multiTenantWith(kotlin.Array)>multiTenantWith</a>(<a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html>Array</a>&lt;<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt; components)</pre>
+                                        <div class="block"><p>Creates a <code>BlackBox</code> over a multi-tenant context with the given components.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="with(boolean,kotlin.Array)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>with</h4>
+                                        <pre class="methodSignature"> static <a href=BlackBox.html>BlackBox</a> <a href=BlackBox.html#with(boolean,kotlin.Array)>with</a>(boolean multitenant, <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html>Array</a>&lt;<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt; components)</pre>
+                                        <div class="block"><p>Creates a <code>BlackBox</code> over a context with the given components. </p><p>The components can be either Repository or Entity classes. </p><p>For creating a test environment with other components, please use BoundedContextBuilder and then <a href=BlackBox.html#from(io.spine.server.BoundedContext)>from</a>.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>multitenant</code> - whether the context under the test is multitenant</dd>
+                                            
+                                            
+                                            
+                                            <dd><code>components</code> - repositories or entity classes to be added to the context under the test</dd>
+                                            
+                                            
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="with(io.spine.server.BoundedContextBuilder,kotlin.Array)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>with</h4>
+                                        <pre class="methodSignature"> static <a href=BlackBox.html>BlackBox</a> <a href=BlackBox.html#with(io.spine.server.BoundedContextBuilder,kotlin.Array)>with</a>(BoundedContextBuilder builder, <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html>Array</a>&lt;<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt; components)</pre>
+                                        <div class="block"><p>Creates a <code>BlackBox</code> over a context with the given components. </p><p>The components can be either Repository or Entity classes. </p><p>For creating a test environment with other components, please use BoundedContextBuilder and then <a href=BlackBox.html#from(io.spine.server.BoundedContext)>from</a>.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>builder</code> - the context builder to use for creating the context under the test</dd>
+                                            
+                                            
+                                            
+                                            <dd><code>components</code> - repositories or entity classes to be added to the context under the test</dd>
+                                            
+                                            
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="name()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>name</h4>
+                                        <pre class="methodSignature"> BoundedContextName <a href=BlackBox.html#name()>name</a>()</pre>
+                                        <div class="block"><p>Obtains the name of the context under the test.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="withTenant(io.spine.core.TenantId)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>withTenant</h4>
+                                        <pre class="methodSignature"> abstract <a href=BlackBox.html>BlackBox</a> <a href=BlackBox.html#withTenant(io.spine.core.TenantId)>withTenant</a>(TenantId tenant)</pre>
+                                        <div class="block"><p>Makes all future requests to the context come to the tenant with the passed ID.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="withActor(io.spine.core.UserId)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>withActor</h4>
+                                        <pre class="methodSignature">@CanIgnoreReturnValue() final <a href=BlackBox.html>BlackBox</a> <a href=BlackBox.html#withActor(io.spine.core.UserId)>withActor</a>(UserId user)</pre>
+                                        <div class="block"><p>Sets the given UserId as the actor ID for the requests produced by this context.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="in(io.spine.time.ZoneId)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>in</h4>
+                                        <pre class="methodSignature">@CanIgnoreReturnValue() final <a href=BlackBox.html>BlackBox</a> <a href=BlackBox.html#in(io.spine.time.ZoneId)>in</a>(ZoneId zoneId)</pre>
+                                        <div class="block"><p>Sets the given time zone parameters for the actor requests produced by this context.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="tolerateFailures()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>tolerateFailures</h4>
+                                        <pre class="methodSignature">@CanIgnoreReturnValue() final <a href=BlackBox.html>BlackBox</a> <a href=BlackBox.html#tolerateFailures()>tolerateFailures</a>()</pre>
+                                        <div class="block"><p>Tells context to log signal handler failures over failing the test.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="append(io.spine.core.Event)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>append</h4>
+                                        <pre class="methodSignature">@CanIgnoreReturnValue() final <a href=BlackBox.html>BlackBox</a> <a href=BlackBox.html#append(io.spine.core.Event)>append</a>(Event event)</pre>
+                                        <div class="block"><p>Appends the passed event to the history of the context under the test.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="receivesCommand(io.spine.base.CommandMessage)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>receivesCommand</h4>
+                                        <pre class="methodSignature">@CanIgnoreReturnValue() final <a href=BlackBox.html>BlackBox</a> <a href=BlackBox.html#receivesCommand(io.spine.base.CommandMessage)>receivesCommand</a>(CommandMessage domainCommand)</pre>
+                                        <div class="block"><p>Sends off a provided command to the Bounded Context.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>domainCommand</code> - a domain command to be dispatched to the Bounded Context</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>current instance</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="receivesCommands(io.spine.base.CommandMessage,io.spine.base.CommandMessage,kotlin.Array)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>receivesCommands</h4>
+                                        <pre class="methodSignature">@CanIgnoreReturnValue() final <a href=BlackBox.html>BlackBox</a> <a href=BlackBox.html#receivesCommands(io.spine.base.CommandMessage,io.spine.base.CommandMessage,kotlin.Array)>receivesCommands</a>(CommandMessage first, CommandMessage second, <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html>Array</a>&lt;CommandMessage&gt; rest)</pre>
+                                        <div class="block"><p>Sends off provided commands to the Bounded Context.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>first</code> - a domain command to be dispatched to the Bounded Context first</dd>
+                                            
+                                            
+                                            
+                                            <dd><code>second</code> - a domain command to be dispatched to the Bounded Context second</dd>
+                                            
+                                            
+                                            
+                                            <dd><code>rest</code> - optional domain commands to be dispatched to the Bounded Context in supplied order</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>current instance</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="receivesCommands(java.util.List)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>receivesCommands</h4>
+                                        <pre class="methodSignature">@CanIgnoreReturnValue() final <a href=BlackBox.html>BlackBox</a> <a href=BlackBox.html#receivesCommands(java.util.List)>receivesCommands</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html>List</a>&lt;CommandMessage&gt; domainCommands)</pre>
+                                        <div class="block"><p>Sends off provided commands to the Bounded Context.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>domainCommands</code> - a list of domain commands to be dispatched to the Bounded Context</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>current instance</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="receivesEvent(io.spine.base.EventMessage)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>receivesEvent</h4>
+                                        <pre class="methodSignature">@CanIgnoreReturnValue() final <a href=BlackBox.html>BlackBox</a> <a href=BlackBox.html#receivesEvent(io.spine.base.EventMessage)>receivesEvent</a>(EventMessage domainEvent)</pre>
+                                        <div class="block"><p>Sends off a provided event to the Bounded Context.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>domainEvent</code> - a domain event to be dispatched to the Bounded Context.</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>current instance</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="receivesEvents(io.spine.base.EventMessage,io.spine.base.EventMessage,kotlin.Array)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>receivesEvents</h4>
+                                        <pre class="methodSignature">@CanIgnoreReturnValue() final <a href=BlackBox.html>BlackBox</a> <a href=BlackBox.html#receivesEvents(io.spine.base.EventMessage,io.spine.base.EventMessage,kotlin.Array)>receivesEvents</a>(EventMessage first, EventMessage second, <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html>Array</a>&lt;EventMessage&gt; rest)</pre>
+                                        <div class="block"><p>Sends off provided events to the Bounded Context. </p><p>The method accepts event messages or instances of io.spine.core.Event. If an instance of <code>Event</code> is passed, it will be posted to EventBus as is. Otherwise, an instance of <code>Event</code> will be generated basing on the passed event message and posted to the bus.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>first</code> - a domain event to be dispatched first</dd>
+                                            
+                                            
+                                            
+                                            <dd><code>second</code> - a domain event to be dispatched second</dd>
+                                            
+                                            
+                                            
+                                            <dd><code>rest</code> - optional domain events to be dispatched in the supplied order</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>current instance</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="receivesExternalEvent(com.google.protobuf.Message)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>receivesExternalEvent</h4>
+                                        <pre class="methodSignature">@CanIgnoreReturnValue() final <a href=BlackBox.html>BlackBox</a> <a href=BlackBox.html#receivesExternalEvent(com.google.protobuf.Message)>receivesExternalEvent</a>(Message messageOrEvent)</pre>
+                                        <div class="block"><p>Sends off a provided event to the Bounded Context as event from an external source.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>messageOrEvent</code> - an event message or Event.</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>current instance</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="receivesExternalEvents(io.spine.base.EventMessage,io.spine.base.EventMessage,kotlin.Array)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>receivesExternalEvents</h4>
+                                        <pre class="methodSignature">@CanIgnoreReturnValue() final <a href=BlackBox.html>BlackBox</a> <a href=BlackBox.html#receivesExternalEvents(io.spine.base.EventMessage,io.spine.base.EventMessage,kotlin.Array)>receivesExternalEvents</a>(EventMessage first, EventMessage second, <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html>Array</a>&lt;EventMessage&gt; other)</pre>
+                                        <div class="block"><p>Sends off provided events to the Bounded Context as events from an external source. </p><p>The method accepts event messages or instances of io.spine.core.Event. If an instance of <code>Event</code> is passed, it will be posted to IntegrationBroker as-is. Otherwise, an instance of <code>Event</code> will be generated basing on the passed event message and posted to the bus.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>first</code> - an external event to be dispatched first</dd>
+                                            
+                                            
+                                            
+                                            <dd><code>second</code> - an external event to be dispatched second</dd>
+                                            
+                                            
+                                            
+                                            <dd><code>other</code> - optional external events to be dispatched in the supplied order</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>current instance</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="receivesEventsProducedBy(Object,io.spine.base.EventMessage,kotlin.Array)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>receivesEventsProducedBy</h4>
+                                        <pre class="methodSignature">@CanIgnoreReturnValue() final <a href=BlackBox.html>BlackBox</a> <a href=BlackBox.html#receivesEventsProducedBy(Object,io.spine.base.EventMessage,kotlin.Array)>receivesEventsProducedBy</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a> producerId, EventMessage first, <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html>Array</a>&lt;EventMessage&gt; rest)</pre>
+                                        <div class="block"><p>Sends off events using the specified producer to the Bounded Context. </p><p>The method is needed to route events based on a proper producer ID.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>producerId</code> - the producer for events</dd>
+                                            
+                                            
+                                            
+                                            <dd><code>first</code> - a domain event to be dispatched to the Bounded Context first</dd>
+                                            
+                                            
+                                            
+                                            <dd><code>rest</code> - optional domain events to be dispatched to the Bounded Context in the supplied order</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>current instance</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="importsEvent(com.google.protobuf.Message)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>importsEvent</h4>
+                                        <pre class="methodSignature">@CanIgnoreReturnValue() <a href=BlackBox.html>BlackBox</a> <a href=BlackBox.html#importsEvent(com.google.protobuf.Message)>importsEvent</a>(Message eventOrMessage)</pre>
+                                        <div class="block"><p>Imports the event into the Bounded Context.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>eventOrMessage</code> - and event message or Event instance</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>current instance</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="importsEvents(io.spine.base.EventMessage,io.spine.base.EventMessage,kotlin.Array)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>importsEvents</h4>
+                                        <pre class="methodSignature">@CanIgnoreReturnValue() final <a href=BlackBox.html>BlackBox</a> <a href=BlackBox.html#importsEvents(io.spine.base.EventMessage,io.spine.base.EventMessage,kotlin.Array)>importsEvents</a>(EventMessage first, EventMessage second, <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html>Array</a>&lt;EventMessage&gt; rest)</pre>
+                                        <div class="block"><p>Imports passed events into the Bounded Context.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>first</code> - an event message or <code>Event</code> to be imported first</dd>
+                                            
+                                            
+                                            
+                                            <dd><code>second</code> - an event message or <code>Event</code> to be imported second</dd>
+                                            
+                                            
+                                            
+                                            <dd><code>rest</code> - optional event messages or instances of <code>Event</code> to be imported in the supplied order</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>current instance</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="close()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>close</h4>
+                                        <pre class="methodSignature"> final void <a href=BlackBox.html#close()>close</a>()</pre>
+                                        <div class="block"><p>Closes the <code>BlackBox</code> performing all necessary clean-ups. </p><p>This method performs the following: </p><ul><li>Closes the tested BoundedContext. </li><li>Closes the associated Clients. </li></ul><p>Instead of a checked <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/IOException.html>IOException</a>, wraps any issues that may occur while closing, into an <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html>IllegalStateException</a>.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="isOpen()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>isOpen</h4>
+                                        <pre class="methodSignature"> boolean <a href=BlackBox.html#isOpen()>isOpen</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="readOperation(java.util.function.Supplier)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>readOperation</h4>
+                                        <pre class="methodSignature"> &lt;D extends <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt; <a href=BlackBox.html#readOperation(java.util.function.Supplier)>D</a> <a href=BlackBox.html#readOperation(java.util.function.Supplier)>readOperation</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html>Supplier</a>&lt;<a href=BlackBox.html#readOperation(java.util.function.Supplier)>D</a>&gt; supplier)</pre>
+                                        <div class="block"><p>Performs data reading operation in a tenant context.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="assertEntity(I,java.lang.Class)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>assertEntity</h4>
+                                        <pre class="methodSignature"> final &lt;I, E extends Entity&lt;<a href=BlackBox.html#assertEntity(I,java.lang.Class)>I</a>, out EntityState&lt;<a href=BlackBox.html#assertEntity(I,java.lang.Class)>I</a>&gt;&gt;&gt; <a href=../entity/EntitySubject.html>EntitySubject</a> <a href=BlackBox.html#assertEntity(I,java.lang.Class)>assertEntity</a>(<a href=BlackBox.html#assertEntity(I,java.lang.Class)>I</a> id, <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;<a href=BlackBox.html#assertEntity(I,java.lang.Class)>E</a>&gt; entityClass)</pre>
+                                        <div class="block"><p>Obtains a Subject for an entity of the passed class with the given ID.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="assertEntityWithState(I,java.lang.Class)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>assertEntityWithState</h4>
+                                        <pre class="methodSignature"> final &lt;I, S extends EntityState&lt;<a href=BlackBox.html#assertEntityWithState(I,java.lang.Class)>I</a>&gt;&gt; <a href=../entity/EntitySubject.html>EntitySubject</a> <a href=BlackBox.html#assertEntityWithState(I,java.lang.Class)>assertEntityWithState</a>(<a href=BlackBox.html#assertEntityWithState(I,java.lang.Class)>I</a> id, <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;<a href=BlackBox.html#assertEntityWithState(I,java.lang.Class)>S</a>&gt; stateClass)</pre>
+                                        <div class="block"><p>Obtains a Subject for an entity which has the state of the passed class with the given ID.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="assertState(I,java.lang.Class)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>assertState</h4>
+                                        <pre class="methodSignature"> final &lt;I, S extends EntityState&lt;<a href=BlackBox.html#assertState(I,java.lang.Class)>I</a>&gt;&gt; ProtoFluentAssertion <a href=BlackBox.html#assertState(I,java.lang.Class)>assertState</a>(<a href=BlackBox.html#assertState(I,java.lang.Class)>I</a> id, <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;<a href=BlackBox.html#assertState(I,java.lang.Class)>S</a>&gt; stateClass)</pre>
+                                        <div class="block"><p>Asserts that there is an entity with the passed ID and the passed type of state.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>assertion that compares only expected fields</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="assertState(I,S)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>assertState</h4>
+                                        <pre class="methodSignature"> final &lt;I, S extends EntityState&lt;<a href=BlackBox.html#assertState(I,S)>I</a>&gt;&gt; void <a href=BlackBox.html#assertState(I,S)>assertState</a>(<a href=BlackBox.html#assertState(I,S)>I</a> id, <a href=BlackBox.html#assertState(I,S)>S</a> entityState)</pre>
+                                        <div class="block"><p>Asserts that there is an entity with the passed ID and the passed state. </p><p>The method compares only fields in the passed state.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="assertCommands()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>assertCommands</h4>
+                                        <pre class="methodSignature"> final <a href=../CommandSubject.html>CommandSubject</a> <a href=BlackBox.html#assertCommands()>assertCommands</a>()</pre>
+                                        <div class="block"><p>Obtains the subject for checking commands generated by the entities of this Bounded Context.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="assertEvents()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>assertEvents</h4>
+                                        <pre class="methodSignature"> final <a href=../EventSubject.html>EventSubject</a> <a href=BlackBox.html#assertEvents()>assertEvents</a>()</pre>
+                                        <div class="block"><p>Obtains the subject for checking events emitted by the entities of this Bounded Context.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="assertEvent(java.lang.Class)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>assertEvent</h4>
+                                        <pre class="methodSignature">@CanIgnoreReturnValue() final ProtoFluentAssertion <a href=BlackBox.html#assertEvent(java.lang.Class)>assertEvent</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;out EventMessage&gt; eventClass)</pre>
+                                        <div class="block"><p>Asserts that the context emitted only one event of the passed type.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>eventClass</code> - the type of the event to assert</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>the subject for further assertions</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="assertEvent(io.spine.base.EventMessage)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>assertEvent</h4>
+                                        <pre class="methodSignature"> final void <a href=BlackBox.html#assertEvent(io.spine.base.EventMessage)>assertEvent</a>(EventMessage event)</pre>
+                                        <div class="block"><p>Asserts that the context emitted only one passed event.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="assertQueryResult(io.spine.client.Query)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>assertQueryResult</h4>
+                                        <pre class="methodSignature"> <a href=../query/QueryResultSubject.html>QueryResultSubject</a> <a href=BlackBox.html#assertQueryResult(io.spine.client.Query)>assertQueryResult</a>(Query query)</pre>
+                                        <div class="block"><p>Obtains the subject for checking the <code>Query</code> execution result.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="subscribeTo(io.spine.client.Topic)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>subscribeTo</h4>
+                                        <pre class="methodSignature"> <a href=SubscriptionFixture.html>SubscriptionFixture</a> <a href=BlackBox.html#subscribeTo(io.spine.client.Topic)>subscribeTo</a>(Topic topic)</pre>
+                                        <div class="block"><p>Subscribes and activates the subscription to the passed topic.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>topic</code> - the topic of the subscription</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>a fixture for testing subscription updates.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="clients()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockListLast"
+                                          >
+                                    <li class="blockList">
+                                        <h4>clients</h4>
+                                        <pre class="methodSignature"> <a href=BlackBoxClients.html>BlackBoxClients</a> <a href=BlackBox.html#clients()>clients</a>()</pre>
+                                        <div class="block"><p>Returns a factory of Clients to this instance of <code>BlackBox</code>.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+    </div>
+</main>
+<footer role="contentinfo">
+    <nav role="navigation">
+        <!-- ======= START OF BOTTOM NAVBAR ====== -->
+        <div class="bottomNav"><a id="navbar.bottom">
+            <!--   -->
+        </a>
+            <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a>
+            </div>
+            <a id="navbar.bottom.firstrow">
+                <!--   -->
+            </a>
+            <ul class="navList" title="Navigation">
+    <li><a href="../../../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+        <a id="skip.navbar.bottom">
+            <!--   -->
+        </a>
+        <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ======== END OF BOTTOM NAVBAR ======= -->
+    </nav>
+</footer><ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" id="ui-id-1" tabindex="0"
+    style="display: none;"></ul>
+<span role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></span>
+</body>
+</html>
