@@ -73,9 +73,9 @@ class Repository private constructor(
      * Executes a command in the [location].
      */
     private fun repoExecute(vararg command: String): String {
-        if (logger.isInfoEnabled) {
+        if (logger.isErrorEnabled) {
             val msg = "[Repository] Executing command: `${command.toList().joinToString(" ")}`."
-            logger.info(msg)
+            logger.error(msg)
         }
         return Cli(location.toFile()).execute(*command)
     }
@@ -129,9 +129,12 @@ class Repository private constructor(
 
     /**
      * Pushes the current branch of the repository to the remote.
+     *
+     * Performs a pull with rebase before pushing to ensure the local branch is up-to-date.
      */
     fun push() {
-        repoExecute("git", "push", "--set-upstream", "origin", currentBranch)
+        repoExecute("git", "pull", "--rebase")
+        repoExecute("git", "push")
     }
 
     override fun close() {
