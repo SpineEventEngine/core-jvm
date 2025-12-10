@@ -29,7 +29,7 @@ package io.spine.server.route
 import com.google.protobuf.Descriptors.FieldDescriptor
 import com.google.protobuf.Message
 import io.spine.base.EntityState
-import io.spine.base.Identifier
+import io.spine.base.Field
 import io.spine.core.EventContext
 import io.spine.protobuf.defaultInstance
 import io.spine.util.Exceptions.newIllegalStateException
@@ -56,7 +56,7 @@ private constructor(private val idClass: Class<I>) : StateUpdateRoute<I, EntityS
 
     fun supports(stateType: Class<out EntityState<*>>): Boolean {
         val type = stateType.defaultInstance.descriptorForType
-        val idField = Identifier.findField(idClass, type)
+        val idField = Field.findIdField(idClass, type)
         return idField.isPresent
     }
 
@@ -83,7 +83,7 @@ private constructor(private val idClass: Class<I>) : StateUpdateRoute<I, EntityS
             return fieldToSet(field, message)
         }
 
-        val fd = Identifier.findField(idClass, message.descriptorForType)
+        val fd = Field.findIdField(idClass, message.descriptorForType)
             .orElseThrow {
                 newIllegalStateException(
                     "Unable to find a field matching the type `%s`" +
