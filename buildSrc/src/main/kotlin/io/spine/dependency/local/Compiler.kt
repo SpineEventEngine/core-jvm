@@ -29,7 +29,7 @@ package io.spine.dependency.local
 /**
  * Dependencies on the Spine Compiler modules.
  *
- * To use a locally published ProtoData version instead of the version from a public plugin
+ * To use a locally published Compiler version instead of the version from a public plugin
  * registry, set the `COMPILER_VERSION` and/or the `COMPILER_DF_VERSION` environment variables
  * and stop the Gradle daemons so that Gradle observes the env change:
  * ```
@@ -67,22 +67,22 @@ object Compiler {
     const val module = "io.spine.tools:compiler"
 
     /**
-     * The version of ProtoData dependencies.
+     * The version of the Compiler dependencies.
      */
     val version: String
     private const val fallbackVersion = "2.0.0-SNAPSHOT.035"
 
     /**
-     * The distinct version of ProtoData used by other build tools.
+     * The distinct version of the Compiler used by other build tools.
      *
-     * When ProtoData is used both for building the project and as a part of the Project's
-     * transitional dependencies, this is the version used to build the project itself.
+     * When the Compiler is used both for building the project and as a part of the Project's
+     * transitive dependencies, this is the version used to build the project itself.
      */
     val dogfoodingVersion: String
     private const val fallbackDfVersion = "2.0.0-SNAPSHOT.035"
 
     /**
-     * The artifact for the ProtoData Gradle plugin.
+     * The artifact for the Compiler Gradle plugin.
      */
     val pluginLib: String
 

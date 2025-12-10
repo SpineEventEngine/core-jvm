@@ -29,7 +29,7 @@ package io.spine.dependency.build
 // https://github.com/jk1/Gradle-License-Report
 @Suppress("unused")
 object LicenseReport {
-    private const val version = "1.16"
+    private const val version = "3.0.1"
     const val lib = "com.github.jk1:gradle-license-report:$version"
 
     object GradlePlugin {
