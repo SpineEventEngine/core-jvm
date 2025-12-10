@@ -248,6 +248,7 @@ fun Module.forceConfigurations() {
                     Reflect.lib,
                     TestLib.lib,
                     Time.lib,
+                    Time.javaExtensions,
                     ToolBase.gradlePluginApi,
                     ToolBase.intellijPlatform,
                     ToolBase.intellijPlatformJava,
