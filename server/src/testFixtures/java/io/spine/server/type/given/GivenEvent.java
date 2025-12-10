@@ -40,7 +40,7 @@ import static io.spine.base.Identifier.newUuid;
 import static io.spine.base.Time.currentTime;
 import static io.spine.protobuf.TypeConverter.toAny;
 import static io.spine.testing.TestValues.random;
-import static io.spine.time.testing.Past.minutesAgo;
+import static io.spine.testing.time.Past.minutesAgo;
 
 public final class GivenEvent {
 
