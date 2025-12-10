@@ -257,6 +257,7 @@ fun Module.forceConfigurations() {
                     ToolBase.protobufSetupPlugins,
                     ToolBase.psiJava,
                     Validation.runtime,
+                    "io.spine.validation:spine-validation-java-runtime:2.0.0-SNAPSHOT.354"
                 )
             }
         }

@@ -65,6 +65,7 @@ buildscript {
                     logging.grpcContext,
                     io.spine.dependency.local.Time.lib,
                     io.spine.dependency.local.Validation.runtime,
+                    "io.spine.validation:spine-validation-java-runtime:2.0.0-SNAPSHOT.354"
                 )
             }
         }
