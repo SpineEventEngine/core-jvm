@@ -1,0 +1,651 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en"><head>
+    <title>Package io.spine.system.server </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="dc.created" content="2020-03-25">
+    <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../dokka-javadoc-stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../jquery/jquery-ui.css" title="Style">
+    <script type="text/javascript" src="../../../../jquery/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-migrate-3.4.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
+
+    <script type="text/javascript" src="../../../../search.js"></script>
+    <script async type="text/javascript" src="../../../../module-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../package-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../type-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../member-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../tag-search-index.js"></script>
+</head><body>
+<script type="text/javascript">
+var pathtoroot = "../../../../";
+</script>
+<noscript>
+    <div>JavaScript is disabled on your browser.</div>
+</noscript><header role="banner">
+    <nav role="navigation">
+        <div class="fixedNav">
+            <!-- ========= START OF TOP NAVBAR ======= -->
+            <div class="topNav"><a id="navbar.top">
+                <!--   -->
+            </a>
+                <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a>
+                </div>
+                <a id="navbar.top.firstrow">
+                    <!--   -->
+                </a>
+                <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li class="navBarCell1Rev">Package</li>
+    
+    <li>Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+            <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" class="ui-autocomplete-input" autocomplete="off" placeholder="Search">
+<input type="reset" id="reset" value="reset">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ========= END OF TOP NAVBAR ========= -->
+        </div>
+        <div class="navPadding">&nbsp;</div>
+        <script type="text/javascript"><!--
+        $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+        //-->
+        </script>
+    </nav>
+</header>
+<main role="main">
+    <div class="header">
+        <h1 title="Package" class="title">Package io.spine.system.server </h1>
+    </div>
+        <div class="header">
+            <div class="subtitle">
+                <div class="block"><p>Provides implementation of the System Bounded Context.</p></div>
+            </div>
+            <p>See: <a href="#overview_description">Description</a></p>
+        </div>
+    <div class="contentContainer">
+        
+            <ul class="blockList">
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Enum Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Enum</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=NoOpSystemClient.html>NoOpSystemClient</a></th><td class="colLast">An implementation of SystemClient which never performs an action.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=NoOpSystemReadSide.html>NoOpSystemReadSide</a></th><td class="colLast">An implementation of <a href=SystemReadSide.html>SystemReadSide</a> which never performs an operation.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=NoOpSystemWriteSide.html>NoOpSystemWriteSide</a></th><td class="colLast">An implementation of SystemWriteSide which never performs an operation.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EntityTypeName.ImplCase.html>ImplCase</a></th><td class="colLast"></td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Interface</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=SystemReadSide.html>SystemReadSide</a></th><td class="colLast">The read side of a system bounded context.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=WriteSideFunction.html>WriteSideFunction</a></th><td class="colLast">Obtains a system write side in a multi-tenant environment.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=SystemFeatures.html>SystemFeatures</a></th><td class="colLast">A configuration of a SystemContext.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CannotDispatchDuplicate.html>CannotDispatchDuplicate</a></th><td class="colLast">A common marker interface for events that are emitted in response to the dispatching of duplicate signals.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=DiagnosticEvent.html>DiagnosticEvent</a></th><td class="colLast">A common marker interface for events that occur within the System context in response to misconfigurations or runtime errors.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EntityColumnsOrBuilder.html>EntityColumnsOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregateHistoryCorruptedOrBuilder.html>AggregateHistoryCorruptedOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=MirrorOrBuilder.html>MirrorOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EntityTypeNameOrBuilder.html>EntityTypeNameOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CannotDispatchDuplicateEventOrBuilder.html>CannotDispatchDuplicateEventOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=RoutingFailedOrBuilder.html>RoutingFailedOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CannotDispatchDuplicateCommandOrBuilder.html>CannotDispatchDuplicateCommandOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=MirrorIdOrBuilder.html>MirrorIdOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=HandlerFailedUnexpectedlyOrBuilder.html>HandlerFailedUnexpectedlyOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ConstraintViolatedOrBuilder.html>ConstraintViolatedOrBuilder</a></th><td class="colLast"></td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=SystemSettings.html>SystemSettings</a></th><td class="colLast">A configuration of features of a system context.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Mirror.Builder.html>Builder</a></th><td class="colLast"><pre><code>A state of a domain aggregate represented in the associated System context.
+</code></pre> Protobuf type <code>spine.system.server.Mirror</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Mirror.Field.MirrorIdField.html>MirrorIdField</a></th><td class="colLast">Provides fields of the <a href=MirrorId.html>io.spine.system.server.MirrorId</a> message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Mirror.Field.AnyField.html>AnyField</a></th><td class="colLast">Provides fields of the com.google.protobuf.Any message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Mirror.Field.LifecycleFlagsField.html>LifecycleFlagsField</a></th><td class="colLast">Provides fields of the <a href=../../server/entity/LifecycleFlags.html>io.spine.server.entity.LifecycleFlags</a> message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Mirror.Field.EntityColumnsField.html>EntityColumnsField</a></th><td class="colLast">Provides fields of the <a href=EntityColumns.html>io.spine.system.server.EntityColumns</a> message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Mirror.Field.VersionField.html>VersionField</a></th><td class="colLast">Provides fields of the io.spine.core.Version message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Mirror.Field.TimestampField.html>TimestampField</a></th><td class="colLast">Provides fields of the com.google.protobuf.Timestamp message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Mirror.Field.html>Field</a></th><td class="colLast">The listing of <a href=Mirror.html>Mirror</a> fields to be used for creating a subscription filter.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Mirror.Column.html>Column</a></th><td class="colLast">A listing of entity columns defined in <a href=Mirror.html>Mirror</a>.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Mirror.QueryBuilder.html>QueryBuilder</a></th><td class="colLast">A builder for the queries for the <a href=Mirror.html>Mirror</a> entity state.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Mirror.Query.html>Query</a></th><td class="colLast">A query for finding entity states of the type <a href=Mirror.html>Mirror</a>.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Mirror.html>Mirror</a></th><td class="colLast"><pre><code>A state of a domain aggregate represented in the associated System context.
+</code></pre> Protobuf type <code>spine.system.server.Mirror</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EntityTypeName.Builder.html>Builder</a></th><td class="colLast"><pre><code>Fully qualified name of an entity type.
+
+Unlike a type URL of the entity state, an `EntityTypeName` represents the name of the entity
+class in the implementation language, such as Java.
+</code></pre> Protobuf type <code>spine.system.server.EntityTypeName</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EntityTypeName.html>EntityTypeName</a></th><td class="colLast"><pre><code>Fully qualified name of an entity type.
+
+Unlike a type URL of the entity state, an `EntityTypeName` represents the name of the entity
+class in the implementation language, such as Java.
+</code></pre> Protobuf type <code>spine.system.server.EntityTypeName</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CannotDispatchDuplicateEvent.Builder.html>Builder</a></th><td class="colLast"><pre><code>An event emitted whenever an event is dispatched to an entity for the second time.
+</code></pre> Protobuf type <code>spine.system.server.CannotDispatchDuplicateEvent</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CannotDispatchDuplicateEvent.Field.MessageIdField.html>MessageIdField</a></th><td class="colLast">Provides fields of the io.spine.core.MessageId message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CannotDispatchDuplicateEvent.Field.EventIdField.html>EventIdField</a></th><td class="colLast">Provides fields of the io.spine.core.EventId message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CannotDispatchDuplicateEvent.Field.AnyField.html>AnyField</a></th><td class="colLast">Provides fields of the com.google.protobuf.Any message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CannotDispatchDuplicateEvent.Field.VersionField.html>VersionField</a></th><td class="colLast">Provides fields of the io.spine.core.Version message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CannotDispatchDuplicateEvent.Field.TimestampField.html>TimestampField</a></th><td class="colLast">Provides fields of the com.google.protobuf.Timestamp message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CannotDispatchDuplicateEvent.Field.html>Field</a></th><td class="colLast">The listing of <a href=CannotDispatchDuplicateEvent.html>CannotDispatchDuplicateEvent</a> fields to be used for creating a subscription filter.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CannotDispatchDuplicateEvent.html>CannotDispatchDuplicateEvent</a></th><td class="colLast"><pre><code>An event emitted whenever an event is dispatched to an entity for the second time.
+</code></pre> Protobuf type <code>spine.system.server.CannotDispatchDuplicateEvent</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EntityTypeProto.html>EntityTypeProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=MirrorProto.html>MirrorProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CannotDispatchDuplicateCommand.Builder.html>Builder</a></th><td class="colLast"><pre><code>An event emitted whenever a command is dispatched to an entity for the second time.
+</code></pre> Protobuf type <code>spine.system.server.CannotDispatchDuplicateCommand</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CannotDispatchDuplicateCommand.Field.MessageIdField.html>MessageIdField</a></th><td class="colLast">Provides fields of the io.spine.core.MessageId message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CannotDispatchDuplicateCommand.Field.CommandIdField.html>CommandIdField</a></th><td class="colLast">Provides fields of the io.spine.core.CommandId message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CannotDispatchDuplicateCommand.Field.AnyField.html>AnyField</a></th><td class="colLast">Provides fields of the com.google.protobuf.Any message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CannotDispatchDuplicateCommand.Field.VersionField.html>VersionField</a></th><td class="colLast">Provides fields of the io.spine.core.Version message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CannotDispatchDuplicateCommand.Field.TimestampField.html>TimestampField</a></th><td class="colLast">Provides fields of the com.google.protobuf.Timestamp message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CannotDispatchDuplicateCommand.Field.html>Field</a></th><td class="colLast">The listing of <a href=CannotDispatchDuplicateCommand.html>CannotDispatchDuplicateCommand</a> fields to be used for creating a subscription filter.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CannotDispatchDuplicateCommand.html>CannotDispatchDuplicateCommand</a></th><td class="colLast"><pre><code>An event emitted whenever a command is dispatched to an entity for the second time.
+</code></pre> Protobuf type <code>spine.system.server.CannotDispatchDuplicateCommand</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=DiagnosticEventsProto.html>DiagnosticEventsProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ScheduledCommandProto.html>ScheduledCommandProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CommandLifecycleProto.html>CommandLifecycleProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=HandlerFailedUnexpectedly.Builder.html>Builder</a></th><td class="colLast"><pre><code>An event emitted whenever a handler method fails with a runtime exception.
+</code></pre> Protobuf type <code>spine.system.server.HandlerFailedUnexpectedly</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=HandlerFailedUnexpectedly.Field.MessageIdField.html>MessageIdField</a></th><td class="colLast">Provides fields of the io.spine.core.MessageId message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=HandlerFailedUnexpectedly.Field.ErrorField.html>ErrorField</a></th><td class="colLast">Provides fields of the io.spine.base.Error message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=HandlerFailedUnexpectedly.Field.AnyField.html>AnyField</a></th><td class="colLast">Provides fields of the com.google.protobuf.Any message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=HandlerFailedUnexpectedly.Field.VersionField.html>VersionField</a></th><td class="colLast">Provides fields of the io.spine.core.Version message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=HandlerFailedUnexpectedly.Field.TimestampField.html>TimestampField</a></th><td class="colLast">Provides fields of the com.google.protobuf.Timestamp message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=HandlerFailedUnexpectedly.Field.html>Field</a></th><td class="colLast">The listing of <a href=HandlerFailedUnexpectedly.html>HandlerFailedUnexpectedly</a> fields to be used for creating a subscription filter.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=HandlerFailedUnexpectedly.html>HandlerFailedUnexpectedly</a></th><td class="colLast"><pre><code>An event emitted whenever a handler method fails with a runtime exception.
+</code></pre> Protobuf type <code>spine.system.server.HandlerFailedUnexpectedly</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EntityColumns.Builder.html>Builder</a></th><td class="colLast"><pre><code>Entity columns of the associated aggregate.
+</code></pre> Protobuf type <code>spine.system.server.EntityColumns</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EntityColumns.html>EntityColumns</a></th><td class="colLast"><pre><code>Entity columns of the associated aggregate.
+</code></pre> Protobuf type <code>spine.system.server.EntityColumns</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ConstraintViolated.Builder.html>Builder</a></th><td class="colLast"><pre><code>An event emitted whenever an entity validation constraint is violated.
+
+None of the fields of this message is required, as we might not know something about
+the violation but should still be able to record it.
+</code></pre> Protobuf type <code>spine.system.server.ConstraintViolated</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ConstraintViolated.Field.MessageIdField.html>MessageIdField</a></th><td class="colLast">Provides fields of the io.spine.core.MessageId message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ConstraintViolated.Field.AnyField.html>AnyField</a></th><td class="colLast">Provides fields of the com.google.protobuf.Any message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ConstraintViolated.Field.VersionField.html>VersionField</a></th><td class="colLast">Provides fields of the io.spine.core.Version message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ConstraintViolated.Field.TimestampField.html>TimestampField</a></th><td class="colLast">Provides fields of the com.google.protobuf.Timestamp message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ConstraintViolated.Field.html>Field</a></th><td class="colLast">The listing of <a href=ConstraintViolated.html>ConstraintViolated</a> fields to be used for creating a subscription filter.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ConstraintViolated.html>ConstraintViolated</a></th><td class="colLast"><pre><code>An event emitted whenever an entity validation constraint is violated.
+
+None of the fields of this message is required, as we might not know something about
+the violation but should still be able to record it.
+</code></pre> Protobuf type <code>spine.system.server.ConstraintViolated</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateHistoryCorrupted.Builder.html>Builder</a></th><td class="colLast"><pre><code>An event emitted when an Aggregate cannot load its history due to an error while applying
+historical events.
+
+The event is emitted upon each attempt to load the Aggregate.
+
+An Aggregate with a corrupted history cannot handle new signals.
+
+The Aggregate state accessible to read side is undefined. It may reflect the state of the
+Aggregate after the last successful event, or may have advanced further, including changes caused
+by the erroneous event. An `EntityStateChanged` event must be emitted after the error is resolved
+to catch up the read-side on the valid Aggregate state.
+
+The error may take place some time after the erroneous event was emitted. In this case, there may
+be newer events in the Aggregate history. Those events cannot be applied to the Aggregate either.
+See `interrupted_events` for the number of such events.
+
+The framework does not provide a turn-key solution for resolving this kind of data corruption.
+Depending on the situation, there may be different approaches to the problem. Most common ones
+are:
+- Change the logic in the event applier, so that a runtime error is not produced for the given
+event.
+- Manually change the event in the database. Note that the erroneous event may have been
+propagated to other entities. Re-writing part of the system's history might lead to
+inconsistent data.
+- Manually delete the event in the database. Just like the previous approach, this is
+a dangerous operation as the consequences of changing the history are unpredictable.
+</code></pre> Protobuf type <code>spine.system.server.AggregateHistoryCorrupted</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregateHistoryCorrupted.Field.MessageIdField.html>MessageIdField</a></th><td class="colLast">Provides fields of the io.spine.core.MessageId message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateHistoryCorrupted.Field.EntityTypeNameField.html>EntityTypeNameField</a></th><td class="colLast">Provides fields of the <a href=EntityTypeName.html>io.spine.system.server.EntityTypeName</a> message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregateHistoryCorrupted.Field.ErrorField.html>ErrorField</a></th><td class="colLast">Provides fields of the io.spine.base.Error message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateHistoryCorrupted.Field.AnyField.html>AnyField</a></th><td class="colLast">Provides fields of the com.google.protobuf.Any message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregateHistoryCorrupted.Field.VersionField.html>VersionField</a></th><td class="colLast">Provides fields of the io.spine.core.Version message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateHistoryCorrupted.Field.TimestampField.html>TimestampField</a></th><td class="colLast">Provides fields of the com.google.protobuf.Timestamp message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregateHistoryCorrupted.Field.html>Field</a></th><td class="colLast">The listing of <a href=AggregateHistoryCorrupted.html>AggregateHistoryCorrupted</a> fields to be used for creating a subscription filter.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateHistoryCorrupted.html>AggregateHistoryCorrupted</a></th><td class="colLast"><pre><code>An event emitted when an Aggregate cannot load its history due to an error while applying
+historical events.
+
+The event is emitted upon each attempt to load the Aggregate.
+
+An Aggregate with a corrupted history cannot handle new signals.
+
+The Aggregate state accessible to read side is undefined. It may reflect the state of the
+Aggregate after the last successful event, or may have advanced further, including changes caused
+by the erroneous event. An `EntityStateChanged` event must be emitted after the error is resolved
+to catch up the read-side on the valid Aggregate state.
+
+The error may take place some time after the erroneous event was emitted. In this case, there may
+be newer events in the Aggregate history. Those events cannot be applied to the Aggregate either.
+See `interrupted_events` for the number of such events.
+
+The framework does not provide a turn-key solution for resolving this kind of data corruption.
+Depending on the situation, there may be different approaches to the problem. Most common ones
+are:
+- Change the logic in the event applier, so that a runtime error is not produced for the given
+event.
+- Manually change the event in the database. Note that the erroneous event may have been
+propagated to other entities. Re-writing part of the system's history might lead to
+inconsistent data.
+- Manually delete the event in the database. Just like the previous approach, this is
+a dangerous operation as the consequences of changing the history are unpredictable.
+</code></pre> Protobuf type <code>spine.system.server.AggregateHistoryCorrupted</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=MirrorId.Builder.html>Builder</a></th><td class="colLast"><pre><code>An ID of a mirror projection.
+</code></pre> Protobuf type <code>spine.system.server.MirrorId</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=MirrorId.html>MirrorId</a></th><td class="colLast"><pre><code>An ID of a mirror projection.
+</code></pre> Protobuf type <code>spine.system.server.MirrorId</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=RoutingFailed.Builder.html>Builder</a></th><td class="colLast"><pre><code>An event emitted whenever a runtime exception occurs during message routing.
+</code></pre> Protobuf type <code>spine.system.server.RoutingFailed</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=RoutingFailed.Field.MessageIdField.html>MessageIdField</a></th><td class="colLast">Provides fields of the io.spine.core.MessageId message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=RoutingFailed.Field.EntityTypeNameField.html>EntityTypeNameField</a></th><td class="colLast">Provides fields of the <a href=EntityTypeName.html>io.spine.system.server.EntityTypeName</a> message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=RoutingFailed.Field.ErrorField.html>ErrorField</a></th><td class="colLast">Provides fields of the io.spine.base.Error message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=RoutingFailed.Field.AnyField.html>AnyField</a></th><td class="colLast">Provides fields of the com.google.protobuf.Any message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=RoutingFailed.Field.VersionField.html>VersionField</a></th><td class="colLast">Provides fields of the io.spine.core.Version message type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=RoutingFailed.Field.TimestampField.html>TimestampField</a></th><td class="colLast">Provides fields of the com.google.protobuf.Timestamp message type.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=RoutingFailed.Field.html>Field</a></th><td class="colLast">The listing of <a href=RoutingFailed.html>RoutingFailed</a> fields to be used for creating a subscription filter.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=RoutingFailed.html>RoutingFailed</a></th><td class="colLast"><pre><code>An event emitted whenever a runtime exception occurs during message routing.
+</code></pre> Protobuf type <code>spine.system.server.RoutingFailed</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateHistoryCorruptedKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CannotDispatchDuplicateCommandKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CannotDispatchDuplicateEventKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandLogKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CommandTargetKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandTimelineKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ConstraintViolatedKt.Dsl.ViolationProxy.html>ViolationProxy</a></th><td class="colLast">An uninstantiable, behaviorless type to represent the field in generics.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ConstraintViolatedKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EntityColumnsKt.Dsl.ColumnsProxy.html>ColumnsProxy</a></th><td class="colLast">An uninstantiable, behaviorless type to represent the field in generics.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EntityColumnsKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EntityTypeNameKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=HandlerFailedUnexpectedlyKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=MirrorIdKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=MirrorKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=RoutingFailedKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ScheduledCommandRecordKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=SubstitutedKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=SubstitutedKt.SequenceKt.Dsl.ItemProxy.html>ItemProxy</a></th><td class="colLast">An uninstantiable, behaviorless type to represent the field in generics.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=SubstitutedKt.SequenceKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregateHistoryCorruptedKtKt.html>AggregateHistoryCorruptedKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CannotDispatchDuplicateCommandKtKt.html>CannotDispatchDuplicateCommandKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CannotDispatchDuplicateEventKtKt.html>CannotDispatchDuplicateEventKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ConstraintViolatedKtKt.html>ConstraintViolatedKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=HandlerFailedUnexpectedlyKtKt.html>HandlerFailedUnexpectedlyKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=RoutingFailedKtKt.html>RoutingFailedKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandLogKtKt.html>CommandLogKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ScheduledCommandRecordKtKt.html>ScheduledCommandRecordKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=SubstitutedKtKt.html>SubstitutedKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=MirrorKtKt.html>MirrorKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandTargetKtKt.html>CommandTargetKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CommandTimelineKtKt.html>CommandTimelineKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=MirrorIdKtKt.html>MirrorIdKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EntityColumnsKtKt.html>EntityColumnsKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EntityTypeNameKtKt.html>EntityTypeNameKtKt</a></th><td class="colLast"></td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Object Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Object</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregateHistoryCorruptedKt.html>AggregateHistoryCorruptedKt</a></th><td class="colLast"><pre><code>An event emitted when an Aggregate cannot load its history due to an error while applying
+historical events.
+
+The event is emitted upon each attempt to load the Aggregate.
+
+An Aggregate with a corrupted history cannot handle new signals.
+
+The Aggregate state accessible to read side is undefined. It may reflect the state of the
+Aggregate after the last successful event, or may have advanced further, including changes caused
+by the erroneous event. An `EntityStateChanged` event must be emitted after the error is resolved
+to catch up the read-side on the valid Aggregate state.
+
+The error may take place some time after the erroneous event was emitted. In this case, there may
+be newer events in the Aggregate history. Those events cannot be applied to the Aggregate either.
+See `interrupted_events` for the number of such events.
+
+The framework does not provide a turn-key solution for resolving this kind of data corruption.
+Depending on the situation, there may be different approaches to the problem. Most common ones
+are:
+- Change the logic in the event applier, so that a runtime error is not produced for the given
+event.
+- Manually change the event in the database. Note that the erroneous event may have been
+propagated to other entities. Re-writing part of the system's history might lead to
+inconsistent data.
+- Manually delete the event in the database. Just like the previous approach, this is
+a dangerous operation as the consequences of changing the history are unpredictable.</code></pre>Protobuf type <code>spine.system.server.AggregateHistoryCorrupted</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CannotDispatchDuplicateCommandKt.html>CannotDispatchDuplicateCommandKt</a></th><td class="colLast"><pre><code>An event emitted whenever a command is dispatched to an entity for the second time.</code></pre>Protobuf type <code>spine.system.server.CannotDispatchDuplicateCommand</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CannotDispatchDuplicateEventKt.html>CannotDispatchDuplicateEventKt</a></th><td class="colLast"><pre><code>An event emitted whenever an event is dispatched to an entity for the second time.</code></pre>Protobuf type <code>spine.system.server.CannotDispatchDuplicateEvent</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CommandLogKt.html>CommandLogKt</a></th><td class="colLast"><pre><code>The current status of a command in a system.
+
+All the commands in the system have a corresponding lifecycle instance. The only exception are
+the commands of the `System` bounded contexts, which do not have an explicit lifecycle.</code></pre>Protobuf type <code>spine.system.server.CommandLog</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandTargetKt.html>CommandTargetKt</a></th><td class="colLast"><pre><code>An identifier of an entity which is the target of a command.</code></pre>Protobuf type <code>spine.system.server.CommandTarget</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CommandTimelineKt.html>CommandTimelineKt</a></th><td class="colLast"><pre><code>The log of changes of a command status.</code></pre>Protobuf type <code>spine.system.server.CommandTimeline</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ConstraintViolatedKt.html>ConstraintViolatedKt</a></th><td class="colLast"><pre><code>An event emitted whenever an entity validation constraint is violated.
+
+None of the fields of this message is required, as we might not know something about
+the violation but should still be able to record it.</code></pre>Protobuf type <code>spine.system.server.ConstraintViolated</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EntityColumnsKt.html>EntityColumnsKt</a></th><td class="colLast"><pre><code>Entity columns of the associated aggregate.</code></pre>Protobuf type <code>spine.system.server.EntityColumns</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EntityTypeNameKt.html>EntityTypeNameKt</a></th><td class="colLast"><pre><code>Fully qualified name of an entity type.
+
+Unlike a type URL of the entity state, an `EntityTypeName` represents the name of the entity
+class in the implementation language, such as Java.</code></pre>Protobuf type <code>spine.system.server.EntityTypeName</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=HandlerFailedUnexpectedlyKt.html>HandlerFailedUnexpectedlyKt</a></th><td class="colLast"><pre><code>An event emitted whenever a handler method fails with a runtime exception.</code></pre>Protobuf type <code>spine.system.server.HandlerFailedUnexpectedly</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=MirrorIdKt.html>MirrorIdKt</a></th><td class="colLast"><pre><code>An ID of a mirror projection.</code></pre>Protobuf type <code>spine.system.server.MirrorId</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=MirrorKt.html>MirrorKt</a></th><td class="colLast"><pre><code>A state of a domain aggregate represented in the associated System context.</code></pre>Protobuf type <code>spine.system.server.Mirror</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=RoutingFailedKt.html>RoutingFailedKt</a></th><td class="colLast"><pre><code>An event emitted whenever a runtime exception occurs during message routing.</code></pre>Protobuf type <code>spine.system.server.RoutingFailed</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ScheduledCommandRecordKt.html>ScheduledCommandRecordKt</a></th><td class="colLast"><pre><code>A record of a scheduled command.
+
+Created when a scheduled command is posted into the system and deleted when the command is
+dispatched.</code></pre>Protobuf type <code>spine.system.server.ScheduledCommandRecord</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=SubstitutedKt.SequenceKt.html>SequenceKt</a></th><td class="colLast"><pre><code>A sequence with two or more command IDs of generated commands.</code></pre>Protobuf type <code>spine.system.server.Substituted.Sequence</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=SubstitutedKt.html>SubstitutedKt</a></th><td class="colLast"><pre><code>Describes which command(s) were generated instead of incoming one.</code></pre>Protobuf type <code>spine.system.server.Substituted</code></td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+            </ul>
+        
+    </div>
+</main>
+<footer role="contentinfo">
+    <nav role="navigation">
+        <!-- ======= START OF BOTTOM NAVBAR ====== -->
+        <div class="bottomNav"><a id="navbar.bottom">
+            <!--   -->
+        </a>
+            <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a>
+            </div>
+            <a id="navbar.bottom.firstrow">
+                <!--   -->
+            </a>
+            <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li class="navBarCell1Rev">Package</li>
+    
+    <li>Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+        <a id="skip.navbar.bottom">
+            <!--   -->
+        </a>
+        <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ======== END OF BOTTOM NAVBAR ======= -->
+    </nav>
+</footer><ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" id="ui-id-1" tabindex="0"
+    style="display: none;"></ul>
+<span role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></span>
+</body>
+</html>

@@ -1,0 +1,465 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en"><head>
+    <title>Package io.spine.server.delivery </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="dc.created" content="2020-03-25">
+    <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../dokka-javadoc-stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../jquery/jquery-ui.css" title="Style">
+    <script type="text/javascript" src="../../../../jquery/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-migrate-3.4.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
+
+    <script type="text/javascript" src="../../../../search.js"></script>
+    <script async type="text/javascript" src="../../../../module-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../package-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../type-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../member-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../tag-search-index.js"></script>
+</head><body>
+<script type="text/javascript">
+var pathtoroot = "../../../../";
+</script>
+<noscript>
+    <div>JavaScript is disabled on your browser.</div>
+</noscript><header role="banner">
+    <nav role="navigation">
+        <div class="fixedNav">
+            <!-- ========= START OF TOP NAVBAR ======= -->
+            <div class="topNav"><a id="navbar.top">
+                <!--   -->
+            </a>
+                <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a>
+                </div>
+                <a id="navbar.top.firstrow">
+                    <!--   -->
+                </a>
+                <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li class="navBarCell1Rev">Package</li>
+    
+    <li>Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+            <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" class="ui-autocomplete-input" autocomplete="off" placeholder="Search">
+<input type="reset" id="reset" value="reset">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ========= END OF TOP NAVBAR ========= -->
+        </div>
+        <div class="navPadding">&nbsp;</div>
+        <script type="text/javascript"><!--
+        $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+        //-->
+        </script>
+    </nav>
+</header>
+<main role="main">
+    <div class="header">
+        <h1 title="Package" class="title">Package io.spine.server.delivery </h1>
+    </div>
+        <div class="header">
+            <div class="subtitle">
+                <div class="block"><p>This package is devoted to message delivery mechanism.</p></div>
+            </div>
+            <p>See: <a href="#overview_description">Description</a></p>
+        </div>
+    <div class="contentContainer">
+        
+            <ul class="blockList">
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Interface</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=FailedPickUp.Action.html>Action</a></th><td class="colLast">Action to take in relation to failed shard pick-up.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CommandEndpoint.html>CommandEndpoint</a></th><td class="colLast">An endpoint which accepts commands.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ShardObserver.html>ShardObserver</a></th><td class="colLast">An abstract base for observers of the updates made to the contents of shards.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CatchUpSignal.html>CatchUpSignal</a></th><td class="colLast">A marker interface for the signals controlling the execution of catch-up processes.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUpProcess.DispatchCatchingUp.html>DispatchCatchingUp</a></th><td class="colLast">A method object dispatching the event to catch-up.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=FailedReception.Action.html>Action</a></th><td class="colLast">An action to take in relation to the failed reception.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventEndpoint.html>EventEndpoint</a></th><td class="colLast">An endpoint which accepts events.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ShardedWorkRegistry.html>ShardedWorkRegistry</a></th><td class="colLast">The registry of the shard indexes along with the identifiers of the nodes, which process the messages corresponding to each index.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=BatchDeliveryListener.html>BatchDeliveryListener</a></th><td class="colLast">Listens to start and end of the <code>Inbox</code> batch delivery.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=PickUpOutcomeMixin.html>PickUpOutcomeMixin</a></th><td class="colLast">A mixin of the PickUpOutcome providing a convenience API over the Proto message.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Page.html>Page</a></th><td class="colLast">A page of messages obtained from a sharded storage in a read operation.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CatchUpIdOrBuilder.html>CatchUpIdOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUp.RequestOrBuilder.html>RequestOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CatchUpOrBuilder.html>CatchUpOrBuilder</a></th><td class="colLast"></td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=FailedPickUp.html>FailedPickUp</a></th><td class="colLast">An abstract base for shard pick-up-related failures.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CatchUpProcessBuilder.html>CatchUpProcessBuilder</a></th><td class="colLast">A builder for <a href=CatchUpProcess.html>CatchUpProcess</a>.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Delivery.html>Delivery</a></th><td class="colLast">Delivers the messages to the entities.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=InboxPage.html>InboxPage</a></th><td class="colLast">A single page of the messages read from the <a href=InboxStorage.html>InboxStorage</a>.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=InboxStorage.html>InboxStorage</a></th><td class="colLast">A contract for storages of Inbox messages.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=InboxColumn.html>InboxColumn</a></th><td class="colLast">Columns stored along with each InboxMessage.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUpStorage.html>CatchUpStorage</a></th><td class="colLast">A storage for the state of the ongoing catch-up processes.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ShardProcessingSession.html>ShardProcessingSession</a></th><td class="colLast">The session of processing the messages, which reside in a shard.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUpProcess.html>CatchUpProcess</a></th><td class="colLast">A process that performs a projection catch-up.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=RuntimeFailure.html>RuntimeFailure</a></th><td class="colLast">Represents a scenario when shard could not be picked because of some <code>RuntimeException</code>.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=DeliveryStats.html>DeliveryStats</a></th><td class="colLast">The statistics on <a href=Delivery.html#deliverMessagesFrom(io.spine.server.delivery.ShardIndex)>delivering the messages</a> from a certain shard.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=DeliveryStrategy.html>DeliveryStrategy</a></th><td class="colLast">Determines the index of a shard for the given identifier of an entity.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=FailedReception.html>FailedReception</a></th><td class="colLast">The evidence of an InboxMessage which has failed to be handled by its receptor, such as an event or a command handler method.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AbstractWorkRegistry.html>AbstractWorkRegistry</a></th><td class="colLast">An implementation base for <a href=ShardedWorkRegistry.html>ShardedWorkRegistries</a> based on a specific persistence mechanism.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=DeliveryBuilder.html>DeliveryBuilder</a></th><td class="colLast">A builder for <code>Delivery</code> instances.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=LocalDispatchingObserver.html>LocalDispatchingObserver</a></th><td class="colLast">An observer of changes to the shard contents, which triggers immediate delivery of the sharded messages.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUpAlreadyStartedException.html>CatchUpAlreadyStartedException</a></th><td class="colLast">An exception telling that the projection catch-up cannot be started, since some of the requested entities are already catching up.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=UniformAcrossAllShards.html>UniformAcrossAllShards</a></th><td class="colLast">The strategy of splitting the entities into a number of shards uniformly.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=DeliveryMonitor.html>DeliveryMonitor</a></th><td class="colLast">A controlling monitor of an <a href=Delivery.html>Inbox Delivery</a> process.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CatchUpColumn.html>CatchUpColumn</a></th><td class="colLast">The columns stored for <a href=CatchUp.html>CatchUp</a> states.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AlreadyPickedUp.html>AlreadyPickedUp</a></th><td class="colLast">Represents a scenario when shard could not be picked up, as it's already picked up by another worker.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=InboxProto.html>InboxProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUpProto.html>CatchUpProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=DeliveryProto.html>DeliveryProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUpId.Builder.html>Builder</a></th><td class="colLast"><pre><code>An ID of a catch-up process.
+</code></pre> Protobuf type <code>spine.server.catchup.CatchUpId</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CatchUpId.html>CatchUpId</a></th><td class="colLast"><pre><code>An ID of a catch-up process.
+</code></pre> Protobuf type <code>spine.server.catchup.CatchUpId</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUp.Request.Builder.html>Builder</a></th><td class="colLast"><pre><code>A description of a catch-up requested.
+</code></pre> Protobuf type <code>spine.server.catchup.CatchUp.Request</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CatchUp.Request.html>Request</a></th><td class="colLast"><pre><code>A description of a catch-up requested.
+</code></pre> Protobuf type <code>spine.server.catchup.CatchUp.Request</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUp.Builder.html>Builder</a></th><td class="colLast"><pre><code>A state of a catch-up process.
+</code></pre> Protobuf type <code>spine.server.catchup.CatchUp</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CatchUp.html>CatchUp</a></th><td class="colLast"><pre><code>A state of a catch-up process.
+</code></pre> Protobuf type <code>spine.server.catchup.CatchUp</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUpIdKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CatchUpKt.Dsl.AffectedShardProxy.html>AffectedShardProxy</a></th><td class="colLast">An uninstantiable, behaviorless type to represent the field in generics.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUpKt.Dsl.FinalizedShardProxy.html>FinalizedShardProxy</a></th><td class="colLast">An uninstantiable, behaviorless type to represent the field in generics.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CatchUpKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUpKt.RequestKt.Dsl.TargetProxy.html>TargetProxy</a></th><td class="colLast">An uninstantiable, behaviorless type to represent the field in generics.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CatchUpKt.RequestKt.Dsl.EventTypeProxy.html>EventTypeProxy</a></th><td class="colLast">An uninstantiable, behaviorless type to represent the field in generics.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUpKt.RequestKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=DeliveryRunInfoKt.Dsl.CatchUpJobProxy.html>CatchUpJobProxy</a></th><td class="colLast">An uninstantiable, behaviorless type to represent the field in generics.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=DeliveryRunInfoKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=DeliveryStageKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=InboxIdKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=InboxMessageIdKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=InboxMessageKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=InboxSignalIdKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=PickUpOutcomeKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ShardAlreadyPickedUpKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ShardIndexKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ShardMaintenanceKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ShardSessionRecordKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=WorkerIdKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUpKtKt.html>CatchUpKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=InboxMessageKtKt.html>InboxMessageKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ShardMaintenanceKtKt.html>ShardMaintenanceKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=DeliveryStageKtKt.html>DeliveryStageKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=InboxMessageIdKtKt.html>InboxMessageIdKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ShardSessionRecordKtKt.html>ShardSessionRecordKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=InboxIdKtKt.html>InboxIdKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=PickUpOutcomeKtKt.html>PickUpOutcomeKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ShardAlreadyPickedUpKtKt.html>ShardAlreadyPickedUpKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=WorkerIdKtKt.html>WorkerIdKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUpIdKtKt.html>CatchUpIdKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=DeliveryRunInfoKtKt.html>DeliveryRunInfoKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=InboxSignalIdKtKt.html>InboxSignalIdKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ShardIndexKtKt.html>ShardIndexKtKt</a></th><td class="colLast"></td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Enum Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Enum</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=InboxMessageStatus.html>InboxMessageStatus</a></th><td class="colLast"><pre><code>A status of the message in the `Inbox`.
+</code></pre> Protobuf enum <code>spine.server.delivery.InboxMessageStatus</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=InboxLabel.html>InboxLabel</a></th><td class="colLast"><pre><code>A label telling how to dispatch a message, residing in the `Inbox`.
+</code></pre> Protobuf enum <code>spine.server.delivery.InboxLabel</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUpStatus.html>CatchUpStatus</a></th><td class="colLast"><pre><code>The status of a catch-up process.
+</code></pre> Protobuf enum <code>spine.server.catchup.CatchUpStatus</code></td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Object Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Object</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUpIdKt.html>CatchUpIdKt</a></th><td class="colLast"><pre><code>An ID of a catch-up process.</code></pre>Protobuf type <code>spine.server.catchup.CatchUpId</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CatchUpKt.RequestKt.html>RequestKt</a></th><td class="colLast"><pre><code>A description of a catch-up requested.</code></pre>Protobuf type <code>spine.server.catchup.CatchUp.Request</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUpKt.html>CatchUpKt</a></th><td class="colLast"><pre><code>A state of a catch-up process.</code></pre>Protobuf type <code>spine.server.catchup.CatchUp</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=DeliveryRunInfoKt.html>DeliveryRunInfoKt</a></th><td class="colLast"><pre><code>The configuration data `Delivery` used at its run-time to make decisions on how
+to dispatch messages.
+
+The system-wide processes, such as `CatchUp` need to know the details on how the messages
+were dispatched by `Delivery`. Therefore, `Delivery` records some of its parameters
+when it is delivering the signals, and passes this data on to all interested parties.</code></pre>Protobuf type <code>spine.server.delivery.DeliveryRunInfo</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=DeliveryStageKt.html>DeliveryStageKt</a></th><td class="colLast"><pre><code>A stage of the `Delivery` process running for some particular `ShardIndex`.</code></pre>Protobuf type <code>spine.server.delivery.DeliveryStage</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=InboxIdKt.html>InboxIdKt</a></th><td class="colLast"><pre><code>An identifier of an entity inbox.</code></pre>Protobuf type <code>spine.server.delivery.InboxId</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=InboxMessageIdKt.html>InboxMessageIdKt</a></th><td class="colLast"><pre><code>Identifies the message in the `Inbox`.</code></pre>Protobuf type <code>spine.server.delivery.InboxMessageId</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=InboxMessageKt.html>InboxMessageKt</a></th><td class="colLast"><pre><code>A message in the inbox.</code></pre>Protobuf type <code>spine.server.delivery.InboxMessage</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=InboxSignalIdKt.html>InboxSignalIdKt</a></th><td class="colLast"><pre><code>Identifies the original signal message that is packed inside the `InboxMessage`.</code></pre>Protobuf type <code>spine.server.delivery.InboxSignalId</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=PickUpOutcomeKt.html>PickUpOutcomeKt</a></th><td class="colLast"><pre><code>An outcome of a shard pick-up attempt.</code></pre>Protobuf type <code>spine.server.delivery.PickUpOutcome</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ShardAlreadyPickedUpKt.html>ShardAlreadyPickedUpKt</a></th><td class="colLast"><pre><code>An outcome of a shard pick-up request, stating that the shard is already picked up
+by another worker.</code></pre>Protobuf type <code>spine.server.delivery.ShardAlreadyPickedUp</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ShardIndexKt.html>ShardIndexKt</a></th><td class="colLast"><pre><code>An index of a shard.
+
+A value type used across the application. To be potentially used in JavaScript, Go, C++ and
+other client and server environments, that are split into shards.</code></pre>Protobuf type <code>spine.server.delivery.ShardIndex</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ShardMaintenanceKt.html>ShardMaintenanceKt</a></th><td class="colLast"><pre><code>A process performing the maintenance of the shard with its messages.
+
+Represented in each of the bounded contexts as an event reactor,
+as it's impossible to have several process managers of the same state across bounded contexts.</code></pre>Protobuf type <code>spine.server.delivery.ShardMaintenance</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ShardSessionRecordKt.html>ShardSessionRecordKt</a></th><td class="colLast"><pre><code>A record describing the session in scope of which sharded messages are being processed.</code></pre>Protobuf type <code>spine.server.delivery.ShardSessionRecord</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=WorkerIdKt.html>WorkerIdKt</a></th><td class="colLast"><pre><code>An identifier of a worker which processes a shard.
+
+This value is unique across the application. It is used to indicate who is currently processing
+which shard. A single node can contain several workers (typically represented by threads)
+processing different shards.</code></pre>Protobuf type <code>spine.server.delivery.WorkerId</code></td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+            </ul>
+        
+    </div>
+</main>
+<footer role="contentinfo">
+    <nav role="navigation">
+        <!-- ======= START OF BOTTOM NAVBAR ====== -->
+        <div class="bottomNav"><a id="navbar.bottom">
+            <!--   -->
+        </a>
+            <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a>
+            </div>
+            <a id="navbar.bottom.firstrow">
+                <!--   -->
+            </a>
+            <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li class="navBarCell1Rev">Package</li>
+    
+    <li>Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+        <a id="skip.navbar.bottom">
+            <!--   -->
+        </a>
+        <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ======== END OF BOTTOM NAVBAR ======= -->
+    </nav>
+</footer><ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" id="ui-id-1" tabindex="0"
+    style="display: none;"></ul>
+<span role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></span>
+</body>
+</html>
