@@ -248,6 +248,7 @@ fun Module.forceConfigurations() {
                     Reflect.lib,
                     TestLib.lib,
                     Time.lib,
+                    Time.javaExtensions,
                     ToolBase.gradlePluginApi,
                     ToolBase.intellijPlatform,
                     ToolBase.intellijPlatformJava,
@@ -257,6 +258,7 @@ fun Module.forceConfigurations() {
                     ToolBase.protobufSetupPlugins,
                     ToolBase.psiJava,
                     Validation.runtime,
+                    "io.spine.validation:spine-validation-java-runtime:2.0.0-SNAPSHOT.354"
                 )
             }
         }

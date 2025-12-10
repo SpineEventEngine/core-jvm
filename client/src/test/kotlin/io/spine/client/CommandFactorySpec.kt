@@ -34,9 +34,9 @@ import io.spine.core.UserId
 import io.spine.core.tenantId
 import io.spine.test.commands.cmdCreateProject
 import io.spine.testing.core.given.GivenUserId
+import io.spine.testing.time.Future
+import io.spine.testing.time.Past
 import io.spine.time.ZoneIds
-import io.spine.time.testing.Future
-import io.spine.time.testing.Past
 import io.spine.validate.ValidationException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName

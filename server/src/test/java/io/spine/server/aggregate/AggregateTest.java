@@ -81,8 +81,8 @@ import io.spine.test.aggregate.rejection.Rejections.AggCannotReassignUnassignedT
 import io.spine.testing.logging.mute.MuteLogging;
 import io.spine.testing.server.blackbox.ContextAwareTest;
 import io.spine.testing.server.model.ModelTests;
-import io.spine.time.testing.BackToTheFuture;
-import io.spine.time.testing.FrozenMadHatterParty;
+import io.spine.testing.time.BackToTheFuture;
+import io.spine.testing.time.FrozenMadHatterParty;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

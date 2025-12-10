@@ -66,7 +66,7 @@
  * This package provides two groups of classes:
  * <ol>
  *     <li>{@link io.spine.server.tuple.Tuple Tuple} classes are for returning more than one message.
- *     <li>Alternatives -- classes derived from {@link io.spine.server.tuple.Either Either} -- are
+ *     <li>Alternatives — classes derived from {@link io.spine.server.tuple.Either Either} — are
  *     for returning only one message belonging the known set of types.
  * </ol>
  *
@@ -80,6 +80,7 @@
  *
  * <p>The following tuple classes are provided:
  * <ul>
+ *    <li>{@link io.spine.server.tuple.Single Single&lt;A&gt;}
  *    <li>{@link io.spine.server.tuple.Pair Pair&lt;A, B&gt;}
  *    <li>{@link io.spine.server.tuple.Triplet Triplet&lt;A, B, C&gt;}
  *    <li>{@link io.spine.server.tuple.Quartet Quartet&lt;A, B, C, D&gt;}

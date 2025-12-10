@@ -27,6 +27,7 @@
 import io.spine.dependency.lib.AutoService
 import io.spine.dependency.lib.Grpc
 import io.spine.dependency.lib.Kotlin
+import io.spine.dependency.local.Base
 import io.spine.dependency.local.BaseTypes
 import io.spine.dependency.local.Change
 import io.spine.dependency.local.TestLib
@@ -45,6 +46,7 @@ dependencies {
     api(Grpc.protobuf)
     api(Grpc.core)
     api(Grpc.stub)
+    api(Base.environment)
     api(project(":client"))
 
     /*

@@ -40,9 +40,9 @@ import io.spine.test.commands.cmdStopProject
 import io.spine.testing.client.TestActorRequestFactory
 import io.spine.testing.client.command.testCommandMessage
 import io.spine.testing.core.given.GivenCommandContext
-import io.spine.time.testing.Future
-import io.spine.time.testing.Past.minutesAgo
-import io.spine.time.testing.Past.secondsAgo
+import io.spine.testing.time.Future
+import io.spine.testing.time.Past.minutesAgo
+import io.spine.testing.time.Past.secondsAgo
 import java.util.stream.Stream
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName

@@ -33,7 +33,7 @@ import io.spine.server.entity.AbstractEntity;
 import io.spine.test.model.contexts.tasks.Task;
 import io.spine.test.model.contexts.tasks.TaskId;
 import io.spine.time.InstantConverter;
-import io.spine.time.testing.Past;
+import io.spine.testing.time.Past;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

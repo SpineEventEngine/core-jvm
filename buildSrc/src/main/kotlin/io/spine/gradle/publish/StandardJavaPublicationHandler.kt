@@ -57,7 +57,7 @@ import org.gradle.kotlin.dsl.create
  *   The Maven Publish Plugin | Publications</a>
  * @see CustomPublicationHandler
  */
-internal class StandardJavaPublicationHandler private constructor(
+class StandardJavaPublicationHandler private constructor(
     project: Project,
     private val jarFlags: JarFlags,
     destinations: Set<Repository>,

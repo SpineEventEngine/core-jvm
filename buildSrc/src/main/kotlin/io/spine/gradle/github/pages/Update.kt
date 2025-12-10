@@ -43,7 +43,7 @@ fun Task.updateGhPages(project: Project) {
 
     SshKey(plugin.rootFolder, logger).register()
 
-    val repository = Repository.forPublishingDocumentation(logger)
+    val repository = Repository.forPublishingDocumentation(project)
 
     val updateJavadocFormat =
         UpdateJavadocFormat(project, plugin.javadocOutputFolder, repository, logger)

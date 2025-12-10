@@ -42,7 +42,7 @@ import static io.spine.protobuf.Durations2.minutes;
 import static io.spine.protobuf.TypeConverter.toMessage;
 import static io.spine.server.commandbus.CommandScheduler.setSchedule;
 import static io.spine.server.commandbus.Given.ACommand.createProject;
-import static io.spine.time.testing.Past.minutesAgo;
+import static io.spine.testing.time.Past.minutesAgo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 

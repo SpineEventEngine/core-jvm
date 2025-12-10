@@ -56,6 +56,8 @@ buildscript {
                     io.spine.dependency.lib.Kotlin.bom,
                     io.spine.dependency.local.Base.annotations,
                     io.spine.dependency.local.Base.lib,
+                    io.spine.dependency.local.Time.lib,
+                    io.spine.dependency.local.Time.javaExtensions,
                     io.spine.dependency.local.Compiler.api,
                     io.spine.dependency.local.ToolBase.lib,
                     io.spine.dependency.local.CoreJava.server,
@@ -65,6 +67,7 @@ buildscript {
                     logging.grpcContext,
                     io.spine.dependency.local.Time.lib,
                     io.spine.dependency.local.Validation.runtime,
+                    "io.spine.validation:spine-validation-java-runtime:2.0.0-SNAPSHOT.354"
                 )
             }
         }

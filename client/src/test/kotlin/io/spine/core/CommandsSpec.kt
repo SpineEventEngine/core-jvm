@@ -44,8 +44,8 @@ import io.spine.testing.UtilityClassTest
 import io.spine.testing.client.TestActorRequestFactory
 import io.spine.testing.core.given.GivenUserId
 import io.spine.testing.setDefault
-import io.spine.time.testing.Past.minutesAgo
-import io.spine.time.testing.Past.secondsAgo
+import io.spine.testing.time.Past.minutesAgo
+import io.spine.testing.time.Past.secondsAgo
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 

@@ -49,7 +49,7 @@ import io.spine.testdata.Sample;
 import io.spine.testing.logging.mute.MuteLogging;
 import io.spine.testing.server.blackbox.BlackBox;
 import io.spine.time.LocalDates;
-import io.spine.time.testing.TimeTests;
+import io.spine.testing.time.TimeTests;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

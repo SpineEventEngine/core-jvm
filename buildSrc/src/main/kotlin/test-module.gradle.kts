@@ -26,11 +26,14 @@
 
 import io.spine.dependency.local.Base
 import io.spine.dependency.local.Validation
+import io.spine.gradle.report.license.LicenseReporter
 
 plugins {
     java
     `java-test-fixtures`
+    id("module-testing")
 }
+LicenseReporter.generateReportIn(project)
 
 dependencies {
     arrayOf(

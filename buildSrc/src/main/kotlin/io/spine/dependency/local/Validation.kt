@@ -36,17 +36,17 @@ object Validation {
     /**
      * The version of the Validation library artifacts.
      */
-    const val version = "2.0.0-SNAPSHOT.354"
+    const val version = "2.0.0-SNAPSHOT.373"
 
     /**
      * The last version of Validation compatible with ProtoData.
      */
     const val pdCompatibleVersion = "2.0.0-SNAPSHOT.342"
 
-    const val group = "io.spine.validation"
-    private const val prefix = "spine-validation"
+    const val group = Spine.toolsGroup
+    private const val prefix = "validation"
 
-    const val runtimeModule = "$group:$prefix-java-runtime"
+    const val runtimeModule = "${Spine.group}:spine-$prefix-jvm-runtime"
     const val runtime = "$runtimeModule:$version"
     const val javaModule = "$group:$prefix-java"
     const val java = "$javaModule:$version"
