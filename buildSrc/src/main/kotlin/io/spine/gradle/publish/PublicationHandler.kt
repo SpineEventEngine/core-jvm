@@ -53,7 +53,7 @@ private const val MAVEN_PUBLISH = "maven-publish"
  *   the [`spinePublishing`][io.spine.gradle.publish.SpinePublishing.destinations]
  *   extension applied to the subproject.
  */
-internal sealed class PublicationHandler(
+sealed class PublicationHandler(
     protected val project: Project,
     protected var destinations: Set<Repository>
 ) {
