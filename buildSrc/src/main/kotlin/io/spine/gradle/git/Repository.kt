@@ -60,8 +60,6 @@ class Repository private constructor(
     private var currentBranch: String,
 ) : AutoCloseable {
 
-    private val logger = project.logger
-
     /**
      * Path to the temporal folder for a clone of the underlying repository.
      */
@@ -78,10 +76,9 @@ class Repository private constructor(
      * Executes a command in the [location].
      */
     private fun repoExecute(vararg command: String): String {
-        if (logger.isErrorEnabled) {
-            val msg = "[Repo (${project.path})] Executing command: `${command.toList().joinToString(" ")}`."
-            logger.error(msg)
-        }
+        val cmd = command.toList().joinToString(" ")
+        val msg = "[Repo (${project.path})] Executing command: `$cmd`."
+        System.err.println(msg)
         return Cli(location.toFile()).execute(*command)
     }
 
