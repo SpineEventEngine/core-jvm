@@ -34,10 +34,10 @@ import io.spine.base.Error;
 import io.spine.protobuf.AnyPacker;
 import io.spine.server.entity.model.StateClass;
 import io.spine.type.TypeName;
-import io.spine.validate.ConstraintViolation;
-import io.spine.validate.ExceptionFactory;
-import io.spine.validate.ValidationError;
-import io.spine.validate.ValidationException;
+import io.spine.validation.ConstraintViolation;
+import io.spine.validation.ExceptionFactory;
+import io.spine.validation.ValidationError;
+import io.spine.validation.ValidationException;
 import org.jspecify.annotations.NonNull;
 
 import java.io.Serial;

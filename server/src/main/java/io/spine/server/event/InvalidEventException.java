@@ -33,8 +33,8 @@ import io.spine.base.EventMessage;
 import io.spine.core.EventValidationError;
 import io.spine.server.MessageInvalid;
 import io.spine.server.type.EventClass;
-import io.spine.validate.ConstraintViolation;
-import io.spine.validate.ExceptionFactory;
+import io.spine.validation.ConstraintViolation;
+import io.spine.validation.ExceptionFactory;
 
 import java.io.Serial;
 import java.util.Map;

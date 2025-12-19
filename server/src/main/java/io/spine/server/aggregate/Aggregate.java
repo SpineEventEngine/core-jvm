@@ -46,7 +46,7 @@ import io.spine.server.event.EventReactor;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
-import io.spine.validate.ValidatingBuilder;
+import io.spine.validation.ValidatingBuilder;
 
 import java.util.Iterator;
 import java.util.List;

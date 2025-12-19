@@ -33,7 +33,7 @@ import io.spine.core.EventContext
 import io.spine.core.Events
 import io.spine.core.Version
 import io.spine.protobuf.AnyPacker.pack
-import io.spine.validate.checkValid
+import io.spine.validation.checkValid
 
 /**
  * Base class for event factories.

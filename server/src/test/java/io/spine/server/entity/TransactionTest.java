@@ -38,7 +38,7 @@ import io.spine.server.entity.given.tx.event.TxCreated;
 import io.spine.server.entity.given.tx.event.TxErrorRequested;
 import io.spine.server.entity.given.tx.event.TxStateErrorRequested;
 import io.spine.testing.server.model.ModelTests;
-import io.spine.validate.ValidatingBuilder;
+import io.spine.validation.ValidatingBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

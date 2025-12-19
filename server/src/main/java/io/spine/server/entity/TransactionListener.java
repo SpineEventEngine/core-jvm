@@ -28,7 +28,7 @@ package io.spine.server.entity;
 import io.spine.annotation.Internal;
 import io.spine.base.Error;
 import io.spine.core.Event;
-import io.spine.validate.NonValidated;
+import io.spine.validation.NonValidated;
 
 /**
  * A common contract for the {@linkplain Transaction transaction} listeners.

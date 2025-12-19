@@ -35,7 +35,7 @@ import io.spine.test.tuple.quintet.ViolinCello;
 import static io.spine.server.tuple.given.QuintetTestEnv.InstrumentFactory.newViola;
 import static io.spine.server.tuple.given.QuintetTestEnv.InstrumentFactory.newViolin;
 import static io.spine.server.tuple.given.QuintetTestEnv.InstrumentFactory.newViolinCello;
-import static io.spine.validate.Validate.check;
+import static io.spine.validation.Validate.check;
 
 public class QuintetTestEnv {
 

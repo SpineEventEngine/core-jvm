@@ -28,6 +28,7 @@ package io.spine.dependency.local
 
 // For backward compatibility.
 @Suppress("unused")
+@Deprecated("Use `CoreJvm` instead.", ReplaceWith("CoreJvm"))
 typealias CoreJava = CoreJvm
 
 /**
@@ -38,7 +39,7 @@ typealias CoreJava = CoreJvm
 @Suppress("ConstPropertyName", "unused")
 object CoreJvm {
     const val group = Spine.group
-    const val version = "2.0.0-SNAPSHOT.356"
+    const val version = "2.0.0-SNAPSHOT.358"
 
     const val coreArtifact = "spine-core"
     const val clientArtifact = "spine-client"

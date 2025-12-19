@@ -37,7 +37,7 @@ import io.spine.test.command.CmdEmpty;
 import io.spine.test.commandbus.command.CmdBusCreateLabels;
 import io.spine.test.commandbus.command.CmdBusCreateProject;
 import io.spine.testing.client.TestActorRequestFactory;
-import io.spine.validate.ConstraintViolation;
+import io.spine.validation.ConstraintViolation;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -48,7 +48,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static io.spine.server.commandbus.CommandValidator.inspect;
 import static io.spine.server.commandbus.Given.CommandMessage.createProjectMessage;
 import static io.spine.testing.core.given.GivenCommandContext.withRandomActor;
-import static io.spine.validate.TemplateStrings.format;
+import static io.spine.validation.TemplateStrings.format;
 
 @DisplayName("`CommandValidator` violation check should")
 class CommandValidatorViolationCheckTest {

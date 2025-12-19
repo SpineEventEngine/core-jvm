@@ -29,7 +29,7 @@ package io.spine.server.event;
 import io.spine.server.MessageInvalid;
 import io.spine.server.bus.EnvelopeValidator;
 import io.spine.server.type.EventEnvelope;
-import io.spine.validate.Validate;
+import io.spine.validation.Validate;
 
 import java.util.Optional;
 

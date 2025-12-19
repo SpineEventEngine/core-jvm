@@ -35,11 +35,11 @@ import io.spine.server.type.given.GivenEvent;
 import io.spine.test.server.envelope.ProjectId;
 import io.spine.test.server.envelope.event.TaskAssigned;
 import io.spine.test.server.envelope.TaskId;
-import io.spine.validate.ValidationException;
+import io.spine.validation.ValidationException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static io.spine.validate.Validate.check;
+import static io.spine.validation.Validate.check;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DisplayName("Event message should")

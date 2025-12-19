@@ -40,7 +40,7 @@ import io.spine.system.server.test.WatchId;
 import static com.google.common.base.Preconditions.checkArgument;
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.server.route.EventRoute.withId;
-import static io.spine.validate.TemplateStrings.format;
+import static io.spine.validation.TemplateStrings.format;
 
 /**
  * A projection which stores contents of invalid {@link TextValidated} events.

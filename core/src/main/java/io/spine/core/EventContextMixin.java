@@ -33,7 +33,7 @@ import io.spine.annotation.GeneratedMixin;
 import io.spine.annotation.Internal;
 import io.spine.base.Identifier;
 import io.spine.logging.WithLogging;
-import io.spine.validate.FieldAwareMessage;
+import io.spine.validation.FieldAwareMessage;
 
 import java.util.Optional;
 

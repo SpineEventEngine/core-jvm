@@ -36,7 +36,7 @@ import io.spine.protobuf.AnyPacker;
 import io.spine.test.client.TestEntity;
 import io.spine.test.client.TestEntityId;
 import io.spine.type.TypeUrl;
-import io.spine.validate.NonValidated;
+import io.spine.validation.NonValidated;
 
 import java.util.Collection;
 import java.util.Set;

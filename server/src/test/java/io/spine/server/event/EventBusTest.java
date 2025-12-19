@@ -52,7 +52,7 @@ import io.spine.testdata.Sample;
 import io.spine.testing.SlowTest;
 import io.spine.testing.logging.mute.MuteLogging;
 import io.spine.testing.server.TestEventFactory;
-import io.spine.validate.Validated;
+import io.spine.validation.Validated;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

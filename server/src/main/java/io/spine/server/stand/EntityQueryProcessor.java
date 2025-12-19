@@ -36,7 +36,7 @@ import java.util.Iterator;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.Streams.stream;
-import static io.spine.validate.Validate.check;
+import static io.spine.validation.Validate.check;
 
 /**
  * Processes the queries targeting {@link io.spine.server.entity.Entity Entity} objects.

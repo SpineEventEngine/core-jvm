@@ -34,7 +34,7 @@ import io.spine.annotation.Internal;
 import io.spine.base.EventMessage;
 import io.spine.protobuf.Messages;
 import io.spine.type.KnownMessage;
-import io.spine.validate.FieldAwareMessage;
+import io.spine.validation.FieldAwareMessage;
 
 import java.util.Optional;
 

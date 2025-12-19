@@ -28,7 +28,7 @@ package io.spine.server.dispatch;
 
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import io.spine.annotation.GeneratedMixin;
-import io.spine.validate.FieldAwareMessage;
+import io.spine.validation.FieldAwareMessage;
 
 /**
  * A mixin interface for the {@link Success} message type.

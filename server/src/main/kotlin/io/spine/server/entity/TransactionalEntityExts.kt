@@ -30,7 +30,7 @@ package io.spine.server.entity
 
 import io.spine.base.EntityState
 import io.spine.core.Version
-import io.spine.validate.ValidatingBuilder
+import io.spine.validation.ValidatingBuilder
 
 /**
  * Extends [TransactionalEntity] with the `update` block for accessing

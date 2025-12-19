@@ -26,6 +26,8 @@
 
 package io.spine.dependency.local
 
+import io.spine.dependency.Dependency
+
 /**
  * Dependencies on the Spine Compiler modules.
  *
@@ -56,9 +58,9 @@ package io.spine.dependency.local
     "ConstPropertyName" /* We use custom convention for artifact properties. */,
     "MemberVisibilityCanBePrivate" /* The properties are used directly by other subprojects. */,
 )
-object Compiler {
+object Compiler : Dependency() {
     const val pluginGroup = Spine.group
-    const val group = "io.spine.tools"
+    override val group = "io.spine.tools"
     const val pluginId = "io.spine.compiler"
 
     /**
@@ -69,7 +71,7 @@ object Compiler {
     /**
      * The version of the Compiler dependencies.
      */
-    val version: String
+    override val version: String
     private const val fallbackVersion = "2.0.0-SNAPSHOT.035"
 
     /**
@@ -128,6 +130,21 @@ object Compiler {
 
     val testlib
         get() = "$group:compiler-testlib:$version"
+
+    override val modules: List<String>
+        get() = listOf(
+            api,
+            backend,
+            params,
+            protocPlugin,
+            gradleApi,
+            cliApi,
+            jvm,
+            fatCli,
+            testlib
+        ).map {
+            it.split(":").let { (group, artifact) -> "$group:$artifact" }
+        }
 
     /**
      * An env variable storing a custom [version].

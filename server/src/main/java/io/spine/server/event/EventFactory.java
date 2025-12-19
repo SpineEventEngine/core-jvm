@@ -32,11 +32,11 @@ import io.spine.core.ActorContext;
 import io.spine.core.Event;
 import io.spine.core.Version;
 import io.spine.server.type.MessageEnvelope;
-import io.spine.validate.ValidationException;
+import io.spine.validation.ValidationException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.server.event.EventOrigin.fromAnotherMessage;
-import static io.spine.validate.Validate.check;
+import static io.spine.validation.Validate.check;
 
 /**
  * Produces events.

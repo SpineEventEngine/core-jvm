@@ -40,7 +40,7 @@ import "spine/core/command.proto";
 import "spine/core/diagnostics.proto";
 import "spine/core/event.proto";
 import "spine/system/server/entity_type.proto";
-import "spine/validate/validation_error.proto";
+import "spine/validation/validation_error.proto";
 
 // An event emitted whenever an entity validation constraint is violated.
 //
@@ -59,7 +59,7 @@ message ConstraintViolated {
     core.MessageId root_message = 3 [(required) = false];
 
     // The validation constraint violations.
-    repeated validate.ConstraintViolation violation = 4 [(required) = false];
+    repeated validation.ConstraintViolation violation = 4 [(required) = false];
 }
 
 // An event emitted whenever a command is dispatched to an entity for the second time.

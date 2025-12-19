@@ -30,7 +30,7 @@ import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.Timestamp;
 import io.spine.annotation.GeneratedMixin;
 import io.spine.annotation.Internal;
-import io.spine.validate.FieldAwareMessage;
+import io.spine.validation.FieldAwareMessage;
 
 /**
  * A mixin interface for the {@link Version} message type.

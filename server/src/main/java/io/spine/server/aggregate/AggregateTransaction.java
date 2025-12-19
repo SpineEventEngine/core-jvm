@@ -34,7 +34,7 @@ import io.spine.server.entity.EventPlayingTransaction;
 import io.spine.server.entity.LifecycleFlags;
 import io.spine.server.entity.VersionIncrement;
 import io.spine.server.type.EventEnvelope;
-import io.spine.validate.ValidatingBuilder;
+import io.spine.validation.ValidatingBuilder;
 
 /**
  * A transaction, within which {@linkplain Aggregate Aggregate instances} are modified.

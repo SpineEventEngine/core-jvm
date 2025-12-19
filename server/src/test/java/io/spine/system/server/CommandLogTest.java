@@ -55,7 +55,7 @@ import io.spine.testing.client.TestActorRequestFactory;
 import io.spine.testing.core.given.GivenUserId;
 import io.spine.testing.logging.mute.MuteLogging;
 import io.spine.type.TypeUrl;
-import io.spine.validate.ValidationError;
+import io.spine.validation.ValidationError;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

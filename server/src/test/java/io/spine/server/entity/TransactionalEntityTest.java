@@ -29,7 +29,7 @@ import io.spine.base.EntityState;
 import io.spine.core.Versions;
 import io.spine.server.entity.given.TeEntity;
 import io.spine.server.test.shared.EmptyEntity;
-import io.spine.validate.ValidatingBuilder;
+import io.spine.validation.ValidatingBuilder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

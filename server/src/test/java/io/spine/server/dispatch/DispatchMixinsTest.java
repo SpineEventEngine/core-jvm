@@ -27,7 +27,7 @@
 package io.spine.server.dispatch;
 
 import io.spine.server.dispatch.given.Given;
-import io.spine.validate.FieldAwareMessage;
+import io.spine.validation.FieldAwareMessage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

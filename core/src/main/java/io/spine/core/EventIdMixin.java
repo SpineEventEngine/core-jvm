@@ -29,7 +29,7 @@ package io.spine.core;
 import com.google.protobuf.Descriptors;
 import io.spine.annotation.GeneratedMixin;
 import io.spine.annotation.Internal;
-import io.spine.validate.FieldAwareMessage;
+import io.spine.validation.FieldAwareMessage;
 
 /**
  * A mixin interface for {@link EventId}.

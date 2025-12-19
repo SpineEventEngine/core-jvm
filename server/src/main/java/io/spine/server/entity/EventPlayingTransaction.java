@@ -33,7 +33,7 @@ import io.spine.core.Version;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.event.EventDispatch;
 import io.spine.server.type.EventEnvelope;
-import io.spine.validate.ValidatingBuilder;
+import io.spine.validation.ValidatingBuilder;
 
 /**
  * A transaction that supports event {@linkplain EventPlayer playing}.

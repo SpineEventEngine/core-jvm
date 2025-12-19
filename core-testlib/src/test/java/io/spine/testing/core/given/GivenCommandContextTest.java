@@ -39,7 +39,7 @@ import static io.spine.base.Time.currentTime;
 import static io.spine.protobuf.Durations2.hours;
 import static io.spine.protobuf.Durations2.minutes;
 import static io.spine.testing.core.given.GivenUserId.newUuid;
-import static io.spine.validate.Validate.check;
+import static io.spine.validation.Validate.check;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 

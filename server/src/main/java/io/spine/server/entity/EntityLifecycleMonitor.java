@@ -34,8 +34,8 @@ import io.spine.core.Event;
 import io.spine.core.MessageId;
 import io.spine.core.Signal;
 import io.spine.protobuf.AnyPacker;
-import io.spine.validate.NonValidated;
-import io.spine.validate.ValidationError;
+import io.spine.validation.NonValidated;
+import io.spine.validation.ValidationError;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import java.util.List;

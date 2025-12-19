@@ -37,8 +37,8 @@ import io.spine.server.MessageInvalid;
 import io.spine.server.type.CommandClass;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.type.TypeName;
-import io.spine.validate.ConstraintViolation;
-import io.spine.validate.ExceptionFactory;
+import io.spine.validation.ConstraintViolation;
+import io.spine.validation.ExceptionFactory;
 
 import java.io.Serial;
 import java.util.Map;

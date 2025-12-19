@@ -35,7 +35,7 @@ import io.spine.dependency.local.Base
 import io.spine.dependency.local.BaseTypes
 import io.spine.dependency.local.Change
 import io.spine.dependency.local.Compiler
-import io.spine.dependency.local.CoreJava
+import io.spine.dependency.local.CoreJvm
 import io.spine.dependency.local.Logging
 import io.spine.dependency.local.Reflect
 import io.spine.dependency.local.TestLib
@@ -50,8 +50,8 @@ import io.spine.gradle.javac.configureJavac
 import io.spine.gradle.javadoc.JavadocConfig
 import io.spine.gradle.kotlin.setFreeCompilerArgs
 import io.spine.gradle.publish.IncrementGuard
-import io.spine.gradle.report.license.LicenseReporter
 import io.spine.gradle.repo.standardToSpineSdk
+import io.spine.gradle.report.license.LicenseReporter
 import org.gradle.jvm.tasks.Jar
 
 plugins {
@@ -234,7 +234,7 @@ fun Module.forceConfigurations() {
                     BaseTypes.lib,
                     Change.lib,
                     Compiler.api,
-                    CoreJava.server,
+                    CoreJvm.server,
                     Grpc.bom,
                     Guava.lib,
                     JUnit.bom,
@@ -257,6 +257,9 @@ fun Module.forceConfigurations() {
                     ToolBase.pluginBase,
                     ToolBase.protobufSetupPlugins,
                     ToolBase.psiJava,
+                    Validation.context,
+                    Validation.javaBundle,
+                    Validation.gradlePluginLib,
                     Validation.runtime,
                     "io.spine.validation:spine-validation-java-runtime:2.0.0-SNAPSHOT.354"
                 )

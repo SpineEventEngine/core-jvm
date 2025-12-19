@@ -31,7 +31,7 @@ import io.spine.annotation.Internal;
 import io.spine.base.AggregateState;
 import io.spine.reflect.GenericTypeIndex;
 import io.spine.server.aggregate.model.AggregatePartClass;
-import io.spine.validate.ValidatingBuilder;
+import io.spine.validation.ValidatingBuilder;
 
 import static io.spine.server.aggregate.model.AggregatePartClass.asAggregatePartClass;
 

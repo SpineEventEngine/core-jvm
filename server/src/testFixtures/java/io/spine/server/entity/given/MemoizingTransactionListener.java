@@ -33,7 +33,7 @@ import io.spine.server.entity.EntityRecord;
 import io.spine.server.entity.EntityRecordChange;
 import io.spine.server.entity.Phase;
 import io.spine.server.entity.TransactionListener;
-import io.spine.validate.NonValidated;
+import io.spine.validation.NonValidated;
 
 import java.util.List;
 

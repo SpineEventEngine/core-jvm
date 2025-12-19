@@ -33,7 +33,7 @@ import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.EventPlayingTransaction;
 import io.spine.server.entity.VersionIncrement;
 import io.spine.server.type.EventEnvelope;
-import io.spine.validate.ValidatingBuilder;
+import io.spine.validation.ValidatingBuilder;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

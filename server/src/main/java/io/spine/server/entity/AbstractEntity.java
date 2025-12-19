@@ -47,8 +47,8 @@ import io.spine.server.entity.rejection.CannotModifyDeletedEntity;
 import io.spine.server.log.ReceptorLifecycle;
 import io.spine.server.model.Receptor;
 import io.spine.string.Stringifiers;
-import io.spine.validate.ConstraintViolation;
-import io.spine.validate.Validate;
+import io.spine.validation.ConstraintViolation;
+import io.spine.validation.Validate;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -60,8 +60,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static io.spine.util.Exceptions.newIllegalArgumentException;
 import static io.spine.util.Exceptions.newIllegalStateException;
-import static io.spine.validate.Validate.check;
-import static io.spine.validate.Validate.violationsOf;
+import static io.spine.validation.Validate.check;
+import static io.spine.validation.Validate.violationsOf;
 
 /**
  * Abstract base for entities.
