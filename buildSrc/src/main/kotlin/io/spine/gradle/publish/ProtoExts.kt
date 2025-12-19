@@ -35,11 +35,15 @@ import org.gradle.api.file.SourceDirectorySet
 import org.gradle.api.tasks.bundling.Jar
 
 /**
- * Tells whether there are any Proto sources in "main" source set.
+ * Tells whether there are any Proto sources in the "main" source set.
  */
-internal fun Project.hasProto(): Boolean {
+fun Project.hasProto(): Boolean {
     val protoSources = protoSources()
-    val result = protoSources.any { it.exists() }
+    val result = protoSources.any {
+        it.exists()
+                && it.isDirectory
+                && it.listFiles()?.isNotEmpty() ?: false
+    }
     return result
 }
 

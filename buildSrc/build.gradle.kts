@@ -128,11 +128,6 @@ val detektVersion = "1.23.8"
 val kotestJvmPluginVersion = "0.4.10"
 
 /**
- * @see [io.spine.dependency.test.Kotest.MultiplatformGradlePlugin]
- */
-val kotestMultiplatformPluginVersion = "6.0.0.M4"
-
-/**
  * @see [io.spine.dependency.test.Kover]
  */
 val koverVersion = "0.9.1"
@@ -185,7 +180,6 @@ dependencies {
         "com.gradleup.shadow:shadow-gradle-plugin:$shadowVersion",
         "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:$detektVersion",
         "io.kotest:kotest-gradle-plugin:$kotestJvmPluginVersion",
-        "io.kotest:kotest-framework-multiplatform-plugin-gradle:$kotestMultiplatformPluginVersion",
         // https://github.com/srikanth-lingala/zip4j
         "net.lingala.zip4j:zip4j:2.10.0",
         "net.ltgt.gradle:gradle-errorprone-plugin:$errorPronePluginVersion",

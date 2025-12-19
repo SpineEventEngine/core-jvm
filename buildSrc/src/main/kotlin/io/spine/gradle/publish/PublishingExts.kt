@@ -36,6 +36,7 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.publish.PublicationContainer
 import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Jar
@@ -231,7 +232,7 @@ fun TaskContainer.excludeGoogleProtoFromArtifacts() {
  * Java and Kotlin sources are default to `main` source set since it is created by `java` plugin.
  * For Proto sources to be included – [special treatment][protoSources] is needed.
  */
-internal fun Project.sourcesJar(): TaskProvider<Jar> = tasks.getOrCreate("sourcesJar") {
+fun Project.sourcesJar(): TaskProvider<Jar> = tasks.getOrCreate("sourcesJar") {
     dependOnGenerateProto()
     archiveClassifier.set("sources")
     from(sourceSets["main"].allSource) // Puts Java and Kotlin sources.
@@ -245,7 +246,7 @@ internal fun Project.sourcesJar(): TaskProvider<Jar> = tasks.getOrCreate("source
  * The output of this task is a `jar` archive. The archive contains only
  * [Proto sources][protoSources] from `main` source set.
  */
-internal fun Project.protoJar(): TaskProvider<Jar> = tasks.getOrCreate("protoJar") {
+fun Project.protoJar(): TaskProvider<Jar> = tasks.getOrCreate("protoJar") {
     dependOnGenerateProto()
     archiveClassifier.set("proto")
     from(protoSources())
@@ -316,4 +317,21 @@ internal fun Project.artifacts(jarFlags: JarFlags): Set<TaskProvider<Jar>> {
     }
 
     return tasks
+}
+
+/**
+ * Adds the source code and documentation JARs to the publication.
+ */
+@Suppress("unused")
+fun MavenPublication.addSourceAndDocJars(project: Project) {
+    val tasks = mutableSetOf<TaskProvider<Jar>>()
+    tasks.add(project.sourcesJar())
+    tasks.add(project.javadocJar())
+    tasks.add(project.htmlDocsJar())
+    if (project.hasProto()) {
+        tasks.add(project.protoJar())
+    }
+    tasks.forEach {
+        artifact(it)
+    }
 }
