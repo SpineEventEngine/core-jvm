@@ -39,7 +39,7 @@ import io.spine.server.entity.VersionIncrement;
 import io.spine.server.event.EventDispatch;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventEnvelope;
-import io.spine.validate.ValidatingBuilder;
+import io.spine.validation.ValidatingBuilder;
 
 /**
  * A transaction, within which {@linkplain ProcessManager ProcessManager instances} are modified.

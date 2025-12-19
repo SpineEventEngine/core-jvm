@@ -37,8 +37,8 @@ import io.spine.core.MessageId;
 import io.spine.core.Version;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.dispatch.DispatchOutcomeHandler;
-import io.spine.validate.NonValidated;
-import io.spine.validate.ValidatingBuilder;
+import io.spine.validation.NonValidated;
+import io.spine.validation.ValidatingBuilder;
 
 import java.util.List;
 import java.util.function.Consumer;

@@ -49,7 +49,7 @@ import io.spine.server.query.QueryingClient;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
-import io.spine.validate.ValidatingBuilder;
+import io.spine.validation.ValidatingBuilder;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import static com.google.common.base.Preconditions.checkNotNull;

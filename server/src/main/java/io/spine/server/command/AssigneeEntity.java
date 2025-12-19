@@ -37,7 +37,7 @@ import io.spine.change.ValueMismatch;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.TransactionalEntity;
 import io.spine.server.type.CommandEnvelope;
-import io.spine.validate.ValidatingBuilder;
+import io.spine.validation.ValidatingBuilder;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**

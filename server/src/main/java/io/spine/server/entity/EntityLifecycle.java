@@ -75,7 +75,7 @@ import io.spine.system.server.event.EventImported;
 import io.spine.system.server.event.MigrationApplied;
 import io.spine.system.server.event.TargetAssignedToCommand;
 import io.spine.type.TypeUrl;
-import io.spine.validate.ValidationError;
+import io.spine.validation.ValidationError;
 
 import java.util.Collection;
 import java.util.Optional;

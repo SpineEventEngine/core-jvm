@@ -64,7 +64,7 @@ import static com.google.common.collect.Lists.newLinkedList;
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.util.Exceptions.newIllegalArgumentException;
 import static io.spine.util.Exceptions.newIllegalStateException;
-import static io.spine.validate.Validate.check;
+import static io.spine.validation.Validate.check;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 

@@ -35,7 +35,7 @@ import io.spine.server.procman.ProcessManager;
 import io.spine.server.procman.given.dispatch.ProcessManagerBuilder;
 import io.spine.server.projection.Projection;
 import io.spine.server.projection.given.dispatch.ProjectionBuilder;
-import io.spine.validate.ValidatingBuilder;
+import io.spine.validation.ValidatingBuilder;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

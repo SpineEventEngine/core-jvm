@@ -40,7 +40,7 @@ import io.spine.server.entity.TransactionalEntity;
 import io.spine.server.event.EventSubscriber;
 import io.spine.server.projection.model.ProjectionClass;
 import io.spine.server.type.EventEnvelope;
-import io.spine.validate.ValidatingBuilder;
+import io.spine.validation.ValidatingBuilder;
 
 import static io.spine.core.EventValidationError.UNSUPPORTED_EVENT_VALUE;
 import static io.spine.server.projection.model.ProjectionClass.asProjectionClass;

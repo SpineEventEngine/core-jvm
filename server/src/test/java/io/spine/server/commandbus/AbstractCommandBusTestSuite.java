@@ -51,7 +51,7 @@ import io.spine.test.commandbus.command.CmdBusCreateProject;
 import io.spine.test.commandbus.event.CmdBusProjectCreated;
 import io.spine.testing.client.TestActorRequestFactory;
 import io.spine.testing.server.model.ModelTests;
-import io.spine.validate.ValidationError;
+import io.spine.validation.ValidationError;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

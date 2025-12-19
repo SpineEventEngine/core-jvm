@@ -33,7 +33,7 @@ import io.spine.core.Version;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.AggregateTransaction;
 import io.spine.server.entity.EntityBuilder;
-import io.spine.validate.ValidatingBuilder;
+import io.spine.validation.ValidatingBuilder;
 
 /**
  * Utility class for building aggregates for tests.

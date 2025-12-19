@@ -30,7 +30,7 @@ import io.kotest.matchers.shouldBe
 import io.spine.base.Error
 import io.spine.core.Responses.ok
 import io.spine.testing.UtilityClassTest
-import io.spine.validate.NonValidated
+import io.spine.validation.NonValidated
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 

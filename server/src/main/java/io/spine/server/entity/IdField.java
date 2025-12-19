@@ -30,8 +30,8 @@ import com.google.errorprone.annotations.Immutable;
 import io.spine.base.EntityState;
 import io.spine.code.proto.FieldDeclaration;
 import io.spine.server.entity.model.EntityClass;
-import io.spine.validate.ValidatingBuilder;
-import io.spine.validate.option.Required;
+import io.spine.validation.ValidatingBuilder;
+import io.spine.validation.option.Required;
 import org.jspecify.annotations.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;

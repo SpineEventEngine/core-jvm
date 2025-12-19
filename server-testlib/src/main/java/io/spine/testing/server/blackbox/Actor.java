@@ -36,7 +36,7 @@ import io.spine.time.ZoneIds;
 import org.jspecify.annotations.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static io.spine.validate.Validate.check;
+import static io.spine.validation.Validate.check;
 
 /**
  * A factory of test actor request factories.

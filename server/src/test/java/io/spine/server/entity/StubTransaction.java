@@ -27,7 +27,7 @@
 package io.spine.server.entity;
 
 import io.spine.base.EntityState;
-import io.spine.validate.ValidatingBuilder;
+import io.spine.validation.ValidatingBuilder;
 
 /**
  * Stub implementation of {@code Transaction} which behaves as told in the passed parameters.

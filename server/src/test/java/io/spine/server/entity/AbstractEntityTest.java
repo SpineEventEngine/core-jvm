@@ -36,7 +36,7 @@ import io.spine.server.test.shared.LongIdAggregate;
 import io.spine.test.entity.Project;
 import io.spine.test.entity.ProjectId;
 import io.spine.test.server.number.NaturalNumber;
-import io.spine.validate.ValidationError;
+import io.spine.validation.ValidationError;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

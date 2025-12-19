@@ -31,7 +31,7 @@ import io.spine.base.ProjectionState;
 import io.spine.server.entity.Migration;
 import io.spine.server.projection.Projection;
 import io.spine.server.projection.ProjectionMigration;
-import io.spine.validate.ValidatingBuilder;
+import io.spine.validation.ValidatingBuilder;
 
 /**
  * A migration operation that physically deletes the projection's entity record from the

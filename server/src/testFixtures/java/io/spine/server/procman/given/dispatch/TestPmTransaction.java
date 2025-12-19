@@ -30,7 +30,7 @@ import io.spine.base.ProcessManagerState;
 import io.spine.core.Version;
 import io.spine.server.procman.PmTransaction;
 import io.spine.server.procman.ProcessManager;
-import io.spine.validate.ValidatingBuilder;
+import io.spine.validation.ValidatingBuilder;
 
 /**
  * A test-only implementation of a {@link PmTransaction} that can set the given

@@ -30,7 +30,7 @@ import io.spine.annotation.Experimental;
 import io.spine.base.ProjectionState;
 import io.spine.server.entity.Migration;
 import io.spine.server.entity.Transaction;
-import io.spine.validate.ValidatingBuilder;
+import io.spine.validation.ValidatingBuilder;
 
 /**
  * A {@link Migration} applied to a {@link Projection} instance.

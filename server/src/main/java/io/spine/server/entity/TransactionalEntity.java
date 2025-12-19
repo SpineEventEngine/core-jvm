@@ -30,7 +30,7 @@ import io.spine.annotation.VisibleForTesting;
 import io.spine.base.EntityState;
 import io.spine.core.Event;
 import io.spine.core.Version;
-import io.spine.validate.ValidatingBuilder;
+import io.spine.validation.ValidatingBuilder;
 import org.jspecify.annotations.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;

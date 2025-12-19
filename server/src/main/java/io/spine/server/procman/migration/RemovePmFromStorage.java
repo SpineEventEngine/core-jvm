@@ -31,7 +31,7 @@ import io.spine.base.ProcessManagerState;
 import io.spine.server.entity.Migration;
 import io.spine.server.procman.ProcessManager;
 import io.spine.server.procman.ProcessManagerMigration;
-import io.spine.validate.ValidatingBuilder;
+import io.spine.validation.ValidatingBuilder;
 
 /**
  * A migration operation that physically deletes the entity record from the

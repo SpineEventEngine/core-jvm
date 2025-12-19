@@ -32,7 +32,7 @@ import io.spine.test.core.ProjectCreated
 import io.spine.test.core.TaskAssigned
 import io.spine.test.core.projectCreated
 import io.spine.test.core.projectId
-import io.spine.validate.NonValidated
+import io.spine.validation.NonValidated
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 

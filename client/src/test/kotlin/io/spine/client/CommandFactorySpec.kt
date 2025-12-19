@@ -37,7 +37,7 @@ import io.spine.testing.core.given.GivenUserId
 import io.spine.testing.time.Future
 import io.spine.testing.time.Past
 import io.spine.time.ZoneIds
-import io.spine.validate.ValidationException
+import io.spine.validation.ValidationException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested

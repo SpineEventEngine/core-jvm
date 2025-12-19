@@ -31,7 +31,7 @@ import io.spine.server.type.CommandEnvelope;
 import io.spine.test.command.event.MandatoryFieldEvent;
 import io.spine.testing.TestValues;
 import io.spine.testing.client.TestActorRequestFactory;
-import io.spine.validate.ValidationException;
+import io.spine.validation.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

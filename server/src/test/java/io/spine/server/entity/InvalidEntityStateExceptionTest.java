@@ -27,7 +27,7 @@
 package io.spine.server.entity;
 
 import io.spine.test.entity.AccountDetails;
-import io.spine.validate.ConstraintViolation;
+import io.spine.validation.ConstraintViolation;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

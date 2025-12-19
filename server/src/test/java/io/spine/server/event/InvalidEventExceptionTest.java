@@ -28,7 +28,7 @@ package io.spine.server.event;
 
 import io.spine.base.EventMessage;
 import io.spine.test.event.ProjectCreated;
-import io.spine.validate.ConstraintViolation;
+import io.spine.validation.ConstraintViolation;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

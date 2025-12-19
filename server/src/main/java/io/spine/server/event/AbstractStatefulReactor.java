@@ -37,7 +37,7 @@ import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.Repository;
 import io.spine.server.type.EventEnvelope;
 import io.spine.type.TypeUrl;
-import io.spine.validate.ValidatingBuilder;
+import io.spine.validation.ValidatingBuilder;
 
 import java.util.Optional;
 import java.util.Set;

@@ -34,7 +34,7 @@ import io.spine.core.Event;
 import io.spine.core.Version;
 import io.spine.logging.WithLogging;
 import io.spine.system.server.event.MigrationApplied;
-import io.spine.validate.ValidatingBuilder;
+import io.spine.validation.ValidatingBuilder;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jspecify.annotations.Nullable;
 

@@ -34,11 +34,11 @@ import io.spine.core.Command;
 import io.spine.core.CommandContext;
 import io.spine.core.CommandId;
 import io.spine.protobuf.AnyPacker;
-import io.spine.validate.ValidationException;
+import io.spine.validation.ValidationException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.base.Time.currentTime;
-import static io.spine.validate.Validate.check;
+import static io.spine.validation.Validate.check;
 
 /**
  * A factory of {@link Command} instances.
@@ -47,7 +47,7 @@ import static io.spine.validate.Validate.check;
  * such as the actor, the tenant, and others.
  *
  * <p>The command messages passed to the factory are
- * {@linkplain io.spine.validate.Validate#check(com.google.protobuf.Message) validated}
+ * {@linkplain io.spine.validation.Validate#check(com.google.protobuf.Message) validated}
  * according to their Proto definitions. If a given message is invalid,
  * a {@link ValidationException} is thrown.
  *

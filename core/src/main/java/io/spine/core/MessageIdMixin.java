@@ -31,7 +31,7 @@ import com.google.protobuf.Message;
 import io.spine.annotation.GeneratedMixin;
 import io.spine.annotation.Internal;
 import io.spine.type.TypeUrl;
-import io.spine.validate.FieldAwareMessage;
+import io.spine.validation.FieldAwareMessage;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;

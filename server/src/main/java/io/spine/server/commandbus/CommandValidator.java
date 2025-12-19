@@ -33,9 +33,9 @@ import io.spine.core.CommandId;
 import io.spine.server.MessageInvalid;
 import io.spine.server.bus.EnvelopeValidator;
 import io.spine.server.type.CommandEnvelope;
-import io.spine.validate.ConstraintViolation;
-import io.spine.validate.TemplateString;
-import io.spine.validate.Validate;
+import io.spine.validation.ConstraintViolation;
+import io.spine.validation.TemplateString;
+import io.spine.validation.Validate;
 
 import java.util.List;
 import java.util.Optional;

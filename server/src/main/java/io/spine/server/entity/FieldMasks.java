@@ -30,7 +30,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.protobuf.FieldMask;
 import com.google.protobuf.Message;
 import com.google.protobuf.util.FieldMaskUtil;
-import io.spine.validate.NonValidated;
+import io.spine.validation.NonValidated;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;

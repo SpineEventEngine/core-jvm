@@ -28,7 +28,7 @@ package io.spine.server.entity;
 
 import io.spine.base.Error;
 import io.spine.core.Event;
-import io.spine.validate.NonValidated;
+import io.spine.validation.NonValidated;
 
 /**
  * An implementation of a {@code TransactionListener} which does not set any behavior for its
