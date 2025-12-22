@@ -60,14 +60,13 @@ buildscript {
                     io.spine.dependency.local.Time.javaExtensions,
                     io.spine.dependency.local.Compiler.api,
                     io.spine.dependency.local.ToolBase.lib,
-                    io.spine.dependency.local.CoreJava.server,
+                    io.spine.dependency.local.CoreJvm.server,
                     io.spine.dependency.local.Reflect.lib,
                     logging.lib,
                     logging.libJvm,
                     logging.grpcContext,
                     io.spine.dependency.local.Time.lib,
-                    io.spine.dependency.local.Validation.runtime,
-                    "io.spine.validation:spine-validation-java-runtime:2.0.0-SNAPSHOT.354"
+                    io.spine.dependency.local.Validation.oldRuntime,
                 )
             }
         }

@@ -261,7 +261,7 @@ fun Module.forceConfigurations() {
                     Validation.javaBundle,
                     Validation.gradlePluginLib,
                     Validation.runtime,
-                    "io.spine.validation:spine-validation-java-runtime:2.0.0-SNAPSHOT.354"
+                    Validation.oldRuntime
                 )
             }
         }
