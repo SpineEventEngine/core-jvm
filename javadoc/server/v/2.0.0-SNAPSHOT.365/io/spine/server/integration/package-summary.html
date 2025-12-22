@@ -1,0 +1,369 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en"><head>
+    <title>Package io.spine.server.integration </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="dc.created" content="2020-03-25">
+    <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../dokka-javadoc-stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../jquery/jquery-ui.css" title="Style">
+    <script type="text/javascript" src="../../../../jquery/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-migrate-3.4.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
+
+    <script type="text/javascript" src="../../../../search.js"></script>
+    <script async type="text/javascript" src="../../../../module-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../package-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../type-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../member-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../tag-search-index.js"></script>
+</head><body>
+<script type="text/javascript">
+var pathtoroot = "../../../../";
+</script>
+<noscript>
+    <div>JavaScript is disabled on your browser.</div>
+</noscript><header role="banner">
+    <nav role="navigation">
+        <div class="fixedNav">
+            <!-- ========= START OF TOP NAVBAR ======= -->
+            <div class="topNav"><a id="navbar.top">
+                <!--   -->
+            </a>
+                <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a>
+                </div>
+                <a id="navbar.top.firstrow">
+                    <!--   -->
+                </a>
+                <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li class="navBarCell1Rev">Package</li>
+    
+    <li>Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+            <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" class="ui-autocomplete-input" autocomplete="off" placeholder="Search">
+<input type="reset" id="reset" value="reset">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ========= END OF TOP NAVBAR ========= -->
+        </div>
+        <div class="navPadding">&nbsp;</div>
+        <script type="text/javascript"><!--
+        $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+        //-->
+        </script>
+    </nav>
+</header>
+<main role="main">
+    <div class="header">
+        <h1 title="Package" class="title">Package io.spine.server.integration </h1>
+    </div>
+        <div class="header">
+            <div class="subtitle">
+                <div class="block"><p>This package contains classes and interfaces for communications between bounded contexts.</p></div>
+            </div>
+            <p>See: <a href="#overview_description">Description</a></p>
+        </div>
+    <div class="contentContainer">
+        
+            <ul class="blockList">
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ThirdPartyContext.html>ThirdPartyContext</a></th><td class="colLast">An external non-Spine based upstream system.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AbstractChannelObserver.html>AbstractChannelObserver</a></th><td class="colLast">Base routines for the <a href=../transport/Subscriber.html#addObserver(io.grpc.stub.StreamObserver)>subscriber observers</a>.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ExternalEventType.Builder.html>Builder</a></th><td class="colLast"><pre><code>The type of a domain event which is emitted by one Bounded Context and consumed by
+other Bounded Contexts as &quot;external&quot; event
+</code></pre> Protobuf type <code>spine.server.integration.ExternalEventType</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ExternalEventType.html>ExternalEventType</a></th><td class="colLast"><pre><code>The type of a domain event which is emitted by one Bounded Context and consumed by
+other Bounded Contexts as &quot;external&quot; event
+</code></pre> Protobuf type <code>spine.server.integration.ExternalEventType</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=BoundedContextOnline.Builder.html>Builder</a></th><td class="colLast"><pre><code>Tells that some Bounded Context is connected to the shared transport.
+
+Used to notify other parties connected to the same transport that the external events they
+might need may be provided by the Bounded Context that is online.
+
+Typically, once others receive this message, they might want to send their
+respective `ExternalEventsWanted` messages to see if the connected Bounded Context
+is able to provide them.
+
+Please note this message does not signify that some context has _just_ connected
+to the transport. It may be sent by some context which has been using the shared transport
+for quite some time — in which case this message may serve to notify just-connected Bounded
+Contexts of its existence.
+</code></pre> Protobuf type <code>spine.server.integration.BoundedContextOnline</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=BoundedContextOnline.html>BoundedContextOnline</a></th><td class="colLast"><pre><code>Tells that some Bounded Context is connected to the shared transport.
+
+Used to notify other parties connected to the same transport that the external events they
+might need may be provided by the Bounded Context that is online.
+
+Typically, once others receive this message, they might want to send their
+respective `ExternalEventsWanted` messages to see if the connected Bounded Context
+is able to provide them.
+
+Please note this message does not signify that some context has _just_ connected
+to the transport. It may be sent by some context which has been using the shared transport
+for quite some time — in which case this message may serve to notify just-connected Bounded
+Contexts of its existence.
+</code></pre> Protobuf type <code>spine.server.integration.BoundedContextOnline</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ExternalMessage.Builder.html>Builder</a></th><td class="colLast"><pre><code>A wrapper around a message, which is used to send/receive the original message
+to/from external application components, such as other Bounded Contexts.
+</code></pre> Protobuf type <code>spine.server.integration.ExternalMessage</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ExternalMessage.html>ExternalMessage</a></th><td class="colLast"><pre><code>A wrapper around a message, which is used to send/receive the original message
+to/from external application components, such as other Bounded Contexts.
+</code></pre> Protobuf type <code>spine.server.integration.ExternalMessage</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ExternalEventsWanted.Builder.html>Builder</a></th><td class="colLast"><pre><code>A document message, describing types of events,
+that are required for consumption by some part of the system.
+
+One of the typical scenarios is a notification shout-out from the current Bounded Context
+to other Bounded Contexts of the application about its `external` subscription needs.
+</code></pre> Protobuf type <code>spine.server.integration.ExternalEventsWanted</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ExternalEventsWanted.html>ExternalEventsWanted</a></th><td class="colLast"><pre><code>A document message, describing types of events,
+that are required for consumption by some part of the system.
+
+One of the typical scenarios is a notification shout-out from the current Bounded Context
+to other Bounded Contexts of the application about its `external` subscription needs.
+</code></pre> Protobuf type <code>spine.server.integration.ExternalEventsWanted</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=BrokerProto.html>BrokerProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=BoundedContextOnlineKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ExternalEventTypeKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ExternalEventsWantedKt.Dsl.TypeProxy.html>TypeProxy</a></th><td class="colLast">An uninstantiable, behaviorless type to represent the field in generics.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ExternalEventsWantedKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ExternalMessageKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=BoundedContextOnlineKtKt.html>BoundedContextOnlineKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ExternalMessageKtKt.html>ExternalMessageKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ExternalEventTypeKtKt.html>ExternalEventTypeKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ExternalEventsWantedKtKt.html>ExternalEventsWantedKtKt</a></th><td class="colLast"></td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Interface</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ExternalEventTypeOrBuilder.html>ExternalEventTypeOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ExternalEventsWantedOrBuilder.html>ExternalEventsWantedOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=BoundedContextOnlineOrBuilder.html>BoundedContextOnlineOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ExternalMessageOrBuilder.html>ExternalMessageOrBuilder</a></th><td class="colLast"></td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Enum Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Enum</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ExternalMessageValidationError.html>ExternalMessageValidationError</a></th><td class="colLast"><pre><code>The type of error, that may occur during the `ExternalMessage` validation.
+</code></pre> Protobuf enum <code>spine.server.integration.ExternalMessageValidationError</code></td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Object Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Object</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=BoundedContextOnlineKt.html>BoundedContextOnlineKt</a></th><td class="colLast"><pre><code>Tells that some Bounded Context is connected to the shared transport.
+
+Used to notify other parties connected to the same transport that the external events they
+might need may be provided by the Bounded Context that is online.
+
+Typically, once others receive this message, they might want to send their
+respective `ExternalEventsWanted` messages to see if the connected Bounded Context
+is able to provide them.
+
+Please note this message does not signify that some context has _just_ connected
+to the transport. It may be sent by some context which has been using the shared transport
+for quite some time — in which case this message may serve to notify just-connected Bounded
+Contexts of its existence.</code></pre>Protobuf type <code>spine.server.integration.BoundedContextOnline</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ExternalEventTypeKt.html>ExternalEventTypeKt</a></th><td class="colLast"><pre><code>The type of a domain event which is emitted by one Bounded Context and consumed by
+other Bounded Contexts as &quot;external&quot; event</code></pre>Protobuf type <code>spine.server.integration.ExternalEventType</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ExternalEventsWantedKt.html>ExternalEventsWantedKt</a></th><td class="colLast"><pre><code>A document message, describing types of events,
+that are required for consumption by some part of the system.
+
+One of the typical scenarios is a notification shout-out from the current Bounded Context
+to other Bounded Contexts of the application about its `external` subscription needs.</code></pre>Protobuf type <code>spine.server.integration.ExternalEventsWanted</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ExternalMessageKt.html>ExternalMessageKt</a></th><td class="colLast"><pre><code>A wrapper around a message, which is used to send/receive the original message
+to/from external application components, such as other Bounded Contexts.</code></pre>Protobuf type <code>spine.server.integration.ExternalMessage</code></td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+            </ul>
+        
+    </div>
+</main>
+<footer role="contentinfo">
+    <nav role="navigation">
+        <!-- ======= START OF BOTTOM NAVBAR ====== -->
+        <div class="bottomNav"><a id="navbar.bottom">
+            <!--   -->
+        </a>
+            <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a>
+            </div>
+            <a id="navbar.bottom.firstrow">
+                <!--   -->
+            </a>
+            <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li class="navBarCell1Rev">Package</li>
+    
+    <li>Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+        <a id="skip.navbar.bottom">
+            <!--   -->
+        </a>
+        <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ======== END OF BOTTOM NAVBAR ======= -->
+    </nav>
+</footer><ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" id="ui-id-1" tabindex="0"
+    style="display: none;"></ul>
+<span role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></span>
+</body>
+</html>

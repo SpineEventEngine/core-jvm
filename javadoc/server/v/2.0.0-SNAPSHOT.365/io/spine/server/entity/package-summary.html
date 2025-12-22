@@ -1,0 +1,348 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en"><head>
+    <title>Package io.spine.server.entity </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="dc.created" content="2020-03-25">
+    <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../dokka-javadoc-stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../jquery/jquery-ui.css" title="Style">
+    <script type="text/javascript" src="../../../../jquery/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-migrate-3.4.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
+
+    <script type="text/javascript" src="../../../../search.js"></script>
+    <script async type="text/javascript" src="../../../../module-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../package-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../type-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../member-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../tag-search-index.js"></script>
+</head><body>
+<script type="text/javascript">
+var pathtoroot = "../../../../";
+</script>
+<noscript>
+    <div>JavaScript is disabled on your browser.</div>
+</noscript><header role="banner">
+    <nav role="navigation">
+        <div class="fixedNav">
+            <!-- ========= START OF TOP NAVBAR ======= -->
+            <div class="topNav"><a id="navbar.top">
+                <!--   -->
+            </a>
+                <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a>
+                </div>
+                <a id="navbar.top.firstrow">
+                    <!--   -->
+                </a>
+                <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li class="navBarCell1Rev">Package</li>
+    
+    <li>Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+            <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" class="ui-autocomplete-input" autocomplete="off" placeholder="Search">
+<input type="reset" id="reset" value="reset">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ========= END OF TOP NAVBAR ========= -->
+        </div>
+        <div class="navPadding">&nbsp;</div>
+        <script type="text/javascript"><!--
+        $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+        //-->
+        </script>
+    </nav>
+</header>
+<main role="main">
+    <div class="header">
+        <h1 title="Package" class="title">Package io.spine.server.entity </h1>
+    </div>
+        <div class="header">
+            <div class="subtitle">
+                <div class="block"><p>This package contains classes and interfaces defining entity-oriented API and base functionality.</p></div>
+            </div>
+            <p>See: <a href="#overview_description">Description</a></p>
+        </div>
+    <div class="contentContainer">
+        
+            <ul class="blockList">
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=TransactionalEntity.html>TransactionalEntity</a></th><td class="colLast">A base for entities, perform transactions events.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CompositeEventFilter.Builder.html>Builder</a></th><td class="colLast">A builder for the <code>CompositeEventFilter</code> instances.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CompositeEventFilter.html>CompositeEventFilter</a></th><td class="colLast">An <a href=EventFilter.html>EventFilter</a> which composes several other filters.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=StorageConverter.html>StorageConverter</a></th><td class="colLast">An abstract base for converters of entities into <a href=EntityRecord.html>EntityRecord</a>.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AbstractEntity.html>AbstractEntity</a></th><td class="colLast">Abstract base for entities.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventBlackList.html>EventBlackList</a></th><td class="colLast">An <a href=EventFilter.html>EventFilter</a> which allows any events except for the events of given types.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventFieldFilter.Builder.html>Builder</a></th><td class="colLast">A builder for the <code>EventFieldFilter</code> instances.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventFieldFilter.html>EventFieldFilter</a></th><td class="colLast">An <a href=EventFilter.html>EventFilter</a> which allows all the events but trims some of their message fields.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=RecentHistory.html>RecentHistory</a></th><td class="colLast">A copy of recent history of an <a href=TransactionalEntity.html>event-sourced entity</a>.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventDispatchingRepository.html>EventDispatchingRepository</a></th><td class="colLast">Abstract base for repositories that deliver events to entities they manage.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=RecordBasedRepository.html>RecordBasedRepository</a></th><td class="colLast">The base class for repositories that store entities as records.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Repository.html>Repository</a></th><td class="colLast">Abstract base class for repositories.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Migration.html>Migration</a></th><td class="colLast">A stored <a href=Entity.html>Entity</a> transformation done to account for the domain model changes.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventWhiteList.html>EventWhiteList</a></th><td class="colLast">An <a href=EventFilter.html>EventFilter</a> which allows only events of given types.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=DefaultEntityFactory.html>DefaultEntityFactory</a></th><td class="colLast">Default implementation of entity factory which creates entities by invoking constructor which accepts entity ID.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=DefaultRecordBasedRepository.html>DefaultRecordBasedRepository</a></th><td class="colLast">Implementation of <a href=RecordBasedRepository.html>RecordBasedRepository</a> that manages entities derived from <a href=AbstractEntity.html>AbstractEntity</a>.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=FieldMasks.html>FieldMasks</a></th><td class="colLast">A utility class for creating instances of <code>FieldMask</code> and processing them against instances of Message.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=InvalidEntityStateException.html>InvalidEntityStateException</a></th><td class="colLast">Signals that an entity state does not pass validation.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EntityRecord.Builder.html>Builder</a></th><td class="colLast"><pre><code>The record for passing information about an entity.
+</code></pre> Protobuf type <code>spine.server.entity.EntityRecord</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EntityRecord.html>EntityRecord</a></th><td class="colLast"><pre><code>The record for passing information about an entity.
+</code></pre> Protobuf type <code>spine.server.entity.EntityRecord</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EntityRecordChange.Builder.html>Builder</a></th><td class="colLast"><pre><code>The change in the state of an entity.
+</code></pre> Protobuf type <code>spine.server.entity.EntityRecordChange</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EntityRecordChange.html>EntityRecordChange</a></th><td class="colLast"><pre><code>The change in the state of an entity.
+</code></pre> Protobuf type <code>spine.server.entity.EntityRecordChange</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EntityProto.html>EntityProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=LifecycleFlags.Builder.html>Builder</a></th><td class="colLast"><pre><code>The lifecycle flags of an entity.
+</code></pre> Protobuf type <code>spine.server.entity.LifecycleFlags</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=LifecycleFlags.html>LifecycleFlags</a></th><td class="colLast"><pre><code>The lifecycle flags of an entity.
+</code></pre> Protobuf type <code>spine.server.entity.LifecycleFlags</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EntityRecordChangeKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EntityRecordKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=LifecycleFlagsKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EntityRecordChangeKtKt.html>EntityRecordChangeKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EntityRecordKtKt.html>EntityRecordKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=TransactionalEntityExtensions.html>TransactionalEntityExtensions</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=LifecycleFlagsKtKt.html>LifecycleFlagsKtKt</a></th><td class="colLast"></td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Interface</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=WithLifecycle.html>WithLifecycle</a></th><td class="colLast">Something with <a href=LifecycleFlags.html>LifecycleFlags</a>.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EntityFactory.html>EntityFactory</a></th><td class="colLast">Base interface for objects that can create entities.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventProducingRepository.html>EventProducingRepository</a></th><td class="colLast">Operations common for repositories that can post to <a href=EventProducingRepository.html#eventBus()>EventBus</a>.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventFilter.html>EventFilter</a></th><td class="colLast">A filter accepting Events posted by a <a href=Repository.html>Repository</a>.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Entity.html>Entity</a></th><td class="colLast">A server-side object with an identity.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EntityRecordOrBuilder.html>EntityRecordOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=LifecycleFlagsOrBuilder.html>LifecycleFlagsOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EntityRecordChangeOrBuilder.html>EntityRecordChangeOrBuilder</a></th><td class="colLast"></td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Enum Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Enum</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Entity.GenericParameter.html>GenericParameter</a></th><td class="colLast">Enumeration of generic type parameters of this interface.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EntityStateValidationError.html>EntityStateValidationError</a></th><td class="colLast"><pre><code>Enumeration of possible entity state validation errors.
+
+Contains the reasons of an errors, that are exclusively technical
+and have no relation to business errors.
+</code></pre> Protobuf enum <code>spine.server.entity.EntityStateValidationError</code></td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Object Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Object</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EntityRecordChangeKt.html>EntityRecordChangeKt</a></th><td class="colLast"><pre><code>The change in the state of an entity.</code></pre>Protobuf type <code>spine.server.entity.EntityRecordChange</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EntityRecordKt.html>EntityRecordKt</a></th><td class="colLast"><pre><code>The record for passing information about an entity.</code></pre>Protobuf type <code>spine.server.entity.EntityRecord</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=LifecycleFlagsKt.html>LifecycleFlagsKt</a></th><td class="colLast"><pre><code>The lifecycle flags of an entity.</code></pre>Protobuf type <code>spine.server.entity.LifecycleFlags</code></td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+            </ul>
+        
+    </div>
+</main>
+<footer role="contentinfo">
+    <nav role="navigation">
+        <!-- ======= START OF BOTTOM NAVBAR ====== -->
+        <div class="bottomNav"><a id="navbar.bottom">
+            <!--   -->
+        </a>
+            <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a>
+            </div>
+            <a id="navbar.bottom.firstrow">
+                <!--   -->
+            </a>
+            <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li class="navBarCell1Rev">Package</li>
+    
+    <li>Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+        <a id="skip.navbar.bottom">
+            <!--   -->
+        </a>
+        <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ======== END OF BOTTOM NAVBAR ======= -->
+    </nav>
+</footer><ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" id="ui-id-1" tabindex="0"
+    style="display: none;"></ul>
+<span role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></span>
+</body>
+</html>
