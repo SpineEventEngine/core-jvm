@@ -36,7 +36,7 @@ object Validation {
     /**
      * The version of the Validation library artifacts.
      */
-    const val version = "2.0.0-SNAPSHOT.382"
+    const val version = "2.0.0-SNAPSHOT.383"
 
     /**
      * The last version of Validation compatible with ProtoData.
@@ -52,6 +52,9 @@ object Validation {
 
     fun runtime(version: String) = "$runtimeModule:$version"
     val runtime = runtime(version)
+
+    @Deprecated("Use `runtime` instead.", ReplaceWith("runtime"))
+    const val oldRuntime = "io.spine.validation:spine-validation-java-runtime:2.0.0-SNAPSHOT.354"
 
     const val javaModule = "$group:$prefix-java"
     const val java = "$javaModule:$version"
