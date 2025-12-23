@@ -1,0 +1,416 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en"><head>
+    <title>Package io.spine.server.aggregate </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="dc.created" content="2020-03-25">
+    <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../dokka-javadoc-stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../jquery/jquery-ui.css" title="Style">
+    <script type="text/javascript" src="../../../../jquery/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-migrate-3.4.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
+
+    <script type="text/javascript" src="../../../../search.js"></script>
+    <script async type="text/javascript" src="../../../../module-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../package-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../type-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../member-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../tag-search-index.js"></script>
+</head><body>
+<script type="text/javascript">
+var pathtoroot = "../../../../";
+</script>
+<noscript>
+    <div>JavaScript is disabled on your browser.</div>
+</noscript><header role="banner">
+    <nav role="navigation">
+        <div class="fixedNav">
+            <!-- ========= START OF TOP NAVBAR ======= -->
+            <div class="topNav"><a id="navbar.top">
+                <!--   -->
+            </a>
+                <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a>
+                </div>
+                <a id="navbar.top.firstrow">
+                    <!--   -->
+                </a>
+                <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li class="navBarCell1Rev">Package</li>
+    
+    <li>Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+            <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" class="ui-autocomplete-input" autocomplete="off" placeholder="Search">
+<input type="reset" id="reset" value="reset">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ========= END OF TOP NAVBAR ========= -->
+        </div>
+        <div class="navPadding">&nbsp;</div>
+        <script type="text/javascript"><!--
+        $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+        //-->
+        </script>
+    </nav>
+</header>
+<main role="main">
+    <div class="header">
+        <h1 title="Package" class="title">Package io.spine.server.aggregate </h1>
+    </div>
+        <div class="header">
+            <div class="subtitle">
+                <div class="block"></div>
+            </div>
+            <p>See: <a href="#overview_description">Description</a></p>
+        </div>
+    <div class="contentContainer">
+        
+            <ul class="blockList">
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregateRoot.html>AggregateRoot</a></th><td class="colLast">A root object for a larger aggregate.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ImportBus.Registry.html>Registry</a></th><td class="colLast">The registry of import dispatchers.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ImportBus.Builder.html>Builder</a></th><td class="colLast">The builder for <a href=ImportBus.html>ImportBus</a>.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ImportBus.html>ImportBus</a></th><td class="colLast">Dispatches events to repositories of aggregates that <a href=Apply.html#allowImport()>import</a> these events.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Aggregate.html>Aggregate</a></th><td class="colLast">Abstract base for aggregates.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=UnsupportedImportEventException.html>UnsupportedImportEventException</a></th><td class="colLast">Thrown when there are no aggregates that accept an event message for <a href=Apply.html#allowImport()>import</a>.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregatePart.html>AggregatePart</a></th><td class="colLast">A part of a larger aggregate.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregatePartRepository.html>AggregatePartRepository</a></th><td class="colLast">Common abstract base for repositories that manage <code>AggregatePart</code>s.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregateStorage.html>AggregateStorage</a></th><td class="colLast">A storage of aggregate events, snapshots and the most recent aggregate states.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateEventStorage.html>AggregateEventStorage</a></th><td class="colLast">Storage of events for each <a href=Aggregate.html>Aggregate</a>.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregateRepository.html>AggregateRepository</a></th><td class="colLast">The repository which manages instances of <code>Aggregate</code>s.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateEventRecordColumn.html>AggregateEventRecordColumn</a></th><td class="colLast">Columns stored along with an <a href=AggregateEventRecord.html>AggregateEventRecord</a>.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregateProto.html>AggregateProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateHistory.Builder.html>Builder</a></th><td class="colLast"><pre><code>A history of an aggregate is a sequence of its events which is used by the aggregate
+to restore its state.
+
+The history may start from a snapshot of the aggregate state. If so, the snapshot will be
+used as the starting point before playing events that occurred after the snapshot.
+
+If no snapshot is available, events represent the full history of the aggregate.
+</code></pre> Protobuf type <code>spine.server.aggregate.AggregateHistory</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregateHistory.html>AggregateHistory</a></th><td class="colLast"><pre><code>A history of an aggregate is a sequence of its events which is used by the aggregate
+to restore its state.
+
+The history may start from a snapshot of the aggregate state. If so, the snapshot will be
+used as the starting point before playing events that occurred after the snapshot.
+
+If no snapshot is available, events represent the full history of the aggregate.
+</code></pre> Protobuf type <code>spine.server.aggregate.AggregateHistory</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateEventRecord.Builder.html>Builder</a></th><td class="colLast"><pre><code>A record with information about an event or a snapshot of an aggregate.
+
+This message is used by storage implementations.
+</code></pre> Protobuf type <code>spine.server.aggregate.AggregateEventRecord</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregateEventRecord.html>AggregateEventRecord</a></th><td class="colLast"><pre><code>A record with information about an event or a snapshot of an aggregate.
+
+This message is used by storage implementations.
+</code></pre> Protobuf type <code>spine.server.aggregate.AggregateEventRecord</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Snapshot.Builder.html>Builder</a></th><td class="colLast"><pre><code>The message for storing an aggregate snapshot.
+</code></pre> Protobuf type <code>spine.server.aggregate.Snapshot</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Snapshot.html>Snapshot</a></th><td class="colLast"><pre><code>The message for storing an aggregate snapshot.
+</code></pre> Protobuf type <code>spine.server.aggregate.Snapshot</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateEventRecordId.Builder.html>Builder</a></th><td class="colLast">Protobuf type <code>spine.server.aggregate.AggregateEventRecordId</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregateEventRecordId.html>AggregateEventRecordId</a></th><td class="colLast">Protobuf type <code>spine.server.aggregate.AggregateEventRecordId</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateStateRecord.Builder.html>Builder</a></th><td class="colLast"><pre><code>The state of an aggregate at some point in time stored as a distinct record.
+
+Being persisted separately from aggregate's history (i.e. event and snapshot records),
+state records unlock the possibility to query the storage for aggregate instances.
+
+The records of this type are not used to replay the aggregate history, but rather serve as
+an eventually-consistent &quot;read-side&quot; of the stored aggregate instance.
+</code></pre> Protobuf type <code>spine.server.aggregate.AggregateStateRecord</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregateStateRecord.html>AggregateStateRecord</a></th><td class="colLast"><pre><code>The state of an aggregate at some point in time stored as a distinct record.
+
+Being persisted separately from aggregate's history (i.e. event and snapshot records),
+state records unlock the possibility to query the storage for aggregate instances.
+
+The records of this type are not used to replay the aggregate history, but rather serve as
+an eventually-consistent &quot;read-side&quot; of the stored aggregate instance.
+</code></pre> Protobuf type <code>spine.server.aggregate.AggregateStateRecord</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateEventRecordIdKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregateEventRecordKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateHistoryKt.Dsl.EventProxy.html>EventProxy</a></th><td class="colLast">An uninstantiable, behaviorless type to represent the field in generics.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregateHistoryKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateStateRecordKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=SnapshotKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateEventRecordKtKt.html>AggregateEventRecordKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=SnapshotKtKt.html>SnapshotKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateHistoryKtKt.html>AggregateHistoryKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregateStateRecordKtKt.html>AggregateStateRecordKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateEventRecordIdKtKt.html>AggregateEventRecordIdKtKt</a></th><td class="colLast"></td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Enum Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Enum</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregatePart.GenericParameter.html>GenericParameter</a></th><td class="colLast">Enumeration of generic type parameters of this class.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateEventRecord.KindCase.html>KindCase</a></th><td class="colLast"></td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Annotation Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Annotation</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Apply.html>Apply</a></th><td class="colLast">Marks a method of an aggregate as one that modifies the state of the aggregate with data from the passed event.</td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Interface</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregateRootDirectory.html>AggregateRootDirectory</a></th><td class="colLast">A mapping of aggregate roots to the associated <a href=AggregatePart.html>parts</a>.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateHistoryOrBuilder.html>AggregateHistoryOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregateEventRecordOrBuilder.html>AggregateEventRecordOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateStateRecordOrBuilder.html>AggregateStateRecordOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregateEventRecordIdOrBuilder.html>AggregateEventRecordIdOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=SnapshotOrBuilder.html>SnapshotOrBuilder</a></th><td class="colLast"></td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Object Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Object</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregateEventRecordIdKt.html>AggregateEventRecordIdKt</a></th><td class="colLast">Protobuf type <code>spine.server.aggregate.AggregateEventRecordId</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateEventRecordKt.html>AggregateEventRecordKt</a></th><td class="colLast"><pre><code>A record with information about an event or a snapshot of an aggregate.
+
+This message is used by storage implementations.</code></pre>Protobuf type <code>spine.server.aggregate.AggregateEventRecord</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregateHistoryKt.html>AggregateHistoryKt</a></th><td class="colLast"><pre><code>A history of an aggregate is a sequence of its events which is used by the aggregate
+to restore its state.
+
+The history may start from a snapshot of the aggregate state. If so, the snapshot will be
+used as the starting point before playing events that occurred after the snapshot.
+
+If no snapshot is available, events represent the full history of the aggregate.</code></pre>Protobuf type <code>spine.server.aggregate.AggregateHistory</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateStateRecordKt.html>AggregateStateRecordKt</a></th><td class="colLast"><pre><code>The state of an aggregate at some point in time stored as a distinct record.
+
+Being persisted separately from aggregate's history (i.e. event and snapshot records),
+state records unlock the possibility to query the storage for aggregate instances.
+
+The records of this type are not used to replay the aggregate history, but rather serve as
+an eventually-consistent &quot;read-side&quot; of the stored aggregate instance.</code></pre>Protobuf type <code>spine.server.aggregate.AggregateStateRecord</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=SnapshotKt.html>SnapshotKt</a></th><td class="colLast"><pre><code>The message for storing an aggregate snapshot.</code></pre>Protobuf type <code>spine.server.aggregate.Snapshot</code></td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+            </ul>
+        
+    </div>
+</main>
+<footer role="contentinfo">
+    <nav role="navigation">
+        <!-- ======= START OF BOTTOM NAVBAR ====== -->
+        <div class="bottomNav"><a id="navbar.bottom">
+            <!--   -->
+        </a>
+            <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a>
+            </div>
+            <a id="navbar.bottom.firstrow">
+                <!--   -->
+            </a>
+            <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li class="navBarCell1Rev">Package</li>
+    
+    <li>Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+        <a id="skip.navbar.bottom">
+            <!--   -->
+        </a>
+        <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ======== END OF BOTTOM NAVBAR ======= -->
+    </nav>
+</footer><ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" id="ui-id-1" tabindex="0"
+    style="display: none;"></ul>
+<span role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></span>
+</body>
+</html>
