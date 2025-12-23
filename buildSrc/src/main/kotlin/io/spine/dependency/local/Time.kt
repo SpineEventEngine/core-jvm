@@ -33,7 +33,7 @@ package io.spine.dependency.local
  */
 @Suppress("ConstPropertyName")
 object Time {
-    const val version = "2.0.0-SNAPSHOT.220"
+    const val version = "2.0.0-SNAPSHOT.230"
     const val group = Spine.group
     const val artifact = "spine-time"
     const val lib = "$group:$artifact:$version"
