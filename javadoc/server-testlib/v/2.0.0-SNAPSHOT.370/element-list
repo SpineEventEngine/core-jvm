@@ -1,0 +1,11 @@
+$dokka.format:javadoc-v1
+$dokka.linkExtension:html
+$dokka.location:io.spine.testing.server/BlackBoxId.Builder///PointingToDeclaration/io/spine/testing/server/BlackBoxId.Builder.html
+$dokka.location:io.spine.testing.server/BlackBoxIdKt.Dsl///PointingToDeclaration/io/spine/testing/server/BlackBoxIdKt.Dsl.html
+io.spine.testing.server
+io.spine.testing.server.blackbox
+io.spine.testing.server.blackbox.probe
+io.spine.testing.server.entity
+io.spine.testing.server.model
+io.spine.testing.server.query
+io.spine.testing.server.tenant
