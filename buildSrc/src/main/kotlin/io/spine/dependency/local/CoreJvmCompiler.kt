@@ -29,7 +29,7 @@ package io.spine.dependency.local
 /**
  * Dependencies on the CoreJvm Compiler artifacts.
  *
- * See [mc-java](https://github.com/SpineEventEngine/core-jvm-compiler).
+ * See [CoreJvm Compiler](https://github.com/SpineEventEngine/core-jvm-compiler).
  */
 @Suppress(
     "MemberVisibilityCanBePrivate" /* `pluginLib()` is used by subprojects. */,
@@ -46,12 +46,12 @@ object CoreJvmCompiler {
     /**
      * The version used to in the build classpath.
      */
-    const val dogfoodingVersion = "2.0.0-SNAPSHOT.042"
+    const val dogfoodingVersion = "2.0.0-SNAPSHOT.050"
 
     /**
      * The version to be used for integration tests.
      */
-    const val version = "2.0.0-SNAPSHOT.042"
+    const val version = "2.0.0-SNAPSHOT.050"
 
     /**
      * The ID of the Gradle plugin.

@@ -56,14 +56,8 @@ message ActorContext {
     // The time when the request was created.
     google.protobuf.Timestamp timestamp = 3 [(required) = true];
 
-    // The zone offset from which the request is made.
-    //
-    // The zero value of this field means UTC. That's why it's not marked as `required`.
-    // If a request is not made from time-zone with a zero offset, a valid offset must be provided.
-    //
-    // Please use `zone_id` instead.
-    //
-    time.ZoneOffset zone_offset = 4 [deprecated = true];
+    reserved "zone_offset";
+    reserved 4;
 
     // The ID of the time-zone from which the request is made.
     //
