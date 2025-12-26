@@ -54,7 +54,6 @@ $dokka.location:io.spine.core/Event.Field.TimestampField///PointingToDeclaration
 $dokka.location:io.spine.core/Event.Field.UserIdField///PointingToDeclaration/io/spine/core/Event.Field.UserIdField.html
 $dokka.location:io.spine.core/Event.Field.VersionField///PointingToDeclaration/io/spine/core/Event.Field.VersionField.html
 $dokka.location:io.spine.core/Event.Field.ZoneIdField///PointingToDeclaration/io/spine/core/Event.Field.ZoneIdField.html
-$dokka.location:io.spine.core/Event.Field.ZoneOffsetField///PointingToDeclaration/io/spine/core/Event.Field.ZoneOffsetField.html
 $dokka.location:io.spine.core/Event.Field///PointingToDeclaration/io/spine/core/Event.Field.html
 $dokka.location:io.spine.core/EventContext.Builder///PointingToDeclaration/io/spine/core/EventContext.Builder.html
 $dokka.location:io.spine.core/EventContext.Field.ActorContextField///PointingToDeclaration/io/spine/core/EventContext.Field.ActorContextField.html
@@ -79,7 +78,6 @@ $dokka.location:io.spine.core/EventContext.Field.TimestampField///PointingToDecl
 $dokka.location:io.spine.core/EventContext.Field.UserIdField///PointingToDeclaration/io/spine/core/EventContext.Field.UserIdField.html
 $dokka.location:io.spine.core/EventContext.Field.VersionField///PointingToDeclaration/io/spine/core/EventContext.Field.VersionField.html
 $dokka.location:io.spine.core/EventContext.Field.ZoneIdField///PointingToDeclaration/io/spine/core/EventContext.Field.ZoneIdField.html
-$dokka.location:io.spine.core/EventContext.Field.ZoneOffsetField///PointingToDeclaration/io/spine/core/EventContext.Field.ZoneOffsetField.html
 $dokka.location:io.spine.core/EventContext.Field///PointingToDeclaration/io/spine/core/EventContext.Field.html
 $dokka.location:io.spine.core/EventContext.OriginCase///PointingToDeclaration/io/spine/core/EventContext.OriginCase.html
 $dokka.location:io.spine.core/EventContext.OriginIdCase///PointingToDeclaration/io/spine/core/EventContext.OriginIdCase.html
