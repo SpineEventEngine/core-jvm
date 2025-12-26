@@ -1,0 +1,413 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en"><head>
+    <title>Package io.spine.server.event </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="dc.created" content="2020-03-25">
+    <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../dokka-javadoc-stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../jquery/jquery-ui.css" title="Style">
+    <script type="text/javascript" src="../../../../jquery/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-migrate-3.4.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
+
+    <script type="text/javascript" src="../../../../search.js"></script>
+    <script async type="text/javascript" src="../../../../module-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../package-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../type-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../member-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../tag-search-index.js"></script>
+</head><body>
+<script type="text/javascript">
+var pathtoroot = "../../../../";
+</script>
+<noscript>
+    <div>JavaScript is disabled on your browser.</div>
+</noscript><header role="banner">
+    <nav role="navigation">
+        <div class="fixedNav">
+            <!-- ========= START OF TOP NAVBAR ======= -->
+            <div class="topNav"><a id="navbar.top">
+                <!--   -->
+            </a>
+                <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a>
+                </div>
+                <a id="navbar.top.firstrow">
+                    <!--   -->
+                </a>
+                <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li class="navBarCell1Rev">Package</li>
+    
+    <li>Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+            <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" class="ui-autocomplete-input" autocomplete="off" placeholder="Search">
+<input type="reset" id="reset" value="reset">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ========= END OF TOP NAVBAR ========= -->
+        </div>
+        <div class="navPadding">&nbsp;</div>
+        <script type="text/javascript"><!--
+        $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+        //-->
+        </script>
+    </nav>
+</header>
+<main role="main">
+    <div class="header">
+        <h1 title="Package" class="title">Package io.spine.server.event </h1>
+    </div>
+        <div class="header">
+            <div class="subtitle">
+                <div class="block"><p>This package provides classes for server-side event processing.</p></div>
+            </div>
+            <p>See: <a href="#overview_description">Description</a></p>
+        </div>
+    <div class="contentContainer">
+        
+            <ul class="blockList">
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Interface</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventDispatcher.html>EventDispatcher</a></th><td class="colLast"><code>EventDispatcher</code> delivers events to <a href=EventReceiver.html>receiving</a> objects.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventSubscriber.html>EventSubscriber</a></th><td class="colLast">Declares one or more methods, subscribed to events.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventReactor.html>EventReactor</a></th><td class="colLast">Declares methods that receive events, <a href=React.html>possibly generating</a> other events in response.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventReceiver.html>EventReceiver</a></th><td class="colLast">Common interface for objects receiving events.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventStore.html>EventStore</a></th><td class="colLast">A store of all events in a Bounded Context.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=NoReactionOrBuilder.html>NoReactionOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventStreamQuery.LimitOrBuilder.html>LimitOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventFilterOrBuilder.html>EventFilterOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventStreamQueryOrBuilder.html>EventStreamQueryOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Whenever.html>Whenever</a></th><td class="colLast">An interface common to classes that produce zero or more messages in response to an incoming event.</td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AbstractEventSubscriber.html>AbstractEventSubscriber</a></th><td class="colLast">The abstract base for objects that can be subscribed to receive events from EventBus.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=UnsupportedEventException.html>UnsupportedEventException</a></th><td class="colLast">Exception that is thrown when unsupported event is obtained or if there is no class for the given Protobuf event message.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventFactory.html>EventFactory</a></th><td class="colLast">Produces events.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=InvalidEventException.html>InvalidEventException</a></th><td class="colLast">The exception for reporting invalid events.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AbstractEventReactor.html>AbstractEventReactor</a></th><td class="colLast">An abstract base for all classes that may produce events in response to other events.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AbstractStatefulReactor.html>AbstractStatefulReactor</a></th><td class="colLast">An abstract base for <a href=AbstractEventReactor.html>AbstractEventReactor</a>s which have state and require <a href=../delivery/Delivery.html>delivering</a> the messages through an Inbox.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventException.html>EventException</a></th><td class="colLast">A base for exceptions related to events.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventEnricher.Builder.html>Builder</a></th><td class="colLast">The builder for <a href=EventEnricher.html>EventEnricher</a>.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventEnricher.html>EventEnricher</a></th><td class="colLast">Enriches events after they are stored, and before they are dispatched.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventStreamQueryProto.html>EventStreamQueryProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventStreamQuery.Limit.Builder.html>Builder</a></th><td class="colLast"><pre><code>Definition of the query `LIMIT`.
+
+Sets the maximum number of events to return from an `EventStore`.
+</code></pre> Protobuf type <code>spine.server.event.EventStreamQuery.Limit</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventStreamQuery.Limit.html>Limit</a></th><td class="colLast"><pre><code>Definition of the query `LIMIT`.
+
+Sets the maximum number of events to return from an `EventStore`.
+</code></pre> Protobuf type <code>spine.server.event.EventStreamQuery.Limit</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventStreamQuery.Builder.html>Builder</a></th><td class="colLast"><pre><code>A query for events in an `EventStore`.
+
+If the query is empty, all the events are loaded.
+</code></pre> Protobuf type <code>spine.server.event.EventStreamQuery</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventStreamQuery.html>EventStreamQuery</a></th><td class="colLast"><pre><code>A query for events in an `EventStore`.
+
+If the query is empty, all the events are loaded.
+</code></pre> Protobuf type <code>spine.server.event.EventStreamQuery</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=NoReaction.Builder.html>Builder</a></th><td class="colLast"><pre><code>An empty event.
+
+Use this event type when a message processing does not produce any output.
+
+This type is treated by the framework in a special way.
+A `NoReaction` event is never posted for processing after being emitted. Neither is it stored.
+
+An applier for a `NoReaction` event is never called.
+</code></pre> Protobuf type <code>spine.server.event.NoReaction</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=NoReaction.Field.html>Field</a></th><td class="colLast">The listing of <a href=NoReaction.html>NoReaction</a> fields to be used for creating a subscription filter.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=NoReaction.html>NoReaction</a></th><td class="colLast"><pre><code>An empty event.
+
+Use this event type when a message processing does not produce any output.
+
+This type is treated by the framework in a special way.
+A `NoReaction` event is never posted for processing after being emitted. Neither is it stored.
+
+An applier for a `NoReaction` event is never called.
+</code></pre> Protobuf type <code>spine.server.event.NoReaction</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventFilter.Builder.html>Builder</a></th><td class="colLast"><pre><code>Filters `Event`s by:
+1. the type of the event message,
+2. aggregate ID,
+3. event message field values,
+4. values stored in `event_context` field of the event.
+
+The time of the event is filtered by `before` and `after` attributes of `EventStreamQuery`.
+</code></pre> Protobuf type <code>spine.server.event.EventFilter</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventFilter.html>EventFilter</a></th><td class="colLast"><pre><code>Filters `Event`s by:
+1. the type of the event message,
+2. aggregate ID,
+3. event message field values,
+4. values stored in `event_context` field of the event.
+
+The time of the event is filtered by `before` and `after` attributes of `EventStreamQuery`.
+</code></pre> Protobuf type <code>spine.server.event.EventFilter</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=NoReactionProto.html>NoReactionProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventFilterProto.html>EventFilterProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventFilterKt.Dsl.AggregateIdProxy.html>AggregateIdProxy</a></th><td class="colLast">An uninstantiable, behaviorless type to represent the field in generics.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventFilterKt.Dsl.EventFieldFilterProxy.html>EventFieldFilterProxy</a></th><td class="colLast">An uninstantiable, behaviorless type to represent the field in generics.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventFilterKt.Dsl.ContextFieldFilterProxy.html>ContextFieldFilterProxy</a></th><td class="colLast">An uninstantiable, behaviorless type to represent the field in generics.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventFilterKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventStreamQueryKt.Dsl.FilterProxy.html>FilterProxy</a></th><td class="colLast">An uninstantiable, behaviorless type to represent the field in generics.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventStreamQueryKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventStreamQueryKt.LimitKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=NoReactionKt.Dsl.html>Dsl</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Just.html>Just</a></th><td class="colLast">A tuple of one event.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Policy.html>Policy</a></th><td class="colLast">A Policy is a pattern for handling an incoming event and producing one or more commands in response.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Reaction.html>Reaction</a></th><td class="colLast">A reaction is a simplified pattern for event handling that converts &lt;em&gt;one&lt;/em&gt; incoming event directly into zero or more output events, without intermediate commands.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventStreamQueryKtKt.html>EventStreamQueryKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventFilterKtKt.html>EventFilterKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=NoReactionKtKt.html>NoReactionKtKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventMessageExtsKt.html>EventMessageExtsKt</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=RejectionFactory.html>RejectionFactory</a></th><td class="colLast"></td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Annotation Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Annotation</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=React.html>React</a></th><td class="colLast">Marks a method of an entity as one that may modify the state of the entity in response to some domain event.</td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Object Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Object</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventFilterKt.html>EventFilterKt</a></th><td class="colLast"><pre><code>Filters `Event`s by:
+1. the type of the event message,
+2. aggregate ID,
+3. event message field values,
+4. values stored in `event_context` field of the event.
+
+The time of the event is filtered by `before` and `after` attributes of `EventStreamQuery`.</code></pre>Protobuf type <code>spine.server.event.EventFilter</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventStreamQueryKt.LimitKt.html>LimitKt</a></th><td class="colLast"><pre><code>Definition of the query `LIMIT`.
+
+Sets the maximum number of events to return from an `EventStore`.</code></pre>Protobuf type <code>spine.server.event.EventStreamQuery.Limit</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventStreamQueryKt.html>EventStreamQueryKt</a></th><td class="colLast"><pre><code>A query for events in an `EventStore`.
+
+If the query is empty, all the events are loaded.</code></pre>Protobuf type <code>spine.server.event.EventStreamQuery</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=NoReactionKt.html>NoReactionKt</a></th><td class="colLast"><pre><code>An empty event.
+
+Use this event type when a message processing does not produce any output.
+
+This type is treated by the framework in a special way.
+A `NoReaction` event is never posted for processing after being emitted. Neither is it stored.
+
+An applier for a `NoReaction` event is never called.</code></pre>Protobuf type <code>spine.server.event.NoReaction</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Just.Companion.html>Companion</a></th><td class="colLast"></td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+            </ul>
+        
+    </div>
+</main>
+<footer role="contentinfo">
+    <nav role="navigation">
+        <!-- ======= START OF BOTTOM NAVBAR ====== -->
+        <div class="bottomNav"><a id="navbar.bottom">
+            <!--   -->
+        </a>
+            <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a>
+            </div>
+            <a id="navbar.bottom.firstrow">
+                <!--   -->
+            </a>
+            <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li class="navBarCell1Rev">Package</li>
+    
+    <li>Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+        <a id="skip.navbar.bottom">
+            <!--   -->
+        </a>
+        <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ======== END OF BOTTOM NAVBAR ======= -->
+    </nav>
+</footer><ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" id="ui-id-1" tabindex="0"
+    style="display: none;"></ul>
+<span role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></span>
+</body>
+</html>
