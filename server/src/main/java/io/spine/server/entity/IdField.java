@@ -37,7 +37,7 @@ import org.jspecify.annotations.Nullable;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Helps to initialize ID field of an entity state, if such a field is declared.
+ * Helps to initialize an ID field of an entity state if such a field is declared.
  */
 @Immutable
 final class IdField {
@@ -55,7 +55,7 @@ final class IdField {
             var firstField = fields.get(0);
             var fieldClass = defaultState.getField(firstField)
                                          .getClass();
-            @Nullable FieldDeclaration declaration =
+            var declaration =
                     fieldClass.equals(entityClass.idClass())
                     ? new FieldDeclaration(firstField)
                     : null;
