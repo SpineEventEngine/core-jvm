@@ -47,6 +47,7 @@ import java.util.Map;
  */
 public class InvalidEventException extends EventException implements MessageInvalid {
 
+    @Serial
     private static final long serialVersionUID = 0L;
 
     private static final String MSG_VALIDATION_ERROR = "Event message does not match " +
@@ -103,7 +104,7 @@ public class InvalidEventException extends EventException implements MessageInva
         }
 
         @Override
-        protected Map<String, Value> getMessageTypeAttribute(Message message) {
+        protected Map<String, Value> getMessageTypeAttribute(EventMessage message) {
             return eventTypeAttribute(message);
         }
 
