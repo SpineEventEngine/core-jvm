@@ -49,7 +49,7 @@ final class IdField {
         var fields = defaultState.getDescriptorForType().getFields();
         if (fields.isEmpty()) {
             /* The entity state is an empty message.
-               This is weird for production purposes, but can be used for test stubs. */
+               This is weird for production purposes but can be used for test stubs. */
             return new IdField(null);
         } else {
             var firstField = fields.get(0);
