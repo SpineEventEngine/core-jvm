@@ -9,6 +9,6 @@
 ## Avoid widows, runts, orphans, or rivers
 
 Agents should **AVOID** text flow patters illustrated
-on [this diagram](widow-runt-orphan-river.jpg).
+on [this diagram](widow-runt-orphan.jpg).
 
 [todo-comments]: https://github.com/SpineEventEngine/documentation/wiki/TODO-comments

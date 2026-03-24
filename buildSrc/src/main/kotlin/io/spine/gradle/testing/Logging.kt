@@ -28,9 +28,9 @@ package io.spine.gradle.testing
 
 import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.TestDescriptor
+import org.gradle.api.tasks.testing.TestListener
 import org.gradle.api.tasks.testing.TestResult
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.gradle.kotlin.dsl.KotlinClosure2
 
 /**
  * Configures logging of this [Test] task.
@@ -70,19 +70,16 @@ fun Test.configureLogging() {
         >> $skippedTestCount skipped
         """
 
-    afterSuite(
+    val listener = object : TestListener {
 
-        // `GroovyInteroperability` is employed as `afterSuite()` has no equivalent in Kotlin DSL.
-        // See issue: https://github.com/gradle/gradle/issues/5431
-
-        KotlinClosure2<TestDescriptor, TestResult, Unit>({ descriptor, result ->
-
+        override fun afterSuite(descriptor: TestDescriptor, result: TestResult) {
             // If the descriptor has no parent, then it is the root test suite,
             // i.e. it includes the info about all the run tests.
-
             if (descriptor.parent == null) {
                 logger.lifecycle(result.summary())
             }
-        })
-    )
+        }
+    }
+
+    addTestListener(listener)
 }

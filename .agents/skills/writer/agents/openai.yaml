@@ -1,0 +1,5 @@
+interface:
+  display_name: "Writer"
+  short_description: "Write and update user/developer docs"
+  default_prompt: "Write or revise documentation in this repository (for example: README.md, docs/**, CONTRIBUTING.md, and API documentation/KDoc). Follow local documentation guidelines in .agents/*.md, keep changes concise and actionable, and include concrete examples and commands where appropriate."
+
