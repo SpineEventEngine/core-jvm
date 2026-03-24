@@ -230,10 +230,16 @@ fun Module.forceConfigurations() {
 
                 force(
                     Base.annotations,
+                    Base.environment,
                     Base.lib,
                     BaseTypes.lib,
                     Change.lib,
                     Compiler.api,
+                    Compiler.backend,
+                    Compiler.pluginLib,
+                    Compiler.gradleApi,
+                    Compiler.params,
+                    Compiler.jvm,
                     CoreJvm.server,
                     Grpc.bom,
                     Guava.lib,
@@ -261,7 +267,6 @@ fun Module.forceConfigurations() {
                     Validation.javaBundle,
                     Validation.gradlePluginLib,
                     Validation.runtime,
-                    Validation.oldRuntime
                 )
             }
         }
