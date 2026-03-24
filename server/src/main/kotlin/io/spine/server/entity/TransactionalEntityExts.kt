@@ -60,7 +60,7 @@ import io.spine.validation.ValidatingBuilder
  *
  * @see alter for a version of this method that does not return a value.
  */
-public fun <I, E : TransactionalEntity<I, S, B>, S : EntityState<I>, B : ValidatingBuilder<S>>
+public fun <I : Any, E : TransactionalEntity<I, S, B>, S : EntityState<I>, B : ValidatingBuilder<S>>
         E.update(block: B.() -> Unit): B {
     val builder = builder()
     block(builder)
@@ -91,7 +91,7 @@ public fun <I, E : TransactionalEntity<I, S, B>, S : EntityState<I>, B : Validat
  *
  * @see update for a version of this method that returns the value of the builder.
  */
-public fun <I, E : TransactionalEntity<I, S, B>, S : EntityState<I>, B : ValidatingBuilder<S>>
+public fun <I : Any, E : TransactionalEntity<I, S, B>, S : EntityState<I>, B : ValidatingBuilder<S>>
         E.alter(block: B.() -> Unit) {
     val builder = builder()
     block(builder)
@@ -107,7 +107,7 @@ public fun <I, E : TransactionalEntity<I, S, B>, S : EntityState<I>, B : Validat
  * @param S the type of the entity state.
  * @param B the type of the entity state builder.
  */
-public val <I, E : TransactionalEntity<I, S, B>, S : EntityState<I>, B : ValidatingBuilder<S>>
+public val <I : Any, E : TransactionalEntity<I, S, B>, S : EntityState<I>, B : ValidatingBuilder<S>>
         E.id: I
     get() = id()
 
@@ -121,7 +121,7 @@ public val <I, E : TransactionalEntity<I, S, B>, S : EntityState<I>, B : Validat
  * @param S the type of the entity state.
  * @param B the type of the entity state builder.
  */
-public val <I, E : TransactionalEntity<I, S, B>, S : EntityState<I>, B : ValidatingBuilder<S>>
+public val <I : Any, E : TransactionalEntity<I, S, B>, S : EntityState<I>, B : ValidatingBuilder<S>>
         E.version: Version
     get() = version()
 
@@ -135,6 +135,6 @@ public val <I, E : TransactionalEntity<I, S, B>, S : EntityState<I>, B : Validat
  * @param S the type of the entity state.
  * @param B the type of the entity state builder.
  */
-public val <I, E : TransactionalEntity<I, S, B>, S : EntityState<I>, B : ValidatingBuilder<S>>
+public val <I : Any, E : TransactionalEntity<I, S, B>, S : EntityState<I>, B : ValidatingBuilder<S>>
         E.state: S
     get() = state()
