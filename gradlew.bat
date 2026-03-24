@@ -16,9 +16,6 @@
 @rem SPDX-License-Identifier: Apache-2.0
 @rem
 
-@rem Temporarily disable the runtime check of Protobuf version compatibility.
-set TEMPORARILY_DISABLE_PROTOBUF_VERSION_CHECK=true
-
 @if "%DEBUG%"=="" @echo off
 @rem ##########################################################################
 @rem
