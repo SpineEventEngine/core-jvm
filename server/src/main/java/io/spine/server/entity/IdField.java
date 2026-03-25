@@ -83,7 +83,7 @@ final class IdField {
 
     /**
      * Initializes the given builder with the value of the entity ID,
-     * <em>iff</em> the field is if {@code (required)} option is not set
+     * <em>iff</em> the field's {@code (required)} option is not set
      * to {@code false} explicitly.
      *
      * <p>Conventionally, an entity state ID assumed a required field.
