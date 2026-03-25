@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import kotlin.reflect.KClass
 /**
  * Creates [EntitySubject] for the entity of the type [E] with the given ID of type [I].
  */
-public inline fun <reified E : Entity<I, out Any>, I : Any> BlackBox.assertEntity(
+public inline fun <reified E : Entity<I, out EntityState<I>>, I : Any> BlackBox.assertEntity(
     id: I
 ): EntitySubject =
     assertEntity(id, E::class.java)

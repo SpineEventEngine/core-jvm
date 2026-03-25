@@ -32,7 +32,7 @@ import io.spine.protobuf.AnyPacker;
 import io.spine.type.TypeName;
 import io.spine.validation.Validate;
 import io.spine.validation.ValidationError;
-import io.spine.validation.diags.ViolationText;
+import io.spine.validation.ViolationText;
 import org.jspecify.annotations.Nullable;
 
 import static java.lang.String.format;

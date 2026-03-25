@@ -172,7 +172,9 @@ public class InvalidCommandException extends CommandException implements Message
         }
 
         @Override
-        protected Map<String, Value> getMessageTypeAttribute(Message commandMessage) {
+        protected Map<String, Value> getMessageTypeAttribute(Command command) {
+            var envelope = CommandEnvelope.of(command);
+            var commandMessage = envelope.message();
             return commandTypeAttribute(commandMessage);
         }
 

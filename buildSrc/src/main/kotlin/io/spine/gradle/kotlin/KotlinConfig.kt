@@ -27,7 +27,9 @@
 package io.spine.gradle.kotlin
 
 import org.gradle.jvm.toolchain.JavaLanguageVersion
+import org.jetbrains.kotlin.gradle.dsl.JvmDefaultMode
 import org.jetbrains.kotlin.gradle.dsl.KotlinCommonCompilerOptions
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 
 /**
@@ -53,11 +55,12 @@ fun KotlinJvmProjectExtension.applyJvmToolchain(version: String) =
  */
 @Suppress("unused")
 fun KotlinCommonCompilerOptions.setFreeCompilerArgs() {
+    if (this is KotlinJvmCompilerOptions) {
+        jvmDefault.set(JvmDefaultMode.NO_COMPATIBILITY)
+    }
     freeCompilerArgs.addAll(
         listOf(
             "-Xskip-prerelease-check",
-            "-Xjvm-default=all",
-            "-Xinline-classes",
             "-Xexpect-actual-classes",
             "-Xcontext-parameters",
             "-opt-in=" +

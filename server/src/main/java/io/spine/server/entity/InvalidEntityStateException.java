@@ -151,7 +151,7 @@ public final class InvalidEntityStateException extends ValidationException {
          *         the entity state to get the type from
          */
         @Override
-        protected Map<String, Value> getMessageTypeAttribute(Message entityState) {
+        protected Map<String, Value> getMessageTypeAttribute(EntityState<?> entityState) {
             var entityStateType = TypeName.of(entityState)
                                           .value();
             var value = Value.newBuilder()

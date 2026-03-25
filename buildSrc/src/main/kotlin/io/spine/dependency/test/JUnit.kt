@@ -33,7 +33,7 @@ import io.spine.dependency.DependencyWithBom
 @Suppress("unused", "ConstPropertyName")
 object JUnit : DependencyWithBom() {
 
-    override val version = "6.0.0"
+    override val version = "6.0.3"
     override val group: String = "org.junit"
 
     /**

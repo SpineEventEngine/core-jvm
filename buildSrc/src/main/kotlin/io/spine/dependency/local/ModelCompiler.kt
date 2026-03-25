@@ -33,7 +33,7 @@ package io.spine.dependency.local
  */
 @Suppress("ConstPropertyName")
 object ModelCompiler {
-    const val version = "2.0.0-SNAPSHOT.133"
+    const val version = "2.0.0-SNAPSHOT.200"
     const val group = Spine.toolsGroup
     const val artifact = "spine-model-compiler"
     const val lib = "$group:$artifact:$version"

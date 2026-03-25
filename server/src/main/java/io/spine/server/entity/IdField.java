@@ -27,21 +27,27 @@
 package io.spine.server.entity;
 
 import com.google.errorprone.annotations.Immutable;
+import com.google.protobuf.Descriptors.FieldDescriptor;
 import io.spine.base.EntityState;
 import io.spine.code.proto.FieldDeclaration;
+import io.spine.code.proto.FieldOption;
+import io.spine.code.proto.Option;
+import io.spine.option.OptionsProto;
 import io.spine.server.entity.model.EntityClass;
 import io.spine.validation.ValidatingBuilder;
-import io.spine.validation.option.Required;
 import org.jspecify.annotations.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Helps to initialize ID field of an entity state, if such a field is declared.
+ * Helps to initialize an ID field of an entity state if such
+ * a field is declared and does not have the {@code (required)}
+ * option set to {@code false}.
  */
 @Immutable
 final class IdField {
 
+    private static final Option<Boolean, FieldDescriptor> requiredOption = new Required();
     private final @Nullable FieldDeclaration declaration;
 
     static IdField of(EntityClass<?> entityClass) {
@@ -49,13 +55,13 @@ final class IdField {
         var fields = defaultState.getDescriptorForType().getFields();
         if (fields.isEmpty()) {
             /* The entity state is an empty message.
-               This is weird for production purposes, but can be used for test stubs. */
+               This is weird for production purposes but can be used for test stubs. */
             return new IdField(null);
         } else {
             var firstField = fields.get(0);
             var fieldClass = defaultState.getField(firstField)
                                          .getClass();
-            @Nullable FieldDeclaration declaration =
+            var declaration =
                     fieldClass.equals(entityClass.idClass())
                     ? new FieldDeclaration(firstField)
                     : null;
@@ -68,16 +74,20 @@ final class IdField {
     }
 
     /**
-     * Returns {@code true} if the entity state type declares a field which is the ID of the entity,
-     * {@code false} otherwise.
+     * Returns {@code true} if the entity state type declares a field which is
+     * the ID of the entity, {@code false} otherwise.
      */
     private boolean declared() {
         return declaration != null;
     }
 
     /**
-     * Initializes the passed builder with the passed value of the entity ID,
-     * <em>iff</em> the field is required.
+     * Initializes the given builder with the value of the entity ID,
+     * <em>iff</em> the field's {@code (required)} option is not set
+     * to {@code false} explicitly.
+     *
+     * <p>Conventionally, an entity state ID assumed a required field.
+     * So, if there is no option set, we assume that the field is required.
      */
     <I, S extends EntityState<I>, B extends ValidatingBuilder<S>>
     void initBuilder(B builder, I id) {
@@ -87,12 +97,22 @@ final class IdField {
             return;
         }
         var idField = declaration.descriptor();
-        @SuppressWarnings("Immutable") // all supported types of IDs are immutable.
-        var required = Required.create(false);
-        boolean isRequired = required.valueFrom(idField)
-                                     .orElse(true); // assume required, if not set to false
+        boolean isRequired = requiredOption.valueFrom(idField)
+                                           .orElse(true);
         if (isRequired) {
             builder.setField(idField, id);
+        }
+    }
+
+    /**
+     * Provides access to the value of the {@link OptionsProto#required (required)}
+     * field option.
+     */
+    @Immutable
+    private static final class Required extends FieldOption<Boolean> {
+
+        private Required() {
+            super(OptionsProto.required);
         }
     }
 }
