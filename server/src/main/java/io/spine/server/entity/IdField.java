@@ -105,7 +105,8 @@ final class IdField {
     }
 
     /**
-     * Provides access to the value of the {@linkplain OptionsProto#required required} field option.
+     * Provides access to the value of the {@link OptionsProto#required (required)}
+     * field option.
      */
     @Immutable
     private static final class Required extends FieldOption<Boolean> {
