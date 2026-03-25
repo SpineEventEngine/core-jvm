@@ -172,8 +172,8 @@ public class InvalidCommandException extends CommandException implements Message
         }
 
         @Override
-        protected Map<String, Value> getMessageTypeAttribute(Command commandMessage) {
-            return commandTypeAttribute(commandMessage);
+        protected Map<String, Value> getMessageTypeAttribute(Command command) {
+            return commandTypeAttribute(command);
         }
 
         @Override
