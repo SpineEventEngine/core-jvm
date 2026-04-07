@@ -1,6 +1,6 @@
 
 
-# Dependencies of `io.spine:spine-client:2.0.0-SNAPSHOT.372`
+# Dependencies of `io.spine:spine-client:2.0.0-SNAPSHOT.373`
 
 ## Runtime
 1.  **Group** : com.google.android. **Name** : annotations. **Version** : 4.1.1.4.
@@ -250,11 +250,11 @@
      * **Project URL:** [https://github.com/google/gson](https://github.com/google/gson)
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.devtools.ksp. **Name** : symbol-processing. **Version** : 2.3.6.
+1.  **Group** : com.google.devtools.ksp. **Name** : com.google.devtools.ksp.gradle.plugin. **Version** : 2.3.6.
      * **Project URL:** [https://goo.gle/ksp](https://goo.gle/ksp)
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.devtools.ksp. **Name** : symbol-processing-aa-embeddable. **Version** : 2.3.6.
+1.  **Group** : com.google.devtools.ksp. **Name** : symbol-processing. **Version** : 2.3.6.
      * **Project URL:** [https://goo.gle/ksp](https://goo.gle/ksp)
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -380,19 +380,11 @@
      * **Project URL:** [https://github.com/korlibs/korge-next](https://github.com/korlibs/korge-next)
      * **License:** [MIT](https://raw.githubusercontent.com/korlibs/korge-next/master/korge/LICENSE.txt)
 
-1.  **Group** : com.squareup. **Name** : javapoet. **Version** : 1.13.0.
-     * **Project URL:** [http://github.com/square/javapoet/](http://github.com/square/javapoet/)
-     * **License:** [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
-
 1.  **Group** : com.squareup. **Name** : kotlinpoet. **Version** : 2.2.0.
      * **Project URL:** [https://github.com/square/kotlinpoet](https://github.com/square/kotlinpoet)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
 1.  **Group** : com.squareup. **Name** : kotlinpoet-jvm. **Version** : 2.2.0.
-     * **Project URL:** [https://github.com/square/kotlinpoet](https://github.com/square/kotlinpoet)
-     * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : com.squareup. **Name** : kotlinpoet-ksp. **Version** : 2.2.0.
      * **Project URL:** [https://github.com/square/kotlinpoet](https://github.com/square/kotlinpoet)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -579,27 +571,27 @@
      * **Project URL:** [https://github.com/grpc/grpc-kotlin](https://github.com/grpc/grpc-kotlin)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -717,14 +709,6 @@
      * **License:** [LGPL 2.1](http://www.gnu.org/licenses/lgpl-2.1.html)
      * **License:** [MPL 1.1](http://www.mozilla.org/MPL/MPL-1.1.html)
 
-1.  **Group** : org.jboss.forge.roaster. **Name** : roaster-api. **Version** : 2.29.0.Final.
-     * **License:** [Eclipse Public License version 1.0](http://www.eclipse.org/legal/epl-v10.html)
-     * **License:** [Public Domain](http://repository.jboss.org/licenses/cc0-1.0.txt)
-
-1.  **Group** : org.jboss.forge.roaster. **Name** : roaster-jdt. **Version** : 2.29.0.Final.
-     * **License:** [Eclipse Public License version 1.0](http://www.eclipse.org/legal/epl-v10.html)
-     * **License:** [Public Domain](http://repository.jboss.org/licenses/cc0-1.0.txt)
-
 1.  **Group** : org.jcommander. **Name** : jcommander. **Version** : 1.85.
      * **Project URL:** [https://jcommander.org](https://jcommander.org)
      * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -772,14 +756,6 @@
 1.  **Group** : org.jetbrains.intellij.deps. **Name** : trove4j. **Version** : 1.0.20200330.
      * **Project URL:** [https://github.com/JetBrains/intellij-deps-trove4j](https://github.com/JetBrains/intellij-deps-trove4j)
      * **License:** [GNU LESSER GENERAL PUBLIC LICENSE 2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html)
-
-1.  **Group** : org.jetbrains.intellij.deps.kotlinx. **Name** : kotlinx-coroutines-bom. **Version** : 1.8.0-intellij-14.
-     * **Project URL:** [https://github.com/Kotlin/kotlinx.coroutines](https://github.com/Kotlin/kotlinx.coroutines)
-     * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : org.jetbrains.intellij.deps.kotlinx. **Name** : kotlinx-coroutines-core-jvm. **Version** : 1.8.0-intellij-14.
-     * **Project URL:** [https://github.com/Kotlin/kotlinx.coroutines](https://github.com/Kotlin/kotlinx.coroutines)
-     * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
 1.  **Group** : org.jetbrains.kotlin. **Name** : abi-tools. **Version** : 2.3.20.
      * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
@@ -1076,14 +1052,14 @@
 
 The dependencies distributed under several licenses, are used according their commercial-use-friendly license.
 
-This report was generated on **Wed Mar 25 16:48:24 WET 2026** using 
+This report was generated on **Tue Apr 07 20:52:29 WEST 2026** using 
 [Gradle-License-Report plugin](https://github.com/jk1/Gradle-License-Report) by Evgeny Naumenko, licensed under 
 [Apache 2.0 License](https://github.com/jk1/Gradle-License-Report/blob/master/LICENSE).
 
 
 
 
-# Dependencies of `io.spine.tools:spine-client-testlib:2.0.0-SNAPSHOT.372`
+# Dependencies of `io.spine.tools:client-testlib:2.0.0-SNAPSHOT.373`
 
 ## Runtime
 1.  **Group** : com.google.android. **Name** : annotations. **Version** : 4.1.1.4.
@@ -1199,27 +1175,27 @@ This report was generated on **Wed Mar 25 16:48:24 WET 2026** using
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -1437,11 +1413,11 @@ This report was generated on **Wed Mar 25 16:48:24 WET 2026** using
      * **Project URL:** [https://github.com/google/gson](https://github.com/google/gson)
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.devtools.ksp. **Name** : symbol-processing. **Version** : 2.3.6.
+1.  **Group** : com.google.devtools.ksp. **Name** : com.google.devtools.ksp.gradle.plugin. **Version** : 2.3.6.
      * **Project URL:** [https://goo.gle/ksp](https://goo.gle/ksp)
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.devtools.ksp. **Name** : symbol-processing-aa-embeddable. **Version** : 2.3.6.
+1.  **Group** : com.google.devtools.ksp. **Name** : symbol-processing. **Version** : 2.3.6.
      * **Project URL:** [https://goo.gle/ksp](https://goo.gle/ksp)
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -1567,19 +1543,11 @@ This report was generated on **Wed Mar 25 16:48:24 WET 2026** using
      * **Project URL:** [https://github.com/korlibs/korge-next](https://github.com/korlibs/korge-next)
      * **License:** [MIT](https://raw.githubusercontent.com/korlibs/korge-next/master/korge/LICENSE.txt)
 
-1.  **Group** : com.squareup. **Name** : javapoet. **Version** : 1.13.0.
-     * **Project URL:** [http://github.com/square/javapoet/](http://github.com/square/javapoet/)
-     * **License:** [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
-
 1.  **Group** : com.squareup. **Name** : kotlinpoet. **Version** : 2.2.0.
      * **Project URL:** [https://github.com/square/kotlinpoet](https://github.com/square/kotlinpoet)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
 1.  **Group** : com.squareup. **Name** : kotlinpoet-jvm. **Version** : 2.2.0.
-     * **Project URL:** [https://github.com/square/kotlinpoet](https://github.com/square/kotlinpoet)
-     * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : com.squareup. **Name** : kotlinpoet-ksp. **Version** : 2.2.0.
      * **Project URL:** [https://github.com/square/kotlinpoet](https://github.com/square/kotlinpoet)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -1758,27 +1726,27 @@ This report was generated on **Wed Mar 25 16:48:24 WET 2026** using
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -1896,14 +1864,6 @@ This report was generated on **Wed Mar 25 16:48:24 WET 2026** using
      * **License:** [LGPL 2.1](http://www.gnu.org/licenses/lgpl-2.1.html)
      * **License:** [MPL 1.1](http://www.mozilla.org/MPL/MPL-1.1.html)
 
-1.  **Group** : org.jboss.forge.roaster. **Name** : roaster-api. **Version** : 2.29.0.Final.
-     * **License:** [Eclipse Public License version 1.0](http://www.eclipse.org/legal/epl-v10.html)
-     * **License:** [Public Domain](http://repository.jboss.org/licenses/cc0-1.0.txt)
-
-1.  **Group** : org.jboss.forge.roaster. **Name** : roaster-jdt. **Version** : 2.29.0.Final.
-     * **License:** [Eclipse Public License version 1.0](http://www.eclipse.org/legal/epl-v10.html)
-     * **License:** [Public Domain](http://repository.jboss.org/licenses/cc0-1.0.txt)
-
 1.  **Group** : org.jcommander. **Name** : jcommander. **Version** : 1.85.
      * **Project URL:** [https://jcommander.org](https://jcommander.org)
      * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -1951,14 +1911,6 @@ This report was generated on **Wed Mar 25 16:48:24 WET 2026** using
 1.  **Group** : org.jetbrains.intellij.deps. **Name** : trove4j. **Version** : 1.0.20200330.
      * **Project URL:** [https://github.com/JetBrains/intellij-deps-trove4j](https://github.com/JetBrains/intellij-deps-trove4j)
      * **License:** [GNU LESSER GENERAL PUBLIC LICENSE 2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html)
-
-1.  **Group** : org.jetbrains.intellij.deps.kotlinx. **Name** : kotlinx-coroutines-bom. **Version** : 1.8.0-intellij-14.
-     * **Project URL:** [https://github.com/Kotlin/kotlinx.coroutines](https://github.com/Kotlin/kotlinx.coroutines)
-     * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : org.jetbrains.intellij.deps.kotlinx. **Name** : kotlinx-coroutines-core-jvm. **Version** : 1.8.0-intellij-14.
-     * **Project URL:** [https://github.com/Kotlin/kotlinx.coroutines](https://github.com/Kotlin/kotlinx.coroutines)
-     * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
 1.  **Group** : org.jetbrains.kotlin. **Name** : abi-tools. **Version** : 2.3.20.
      * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
@@ -2255,14 +2207,14 @@ This report was generated on **Wed Mar 25 16:48:24 WET 2026** using
 
 The dependencies distributed under several licenses, are used according their commercial-use-friendly license.
 
-This report was generated on **Wed Mar 25 16:48:24 WET 2026** using 
+This report was generated on **Tue Apr 07 20:52:29 WEST 2026** using 
 [Gradle-License-Report plugin](https://github.com/jk1/Gradle-License-Report) by Evgeny Naumenko, licensed under 
 [Apache 2.0 License](https://github.com/jk1/Gradle-License-Report/blob/master/LICENSE).
 
 
 
 
-# Dependencies of `io.spine:spine-core:2.0.0-SNAPSHOT.372`
+# Dependencies of `io.spine:spine-core:2.0.0-SNAPSHOT.373`
 
 ## Runtime
 1.  **Group** : com.google.code.findbugs. **Name** : jsr305. **Version** : 3.0.2.
@@ -2456,11 +2408,11 @@ This report was generated on **Wed Mar 25 16:48:24 WET 2026** using
      * **Project URL:** [https://github.com/google/gson](https://github.com/google/gson)
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.devtools.ksp. **Name** : symbol-processing. **Version** : 2.3.6.
+1.  **Group** : com.google.devtools.ksp. **Name** : com.google.devtools.ksp.gradle.plugin. **Version** : 2.3.6.
      * **Project URL:** [https://goo.gle/ksp](https://goo.gle/ksp)
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.devtools.ksp. **Name** : symbol-processing-aa-embeddable. **Version** : 2.3.6.
+1.  **Group** : com.google.devtools.ksp. **Name** : symbol-processing. **Version** : 2.3.6.
      * **Project URL:** [https://goo.gle/ksp](https://goo.gle/ksp)
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -2586,19 +2538,11 @@ This report was generated on **Wed Mar 25 16:48:24 WET 2026** using
      * **Project URL:** [https://github.com/korlibs/korge-next](https://github.com/korlibs/korge-next)
      * **License:** [MIT](https://raw.githubusercontent.com/korlibs/korge-next/master/korge/LICENSE.txt)
 
-1.  **Group** : com.squareup. **Name** : javapoet. **Version** : 1.13.0.
-     * **Project URL:** [http://github.com/square/javapoet/](http://github.com/square/javapoet/)
-     * **License:** [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
-
 1.  **Group** : com.squareup. **Name** : kotlinpoet. **Version** : 2.2.0.
      * **Project URL:** [https://github.com/square/kotlinpoet](https://github.com/square/kotlinpoet)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
 1.  **Group** : com.squareup. **Name** : kotlinpoet-jvm. **Version** : 2.2.0.
-     * **Project URL:** [https://github.com/square/kotlinpoet](https://github.com/square/kotlinpoet)
-     * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : com.squareup. **Name** : kotlinpoet-ksp. **Version** : 2.2.0.
      * **Project URL:** [https://github.com/square/kotlinpoet](https://github.com/square/kotlinpoet)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -2777,27 +2721,27 @@ This report was generated on **Wed Mar 25 16:48:24 WET 2026** using
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -2915,14 +2859,6 @@ This report was generated on **Wed Mar 25 16:48:24 WET 2026** using
      * **License:** [LGPL 2.1](http://www.gnu.org/licenses/lgpl-2.1.html)
      * **License:** [MPL 1.1](http://www.mozilla.org/MPL/MPL-1.1.html)
 
-1.  **Group** : org.jboss.forge.roaster. **Name** : roaster-api. **Version** : 2.29.0.Final.
-     * **License:** [Eclipse Public License version 1.0](http://www.eclipse.org/legal/epl-v10.html)
-     * **License:** [Public Domain](http://repository.jboss.org/licenses/cc0-1.0.txt)
-
-1.  **Group** : org.jboss.forge.roaster. **Name** : roaster-jdt. **Version** : 2.29.0.Final.
-     * **License:** [Eclipse Public License version 1.0](http://www.eclipse.org/legal/epl-v10.html)
-     * **License:** [Public Domain](http://repository.jboss.org/licenses/cc0-1.0.txt)
-
 1.  **Group** : org.jcommander. **Name** : jcommander. **Version** : 1.85.
      * **Project URL:** [https://jcommander.org](https://jcommander.org)
      * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -2970,14 +2906,6 @@ This report was generated on **Wed Mar 25 16:48:24 WET 2026** using
 1.  **Group** : org.jetbrains.intellij.deps. **Name** : trove4j. **Version** : 1.0.20200330.
      * **Project URL:** [https://github.com/JetBrains/intellij-deps-trove4j](https://github.com/JetBrains/intellij-deps-trove4j)
      * **License:** [GNU LESSER GENERAL PUBLIC LICENSE 2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html)
-
-1.  **Group** : org.jetbrains.intellij.deps.kotlinx. **Name** : kotlinx-coroutines-bom. **Version** : 1.8.0-intellij-14.
-     * **Project URL:** [https://github.com/Kotlin/kotlinx.coroutines](https://github.com/Kotlin/kotlinx.coroutines)
-     * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : org.jetbrains.intellij.deps.kotlinx. **Name** : kotlinx-coroutines-core-jvm. **Version** : 1.8.0-intellij-14.
-     * **Project URL:** [https://github.com/Kotlin/kotlinx.coroutines](https://github.com/Kotlin/kotlinx.coroutines)
-     * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
 1.  **Group** : org.jetbrains.kotlin. **Name** : abi-tools. **Version** : 2.3.20.
      * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
@@ -3274,14 +3202,14 @@ This report was generated on **Wed Mar 25 16:48:24 WET 2026** using
 
 The dependencies distributed under several licenses, are used according their commercial-use-friendly license.
 
-This report was generated on **Wed Mar 25 16:48:24 WET 2026** using 
+This report was generated on **Tue Apr 07 20:52:29 WEST 2026** using 
 [Gradle-License-Report plugin](https://github.com/jk1/Gradle-License-Report) by Evgeny Naumenko, licensed under 
 [Apache 2.0 License](https://github.com/jk1/Gradle-License-Report/blob/master/LICENSE).
 
 
 
 
-# Dependencies of `io.spine.tools:spine-core-testlib:2.0.0-SNAPSHOT.372`
+# Dependencies of `io.spine.tools:core-testlib:2.0.0-SNAPSHOT.373`
 
 ## Runtime
 1.  **Group** : com.google.android. **Name** : annotations. **Version** : 4.1.1.4.
@@ -3397,27 +3325,27 @@ This report was generated on **Wed Mar 25 16:48:24 WET 2026** using
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -3862,27 +3790,27 @@ This report was generated on **Wed Mar 25 16:48:24 WET 2026** using
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -4331,14 +4259,14 @@ This report was generated on **Wed Mar 25 16:48:24 WET 2026** using
 
 The dependencies distributed under several licenses, are used according their commercial-use-friendly license.
 
-This report was generated on **Wed Mar 25 16:48:24 WET 2026** using 
+This report was generated on **Tue Apr 07 20:52:28 WEST 2026** using 
 [Gradle-License-Report plugin](https://github.com/jk1/Gradle-License-Report) by Evgeny Naumenko, licensed under 
 [Apache 2.0 License](https://github.com/jk1/Gradle-License-Report/blob/master/LICENSE).
 
 
 
 
-# Dependencies of `io.spine:spine-server:2.0.0-SNAPSHOT.372`
+# Dependencies of `io.spine:spine-server:2.0.0-SNAPSHOT.373`
 
 ## Runtime
 1.  **Group** : com.google.android. **Name** : annotations. **Version** : 4.1.1.4.
@@ -4592,11 +4520,11 @@ This report was generated on **Wed Mar 25 16:48:24 WET 2026** using
      * **Project URL:** [https://github.com/google/gson](https://github.com/google/gson)
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.devtools.ksp. **Name** : symbol-processing. **Version** : 2.3.6.
+1.  **Group** : com.google.devtools.ksp. **Name** : com.google.devtools.ksp.gradle.plugin. **Version** : 2.3.6.
      * **Project URL:** [https://goo.gle/ksp](https://goo.gle/ksp)
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.devtools.ksp. **Name** : symbol-processing-aa-embeddable. **Version** : 2.3.6.
+1.  **Group** : com.google.devtools.ksp. **Name** : symbol-processing. **Version** : 2.3.6.
      * **Project URL:** [https://goo.gle/ksp](https://goo.gle/ksp)
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -4722,19 +4650,11 @@ This report was generated on **Wed Mar 25 16:48:24 WET 2026** using
      * **Project URL:** [https://github.com/korlibs/korge-next](https://github.com/korlibs/korge-next)
      * **License:** [MIT](https://raw.githubusercontent.com/korlibs/korge-next/master/korge/LICENSE.txt)
 
-1.  **Group** : com.squareup. **Name** : javapoet. **Version** : 1.13.0.
-     * **Project URL:** [http://github.com/square/javapoet/](http://github.com/square/javapoet/)
-     * **License:** [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
-
 1.  **Group** : com.squareup. **Name** : kotlinpoet. **Version** : 2.2.0.
      * **Project URL:** [https://github.com/square/kotlinpoet](https://github.com/square/kotlinpoet)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
 1.  **Group** : com.squareup. **Name** : kotlinpoet-jvm. **Version** : 2.2.0.
-     * **Project URL:** [https://github.com/square/kotlinpoet](https://github.com/square/kotlinpoet)
-     * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : com.squareup. **Name** : kotlinpoet-ksp. **Version** : 2.2.0.
      * **Project URL:** [https://github.com/square/kotlinpoet](https://github.com/square/kotlinpoet)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -4929,27 +4849,27 @@ This report was generated on **Wed Mar 25 16:48:24 WET 2026** using
      * **Project URL:** [https://github.com/grpc/grpc-kotlin](https://github.com/grpc/grpc-kotlin)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -5067,14 +4987,6 @@ This report was generated on **Wed Mar 25 16:48:24 WET 2026** using
      * **License:** [LGPL 2.1](http://www.gnu.org/licenses/lgpl-2.1.html)
      * **License:** [MPL 1.1](http://www.mozilla.org/MPL/MPL-1.1.html)
 
-1.  **Group** : org.jboss.forge.roaster. **Name** : roaster-api. **Version** : 2.29.0.Final.
-     * **License:** [Eclipse Public License version 1.0](http://www.eclipse.org/legal/epl-v10.html)
-     * **License:** [Public Domain](http://repository.jboss.org/licenses/cc0-1.0.txt)
-
-1.  **Group** : org.jboss.forge.roaster. **Name** : roaster-jdt. **Version** : 2.29.0.Final.
-     * **License:** [Eclipse Public License version 1.0](http://www.eclipse.org/legal/epl-v10.html)
-     * **License:** [Public Domain](http://repository.jboss.org/licenses/cc0-1.0.txt)
-
 1.  **Group** : org.jcommander. **Name** : jcommander. **Version** : 1.85.
      * **Project URL:** [https://jcommander.org](https://jcommander.org)
      * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -5122,14 +5034,6 @@ This report was generated on **Wed Mar 25 16:48:24 WET 2026** using
 1.  **Group** : org.jetbrains.intellij.deps. **Name** : trove4j. **Version** : 1.0.20200330.
      * **Project URL:** [https://github.com/JetBrains/intellij-deps-trove4j](https://github.com/JetBrains/intellij-deps-trove4j)
      * **License:** [GNU LESSER GENERAL PUBLIC LICENSE 2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html)
-
-1.  **Group** : org.jetbrains.intellij.deps.kotlinx. **Name** : kotlinx-coroutines-bom. **Version** : 1.8.0-intellij-14.
-     * **Project URL:** [https://github.com/Kotlin/kotlinx.coroutines](https://github.com/Kotlin/kotlinx.coroutines)
-     * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : org.jetbrains.intellij.deps.kotlinx. **Name** : kotlinx-coroutines-core-jvm. **Version** : 1.8.0-intellij-14.
-     * **Project URL:** [https://github.com/Kotlin/kotlinx.coroutines](https://github.com/Kotlin/kotlinx.coroutines)
-     * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
 1.  **Group** : org.jetbrains.kotlin. **Name** : abi-tools. **Version** : 2.3.20.
      * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
@@ -5426,14 +5330,14 @@ This report was generated on **Wed Mar 25 16:48:24 WET 2026** using
 
 The dependencies distributed under several licenses, are used according their commercial-use-friendly license.
 
-This report was generated on **Wed Mar 25 16:48:24 WET 2026** using 
+This report was generated on **Tue Apr 07 20:52:29 WEST 2026** using 
 [Gradle-License-Report plugin](https://github.com/jk1/Gradle-License-Report) by Evgeny Naumenko, licensed under 
 [Apache 2.0 License](https://github.com/jk1/Gradle-License-Report/blob/master/LICENSE).
 
 
 
 
-# Dependencies of `io.spine.tools:spine-server-testlib:2.0.0-SNAPSHOT.372`
+# Dependencies of `io.spine.tools:server-testlib:2.0.0-SNAPSHOT.373`
 
 ## Runtime
 1.  **Group** : com.google.android. **Name** : annotations. **Version** : 4.1.1.4.
@@ -5549,27 +5453,27 @@ This report was generated on **Wed Mar 25 16:48:24 WET 2026** using
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -5787,11 +5691,11 @@ This report was generated on **Wed Mar 25 16:48:24 WET 2026** using
      * **Project URL:** [https://github.com/google/gson](https://github.com/google/gson)
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.devtools.ksp. **Name** : symbol-processing. **Version** : 2.3.6.
+1.  **Group** : com.google.devtools.ksp. **Name** : com.google.devtools.ksp.gradle.plugin. **Version** : 2.3.6.
      * **Project URL:** [https://goo.gle/ksp](https://goo.gle/ksp)
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.devtools.ksp. **Name** : symbol-processing-aa-embeddable. **Version** : 2.3.6.
+1.  **Group** : com.google.devtools.ksp. **Name** : symbol-processing. **Version** : 2.3.6.
      * **Project URL:** [https://goo.gle/ksp](https://goo.gle/ksp)
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -5917,19 +5821,11 @@ This report was generated on **Wed Mar 25 16:48:24 WET 2026** using
      * **Project URL:** [https://github.com/korlibs/korge-next](https://github.com/korlibs/korge-next)
      * **License:** [MIT](https://raw.githubusercontent.com/korlibs/korge-next/master/korge/LICENSE.txt)
 
-1.  **Group** : com.squareup. **Name** : javapoet. **Version** : 1.13.0.
-     * **Project URL:** [http://github.com/square/javapoet/](http://github.com/square/javapoet/)
-     * **License:** [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
-
 1.  **Group** : com.squareup. **Name** : kotlinpoet. **Version** : 2.2.0.
      * **Project URL:** [https://github.com/square/kotlinpoet](https://github.com/square/kotlinpoet)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
 1.  **Group** : com.squareup. **Name** : kotlinpoet-jvm. **Version** : 2.2.0.
-     * **Project URL:** [https://github.com/square/kotlinpoet](https://github.com/square/kotlinpoet)
-     * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : com.squareup. **Name** : kotlinpoet-ksp. **Version** : 2.2.0.
      * **Project URL:** [https://github.com/square/kotlinpoet](https://github.com/square/kotlinpoet)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -6116,27 +6012,27 @@ This report was generated on **Wed Mar 25 16:48:24 WET 2026** using
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.0.4.
+1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.1.11.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -6298,14 +6194,6 @@ This report was generated on **Wed Mar 25 16:48:24 WET 2026** using
      * **License:** [LGPL 2.1](http://www.gnu.org/licenses/lgpl-2.1.html)
      * **License:** [MPL 1.1](http://www.mozilla.org/MPL/MPL-1.1.html)
 
-1.  **Group** : org.jboss.forge.roaster. **Name** : roaster-api. **Version** : 2.29.0.Final.
-     * **License:** [Eclipse Public License version 1.0](http://www.eclipse.org/legal/epl-v10.html)
-     * **License:** [Public Domain](http://repository.jboss.org/licenses/cc0-1.0.txt)
-
-1.  **Group** : org.jboss.forge.roaster. **Name** : roaster-jdt. **Version** : 2.29.0.Final.
-     * **License:** [Eclipse Public License version 1.0](http://www.eclipse.org/legal/epl-v10.html)
-     * **License:** [Public Domain](http://repository.jboss.org/licenses/cc0-1.0.txt)
-
 1.  **Group** : org.jcommander. **Name** : jcommander. **Version** : 1.85.
      * **Project URL:** [https://jcommander.org](https://jcommander.org)
      * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -6353,14 +6241,6 @@ This report was generated on **Wed Mar 25 16:48:24 WET 2026** using
 1.  **Group** : org.jetbrains.intellij.deps. **Name** : trove4j. **Version** : 1.0.20200330.
      * **Project URL:** [https://github.com/JetBrains/intellij-deps-trove4j](https://github.com/JetBrains/intellij-deps-trove4j)
      * **License:** [GNU LESSER GENERAL PUBLIC LICENSE 2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html)
-
-1.  **Group** : org.jetbrains.intellij.deps.kotlinx. **Name** : kotlinx-coroutines-bom. **Version** : 1.8.0-intellij-14.
-     * **Project URL:** [https://github.com/Kotlin/kotlinx.coroutines](https://github.com/Kotlin/kotlinx.coroutines)
-     * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : org.jetbrains.intellij.deps.kotlinx. **Name** : kotlinx-coroutines-core-jvm. **Version** : 1.8.0-intellij-14.
-     * **Project URL:** [https://github.com/Kotlin/kotlinx.coroutines](https://github.com/Kotlin/kotlinx.coroutines)
-     * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
 1.  **Group** : org.jetbrains.kotlin. **Name** : abi-tools. **Version** : 2.3.20.
      * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
@@ -6657,6 +6537,6 @@ This report was generated on **Wed Mar 25 16:48:24 WET 2026** using
 
 The dependencies distributed under several licenses, are used according their commercial-use-friendly license.
 
-This report was generated on **Wed Mar 25 16:48:24 WET 2026** using 
+This report was generated on **Tue Apr 07 20:52:29 WEST 2026** using 
 [Gradle-License-Report plugin](https://github.com/jk1/Gradle-License-Report) by Evgeny Naumenko, licensed under 
 [Apache 2.0 License](https://github.com/jk1/Gradle-License-Report/blob/master/LICENSE).
