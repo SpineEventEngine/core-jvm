@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,9 @@
 
 package io.spine.gradle.publish
 
+import io.spine.dependency.local.Spine
 import io.spine.gradle.repo.Repository
+import java.util.Locale
 import org.gradle.api.Project
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.kotlin.dsl.apply
@@ -145,16 +147,16 @@ import org.gradle.kotlin.dsl.findByType
  * @see [artifacts]
  * @see SpinePublishing
  */
-fun Project.spinePublishing(block: SpinePublishing.() -> Unit) {
+fun Project.spinePublishing(block: SpinePublishing.() -> Unit): SpinePublishing {
     apply<MavenPublishPlugin>()
-    val name = SpinePublishing::class.java.simpleName
     val extension = with(extensions) {
-        findByType<SpinePublishing>() ?: create(name, project)
+        findByType<SpinePublishing>() ?: create(SpinePublishing.extensionName, project)
     }
     extension.run {
         block()
         configured()
     }
+    return extension
 }
 
 /**
@@ -182,6 +184,18 @@ open class SpinePublishing(private val project: Project) {
          * The default prefix added before a module name when publishing artifacts.
          */
         const val DEFAULT_PREFIX = "spine-"
+
+        /**
+         * The reserved value that means that no prefix should be added
+         * to a tool module's artifact ID.
+         */
+        const val NONE_PREFIX = "NONE"
+
+        /**
+         * The name of the extension registered in a Gradle project.
+         */
+        public val extensionName: String = SpinePublishing::class.java.simpleName
+            .replaceFirstChar { it.lowercase(Locale.ROOT) }
     }
 
     private val testJar = TestJar()
@@ -250,9 +264,22 @@ open class SpinePublishing(private val project: Project) {
     lateinit var destinations: Set<Repository>
 
     /**
-     * A prefix to be added before the name of each artifact.
+     * A prefix to be added before the name of each artifact, if it does not belong
+     * to the Maven group `"io.spine.tools"`.
+     *
+     * @see toolArtifactPrefix
      */
     var artifactPrefix: String = DEFAULT_PREFIX
+
+    /**
+     * A prefix to be added before a module name if it belongs to
+     * the Maven group `"io.spine.tools"`.
+     *
+     * Use `"NONE"` if you need no prefix before tool module names.
+     *
+     * @see artifactPrefix
+     */
+    var toolArtifactPrefix: String = ""
 
     /**
      * Allows enabling publishing of [testJar] artifact, containing compilation output
@@ -323,13 +350,14 @@ open class SpinePublishing(private val project: Project) {
      *
      * @see modules
      */
-    private fun projectsToPublish(): Collection<Project> {
+    fun projectsToPublish(): Set<Project> {
         if (project.subprojects.isEmpty()) {
             return setOf(project)
         }
         return modules.union(modulesWithCustomPublishing)
             .map { name -> project.project(name) }
             .ifEmpty { setOf(project) }
+            .toSet()
     }
 
     /**
@@ -389,10 +417,31 @@ open class SpinePublishing(private val project: Project) {
     /**
      * Obtains an artifact ID for the given project.
      *
-     * It consists of a project's name and [prefix][artifactPrefix]:
-     * `<artifactPrefix><project.name>`.
+     * @see artifactPrefix
+     * @see toolArtifactPrefix
      */
-    fun artifactId(project: Project): String = "$artifactPrefix${project.name}"
+    fun artifactId(project: Project): String {
+        val result = if (project.isTool) {
+            check(!toolArtifactPrefix.isEmpty()) {
+                "Artifact prefix cannot be empty for tool modules. " +
+                        "Please set the `toolArtifactPrefix` property in `spinePublishing`. " +
+                        "Use `\"NONE\"` to have an empty prefix for tool modules."
+            }
+            val prefix =
+                if (toolArtifactPrefix == NONE_PREFIX) {
+                    ""
+                } else {
+                    toolArtifactPrefix
+                }
+            "$prefix${project.name}"
+        } else {
+            "$artifactPrefix${project.name}"
+        }
+        return result
+    }
+
+    private val Project.isTool: Boolean
+        get() = group == Spine.toolsGroup
 
     /**
      * Ensures that all modules, marked as included into [testJar] publishing,

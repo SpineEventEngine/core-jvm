@@ -46,12 +46,12 @@ object CoreJvmCompiler {
     /**
      * The version used to in the build classpath.
      */
-    const val dogfoodingVersion = "2.0.0-SNAPSHOT.055"
+    const val dogfoodingVersion = "2.0.0-SNAPSHOT.059"
 
     /**
      * The version to be used for integration tests.
      */
-    const val version = "2.0.0-SNAPSHOT.055"
+    const val version = "2.0.0-SNAPSHOT.059"
 
     /**
      * The ID of the Gradle plugin.
@@ -61,33 +61,20 @@ object CoreJvmCompiler {
     /**
      * The library with the [dogfoodingVersion].
      */
-    val pluginLib = pluginLibNew(dogfoodingVersion)
+    val pluginLib = pluginLib(dogfoodingVersion)
+
+    /**
+     * The name of the published fat JAR artifact.
+     */
+    const val fatJarArtifact = "core-jvm-plugins"
 
     /**
      * The library with the given [version].
-     *
-     * This is the notation before the version `2.0.0-SNAPSHOT.013`
      */
-    @Deprecated("Use `pluginLibNew()` instead.")
-    fun pluginLib(version: String): String = "$group:core-jvm-plugins:$version:all"
+    fun pluginLib(version: String): String = "$group:core-jvm-plugins:$version"
 
     /**
-     * The library with the given [version].
-     *
-     * @since 2.0.0-SNAPSHOT.013
+     * The artifact reference for forcing in configurations.
      */
-    fun pluginLibNew(version: String): String = "$group:core-jvm-plugins:$version"
-
-    /** The artifact reference for forcing in configurations. */
-    const val pluginsArtifact: String = "$group:core-jvm-plugins:$version"
-
-    /**
-     * The `core-jvm-base` artifact with the [version].
-     */
-    val base = base(version)
-
-    /**
-     * The `core-jvm-base` artifact with the given [version].
-     */
-    fun base(version: String): String = "$group:core-jvm-base:$version"
+    val pluginsArtifact: String = pluginLib(version)
 }
