@@ -97,6 +97,8 @@ apply<BomsPlugin>()
 repositories.standardToSpineSdk()
 
 spinePublishing {
+    artifactPrefix = "spine-"
+    toolArtifactPrefix = "NONE"
     modules = productionModules.map { it.name }.toSet()
 
     destinations = with(PublishingRepos) {
