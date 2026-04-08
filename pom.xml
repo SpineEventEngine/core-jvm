@@ -291,7 +291,7 @@ all modules and does not describe the project structure per-subproject.
   <dependency>
     <groupId>io.spine.tools</groupId>
     <artifactId>core-jvm-plugins</artifactId>
-    <version>2.0.0-SNAPSHOT.059</version>
+    <version>2.0.0-SNAPSHOT.060</version>
   </dependency>
   <dependency>
     <groupId>io.spine.tools</groupId>
