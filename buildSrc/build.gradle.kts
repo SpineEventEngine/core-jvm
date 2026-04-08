@@ -36,9 +36,6 @@ plugins {
     java
     groovy
     `kotlin-dsl`
-
-    // https://github.com/jk1/Gradle-License-Report/releases
-    id("com.github.jk1.dependency-license-report").version("2.9")
 }
 
 repositories {
