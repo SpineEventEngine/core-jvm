@@ -36,9 +36,6 @@ plugins {
     java
     groovy
     `kotlin-dsl`
-
-    // https://github.com/jk1/Gradle-License-Report/releases
-    id("com.github.jk1.dependency-license-report").version("2.9")
 }
 
 repositories {
@@ -65,7 +62,12 @@ val jacksonVersion = "2.18.3"
  */
 val googleAuthToolVersion = "2.1.5"
 
-val licenseReportVersion = "2.7"
+/**
+ * Generates reports about the licenses of the dependencies for a Gradle project.
+ *
+ * https://github.com/jk1/Gradle-License-Report
+ */
+val licenseReportVersion = "3.1.2"
 
 val grGitVersion = "4.1.1"
 
@@ -139,7 +141,21 @@ val koverVersion = "0.9.1"
  *
  * @see <a href="https://github.com/GradleUp/shadow">Shadow Plugin releases</a>
  */
-val shadowVersion = "9.2.2"
+val shadowVersion = "9.4.1"
+
+/**
+ * The version of JUnit used to test the build scripts.
+ *
+ * @see [io.spine.dependency.test.JUnit]
+ */
+val junitVersion = "6.0.3"
+
+/**
+ * The version of Kotest used to test the build scripts.
+ *
+ * @see [io.spine.dependency.test.Kotest]
+ */
+val kotestVersion = "6.1.10"
 
 configurations.all {
     resolutionStrategy {
@@ -192,6 +208,15 @@ dependencies {
     ).forEach {
         implementation(it)
     }
+
+    testImplementation(platform("org.junit:junit-bom:$junitVersion"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 dependOnBuildSrcJar()

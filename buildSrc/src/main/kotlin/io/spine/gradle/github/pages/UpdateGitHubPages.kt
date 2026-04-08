@@ -107,15 +107,7 @@ class UpdateGitHubPages : Plugin<Project> {
     override fun apply(project: Project) {
         val extension = UpdateGitHubPagesExtension.createIn(project)
         project.afterEvaluate {
-            //TODO:2025-11-20:alexander.yevsyukov: Remove this line and uncomment the below block
-            // when new publishing procedure is finalized.
             registerTasks(extension)
-//            val projectVersion = project.version.toString()
-//            if (projectVersion.isSnapshot()) {
-//                registerNoOpTask()
-//            } else {
-//                registerTasks(extension)
-//            }
         }
     }
 

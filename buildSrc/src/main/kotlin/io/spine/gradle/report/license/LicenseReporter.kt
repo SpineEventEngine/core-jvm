@@ -29,6 +29,7 @@ package io.spine.gradle.report.license
 import com.github.jk1.license.LicenseReportExtension
 import com.github.jk1.license.LicenseReportExtension.ALL
 import com.github.jk1.license.LicenseReportPlugin
+import io.spine.dependency.local.Spine
 import io.spine.gradle.applyPlugin
 import io.spine.gradle.getTask
 import java.io.File
@@ -85,10 +86,10 @@ object LicenseReporter {
         with(project.the<LicenseReportExtension>()) {
             outputDir = reportOutputDir.absolutePath
             excludeGroups = arrayOf(
-                "io.spine",
+                Spine.group,
                 "io.spine.gcloud",
                 "io.spine.protodata",
-                "io.spine.tools",
+                Spine.toolsGroup,
                 "io.spine.validation"
             )
             configurations = ALL

@@ -33,8 +33,8 @@ package io.spine.dependency.local
  */
 @Suppress("ConstPropertyName")
 object TestLib {
-    const val version = "2.0.0-SNAPSHOT.211"
+    const val version = "2.0.0-SNAPSHOT.213"
     const val group = Spine.toolsGroup
-    const val artifact = "spine-testlib"
+    const val artifact = "base-testlib"
     const val lib = "$group:$artifact:$version"
 }

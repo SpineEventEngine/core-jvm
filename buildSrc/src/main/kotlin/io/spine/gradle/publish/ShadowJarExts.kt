@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 /**
  * Calls [ShadowJar.mergeServiceFiles] for the files we use in the Spine SDK.
  */
+@Suppress("unused")
 fun ShadowJar.handleMergingServiceFiles() {
     ServiceFiles.all.forEach {
         append(it)
@@ -45,11 +46,20 @@ private object ServiceFiles {
      */
     private const val descriptorSetReferences = "desc.ref"
 
+    /**
+     * The resource directory where service provider files are stored.
+     */
     private const val servicesDir = "META-INF/services"
+
     /**
      * Providers of custom Protobuf options introduced by the libraries.
      */
     private const val optionProviders = "$servicesDir/io.spine.option.OptionsProvider"
+
+    /**
+     * Message validators provided by the libraries.
+     */
+    private const val messageValidators = "$servicesDir/io.spine.validation.MessageValidator"
 
     /**
      * KSP symbol processor provider.
@@ -69,6 +79,7 @@ private object ServiceFiles {
     val all = arrayOf(
         descriptorSetReferences,
         optionProviders,
+        messageValidators,
         kspSymbolProcessorProviders,
         commandRoutingSetupClasses,
         eventRoutingSetupClasses,
