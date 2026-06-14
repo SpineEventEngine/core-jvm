@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ import io.spine.dependency.local.TestLib
 import io.spine.dependency.local.Time
 import io.spine.dependency.local.ToolBase
 import io.spine.dependency.local.Validation
+import io.spine.dependency.test.Jacoco
 import io.spine.dependency.test.JUnit
 import io.spine.gradle.checkstyle.CheckStyleConfig
 import io.spine.gradle.github.pages.updateGitHubPages
@@ -56,7 +57,7 @@ import org.gradle.jvm.tasks.Jar
 
 plugins {
     `java-library`
-    jacoco
+    id("org.jetbrains.kotlinx.kover")
     id("com.google.protobuf")
     id("net.ltgt.errorprone")
     kotlin("jvm")
@@ -85,6 +86,11 @@ project.run {
 
     setupPublishing()
     configureTaskDependencies()
+}
+
+kover {
+    useJacoco(version = Jacoco.version)
+    reports.total.xml.onCheck = true
 }
 
 typealias Module = Project
