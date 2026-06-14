@@ -55,7 +55,7 @@ public final class AggregatePartClass<A extends AggregatePart<?, ?, ?, ?>>
     @LazyInit
     private transient volatile @MonotonicNonNull Class<? extends AggregateRoot<?>> rootClass;
 
-    /** Creates new instance. */
+    /** Creates a new instance. */
     private AggregatePartClass(Class<A> cls) {
         super(cls);
     }
