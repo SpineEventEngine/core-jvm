@@ -83,8 +83,6 @@ project.run {
     addDependencies()
     forceConfigurations()
 
-    val generatedDir = "$projectDir/generated"
-    applyGeneratedDirectories(generatedDir)
     setupPublishing()
     configureTaskDependencies()
 }
@@ -135,69 +133,6 @@ fun Module.addDependencies() {
 }
 
 /**
- * Adds directories with the generated source code to source sets of the project and
- * to IntelliJ IDEA module settings.
- *
- * @param generatedDir
- *          the name of the root directory with the generated code
- */
-fun Module.applyGeneratedDirectories(generatedDir: String) {
-    val generatedMain = "$generatedDir/main"
-    val generatedJava = "$generatedMain/java"
-    val generatedKotlin = "$generatedMain/kotlin"
-    val generatedGrpc = "$generatedMain/grpc"
-    val generatedSpine = "$generatedMain/spine"
-
-    val generatedTest = "$generatedDir/test"
-    val generatedTestJava = "$generatedTest/java"
-    val generatedTestKotlin = "$generatedTest/kotlin"
-    val generatedTestGrpc = "$generatedTest/grpc"
-    val generatedTestSpine = "$generatedTest/spine"
-
-    sourceSets {
-        main {
-            java.srcDirs(
-                generatedJava,
-                generatedGrpc,
-                generatedSpine,
-            )
-            kotlin.srcDirs(
-                generatedKotlin,
-            )
-        }
-        test {
-            java.srcDirs(
-                generatedTestJava,
-                generatedTestGrpc,
-                generatedTestSpine,
-            )
-            kotlin.srcDirs(
-                generatedTestKotlin,
-            )
-        }
-    }
-
-    idea {
-        module {
-            generatedSourceDirs.addAll(files(
-                    generatedJava,
-                    generatedKotlin,
-                    generatedGrpc,
-                    generatedSpine,
-            ))
-            testSources.from(
-                generatedTestJava,
-                generatedTestKotlin,
-                generatedTestGrpc,
-                generatedTestSpine,
-            )
-            isDownloadJavadoc = true
-            isDownloadSources = true
-        }
-    }
-}
-
-/**
  * Forces dependencies of this project.
  */
 fun Module.forceConfigurations() {
@@ -231,6 +166,7 @@ fun Module.forceConfigurations() {
                 force(
                     Base.annotations,
                     Base.environment,
+                    Base.format,
                     Base.lib,
                     BaseTypes.lib,
                     Change.lib,
