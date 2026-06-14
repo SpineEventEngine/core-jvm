@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ package io.spine.gradle.javascript.task
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.google.protobuf.gradle.GenerateProtoTask
+import io.spine.gradle.SpineTaskGroup
 import io.spine.gradle.TaskName
 import io.spine.gradle.base.assemble
 import io.spine.gradle.javascript.plugin.generateJsonParsers
@@ -105,7 +106,7 @@ private fun JsTasks.assembleJs() =
     register(assembleJsName) {
 
         description = "Assembles JavaScript sources into consumable artifacts."
-        group = JsTasks.Group.assemble
+        group = SpineTaskGroup.name
 
         dependsOn(
             installNodePackages,
@@ -130,7 +131,7 @@ private fun JsTasks.compileProtoToJs() =
     register(compileProtoToJsName) {
 
         description = "Compiles Protobuf messages into JavaScript."
-        group = JsTasks.Group.assemble
+        group = SpineTaskGroup.name
 
         withType<GenerateProtoTask>()
             .forEach { dependsOn(it) }
@@ -158,7 +159,7 @@ private fun JsTasks.installNodePackages() =
     register(installNodePackagesName) {
 
         description = "Installs module`s Node dependencies."
-        group = JsTasks.Group.assemble
+        group = SpineTaskGroup.name
 
         inputs.file(packageJson)
         outputs.dir(nodeModules)
@@ -185,7 +186,7 @@ private fun JsTasks.updatePackageVersion() =
     register(updatePackageVersionName) {
 
         description = "Sets a module's version in `package.json`."
-        group = JsTasks.Group.assemble
+        group = SpineTaskGroup.name
 
         doLast {
             val objectNode = ObjectMapper()

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,6 @@ package io.spine.dependency.lib
 @Suppress("unused", "ConstPropertyName")
 object CommonsLogging {
     // https://commons.apache.org/proper/commons-logging/
-    private const val version = "1.2"
+    private const val version = "1.3.6"
     const val lib = "commons-logging:commons-logging:$version"
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@ object Compiler : Dependency() {
      * The version of the Compiler dependencies.
      */
     override val version: String
-    private const val fallbackVersion = "2.0.0-SNAPSHOT.042"
+    private const val fallbackVersion = "2.0.0-SNAPSHOT.051"
 
     /**
      * The distinct version of the Compiler used by other build tools.
@@ -81,7 +81,7 @@ object Compiler : Dependency() {
      * transitive dependencies, this is the version used to build the project itself.
      */
     val dogfoodingVersion: String
-    private const val fallbackDfVersion = "2.0.0-SNAPSHOT.042"
+    private const val fallbackDfVersion = "2.0.0-SNAPSHOT.051"
 
     /**
      * The artifact for the Compiler Gradle plugin.

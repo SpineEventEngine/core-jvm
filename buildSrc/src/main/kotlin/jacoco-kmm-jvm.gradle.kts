@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,9 +30,24 @@ import org.gradle.kotlin.dsl.getting
 import org.gradle.kotlin.dsl.jacoco
 import org.gradle.testing.jacoco.tasks.JacocoReport
 
+// DEPRECATED: this script plugin distributes vanilla JaCoCo.
+// New code should apply `kmp-module`, which configures Kover via
+// `useJacoco(version = Jacoco.version)` and writes JaCoCo-format XML at
+// `build/reports/kover/report.xml`. (Same task and path as Kotlin-JVM —
+// `kmp-module` configures only Kover's `total` report, so no
+// `koverXmlReport<Variant>` task is generated.) The `raise-coverage` skill
+// migrates existing consumers automatically. Kept so older consumer repos
+// continue to build; will be removed in a future release.
+// See: .agents/skills/raise-coverage/references/migrate-to-kover.md
+
 plugins {
     jacoco
 }
+
+logger.warn(
+    "'jacoco-kmm-jvm' is deprecated; use 'kmp-module' which applies Kover. " +
+        "See .agents/skills/raise-coverage/references/migrate-to-kover.md."
+)
 
 /**
  * Configures [JacocoReport] task to run in a Kotlin KMM project for `commonMain` and `jvmMain`

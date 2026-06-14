@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
 
 package io.spine.gradle.publish
 
+import DocumentationSettings
 import LicenseSettings
 import io.spine.gradle.artifactId
 import io.spine.gradle.isSnapshot
@@ -133,8 +134,14 @@ sealed class PublicationHandler(
      *  * [version][Project.getVersion];
      *  * [description][Project.getDescription].
      *
-     * The [artifactId] of the publication is copied from the project
-     * [extension property][io.spine.gradle.artifactId] of the same name.
+     * The [artifactId] is derived from the project
+     * [extension property][io.spine.gradle.artifactId] of the same name, combined with
+     * the platform-specific suffix already present in the publication's artifact ID.
+     * This preserves Kotlin Multiplatform suffixes such as `-jvm`.
+     *
+     * For example, if the project artifact ID is `spine-logging` and the publication's
+     * current artifact ID is `logging-jvm` (set by the KMP plugin), the resulting
+     * artifact ID will be `spine-logging-jvm`.
      *
      * The Apache Software License 2.0 is set as the only license
      * under which the published artifact is distributed via [LicenseSettings]
@@ -146,7 +153,24 @@ sealed class PublicationHandler(
      */
     protected fun MavenPublication.copyProjectAttributes() {
         groupId = project.group.toString()
-        artifactId = project.artifactId
+        // Add the proper prefix to the `artifactId`.
+        // The default `artifactId` is either `project.name` or
+        // the `project.name` with the platform suffix of a KMM distribution.
+        artifactId = if (artifactId.startsWith(project.name)) {
+            val platformSuffix = artifactId.removePrefix(project.name)
+            val replacedId = project.artifactId + platformSuffix
+            project.logger.info(
+                "The project `${project.name}` got modified artifact: `$replacedId`."
+            )
+            replacedId
+        } else {
+            project.logger.info(
+                "The `artifactId` for the project `${project.name}` stays: `$artifactId`."
+            )
+            // This is an unlikely case of `artifactId` being set to something unrelated
+            // to the project name. Let's keep it as is.
+            artifactId
+        }
         version = project.version.toString()
         pom.description.set(project.description)
         pom.inceptionYear.set(InceptionYear.value)
@@ -154,7 +178,9 @@ sealed class PublicationHandler(
             license {
                 name.set(LicenseSettings.name)
                 url.set(LicenseSettings.url)
-                distribution.set(LicenseSettings.url)
+                // It's either `"repo"` or `"manual"`.
+                // https://maven.apache.org/ref/3.9.15/maven-model/apidocs/org/apache/maven/model/License.html#setDistribution(java.lang.String)
+                distribution.set("repo")
             }
         }
         pom.scm {

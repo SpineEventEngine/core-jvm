@@ -1,0 +1,216 @@
+name: Check Links
+
+# Trigger only when the docs site, the link checker config, or this workflow
+# itself changes — unrelated PRs do not need to pay the build+check cost.
+on:
+  pull_request:
+    paths:
+      - 'docs/**'
+      - 'site/**'
+      - 'lychee.toml'
+      - '.github/workflows/check-links.yml'
+  workflow_dispatch:
+
+env:
+  HUGO_VERSION: 0.161.1
+  LYCHEE_RELEASE: "lychee-x86_64-unknown-linux-gnu.tar.gz"
+  LYCHEE_VERSION_TAG: "lychee-v0.24.2"
+  # SHA256 of the above tarball, pinned at download time. Update alongside
+  # LYCHEE_VERSION_TAG whenever the binary is upgraded.
+  LYCHEE_SHA256: "1f4e0ef7f6554a6ed33dd7ac144fb2e1bbed98598e7af973042fc5cd43951c9a"
+  # Force Hugo to write its module cache where the cache step actually
+  # restores from. Hugo's default on Linux is `~/.cache/hugo_cache`
+  # (or `$TMPDIR/hugo_cache_$USER`), neither of which matches the
+  # `path: /tmp/hugo_cache` cache step below — without this env var,
+  # the cache would silently never hit.
+  HUGO_CACHEDIR: /tmp/hugo_cache
+
+jobs:
+  check-links:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      # Detect the Hugo site root (`docs/` or `site/`) by looking for a Hugo
+      # config file. Hugo config may live directly in the site root or in a
+      # `config/` or `config/_default/` subdirectory (both layouts are valid).
+      # Outputs `present=true|false` and `work_dir` (the directory where
+      # `npm ci` / `hugo` commands should run — either `$dir/_preview` for
+      # repos that use a separate preview sub-tree, or `$dir` for repos whose
+      # Node/Hugo setup lives at the site root).
+      # When neither directory has a Hugo config, the job short-circuits to a
+      # success so that this shared workflow stays green on repos that do not
+      # host a Hugo site at all.
+      - name: Detect docs site
+        id: docs
+        run: |
+          for dir in docs site; do
+            for cfg in hugo.toml hugo.yaml \
+                       config/hugo.toml config/hugo.yaml \
+                       config/_default/hugo.toml config/_default/hugo.yaml; do
+              if [ -f "$dir/$cfg" ]; then
+                if [ -f "$dir/_preview/package-lock.json" ]; then
+                  echo "work_dir=$dir/_preview" >> "$GITHUB_OUTPUT"
+                  echo "present=true" >> "$GITHUB_OUTPUT"
+                  echo "::notice::Hugo site found under $dir/ (work_dir: $dir/_preview)"
+                elif [ -f "$dir/package-lock.json" ]; then
+                  echo "work_dir=$dir" >> "$GITHUB_OUTPUT"
+                  echo "present=true" >> "$GITHUB_OUTPUT"
+                  echo "::notice::Hugo site found under $dir/ (work_dir: $dir)"
+                else
+                  echo "present=false" >> "$GITHUB_OUTPUT"
+                  echo "::notice::Hugo config found in $dir/ but no package-lock.json found — skipping link check."
+                fi
+                exit 0
+              fi
+            done
+          done
+          echo "present=false" >> "$GITHUB_OUTPUT"
+          echo "::notice::No Hugo site found under docs/ or site/ — skipping link check."
+
+      - name: Setup Hugo
+        if: steps.docs.outputs.present == 'true'
+        uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: ${{ env.HUGO_VERSION }}
+          extended: true
+
+      # `actions/setup-node@v4` ships with built-in npm caching that hashes
+      # the lockfile and restores `~/.npm`. We use that instead of a
+      # standalone `actions/cache@v4` block so there is only one source of
+      # truth for the cache key (no drift between two layers).
+      - name: Setup Node
+        if: steps.docs.outputs.present == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '26'
+          cache: 'npm'
+          cache-dependency-path: ${{ steps.docs.outputs.work_dir }}/package-lock.json
+
+      # `HUGO_CACHEDIR=/tmp/hugo_cache` (set in `env:` above) makes Hugo
+      # actually write to the path this step restores from. The key hashes
+      # both possible go.sum locations so adding/removing a Hugo module
+      # invalidates the cache deterministically regardless of site root.
+      - name: Cache Hugo Modules
+        if: steps.docs.outputs.present == 'true'
+        uses: actions/cache@v4
+        with:
+          path: /tmp/hugo_cache
+          key: ${{ runner.os }}-hugomod-${{ hashFiles('docs/**/go.sum', 'site/**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-hugomod-
+
+      - name: Install Dependencies
+        if: steps.docs.outputs.present == 'true'
+        working-directory: ${{ steps.docs.outputs.work_dir }}
+        run: npm ci
+
+      - name: Build docs preview site
+        if: steps.docs.outputs.present == 'true'
+        working-directory: ${{ steps.docs.outputs.work_dir }}
+        run: hugo -e development
+
+      # Cache Lychee results to avoid hitting rate limits.
+      # Key on the lychee.toml hash so that exclude-list edits (e.g. removing
+      # an exclude pattern) invalidate the cache deterministically; otherwise
+      # stale `200 OK` entries for the now-checked URLs would be trusted until
+      # `max_cache_age` expires.
+      - name: Cache Lychee results
+        if: steps.docs.outputs.present == 'true'
+        uses: actions/cache@v4
+        with:
+          path: .lycheecache
+          key: cache-lychee-${{ runner.os }}-${{ hashFiles('lychee.toml') }}
+          restore-keys: |
+            cache-lychee-${{ runner.os }}-
+
+      # The cache key includes LYCHEE_VERSION_TAG so a version bump
+      # automatically pulls a fresh binary instead of reusing the old one.
+      # The restore-keys fallback lets a release-filename tweak (rare) reuse
+      # the existing cached binary for the same version-tag instead of paying
+      # for a fresh download.
+      - name: Cache Lychee executable
+        if: steps.docs.outputs.present == 'true'
+        id: cache-lychee
+        uses: actions/cache@v4
+        with:
+          path: lychee
+          key: ${{ runner.os }}-${{ env.LYCHEE_VERSION_TAG }}-${{ env.LYCHEE_RELEASE }}
+          restore-keys: |
+            ${{ runner.os }}-${{ env.LYCHEE_VERSION_TAG }}-
+
+      # We use Lychee directly instead of a GitHub Action because it
+      # must have access to the local Hugo server, which is not visible
+      # from the Docker-based action.
+      #
+      # `if:` gating uses `hashFiles('lychee/lychee')` rather than
+      # `steps.cache-lychee.outputs.cache-hit != 'true'`. Per `actions/cache`
+      # docs, `cache-hit` is only `'true'` on an EXACT key match — a restore
+      # via `restore-keys` reports `cache-hit == 'false'`, even though the
+      # binary is present in the workspace. Re-downloading in that case
+      # would defeat the point of the fallback. `hashFiles` returns an empty
+      # string when the file is absent, so this guard runs the download iff
+      # neither the exact key nor any restore-key restored the binary.
+      - name: Download Lychee executable
+        uses: robinraju/release-downloader@v1.7
+        if: steps.docs.outputs.present == 'true' && hashFiles('lychee/lychee') == ''
+        with:
+          repository: "lycheeverse/lychee"
+          tag: ${{ env.LYCHEE_VERSION_TAG }}
+          fileName: ${{ env.LYCHEE_RELEASE }}
+
+      - name: Verify Lychee checksum
+        if: steps.docs.outputs.present == 'true' && hashFiles('lychee/lychee') == ''
+        run: |
+          echo "${{ env.LYCHEE_SHA256 }}  ${{ env.LYCHEE_RELEASE }}" | sha256sum --check --strict
+
+      # The v0.24.2 tarball contains a top-level directory
+      # (e.g. `lychee-x86_64-unknown-linux-gnu/lychee`), so `--strip-components=1`
+      # flattens it to `lychee/lychee` — matching what the companion
+      # `check-links` skill does locally and what the next step expects.
+      - name: Extract Lychee executable
+        if: steps.docs.outputs.present == 'true' && hashFiles('lychee/lychee') == ''
+        run: |
+          mkdir -p lychee &&
+          tar -xzf ${{ env.LYCHEE_RELEASE }} --strip-components=1 -C lychee
+
+      # 1. In the generated HTML, some inner links will have absolute URLs and
+      #    the link checker will attempt to fetch them. That's why we need
+      #    a server. Sadly, link checkers have no settings to address this.
+      # 2. Output redirection is necessary for nohup in GitHub Actions.
+      # 3. Sleep + `curl` readiness check make sure the server is actually
+      #    serving HTTP before the next step runs Lychee. Without the curl
+      #    probe a silent startup failure (port already bound, missing
+      #    Hugo module, build error surfacing after `nohup` returns 0)
+      #    would manifest 60 s later as "every URL unreachable" Lychee
+      #    errors instead of pointing at the real cause. Mirrors the
+      #    `pgrep -F` guard in the companion `check-links` skill.
+      # 4. `--port 1313` is set explicitly (not relying on Hugo's default) so
+      #    the coupling with `--base-url http://localhost:1313/` in the next
+      #    Lychee step is visible — change one, change the other.
+      - name: Start Hugo server
+        if: steps.docs.outputs.present == 'true'
+        working-directory: ${{ steps.docs.outputs.work_dir }}
+        run: |
+          nohup hugo server \
+          --environment development \
+          --port 1313 \
+          > nohup.out 2> nohup.err < /dev/null &
+          sleep 5
+          if ! curl -sf http://localhost:1313/ > /dev/null; then
+            echo "ERROR: Hugo server did not respond on port 1313." >&2
+            echo "--- stdout ---" >&2; cat nohup.out >&2 || true
+            echo "--- stderr ---" >&2; cat nohup.err >&2 || true
+            exit 1
+          fi
+
+      - name: Check links
+        if: steps.docs.outputs.present == 'true'
+        run: |
+          ./lychee/lychee --config lychee.toml --timeout 60 \
+          --base-url http://localhost:1313/ \
+          '${{ steps.docs.outputs.work_dir }}/public/**/*.html'

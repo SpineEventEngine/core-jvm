@@ -1,6 +1,6 @@
 # Guidelines for Junie and AI Agent from JetBrains
 
-Read the `../.agents/_TOC.md` file to understand:
+Read the `../.agents/guidelines/_TOC.md` file to understand:
  - the agent responsibilities,
  - project overview,
  - coding guidelines,
@@ -10,7 +10,7 @@ Also follow the Junie-specific rules described below.
 
 ## Junie Assistance Tips
 
-When working with Junie AI on the Spine Tool-Base project:
+When working with Junie AI on the Spine family of projects:
 
 1. **Project Navigation**: Use `search_project` to find relevant files and code segments.
 2. **Code Understanding**: Request file structure with `get_file_structure` before editing.

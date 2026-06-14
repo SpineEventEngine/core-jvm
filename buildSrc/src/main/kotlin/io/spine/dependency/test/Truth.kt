@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ package io.spine.dependency.test
 // https://github.com/google/truth
 @Suppress("unused", "ConstPropertyName")
 object Truth {
-    private const val version = "1.4.4"
+    private const val version = "1.4.5"
     val libs = listOf(
         "com.google.truth:truth:$version",
         "com.google.truth.extensions:truth-java8-extension:$version",

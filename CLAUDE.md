@@ -1,17 +1,16 @@
-# Project Configuration for Claude Code
+@AGENTS.md
 
-## Agent Guidelines
-Please read and follow all guidelines in the project's agent documentation:
+## Claude Code-specific notes
 
-- Start with the table of contents: `./agents/_TOC.md`.
-- Follow all linked documents from the TOC.
-- Apply all coding standards, formatting rules, and project conventions found in these documents.
-
-## Key Points for Claude Code
-- All guidelines in the `.agents` directory apply to Claude Code interactions.
-- Pay special attention to Kotlin formatting requirements (trailing newlines, detekt compliance).
-- Follow project-specific conventions documented in the agent guidelines.
-
-## Priority
-The `.agents` directory contains the authoritative project standards.
-These take precedence over default behaviors.
+- Use Plan mode (`EnterPlanMode`) for architecture, refactoring, multi-file
+  changes, or lengthy documentation. Show the plan (`ExitPlanMode`) before
+  implementing.
+- Track live progress with `TaskCreate`.
+- In JVM repos: before reading library source code from `~/.gradle/caches`,
+  follow the `api-discovery` skill — never `unzip` JARs directly.
+- Per-developer memory lives in the built-in auto-memory dir. Use it for
+  personal preferences, ephemeral project state, and per-machine resources.
+  Litmus test: *would a teammate benefit from this next month?* → repo.
+  Otherwise → auto-memory.
+- This is living team memory. Update it regularly and keep it concise
+  (<120 lines / ~2.5k tokens).

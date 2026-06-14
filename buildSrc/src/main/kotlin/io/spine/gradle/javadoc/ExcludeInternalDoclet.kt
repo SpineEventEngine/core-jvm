@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@
 package io.spine.gradle.javadoc
 
 import io.spine.dependency.local.ToolBase
+import io.spine.gradle.SpineTaskGroup
 import io.spine.gradle.javadoc.ExcludeInternalDoclet.Companion.taskName
 import io.spine.gradle.sourceSets
 import org.gradle.api.Project
@@ -92,6 +93,9 @@ class ExcludeInternalDoclet {
 private fun Project.appendCustomJavadocTask(excludeInternalDoclet: Configuration) {
     val javadocTask = tasks.javadocTask()
     tasks.register(taskName, Javadoc::class.java) {
+
+        group = SpineTaskGroup.name
+        description = "Generates Javadoc that omits `@Internal` Java APIs"
 
         source = sourceSets.getByName("main").allJava.filter {
             !it.absolutePath.contains("generated")

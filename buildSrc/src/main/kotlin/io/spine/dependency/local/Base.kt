@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,8 +33,8 @@ package io.spine.dependency.local
  */
 @Suppress("ConstPropertyName", "unused")
 object Base {
-    const val version = "2.0.0-SNAPSHOT.387"
-    const val versionForBuildScript = "2.0.0-SNAPSHOT.387"
+    const val version = "2.0.0-SNAPSHOT.410"
+    const val versionForBuildScript = "2.0.0-SNAPSHOT.410"
     const val group = Spine.group
     private const val prefix = "spine"
     const val libModule = "$prefix-base"

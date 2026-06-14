@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,6 @@ package io.spine.dependency.build
  */
 @Suppress("ConstPropertyName")
 object PluginPublishPlugin {
-    const val version = "1.3.1"
+    const val version = "2.1.1"
     const val id = "com.gradle.plugin-publish"
 }

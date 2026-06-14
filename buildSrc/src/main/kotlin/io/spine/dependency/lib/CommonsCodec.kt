@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,6 @@ package io.spine.dependency.lib
 // https://commons.apache.org/proper/commons-codec/changes-report.html
 @Suppress("unused", "ConstPropertyName")
 object CommonsCodec {
-    private const val version = "1.16.0"
+    private const val version = "1.22.0"
     const val lib = "commons-codec:commons-codec:$version"
 }

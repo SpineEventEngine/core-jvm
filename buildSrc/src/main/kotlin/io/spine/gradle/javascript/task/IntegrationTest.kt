@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
 
 package io.spine.gradle.javascript.task
 
+import io.spine.gradle.SpineTaskGroup
 import io.spine.gradle.TaskName
 import io.spine.gradle.base.build
 import io.spine.gradle.named
@@ -87,7 +88,7 @@ fun JsTasks.integrationTest() {
 
         description = "Runs integration tests of the `spine-web` library " +
                 "against the sample application."
-        group = JsTasks.Group.check
+        group = SpineTaskGroup.name
 
         dependsOn(build, linkSpineWebModule, ":test-app:appBeforeIntegrationTest")
 
@@ -118,7 +119,7 @@ private fun JsTasks.linkSpineWebModule() =
     register(linkSpineWebModuleName) {
 
         description = "Install unpublished artifact of `spine-web` library as a module dependency."
-        group = JsTasks.Group.assemble
+        group = SpineTaskGroup.name
 
         dependsOn(":client-js:publishJsLocally")
 

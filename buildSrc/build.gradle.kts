@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,7 +77,7 @@ val grGitVersion = "4.1.1"
  * This version may change from the [version of Kotlin][io.spine.dependency.lib.Kotlin.version]
  * used by the project.
  */
-val kotlinEmbeddedVersion = "2.3.20"
+val kotlinEmbeddedVersion = "2.3.21"
 
 /**
  * The version of Guava used in `buildSrc`.
@@ -85,7 +85,7 @@ val kotlinEmbeddedVersion = "2.3.20"
  * Always use the same version as the one specified in [io.spine.dependency.lib.Guava].
  * Otherwise, when testing Gradle plugins, clashes may occur.
  */
-val guavaVersion = "33.5.0-jre"
+val guavaVersion = "33.6.0-jre"
 
 /**
  * The version of ErrorProne Gradle plugin.
@@ -95,7 +95,7 @@ val guavaVersion = "33.5.0-jre"
  * @see <a href="https://github.com/tbroyer/gradle-errorprone-plugin/releases">
  *     Error Prone Gradle Plugin Releases</a>
  */
-val errorPronePluginVersion = "4.2.0"
+val errorPronePluginVersion = "5.1.0"
 
 /**
  * The version of Protobuf Gradle Plugin.
@@ -105,7 +105,7 @@ val errorPronePluginVersion = "4.2.0"
  * @see <a href="https://github.com/google/protobuf-gradle-plugin/releases">
  *     Protobuf Gradle Plugins Releases</a>
  */
-val protobufPluginVersion = "0.9.6"
+val protobufPluginVersion = "0.10.0"
 
 /**
  * The version of Dokka Gradle Plugins.
@@ -115,7 +115,7 @@ val protobufPluginVersion = "0.9.6"
  * @see <a href="https://github.com/Kotlin/dokka/releases">
  *     Dokka Releases</a>
  */
-val dokkaVersion = "2.1.0"
+val dokkaVersion = "2.2.0"
 
 /**
  * The version of Detekt Gradle Plugin.
@@ -132,12 +132,10 @@ val kotestJvmPluginVersion = "0.4.10"
 /**
  * @see [io.spine.dependency.test.Kover]
  */
-val koverVersion = "0.9.1"
+val koverVersion = "0.9.8"
 
 /**
  * The version of the Shadow Plugin.
- *
- * `7.1.2` is the last version compatible with Gradle 7.x. Newer versions require Gradle v8.x.
  *
  * @see <a href="https://github.com/GradleUp/shadow">Shadow Plugin releases</a>
  */
@@ -155,7 +153,7 @@ val junitVersion = "6.0.3"
  *
  * @see [io.spine.dependency.test.Kotest]
  */
-val kotestVersion = "6.1.10"
+val kotestVersion = "6.1.11"
 
 configurations.all {
     resolutionStrategy {

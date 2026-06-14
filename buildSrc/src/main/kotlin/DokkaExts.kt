@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@
  */
 
 import io.spine.dependency.build.Dokka
+import io.spine.gradle.SpineTaskGroup
 import io.spine.gradle.publish.getOrCreate
 import java.io.File
 import java.time.LocalDate
@@ -204,6 +205,8 @@ fun TaskContainer.dokkaJavadocTask(): Task? = this.findByName("dokkaGeneratePubl
  * applying `dokka-setup` plugin.
  */
 fun Project.htmlDocsJar(): TaskProvider<Jar> = tasks.getOrCreate("htmlDocsJar") {
+    group = SpineTaskGroup.name
+    description = "Assembles a JAR with generated Dokka HTML docs"
     archiveClassifier.set("html-docs")
     from(files(dokkaHtmlOutput()))
 

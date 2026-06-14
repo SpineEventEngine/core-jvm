@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,6 @@ import org.gradle.api.tasks.TaskContainer
  *
  *  1. Access to the current [JsContext].
  *  2. Project's [TaskContainer].
- *  3. Default task groups.
  *
  * Supposing, one needs to create a new task that would participate in building. Let the task name
  * be `bundleJs`. To do that, several steps should be completed:
@@ -53,6 +52,7 @@ import org.gradle.api.tasks.TaskContainer
  * Here's an example of `bundleJs()` extension:
  *
  * ```
+ * import io.spine.gradle.SpineTaskGroup
  * import io.spine.gradle.named
  * import io.spine.gradle.register
  * import io.spine.gradle.TaskName
@@ -75,8 +75,8 @@ import org.gradle.api.tasks.TaskContainer
  * fun JsTasks.bundleJs() =
  *     register(bundleJsName) {
  *
- *         description = "Bundles JS sources using `webpack` tool."
- *         group = JsTasks.Group.build
+ *         description = "Bundles JS sources using `webpack` tool"
+ *         group = SpineTaskGroup.name
  *
  *         // ...
  *     }
@@ -102,17 +102,3 @@ import org.gradle.api.tasks.TaskContainer
  */
 class JsTasks(jsEnv: JsEnvironment, project: Project)
     : JsContext(jsEnv, project), TaskContainer by project.tasks
-{
-    /**
-     * Default task groups for tasks that participate in building a JavaScript module.
-     *
-     * @see [org.gradle.api.Task.getGroup]
-     */
-    internal object Group {
-        const val assemble = "JavaScript/Assemble"
-        const val check = "JavaScript/Check"
-        const val clean = "JavaScript/Clean"
-        const val build = "JavaScript/Build"
-        const val publish = "JavaScript/Publish"
-    }
-}

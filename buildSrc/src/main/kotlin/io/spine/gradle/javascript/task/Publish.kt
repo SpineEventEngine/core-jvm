@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
 
 package io.spine.gradle.javascript.task
 
+import io.spine.gradle.SpineTaskGroup
 import io.spine.gradle.TaskName
 import io.spine.gradle.named
 import io.spine.gradle.publish.publish
@@ -90,7 +91,7 @@ private fun JsTasks.transpileSources() =
     register(transpileSourcesName) {
 
         description = "Transpiles JavaScript sources using Babel before their publishing."
-        group = JsTasks.Group.publish
+        group = SpineTaskGroup.name
 
         doLast {
             npm("run", "transpile-before-publish")
@@ -113,7 +114,7 @@ private fun JsTasks.prepareJsPublication() =
     register(prepareJsPublicationName) {
 
         description = "Prepares the NPM package for publishing."
-        group = JsTasks.Group.publish
+        group = SpineTaskGroup.name
 
         // We need to copy two files into a destination directory without overwriting its content.
         // Default `Copy` task is not used since it overwrites the content of a destination
@@ -153,7 +154,7 @@ private fun JsTasks.publishJsLocally() =
     register(publishJsLocallyName) {
 
         description = "Publishes the NPM package locally with `npm link`."
-        group = JsTasks.Group.publish
+        group = SpineTaskGroup.name
 
         doLast {
             publicationDir.npm("link")
@@ -184,7 +185,7 @@ private fun JsTasks.publishJs() =
     register(publishJsName) {
 
         description = "Publishes the NPM package with `npm publish`."
-        group = JsTasks.Group.publish
+        group = SpineTaskGroup.name
 
         doLast {
             publicationDir.npm("publish")

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,10 +33,10 @@ import io.spine.dependency.DependencyWithBom
 @Suppress("unused")
 object Jackson : DependencyWithBom() {
     override val group = "com.fasterxml.jackson"
-    override val version = "2.20.0"
+    override val version = "2.22.0"
 
     // https://github.com/FasterXML/jackson-annotations?tab=readme-ov-file#release-notes
-    const val annotationsVersion = "2.20"
+    const val annotationsVersion = "2.22"
 
     // https://github.com/FasterXML/jackson-bom
     override val bom = "$group:jackson-bom:$version"

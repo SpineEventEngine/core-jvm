@@ -34,12 +34,12 @@ env:
 
 jobs:
   retrieve-package-names:
-    name: Retrieve the package names published from this repository
+    name: Retrieve package names
     runs-on: ubuntu-latest
     outputs:
       package-names: ${{ steps.request-package-names.outputs.package-names }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: 'true'
 
@@ -54,7 +54,7 @@ jobs:
           echo "package-names=$(<./package-names.json)" >> $GITHUB_OUTPUT
 
   delete-obsolete-artifacts:
-    name: Remove obsolete artifacts published from this repository to GitHub Packages
+    name: Delete obsolete artifacts
     needs: retrieve-package-names
     runs-on: ubuntu-latest
     strategy:

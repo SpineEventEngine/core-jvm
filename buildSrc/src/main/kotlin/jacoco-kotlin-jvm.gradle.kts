@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,22 @@
 
 import io.spine.gradle.buildDirectory
 
+// DEPRECATED: this script plugin distributes vanilla JaCoCo.
+// New code should apply `jvm-module`, which configures Kover via
+// `useJacoco(version = Jacoco.version)` and writes JaCoCo-format XML at
+// `build/reports/kover/report.xml`. The `raise-coverage` skill migrates
+// existing consumers automatically. Kept so older consumer repos continue to
+// build; will be removed in a future release.
+// See: .agents/skills/raise-coverage/references/migrate-to-kover.md
+
 plugins {
     jacoco
 }
+
+logger.warn(
+    "'jacoco-kotlin-jvm' is deprecated; use 'jvm-module' which applies Kover. " +
+        "See .agents/skills/raise-coverage/references/migrate-to-kover.md."
+)
 
 /**
  * Configures [JacocoReport] task to run in a Kotlin Multiplatform project for

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@
 
 package io.spine.gradle.publish
 
+import io.spine.gradle.SpineTaskGroup
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -39,7 +40,23 @@ import org.gradle.api.Project
 class IncrementGuard : Plugin<Project> {
 
     companion object {
+
         const val taskName = "checkVersionIncrement"
+
+        /**
+         * Tells whether the version increment must be verified for the given
+         * GitHub Actions event and the base branch of the pull request.
+         *
+         * The version is guarded only for pull requests targeting a default or
+         * a release-line branch, i.e. a branch with the name ending with `master`
+         * or `main`. For example: `master`, `main`, `2.x-jdk8-master`, `2.x-jdk8-main`.
+         */
+        internal fun shouldCheckVersion(event: String?, baseBranch: String?): Boolean {
+            if (event != "pull_request" || baseBranch == null) {
+                return false
+            }
+            return baseBranch.endsWith("master") || baseBranch.endsWith("main")
+        }
     }
 
     /**
@@ -47,21 +64,28 @@ class IncrementGuard : Plugin<Project> {
      *
      * The task is created anyway, but it is enabled only if:
      *  1. The project is built on GitHub CI, and
-     *  2. The job is a pull request.
+     *  2. The job is a pull request targeting a default (`master` or `main`) or
+     *     a release-line (e.g. `2.x-jdk8-master`) branch.
      *
-     * The task only runs on non-master branches on GitHub Actions.
-     * This is done to prevent unexpected CI fails when re-building `master` multiple times,
-     * creating git tags, and in other cases that go outside the "usual" development cycle.
+     * It is the responsibility of a branch which aims to merge into a default
+     * (or otherwise protected) branch to bump the version. Auxiliary branches do not
+     * deal with the versions in the release cycle, so pull requests targeting them,
+     * direct pushes, and tag builds do not run the check. This also prevents unexpected
+     * CI fails when re-building `master` multiple times, creating git tags, and in other
+     * cases that go outside the "usual" development cycle.
      */
     override fun apply(target: Project) {
         val tasks = target.tasks
         tasks.register(taskName, CheckVersionIncrement::class.java) {
+            group = SpineTaskGroup.name
+            description = "Verifies that the project version was incremented before publishing"
             repository = CloudArtifactRegistry.repository
             tasks.getByName("check").dependsOn(this)
 
             if (!shouldCheckVersion()) {
                 logger.info(
-                    "The build does not represent a GitHub Actions feature branch job, " +
+                    "The build does not represent a GitHub Actions pull request job " +
+                            "targeting a default or a release-line branch, " +
                             "the `checkVersionIncrement` task is disabled."
                 )
                 this.enabled = false
@@ -70,40 +94,19 @@ class IncrementGuard : Plugin<Project> {
     }
 
     /**
-     * Returns `true` if the current build is a GitHub Actions build which represents a push
-     * to a feature branch.
+     * Returns `true` if the current build is a GitHub Actions build of a pull request
+     * targeting a default (`master` or `main`) or a release-line branch,
+     * such as `2.x-jdk8-master`.
      *
-     * Returns `false` if the associated reference is not a branch (e.g., a tag) or if it has
-     * the name which ends with `master` or `main`.
-     *
-     * For example, on the following branches the method would return `false`:
-     *
-     * 1. `master`.
-     * 2. `main`.
-     * 3. `2.x-jdk8-master`.
-     * 4. `2.x-jdk8-main`.
+     * Returns `false` for all other builds, including direct pushes, tag builds,
+     * and pull requests targeting auxiliary branches.
      *
      * @see <a href="https://docs.github.com/en/free-pro-team@latest/actions/reference/environment-variables">
      *     List of default environment variables provided for GitHub Actions builds</a>
      */
     private fun shouldCheckVersion(): Boolean {
         val event = System.getenv("GITHUB_EVENT_NAME")
-        val reference = System.getenv("GITHUB_REF")
-        if (event != "push" || reference == null) {
-            return false
-        }
-        val branch = branchName(reference)
-        return when {
-            branch == null -> false
-            branch.endsWith("master") -> false
-            branch.endsWith("main") -> false
-            else -> true
-        }
-    }
-
-    private fun branchName(gitHubRef: String): String? {
-        val matches = Regex("refs/heads/(.+)").matchEntire(gitHubRef)
-        val branch = matches?.let { it.groupValues[1] }
-        return branch
+        val baseBranch = System.getenv("GITHUB_BASE_REF")
+        return shouldCheckVersion(event, baseBranch)
     }
 }

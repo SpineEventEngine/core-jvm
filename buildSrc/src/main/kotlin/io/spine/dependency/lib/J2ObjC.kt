@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ object J2ObjC {
      * @see <a href="https://search.maven.org/artifact/com.google.j2objc/j2objc-annotations">
      *     J2ObjC on Maven Central</a>
      */
-    private const val version = "2.8"
+    private const val version = "3.1"
     const val annotations = "com.google.j2objc:j2objc-annotations:$version"
     @Deprecated("Please use `annotations` instead.", ReplaceWith("annotations"))
     const val lib = annotations

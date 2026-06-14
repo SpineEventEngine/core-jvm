@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import io.spine.dependency.DependencyWithBom
 @Suppress("unused")
 object Grpc : DependencyWithBom() {
 
-    override val version = "1.76.0"
+    override val version = "1.81.0"
     override val group = "io.grpc"
     override val bom = "$group:grpc-bom:$version"
 

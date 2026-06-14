@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
 
 package io.spine.gradle.javascript.task
 
+import io.spine.gradle.SpineTaskGroup
 import io.spine.gradle.TaskName
 import io.spine.gradle.base.check
 import io.spine.gradle.java.test
@@ -97,7 +98,7 @@ private fun JsTasks.checkJs() =
     register(checkJsName) {
 
         description = "Runs tests, audits NPM modules and creates a test-coverage report."
-        group = JsTasks.Group.check
+        group = SpineTaskGroup.name
 
         dependsOn(
             auditNodePackages,
@@ -126,7 +127,7 @@ private fun JsTasks.auditNodePackages() =
     register(auditNodePackagesName) {
 
         description = "Audits the module's Node dependencies."
-        group = JsTasks.Group.check
+        group = SpineTaskGroup.name
 
         inputs.dir(nodeModules)
 
@@ -161,7 +162,7 @@ private fun JsTasks.coverageJs() =
     register(coverageJsName) {
 
         description = "Runs the JavaScript tests and collects the code coverage."
-        group = JsTasks.Group.check
+        group = SpineTaskGroup.name
 
         outputs.dir(nycOutput)
 
@@ -186,7 +187,7 @@ private fun JsTasks.testJs() =
     register(testJsName) {
 
         description = "Runs JavaScript tests."
-        group = JsTasks.Group.check
+        group = SpineTaskGroup.name
 
         doLast {
             npm("run", "test")
