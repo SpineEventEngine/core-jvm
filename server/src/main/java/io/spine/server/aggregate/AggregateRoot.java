@@ -39,8 +39,12 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * A root object for a larger aggregate.
  *
  * @param <I> the type for IDs of this class of aggregates
+ * @deprecated This API does not provide isolation for an invariant.
+ *         To coordinate the work of several {@link Aggregate}s, please use
+ *         a {@link io.spine.server.procman.ProcessManager ProcessManager} instead.
  */
 @Experimental
+@Deprecated
 public class AggregateRoot<I> {
 
     /** The context to which the aggregate belongs. */

@@ -66,7 +66,9 @@ public interface DefaultRepository {
      *         the type of entity
      * @return new repository instance
      */
-    @SuppressWarnings({"unchecked", "rawtypes"}) // Casts are ensured by class assignability checks.
+    @SuppressWarnings({"unchecked", "rawtypes", "deprecation"})
+    // Casts are ensured by class assignability checks.
+    // The deprecated `AggregatePart` API is still supported until its removal.
     static <I, E extends Entity<I, ?>> Repository<I, E> of(Class<E> cls) {
         /*
          * We deliberately "save" on OOP here and detect the class by the chain of if-s below

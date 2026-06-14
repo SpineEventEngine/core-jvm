@@ -33,6 +33,7 @@ import io.spine.test.aggregate.ProjectId;
 /**
  * An aggregate part which belongs to the aggregate represented by {@link AnAggregateRoot}.
  */
+@SuppressWarnings("deprecation") // Tests the deprecated aggregate parts API.
 public class AnAggregatePart
         extends AggregatePart<ProjectId,
                               AggProject,

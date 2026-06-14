@@ -33,6 +33,7 @@ import io.spine.test.aggregate.ProjectId;
 /**
  * A class which extends {@link AggregatePart} but does not provide suitable constructor.
  */
+@SuppressWarnings("deprecation") // Tests the deprecated aggregate parts API.
 public class WrongAggregatePart
         extends AggregatePart<ProjectId, AggProject, AggProject.Builder, AnAggregateRoot> {
 

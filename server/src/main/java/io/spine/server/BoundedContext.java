@@ -116,6 +116,7 @@ public abstract class BoundedContext
     private final VisibilityGuard guard = VisibilityGuard.newInstance();
 
     /** Provides access to data parts of aggregate roots of this context. */
+    @SuppressWarnings("deprecation") // The `AggregateRootDirectory` API is deprecated.
     private final AggregateRootDirectory aggregateRootDirectory;
 
     /** The index of tenants having data in this context. */
@@ -759,6 +760,7 @@ public abstract class BoundedContext
         /**
          * Obtains an {@link AggregateRootDirectory} of this {@code BoundedContext}.
          */
+        @SuppressWarnings("deprecation") // The `AggregateRootDirectory` API is deprecated.
         public AggregateRootDirectory aggregateRootDirectory() {
             return aggregateRootDirectory;
         }

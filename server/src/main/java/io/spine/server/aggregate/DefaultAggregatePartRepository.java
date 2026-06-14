@@ -45,8 +45,12 @@ import static io.spine.server.aggregate.model.AggregatePartClass.asAggregatePart
  * @param <R>
  *         the type of an aggregate root
  * @see io.spine.server.DefaultRepository
+ * @deprecated This API does not provide isolation for an invariant.
+ *         To coordinate the work of several {@link Aggregate}s, please use
+ *         a {@link io.spine.server.procman.ProcessManager ProcessManager} instead.
  */
 @Internal
+@Deprecated
 public final class DefaultAggregatePartRepository<I,
                                                   A extends AggregatePart<I, S, ?, R>,
                                                   S extends AggregateState<I>,

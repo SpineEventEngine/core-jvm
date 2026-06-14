@@ -39,8 +39,13 @@ import static com.google.common.collect.Multimaps.synchronizedSetMultimap;
 
 /**
  * An in-mem implementation of {@link AggregateRootDirectory}.
+ *
+ * @deprecated This API does not provide isolation for an invariant.
+ *         To coordinate the work of several {@link Aggregate}s, please use
+ *         a {@link io.spine.server.procman.ProcessManager ProcessManager} instead.
  */
 @Internal
+@Deprecated
 public final class InMemoryRootDirectory implements AggregateRootDirectory {
 
     private final SetMultimap<Class<? extends AggregateRoot<?>>,

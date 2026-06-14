@@ -64,8 +64,12 @@ import static io.spine.server.aggregate.model.AggregatePartClass.asAggregatePart
  * @param <R>
  *         the type of the aggregate root
  * @see Aggregate
+ * @deprecated This API does not provide isolation for an invariant.
+ *         To coordinate the work of several {@link Aggregate}s, please use
+ *         a {@link io.spine.server.procman.ProcessManager ProcessManager} instead.
  */
 @Experimental
+@Deprecated
 public abstract class AggregatePart<I,
                                     S extends AggregateState<I>,
                                     B extends ValidatingBuilder<S>,

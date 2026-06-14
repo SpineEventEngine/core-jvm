@@ -33,6 +33,7 @@ import io.spine.test.aggregate.ProjectId;
 /**
  * An aggregate root class with string ID.
  */
+@SuppressWarnings("deprecation") // Tests the deprecated aggregate parts API.
 public class AnAggregateRoot extends AggregateRoot<ProjectId> {
 
     public AnAggregateRoot(BoundedContext boundedContext, ProjectId id) {

@@ -44,7 +44,12 @@ import static java.lang.String.format;
  *
  * @param <A>
  *         the type of the created aggregate parts
+ * @deprecated This API does not provide isolation for an invariant.
+ *         To coordinate the work of several
+ *         {@link io.spine.server.aggregate.Aggregate Aggregate}s, please use
+ *         a {@link io.spine.server.procman.ProcessManager ProcessManager} instead.
  */
+@Deprecated
 final class PartFactory<A extends AggregatePart<?, ?, ?, ?>> extends AbstractEntityFactory<A> {
 
     @Serial

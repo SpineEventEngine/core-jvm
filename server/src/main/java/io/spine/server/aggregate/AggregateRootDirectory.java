@@ -37,9 +37,14 @@ import java.util.Optional;
  *
  * <p>In the directory, the aggregate root is represented by its type and
  * the parts - by their repositories.
+ *
+ * @deprecated This API does not provide isolation for an invariant.
+ *         To coordinate the work of several {@link Aggregate}s, please use
+ *         a {@link io.spine.server.procman.ProcessManager ProcessManager} instead.
  */
 @Experimental
 @SPI
+@Deprecated
 public interface AggregateRootDirectory {
 
     /**

@@ -91,6 +91,7 @@ class BoundedContextBuilderTest {
 
         @Test
         @DisplayName("`AggregateRootDirectory` if it was set")
+        @SuppressWarnings("deprecation") // Tests the deprecated aggregate parts API.
         void aggregateRootDirectory() {
             AggregateRootDirectory directory = new InMemoryRootDirectory();
             builder.setAggregateRootDirectory(() -> directory);
