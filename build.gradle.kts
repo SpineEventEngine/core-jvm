@@ -57,6 +57,7 @@ buildscript {
                     io.spine.dependency.local.Base.annotations,
                     io.spine.dependency.local.Base.lib,
                     io.spine.dependency.local.Base.environment,
+                    io.spine.dependency.local.Base.format,
                     io.spine.dependency.local.Time.lib,
                     io.spine.dependency.local.Time.javaExtensions,
                     io.spine.dependency.local.Compiler.api,
