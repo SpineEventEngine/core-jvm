@@ -1,4 +1,31 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew)",
+      "Bash(./gradlew *)",
+      "Bash(git status*)",
+      "Bash(git log*)",
+      "Bash(git diff*)",
+      "Bash(git show*)",
+      "Bash(git branch*)",
+      "Bash(git rev-parse*)",
+      "Bash(git remote*)",
+      "Bash(git fetch*)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(git switch*)",
+      "Bash(git stash*)",
+      "Bash(git push*)"
+    ],
+    "ask": [
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git push --force-with-lease*)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean*)",
+      "Bash(rm *)"
+    ]
+  },
   "hooks": {
     "SessionStart": [
       {
