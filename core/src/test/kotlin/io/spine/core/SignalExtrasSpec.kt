@@ -265,7 +265,8 @@ internal class SignalExtrasSpec {
             .build()
     }
 
-    private fun enrichedContext(sv: StringValue = StringValue.of("test")): @NonValidated EventContext {
+    private fun enrichedContext(sv: StringValue = StringValue.of("test")):
+        @NonValidated EventContext {
         val enrich = enrichment { container = containerWith(sv) }
         return EventContext.newBuilder()
             .setImportContext(actorContext())
