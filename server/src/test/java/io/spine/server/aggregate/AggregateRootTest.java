@@ -47,6 +47,7 @@ import static io.spine.testing.DisplayNames.NOT_ACCEPT_NULLS;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DisplayName("`AggregateRoot` should")
+@SuppressWarnings("deprecation") // Tests the deprecated aggregate parts API.
 class AggregateRootTest {
 
     private AggregateRootTestEnv.ProjectRoot aggregateRoot;

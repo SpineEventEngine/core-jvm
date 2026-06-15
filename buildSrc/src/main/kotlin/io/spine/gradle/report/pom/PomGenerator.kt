@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,8 @@
 
 package io.spine.gradle.report.pom
 
+import io.spine.gradle.SpineTaskGroup
+import io.spine.gradle.report.license.Paths
 import org.gradle.api.Project
 import org.gradle.api.plugins.BasePlugin
 
@@ -41,7 +43,7 @@ import org.gradle.api.plugins.BasePlugin
  * The generated `pom.xml` is not usable for Maven build tasks and is merely a
  * description of project dependencies.
  *
- * Configures the `build` task to generate the `pom.xml` file.
+ * Configures the `build` task to generate the `pom.xml` file under `docs/dependencies`.
  *
  * Note that the generated `pom.xml` includes the group ID, artifact ID and the version of the
  * project this script was applied to. In case you want to override the default values, do so in
@@ -63,6 +65,8 @@ import org.gradle.api.plugins.BasePlugin
 @Suppress("unused")
 object PomGenerator {
 
+    private const val pomFilename = "pom.xml"
+
     /**
      * Configures the generator for the passed [project].
      */
@@ -80,9 +84,11 @@ object PomGenerator {
         }
 
         val task = project.tasks.register("generatePom") {
+            group = SpineTaskGroup.name
+            description = "Generates a `pom.xml` file describing project dependencies"
             doLast {
-                val pomFile = project.projectDir.resolve("pom.xml")
-                project.delete(pomFile)
+                val pomFile = Paths.outputFile(project.rootDir, pomFilename)
+                pomFile.parentFile.mkdirs()
 
                 val projectData = project.metadata()
                 val writer = PomXmlWriter(projectData)

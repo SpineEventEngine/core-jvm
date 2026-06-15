@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ package io.spine.dependency.lib
 @Deprecated("Please use Spine Logging library instead.")
 @Suppress("unused", "ConstPropertyName")
 object Flogger {
-    internal const val version = "0.7.4"
+    internal const val version = "0.9"
     const val lib = "com.google.flogger:flogger:$version"
 
     object Runtime {

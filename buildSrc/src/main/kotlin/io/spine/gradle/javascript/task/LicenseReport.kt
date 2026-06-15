@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
 
 package io.spine.gradle.javascript.task
 
+import io.spine.gradle.SpineTaskGroup
 import io.spine.gradle.TaskName
 import io.spine.gradle.named
 import io.spine.gradle.register
@@ -77,7 +78,7 @@ private fun JsTasks.npmLicenseReport() =
     register(npmLicenseReportName) {
 
         description = "Generates the report on NPM dependencies and their licenses."
-        group = JsTasks.Group.build
+        group = SpineTaskGroup.name
 
         doLast {
 

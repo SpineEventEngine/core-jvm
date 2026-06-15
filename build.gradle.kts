@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import io.spine.dependency.boms.BomsPlugin
 import io.spine.gradle.publish.PublishingRepos
 import io.spine.gradle.publish.spinePublishing
 import io.spine.gradle.repo.standardToSpineSdk
-import io.spine.gradle.report.coverage.JacocoConfig
+import io.spine.gradle.report.coverage.KoverConfig
 import io.spine.gradle.report.license.LicenseReporter
 import io.spine.gradle.report.pom.PomGenerator
 
@@ -57,6 +57,7 @@ buildscript {
                     io.spine.dependency.local.Base.annotations,
                     io.spine.dependency.local.Base.lib,
                     io.spine.dependency.local.Base.environment,
+                    io.spine.dependency.local.Base.format,
                     io.spine.dependency.local.Time.lib,
                     io.spine.dependency.local.Time.javaExtensions,
                     io.spine.dependency.local.Compiler.api,
@@ -115,7 +116,6 @@ spinePublishing {
 
 allprojects {
     apply {
-        plugin("jacoco")
         plugin("idea")
         plugin("project-report")
     }
@@ -125,8 +125,9 @@ allprojects {
     version = extra["versionToPublish"]!!
 }
 
+KoverConfig.applyTo(rootProject)
+
 gradle.projectsEvaluated {
-    JacocoConfig.applyTo(project)
     PomGenerator.applyTo(project)
     LicenseReporter.mergeAllReports(project)
 }

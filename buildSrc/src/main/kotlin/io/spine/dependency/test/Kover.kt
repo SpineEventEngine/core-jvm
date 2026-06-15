@@ -29,7 +29,7 @@ package io.spine.dependency.test
 // https://github.com/Kotlin/kotlinx-kover
 @Suppress("unused", "ConstPropertyName")
 object Kover {
-    const val version = "0.9.1"
+    const val version = "0.9.8"
     const val id = "org.jetbrains.kotlinx.kover"
     const val classpath = "org.jetbrains.kotlinx:kover-gradle-plugin:$version"
 }

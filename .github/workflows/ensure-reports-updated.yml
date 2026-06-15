@@ -1,25 +1,35 @@
 # Ensures that the license report files were modified in this PR.
+#
+# The check runs only for pull requests targeting a default (`master`/`main`) or
+# a release-line (e.g. `2.x-jdk8-master`) branch. The report files embed the project
+# version, so they are refreshed by the branches which bump it. Pull requests
+# targeting auxiliary branches are not checked.
+#
+# The base branch is checked inside the job rather than via the `branches` filter:
+# a workflow skipped by branch filtering leaves its check in the `Pending` state,
+# blocking PRs which require it, while a job skipped via `if` reports `skipped`,
+# which satisfies required status checks.
 
-name: Ensure license reports updated
+name: License Reports
 
 on:
   pull_request:
-    branches:
-      - '**'
 
 jobs:
-  build:
-    name: Ensure license reports updated
+  check:
+    name: Ensure license reports are updated
     runs-on: ubuntu-latest
+    # Default and release-line branches, e.g. `master`, `main`, `2.x-jdk8-master`.
+    if: endsWith(github.base_ref, 'master') || endsWith(github.base_ref, 'main')
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
-          # Configure the checkout of all branches, so that it is possible to run the comparison.
+          # Configure the checkout of all branches so that it is possible to run the comparison.
           fetch-depth: 0
           # Check out the `config` submodule to fetch the required script file.
           submodules: true
 
-      - name: Check that both `pom.xml` and license report files are modified
+      - name: Check that dependency report files are modified
         shell: bash
         run: chmod +x ./config/scripts/ensure-reports-updated.sh && ./config/scripts/ensure-reports-updated.sh

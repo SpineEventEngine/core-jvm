@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,10 +43,14 @@ import static io.spine.server.aggregate.model.AggregatePartClass.asAggregatePart
  * @param <S>
  *         the type of aggregate state
  * @param <R>
- *         the type of an aggregate root
+ *         the type of aggregate root
  * @see io.spine.server.DefaultRepository
+ * @deprecated This API does not provide isolation for an invariant.
+ *         To coordinate the work of several {@link Aggregate}s, please use
+ *         a {@link io.spine.server.procman.ProcessManager ProcessManager} instead.
  */
 @Internal
+@Deprecated
 public final class DefaultAggregatePartRepository<I,
                                                   A extends AggregatePart<I, S, ?, R>,
                                                   S extends AggregateState<I>,

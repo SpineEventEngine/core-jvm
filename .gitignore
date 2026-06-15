@@ -39,6 +39,7 @@
 
 # Internal tool directories.
 .fleet/
+.junie/memory/
 
 # Kotlin temp directories.
 **/.kotlin/
@@ -130,3 +131,24 @@ pubspec.lock
 /tmp
 
 .gradle-test-kit/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Claude working files
+/.claude/worktrees/
+
+# Auto-downloaded Lychee binary used by the `check-links` skill.
+/.agents/skills/check-links/.cache/
+
+# Lychee link-checker cache (created by the `check-links` skill and
+# the `Check Links` workflow when run locally).
+.lycheecache
+
+# Hugo docs preview site build artifacts (used by the `check-links`
+# skill and the `Check Links` workflow in repos that contain a
+# `docs/_preview` Hugo site).
+docs/_preview/node_modules/
+docs/_preview/public/
+docs/_preview/resources/

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ package io.spine.dependency.lib
 @Suppress("unused", "ConstPropertyName")
 object Netty {
     // https://github.com/netty/netty/tags
-    private const val version = "4.1.100.Final"
+    private const val version = "4.2.15.Final"
     const val common = "io.netty:netty-common:$version"
     const val buffer = "io.netty:netty-buffer:$version"
     const val transport = "io.netty:netty-transport:$version"

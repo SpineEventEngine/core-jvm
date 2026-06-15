@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ object ErrorProne {
          * When the plugin is used as a library (e.g., in tools), its version and the library
          * artifacts are of importance.
          */
-        const val version = "4.1.0"
+        const val version = "5.1.0"
         const val lib = "net.ltgt.gradle:gradle-errorprone-plugin:$version"
     }
 }

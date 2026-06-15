@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,6 @@ package io.spine.dependency.lib
 object JavaDiffUtils {
 
     // https://github.com/java-diff-utils/java-diff-utils/releases
-    private const val version = "4.12"
+    private const val version = "4.17"
     const val lib = "io.github.java-diff-utils:java-diff-utils:$version"
 }

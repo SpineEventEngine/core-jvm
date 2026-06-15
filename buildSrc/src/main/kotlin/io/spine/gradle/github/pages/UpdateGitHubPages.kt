@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ package io.spine.gradle.github.pages
 
 import dokkaHtmlTask
 import dokkaJavadocTask
+import io.spine.gradle.SpineTaskGroup
 import io.spine.gradle.fs.LazyTempPath
 import io.spine.gradle.github.pages.TaskName.copyHtmlDocs
 import io.spine.gradle.github.pages.TaskName.copyJavadocDocs
@@ -119,6 +120,8 @@ class UpdateGitHubPages : Plugin<Project> {
     @Suppress("unused")
     private fun Project.registerNoOpTask() {
         tasks.register(updateGitHubPages) {
+            group = SpineTaskGroup.name
+            description = "Skips the GitHub Pages update for snapshot project versions"
             doLast {
                 val project = this@registerNoOpTask
                 println(
@@ -147,6 +150,8 @@ class UpdateGitHubPages : Plugin<Project> {
         val inputs = composeJavadocInputs()
 
         register(copyJavadocDocs, Copy::class.java) {
+            group = SpineTaskGroup.name
+            description = "Copies generated Javadoc into the GitHub Pages staging folder"
             inputs.forEach { from(it) }
             into(javadocOutputFolder)
         }
@@ -163,6 +168,8 @@ class UpdateGitHubPages : Plugin<Project> {
         val inputs = composeDokkaInputs()
 
         register(copyHtmlDocs, Copy::class.java) {
+            group = SpineTaskGroup.name
+            description = "Copies generated Dokka HTML docs into the GitHub Pages staging folder"
             inputs.forEach { from(it) }
             into(htmlOutputFolder)
         }
@@ -181,6 +188,8 @@ class UpdateGitHubPages : Plugin<Project> {
 
     private fun TaskContainer.registerUpdateTask(): TaskProvider<Task> {
         return register(updateGitHubPages) {
+            group = SpineTaskGroup.name
+            description = "Publishes the generated documentation to the `gh-pages` branch"
             doLast {
                 try {
                     updateGhPages(project)

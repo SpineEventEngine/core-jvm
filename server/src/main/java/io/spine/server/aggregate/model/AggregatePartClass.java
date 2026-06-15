@@ -42,7 +42,12 @@ import static io.spine.server.aggregate.AggregatePart.GenericParameter.AGGREGATE
  * Provides type information on an aggregate part class.
  *
  * @param <A> the type of aggregate parts.
+ * @deprecated This API does not provide isolation for an invariant.
+ *         To coordinate the work of several
+ *         {@link io.spine.server.aggregate.Aggregate Aggregate}s, please use
+ *         a {@link io.spine.server.procman.ProcessManager ProcessManager} instead.
  */
+@Deprecated
 public final class AggregatePartClass<A extends AggregatePart<?, ?, ?, ?>>
         extends AggregateClass<A> {
 
@@ -50,7 +55,7 @@ public final class AggregatePartClass<A extends AggregatePart<?, ?, ?, ?>>
     @LazyInit
     private transient volatile @MonotonicNonNull Class<? extends AggregateRoot<?>> rootClass;
 
-    /** Creates new instance. */
+    /** Creates a new instance. */
     private AggregatePartClass(Class<A> cls) {
         super(cls);
     }

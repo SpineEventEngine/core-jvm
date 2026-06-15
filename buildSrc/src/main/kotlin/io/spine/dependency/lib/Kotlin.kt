@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ object Kotlin : DependencyWithBom() {
      * depend on Gradle and the version of embedded Kotlin.
      */
     @Suppress("MemberVisibilityCanBePrivate") // used directly from the outside.
-    const val runtimeVersion = "2.3.20"
+    const val runtimeVersion = "2.3.21"
 
     override val version = runtimeVersion
     override val group = "org.jetbrains.kotlin"
@@ -49,7 +49,7 @@ object Kotlin : DependencyWithBom() {
      * This is the version of
      * [Kotlin embedded into Gradle](https://docs.gradle.org/current/userguide/compatibility.html#kotlin).
      */
-    const val embeddedVersion = "2.3.20"
+    const val embeddedVersion = "2.3.21"
 
     /**
      * The version of the JetBrains annotations library, which is a transitive
@@ -57,7 +57,7 @@ object Kotlin : DependencyWithBom() {
      *
      * @see <a href="https://github.com/JetBrains/java-annotations">Java Annotations</a>
      */
-    private const val annotationsVersion = "26.0.2"
+    private const val annotationsVersion = "26.1.0"
 
     val scriptRuntime = "$group:kotlin-script-runtime:$runtimeVersion"
 

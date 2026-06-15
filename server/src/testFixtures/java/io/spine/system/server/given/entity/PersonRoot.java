@@ -33,6 +33,7 @@ import io.spine.system.server.PersonId;
 /**
  * A root of the person aggregate.
  */
+@SuppressWarnings("deprecation") // Tests the deprecated aggregate parts API.
 public class PersonRoot extends AggregateRoot<PersonId> {
 
     protected PersonRoot(BoundedContext boundedContext, PersonId id) {

@@ -33,6 +33,7 @@ import io.spine.test.aggregate.task.AggTaskId;
 /**
  * The repository of {@link TaskCommentsPart}s.
  */
+@SuppressWarnings("deprecation") // Tests the deprecated aggregate parts API.
 public class TaskCommentsRepository
         extends AggregatePartRepository<AggTaskId, TaskCommentsPart, AggTaskComments, TaskRoot> {
 

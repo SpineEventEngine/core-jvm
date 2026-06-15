@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,9 +37,10 @@ package io.spine.dependency.lib
  * Thus, we specify this version and force it via [forceVersions].
  * Please see `DependencyResolution.kt` for details.
  */
+// https://search.maven.org/artifact/org.slf4j/slf4j-api
 @Suppress("unused", "ConstPropertyName")
 object Slf4J {
-    private const val version = "2.0.7"
+    private const val version = "2.0.18"
     const val lib = "org.slf4j:slf4j-api:$version"
     const val jdk14 = "org.slf4j:slf4j-jdk14:$version"
     const val reload4j = "org.slf4j:slf4j-reload4j:$version"

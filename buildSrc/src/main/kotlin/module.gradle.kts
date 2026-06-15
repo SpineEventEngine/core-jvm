@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ import io.spine.dependency.local.TestLib
 import io.spine.dependency.local.Time
 import io.spine.dependency.local.ToolBase
 import io.spine.dependency.local.Validation
+import io.spine.dependency.test.Jacoco
 import io.spine.dependency.test.JUnit
 import io.spine.gradle.checkstyle.CheckStyleConfig
 import io.spine.gradle.github.pages.updateGitHubPages
@@ -56,7 +57,7 @@ import org.gradle.jvm.tasks.Jar
 
 plugins {
     `java-library`
-    jacoco
+    id("org.jetbrains.kotlinx.kover")
     id("com.google.protobuf")
     id("net.ltgt.errorprone")
     kotlin("jvm")
@@ -83,10 +84,13 @@ project.run {
     addDependencies()
     forceConfigurations()
 
-    val generatedDir = "$projectDir/generated"
-    applyGeneratedDirectories(generatedDir)
     setupPublishing()
     configureTaskDependencies()
+}
+
+kover {
+    useJacoco(version = Jacoco.version)
+    reports.total.xml.onCheck = true
 }
 
 typealias Module = Project
@@ -135,69 +139,6 @@ fun Module.addDependencies() {
 }
 
 /**
- * Adds directories with the generated source code to source sets of the project and
- * to IntelliJ IDEA module settings.
- *
- * @param generatedDir
- *          the name of the root directory with the generated code
- */
-fun Module.applyGeneratedDirectories(generatedDir: String) {
-    val generatedMain = "$generatedDir/main"
-    val generatedJava = "$generatedMain/java"
-    val generatedKotlin = "$generatedMain/kotlin"
-    val generatedGrpc = "$generatedMain/grpc"
-    val generatedSpine = "$generatedMain/spine"
-
-    val generatedTest = "$generatedDir/test"
-    val generatedTestJava = "$generatedTest/java"
-    val generatedTestKotlin = "$generatedTest/kotlin"
-    val generatedTestGrpc = "$generatedTest/grpc"
-    val generatedTestSpine = "$generatedTest/spine"
-
-    sourceSets {
-        main {
-            java.srcDirs(
-                generatedJava,
-                generatedGrpc,
-                generatedSpine,
-            )
-            kotlin.srcDirs(
-                generatedKotlin,
-            )
-        }
-        test {
-            java.srcDirs(
-                generatedTestJava,
-                generatedTestGrpc,
-                generatedTestSpine,
-            )
-            kotlin.srcDirs(
-                generatedTestKotlin,
-            )
-        }
-    }
-
-    idea {
-        module {
-            generatedSourceDirs.addAll(files(
-                    generatedJava,
-                    generatedKotlin,
-                    generatedGrpc,
-                    generatedSpine,
-            ))
-            testSources.from(
-                generatedTestJava,
-                generatedTestKotlin,
-                generatedTestGrpc,
-                generatedTestSpine,
-            )
-            isDownloadJavadoc = true
-            isDownloadSources = true
-        }
-    }
-}
-
-/**
  * Forces dependencies of this project.
  */
 fun Module.forceConfigurations() {
@@ -231,6 +172,7 @@ fun Module.forceConfigurations() {
                 force(
                     Base.annotations,
                     Base.environment,
+                    Base.format,
                     Base.lib,
                     BaseTypes.lib,
                     Change.lib,

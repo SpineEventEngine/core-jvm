@@ -1,11 +1,15 @@
 # Welcome to Spine CoreJvm Library
 
 [![Ubuntu build][ubuntu-build-badge]][gh-actions]
-[![codecov.io](https://codecov.io/github/SpineEventEngine/core-java/coverage.svg?branch=master)](https://codecov.io/github/SpineEventEngine/core-java?branch=master) &nbsp;
-[![license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
+[![codecov][codecov-badge]][codecov] &nbsp;
+[![license][license-badge]][license]
 
-[gh-actions]: https://github.com/SpineEventEngine/core-java/actions
-[ubuntu-build-badge]: https://github.com/SpineEventEngine/core-java/actions/workflows/build-on-ubuntu.yml/badge.svg
+[gh-actions]: https://github.com/SpineEventEngine/core-jvm/actions
+[ubuntu-build-badge]: https://github.com/SpineEventEngine/core-jvm/actions/workflows/build-on-ubuntu.yml/badge.svg
+[codecov]: https://codecov.io/github/SpineEventEngine/core-jvm
+[codecov-badge]: https://codecov.io/github/SpineEventEngine/core-jvm/graph/badge.svg
+[license]: http://www.apache.org/licenses/LICENSE-2.0
+[license-badge]: https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat
 
 [Spine Event Engine][spine-site] is a Java/Kotlin framework for building Event Sourcing and CQRS
 applications that are accessed by clients built with TypeStript, JavaScript, Java Nano (Android),
@@ -67,7 +71,7 @@ to update to the latest version of the configuration files.
 If you need to use API with one of these annotations, please [contact us][email-developers].
 
 [email-developers]: mailto:developers@spine.io
-[latest-release]: https://github.com/SpineEventEngine/core-java/releases/tag/v1.9.0
+[latest-release]: https://github.com/SpineEventEngine/core-jvm/releases/tag/v1.9.0
 [spine-site]: https://spine.io/
 [quick-start]: https://spine.io/docs/quick-start
 [spine-examples]: https://github.com/spine-examples

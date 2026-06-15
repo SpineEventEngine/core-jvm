@@ -1,28 +1,39 @@
-# Ensures that the current lib version is not yet published but executing the Gradle
+# Ensures that the current lib version is not yet published by executing the Gradle
 # `checkVersionIncrement` task.
+#
+# The check runs only for pull requests targeting a default (`master`/`main`) or
+# a release-line (e.g. `2.x-jdk8-master`) branch. It is the responsibility of a branch
+# which aims to merge into such a branch to bump the version. Auxiliary branches
+# do not deal with the versions in the release cycle and are not guarded.
+#
+# The base branch is checked inside the job rather than via the `branches` filter:
+# a workflow skipped by branch filtering leaves its check in the `Pending` state,
+# blocking PRs which require it, while a job skipped via `if` reports `skipped`,
+# which satisfies required status checks.
 
-name: Check version increment
+name: Version Guard
 
 on:
-  push:
-    branches:
-      - '**'
+  pull_request:
 
 jobs:
-  build:
+  check:
     name: Check version increment
     runs-on: ubuntu-latest
+    # Default and release-line branches, e.g. `master`, `main`, `2.x-jdk8-master`.
+    if: endsWith(github.base_ref, 'master') || endsWith(github.base_ref, 'main')
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: 'true'
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           java-version: 17
           distribution: zulu
-          cache: gradle
+
+      - uses: gradle/actions/setup-gradle@v6
 
       - name: Check version is not yet published
         shell: bash

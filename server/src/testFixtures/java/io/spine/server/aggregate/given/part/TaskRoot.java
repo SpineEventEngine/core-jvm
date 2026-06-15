@@ -30,6 +30,7 @@ import io.spine.server.BoundedContext;
 import io.spine.server.aggregate.AggregateRoot;
 import io.spine.test.aggregate.task.AggTaskId;
 
+@SuppressWarnings("deprecation") // Tests the deprecated aggregate parts API.
 public final class TaskRoot extends AggregateRoot<AggTaskId> {
 
     public TaskRoot(BoundedContext boundedContext, AggTaskId id) {

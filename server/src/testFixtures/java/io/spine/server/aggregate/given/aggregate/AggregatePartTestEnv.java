@@ -33,6 +33,7 @@ import io.spine.test.aggregate.task.AggTaskId;
 
 import static io.spine.base.Identifier.newUuid;
 
+@SuppressWarnings("deprecation") // Tests the deprecated aggregate parts API.
 public final class AggregatePartTestEnv {
 
     public static final AggTaskId ID = AggTaskId

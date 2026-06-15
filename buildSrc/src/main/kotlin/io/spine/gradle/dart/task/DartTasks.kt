@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,6 @@ import org.gradle.api.tasks.TaskContainer
  *
  *  1. Access to the current [DartContext].
  *  2. Project's [TaskContainer].
- *  3. Default task groups.
  *
  * Supposing, one needs to create a new task that would participate in building. Let the task name
  * be `testDart`. To do that, several steps should be completed:
@@ -53,6 +52,7 @@ import org.gradle.api.tasks.TaskContainer
  * Here's an example of `testDart()` extension:
  *
  * ```
+ * import io.spine.gradle.SpineTaskGroup
  * import io.spine.gradle.named
  * import io.spine.gradle.register
  * import io.spine.gradle.TaskName
@@ -75,8 +75,8 @@ import org.gradle.api.tasks.TaskContainer
  * fun DartTasks.testDart() =
  *     register(testDartName) {
  *
- *         description = "Runs Dart tests declared in the `./test` directory."
- *         group = DartTasks.Group.build
+ *         description = "Runs Dart tests declared in the `./test` directory"
+ *         group = SpineTaskGroup.name
  *
  *         // ...
  *     }
@@ -102,14 +102,3 @@ import org.gradle.api.tasks.TaskContainer
  */
 class DartTasks(dartEnv: DartEnvironment, project: Project)
     : DartContext(dartEnv, project), TaskContainer by project.tasks
-{
-    /**
-     * Default task groups for tasks that participate in building a Dart module.
-     *
-     * @see [org.gradle.api.Task.getGroup]
-     */
-    internal object Group {
-        const val build = "Dart/Build"
-        const val publish = "Dart/Publish"
-    }
-}

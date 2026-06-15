@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ import io.spine.dependency.Dependency
  */
 @Suppress("unused")
 object Ksp : Dependency() {
-    override val version = "2.3.6"
+    override val version = "2.3.9"
     val dogfoodingVersion = version
     override val group = "com.google.devtools.ksp"
 

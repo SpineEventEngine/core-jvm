@@ -99,6 +99,7 @@ public final class BoundedContextBuilder implements WithLogging {
     private final SystemSettings systemSettings;
 
     private @MonotonicNonNull Stand stand;
+    @SuppressWarnings("deprecation") // The `AggregateRootDirectory` API is deprecated.
     private @MonotonicNonNull Supplier<AggregateRootDirectory> rootDirectory;
     private @Nullable TenantIndex tenantIndex;
 
@@ -509,6 +510,7 @@ public final class BoundedContextBuilder implements WithLogging {
      *
      * <p>If no custom implementation is specified, an in-mem implementation is used.
      */
+    @SuppressWarnings("deprecation") // The `AggregateRootDirectory` API is deprecated.
     AggregateRootDirectory aggregateRootDirectory() {
         if (rootDirectory == null) {
             rootDirectory = InMemoryRootDirectory::new;
@@ -523,7 +525,12 @@ public final class BoundedContextBuilder implements WithLogging {
      *
      * @param directory
      *         the supplier of aggregate root directories
+     * @deprecated This API does not provide isolation for an invariant.
+     *         To coordinate the work of several
+     *         {@link io.spine.server.aggregate.Aggregate Aggregate}s, please use
+     *         a {@link io.spine.server.procman.ProcessManager ProcessManager} instead.
      */
+    @Deprecated
     @CanIgnoreReturnValue
     public BoundedContextBuilder
     setAggregateRootDirectory(Supplier<AggregateRootDirectory> directory) {

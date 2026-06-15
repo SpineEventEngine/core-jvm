@@ -41,6 +41,7 @@ import io.spine.type.TypeUrl;
 /**
  * An aggregate part which handles a person first name.
  */
+@SuppressWarnings("deprecation") // Tests the deprecated aggregate parts API.
 public class PersonNamePart
         extends AggregatePart<PersonId, PersonFirstName, PersonFirstName.Builder, PersonRoot> {
 

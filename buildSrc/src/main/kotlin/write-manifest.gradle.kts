@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import io.spine.gradle.SpineTaskGroup
 import io.spine.gradle.publish.SpinePublishing
 import java.nio.file.Files.createDirectories
 import java.nio.file.Files.createFile
@@ -104,6 +105,9 @@ val manifestAttributes = mapOf(
  * form a circular dependency.
  */
 val exposeManifestForTests by tasks.registering {
+
+    group = SpineTaskGroup.name
+    description = "Writes a `MANIFEST.MF` to `resources/main` so that it is visible to tests"
 
     val outputFile = layout.buildDirectory.file("resources/main/META-INF/MANIFEST.MF")
     outputs.file(outputFile).withPropertyName("manifestFile")

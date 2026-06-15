@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ object AutoService {
 
 // https://github.com/google/auto
 object AutoValue {
-    private const val version = "1.10.2"
+    private const val version = "1.11.1"
     const val annotations = "com.google.auto.value:auto-value-annotations:$version"
 }
 

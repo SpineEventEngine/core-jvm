@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
 
 package io.spine.gradle.dart.task
 
+import io.spine.gradle.SpineTaskGroup
 import io.spine.gradle.TaskName
 import io.spine.gradle.base.assemble
 import io.spine.gradle.base.check
@@ -98,7 +99,7 @@ private fun DartTasks.resolveDependencies(): TaskProvider<Exec> =
     register(resolveDependenciesName) {
 
         description = "Fetches dependencies declared via `pubspec.yaml`."
-        group = DartTasks.Group.build
+        group = SpineTaskGroup.name
 
         mustRunAfter(cleanPackageIndex)
 
@@ -125,7 +126,7 @@ private fun DartTasks.cleanPackageIndex(): TaskProvider<Delete> =
     register(cleanPackageIndexName) {
 
         description = "Deletes the resolved `.packages` and `package_config.json` files."
-        group = DartTasks.Group.build
+        group = SpineTaskGroup.name
 
         delete(
             packageIndex,
@@ -147,7 +148,7 @@ private fun DartTasks.testDart(): TaskProvider<Exec> =
     register(testDartName) {
 
         description = "Runs Dart tests declared in the `./test` directory."
-        group = DartTasks.Group.build
+        group = SpineTaskGroup.name
 
         dependsOn(resolveDependencies)
 

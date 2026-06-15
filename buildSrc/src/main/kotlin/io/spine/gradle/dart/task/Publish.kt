@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
 
 package io.spine.gradle.dart.task
 
+import io.spine.gradle.SpineTaskGroup
 import io.spine.gradle.TaskName
 import io.spine.gradle.base.assemble
 import io.spine.gradle.named
@@ -92,7 +93,7 @@ private fun DartTasks.stagePubPublication(): TaskProvider<Copy> =
     register(stagePubPublicationName) {
 
         description = "Prepares the Dart package for Pub publication."
-        group = DartTasks.Group.publish
+        group = SpineTaskGroup.name
 
         dependsOn(assemble)
 
@@ -128,7 +129,7 @@ private fun DartTasks.publishToPub(): TaskProvider<Exec> =
     register(publishToPubName) {
 
         description = "Publishes the prepared publication to Pub."
-        group = DartTasks.Group.publish
+        group = SpineTaskGroup.name
 
         dependsOn(stagePubPublication)
 
@@ -160,7 +161,7 @@ private fun DartTasks.activateLocally(): TaskProvider<Exec> =
     register(activateLocallyName) {
 
         description = "Activates this package locally."
-        group = DartTasks.Group.publish
+        group = SpineTaskGroup.name
 
         dependsOn(stagePubPublication)
 

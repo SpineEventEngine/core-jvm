@@ -64,6 +64,7 @@ import static io.spine.testing.DisplayNames.NOT_ACCEPT_NULLS;
 import static java.util.stream.Collectors.toList;
 
 @DisplayName("`AggregatePart` should")
+@SuppressWarnings("deprecation") // Tests the deprecated aggregate parts API.
 class AggregatePartTest {
 
     private static final TestActorRequestFactory factory =

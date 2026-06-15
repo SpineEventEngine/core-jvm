@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
 
 import io.spine.gradle.ConfigTester
 import io.spine.gradle.SpineRepos
+import io.spine.gradle.SpineTaskGroup
 import io.spine.gradle.cleanFolder
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -41,16 +42,18 @@ val tempFolder = File("./tmp")
 ConfigTester(config, tasks, tempFolder)
     .addRepo(SpineRepos.baseTypes)  // Builds `base-types` at `master`.
     .addRepo(SpineRepos.base)       // Builds `base` at `master`.
-    .addRepo(SpineRepos.coreJava)   // Builds `core-java` at `master`.
+    .addRepo(SpineRepos.coreJvm)    // Builds `core-jvm` at `master`.
 
     // This is how one builds a specific branch of some repository:
-    // .addRepo(SpineRepos.coreJava, Branch("grpc-concurrency-fixes"))
+    // .addRepo(SpineRepos.coreJvm, Branch("grpc-concurrency-fixes"))
 
     // Register the produced task under the selected name to invoke manually upon need.
     .registerUnder("buildDependants")
 
 // Cleans the temp folder used to check out the sources from Git.
 tasks.register("clean") {
+    group = SpineTaskGroup.name
+    description = "Removes the temp folder used by `ConfigTester` to check out external sources"
     doLast {
         cleanFolder(tempFolder)
     }

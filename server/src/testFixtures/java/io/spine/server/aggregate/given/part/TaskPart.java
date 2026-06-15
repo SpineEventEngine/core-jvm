@@ -41,6 +41,7 @@ import io.spine.test.aggregate.task.AggTaskId;
  * An aggregate part with {@link Task} state, which belongs to the aggregate
  * represented by {@link AnAggregateRoot}.
  */
+@SuppressWarnings("deprecation") // Tests the deprecated aggregate parts API.
 public class TaskPart
         extends AggregatePart<AggTaskId, AggTask, AggTask.Builder, TaskRoot> {
 

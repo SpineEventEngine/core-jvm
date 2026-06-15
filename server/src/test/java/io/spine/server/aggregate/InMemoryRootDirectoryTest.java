@@ -38,6 +38,7 @@ import java.util.Optional;
 import static com.google.common.truth.Truth.assertThat;
 
 @DisplayName("In-memory `AggregateRootDirectory` should")
+@SuppressWarnings("deprecation") // Tests the deprecated aggregate parts API.
 class InMemoryRootDirectoryTest {
 
     private AggregateRootDirectory directory;

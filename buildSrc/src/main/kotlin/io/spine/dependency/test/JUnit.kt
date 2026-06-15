@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import io.spine.dependency.DependencyWithBom
 @Suppress("unused", "ConstPropertyName")
 object JUnit : DependencyWithBom() {
 
-    override val version = "6.0.3"
+    override val version = "6.1.0"
     override val group: String = "org.junit"
 
     /**
@@ -52,7 +52,7 @@ object JUnit : DependencyWithBom() {
      */
     override val bom = "$group:junit-bom:$version"
 
-    private const val legacyVersion = "4.13.1"
+    private const val legacyVersion = "4.13.2"
 
     // https://github.com/apiguardian-team/apiguardian
     private const val apiGuardianVersion = "1.1.2"

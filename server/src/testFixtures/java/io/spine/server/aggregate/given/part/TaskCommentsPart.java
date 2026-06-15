@@ -40,6 +40,7 @@ import io.spine.test.aggregate.task.Comment;
  * An aggregate part with {@link StringValue} state, which belongs to an aggregate
  * represented by {@link AnAggregateRoot}.
  */
+@SuppressWarnings("deprecation") // Tests the deprecated aggregate parts API.
 public class TaskCommentsPart
         extends AggregatePart<AggTaskId, AggTaskComments, AggTaskComments.Builder, TaskRoot> {
 

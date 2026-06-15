@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
 
 package io.spine.gradle.testing
 
+import io.spine.gradle.SpineTaskGroup
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.register
@@ -79,7 +80,7 @@ private const val SLOW_TAG = "slow"
 private abstract class FastTest : Test() {
     init {
         description = "Executes all JUnit tests but the ones tagged as `slow`."
-        group = "Verification"
+        group = SpineTaskGroup.name
 
         this.useJUnitPlatform {
             excludeTags(SLOW_TAG)
@@ -93,7 +94,7 @@ private abstract class FastTest : Test() {
 private abstract class SlowTest : Test() {
     init {
         description = "Executes JUnit tests tagged as `slow`."
-        group = "Verification"
+        group = SpineTaskGroup.name
         // No slow tests -- no problem.
         filter.isFailOnNoMatchingTests = false
         this.useJUnitPlatform {
