@@ -42,7 +42,7 @@ import io.spine.server.route.MessageRouting
  *
  * @param I The type of the identifiers of the target entities.
  * @param M The type of routed messages.
- * @param S The type of the context of the routed messages.
+ * @param C The type of the context of the routed messages.
  * @param R The type of the result of routing functions participated in the schema.
  * @param U The type of the routing schema filled by the setup class.
  */
