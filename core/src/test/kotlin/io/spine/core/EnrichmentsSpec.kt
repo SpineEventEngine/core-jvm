@@ -180,19 +180,17 @@ internal class EnrichmentsSpec {
             tenantId = GivenTenantId.generate()
         }
 
-    @Suppress("DEPRECATION")
     private fun enrichedContext(): EventContext =
         eventContext {
-            commandContext = commandContext { actorContext = actorContext() }
+            importContext = actorContext()
             timestamp = currentTime()
             enrichment = enrichment()
             producerId = Identifier.pack(GivenUserId.newUuid())
         }
 
-    @Suppress("DEPRECATION")
-    private fun bareContext(): EventContext =
+    private fun bareContext(): @NonValidated EventContext =
         EventContext.newBuilder()
-            .setCommandContext(commandContext { actorContext = actorContext() })
+            .setImportContext(actorContext())
             .setTimestamp(currentTime())
             .buildPartial()
 

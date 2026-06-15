@@ -194,12 +194,10 @@ internal class EventMixinSpec {
         }
     }
 
-    @Suppress("DEPRECATION")
-    private fun enrichedEvent(): Event {
+    private fun enrichedEvent(): @NonValidated Event {
         val enrich = GivenEnrichment.withOneAttribute()
-        val ctx = commandContext()
         val eventCtx = eventContext {
-            commandContext = ctx
+            importContext = actorContext()
             timestamp = currentTime()
             enrichment = enrich
             producerId = io.spine.base.Identifier.pack(GivenUserId.newUuid())
@@ -213,17 +211,16 @@ internal class EventMixinSpec {
             .buildPartial()
     }
 
-    @Suppress("DEPRECATION")
     private fun rejectionEvent(): @NonValidated Event {
         val rejectionCtx = EventContext.newBuilder()
-            .setCommandContext(commandContext())
+            .setImportContext(actorContext())
             .setTimestamp(currentTime())
             .setRejection(RejectionEventContext.getDefaultInstance())
             .buildPartial()
         return buildEvent(rejectionCtx)
     }
 
-    private fun eventWithPastMessage(): Event {
+    private fun eventWithPastMessage(): @NonValidated Event {
         val originEventId = Events.generateId()
         val originMsgId = messageId {
             id = AnyPacker.pack(originEventId)
@@ -260,7 +257,7 @@ internal class EventMixinSpec {
     private fun eventWithCommandContext(
         timestamp: com.google.protobuf.Timestamp = currentTime(),
         actor: UserId = GivenUserId.newUuid()
-    ): Event {
+    ): @NonValidated Event {
         val ctx = commandContext(actor)
         val eventCtx = EventContext.newBuilder()
             .setCommandContext(ctx)

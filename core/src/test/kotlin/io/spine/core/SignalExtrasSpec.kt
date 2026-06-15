@@ -221,15 +221,11 @@ internal class SignalExtrasSpec {
             tenantId = GivenTenantId.generate()
         }
 
-    private fun commandContext(): CommandContext =
-        commandContext { actorContext = actorContext() }
-
-    @Suppress("DEPRECATION")
     private fun stubEvent(): @NonValidated Event {
         val project = projectId { id = "signal-extras-test" }
         val msg = projectCreated { projectId = project }
         val ctx = EventContext.newBuilder()
-            .setCommandContext(commandContext())
+            .setImportContext(actorContext())
             .setTimestamp(currentTime())
             .buildPartial()
         return Event.newBuilder()
@@ -269,20 +265,18 @@ internal class SignalExtrasSpec {
             .build()
     }
 
-    @Suppress("DEPRECATION")
-    private fun enrichedContext(sv: StringValue = StringValue.of("test")): EventContext {
+    private fun enrichedContext(sv: StringValue = StringValue.of("test")): @NonValidated EventContext {
         val enrich = enrichment { container = containerWith(sv) }
         return EventContext.newBuilder()
-            .setCommandContext(commandContext())
+            .setImportContext(actorContext())
             .setTimestamp(currentTime())
             .setEnrichment(enrich)
             .buildPartial()
     }
 
-    @Suppress("DEPRECATION")
-    private fun bareContext(): EventContext =
+    private fun bareContext(): @NonValidated EventContext =
         EventContext.newBuilder()
-            .setCommandContext(commandContext())
+            .setImportContext(actorContext())
             .setTimestamp(currentTime())
             .buildPartial()
 }

@@ -46,7 +46,7 @@ internal class EventContextMixinSpec {
     @Test
     fun `return timestamp`() {
         val now = currentTime()
-        val ctx = commandContextOrigin().toBuilder()
+        val ctx = importContextOrigin().toBuilder()
             .setTimestamp(now)
             .buildPartial()
         ctx.timestamp() shouldBe now
@@ -134,7 +134,7 @@ internal class EventContextMixinSpec {
 
     @Test
     fun `readValue dispatches to each field by index`() {
-        val ctx = commandContextOrigin()
+        val ctx = importContextOrigin()
         val fa = ctx as FieldAwareMessage
         ctx.descriptorForType.fields.forEach { field ->
             fa.readValue(field)
@@ -144,7 +144,7 @@ internal class EventContextMixinSpec {
     @Test
     fun `return the producer of the event`() {
         val producerId = GivenUserId.newUuid()
-        val ctx = commandContextOrigin().toBuilder()
+        val ctx = importContextOrigin().toBuilder()
             .setProducerId(Identifier.pack(producerId))
             .buildPartial()
         ctx.producer() shouldBe producerId
