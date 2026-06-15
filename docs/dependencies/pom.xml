@@ -320,7 +320,7 @@ all modules and does not describe the project structure per-subproject.
   </dependency>
   <dependency>
     <groupId>org.jacoco</groupId>
-    <artifactId>org.jacoco.ant</artifactId>
+    <artifactId>org.jacoco.report</artifactId>
     <version>0.8.15</version>
   </dependency>
   <dependency>
