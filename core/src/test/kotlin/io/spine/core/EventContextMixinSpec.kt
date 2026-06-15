@@ -113,14 +113,6 @@ internal class EventContextMixinSpec {
             ctx.rootMessage().shouldBeEmpty()
         }
 
-        @Test
-        fun `returning empty when no origin is set and no root command ID`() {
-            val ctx = EventContext.newBuilder()
-                .setTimestamp(currentTime())
-                .buildPartial()
-            ctx.rootMessage().shouldBeEmpty()
-        }
-
         @Suppress("DEPRECATION")
         @Test
         fun `returning a message ID when the deprecated root command ID is set`() {

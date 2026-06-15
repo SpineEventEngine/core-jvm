@@ -117,7 +117,11 @@ internal class EventMixinSpec {
 
     @Test
     fun `return own message ID as root when no past message`() {
-        val event = eventWithCommandContext()
+        val eventCtx = EventContext.newBuilder()
+            .setImportContext(actorContext())
+            .setTimestamp(currentTime())
+            .buildPartial()
+        val event = buildEvent(eventCtx)
         val root = event.rootMessage()
         root shouldBe event.messageId()
     }
