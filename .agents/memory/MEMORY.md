@@ -1,0 +1,6 @@
+# Team Memory Index
+
+Shared memory for agents and developers working in this repository.
+Each entry is a memory file with YAML frontmatter and a body. Types: `feedback`, `project`, `user`, `reference`.
+
+- [Proto Builder DSL Policy in Tests](feedback_proto_builder_dsl.md) — Use Kotlin DSL for `.build()` only; plain Java chains for `.buildPartial()`; never use `.apply {}` with proto builders
