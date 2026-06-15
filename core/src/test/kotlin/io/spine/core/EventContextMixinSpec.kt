@@ -36,6 +36,7 @@ import io.spine.protobuf.AnyPacker
 import io.spine.testing.core.given.GivenTenantId
 import io.spine.testing.core.given.GivenUserId
 import io.spine.validation.FieldAwareMessage
+import io.spine.validation.NonValidated
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -158,7 +159,7 @@ internal class EventContextMixinSpec {
         }
 
     @Suppress("DEPRECATION")
-    private fun commandContextOrigin(actor: UserId = GivenUserId.newUuid()): EventContext {
+    private fun commandContextOrigin(actor: UserId = GivenUserId.newUuid()): @NonValidated EventContext {
         val cmdCtx = commandContext { actorContext = actorContext(actor) }
         return EventContext.newBuilder()
             .setCommandContext(cmdCtx)
@@ -166,7 +167,7 @@ internal class EventContextMixinSpec {
             .buildPartial()
     }
 
-    private fun pastMessageOrigin(actor: UserId = GivenUserId.newUuid()): EventContext {
+    private fun pastMessageOrigin(actor: UserId = GivenUserId.newUuid()): @NonValidated EventContext {
         val originEventId = Events.generateId()
         val rootMsgId = messageId {
             id = AnyPacker.pack(originEventId)
@@ -182,7 +183,7 @@ internal class EventContextMixinSpec {
             .buildPartial()
     }
 
-    private fun importContextOrigin(actor: UserId = GivenUserId.newUuid()): EventContext =
+    private fun importContextOrigin(actor: UserId = GivenUserId.newUuid()): @NonValidated EventContext =
         EventContext.newBuilder()
             .setImportContext(actorContext(actor))
             .setTimestamp(currentTime())
