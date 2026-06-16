@@ -36,7 +36,7 @@ import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.external.javadoc.StandardJavadocDocletOptions
 
 /**
- * The doclet which removes Javadoc for `@Internal` things in the Java code.
+ * The doclet that removes Javadoc for `@Internal` things in the Java code.
  */
 @Suppress("ConstPropertyName")
 class ExcludeInternalDoclet {
@@ -57,7 +57,7 @@ class ExcludeInternalDoclet {
         const val className = "io.spine.tools.javadoc.ExcludeInternalDoclet"
 
         /**
-         * The name of the helper task which configures the Javadoc processing
+         * The name of the helper task that configures the Javadoc processing
          * to exclude `@Internal` types.
          */
         const val taskName = "noInternalJavadoc"
@@ -68,7 +68,7 @@ class ExcludeInternalDoclet {
     }
 
     /**
-     * Creates a custom Javadoc task for the [project] which excludes the types
+     * Creates a custom Javadoc task for the [project] that excludes the types
      * annotated as `@Internal`.
      *
      * The task is registered under [taskName].

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ internal class SshKey(
         val gitHubAccessKey = gitHubKey()
         log { "Obtained the key file at ${gitHubAccessKey.absolutePath}." }
         val sshConfigFile = sshConfigFile()
-        log { "Located the SSH key file at ${sshConfigFile.absolutePath}." }
+        log { "Located the SSH config file at ${sshConfigFile.absolutePath}." }
         sshConfigFile.appendPublisher(gitHubAccessKey)
         log { "SSH config file appended." }
 

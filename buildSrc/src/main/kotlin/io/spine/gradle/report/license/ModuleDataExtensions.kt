@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,7 +92,7 @@ private fun MarkdownDocument.print(
 }
 
 /**
- * Prints the URL to the project which provides the dependency.
+ * Prints the URL to the project that provides the dependency.
  *
  * If the passed project URL is `null` or empty, it is not printed.
  */

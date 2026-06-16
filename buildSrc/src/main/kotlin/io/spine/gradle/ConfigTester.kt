@@ -250,7 +250,7 @@ class GitRepository(
 class ClonedRepo(
 
     /**
-     * Origin Git repository which is cloned.
+     * Origin Git repository that is cloned.
      */
     private val repo: GitRepository,
 
@@ -269,7 +269,7 @@ class ClonedRepo(
      * The original `buildSrc` folder, if it exists in this cloned repo, is renamed
      * to `buildSrc-original`.
      *
-     * Optionally, takes an [ignoredFolder] which will be excluded from the [source] paths
+     * Optionally, takes an [ignoredFolder] that will be excluded from the [source] paths
      * when copying.
      *
      *
@@ -289,7 +289,7 @@ class ClonedRepo(
      * The original `config` folder, if it exists in this cloned repo, is renamed
      * to `config-original`.
      *
-     * Optionally, takes an [ignoredFolder] which will be excluded from the [source] paths
+     * Optionally, takes an [ignoredFolder] that will be excluded from the [source] paths
      * when copying.
      *
      * Returns this instance of `ClonedRepo`, for call chaining.

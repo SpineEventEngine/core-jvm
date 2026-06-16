@@ -236,7 +236,7 @@ sealed class PublicationHandler(
          * If the handler for the given [project] was already created, the handler
          * gets new [destinations], [overwriting][publishTo] previously specified.
          *
-         * @return the handler for the given project which would handle publishing to
+         * @return the handler for the given project that would handle publishing to
          *  the specified [destinations].
          */
         fun serving(project: Project, destinations: Set<Repository>, vararg params: Any): H {

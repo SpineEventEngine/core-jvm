@@ -127,7 +127,7 @@ internal const val TESTKIT_COVERAGE_DIR: String = "jacoco-testkit"
 
 /**
  * The name of the system property carrying the absolute path to the JaCoCo
- * agent JAR which the test harness attaches to TestKit worker JVMs.
+ * agent JAR that the test harness attaches to TestKit worker JVMs.
  *
  * The value is read by `plugin-testlib` at test runtime.
  *

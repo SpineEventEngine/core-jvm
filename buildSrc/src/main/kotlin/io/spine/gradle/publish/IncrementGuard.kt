@@ -33,7 +33,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 /**
- * Gradle plugin which adds a [CheckVersionIncrement] task.
+ * Gradle plugin that adds a [CheckVersionIncrement] task.
  *
  * The task is called `checkVersionIncrement` inserted before the `check` task.
  */
@@ -67,7 +67,7 @@ class IncrementGuard : Plugin<Project> {
      *  2. The job is a pull request targeting a default (`master` or `main`) or
      *     a release-line (e.g. `2.x-jdk8-master`) branch.
      *
-     * It is the responsibility of a branch which aims to merge into a default
+     * It is the responsibility of a branch that aims to merge into a default
      * (or otherwise protected) branch to bump the version. Auxiliary branches do not
      * deal with the versions in the release cycle, so pull requests targeting them,
      * direct pushes, and tag builds do not run the check. This also prevents unexpected

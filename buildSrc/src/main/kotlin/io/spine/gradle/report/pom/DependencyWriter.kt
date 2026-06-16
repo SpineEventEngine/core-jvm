@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,9 @@ import org.gradle.kotlin.dsl.withGroovyBuilder
  * ```
  *
  * When there are several versions of the same dependency, only the one with
- * the newest version is retained.
+ * the newest version is retained. If the retained version is used in several
+ * configurations, the highest-ranking Maven scope is reported, e.g. `compile`
+ * wins over `test`.
  *
  * @see PomGenerator
  */
@@ -65,7 +67,7 @@ private constructor(
     internal companion object {
 
         /**
-         * Creates the `ProjectDependenciesAsXml` for the passed [project].
+         * Creates the `DependencyWriter` for the passed [project].
          */
         fun of(project: Project): DependencyWriter {
             return DependencyWriter(project.dependencies())
@@ -75,7 +77,7 @@ private constructor(
     /**
      * Writes the dependencies in their `pom.xml` format to the passed [out] writer.
      *
-     * <p>Used writer will not be closed.
+     * The used writer will not be closed.
      */
     fun writeXmlTo(out: Writer) {
         val xml = MarkupBuilder(out)
@@ -86,7 +88,12 @@ private constructor(
                     "dependency" {
                         "groupId" { xml.text(dependency.group) }
                         "artifactId" { xml.text(dependency.name) }
-                        "version" { xml.text(dependency.version) }
+                        // A BOM-managed dependency carries no explicit version.
+                        // Omit the element rather than emit `<version>null</version>`,
+                        // since `null` is not a valid Maven version.
+                        dependency.version?.let { version ->
+                            "version" { xml.text(version) }
+                        }
                         if (scopedDep.hasDefinedScope()) {
                             "scope" { xml.text(scopedDep.scopeName()) }
                         }
@@ -170,17 +177,30 @@ private fun Dependency.isExternal(): Boolean {
  * But for our `pom.xml`, which has clearly representative character, a single version
  * of a dependency is quite enough.
  *
+ * Versions are compared by [VersionComparator] rather than as plain text, so `10.0.0`
+ * is recognized as newer than `9.2.0`, and `2.0.0-SNAPSHOT.100` — as newer
+ * than `2.0.0-SNAPSHOT.99`.
+ *
+ * When the newest version comes from several configurations, the occurrence with
+ * the highest-ranking Maven scope (as defined by [ScopedDependency.dependencyPriority])
+ * is retained. For example, a dependency declared via `api` in one module and via
+ * `testImplementation` in another is reported with the `compile` scope, so a production
+ * dependency is not misrepresented as a test-scoped one. Likewise, an artifact coming
+ * from `compileOnly` or `annotationProcessor` in one module and from a test
+ * configuration in another is reported as `provided`.
+ *
  * The rejected duplicates are logged.
  */
 private fun Project.deduplicate(dependencies: Set<ModuleDependency>): List<ModuleDependency> {
-    val groups = dependencies.distinctBy { it.gav }
-        .groupBy { it.run { "$group:$name" } }
+    val groups = dependencies.groupBy { it.run { "$group:$name" } }
 
-    logDuplicates(groups)
+    logDuplicates(groups.mapValues { (_, deps) -> deps.distinctBy { it.gav } })
 
-    val filtered = groups.map { group ->
-        group.value.maxByOrNull { dep -> dep.version ?: "" }
-    }.filterNotNull()
+    val filtered = groups.values.map { sameArtifact ->
+        val newest = sameArtifact.maxWith(compareBy(VersionComparator) { it.version ?: "" })
+        sameArtifact.filter { it.version == newest.version }
+            .minBy { it.scoped.dependencyPriority() }
+    }
     return filtered
 }
 

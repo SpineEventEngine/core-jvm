@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
  * This file provides extensions to `String` and `CharSequence` that wrap
  * analogues from standard Kotlin runtime.
  *
- * It helps in switching between versions of Gradle which have different versions of
+ * It helps in switching between versions of Gradle that have different versions of
  * the Kotlin runtime. Please see the bodies of the extension functions for details on
  * switching the implementations depending on the Kotlin version at hand.
  *

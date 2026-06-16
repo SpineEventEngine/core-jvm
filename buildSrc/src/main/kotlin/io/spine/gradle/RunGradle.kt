@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.os.OperatingSystem
 
 /**
- * A Gradle task which runs another Gradle build.
+ * A Gradle task that runs another Gradle build.
  *
  * Launches Gradle wrapper under a given [directory] with the specified [taskNames] names.
  * The `clean` task is also run if current build includes a `clean` task.
@@ -56,7 +56,7 @@ open class RunGradle : DefaultTask() {
     }
 
     /**
-     * Path to the directory which contains a Gradle wrapper script.
+     * Path to the directory that contains a Gradle wrapper script.
      */
     @Internal
     lateinit var directory: String

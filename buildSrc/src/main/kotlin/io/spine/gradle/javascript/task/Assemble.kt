@@ -142,7 +142,7 @@ private val installNodePackagesName = TaskName.of("installNodePackages")
 /**
  * Locates `installNodePackages` task in this [TaskContainer].
  *
- * The task installs Node packages which this module depends on using `npm install` command.
+ * The task installs Node packages that this module depends on using `npm install` command.
  *
  * The `npm install` command is executed with the vulnerability check disabled since
  * it cannot fail the task execution despite on vulnerabilities found.

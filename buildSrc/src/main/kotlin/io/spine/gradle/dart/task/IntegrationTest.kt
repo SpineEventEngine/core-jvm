@@ -41,7 +41,7 @@ private val integrationTestName = TaskName.of("integrationTest", Exec::class)
  *
  * The task runs integration tests of the `spine-dart` library against a sample
  * Spine-based application. The tests are run in Chrome browser because they use `WebFirebaseClient`
- * which only works in web environment.
+ * that only works in web environment.
  *
  * A sample Spine-based application is run from the `test-app` module before integration
  * tests start and is stopped as the tests complete.

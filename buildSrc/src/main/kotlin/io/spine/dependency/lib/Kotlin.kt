@@ -35,7 +35,7 @@ import io.spine.dependency.DependencyWithBom
 object Kotlin : DependencyWithBom() {
 
     /**
-     * This is the version of Kotlin we use for writing code which does not
+     * This is the version of Kotlin we use for writing code that does not
      * depend on Gradle and the version of embedded Kotlin.
      */
     @Suppress("MemberVisibilityCanBePrivate") // used directly from the outside.

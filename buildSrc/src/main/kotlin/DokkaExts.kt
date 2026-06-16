@@ -216,7 +216,7 @@ fun Project.htmlDocsJar(): TaskProvider<Jar> = tasks.getOrCreate("htmlDocsJar") 
 }
 
 /**
- * Tells if this task belongs to the execution graph which contains
+ * Tells if this task belongs to the execution graph that contains
  * the `publish` and `dokkaGenerate` tasks.
  *
  * This predicate could be useful for disabling publishing tasks

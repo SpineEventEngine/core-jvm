@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ package io.spine.gradle.report.pom
 import io.spine.gradle.report.pom.DependencyScope.compile
 import io.spine.gradle.report.pom.DependencyScope.provided
 import io.spine.gradle.report.pom.DependencyScope.runtime
+import io.spine.gradle.report.pom.DependencyScope.system
 import io.spine.gradle.report.pom.DependencyScope.test
 import io.spine.gradle.report.pom.DependencyScope.undefined
 import org.gradle.api.artifacts.Configuration
@@ -106,17 +107,18 @@ private constructor(
             configurationName.startsWith("test", ignoreCase = true)
 
         /**
-         * Performs comparison of {@code DependencyWithScope} instances according to these rules:
+         * Performs comparison of `ScopedDependency` instances according to these rules:
          *
-         * * Compares the scope of the dependency first. Dependency with lower scope priority
-         * number goes first.
+         *  * Compares the scope of the dependency first. Dependency with a lower scope priority
+         *  number goes first.
          *
-         *  * For dependencies with same scope, does the lexicographical group name comparison.
-         *
-         *  * For dependencies within the same group, does the lexicographical artifact
+         *  * For dependencies with the **same scope** does the lexicographical group
          *  name comparison.
          *
-         *  * For dependencies with the same artifact name, does the lexicographical artifact
+         *  * For dependencies within the **same group**, does the lexicographical artifact
+         *  name comparison.
+         *
+         *  * For dependencies with the **same artifact name**, does the lexicographical artifact
          *  version comparison.
          */
         private val COMPARATOR: Comparator<ScopedDependency> =
@@ -138,7 +140,7 @@ private constructor(
         return dependency
     }
 
-    /** Obtains the scope name of this dependency .*/
+    /** Obtains the scope name of this dependency. */
     fun scopeName(): String {
         return scope.name
     }
@@ -147,14 +149,24 @@ private constructor(
      * Obtains the layout priority of a scope.
      *
      * Layout priority determines what scopes come first in the generated `pom.xml` file.
-     * Dependencies with a lower priority number go on top.
+     * Dependencies with a lower priority number go on top, following the conventional
+     * Maven scope order: `compile`, `provided`, `runtime`, `test`, and `system`.
+     * Dependencies with an undefined scope go last.
+     *
+     * The same ordering also drives the scope selection when the same dependency
+     * comes from several configurations: the occurrence with the lowest priority
+     * number is reported. So, a scope required by production code wins over `test`,
+     * and a known scope wins over an undefined one.
      */
+    @Suppress("MagicNumber") // Reason: the values encode the relative scope order.
     internal fun dependencyPriority(): Int {
         return when (scope) {
             compile -> 0
-            runtime -> 1
-            test -> 2
-            else -> 3
+            provided -> 1
+            runtime -> 2
+            test -> 3
+            system -> 4
+            undefined -> 5
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ interface DartEnvironment {
     val projectName: String
 
     /**
-     * A directory which all artifacts are generated into.
+     * A directory that all artifacts are generated into.
      *
      * Default value: "$projectDir/build".
      */
@@ -73,7 +73,7 @@ interface DartEnvironment {
             .resolve(projectName)
 
     /**
-     * A directory which contains integration test Dart sources.
+     * A directory that contains integration test Dart sources.
      *
      * Default value: "$projectDir/integration-test".
      */
