@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import java.lang.reflect.InvocationTargetException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static io.spine.server.aggregate.AggregatePart.GenericParameter.AGGREGATE_ROOT;
 
 /**
  * Provides type information on an aggregate part class.
@@ -75,10 +74,13 @@ public final class AggregatePartClass<A extends AggregatePart<?, ?, ?, ?>>
     /**
      * Obtains the aggregate root class of this part class.
      */
-    @SuppressWarnings("unchecked") // The type is ensured by the class declaration.
+    // The `unchecked` cast is ensured by the class declaration.
+    // The `deprecation` use refers to the deprecated `AggregatePart`.
+    @SuppressWarnings({"unchecked", "deprecation"})
     public Class<? extends AggregateRoot<?>> rootClass() {
         if (rootClass == null) {
-            rootClass = (Class<? extends AggregateRoot<?>>) AGGREGATE_ROOT.argumentIn(rawClass());
+            rootClass = (Class<? extends AggregateRoot<?>>)
+                    AggregatePart.GenericParameter.AGGREGATE_ROOT.argumentIn(rawClass());
         }
         return rootClass;
     }

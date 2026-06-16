@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,6 @@ import io.spine.annotation.Internal;
 import io.spine.base.AggregateState;
 import io.spine.server.BoundedContext;
 import io.spine.server.aggregate.model.AggregatePartClass;
-
-import static io.spine.server.aggregate.model.AggregatePartClass.asAggregatePartClass;
 
 /**
  * Common abstract base for repositories that manage {@code AggregatePart}s.
@@ -88,8 +86,9 @@ public abstract class AggregatePartRepository<I,
 
     @Internal
     @Override
+    @SuppressWarnings("deprecation") // Calls into the deprecated `AggregatePartClass`.
     protected final AggregatePartClass<A> toModelClass(Class<A> cls) {
-        return asAggregatePartClass(cls);
+        return AggregatePartClass.asAggregatePartClass(cls);
     }
 
     AggregatePartClass<A> aggregatePartClass() {

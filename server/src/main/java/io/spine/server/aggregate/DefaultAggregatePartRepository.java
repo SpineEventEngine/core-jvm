@@ -31,8 +31,6 @@ import io.spine.base.AggregateState;
 import io.spine.server.DefaultRepository;
 import io.spine.server.aggregate.model.AggregatePartClass;
 
-import static io.spine.server.aggregate.model.AggregatePartClass.asAggregatePartClass;
-
 /**
  * Default implementation of {@code AggregatePartRepository}.
  *
@@ -63,9 +61,10 @@ public final class DefaultAggregatePartRepository<I,
     /**
      * Creates a new repository for managing aggregate parts of the passed class.
      */
+    @SuppressWarnings("deprecation") // Calls into the deprecated `AggregatePartClass`.
     public DefaultAggregatePartRepository(Class<A> cls) {
         super();
-        this.modelClass = asAggregatePartClass(cls);
+        this.modelClass = AggregatePartClass.asAggregatePartClass(cls);
     }
 
     /**
