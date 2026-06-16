@@ -1,6 +1,6 @@
 
 
-# Dependencies of `io.spine:spine-client:2.0.0-SNAPSHOT.375`
+# Dependencies of `io.spine:spine-client:2.0.0-SNAPSHOT.376`
 
 ## Runtime
 1.  **Group** : com.google.android. **Name** : annotations. **Version** : 4.1.1.4.
@@ -537,10 +537,6 @@
 
 1.  **Group** : io.grpc. **Name** : grpc-inprocess. **Version** : 1.81.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
-     * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
-
-1.  **Group** : io.grpc. **Name** : grpc-kotlin-stub. **Version** : 1.4.1.
-     * **Project URL:** [https://github.com/grpc/grpc-kotlin](https://github.com/grpc/grpc-kotlin)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
 1.  **Group** : io.grpc. **Name** : grpc-kotlin-stub. **Version** : 1.5.0.
@@ -1045,14 +1041,14 @@
 
 The dependencies distributed under several licenses, are used according their commercial-use-friendly license.
 
-This report was generated on **Mon Jun 15 13:28:47 WEST 2026** using 
+This report was generated on **Tue Jun 16 20:46:49 WEST 2026** using 
 [Gradle-License-Report plugin](https://github.com/jk1/Gradle-License-Report) by Evgeny Naumenko, licensed under 
 [Apache 2.0 License](https://github.com/jk1/Gradle-License-Report/blob/master/LICENSE).
 
 
 
 
-# Dependencies of `io.spine.tools:client-testlib:2.0.0-SNAPSHOT.375`
+# Dependencies of `io.spine.tools:client-testlib:2.0.0-SNAPSHOT.376`
 
 ## Runtime
 1.  **Group** : com.google.android. **Name** : annotations. **Version** : 4.1.1.4.
@@ -1695,10 +1691,6 @@ This report was generated on **Mon Jun 15 13:28:47 WEST 2026** using
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-kotlin-stub. **Version** : 1.4.1.
-     * **Project URL:** [https://github.com/grpc/grpc-kotlin](https://github.com/grpc/grpc-kotlin)
-     * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
-
 1.  **Group** : io.grpc. **Name** : grpc-kotlin-stub. **Version** : 1.5.0.
      * **Project URL:** [https://github.com/grpc/grpc-kotlin](https://github.com/grpc/grpc-kotlin)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
@@ -2193,14 +2185,14 @@ This report was generated on **Mon Jun 15 13:28:47 WEST 2026** using
 
 The dependencies distributed under several licenses, are used according their commercial-use-friendly license.
 
-This report was generated on **Mon Jun 15 13:28:47 WEST 2026** using 
+This report was generated on **Tue Jun 16 20:46:49 WEST 2026** using 
 [Gradle-License-Report plugin](https://github.com/jk1/Gradle-License-Report) by Evgeny Naumenko, licensed under 
 [Apache 2.0 License](https://github.com/jk1/Gradle-License-Report/blob/master/LICENSE).
 
 
 
 
-# Dependencies of `io.spine:spine-core:2.0.0-SNAPSHOT.375`
+# Dependencies of `io.spine:spine-core:2.0.0-SNAPSHOT.376`
 
 ## Runtime
 1.  **Group** : com.google.code.findbugs. **Name** : jsr305. **Version** : 3.0.2.
@@ -2683,10 +2675,6 @@ This report was generated on **Mon Jun 15 13:28:47 WEST 2026** using
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-kotlin-stub. **Version** : 1.4.1.
-     * **Project URL:** [https://github.com/grpc/grpc-kotlin](https://github.com/grpc/grpc-kotlin)
-     * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
-
 1.  **Group** : io.grpc. **Name** : grpc-kotlin-stub. **Version** : 1.5.0.
      * **Project URL:** [https://github.com/grpc/grpc-kotlin](https://github.com/grpc/grpc-kotlin)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
@@ -3181,14 +3169,14 @@ This report was generated on **Mon Jun 15 13:28:47 WEST 2026** using
 
 The dependencies distributed under several licenses, are used according their commercial-use-friendly license.
 
-This report was generated on **Mon Jun 15 13:28:47 WEST 2026** using 
+This report was generated on **Tue Jun 16 20:46:49 WEST 2026** using 
 [Gradle-License-Report plugin](https://github.com/jk1/Gradle-License-Report) by Evgeny Naumenko, licensed under 
 [Apache 2.0 License](https://github.com/jk1/Gradle-License-Report/blob/master/LICENSE).
 
 
 
 
-# Dependencies of `io.spine.tools:core-testlib:2.0.0-SNAPSHOT.375`
+# Dependencies of `io.spine.tools:core-testlib:2.0.0-SNAPSHOT.376`
 
 ## Runtime
 1.  **Group** : com.google.android. **Name** : annotations. **Version** : 4.1.1.4.
@@ -4231,14 +4219,14 @@ This report was generated on **Mon Jun 15 13:28:47 WEST 2026** using
 
 The dependencies distributed under several licenses, are used according their commercial-use-friendly license.
 
-This report was generated on **Mon Jun 15 13:28:47 WEST 2026** using 
+This report was generated on **Tue Jun 16 20:46:49 WEST 2026** using 
 [Gradle-License-Report plugin](https://github.com/jk1/Gradle-License-Report) by Evgeny Naumenko, licensed under 
 [Apache 2.0 License](https://github.com/jk1/Gradle-License-Report/blob/master/LICENSE).
 
 
 
 
-# Dependencies of `io.spine:spine-server:2.0.0-SNAPSHOT.375`
+# Dependencies of `io.spine:spine-server:2.0.0-SNAPSHOT.376`
 
 ## Runtime
 1.  **Group** : com.google.android. **Name** : annotations. **Version** : 4.1.1.4.
@@ -4781,10 +4769,6 @@ This report was generated on **Mon Jun 15 13:28:47 WEST 2026** using
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-kotlin-stub. **Version** : 1.4.1.
-     * **Project URL:** [https://github.com/grpc/grpc-kotlin](https://github.com/grpc/grpc-kotlin)
-     * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
-
 1.  **Group** : io.grpc. **Name** : grpc-kotlin-stub. **Version** : 1.5.0.
      * **Project URL:** [https://github.com/grpc/grpc-kotlin](https://github.com/grpc/grpc-kotlin)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
@@ -5295,14 +5279,14 @@ This report was generated on **Mon Jun 15 13:28:47 WEST 2026** using
 
 The dependencies distributed under several licenses, are used according their commercial-use-friendly license.
 
-This report was generated on **Mon Jun 15 13:28:47 WEST 2026** using 
+This report was generated on **Tue Jun 16 20:46:49 WEST 2026** using 
 [Gradle-License-Report plugin](https://github.com/jk1/Gradle-License-Report) by Evgeny Naumenko, licensed under 
 [Apache 2.0 License](https://github.com/jk1/Gradle-License-Report/blob/master/LICENSE).
 
 
 
 
-# Dependencies of `io.spine.tools:server-testlib:2.0.0-SNAPSHOT.375`
+# Dependencies of `io.spine.tools:server-testlib:2.0.0-SNAPSHOT.376`
 
 ## Runtime
 1.  **Group** : com.google.android. **Name** : annotations. **Version** : 4.1.1.4.
@@ -5943,10 +5927,6 @@ This report was generated on **Mon Jun 15 13:28:47 WEST 2026** using
 
 1.  **Group** : io.grpc. **Name** : grpc-inprocess. **Version** : 1.81.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
-     * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
-
-1.  **Group** : io.grpc. **Name** : grpc-kotlin-stub. **Version** : 1.4.1.
-     * **Project URL:** [https://github.com/grpc/grpc-kotlin](https://github.com/grpc/grpc-kotlin)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
 1.  **Group** : io.grpc. **Name** : grpc-kotlin-stub. **Version** : 1.5.0.
@@ -6495,6 +6475,6 @@ This report was generated on **Mon Jun 15 13:28:47 WEST 2026** using
 
 The dependencies distributed under several licenses, are used according their commercial-use-friendly license.
 
-This report was generated on **Mon Jun 15 13:28:47 WEST 2026** using 
+This report was generated on **Tue Jun 16 20:46:50 WEST 2026** using 
 [Gradle-License-Report plugin](https://github.com/jk1/Gradle-License-Report) by Evgeny Naumenko, licensed under 
 [Apache 2.0 License](https://github.com/jk1/Gradle-License-Report/blob/master/LICENSE).
