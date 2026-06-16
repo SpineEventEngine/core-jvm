@@ -40,7 +40,7 @@ import java.util.List;
 import static com.google.common.collect.Lists.newLinkedList;
 
 /**
- * An implementation of {@link TransactionListener} which memoizes all arguments received in the
+ * An implementation of {@link TransactionListener} that memoizes all arguments received in the
  * callbacks.
  *
  * @param <I>

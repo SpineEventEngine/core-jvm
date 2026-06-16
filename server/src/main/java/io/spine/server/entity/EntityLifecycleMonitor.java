@@ -45,7 +45,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 /**
- * An implementation of {@link TransactionListener} which monitors the transaction flow and
+ * An implementation of {@link TransactionListener} that monitors the transaction flow and
  * triggers the {@link EntityLifecycle}.
  *
  * <p>On a successful {@link Phase}, memoizes the ID of the applied message. After a successful

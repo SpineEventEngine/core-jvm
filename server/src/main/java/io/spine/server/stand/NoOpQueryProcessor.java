@@ -33,7 +33,7 @@ import io.spine.client.Query;
 /**
  * An {@link QueryProcessor} implementation that always returns empty result.
  *
- * <p>Used to define a processing result for {@link Query} which does not hit any of
+ * <p>Used to define a processing result for {@link Query} that does not hit any of
  * exposed state objects.
  */
 class NoOpQueryProcessor implements QueryProcessor {

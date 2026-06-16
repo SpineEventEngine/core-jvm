@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A station that delivers those messages which are incoming in a live mode.
+ * A station that delivers those messages that are incoming in a live mode.
  *
  * <p>Before the dispatching, the messages are deduplicated, taking into account {@linkplain
  * Conveyor#recentlyDelivered() all known delivered messages}. In this process, the messages

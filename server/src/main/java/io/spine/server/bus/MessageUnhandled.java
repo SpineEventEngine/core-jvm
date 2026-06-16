@@ -30,7 +30,7 @@ import io.spine.annotation.Internal;
 import io.spine.server.MessageError;
 
 /**
- * An interface for the {@link MessageError} types which report an unhandled message being
+ * An interface for the {@link MessageError} types that report an unhandled message being
  * posted into a {@link Bus}.
  *
  * <p>Except the methods declared in {@link MessageError}, this type is a marker interface.

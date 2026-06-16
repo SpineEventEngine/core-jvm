@@ -39,7 +39,7 @@ import static java.util.Objects.requireNonNull;
  * Abstract base for test suites based on {@link BlackBox}.
  *
  * <p>Such a test suite creates a new instance of {@link io.spine.server.BoundedContext
- * BoundedContext} using a builder which implementing classes must {@linkplain #contextBuilder()
+ * BoundedContext} using a builder that implementing classes must {@linkplain #contextBuilder()
  * provide}. The context under the test is created {@linkplain BeforeEach before each} test method
  * and closed {@linkplain AfterEach after each} test method automatically.
  *

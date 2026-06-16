@@ -29,7 +29,7 @@ package io.spine.server.entity.model;
 import com.google.common.collect.ImmutableSet;
 
 /**
- * A class which can {@linkplain io.spine.core.Subscribe subscribe} to updates of entity states.
+ * A class that can {@linkplain io.spine.core.Subscribe subscribe} to updates of entity states.
  *
  * <p>A class can declare methods to receive updated states of entities from the same Bounded
  * Context (“domestic” states), or states originated in another Bounded Context (“external” states).

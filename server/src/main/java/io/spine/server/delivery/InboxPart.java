@@ -38,7 +38,7 @@ import io.spine.type.TypeUrl;
 /**
  * An abstract base of {@link Inbox inbox} part.
  *
- * <p>Commands and events which are delivered to their targets through inbox are treated
+ * <p>Commands and events that are delivered to their targets through inbox are treated
  * in a similar way, but still there is some difference in storage mechanism and measures
  * taken in case of some runtime issues (e.g. duplication). Therefore the inbox is split into
  * parts, specific to each of the message types.

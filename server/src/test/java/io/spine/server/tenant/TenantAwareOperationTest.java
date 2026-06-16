@@ -138,7 +138,7 @@ class TenantAwareOperationTest {
     }
 
     /**
-     * The tenant data operation which remembers the current tenant in {@link #run()}.
+     * The tenant data operation that remembers the current tenant in {@link #run()}.
      */
     private static class TestOp extends TenantAwareOperation {
 

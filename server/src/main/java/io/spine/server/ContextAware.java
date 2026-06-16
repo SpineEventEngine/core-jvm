@@ -33,7 +33,7 @@ import javax.annotation.OverridingMethodsMustInvokeSuper;
 import static com.google.common.base.Preconditions.checkState;
 
 /**
- * A structural part of a Bounded Context which is aware of the other parts.
+ * A structural part of a Bounded Context that is aware of the other parts.
  */
 @Internal
 public interface ContextAware {

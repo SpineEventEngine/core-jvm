@@ -57,7 +57,7 @@ public abstract class EnricherBuilder<M extends Message,
     private static final String SUGGEST_REMOVAL = " Please call `remove(Class, Class)` first.";
 
     /**
-     * Maps a pair of [source class, enrichment class] to a function which produces this enrichment.
+     * Maps a pair of [source class, enrichment class] to a function that produces this enrichment.
      */
     private final Map<Key, EnrichmentFn<? extends M, C, ?>> functions = new HashMap<>();
 
@@ -170,8 +170,8 @@ public abstract class EnricherBuilder<M extends Message,
     }
 
     /**
-     * A pair of source message class and enrichment message class which is used to match
-     * the pair to a function which produces the enrichment.
+     * A pair of source message class and enrichment message class that is used to match
+     * the pair to a function that produces the enrichment.
      *
      * @see EnricherBuilder#functions
      */

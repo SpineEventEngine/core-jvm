@@ -66,7 +66,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * In this case the first method parameter must extend {@linkplain io.spine.base.CommandMessage}.
  * The returning values must derive from the {@linkplain io.spine.base.CommandMessage} as well.
  *
- * <p>If a commanding method accepts a command type which is also handled by another method
+ * <p>If a commanding method accepts a command type that is also handled by another method
  * of the same application, a run-time error will occur. This also means that an application
  * cannot have two command-handling methods that accept the same command type.
  *
@@ -188,7 +188,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *  }
  * </pre>
  *
- * <li>a rejection message along with the context of the command which caused it:
+ * <li>a rejection message along with the context of the command that caused it:
  * <pre>
  *
  * {@literal @}Command
@@ -253,7 +253,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * </pre>
  * </ul>
  *
- * <p>If the annotation is applied to a method which doesn't satisfy either of these requirements,
+ * <p>If the annotation is applied to a method that doesn't satisfy either of these requirements,
  * this method is not considered a commanding method and is <strong>not</strong> registered for
  * command generation.
  *

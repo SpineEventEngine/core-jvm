@@ -46,7 +46,7 @@ import java.util.Optional;
 import static io.spine.util.Exceptions.newIllegalStateException;
 
 /**
- * A standalone commander which declares invalid {@link Command} substitution methods.
+ * A standalone commander that declares invalid {@link Command} substitution methods.
  *
  * <p>Being similar to {@link ValidCommander}, this class also declares duplicate handlers
  * for the same commands. Again, this seems to be the simplest way to test invalid signatures

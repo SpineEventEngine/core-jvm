@@ -130,7 +130,7 @@ public class QueryingClient<T : EntityState<*>>(
 }
 
 /**
- * A [StreamObserver] which listens to a single [QueryResponse].
+ * A [StreamObserver] that listens to a single [QueryResponse].
  *
  * The observer persists the [found result][foundResult] as a list of messages.
  */

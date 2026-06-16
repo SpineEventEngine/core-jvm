@@ -51,7 +51,7 @@ final class SubscriptionObserver<M extends Message>
         implements StreamObserver<SubscriptionUpdate> {
 
     /**
-     * Delegate which would receive the unpacked domain-specific messages, such as
+     * Delegate that would receive the unpacked domain-specific messages, such as
      * entity states or {@code Event}s.
      */
     private final StreamObserver<M> delegate;
@@ -61,7 +61,7 @@ final class SubscriptionObserver<M extends Message>
      * Optional chained observer of raw {@code SubscriptionUpdate}s,
      * which would receive its input within the same subscription.
      *
-     * <p>Such an observer may be handy for descendants which need more details
+     * <p>Such an observer may be handy for descendants that need more details
      * than just an "unpacked" domain message.
      */
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType"

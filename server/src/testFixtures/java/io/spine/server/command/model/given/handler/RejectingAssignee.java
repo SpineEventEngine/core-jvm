@@ -33,7 +33,7 @@ import io.spine.test.reflect.command.RefCreateProject;
 import io.spine.test.reflect.event.RefProjectCreated;
 
 /**
- * A command assignee which always rejects the passed command.
+ * A command assignee that always rejects the passed command.
  */
 public class RejectingAssignee extends TestCommandAssignee {
     @Assign

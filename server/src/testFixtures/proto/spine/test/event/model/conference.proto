@@ -36,7 +36,7 @@ option java_multiple_files = true;
 
 import "spine/people/person_name.proto";
 
-// The name of the conference (such as `Google I/0 2019`) which serves as its identity.
+// The name of the conference (such as `Google I/0 2019`) that serves as its identity.
 message Conference {
     string name = 1 [(required) = true];
 }

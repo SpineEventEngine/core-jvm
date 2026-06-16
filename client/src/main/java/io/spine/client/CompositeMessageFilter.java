@@ -35,7 +35,7 @@ import java.util.function.Predicate;
 import static io.spine.util.Exceptions.newIllegalArgumentException;
 
 /**
- * A message filter which is an {@linkplain #operator() operation} on other
+ * A message filter that is an {@linkplain #operator() operation} on other
  * message {@linkplain #filters() filters}.
  *
  * @param <M>
@@ -49,7 +49,7 @@ interface CompositeMessageFilter<M extends Message> extends MessageFilter<M> {
     List<MessageFilter<M>> filters();
 
     /**
-     * Obtains the operator which will be used for combining enclosed message filters.
+     * Obtains the operator that will be used for combining enclosed message filters.
      *
      * @see CompositeOperator
      */

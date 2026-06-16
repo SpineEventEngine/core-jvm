@@ -55,7 +55,7 @@ final class ConfigExchange extends SingleChannelExchange implements Closeable {
     private final BroadcastWantedEvents broadcast;
 
     /**
-     * The observers which listen to {@code ExternalEventsWanted} sent by other contexts.
+     * The observers that listen to {@code ExternalEventsWanted} sent by other contexts.
      */
     private final Collection<ObserveWantedEvents> observers = new HashSet<>();
 
@@ -86,7 +86,7 @@ final class ConfigExchange extends SingleChannelExchange implements Closeable {
     }
 
     /**
-     * Sends out the collection of the domain events which this Bounded Context would like
+     * Sends out the collection of the domain events that this Bounded Context would like
      * to receive as {@code external}.
      */
     void requestWantedEvents() {

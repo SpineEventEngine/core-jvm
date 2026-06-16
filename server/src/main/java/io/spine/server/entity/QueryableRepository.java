@@ -37,7 +37,7 @@ import java.util.Iterator;
 import static io.spine.protobuf.AnyPacker.unpack;
 
 /**
- * A repository which may be queried for {@linkplain EntityRecord entity records}
+ * A repository that may be queried for {@linkplain EntityRecord entity records}
  * or states of stored entities.
  *
  * @param <I>
@@ -82,7 +82,7 @@ public interface QueryableRepository<I, S extends EntityState<I>> {
      * Unpacks the {@code Entity} state stored in the provided {@link EntityRecord} into
      * a message of type {@code S}.
      *
-     * <p>It is a responsibility of a caller to submit the {@code EntityRecord}s which
+     * <p>It is a responsibility of a caller to submit the {@code EntityRecord}s that
      * store the states of a compatible type.
      *
      * @param record

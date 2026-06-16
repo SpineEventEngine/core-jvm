@@ -51,20 +51,20 @@ public final class StreamObservers {
     }
 
     /**
-     * Creates a {@linkplain StreamObserver observer} which does nothing upon
+     * Creates a {@linkplain StreamObserver observer} that does nothing upon
      * the invocation of its callback methods.
      *
-     * <p>The callees which do not want to follow the responses should use this utility method
+     * <p>The callees that do not want to follow the responses should use this utility method
      * to eliminate boilerplate code.
      *
-     * @return an instance of {@code StreamObserver} which does nothing
+     * @return an instance of {@code StreamObserver} that does nothing
      */
     public static <T> StreamObserver<T> noOpObserver() {
         return new NoOpObserver<>();
     }
 
     /**
-     * A utility method which sends {@linkplain Responses#ok() acknowledgement}
+     * A utility method that sends {@linkplain Responses#ok() acknowledgement}
      * to the client via the {@code responseObserver} provided and
      * {@linkplain StreamObserver#onCompleted() completes} the response.
      */
@@ -78,7 +78,7 @@ public final class StreamObservers {
      *
      * @param delegate the delegate observer
      * @param <T>      generic parameter type of the delegating observer to be created.
-     * @return delegating observer which only proxies errors.
+     * @return delegating observer that only proxies errors.
      */
     @Internal
     public static <T> StreamObserver<T> forwardErrorsOnly(StreamObserver<?> delegate) {
@@ -86,7 +86,7 @@ public final class StreamObservers {
     }
 
     /**
-     * Creates an instance of observer which memoizes the responses.
+     * Creates an instance of observer that memoizes the responses.
      *
      * @param <T> type of objects streamed to this observer
      * @return memoizing observer
@@ -126,7 +126,7 @@ public final class StreamObservers {
     }
 
     /**
-     * An observer which does nothing.
+     * An observer that does nothing.
      *
      * @param <T> the type of the observable value
      */
@@ -154,7 +154,7 @@ public final class StreamObservers {
     }
 
     /**
-     * An observer which forwards error handling to the passed delegate.
+     * An observer that forwards error handling to the passed delegate.
      * Otherwise does nothing.
      *
      * @param <T> type of the observable value

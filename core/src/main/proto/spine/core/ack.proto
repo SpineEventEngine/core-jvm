@@ -47,7 +47,7 @@ import "spine/core/response.proto";
 //
 message Ack {
 
-    // The ID of the message which has been posted.
+    // The ID of the message that has been posted.
     google.protobuf.Any message_id = 1 [(required) = true];
 
     // The response status.

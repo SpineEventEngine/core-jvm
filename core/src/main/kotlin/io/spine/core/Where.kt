@@ -48,7 +48,7 @@ import kotlin.annotation.AnnotationTarget.VALUE_PARAMETER
  * If a field filter is defined, only the events matching this filter are passed to the handler
  * method.
  *
- * Only methods which accept an event may add filters. Entity subscribers cannot use this kind of
+ * Only methods that accept an event may add filters. Entity subscribers cannot use this kind of
  * filtering, neither can methods that receive a command. Declaring a `@Where` filter on a parameter
  * of such a method will cause a runtime error. See the annotation [AcceptsFilters] for more info
  * on which methods can have a filer.

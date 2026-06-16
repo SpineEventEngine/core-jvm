@@ -189,7 +189,7 @@ public final class RepositoryCache<I, E extends Entity<I, ?>> implements WithLog
     }
 
     /**
-     * A function which loads an {@code Entity} by ID from its real repository.
+     * A function that loads an {@code Entity} by ID from its real repository.
      *
      * @param <I>
      *         the type of {@code Entity} identifiers
@@ -200,7 +200,7 @@ public final class RepositoryCache<I, E extends Entity<I, ?>> implements WithLog
     public interface Load<I, E extends Entity<I, ?>> extends Function<I, E> {}
 
     /**
-     * A function which stores the {@code Entity} to its real repository.
+     * A function that stores the {@code Entity} to its real repository.
      *
      * @param <E>
      *         the type of entity

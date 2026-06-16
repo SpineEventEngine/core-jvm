@@ -56,7 +56,7 @@ import io.spine.server.BoundedContext
  * not add any business value because information of an event-sourced application is stored
  * in events, not commands.
  *
- * That's why we suggest adding the Reaction pattern which reads like:
+ * That's why we suggest adding the Reaction pattern that reads like:
  *
  * ```markdown
  * Whenever <something happens>, then <something else happened>.

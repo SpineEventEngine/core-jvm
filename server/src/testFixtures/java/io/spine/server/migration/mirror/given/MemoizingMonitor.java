@@ -34,7 +34,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * A {@code MirrorMigrationMonitor} which memorizes all completed batches.
+ * A {@code MirrorMigrationMonitor} that memorizes all completed batches.
  *
  * <p>Also, counts how many times notification callback methods were called.
  */

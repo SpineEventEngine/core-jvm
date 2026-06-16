@@ -163,7 +163,7 @@ public abstract class Bus<T extends Signal<?, ?, ?>,
      * <p>If the message cannot be sent due to some issues, a corresponding
      * {@link io.spine.base.Error Error} status is passed in {@code Ack} instance.
      *
-     * <p>Depending on the underlying {@link MessageDispatcher}, a message which causes a business
+     * <p>Depending on the underlying {@link MessageDispatcher}, a message that causes a business
      * {@linkplain io.spine.base.RejectionThrowable rejection} may result either a rejection
      * status or an {@link io.spine.core.Status.StatusCase#OK OK} status {@link Ack} instance.
      * The rejection status may only pop up if the {@link MessageDispatcher} processes the message
@@ -439,7 +439,7 @@ public abstract class Bus<T extends Signal<?, ?, ?>,
      *
      * <p>Default implementation inserts:
      * <ol>
-     *   <li>a filter which validates incoming messages
+     *   <li>a filter that validates incoming messages
      *   <li>a filter for unhandled messages
      * </ol>
      * before the passed filters.

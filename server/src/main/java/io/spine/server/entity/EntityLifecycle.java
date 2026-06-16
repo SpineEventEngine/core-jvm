@@ -104,7 +104,7 @@ import static io.spine.server.entity.EventFilter.allowAll;
 public class EntityLifecycle {
 
     /**
-     * The {@link SystemWriteSide} which the system messages are posted into.
+     * The {@link SystemWriteSide} that the system messages are posted into.
      */
     private final SystemWriteSide systemWriteSide;
 

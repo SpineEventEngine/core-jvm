@@ -49,7 +49,7 @@ message CsStartProject {
     ProjectId project = 1;
 }
 
-// A command which is internal to its bounded context.
+// A command that is internal to its bounded context.
 message CsSuspendProject {
     option (internal_type) = true;
 }

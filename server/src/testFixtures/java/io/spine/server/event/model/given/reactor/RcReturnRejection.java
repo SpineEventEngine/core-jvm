@@ -31,7 +31,7 @@ import io.spine.test.reflect.ReflectRejections;
 import io.spine.test.reflect.event.RefProjectCreated;
 
 /**
- * Provides a method which accepts first parameter of wrong type.
+ * Provides a method that accepts first parameter of wrong type.
  */
 public class RcReturnRejection extends TestEventReactor {
 

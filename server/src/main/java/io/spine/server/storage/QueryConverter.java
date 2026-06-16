@@ -366,7 +366,7 @@ public final class QueryConverter {
     }
 
     /**
-     * Returns the getter which always throws an {@link IllegalStateException} upon invocation.
+     * Returns the getter that always throws an {@link IllegalStateException} upon invocation.
      *
      * @param <R>
      *         the type of the message which column getter it is

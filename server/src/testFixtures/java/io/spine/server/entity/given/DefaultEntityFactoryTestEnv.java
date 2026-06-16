@@ -39,7 +39,7 @@ public class DefaultEntityFactoryTestEnv {
     private DefaultEntityFactoryTestEnv() {
     }
 
-    /** A test entity class which is not versionable. */
+    /** A test entity class that is not versionable. */
     public static class TestEntity1 extends AbstractEntity<ProjectId, Project> {
         private TestEntity1(ProjectId id) {
             super(id);

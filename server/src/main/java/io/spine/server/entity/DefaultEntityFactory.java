@@ -41,8 +41,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 /**
- * Default implementation of entity factory which creates entities by invoking constructor
- * which accepts entity ID.
+ * Default implementation of entity factory that creates entities by invoking constructor
+ * that accepts entity ID.
  *
  * @param <E>
  *         the type of produced entities
@@ -53,8 +53,8 @@ public final class DefaultEntityFactory<E extends Entity<?, ?>> extends Abstract
     private static final long serialVersionUID = 0L;
 
     /**
-     * The method which the factory would use for setting an entity ID, if the entity class
-     * does not have a constructor which accepts the ID.
+     * The method that the factory would use for setting an entity ID, if the entity class
+     * does not have a constructor that accepts the ID.
      */
     private static final String SET_ID_METHOD_NAME = "setId";
 

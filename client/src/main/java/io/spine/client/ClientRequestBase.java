@@ -35,7 +35,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.util.Preconditions2.checkNotDefaultArg;
 
 /**
- * The abstract base for client-side requests which allows to customize error handling.
+ * The abstract base for client-side requests that allows to customize error handling.
  */
 public abstract class ClientRequestBase {
 
@@ -56,7 +56,7 @@ public abstract class ClientRequestBase {
     }
 
     /**
-     * Creates a new instance which obtains properties from the parent request.
+     * Creates a new instance that obtains properties from the parent request.
      */
     ClientRequestBase(ClientRequestBase parent) {
         this(parent.user, parent.client);

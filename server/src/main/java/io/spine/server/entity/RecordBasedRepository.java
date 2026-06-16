@@ -413,7 +413,7 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
      *
      * @param query
      *         the entity query
-     * @return all the entities in this repository which satisfy the query
+     * @return all the entities in this repository that satisfy the query
      */
     public Iterator<E> find(EntityQuery<I, S, ?> query) {
         checkNotNull(query);

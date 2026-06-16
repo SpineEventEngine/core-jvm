@@ -37,7 +37,7 @@ import static com.google.common.collect.Lists.newLinkedList;
 import static io.spine.server.model.given.Given.EventMessage.projectCreated;
 
 /**
- * Provides a method which accepts one parameter and returns a list of messages.
+ * Provides a method that accepts one parameter and returns a list of messages.
  */
 public final class ValidAssigneeOneParamReturnsList extends TestCommandAssignee {
 

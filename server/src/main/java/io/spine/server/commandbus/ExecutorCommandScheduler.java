@@ -37,7 +37,7 @@ import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
- * The command scheduler implementation which uses basic Java task scheduling features.
+ * The command scheduler implementation that uses basic Java task scheduling features.
  *
  * <p><b>NOTE:</b> please use <a href="https://github.com/SpineEventEngine/gcloud-java">
  * another implementation</a> in applications running under the Google App Engine.

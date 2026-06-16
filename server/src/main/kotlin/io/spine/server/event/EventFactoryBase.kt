@@ -44,14 +44,14 @@ internal open class EventFactoryBase protected constructor(
 ) {
     /**
      * Creates a new event context with an optionally passed version of the entity
-     * which produced the event.
+     * that produced the event.
      */
     protected fun createContext(version: Version?): EventContext =
         newContext(version).build()
 
     /**
      * Creates a builder for a new context of the event with optionally set
-     * version of an entity which is generating the event.
+     * version of an entity that is generating the event.
      */
     protected fun newContext(version: Version?): EventContext.Builder {
         val builder =

@@ -58,7 +58,7 @@ public class InvalidEventException extends EventException implements MessageInva
     }
 
     /**
-     * Creates an exception instance for a event message which has fields that
+     * Creates an exception instance for a event message that has fields that
      * violate validation constraint(s).
      *
      * @param eventMsg   the invalid event message

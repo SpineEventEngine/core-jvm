@@ -31,7 +31,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 /**
- * A delivery action which does nothing but stores the messages which are passed to it.
+ * A delivery action that does nothing but stores the messages that are passed to it.
  */
 public final class MemoizingAction implements DeliveryAction {
 

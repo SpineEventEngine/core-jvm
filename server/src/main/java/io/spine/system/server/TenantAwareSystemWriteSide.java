@@ -37,7 +37,7 @@ import io.spine.server.tenant.TenantAwareRunner;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * A {@link SystemWriteSide} which works for a specified tenant.
+ * A {@link SystemWriteSide} that works for a specified tenant.
  *
  * <p>A system event is {@linkplain SystemWriteSide#postEvent(EventMessage, Origin) posted} within
  * a {@link TenantAwareOperation} with the given tenant set.

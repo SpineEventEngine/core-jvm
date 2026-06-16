@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The implementation of {@link DeliveryMonitor} which remembers the passed stages.
+ * The implementation of {@link DeliveryMonitor} that remembers the passed stages.
  */
 public final class MemoizingDeliveryMonitor extends DeliveryMonitor {
 

@@ -69,7 +69,7 @@ public final class BlackBoxClients {
     }
 
     /**
-     * Creates a new {@code Client} with the {@code TenantId} which corresponds to
+     * Creates a new {@code Client} with the {@code TenantId} that corresponds to
      * the <b>current</b> setting of the target {@code BlackBox}.
      *
      * @return a new instance of {@code Client}

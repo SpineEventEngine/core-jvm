@@ -37,7 +37,7 @@ import java.lang.annotation.Target;
  * the {@linkplain #value() specified name}.
  *
  * <p>Java does not have the notion of package nesting. Packages in Java are separated namespaces
- * which seem to have a hierarchical structure for convenience.
+ * that seem to have a hierarchical structure for convenience.
  *
  * <h2>Nesting Convention</h2>
  * <p>This annotation assumes that nesting formed by a programmer when naming packages <em>is</em>

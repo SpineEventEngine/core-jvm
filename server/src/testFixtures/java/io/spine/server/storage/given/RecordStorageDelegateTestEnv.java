@@ -60,7 +60,7 @@ public final class RecordStorageDelegateTestEnv {
     }
 
     /**
-     * Creates the field mask which only has {@code ID} and {@code due_date} fields.
+     * Creates the field mask that only has {@code ID} and {@code due_date} fields.
      */
     public static FieldMask idAndDueDate() {
         return FieldMask.newBuilder()

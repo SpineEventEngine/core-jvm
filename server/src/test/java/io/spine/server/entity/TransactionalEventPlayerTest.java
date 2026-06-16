@@ -106,7 +106,7 @@ class TransactionalEventPlayerTest {
     }
 
     /**
-     * Stub implementation of {@code Transaction} which behaves as told in the passed parameters.
+     * Stub implementation of {@code Transaction} that behaves as told in the passed parameters.
      */
     private static class StubTransaction extends EventPlayingTransaction {
 

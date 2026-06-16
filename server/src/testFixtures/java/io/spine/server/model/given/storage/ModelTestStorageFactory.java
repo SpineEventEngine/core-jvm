@@ -36,7 +36,7 @@ import io.spine.server.storage.StorageFactory;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * A {@link StorageFactory} which configures the inbox storage
+ * A {@link StorageFactory} that configures the inbox storage
  * to {@linkplain NeverForgettingStorage persist} every record even after
  * {@code delete(..)} is called.
  */

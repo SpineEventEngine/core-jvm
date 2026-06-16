@@ -56,7 +56,7 @@ import java.util.Collections.synchronizedMap
  * Entries for more specific interfaces must be added before entries for super-interfaces of
  * the already added interface entries. There rules ensure correct routing of messages.
  * If these rules are not followed, `IllegalStateException` will be thrown when calling
- * a [route] function which attempts to add a violating entry.
+ * a [route] function that attempts to add a violating entry.
  *
  * ## Optional `context` parameter
  *
@@ -132,7 +132,7 @@ public sealed class MessageRouting<
     /**
      * Adds a route for the given message type [N].
      *
-     * @param N The type of the message which descends from the type
+     * @param N The type of the message that descends from the type
      *   [M] served by this routing schema.
      * @param via The route to be used for this type of messages.
      * @return `this` to allow chained calls when configuring the routing.
@@ -146,7 +146,7 @@ public sealed class MessageRouting<
     /**
      * Adds a route for the messages with the given type [N].
      *
-     * @param N The type of the message which descends from
+     * @param N The type of the message that descends from
      *   the super-interface [M] served by this routing schema.
      * @param via The route function to be used for this type of messages.
      * @return `this` to allow chained calls when configuring the routing.
@@ -162,7 +162,7 @@ public sealed class MessageRouting<
      *
      * This is the Java version of `public inline fun` [route].
      *
-     * @param N The type of the message which descends from
+     * @param N The type of the message that descends from
      *   the super-interface [M] served by this routing schema.
      * @param via The route function to be used for this type of messages.
      * @return `this` to allow chained calls when configuring the routing.
@@ -321,7 +321,7 @@ public sealed class MessageRouting<
     /**
      * Provides the result of finding a route in the routing schema.
      *
-     * @param requestedClass The class of the message which needs to be routed.
+     * @param requestedClass The class of the message that needs to be routed.
      * @param entryClass The type through which the route is found.
      *   Can be a class (for the [isDirect] match) or a super-interface
      *   of the requested class.

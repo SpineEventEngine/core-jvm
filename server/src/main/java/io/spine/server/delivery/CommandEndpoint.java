@@ -29,7 +29,7 @@ package io.spine.server.delivery;
 import io.spine.server.type.CommandEnvelope;
 
 /**
- * An endpoint which accepts commands.
+ * An endpoint that accepts commands.
  *
  * @param <I>
  *         the type of target identifier

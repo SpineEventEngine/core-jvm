@@ -51,7 +51,7 @@ import static java.lang.String.format;
 public abstract class AbstractMessageEndpoint<I, M extends SignalEnvelope<?, ?, ?>>
         implements MessageEndpoint<I, M> {
 
-    /** The message which needs to dispatched. */
+    /** The message that needs to dispatched. */
     private final M envelope;
 
     protected AbstractMessageEndpoint(M envelope) {
@@ -61,7 +61,7 @@ public abstract class AbstractMessageEndpoint<I, M extends SignalEnvelope<?, ?, 
     /**
      * {@inheritDoc}
      *
-     * <p>All {@code Exception}s which may occur during
+     * <p>All {@code Exception}s that may occur during
      * the {@linkplain #performDispatch(Object) dispatching} are caught
      * and transformed into an erroneous {@code DispatchOutcome}.
      */

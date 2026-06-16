@@ -35,7 +35,7 @@ import io.spine.model.contexts.projects.rejection.ProjectRejections;
 import io.spine.server.event.AbstractEventSubscriber;
 
 /**
- * A standalone event subscriber which declares valid {@link Subscribe event-subscribing
+ * A standalone event subscriber that declares valid {@link Subscribe event-subscribing
  * handlers}.
  *
  * <p>This class declares the duplicate handlers for some events, hence it cannot be

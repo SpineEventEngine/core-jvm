@@ -103,7 +103,7 @@ public abstract class BlackBox implements WithLogging, Closeable {
     private final BlackboxProbe probe;
 
     /**
-     * A factory of {@link Client}s which send requests to this context.
+     * A factory of {@link Client}s that send requests to this context.
      */
     private final ClientFactory clientFactory;
 
@@ -637,7 +637,7 @@ public abstract class BlackBox implements WithLogging, Closeable {
     }
 
     /**
-     * Obtains a Subject for an entity which has the state of the passed class with the given ID.
+     * Obtains a Subject for an entity that has the state of the passed class with the given ID.
      */
     public final <I, S extends EntityState<I>>
     EntitySubject assertEntityWithState(I id, Class<S> stateClass) {

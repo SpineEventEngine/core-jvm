@@ -107,7 +107,7 @@ public final class ReceptionFailureTestEnv {
     }
 
     /**
-     * A shard observer which deliberately ignores any exceptions thrown when dispatching
+     * A shard observer that deliberately ignores any exceptions thrown when dispatching
      * inbox messages.
      */
     private static final class IgnoringObserver implements ShardObserver {
@@ -133,7 +133,7 @@ public final class ReceptionFailureTestEnv {
     }
 
     /**
-     * A delivery monitor which remembers the last observed reception failure.
+     * A delivery monitor that remembers the last observed reception failure.
      *
      * <p>Allows to specify a {@link FailureResolver} and act upon the observed failure.
      */
@@ -176,7 +176,7 @@ public final class ReceptionFailureTestEnv {
     }
 
     /**
-     * A delivery monitor which marks the message causing a reception failure
+     * A delivery monitor that marks the message causing a reception failure
      * as {@linkplain io.spine.server.delivery.InboxMessageStatus#DELIVERED delivered}.
      */
     public static final class MarkFailureDeliveredMonitor extends DeliveryMonitor {

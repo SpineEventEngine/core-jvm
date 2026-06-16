@@ -41,7 +41,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
 
 /**
- * An event subscriber which listens to {@linkplain SignalDispatchedMixin dispatching events}.
+ * An event subscriber that listens to {@linkplain SignalDispatchedMixin dispatching events}.
  */
 @Internal
 public final class TraceEventObserver extends AbstractEventSubscriber {

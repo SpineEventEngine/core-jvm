@@ -85,7 +85,7 @@ public final class PmDispatcher {
 
     /**
      * Functional interface for an entry in the map matching message envelope
-     * class with a test endpoint which dispatches such envelopes.
+     * class with a test endpoint that dispatches such envelopes.
      * @see #endpoints
      */
     private interface EndpointFn
@@ -147,7 +147,7 @@ public final class PmDispatcher {
     }
 
     /**
-     * Test-only process manager repository which uses {@link TestPmTransaction} and
+     * Test-only process manager repository that uses {@link TestPmTransaction} and
      * {@linkplain NoOpLifecycle NO-OP entity lifecycle}.
      */
     private static class TestPmRepository<I,

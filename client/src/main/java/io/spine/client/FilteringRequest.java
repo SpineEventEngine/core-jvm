@@ -76,7 +76,7 @@ FilteringRequest<M extends Message,
     }
 
     /**
-     * Obtains the reference to a proper method of {@code ActorRequestFactory} which
+     * Obtains the reference to a proper method of {@code ActorRequestFactory} that
      * creates the builder for the request.
      */
     abstract Function<ActorRequestFactory, A> builderFn();

@@ -29,7 +29,7 @@ package io.spine.system.server.event;
 import io.spine.core.Command;
 
 /**
- * A common interface for system events which state that a command has been dispatched.
+ * A common interface for system events that state that a command has been dispatched.
  */
 interface CommandDispatchedMixin extends SignalDispatchedMixin<Command> {
 }

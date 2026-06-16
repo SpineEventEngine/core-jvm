@@ -77,7 +77,7 @@ public class GivenAggregate {
     }
 
     /**
-     * Method object which simplifies dispatching of commands to {@link ProjectAggregate} instances.
+     * Method object that simplifies dispatching of commands to {@link ProjectAggregate} instances.
      */
     private final class ToProject {
 

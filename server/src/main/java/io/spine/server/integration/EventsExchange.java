@@ -37,7 +37,7 @@ import static io.spine.server.transport.MessageChannel.channelIdFor;
 /**
  * Sends and receives the {@code external} domain events.
  *
- * <p>Publishes the domain events of the parent Bounded Context to those Bounded Contexts which
+ * <p>Publishes the domain events of the parent Bounded Context to those Bounded Contexts that
  * requested them for their {@code external} subscribers.
  *
  * <p>Receives the domain events from other Bounded Contexts and posts them to the domestic
@@ -48,7 +48,7 @@ final class EventsExchange extends AbstractExchange {
     private final BusAdapter bus;
 
     /**
-     * Creates a new exchange which uses the passed link.
+     * Creates a new exchange that uses the passed link.
      */
     EventsExchange(TransportLink link, BusAdapter bus) {
         super(link);
@@ -76,7 +76,7 @@ final class EventsExchange extends AbstractExchange {
     }
 
     /**
-     * Registers a local dispatcher which would like to receive the {@code external} events
+     * Registers a local dispatcher that would like to receive the {@code external} events
      * through this exchange.
      *
      * @param dispatcher

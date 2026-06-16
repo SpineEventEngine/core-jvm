@@ -75,7 +75,7 @@ public final class AccessModifier implements Predicate<Method> {
             new AccessModifier(AccessModifier::isInternal, backtick(MODIFIER_INTERNAL));
 
     /**
-     * A protected method which overrides a method from a superclass.
+     * A protected method that overrides a method from a superclass.
      *
      * <p>The method must be declared in a parent class.
      *
@@ -86,7 +86,7 @@ public final class AccessModifier implements Predicate<Method> {
             new AccessModifier(AccessModifier::protectedAndDerived, "`protected` with `@Override`");
 
     /**
-     * The predicate which determines if the method has a matching modifier or not.
+     * The predicate that determines if the method has a matching modifier or not.
      */
     private final Predicate<Method> delegate;
 
@@ -152,7 +152,7 @@ public final class AccessModifier implements Predicate<Method> {
     }
 
     /**
-     * Obtains the predicate which tells if a Kotlin method is declared {@code internal}
+     * Obtains the predicate that tells if a Kotlin method is declared {@code internal}
      * or the method is effectively internal because it is declared in an
      * {@code internal} or a {@code private} class.
      *

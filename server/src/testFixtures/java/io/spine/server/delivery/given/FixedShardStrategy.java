@@ -35,7 +35,7 @@ import java.io.Serializable;
 import static com.google.common.base.Preconditions.checkArgument;
 
 /**
- * A delivery strategy which always deliver all the items to the first shard.
+ * A delivery strategy that always deliver all the items to the first shard.
  */
 public class FixedShardStrategy extends DeliveryStrategy implements Serializable {
 

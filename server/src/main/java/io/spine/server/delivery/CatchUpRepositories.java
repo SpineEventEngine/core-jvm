@@ -36,7 +36,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
 import static java.util.Collections.synchronizedMap;
 
 /**
- * A cache of {@link ProjectionRepository Projection repositories} which are used in
+ * A cache of {@link ProjectionRepository Projection repositories} that are used in
  * the {@link CatchUpProcess}es across all known Bounded Contexts.
  *
  * <p>This type is a JVM-wide singleton.

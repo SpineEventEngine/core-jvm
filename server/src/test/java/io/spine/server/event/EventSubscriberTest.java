@@ -58,7 +58,7 @@ class EventSubscriberTest {
     @DisplayName("catch exceptions caused by methods")
     @MuteLogging
     void catchMethodExceptions() {
-        // Create event which should fail.
+        // Create event that should fail.
         var eventEnvelope = createEvent(false);
 
         var context = BoundedContextBuilder.assumingTests().build();

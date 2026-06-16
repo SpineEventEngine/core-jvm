@@ -48,7 +48,7 @@ import java.util.List;
 import static java.util.Collections.emptyList;
 
 /**
- * The aggregate which throws {@link IllegalArgumentException} in response to negative numbers.
+ * The aggregate that throws {@link IllegalArgumentException} in response to negative numbers.
  *
  * <p>Normally aggregates should reject commands via rejections. This class does not do so,
  * because it is a test environment for checking how {@code AggregateRepository} handles errors.

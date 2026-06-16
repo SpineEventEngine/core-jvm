@@ -50,7 +50,7 @@ message CreateUserAccount {
     UserAccount account = 2 [(validate) = true, (required) = true];
 }
 
-// A command which is not supported by the backend, and as such should
+// A command that is not supported by the backend, and as such should
 // generate an error when posted.
 message UnsupportedCommand {
     core.UserId user = 1;

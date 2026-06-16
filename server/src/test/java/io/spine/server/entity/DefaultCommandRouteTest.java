@@ -77,7 +77,7 @@ class DefaultCommandRouteTest {
     }
 
     /**
-     * Stub class which simulates empty command message.
+     * Stub class that simulates empty command message.
      */
     @Immutable
     private static final class StubCommand implements CommandMessage {

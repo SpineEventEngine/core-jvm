@@ -31,7 +31,7 @@ import com.google.common.collect.ImmutableList;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
 /**
- * A station which supplies the {@link DeliveryRunInfo} to certain events being dispatched
+ * A station that supplies the {@link DeliveryRunInfo} to certain events being dispatched
  * to {@link ShardMaintenanceProcess}.
  */
 final class MaintenanceStation extends Station {

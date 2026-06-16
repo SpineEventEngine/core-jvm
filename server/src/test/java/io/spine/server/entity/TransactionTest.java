@@ -92,7 +92,7 @@ public abstract class TransactionTest<I,
     protected abstract void checkEventReceived(E entity, Event event);
 
     /**
-     * Creates an event message which would be normally handled by the entity.
+     * Creates an event message that would be normally handled by the entity.
      */
     protected final EventMessage createEventMessage() {
         return TxCreated.newBuilder()
@@ -114,7 +114,7 @@ public abstract class TransactionTest<I,
 
     /**
      * Creates an event message handling of which turns the builder of the entity state
-     * into the state which fails the validation.
+     * into the state that fails the validation.
      */
     protected final EventMessage failingStateTransition() {
         return TxStateErrorRequested

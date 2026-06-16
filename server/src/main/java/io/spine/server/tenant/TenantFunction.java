@@ -33,7 +33,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.function.Function;
 
 /**
- * A function which can work in single-tenant and multi-tenant context and return a
+ * A function that can work in single-tenant and multi-tenant context and return a
  * value depending on the current tenant set.
  *
  * @param <T> the type of the result returned by the function

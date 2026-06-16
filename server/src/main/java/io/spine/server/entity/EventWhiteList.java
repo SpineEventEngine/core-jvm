@@ -33,7 +33,7 @@ import io.spine.server.type.EventClass;
 import java.util.Optional;
 
 /**
- * An {@link EventFilter} which allows only events of given types.
+ * An {@link EventFilter} that allows only events of given types.
  *
  * <p>All other events are discarded by this filter by default.
  *

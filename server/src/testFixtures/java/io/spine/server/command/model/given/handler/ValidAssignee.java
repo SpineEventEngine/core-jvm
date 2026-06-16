@@ -48,7 +48,7 @@ import io.spine.test.reflect.command.RefCreateProject;
 import java.util.Optional;
 
 /**
- * A standalone assignee which declares valid {@link Assign command-handling methods}.
+ * A standalone assignee that declares valid {@link Assign command-handling methods}.
  *
  * <p>This class declares the duplicate handlers for some commands, hence it cannot be
  * registered in any Bounded Context. This is done for simplicity of enumerating all possible

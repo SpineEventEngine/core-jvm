@@ -43,7 +43,7 @@ import "spine/core/event.proto";
 // An event caused generation of a command.
 message EventCausedCommand {
 
-    // The ID of the event which caused the command.
+    // The ID of the event that caused the command.
     spine.core.EventId id = 1;
 
     // The ID of the command generated in response to the event.
@@ -53,7 +53,7 @@ message EventCausedCommand {
 // An event caused generation of two or more commands.
 message EventCausedCommands {
 
-    // The ID of the event which caused the command.
+    // The ID of the event that caused the command.
     spine.core.EventId id = 1;
 
     // Two or more IDs of commands generated in response to the event.

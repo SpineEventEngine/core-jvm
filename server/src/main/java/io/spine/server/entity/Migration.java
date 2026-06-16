@@ -229,7 +229,7 @@ public abstract class Migration<I,
     }
 
     /**
-     * Creates an entity lifecycle monitor which will post lifecycle events as usual, assigning
+     * Creates an entity lifecycle monitor that will post lifecycle events as usual, assigning
      * a {@link MigrationApplied} instance as the event-producing message.
      */
     private EntityLifecycleMonitor<I> configureLifecycleMonitor(I id) {

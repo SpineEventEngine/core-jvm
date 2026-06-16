@@ -74,7 +74,7 @@ message TestEntityName {
     string value = 1;
 }
 
-// A message-typed field of the `TestEntity` which is used to test operations on nested fields.
+// A message-typed field of the `TestEntity` that is used to test operations on nested fields.
 message TestEntityOwner {
     spine.core.UserId id = 1;
 

@@ -44,7 +44,7 @@ import io.spine.server.storage.StorageFactory;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * An implementation of {@link StorageFactory} which may produce an empty {@link EventStore} for
+ * An implementation of {@link StorageFactory} that may produce an empty {@link EventStore} for
  * system context.
  *
  * <p>Delegates storage creation to another factory.

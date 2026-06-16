@@ -37,7 +37,7 @@ import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
 
 //
-// This message is a state of a test aggregate which logs commands and events.
+// This message is a state of a test aggregate that logs commands and events.
 //
 // See `AggregateEventRoutingTestEnv.java` for details.
 //

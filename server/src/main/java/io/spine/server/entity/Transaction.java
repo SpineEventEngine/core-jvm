@@ -328,7 +328,7 @@ public abstract class Transaction<I,
      * the message was successfully dispatched.
      *
      * <p>This is needed for the cases of dispatching more than one message during a transaction.
-     * After the state is propagated to the entity, its message handler which is invoked during
+     * After the state is propagated to the entity, its message handler that is invoked during
      * the next step would “see” the {@linkplain Entity#state() state of the entity}.
      *
      * @param increment

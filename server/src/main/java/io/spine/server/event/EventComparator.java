@@ -49,7 +49,7 @@ public abstract class EventComparator implements Comparator<Event>, Serializable
     }
 
     /**
-     * Returns a comparator which compares events by their timestamp in chronological order.
+     * Returns a comparator that compares events by their timestamp in chronological order.
      *
      * <p>In case the timestamps are the same, the {@linkplain EventContext#getVersion()
      * event versions} are compared.
@@ -62,7 +62,7 @@ public abstract class EventComparator implements Comparator<Event>, Serializable
     }
 
     /**
-     * A comparator which compares events by their timestamp in chronological order.
+     * A comparator that compares events by their timestamp in chronological order.
      *
      * @see #chronological() for a public API
      */

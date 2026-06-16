@@ -34,7 +34,7 @@ import java.lang.reflect.Method;
 import static io.spine.util.Exceptions.illegalStateWithCauseOf;
 
 /**
- * Test environment class which declares filtering and non-filtering subscriber methods.
+ * Test environment class that declares filtering and non-filtering subscriber methods.
  *
  * @see io.spine.server.model.ArgumentFilterTest
  */

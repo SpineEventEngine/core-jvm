@@ -44,7 +44,7 @@ public interface ShardedWorkRegistry {
      * by a single application node at a given moment of time.
      *
      * <p>In case of a successful operation, an instance of {@link PickUpOutcome} containing
-     * {@code ShardSessionRecord} is returned. The worker node which obtained the session,
+     * {@code ShardSessionRecord} is returned. The worker node that obtained the session,
      * should release {@link #release(ShardSessionRecord) release()} the session
      * at the end of its work.
      *

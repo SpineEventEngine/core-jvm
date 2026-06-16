@@ -90,7 +90,7 @@ class CommandRoutingRejectionTest {
     /**
      * Verifies that a command rejected during routing gets rejected status.
      *
-     * <p>The test initially posts a command which should be processed correctly. This is done to
+     * <p>The test initially posts a command that should be processed correctly. This is done to
      * ensure that basic processing works.
      *
      * <p>Then the test posts a command with the argument that should cause rejection in the
@@ -113,7 +113,7 @@ class CommandRoutingRejectionTest {
         commandBus.post(command, observer);
         assertObservedEvents.hasSize(1);
 
-        // Post a command with the argument which causes rejection in routing.
+        // Post a command with the argument that causes rejection in routing.
         var commandToReject = requestFactory.createCommand(
                 SetSwitch.newBuilder()
                          // This name is specifically checked in the routing function to

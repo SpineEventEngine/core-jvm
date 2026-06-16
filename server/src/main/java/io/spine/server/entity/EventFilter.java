@@ -51,7 +51,7 @@ import static io.spine.protobuf.AnyPacker.pack;
 public interface EventFilter {
 
     /**
-     * Obtains an {@code EventFilter} which always returns the input event without any change.
+     * Obtains an {@code EventFilter} that always returns the input event without any change.
      *
      * <p>The method acts as if
      * <pre>
@@ -62,7 +62,7 @@ public interface EventFilter {
      *     }
      * </pre>
      *
-     * @return a filter which allows any event to be published
+     * @return a filter that allows any event to be published
      */
     static EventFilter allowAll() {
         return NoOpEventFilter.INSTANCE;

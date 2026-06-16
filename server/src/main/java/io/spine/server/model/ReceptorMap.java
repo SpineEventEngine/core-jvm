@@ -52,7 +52,7 @@ import static java.lang.String.format;
 import static java.util.Comparator.comparing;
 
 /**
- * Provides mapping from a class of messages to methods which handle such messages.
+ * Provides mapping from a class of messages to methods that handle such messages.
  *
  * @param <M>
  *         the type of messages

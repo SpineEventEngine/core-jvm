@@ -36,7 +36,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * A {@link io.spine.server.command.Commander Commander} which retries the task
+ * A {@link io.spine.server.command.Commander Commander} that retries the task
  * creation if it fails.
  */
 public final class CreationRetry extends AbstractCommander {

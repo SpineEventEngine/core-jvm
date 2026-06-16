@@ -103,7 +103,7 @@ message AggregateEventRecord {
     google.protobuf.Any aggregate_id = 5;
 }
 
-// A history of an aggregate is a sequence of its events which is used by the aggregate
+// A history of an aggregate is a sequence of its events that is used by the aggregate
 // to restore its state.
 //
 // The history may start from a snapshot of the aggregate state. If so, the snapshot will be

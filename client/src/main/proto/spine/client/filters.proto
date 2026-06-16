@@ -53,7 +53,7 @@ message Target {
     //
     string type = 1 [(required) = true];
 
-    // The filters which are applied to the received entity state or event message.
+    // The filters that are applied to the received entity state or event message.
     oneof criterion {
         // Either `include_all` must be set to `true`, or `filters` must be specified.
         option (choice).required = true;
@@ -92,7 +92,7 @@ message CompositeFilter {
     // The list of simple filters.
     repeated Filter filter = 1 [(validate) = true];
 
-    // The value of the composite operator which determines the behavior of the filter matching.
+    // The value of the composite operator that determines the behavior of the filter matching.
     CompositeOperator operator = 2 [(required) = true];
 
     // The list of child composite filters.

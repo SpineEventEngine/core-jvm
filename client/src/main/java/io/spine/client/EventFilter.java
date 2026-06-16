@@ -43,7 +43,7 @@ import static io.spine.client.Filters.createContextFilter;
 import static io.spine.client.Filters.createFilter;
 
 /**
- * A subscription filter which targets an {@link Event}.
+ * A subscription filter that targets an {@link Event}.
  *
  * <p>Can filter events by conditions on both message and context. See factory methods of the
  * class for details.
@@ -79,7 +79,7 @@ public final class EventFilter extends TypedFilter<Event> {
     }
 
     /**
-     * Creates a new equality filter which targets a field in the event message.
+     * Creates a new equality filter that targets a field in the event message.
      *
      * @param field
      *         the message field from which the actual value is taken
@@ -93,7 +93,7 @@ public final class EventFilter extends TypedFilter<Event> {
     }
 
     /**
-     * Creates a new equality filter which targets a field in the event context.
+     * Creates a new equality filter that targets a field in the event context.
      *
      * @param field
      *         the context field from which the actual value is taken
@@ -107,7 +107,7 @@ public final class EventFilter extends TypedFilter<Event> {
     }
 
     /**
-     * Creates a new "greater than" filter which targets a field in the event message.
+     * Creates a new "greater than" filter that targets a field in the event message.
      *
      * <p>NOTE: not all value types are supported for ordering comparison. See {@link Filters} for
      * details.
@@ -125,7 +125,7 @@ public final class EventFilter extends TypedFilter<Event> {
     }
 
     /**
-     * Creates a new "greater than" filter which targets a field in the event context.
+     * Creates a new "greater than" filter that targets a field in the event context.
      *
      * <p>NOTE: not all value types are supported for ordering comparison. See {@link Filters} for
      * details.
@@ -143,7 +143,7 @@ public final class EventFilter extends TypedFilter<Event> {
     }
 
     /**
-     * Creates a new "less than" filter which targets a field in the event message.
+     * Creates a new "less than" filter that targets a field in the event message.
      *
      * <p>NOTE: not all value types are supported for ordering comparison. See {@link Filters} for
      * details.
@@ -161,7 +161,7 @@ public final class EventFilter extends TypedFilter<Event> {
     }
 
     /**
-     * Creates a new "less than" filter which targets a field in the event context.
+     * Creates a new "less than" filter that targets a field in the event context.
      *
      * <p>NOTE: not all value types are supported for ordering comparison. See {@link Filters} for
      * details.
@@ -179,7 +179,7 @@ public final class EventFilter extends TypedFilter<Event> {
     }
 
     /**
-     * Creates a new "greater than or equals" filter which targets a field in the event message.
+     * Creates a new "greater than or equals" filter that targets a field in the event message.
      *
      * <p>NOTE: not all value types are supported for ordering comparison. See {@link Filters} for
      * details.
@@ -197,7 +197,7 @@ public final class EventFilter extends TypedFilter<Event> {
     }
 
     /**
-     * Creates a new "greater than or equals" filter which targets a field in the event context.
+     * Creates a new "greater than or equals" filter that targets a field in the event context.
      *
      * <p>NOTE: not all value types are supported for ordering comparison. See {@link Filters} for
      * details.
@@ -215,7 +215,7 @@ public final class EventFilter extends TypedFilter<Event> {
     }
 
     /**
-     * Creates a new "less than or equals" filter which targets a field in the event message.
+     * Creates a new "less than or equals" filter that targets a field in the event message.
      *
      * <p>NOTE: not all value types are supported for ordering comparison. See {@link Filters} for
      * details.
@@ -233,7 +233,7 @@ public final class EventFilter extends TypedFilter<Event> {
     }
 
     /**
-     * Creates a new "less than or equals" filter which targets a field in the event context.
+     * Creates a new "less than or equals" filter that targets a field in the event context.
      *
      * <p>NOTE: not all value types are supported for ordering comparison. See {@link Filters} for
      * details.

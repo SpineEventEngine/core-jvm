@@ -81,7 +81,7 @@ public class InvalidCommandException extends CommandException implements Message
 
     /**
      * Creates an exception for a command with missing {@code tenant_id} attribute in
-     * the {@code CommandContext} which is required in a multitenant application.
+     * the {@code CommandContext} that is required in a multitenant application.
      */
     public static InvalidCommandException missingTenantId(Command command) {
         var envelope = CommandEnvelope.of(command);
@@ -100,7 +100,7 @@ public class InvalidCommandException extends CommandException implements Message
 
     /**
      * Creates an error for a command with missing {@code tenant_id}
-     * attribute in the {@code CommandContext} which is required in a multitenant application.
+     * attribute in the {@code CommandContext} that is required in a multitenant application.
      */
     public static Error unknownTenantError(Message commandMessage, String errorText) {
         var error = Error.newBuilder()
@@ -113,7 +113,7 @@ public class InvalidCommandException extends CommandException implements Message
     }
 
     /**
-     * Creates an exception for the command which specifies a tenant in a single-tenant context.
+     * Creates an exception for the command that specifies a tenant in a single-tenant context.
      */
     public static InvalidCommandException inapplicableTenantId(Command command) {
         var cmd = CommandEnvelope.of(command);

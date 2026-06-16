@@ -88,7 +88,7 @@ class DrawingEvents : Projection<String, Log, Log.Builder>() {
     companion object {
 
         /**
-         * This routing function should be invoked before those which accept
+         * This routing function should be invoked before those that accept
          * [LineLifecycleEvent] or [LineLocationEvent] because [LineInitEvent] is a more
          * specific interface.
          */

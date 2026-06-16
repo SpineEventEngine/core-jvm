@@ -55,7 +55,7 @@ message ConstraintViolated {
     // The last message handled by the entity.
     core.MessageId last_message = 2 [(required) = false];
 
-    // The last message in the chain which produced the `last_message`.
+    // The last message in the chain that produced the `last_message`.
     core.MessageId root_message = 3 [(required) = false];
 
     // The validation constraint violations.
@@ -101,7 +101,7 @@ message HandlerFailedUnexpectedly {
     // The handled signal ID.
     core.MessageId handled_signal = 2;
 
-    // The error which occurred during the signal handling.
+    // The error that occurred during the signal handling.
     base.Error error = 3;
 }
 
@@ -112,7 +112,7 @@ message RoutingFailed {
 
     EntityTypeName entity_type = 2;
 
-    // The error which occurred during the routing.
+    // The error that occurred during the routing.
     base.Error error = 3;
 }
 
@@ -151,16 +151,16 @@ message AggregateHistoryCorrupted {
     // The type of the Aggregate.
     EntityTypeName entity_type = 2;
 
-    // The ID of the last event which could be applied successfully.
+    // The ID of the last event that could be applied successfully.
     core.MessageId last_successful_event = 3;
 
-    // The ID of the event which caused an error.
+    // The ID of the event that caused an error.
     core.MessageId erroneous_event = 4;
 
-    // The error which occurred while applying the `erroneous_event`.
+    // The error that occurred while applying the `erroneous_event`.
     base.Error error = 5;
 
-    // The number of events which come after the `erroneous_event` in the Aggregate history.
+    // The number of events that come after the `erroneous_event` in the Aggregate history.
     //
     // The events are not applied to the Aggregate when loading, i.e. applying of these events
     // was interrupted.

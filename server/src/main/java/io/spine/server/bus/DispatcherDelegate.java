@@ -32,7 +32,7 @@ import io.spine.type.MessageClass;
 /**
  * A delegate of a {@link DelegatingDispatcher}.
  *
- * <p>This is a common interface for objects which need to dispatch messages of
+ * <p>This is a common interface for objects that need to dispatch messages of
  * one kind (e.g., events), but are unable to implement {@link MessageDispatcher} because
  * they already implement this interface with generic parameters for another
  * kind of messages (e.g., commands).

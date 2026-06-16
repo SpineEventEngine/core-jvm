@@ -33,7 +33,7 @@ import io.spine.core.Signal;
 import io.spine.system.server.EntityTypeName;
 
 /**
- * A common interface for system events which state that a signal has been dispatched.
+ * A common interface for system events that state that a signal has been dispatched.
  *
  * @param <S>
  *         the type of the signal

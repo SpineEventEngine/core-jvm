@@ -76,7 +76,7 @@ public final class QueryResultSubject
         extends IterableOfProtosSubject<EntityState<?>> {
 
     /**
-     * A helper {@code Subject} which allows to check the {@link QueryResponse} status.
+     * A helper {@code Subject} that allows to check the {@link QueryResponse} status.
      *
      * <p>Is effectively {@code final}, as the only way to create an instance of
      * {@code QueryResultSubject} is to use the {@link #assertQueryResult(QueryResponse)} method.
@@ -84,7 +84,7 @@ public final class QueryResultSubject
     private ResponseStatusSubject statusSubject;
 
     /**
-     * A helper {@code Subject} which allows to verify the {@linkplain Version versions} of
+     * A helper {@code Subject} that allows to verify the {@linkplain Version versions} of
      * entities in {@link QueryResponse}.
      *
      * <p>Is effectively {@code final}, as the only way to create an instance of

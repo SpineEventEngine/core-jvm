@@ -32,7 +32,7 @@ import io.spine.server.route.CommandRouting
 import io.spine.server.route.CommandRouting.Companion.unableToRoute
 
 /**
- * A repository which fires a rejection in response to a command with a particular
+ * A repository that fires a rejection in response to a command with a particular
  * value of the target aggregate ID.
  */
 class SwitchmanBureau : AggregateRepository<String, Switchman, SwitchmanLog>() {

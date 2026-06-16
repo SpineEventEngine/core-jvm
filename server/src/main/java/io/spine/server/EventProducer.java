@@ -34,7 +34,7 @@ import io.spine.server.model.Nothing;
 import io.spine.server.type.EventClass;
 
 /**
- * An object with identity which produces events.
+ * An object with identity that produces events.
  */
 public interface EventProducer {
 

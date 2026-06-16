@@ -32,7 +32,7 @@ import io.spine.test.procman.event.PmTaskAdded;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Helper event subscriber which remembers an event message.
+ * Helper event subscriber that remembers an event message.
  */
 public class RememberingSubscriber extends AbstractEventSubscriber {
 

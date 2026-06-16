@@ -83,7 +83,7 @@ class CompositeEventFilterTest {
     }
 
     /**
-     * Mock implementation of {@code EventFilter} which always returns the message passed on
+     * Mock implementation of {@code EventFilter} that always returns the message passed on
      * constructor, and remembers if its methods were called.
      */
     private static final class MockFilter implements EventFilter {

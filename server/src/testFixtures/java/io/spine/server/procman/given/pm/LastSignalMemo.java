@@ -69,7 +69,7 @@ import static io.spine.testdata.Sample.builderForType;
 import static io.spine.testdata.Sample.messageOfType;
 
 /**
- * A test Process Manager which remembers past message as its state.
+ * A test Process Manager that remembers past message as its state.
  */
 @SuppressWarnings({"ClassWithTooManyMethods", "OverlyCoupledClass"})
 public class LastSignalMemo

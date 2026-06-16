@@ -33,7 +33,7 @@ import static com.google.common.collect.Streams.stream;
 import static java.util.stream.Collectors.toList;
 
 /**
- * A storage which allows persisting the {@link Message}s as storage records.
+ * A storage that allows persisting the {@link Message}s as storage records.
  *
  * <p>The {@linkplain #recordSpec() record specification} is used to determine the record identifier
  * and the columns.

@@ -37,7 +37,7 @@ import io.spine.server.type.EventEnvelope
 import io.spine.server.type.SignalEnvelope
 
 /**
- * The holder of a rejection `Event` which provides convenient access to its properties.
+ * The holder of a rejection `Event` that provides convenient access to its properties.
  */
 internal class RejectionEnvelope(delegate: EventEnvelope) :
     SignalEnvelope<EventId, Event, EventContext> by delegate {
@@ -63,10 +63,10 @@ internal class RejectionEnvelope(delegate: EventEnvelope) :
         return EventClass.from(value)
     }
 
-    /** Obtains the command which caused the rejection.  */
+    /** Obtains the command that caused the rejection.  */
     private fun command(): Command = context().rejection.command
 
-    /** Obtains the message of the command which cased the rejection.  */
+    /** Obtains the message of the command that cased the rejection.  */
     fun commandMessage(): CommandMessage = command().enclosedMessage()
 
     /** Obtains the context of the rejected command.  */

@@ -37,7 +37,7 @@ import io.spine.type.MessageClass;
 import static io.spine.util.Exceptions.newIllegalStateException;
 
 /**
- * A bus which delivers a message to one dispatcher.
+ * A bus that delivers a message to one dispatcher.
  *
  * @param <T>
  *         the type of the delivered signals

@@ -36,7 +36,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
 
 /**
- * The {@link StreamObserver} which stores the input data and then exposes it via API calls.
+ * The {@link StreamObserver} that stores the input data and then exposes it via API calls.
  *
  * @param <T> the type of streamed objects
  */
@@ -69,7 +69,7 @@ public class MemoizingObserver<T> implements StreamObserver<T> {
     }
 
     /**
-     * Returns the first item which has been fed to this {@code StreamObserver}.
+     * Returns the first item that has been fed to this {@code StreamObserver}.
      *
      * <p>If there were no responses yet, {@link IllegalStateException} is thrown.
      *

@@ -57,7 +57,7 @@ public class InvalidRequestException extends RuntimeException implements Message
     }
 
     /**
-     * Obtains an original request which caused the {@code error}.
+     * Obtains an original request that caused the {@code error}.
      */
     public Message getRequest() {
         return request;

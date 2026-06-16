@@ -126,7 +126,7 @@ final class CatchUpStation extends Station {
      *
      * <p>Duplicated messages are removed from the passed conveyor.
      *
-     * <p>The messages which have passed through the filter are considered to be ready
+     * <p>The messages that have passed through the filter are considered to be ready
      * for dispatching.
      */
     private static class JobFilter {
@@ -149,7 +149,7 @@ final class CatchUpStation extends Station {
         }
 
         /**
-         * Runs each of the messages through the conveyor and returns those which have passed
+         * Runs each of the messages through the conveyor and returns those that have passed
          * all the stages and are ready for the dispatching.
          */
         private Collection<InboxMessage> messagesToDispatch() {

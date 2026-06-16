@@ -63,9 +63,9 @@ message EntityAlreadyArchived {
 }
 
 // The rejection thrown when a request to mark the entity as `deleted`
-// is received for the entity which is already marked as `deleted`.
+// is received for the entity that is already marked as `deleted`.
 message EntityAlreadyDeleted {
 
-    // The ID of the entity which is already marked as `deleted`.
+    // The ID of the entity that is already marked as `deleted`.
     google.protobuf.Any entity_id = 1;
 }

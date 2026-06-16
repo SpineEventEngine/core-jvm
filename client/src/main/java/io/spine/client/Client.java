@@ -134,7 +134,7 @@ public final class Client implements AutoCloseable {
     }
 
     /**
-     * Creates a builder for a client which will use the passed channel for the communication
+     * Creates a builder for a client that will use the passed channel for the communication
      * with the backend services.
      *
      * <p>Use this method when a channel with custom configuration is needed for your client
@@ -150,7 +150,7 @@ public final class Client implements AutoCloseable {
     }
 
     /**
-     * Creates a builder for the client which will be connected to the in-process
+     * Creates a builder for the client that will be connected to the in-process
      * server with the given name.
      *
      * <p>The client is fully-featured, high performance, and is useful in testing.
@@ -164,7 +164,7 @@ public final class Client implements AutoCloseable {
     }
 
     /**
-     * Creates a new client which uses the passed channel for communications
+     * Creates a new client that uses the passed channel for communications
      * with the backend services.
      */
     private Client(Builder builder) {
@@ -192,7 +192,7 @@ public final class Client implements AutoCloseable {
     /**
      * Closes the client by shutting down the gRPC connection.
      *
-     * <p>Subscriptions created by this client which were not cancelled
+     * <p>Subscriptions created by this client that were not cancelled
      * {@linkplain #cancel(Subscription) directly} will be cancelled.
      *
      * @see #isOpen()
@@ -329,7 +329,7 @@ public final class Client implements AutoCloseable {
         private ManagedChannel channel;
 
         /**
-         * The address of the host which will be used for creating an instance
+         * The address of the host that will be used for creating an instance
          * of {@code ManagedChannel}.
          *
          * <p>This field is {@code null} if the builder is created using already made

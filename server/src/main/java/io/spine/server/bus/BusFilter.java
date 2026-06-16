@@ -41,7 +41,7 @@ import static io.spine.server.bus.MessageIdExtensions.causedError;
 /**
  * The filter for the messages posted to a bus.
  *
- * <p>A bus may have several filters which can prevent a message from being posted.
+ * <p>A bus may have several filters that can prevent a message from being posted.
  *
  * @param <E>
  *         the type of the envelopes into which the messages posted to the bus are packed
@@ -75,7 +75,7 @@ public interface BusFilter<E extends MessageEnvelope<?, ?, ?>> extends Closeable
     /**
      * Lets the message pass the filter.
      *
-     * <p>This method is a shortcut which can be used in {@link #filter(MessageEnvelope)} when this
+     * <p>This method is a shortcut that can be used in {@link #filter(MessageEnvelope)} when this
      * filter shouldn't prevent the message from being posted.
      */
     default Optional<Ack> letPass() {
@@ -85,7 +85,7 @@ public interface BusFilter<E extends MessageEnvelope<?, ?, ?>> extends Closeable
     /**
      * Rejects the message with the {@code OK} status.
      *
-     * <p>This method is a shortcut which can be used in {@link #filter(MessageEnvelope)} when the
+     * <p>This method is a shortcut that can be used in {@link #filter(MessageEnvelope)} when the
      * message does not pass the filter and this is expected.
      *
      * @param envelope
@@ -101,7 +101,7 @@ public interface BusFilter<E extends MessageEnvelope<?, ?, ?>> extends Closeable
     /**
      * Rejects the message with an {@link io.spine.base.Error Error} status.
      *
-     * <p>This method is a shortcut which can be used in {@link #filter(MessageEnvelope)} when the
+     * <p>This method is a shortcut that can be used in {@link #filter(MessageEnvelope)} when the
      * message does not pass the filter due to a technical error or inconsistency in model
      * data.
      *

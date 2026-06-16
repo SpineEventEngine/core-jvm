@@ -37,7 +37,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.util.Exceptions.newIllegalStateException;
 
 /**
- * Utility which creates views on the {@linkplain Column columns} posting them as instances
+ * Utility that creates views on the {@linkplain Column columns} posting them as instances
  * of {@link RecordColumn}s.
  *
  * <p>Such a "type cast" is required in order to adapt the all the column types available
@@ -120,7 +120,7 @@ final class AsEntityRecordColumn {
     }
 
     /**
-     * Returns the getter which always throws an {@link IllegalStateException} upon invocation.
+     * Returns the getter that always throws an {@link IllegalStateException} upon invocation.
      *
      * @param <V>
      *         the type of the column values

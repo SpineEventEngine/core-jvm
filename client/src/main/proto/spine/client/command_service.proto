@@ -54,7 +54,7 @@ service CommandService {
     //        E.g., a user who made a request do not have the required permission.
     //
     // In case of internal gRPC errors or issues on a transport layer, an `Ack`
-    // would not be received. All errors which occur on the side of gRPC should
+    // would not be received. All errors that occur on the side of gRPC should
     // be handled by the means of the chosen client stub.
     //
     rpc Post(core.Command) returns (core.Ack);

@@ -237,7 +237,7 @@ internal class AbstractReceptorSpec {
 }
 
 /**
- * A subscriber which throws [java.lang.Error] and [kotlin.Error] in the receptors.
+ * A subscriber that throws [java.lang.Error] and [kotlin.Error] in the receptors.
  */
 private class MistakenHandler : EventSubscriber {
 

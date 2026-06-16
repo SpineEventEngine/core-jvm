@@ -47,7 +47,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public interface TypeMatcher extends Predicate<Class<?>> {
 
     /**
-     * Creates a type matcher which matches the type if it is a class (i.e., not an interface)
+     * Creates a type matcher that matches the type if it is a class (i.e., not an interface)
      * implementing the given interface.
      */
     static TypeMatcher classImplementing(Class<?> iface) {
@@ -57,7 +57,7 @@ public interface TypeMatcher extends Predicate<Class<?>> {
     }
 
     /**
-     * Creates a type matcher which matches the type is equal to the passed type.
+     * Creates a type matcher that matches the type is equal to the passed type.
      */
     static TypeMatcher exactly(Class<?> type) {
         checkNotNull(type);

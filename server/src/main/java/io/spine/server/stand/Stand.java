@@ -63,7 +63,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.grpc.StreamObservers.ack;
 
 /**
- * A bridge which connects {@link io.spine.server.QueryService QueryService} and
+ * A bridge that connects {@link io.spine.server.QueryService QueryService} and
  * {@link io.spine.server.SubscriptionService SubscriptionService} with a Read-side of
  * a Bounded Context.
  *
@@ -276,7 +276,7 @@ public class Stand implements Closeable {
     }
 
     /**
-     * Obtains the bus listener which propagates all events and state updates to subscriptions.
+     * Obtains the bus listener that propagates all events and state updates to subscriptions.
      */
     public Listener<EventEnvelope> eventListener() {
         return eventTap;
@@ -383,7 +383,7 @@ public class Stand implements Closeable {
     }
 
     /**
-     * Factory method which determines a proper {@link QueryProcessor} implementation
+     * Factory method that determines a proper {@link QueryProcessor} implementation
      * depending on {@link TypeUrl} of the incoming {@link Query#getTarget()}.
      *
      * <p>As {@code Stand} accumulates the read-side updates from various repositories,

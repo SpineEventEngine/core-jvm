@@ -71,7 +71,7 @@ public class EntityRecordStorage<I, S extends EntityState<I>>
         extends RecordStorageDelegate<I, EntityRecord> {
 
     /**
-     * The query which aims to find only the records, which entity origins are neither archived
+     * The query that aims to find only the records, which entity origins are neither archived
      * nor deleted.
      */
     private final RecordQuery<I, EntityRecord> findActiveRecordsQuery;

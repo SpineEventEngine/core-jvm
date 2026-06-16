@@ -43,7 +43,7 @@ import io.spine.server.projection.Projection
 import io.spine.server.route.Route
 
 /**
- * Creates a toy context which generates geometric figures in response to
+ * Creates a toy context that generates geometric figures in response to
  * the [GenerateFigures] command.
  *
  * Figures are accumulated by buckets by the [SorterView] projection.

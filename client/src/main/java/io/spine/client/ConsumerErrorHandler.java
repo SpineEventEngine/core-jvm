@@ -43,7 +43,7 @@ public interface ConsumerErrorHandler<M extends Message>
         extends BiConsumer<MessageConsumer<M, ?>, Throwable> {
 
     /**
-     * Obtains the handler which logs the fact of the error using
+     * Obtains the handler that logs the fact of the error using
      * the {@code ERROR} level of the passed logger.
      *
      * @param logger

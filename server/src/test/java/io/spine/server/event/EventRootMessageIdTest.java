@@ -204,7 +204,7 @@ public class EventRootMessageIdTest {
     class MatchExternalEventHandledBy {
 
         /**
-         * Ensures root command ID is matched by the property of the event which is created as
+         * Ensures root command ID is matched by the property of the event that is created as
          * a reaction to another event.
          *
          * <p> Two events are expected to be found in the {@linkplain EventStore} created by
@@ -232,7 +232,7 @@ public class EventRootMessageIdTest {
         }
 
         /**
-         * Ensures root command ID is matched by the property of the event which is created as
+         * Ensures root command ID is matched by the property of the event that is created as
          * a reaction to another event.
          *
          * <p> Two events are expected to be found in the {@linkplain EventStore} created by

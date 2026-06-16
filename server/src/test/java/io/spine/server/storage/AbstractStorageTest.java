@@ -84,7 +84,7 @@ public abstract class AbstractStorageTest<I, M extends Message, S extends Abstra
     /**
      * Obtains an instance of the storage-under-test.
      *
-     * @return the storage which will be closed automatically after a test
+     * @return the storage that will be closed automatically after a test
      */
     protected final S storage() {
         return storage;
@@ -166,7 +166,7 @@ public abstract class AbstractStorageTest<I, M extends Message, S extends Abstra
      * Tests that the storage overwrites the existing record when storing a new record with the
      * same ID.
      *
-     * <p>This test should be overridden by the descendants working with storages which are able
+     * <p>This test should be overridden by the descendants working with storages that are able
      * to store multiple records by the same ID.
      */
     @Test

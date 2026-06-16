@@ -85,7 +85,7 @@ private class RFactory(val command: Command, val throwable: RejectionThrowable) 
     ) {
 
     /**
-     * Creates a rejection event which does not have version information.
+     * Creates a rejection event that does not have version information.
      */
     fun createRejection(): Event {
         val msg = throwable.messageThrown()

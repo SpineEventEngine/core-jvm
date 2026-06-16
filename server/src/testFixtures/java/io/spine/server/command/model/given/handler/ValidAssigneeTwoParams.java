@@ -35,7 +35,7 @@ import io.spine.test.reflect.event.RefProjectCreated;
 import static io.spine.server.model.given.Given.EventMessage.projectCreated;
 
 /**
- * Provides a method with two params which returns an event message.
+ * Provides a method with two params that returns an event message.
  */
 public class ValidAssigneeTwoParams extends TestCommandAssignee {
 

@@ -96,7 +96,7 @@ public abstract class AbstractEventReactor
     /**
      * Registers this reactor in {@code Stand} as an event producer.
      *
-     * <p>The descendants which emit system events may choose not to expose their signals
+     * <p>The descendants that emit system events may choose not to expose their signals
      * via {@code Stand}, or expose them partially. In which case this method should be
      * overridden respectively.
      */

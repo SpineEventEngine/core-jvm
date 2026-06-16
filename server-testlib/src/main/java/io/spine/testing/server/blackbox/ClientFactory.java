@@ -73,7 +73,7 @@ class ClientFactory implements Closeable {
     private @MonotonicNonNull String serverName;
 
     /**
-     * Creates a factory producing {@code Client}s which would send their requests
+     * Creates a factory producing {@code Client}s that would send their requests
      * to the specified context.
      */
     ClientFactory(BoundedContext context) {

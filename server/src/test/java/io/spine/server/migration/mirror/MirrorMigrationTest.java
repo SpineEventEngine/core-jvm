@@ -158,7 +158,7 @@ final class MirrorMigrationTest {
         new PreparedMirrorStorage(migration.sourceStorage())
                 .put(DeliveryService::generateInProgressParcel, expectedNumber);
 
-        /* Create a migration monitor which fails after four steps. */
+        /* Create a migration monitor that fails after four steps. */
         var batchSize = 50;
         var monitor = new MirrorMigrationMonitor(batchSize) {
             private int steps;

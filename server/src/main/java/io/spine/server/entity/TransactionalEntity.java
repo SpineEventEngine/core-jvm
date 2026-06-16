@@ -59,7 +59,7 @@ class TransactionalEntity<I, S extends EntityState<I>, B extends ValidatingBuild
     private final RecentHistory recentHistory = new RecentHistory();
 
     /**
-     * The flag which becomes {@code true} if the state of the entity has been changed
+     * The flag that becomes {@code true} if the state of the entity has been changed
      * since it has been {@linkplain RecordBasedRepository#findOrCreate(Object) loaded or created}.
      */
     private volatile boolean stateChanged;
@@ -209,7 +209,7 @@ class TransactionalEntity<I, S extends EntityState<I>, B extends ValidatingBuild
     }
 
     /**
-     * Obtains the transaction which modifies this entity.
+     * Obtains the transaction that modifies this entity.
      *
      * <p>This is a test-only method. For production purposes please use {@link #tx()}.
      *

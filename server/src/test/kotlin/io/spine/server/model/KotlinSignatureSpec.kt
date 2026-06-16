@@ -97,9 +97,9 @@ class TfEventSubscriber : AbstractEventSubscriber() {
 }
 
 /**
- * An internal class which declares seemingly public function.
+ * An internal class that declares seemingly public function.
  *
- * The function is effectively `internal` because the class which declares it
+ * The function is effectively `internal` because the class that declares it
  * is `internal`.
  */
 internal class TfInternalSubscriber : AbstractEventSubscriber() {

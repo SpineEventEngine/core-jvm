@@ -78,7 +78,7 @@ public interface SystemWriteSide {
     }
 
     /**
-     * Creates new instance of the {@code SystemWriteSide} which serves the passed system context.
+     * Creates new instance of the {@code SystemWriteSide} that serves the passed system context.
      */
     static SystemWriteSide newInstance(SystemContext system) {
         checkNotNull(system);

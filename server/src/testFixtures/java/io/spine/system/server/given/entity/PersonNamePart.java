@@ -39,7 +39,7 @@ import io.spine.system.server.PersonRenamed;
 import io.spine.type.TypeUrl;
 
 /**
- * An aggregate part which handles a person first name.
+ * An aggregate part that handles a person first name.
  */
 @SuppressWarnings("deprecation") // Tests the deprecated aggregate parts API.
 public class PersonNamePart

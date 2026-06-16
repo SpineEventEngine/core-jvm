@@ -29,7 +29,7 @@ package io.spine.server.delivery;
 import io.spine.server.type.EventEnvelope;
 
 /**
- * An endpoint which accepts events.
+ * An endpoint that accepts events.
  *
  * @param <I>
  *         the type of target identifier

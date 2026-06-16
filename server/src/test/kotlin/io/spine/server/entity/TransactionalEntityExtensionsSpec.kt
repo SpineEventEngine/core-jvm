@@ -76,7 +76,7 @@ private fun createEntity() : Fixture {
 }
 
 /**
- * An entity which uses the [TransactionalEntity] extension functions in its [doUpdate]
+ * An entity that uses the [TransactionalEntity] extension functions in its [doUpdate]
  * and [doAlter] methods.
  */
 private class Fixture : TransactionalEntity<String, StringEntity, StringEntity.Builder>() {

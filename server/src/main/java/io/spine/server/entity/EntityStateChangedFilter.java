@@ -35,7 +35,7 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * An {@link EventFilter} which may filter out entity state updates.
+ * An {@link EventFilter} that may filter out entity state updates.
  */
 final class EntityStateChangedFilter implements EventFilter {
 

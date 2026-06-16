@@ -27,7 +27,7 @@
 package io.spine.server.given.context.drawing.event;
 
 /**
- * The interface which combines {@link LineLifecycleEvent} and {@link LineLocationEvent} for
+ * The interface that combines {@link LineLifecycleEvent} and {@link LineLocationEvent} for
  * the purpose of routing.
  */
 public interface LineInitEvent extends LineLifecycleEvent, LineLocationEvent {

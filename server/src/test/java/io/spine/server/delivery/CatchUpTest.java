@@ -382,7 +382,7 @@ public class CatchUpTest extends AbstractDeliveryTest {
     }
 
     /**
-     * A time provider which provides the current time based upon JDK's wall clock,
+     * A time provider that provides the current time based upon JDK's wall clock,
      * i.e. without the emulated nanoseconds.
      */
     private static class WithMillisOnlyResolution implements Time.Provider {

@@ -33,7 +33,7 @@ import io.spine.server.projection.given.SavedString;
 import io.spine.test.projection.event.StringImported;
 
 /**
- * The projection class which is subscribed to events that are filtered by their field values.
+ * The projection class that is subscribed to events that are filtered by their field values.
  *
  * @see io.spine.server.projection.model.ProjectionClassTest.FilteringSubscription
  */

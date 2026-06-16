@@ -49,7 +49,7 @@ import java.util.Optional;
 import static io.spine.server.command.model.given.commander.TestCommandMessage.startTask;
 
 /**
- * A standalone commander which declares valid {@link Command} substitution methods.
+ * A standalone commander that declares valid {@link Command} substitution methods.
  *
  * <p>This class declares the duplicate handlers for some commands, hence it cannot be
  * registered in any Bounded Context. This is done for simplicity of enumerating all possible

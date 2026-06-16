@@ -56,7 +56,7 @@ public final class LocalDispatchingObserver implements ShardObserver {
     }
 
     /**
-     * Creates a new observer instance which performs the delivery synchronously.
+     * Creates a new observer instance that performs the delivery synchronously.
      */
     public LocalDispatchingObserver() {
         this(false);

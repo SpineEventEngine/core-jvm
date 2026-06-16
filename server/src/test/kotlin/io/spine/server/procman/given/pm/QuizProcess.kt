@@ -54,7 +54,7 @@ import io.spine.test.procman.quiz.event.pmQuizFinished
 import io.spine.test.procman.quiz.event.pmQuizStarted
 
 /**
- * A quiz is started using [Start Quiz command][PmStartQuiz] which defines a question set, and
+ * A quiz is started using [Start Quiz command][PmStartQuiz] that defines a question set, and
  * the question are answered using [Answer Question commands][PmAnswerQuestion].
  */
 internal class QuizProcess(id: PmQuizId) : ProcessManager<PmQuizId, PmQuiz, PmQuiz.Builder>(id) {

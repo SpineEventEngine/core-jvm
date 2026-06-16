@@ -80,7 +80,7 @@ public abstract class AbstractWorkRegistry implements ShardedWorkRegistry {
     /**
      * Returns an identifier of the current worker that is now going to process the shard.
      *
-     * <p>An example of such an identifier could be ID of the thread which performs processing.
+     * <p>An example of such an identifier could be ID of the thread that performs processing.
      *
      * @param node
      *         the node to which the resulted worker belongs

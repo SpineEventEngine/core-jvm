@@ -37,7 +37,7 @@ import io.spine.test.reflect.command.RefCreateProject;
 import io.spine.test.reflect.event.RefProjectCreated;
 
 /**
- * An aggregate which always rejects the passed command.
+ * An aggregate that always rejects the passed command.
  */
 public class RejectingAggregate extends Aggregate<ProjectId, Project, Project.Builder> {
     public RejectingAggregate(ProjectId id) {

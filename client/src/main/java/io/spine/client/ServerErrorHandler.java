@@ -35,7 +35,7 @@ import java.util.function.BiConsumer;
  * A handler for an error occurred when posting a message for asynchronous processing
  * at the server side.
  *
- * <p>The handler accepts a message which caused an error, and an {@link io.spine.base.Error Error}
+ * <p>The handler accepts a message that caused an error, and an {@link io.spine.base.Error Error}
  * obtained from the server.
  */
 public interface ServerErrorHandler extends BiConsumer<Message, Error> {

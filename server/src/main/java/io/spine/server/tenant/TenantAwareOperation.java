@@ -38,7 +38,7 @@ import io.spine.core.TenantId;
 public abstract class TenantAwareOperation extends TenantAware implements Runnable {
 
     /**
-     * Creates an instance of an operation which uses the {@code TenantId}
+     * Creates an instance of an operation that uses the {@code TenantId}
      * set in the execution context.
      *
      * @throws IllegalStateException if there is no current {@code TenantId} set

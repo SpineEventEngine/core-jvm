@@ -73,7 +73,7 @@ abstract class CommandAcceptingSignature
      * Returns {@code RejectionThrowable.class} wrapped into {@code Optional}.
      *
      * <p>The methods accepting commands may reject the command by throwing {@linkplain
-     * RejectionThrowable command rejections} which are based on {@code RejectionThrowable}.
+     * RejectionThrowable command rejections} that are based on {@code RejectionThrowable}.
      */
     @Override
     protected Optional<Class<? extends Throwable>> allowedThrowable() {

@@ -60,7 +60,7 @@ message EmptyAggregate {
     string id = 1 [(required) = false];
 }
 
-// A rudimentary projection which has only ID.
+// A rudimentary projection that has only ID.
 message EmptyProjection {
 
     option (entity).kind = PROJECTION;
@@ -86,7 +86,7 @@ message StringEntity {
     string value = 2;
 }
 
-// A process which can hold `Any` as its data.
+// A process that can hold `Any` as its data.
 message AnyProcess {
 
     option (entity).kind = PROCESS_MANAGER;

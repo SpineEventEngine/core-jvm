@@ -81,9 +81,9 @@ message DispatchOutcome {
         // Result of the signal handling being interrupted.
         //
         // If many signals are processed in a single transaction, and one of them fails, all
-        // the signals which have not yet been processes are marked as interrupted.
+        // the signals that have not yet been processes are marked as interrupted.
         //
-        // Contains the ID of the signal which caused the interruption.
+        // Contains the ID of the signal that caused the interruption.
         //
         Interruption interrupted = 4 [(validate) = true];
 
@@ -161,9 +161,9 @@ message ProducedCommands {
 message Interruption {
     option (is).java_type = "InterruptionMixin";
 
-    // The message which caused the interruption.
+    // The message that caused the interruption.
     //
-    // Typically, the message which failed the transaction before the associated signal
+    // Typically, the message that failed the transaction before the associated signal
     // had a chance to be handled.
     //
     core.MessageId stopped_at = 1 [(required) = true, (validate) = true];

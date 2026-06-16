@@ -30,7 +30,7 @@
  * <p>The API allows users integrate with various tracing systems in order to monitor the message
  * flow in their systems.
  *
- * <p>The API is invoked via system events which occur when a message is processed by an entity.
+ * <p>The API is invoked via system events that occur when a message is processed by an entity.
  *
  * <p>Currently, Trace API does not support monitoring standalone commanders, reactors,
  * and subscribers. It is only applicable to entities, such as

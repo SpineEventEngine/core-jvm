@@ -61,7 +61,7 @@ public interface MessageEndpoint<I, M extends SignalEnvelope<?, ?, ?>> {
     void onDuplicate(I target, M envelope);
 
     /**
-     * Obtains the repository which manages the target entities.
+     * Obtains the repository that manages the target entities.
      */
     Repository<I, ?> repository();
 }

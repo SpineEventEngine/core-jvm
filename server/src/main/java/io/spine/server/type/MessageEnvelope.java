@@ -48,7 +48,7 @@ public interface MessageEnvelope<I extends Message, T, C extends Message> {
     I id();
 
     /**
-     * Obtains the object which contains the message of interest.
+     * Obtains the object that contains the message of interest.
      */
     T outerObject();
 

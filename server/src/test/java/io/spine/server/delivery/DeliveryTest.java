@@ -408,7 +408,7 @@ public class DeliveryTest extends AbstractDeliveryTest {
     /*
      * Test environment.
      *
-     * <p>Accesses the {@linkplain Delivery Delivery API} which has been made
+     * <p>Accesses the {@linkplain Delivery Delivery API} that has been made
      * package-private and marked as visible for testing. Therefore, the test environment routines
      * aren't moved to a separate {@code ...TestEnv} class. Otherwise the test-only API
      * of {@code Delivery} must have been made {@code public}, which wouldn't be

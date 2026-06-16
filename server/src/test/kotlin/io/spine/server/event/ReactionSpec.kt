@@ -81,7 +81,7 @@ internal class ReactionSpec {
 }
 
 /**
- * The policy which attempts to define a `@React` receptor to handle more than one
+ * The policy that attempts to define a `@React` receptor to handle more than one
  * event type, as required by the `Policy` contract.
  */
 private class GreedyReaction : Reaction<NoReaction>() {

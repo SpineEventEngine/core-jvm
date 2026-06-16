@@ -110,7 +110,7 @@ public final class ContextSpec {
     }
 
     /**
-     * Creates a spec which has all the attributes of this instance and does NOT
+     * Creates a spec that has all the attributes of this instance and does NOT
      * {@linkplain #storesEvents() store events}.
      */
     ContextSpec notStoringEvents() {

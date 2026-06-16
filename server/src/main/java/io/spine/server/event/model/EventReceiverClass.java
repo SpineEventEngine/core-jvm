@@ -39,7 +39,7 @@ import io.spine.server.type.EventClass;
 public interface EventReceiverClass {
 
     /**
-     * Obtains a set of event classes which this class receives.
+     * Obtains a set of event classes that this class receives.
      *
      * <p>The returned set contains both domestic and external event classes.
      *
@@ -50,12 +50,12 @@ public interface EventReceiverClass {
     ImmutableSet<EventClass> events();
 
     /**
-     * Obtains a set of domestic events which this class receives.
+     * Obtains a set of domestic events that this class receives.
      */
     ImmutableSet<EventClass> domesticEvents();
 
     /**
-     * Obtains a set of external events which this class receives.
+     * Obtains a set of external events that this class receives.
      *
      * <p>External events are those that are delivered to the {@code BoundedContext}
      * to which this class belongs from outside.

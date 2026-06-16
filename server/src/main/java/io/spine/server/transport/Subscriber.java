@@ -44,7 +44,7 @@ import static com.google.common.collect.Sets.newConcurrentHashSet;
 public abstract class Subscriber extends AbstractChannel {
 
     /**
-     * Observers which are actually informed about the messages arriving through this channel.
+     * Observers that are actually informed about the messages arriving through this channel.
      */
     private final Set<StreamObserver<ExternalMessage>> observers = newConcurrentHashSet();
 
@@ -54,7 +54,7 @@ public abstract class Subscriber extends AbstractChannel {
 
     /**
      * Obtains current observers registered in this instance of {@code Subscriber}
-     * which receive the subscription updates.
+     * that receive the subscription updates.
      *
      * @return observers for this subscriber
      */

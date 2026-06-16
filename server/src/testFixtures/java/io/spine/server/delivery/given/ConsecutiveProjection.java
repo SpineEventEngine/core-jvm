@@ -47,7 +47,7 @@ import static java.lang.Math.abs;
 import static java.lang.String.format;
 
 /**
- * A projection which expects the events to be delivered with the consecutive positive
+ * A projection that expects the events to be delivered with the consecutive positive
  * or consecutive negative number data.
  *
  * <p>In the {@linkplain #usePositives() positives-only} mode the projection state stores {@code 0},

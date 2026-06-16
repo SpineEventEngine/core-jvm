@@ -42,7 +42,7 @@ option java_outer_classname = "EmptyContextProto";
 //
 // The primary purpose of this type is to serve as a placeholder in Java code where
 // `io.spine.core.MessageContext` is needed in combination with message types (like entity sate)
-// which does not have a context. In other words, what `google.protobuf.Empty` is for message,
+// that does not have a context. In other words, what `google.protobuf.Empty` is for message,
 // this type is for `io.spine.base.MessageContext`.
 //
 message EmptyContext {

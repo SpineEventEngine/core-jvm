@@ -196,7 +196,7 @@ public class EventRootCommandIdTestEnv {
     }
 
     /**
-     * Routes the {@link EvInvitationAccepted} event to the {@link TeamCreationProcessManager} which
+     * Routes the {@link EvInvitationAccepted} event to the {@link TeamCreationProcessManager} that
      * created the invitation. This is done for the purposes of the
      * {@linkplain EventRootMessageIdTest.MatchExternalEventHandledBy#processManager()} test.
      */

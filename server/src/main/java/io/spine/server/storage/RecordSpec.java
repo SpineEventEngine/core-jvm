@@ -59,7 +59,7 @@ import static io.spine.util.Exceptions.newIllegalArgumentException;
  * <p>In case an instance of {@code EntityRecord} is described by this spec,
  * a special set of accessors for ID and Entity state columns is set.
  * This is done via {@link io.spine.server.entity.storage.SpecScanner SpecScanner}
- * which perform analysis of Entity state, and creates getters for properties,
+ * that perform analysis of Entity state, and creates getters for properties,
  * considering that an instance of {@code Any} (being {@code EntityRecord.state} field)
  * must be unpacked first.
  *

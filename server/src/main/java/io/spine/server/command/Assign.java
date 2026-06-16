@@ -81,7 +81,7 @@ import java.lang.annotation.Target;
  *  TaskStarted handle(StartTask command) throws TaskAlreadyInProgress { ... }
  * </pre>
  *
- * <p>If the annotation is applied to a method which doesn't satisfy any of these requirements,
+ * <p>If the annotation is applied to a method that doesn't satisfy any of these requirements,
  * this method is not considered a command assignee and is <strong>not</strong> registered for
  * command dispatching.
  *

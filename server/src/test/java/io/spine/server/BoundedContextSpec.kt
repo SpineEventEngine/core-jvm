@@ -594,7 +594,7 @@ private class StubReaction2: Reaction<SomethingElseHappened>() {
 }
 
 /**
- * A policy which reacts to an external event.
+ * A policy that reacts to an external event.
  */
 private class StubReaction3: Reaction<ConstraintViolated>() {
     @React

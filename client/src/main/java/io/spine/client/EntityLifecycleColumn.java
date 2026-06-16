@@ -36,7 +36,7 @@ import java.util.function.Supplier;
 import static io.spine.util.Exceptions.newIllegalStateException;
 
 /**
- * A common type for the lifecycle column definitions which are declared as a part of a client-side
+ * A common type for the lifecycle column definitions that are declared as a part of a client-side
  * query language.
  *
  * @param <V>

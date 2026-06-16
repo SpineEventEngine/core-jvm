@@ -34,7 +34,7 @@ import static io.spine.type.ProtoTexts.shortDebugString;
 import static java.lang.String.format;
 
 /**
- * A posting handler which logs the error.
+ * A posting handler that logs the error.
  */
 final class LoggingServerErrorHandler extends LoggingHandler implements ServerErrorHandler {
 

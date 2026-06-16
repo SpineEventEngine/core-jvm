@@ -46,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * An {@link EventDispatcher} which can {@linkplain #remember remember} received events.
+ * An {@link EventDispatcher} that can {@linkplain #remember remember} received events.
  */
 public abstract class AbstractEventAccumulator implements EventDispatcher {
 

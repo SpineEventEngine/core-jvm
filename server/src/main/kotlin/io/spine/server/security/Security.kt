@@ -91,7 +91,7 @@ private object CallerProvider {
     private val stackWalker: StackWalker = StackWalker.getInstance(RETAIN_CLASS_REFERENCE)
 
     /**
-     * Obtains the class of the object which calls the method from which
+     * Obtains the class of the object that calls the method from which
      * this method is being called.
      */
     @Suppress("unused")
@@ -102,7 +102,7 @@ private object CallerProvider {
     }
 
     /**
-     * Obtains the class preceding in the call chain the class which calls
+     * Obtains the class preceding in the call chain the class that calls
      * the method from which this method is being called.
      */
     fun previousCallerClass(): Class<*> {

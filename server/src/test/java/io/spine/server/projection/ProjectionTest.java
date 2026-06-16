@@ -229,7 +229,7 @@ class ProjectionTest {
                 .build();
         dispatch(projection, eventFactory.createEvent(skipped));
         assertThat(projection.state())
-                // Ignore the difference in the ID field of the state which
+                // Ignore the difference in the ID field of the state that
                 // was set automatically by the tx.
                 .comparingExpectedFieldsOnly()
                 .isEqualTo(SavedString.getDefaultInstance());

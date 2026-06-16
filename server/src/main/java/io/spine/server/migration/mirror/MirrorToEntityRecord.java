@@ -63,7 +63,7 @@ final class MirrorToEntityRecord<I, S extends AggregateState<I>, A extends Aggre
 
     /**
      * Creates a function that can transform mirror projections
-     * which belong to the given aggregate class.
+     * that belong to the given aggregate class.
      */
     MirrorToEntityRecord(Class<A> aggregateClass) {
         this.aggregateClass = aggregateClass;

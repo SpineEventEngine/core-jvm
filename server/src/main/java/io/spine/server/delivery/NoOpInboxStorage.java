@@ -35,7 +35,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Optional;
 
 /**
- * An {@code InboxStorage} which does nothing.
+ * An {@code InboxStorage} that does nothing.
  *
  * <p>To be used strictly in a {@linkplain Delivery#direct() direct} delivery mode,
  * which assumes that dispatched signals should skip their corresponding {@code Inbox}es.
@@ -100,7 +100,7 @@ final class NoOpInboxStorage extends InboxStorage {
     }
 
     /**
-     * A page of {@code InboxMessage}s which is always empty.
+     * A page of {@code InboxMessage}s that is always empty.
      */
     private static class EmptyPage implements Page<InboxMessage> {
 

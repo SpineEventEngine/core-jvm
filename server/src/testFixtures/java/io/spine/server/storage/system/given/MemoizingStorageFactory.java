@@ -45,7 +45,7 @@ import java.util.List;
 import static io.spine.testing.TestValues.nullRef;
 
 /**
- * A test-only {@link StorageFactory} which always returns {@code null}s instead of storages and
+ * A test-only {@link StorageFactory} that always returns {@code null}s instead of storages and
  * memoizes the requested storage types.
  */
 public final class MemoizingStorageFactory implements StorageFactory {

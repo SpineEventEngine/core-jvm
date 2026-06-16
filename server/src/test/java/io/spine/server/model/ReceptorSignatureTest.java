@@ -100,7 +100,7 @@ public abstract class ReceptorSignatureTest<S extends ReceptorSignature<?, ?>> {
     }
 
     /**
-     * Returns all methods of the class which are annotated by the specified annotation.
+     * Returns all methods of the class that are annotated by the specified annotation.
      */
     protected static ImmutableSet<Method>
     methodsAnnotatedWith(Class<? extends Annotation> annotationCls, Class<?> declaringCls) {

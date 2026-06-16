@@ -39,7 +39,7 @@ option java_multiple_files = true;
 // To be used only in `ProjectionTestEnv.java`
 //
 
-// The state of the projection which stores a string value.
+// The state of the projection that stores a string value.
 message SavedString {
 
     option (entity).kind = PROJECTION;

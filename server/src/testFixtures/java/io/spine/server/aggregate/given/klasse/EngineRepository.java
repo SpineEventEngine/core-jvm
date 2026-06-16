@@ -31,7 +31,7 @@ import io.spine.server.route.EventRoute;
 import io.spine.server.route.EventRouting;
 
 /**
- * Test environment aggregate repository which can switch default routing of importable events.
+ * Test environment aggregate repository that can switch default routing of importable events.
  *
  * @see io.spine.server.aggregate.EventImportTest
  */

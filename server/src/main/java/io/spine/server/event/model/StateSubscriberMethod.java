@@ -50,7 +50,7 @@ import static io.spine.core.BoundedContextNames.assumingTests;
 import static java.lang.String.format;
 
 /**
- * A handler method which receives an entity state and produces no output.
+ * A handler method that receives an entity state and produces no output.
  */
 @Immutable
 public final class StateSubscriberMethod extends SubscriberMethod implements WithLogging {

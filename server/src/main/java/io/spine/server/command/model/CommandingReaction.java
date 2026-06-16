@@ -38,7 +38,7 @@ import io.spine.server.type.EventEnvelope;
 import java.lang.reflect.Method;
 
 /**
- * A method which <em>may</em> generate one or more command messages in response to an event.
+ * A method that <em>may</em> generate one or more command messages in response to an event.
  */
 public final class CommandingReaction
         extends AbstractReceptor<EventReceiver,
@@ -58,7 +58,7 @@ public final class CommandingReaction
     }
 
     /**
-     * Returns an empty {@code Success} instance which means that the method ignored
+     * Returns an empty {@code Success} instance that means that the method ignored
      * the incoming event.
      */
     @Override

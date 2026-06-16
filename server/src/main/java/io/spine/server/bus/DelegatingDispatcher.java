@@ -31,7 +31,7 @@ import io.spine.server.type.MessageEnvelope;
 import io.spine.type.MessageClass;
 
 /**
- * A dispatcher which passes the responsibilities to its {@linkplain #delegate() delegate}.
+ * A dispatcher that passes the responsibilities to its {@linkplain #delegate() delegate}.
  *
  * @param <C>
  *         the type of the message class

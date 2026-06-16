@@ -46,7 +46,7 @@ import io.spine.server.model.given.SignatureTestEvent;
 import java.io.IOException;
 
 /**
- * A standalone reactor which declares invalid {@linkplain React event-reacting handlers} for
+ * A standalone reactor that declares invalid {@linkplain React event-reacting handlers} for
  * the purposes of {@link io.spine.server.event.model.EventReactorSignatureTest
  * EventReactorSignatureTest}.
  *

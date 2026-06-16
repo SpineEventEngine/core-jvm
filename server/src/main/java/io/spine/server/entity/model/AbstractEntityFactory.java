@@ -58,7 +58,7 @@ public abstract class AbstractEntityFactory<E extends Entity<?, ?>> implements E
     /**
      * The constructor for entities of this class.
      *
-     * <p>If the entity class has multiple constructors, this one points to the one which
+     * <p>If the entity class has multiple constructors, this one points to the one that
      * accepts one parameter.
      *
      * @see #constructor()

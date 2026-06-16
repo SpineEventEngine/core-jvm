@@ -36,7 +36,7 @@ import java.io.Serial;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * A value which can be one of three possible types.
+ * A value that can be one of three possible types.
  *
  * @param <A> the type of the first alternative
  * @param <B> the type of the second alternative

@@ -76,14 +76,14 @@ import static java.lang.String.format;
  *
  * <p>The Ubiquitous Language of a Bounded Context is represented by such concepts as the entity
  * state, event, and command types, entity types, and others. An entity and its adjacent types
- * belong to the Bounded Context which the entity {@link Repository} is
+ * belong to the Bounded Context that the entity {@link Repository} is
  * {@linkplain BoundedContext#register(Repository) registered} in.
  *
  * <p>Structurally, a Bounded Context brings together all the infrastructure required for
  * the components of a model to cooperate.
  *
  * <p>An instance of {@code BoundedContext} acts as a major point of configuration for all
- * the model elements which belong to it.
+ * the model elements that belong to it.
  *
  * @see <a href="https://martinfowler.com/bliki/BoundedContext.html">
  *         Martin Fowler on Bounded Contexts</a>
@@ -634,7 +634,7 @@ public abstract class BoundedContext
     }
 
     /**
-     * A diagnostic probe which can be {@linkplain #install(Probe) installed} into
+     * A diagnostic probe that can be {@linkplain #install(Probe) installed} into
      * a Bounded Context to collect information about the commands and events processed by it.
      */
     public interface Probe extends ContextAware {

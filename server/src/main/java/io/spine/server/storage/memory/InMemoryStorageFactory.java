@@ -39,7 +39,7 @@ public final class InMemoryStorageFactory implements StorageFactory {
     private boolean closed = false;
 
     /**
-     * Creates a new instance of the factory which would serve the specified context.
+     * Creates a new instance of the factory that would serve the specified context.
      *
      * @return a new instance of the factory
      */

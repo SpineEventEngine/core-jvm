@@ -30,7 +30,7 @@ import io.spine.server.aggregate.Aggregate;
 import io.spine.server.test.shared.EmptyAggregate;
 
 /**
- * An aggregate class which neither handles commands nor reacts on events or rejections.
+ * An aggregate class that neither handles commands nor reacts on events or rejections.
  */
 class AnemicAggregate extends Aggregate<String, EmptyAggregate, EmptyAggregate.Builder> {
 }

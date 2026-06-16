@@ -42,9 +42,9 @@ import static io.spine.string.Diags.toEnumerationBackticked;
 import static java.lang.String.format;
 
 /**
- * An error thrown on attempt to add a class which declares a
+ * An error thrown on attempt to add a class that declares a
  * {@linkplain CommandReceptor receptor} that handles
- * a command which is already handled by another class in the {@link Model}.
+ * a command that is already handled by another class in the {@link Model}.
  */
 public final class DuplicateCommandReceptorError extends ModelError {
 

@@ -100,7 +100,7 @@ class DefaultConverterTest {
     }
 
     /**
-     * A test entity class which is not versionable.
+     * A test entity class that is not versionable.
      */
     private static class TestEntity extends AbstractEntity<OrganizationId, Organization> {
 

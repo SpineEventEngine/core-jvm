@@ -31,7 +31,7 @@ import io.spine.core.Event;
 import io.spine.validation.NonValidated;
 
 /**
- * An implementation of a {@code TransactionListener} which does not set any behavior for its
+ * An implementation of a {@code TransactionListener} that does not set any behavior for its
  * callbacks.
  *
  * @param <I>

@@ -96,7 +96,7 @@ class EntityClassTest {
                 .isFalse();
     }
 
-    /** A test entity which defines ID and state. */
+    /** A test entity that defines ID and state. */
     private static class TaskEntity extends AbstractEntity<TaskId, Task> {
 
         private TaskEntity(TaskId id) {

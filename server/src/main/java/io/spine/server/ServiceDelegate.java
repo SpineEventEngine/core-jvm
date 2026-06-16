@@ -47,7 +47,7 @@ import static java.lang.String.format;
  * services work. Initially, each request is checked not to be for an unpublished part
  * of the domain language. In such a case, an error is returned.
  *
- * <p>Then, a service attempts to find a bounded context which would handle
+ * <p>Then, a service attempts to find a bounded context that would handle
  * the request. If not found, an error returned. Otherwise, the request is
  * {@linkplain #serve(BoundedContext, Object, StreamObserver, Object) dispatched} to
  * the bounded context.

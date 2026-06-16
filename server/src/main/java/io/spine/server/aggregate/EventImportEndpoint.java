@@ -58,7 +58,7 @@ final class EventImportEndpoint<I, A extends Aggregate<I, ?, ?>>
      * Notifies the repository about the event being imported and returns the enclosed
      * {@link Event} instance.
      *
-     * @return the list with one {@code Event} which is being imported
+     * @return the list with one {@code Event} that is being imported
      * @implNote We do not need to perform anything with the aggregate and the passed
      *         event. The aggregate would consume the passed event when dispatching result is
      *         {@link io.spine.server.aggregate.AggregateEndpoint#handleAndApplyEvents(Aggregate)

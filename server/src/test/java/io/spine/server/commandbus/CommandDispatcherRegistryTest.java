@@ -175,7 +175,7 @@ class CommandDispatcherRegistryTest {
 
     /**
      * Verifies if it's possible to pass a {@link ProcessManagerRepository}
-     * which does not expose any command classes.
+     * that does not expose any command classes.
      */
     @Test
     @DisplayName("accept empty process manager repository dispatcher")

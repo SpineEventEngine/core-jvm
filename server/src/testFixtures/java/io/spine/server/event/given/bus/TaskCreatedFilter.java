@@ -37,7 +37,7 @@ import io.spine.test.event.Task;
 import java.util.Optional;
 
 /**
- * Filters out the {@link EBTaskAdded} events which have their {@link Task#getDone()}
+ * Filters out the {@link EBTaskAdded} events that have their {@link Task#getDone()}
  * property set to {@code true}.
  */
 public final class TaskCreatedFilter implements BusFilter<EventEnvelope> {

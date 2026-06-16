@@ -30,7 +30,7 @@ import io.spine.server.transport.Subscriber;
 
 /**
  * The implementation of {@link io.spine.server.transport.TransportFactory TransportFactory}
- * which uses {@linkplain SingleThreadInMemSubscriber single-thread subscribers}.
+ * that uses {@linkplain SingleThreadInMemSubscriber single-thread subscribers}.
  */
 public class SingleThreadInMemTransportFactory extends InMemoryTransportFactory {
 

@@ -44,7 +44,7 @@ import io.spine.server.model.given.SignatureTestEvent;
 import java.io.IOException;
 
 /**
- * A standalone event subscriber which declares invalid {@link Subscribe event-subscribing
+ * A standalone event subscriber that declares invalid {@link Subscribe event-subscribing
  * handlers}.
  *
  * <p>Being similar to {@link ValidSubscriber}, this class also declares duplicate handlers

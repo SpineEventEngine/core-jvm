@@ -41,7 +41,7 @@ import static io.spine.client.Filters.eq;
 import static io.spine.util.Preconditions2.checkNotDefaultArg;
 
 /**
- * Subscribes to events which originate from the given command and arranges the delivery
+ * Subscribes to events that originate from the given command and arranges the delivery
   * to the passed event consumers.
  */
 final class EventsAfterCommand implements WithLogging {
@@ -80,7 +80,7 @@ final class EventsAfterCommand implements WithLogging {
     }
 
     /**
-     * Creates subscription topics for the subscribed events which have the passed command
+     * Creates subscription topics for the subscribed events that have the passed command
      * as the origin.
      */
     private ImmutableSet<Topic> eventsOf(Command c) {

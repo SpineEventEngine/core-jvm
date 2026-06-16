@@ -158,11 +158,11 @@ public final class SubscriptionService
     }
 
     /**
-     * Searches for the Bounded Context which provides the messages of the target type.
+     * Searches for the Bounded Context that provides the messages of the target type.
      *
      * @param target
      *         the type which may be available through this subscription service
-     * @return the context which exposes the target type,
+     * @return the context that exposes the target type,
      *         or {@code Optional.empty} if no known context does so
      */
     @VisibleForTesting  /* Test-only method. */

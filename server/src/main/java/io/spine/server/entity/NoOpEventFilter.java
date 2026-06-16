@@ -35,7 +35,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 /**
- * An {@link EventFilter} which allows any event to be posted unchanged.
+ * An {@link EventFilter} that allows any event to be posted unchanged.
  */
 enum NoOpEventFilter implements EventFilter {
 

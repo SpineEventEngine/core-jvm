@@ -36,7 +36,7 @@ import io.spine.server.type.EventEnvelope;
 import java.lang.reflect.Method;
 
 /**
- * A wrapper for a method which {@linkplain React reacts} on events.
+ * A wrapper for a method that {@linkplain React reacts} on events.
  *
  * @see React
  */

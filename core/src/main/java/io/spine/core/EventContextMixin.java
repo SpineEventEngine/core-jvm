@@ -106,7 +106,7 @@ interface EventContextMixin extends EventContextOrBuilder,
     /**
      * Obtains the ID of the first signal in a chain.
      *
-     * <p>The root message is either a {@code Command} or an {@code Event} which was produced by
+     * <p>The root message is either a {@code Command} or an {@code Event} that was produced by
      * an actor directly and caused the associated {@code Event} to be emitted.
      *
      * <p>If the associated {@code Event} itself is the root of its chain, i.e. it was imported into
@@ -144,7 +144,7 @@ interface EventContextMixin extends EventContextOrBuilder,
     }
 
     /**
-     * Obtains the ID of the entity which produced the event.
+     * Obtains the ID of the entity that produced the event.
      */
     default Object producer() {
         @SuppressWarnings("ClassReferencesSubclass")  // which is the only impl.

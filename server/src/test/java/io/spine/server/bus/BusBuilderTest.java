@@ -97,7 +97,7 @@ public abstract class BusBuilderTest<B extends BusBuilder<?, T, E, ?, ?>,
     }
 
     /**
-     * Stub implementation of {@code BusFilter} which always returns empty {@code Optional}.
+     * Stub implementation of {@code BusFilter} that always returns empty {@code Optional}.
      */
     private static final class StubFilter<E extends MessageEnvelope<?, ?, ?>>
             implements BusFilter<E> {

@@ -58,7 +58,7 @@ fun createFizzBuzzContext(): BoundedContext = singleTenant("FizzBuzz").apply {
 
 /**
  * This process manager handles the [QualifyNumber] command and the [NumberQualified] event
- * which it produces in response to the command.
+ * that it produces in response to the command.
  *
  * Even though qualifying the numbers is based on the [Qualifier] enum type, the ID of
  * this process manager is of the type `String` because Spine does not support

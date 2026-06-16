@@ -187,7 +187,7 @@ final class Conveyor implements Iterable<InboxMessage> {
 
     /**
      * Returns the read-only view on the set of the {@code DispatchingId}s
-     * of the {@link InboxMessage}s which are known to be already delivered.
+     * of the {@link InboxMessage}s that are known to be already delivered.
      *
      * <p>This includes both the IDs of messages delivered within the lifetime of this conveyor
      * instance and of the messages delivered
@@ -202,7 +202,7 @@ final class Conveyor implements Iterable<InboxMessage> {
     }
 
     /**
-     * Returns the stream of the {@link InboxMessage}s which were delivered in scope of lifetime of
+     * Returns the stream of the {@link InboxMessage}s that were delivered in scope of lifetime of
      * this conveyor.
      */
     Stream<InboxMessage> recentlyDelivered() {

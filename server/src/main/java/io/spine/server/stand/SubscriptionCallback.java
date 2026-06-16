@@ -43,7 +43,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public interface SubscriptionCallback extends Consumer<SubscriptionUpdate> {
 
     /**
-     * Creates the callback which forwards to the passed observer.
+     * Creates the callback that forwards to the passed observer.
      */
     static SubscriptionCallback forwardingTo(StreamObserver<SubscriptionUpdate> observer) {
         return update -> {

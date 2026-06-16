@@ -126,7 +126,7 @@ public final class Targets {
     }
 
     /**
-     * Creates an {@code IdFilter} which accepts only the passed identifiers.
+     * Creates an {@code IdFilter} that accepts only the passed identifiers.
      */
     public static IdFilter acceptingOnly(Collection<?> identifiers) {
         var ids = identifiers
@@ -140,7 +140,7 @@ public final class Targets {
     }
 
     /**
-     * Creates an {@code IdFilter} which accepts only the passed identifiers.
+     * Creates an {@code IdFilter} that accepts only the passed identifiers.
      */
     @SafeVarargs
     private static <I> IdFilter toIdFilter(I... id) {
@@ -158,7 +158,7 @@ public final class Targets {
     }
 
     /**
-     * Creates {@code TargetFilters} which accepts only entities with the passed identifiers.
+     * Creates {@code TargetFilters} that accepts only entities with the passed identifiers.
      */
     @SafeVarargs
     public static <I> TargetFilters acceptingOnly(I... id) {

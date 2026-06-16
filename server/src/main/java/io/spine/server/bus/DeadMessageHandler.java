@@ -45,7 +45,7 @@ public interface DeadMessageHandler<E extends MessageEnvelope<?, ?, ?>> {
 
     /**
      * Handles the dead message in a bus-specific way and produces an {@link MessageUnhandled} 
-     * which may be converted to a {@link Error} for notifying the poster about the absence of
+     * that may be converted to a {@link Error} for notifying the poster about the absence of
      * dispatchers.
      *
      * @param message the dead message
