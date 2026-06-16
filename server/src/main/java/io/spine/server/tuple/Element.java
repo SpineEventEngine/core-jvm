@@ -202,7 +202,7 @@ final class Element implements Serializable {
     }
 
     /**
-     * A marker interface for a tuple element which value can be
+     * A marker interface for a tuple element whose value can be
      * {@link java.util.Optional Optional}.
      */
     interface OptionalValue {

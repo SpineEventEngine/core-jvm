@@ -32,7 +32,7 @@ import io.spine.core.SignalContext
 import io.spine.util.Exceptions.newIllegalStateException
 
 /**
- * Routes messages to a single target, which ID is the same as the first field of
+ * Routes messages to a single target, whose ID is the same as the first field of
  * the routed message.
  *
  * It is expected that the types of the first field and the identifier are the same.

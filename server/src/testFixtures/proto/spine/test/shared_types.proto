@@ -146,7 +146,7 @@ message Int64Projection {
     int64 value = 2;
 }
 
-// An aggregate which IDs are integers.
+// An aggregate whose IDs are integers.
 message IntIdAggregate {
 
     option (entity).kind = AGGREGATE;
@@ -156,7 +156,7 @@ message IntIdAggregate {
     int32 value = 2;
 }
 
-// An aggregate which IDs are `Long` values.
+// An aggregate whose IDs are `Long` values.
 message LongIdAggregate {
 
     option (entity).kind = AGGREGATE;
@@ -166,7 +166,7 @@ message LongIdAggregate {
     int32 value = 2;
 }
 
-// An aggregate which IDs are `Timestamp`s.
+// An aggregate whose IDs are `Timestamp`s.
 message TimestampIdAggregate {
 
     option (entity).kind = AGGREGATE;

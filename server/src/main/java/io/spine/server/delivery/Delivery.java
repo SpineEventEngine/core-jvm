@@ -523,7 +523,7 @@ public final class Delivery implements WithLogging {
     }
 
     /**
-     * Runs the delivery for the shard, which session is passed.
+     * Runs the delivery for the shard, whose session is passed.
      *
      * <p>The messages are read page-by-page according to the {@link #pageSize page size} setting.
      *

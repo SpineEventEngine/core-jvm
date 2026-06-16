@@ -317,7 +317,7 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
      * {@link #find(Object)}. Descendants may optimize the execution of this
      * method, choosing the most suitable way for the particular storage engine used.
      *
-     * <p>The result only contains those entities which IDs are contained inside
+     * <p>The result only contains those entities whose IDs are contained inside
      * the passed {@code ids}. The resulting collection is always returned
      * with no {@code null} values.
      *

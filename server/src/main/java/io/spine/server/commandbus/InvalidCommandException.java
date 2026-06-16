@@ -141,7 +141,7 @@ public class InvalidCommandException extends CommandException implements Message
 
     /**
      * A helper utility aimed to create an {@code InvalidCommandException} to report the
-     * command which field values violate validation constraint(s).
+     * command whose field values violate validation constraint(s).
      */
     private static final class Factory
             extends ExceptionFactory<InvalidCommandException,

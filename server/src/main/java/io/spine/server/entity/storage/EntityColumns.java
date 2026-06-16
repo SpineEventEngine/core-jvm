@@ -36,7 +36,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 /**
- * A container for the columns which values are calculated on top of an {@code Entity} instance.
+ * A container for the columns whose values are calculated on top of an {@code Entity} instance.
  *
  * @param <E>
  *         the type of {@code Entity} serving as a source for the column values

@@ -577,7 +577,7 @@ public final class CatchUpProcess<I>
      * Upon the catch-up completion, requests an additional processing of the messages in those
      * shards, which were involved into the dispatching during the catch-up.
      *
-     * <p>In this way, the process ensures that any events, which delivery may have been potentially
+     * <p>In this way, the process ensures that any events, whose delivery may have been potentially
      * paused during the process finalization, are propagated from their shards to the target
      * projection instances.
      */

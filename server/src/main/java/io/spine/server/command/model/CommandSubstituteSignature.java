@@ -65,7 +65,7 @@ public class CommandSubstituteSignature extends CommandAcceptingSignature<Comman
      *
      * @implNote This method distinguishes {@linkplain Command Commander} methods one from
      * another, as they use the same annotation, but have a different parameter list.
-     * It skips the methods which first parameter
+     * It skips the methods whose first parameter
      * {@linkplain MethodParams#firstIsCommand(Method) is NOT} a {@code Command} message.
      */
     @SuppressWarnings({

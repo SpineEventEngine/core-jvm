@@ -79,7 +79,7 @@ public interface ShardedWorkRegistry {
      *
      * @param inactivityPeriod
      *         the duration of the period after which the session is considered expired
-     * @return the indexes of shards which sessions have been released
+     * @return the indexes of shards whose sessions have been released
      */
     Iterable<ShardIndex> releaseExpiredSessions(Duration inactivityPeriod);
 }

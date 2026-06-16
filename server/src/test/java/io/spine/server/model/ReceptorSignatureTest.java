@@ -66,7 +66,7 @@ public abstract class ReceptorSignatureTest<S extends ReceptorSignature<?, ?>> {
     }
 
     /**
-     * Tests that the handlers are not created from the methods, which signatures do not satisfy
+     * Tests that the handlers are not created from the methods, whose signatures do not satisfy
      * the requirements implied by the method annotation, such as {@literal @Assign}.
      *
      * @implNote The classification API of {@link MethodSignature} declares

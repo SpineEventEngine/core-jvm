@@ -114,7 +114,7 @@ public final class ReceptorMap<M extends MessageClass<?>,
     }
 
     /**
-     * Obtains classes of messages which receptors satisfy the given {@code predicate}.
+     * Obtains classes of messages whose receptors satisfy the given {@code predicate}.
      *
      * @param predicate
      *         a predicate for receptors to filter the corresponding message classes

@@ -84,7 +84,7 @@ message CatchUp {
     // The indexes of the shards through which the historical messages were dispatched.
     repeated int32 affected_shard = 6;
 
-    // The number of target projection instances which state has to be cleared before
+    // The number of target projection instances whose state has to be cleared before
     // the historical events are started to be recalled.
     //
     int32 instances_to_clear = 7;

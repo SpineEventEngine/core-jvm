@@ -36,7 +36,7 @@ import java.lang.annotation.Annotation;
 /**
  * An abstract base of signatures for methods that accept {@code Event}s.
  *
- * @param <H> the type of {@link Receptor} which signature this belongs to
+ * @param <H> the type of {@link Receptor} whose signature this belongs to
  */
 abstract class EventAcceptingSignature<H extends Receptor<?, ?, EventEnvelope, ?>>
         extends ReceptorSignature<H, EventEnvelope> {
