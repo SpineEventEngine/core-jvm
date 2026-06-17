@@ -25,7 +25,7 @@
  */
 
 /**
- * This package contains test environment classes and interfaces which are used for integration
+ * This package contains test environment classes and interfaces that are used for integration
  * testing of server-side sub-systems.
  */
 

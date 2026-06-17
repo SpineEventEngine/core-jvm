@@ -33,7 +33,7 @@ import io.spine.core.Origin;
 import static io.spine.util.Exceptions.newIllegalStateException;
 
 /**
- * An implementation of {@link SystemWriteSide} which never performs an operation.
+ * An implementation of {@link SystemWriteSide} that never performs an operation.
  *
  * <p>All the methods inherited from {@link SystemWriteSide} exit without any action or exception.
  *

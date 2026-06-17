@@ -40,7 +40,7 @@ import static com.google.common.collect.Sets.newHashSet;
 import static io.spine.base.Identifier.pack;
 
 /**
- * An implementation of {@link io.spine.server.trace.Tracer} which memoizes the entities which
+ * An implementation of {@link io.spine.server.trace.Tracer} that memoizes the entities that
  * process the given message.
  */
 public final class MemoizingTracer extends AbstractTracer {

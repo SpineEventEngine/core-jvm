@@ -123,7 +123,7 @@ public class EventReceivingClassDelegate<T extends EventReceiver,
     }
 
     /**
-     * Looks up the method which handles the passed event class.
+     * Looks up the method that handles the passed event class.
      *
      * @param event
      *         the event which must be handled

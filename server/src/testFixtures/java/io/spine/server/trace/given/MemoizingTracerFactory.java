@@ -38,7 +38,7 @@ import static com.google.common.collect.Maps.newHashMap;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * An implementation of {@link TracerFactory} which stores the tracing data in memory.
+ * An implementation of {@link TracerFactory} that stores the tracing data in memory.
  */
 public final class MemoizingTracerFactory implements TracerFactory {
 

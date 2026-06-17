@@ -66,7 +66,7 @@ message MessageId {
 
 // An origin of a message.
 //
-// Describes the message chain which led to the associated message to be produced.
+// Describes the message chain that led to the associated message to be produced.
 //
 message Origin {
     option (is).java_type = "io.spine.core.OriginMixin";

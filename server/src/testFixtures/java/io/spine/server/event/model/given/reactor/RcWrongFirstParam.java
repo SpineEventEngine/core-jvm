@@ -30,7 +30,7 @@ import io.spine.server.event.React;
 import io.spine.test.reflect.event.RefProjectStarted;
 
 /**
- * Provides a method which accepts first parameter of wrong type.
+ * Provides a method that accepts first parameter of wrong type.
  */
 public final class RcWrongFirstParam extends TestEventReactor {
 

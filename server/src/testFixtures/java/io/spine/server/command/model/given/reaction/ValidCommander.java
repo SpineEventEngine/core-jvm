@@ -46,7 +46,7 @@ import io.spine.server.tuple.Pair;
 import java.util.Optional;
 
 /**
- * A standalone commander which declares valid {@link Command} reaction methods.
+ * A standalone commander that declares valid {@link Command} reaction methods.
  *
  * <p>This class declares the duplicate handlers for some events, hence it cannot be
  * registered in any Bounded Context. This is done for simplicity of enumerating all possible

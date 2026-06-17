@@ -82,7 +82,7 @@ final class DeliveryErrors {
     }
 
     /**
-     * An error which occurred during a message delivery.
+     * An error that occurred during a message delivery.
      *
      * <p>Can be a {@code RuntimeException} or a {@code ModelError}.
      */

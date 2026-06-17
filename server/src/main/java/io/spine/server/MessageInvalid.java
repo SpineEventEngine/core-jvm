@@ -29,7 +29,7 @@ package io.spine.server;
 import io.spine.annotation.Internal;
 
 /**
- * An interface for the {@link MessageError} types which report a message being invalid.
+ * An interface for the {@link MessageError} types that report a message being invalid.
  *
  * <p>Except the methods declared in {@link MessageError}, this type is a marker interface.
  */

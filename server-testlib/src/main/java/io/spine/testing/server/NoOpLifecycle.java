@@ -40,7 +40,7 @@ import io.spine.type.TypeUrl;
 import java.util.Optional;
 
 /**
- * A test implementation of {@link EntityLifecycle} which performs no action on any method call.
+ * A test implementation of {@link EntityLifecycle} that performs no action on any method call.
  */
 public final class NoOpLifecycle extends EntityLifecycle {
 

@@ -119,7 +119,7 @@ class EnricherBuilderTest {
                             (e, c) -> FloatValue.of(3.14f));
 
                 assertRejects(
-                        // Attempting to add a function via the class which implements the
+                        // Attempting to add a function via the class that implements the
                         // interface in the entry added above.
                         () -> builder.add(EbtOrderCreated.class, FloatValue.class,
                                           (e, c) -> FloatValue.of(2.68f))
@@ -134,7 +134,7 @@ class EnricherBuilderTest {
                             (e, c) -> Time.currentTime());
 
                 assertRejects(
-                        // Attempting to add a function via the interface which the class
+                        // Attempting to add a function via the interface that the class
                         // from the entry added above implements.
                         () -> builder.add(EbtOrderEvent.class, Timestamp.class,
                                           (e, c) -> Time.currentTime())

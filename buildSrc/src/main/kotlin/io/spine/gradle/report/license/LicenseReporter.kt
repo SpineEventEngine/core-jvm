@@ -64,7 +64,7 @@ import org.gradle.kotlin.dsl.the
 object LicenseReporter {
 
     /**
-     * The name of the Gradle task which generates the reports for a specific Gradle project.
+     * The name of the Gradle task that generates the reports for a specific Gradle project.
      */
     private const val projectTaskName = "generateLicenseReport"
 
@@ -104,7 +104,7 @@ object LicenseReporter {
      *
      * The merge result is placed according to [Paths].
      *
-     * Registers a `mergeAllLicenseReports` which is specified to be executed after `build`.
+     * Registers a `mergeAllLicenseReports` that is specified to be executed after `build`.
      */
     fun mergeAllReports(project: Project) {
         val rootProject = project.rootProject

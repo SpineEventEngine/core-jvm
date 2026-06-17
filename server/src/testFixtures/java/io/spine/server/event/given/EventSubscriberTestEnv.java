@@ -41,7 +41,7 @@ public final class EventSubscriberTestEnv {
     private EventSubscriberTestEnv() {
     }
 
-    /** The subscriber which throws exception from the subscriber method. */
+    /** The subscriber that throws exception from the subscriber method. */
     public static class FailingSubscriber extends AbstractEventSubscriber {
 
         private boolean methodCalled = false;

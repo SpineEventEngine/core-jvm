@@ -46,7 +46,7 @@ internal object Paths {
      * as the result of the [LicenseReporter] work.
      *
      * Its contents describe the licensing information for each of the Java dependencies
-     * which are referenced by Gradle projects in the repository.
+     * that are referenced by Gradle projects in the repository.
      */
     internal const val outputFilename = "dependencies.md"
 

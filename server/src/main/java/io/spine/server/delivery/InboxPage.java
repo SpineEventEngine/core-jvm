@@ -110,7 +110,7 @@ public final class InboxPage implements Page<InboxMessage> {
     interface Lookup {
 
         /**
-         * Reads the messages which were received strictly later than the specified
+         * Reads the messages that were received strictly later than the specified
          * {@code sinceWhen} value.
          *
          * <p>If the passed value is {@code null}, the time filtering is not applied.

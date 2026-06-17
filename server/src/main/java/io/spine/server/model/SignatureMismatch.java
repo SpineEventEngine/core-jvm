@@ -44,7 +44,7 @@ import static java.lang.String.format;
 public final class SignatureMismatch {
 
     /**
-     * The criterion, which requirements were not met.
+     * The criterion, whose requirements were not met.
      */
     private final MatchCriterion unmetCriterion;
 
@@ -111,7 +111,7 @@ public final class SignatureMismatch {
     }
 
     /**
-     * Returns the match criterion, which requirements were violated.
+     * Returns the match criterion, whose requirements were violated.
      */
     @VisibleForTesting
     public MatchCriterion getUnmetCriterion() {

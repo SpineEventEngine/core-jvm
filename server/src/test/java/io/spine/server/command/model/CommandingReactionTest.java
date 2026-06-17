@@ -228,7 +228,7 @@ class CommandingReactionTest {
     }
 
     /**
-     * Creates the event message which will cause the handling method return non-empty result.
+     * Creates the event message that will cause the handling method return non-empty result.
      */
     private static CmdProjectCreated createInitEvent(ProjectId givenId) {
         return CmdProjectCreated.newBuilder()

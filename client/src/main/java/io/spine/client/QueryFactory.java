@@ -81,7 +81,7 @@ public final class QueryFactory {
      * applied to each of the results.
      *
      * <p>Allows to specify a set of identifiers to be used during the {@code Query} processing.
-     * The processing results will contain only the entities, which IDs are present among
+     * The processing results will contain only the entities, whose IDs are present among
      * the {@code ids}.
      *
      * <p>Allows to set property paths for a {@link FieldMask} applied to each of the query
@@ -122,7 +122,7 @@ public final class QueryFactory {
      * Creates a {@link Query} to read certain entity states by IDs.
      *
      * <p>Allows to specify a set of identifiers to be used during the {@code Query} processing.
-     * The processing results will contain only the entities which IDs are present among
+     * The processing results will contain only the entities whose IDs are present among
      * the {@code ids}.
      *
      * <p>Unlike {@link #byIdsWithMask(Class, Set, String...)}, the {@code Query} processing

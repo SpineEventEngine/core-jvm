@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
 /**
- * A task which verifies that the current version of the library has not been published to the given
+ * A task that verifies that the current version of the library has not been published to the given
  * Maven repository yet.
  */
 open class CheckVersionIncrement : DefaultTask() {

@@ -41,7 +41,7 @@ import java.util.Iterator;
 import java.util.Optional;
 
 /**
- * An {@link AggregateStorage} which purpose is to intercept and remember
+ * An {@link AggregateStorage} whose purpose is to intercept and remember
  * the parameter values of executed read operations.
  */
 final class TestAggregateStorage extends AggregateStorage<ProjectId, AggProject> {

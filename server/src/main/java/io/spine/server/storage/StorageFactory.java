@@ -66,14 +66,14 @@ import io.spine.server.migration.mirror.MirrorStorage;
  * and their code may be kept agnostic of low-level DBMS details. However, if one wants to extend
  * the functionality even further, any storage type may be extended and customized.
  *
- * <p>Another design intention is that all storage types which are presumed to work in a scope of
+ * <p>Another design intention is that all storage types that are presumed to work in a scope of
  * some Bounded Context — down to a {@code RecordStorage} — would take a {@linkplain ContextSpec
  * context specification} as the first parameter. An idea is that they may need to use
  * the properties of the Bounded Context (such as its name) in their low-level I/O with
  * the database. Only two of the storage types do not follow this concept: {@link InboxStorage}
  * and {@link CatchUpStorage}. The reason for that is that they are a part of
- * a {@link io.spine.server.delivery.Delivery} which is shared across all Bounded Contexts.
- * One more storage which stands apart from this idea is
+ * a {@link io.spine.server.delivery.Delivery} that is shared across all Bounded Contexts.
+ * One more storage that stands apart from this idea is
  * a {@link io.spine.server.tenant.TenantStorage}. While it uses a {@code StorageFactory}
  * for an initialization, it is a part of a special {@code Tenants} context, which is also shared
  * between Bounded Contexts of an application.
@@ -163,7 +163,7 @@ public interface StorageFactory extends Closeable {
      * <p>The instance of {@code InboxStorage} is used in the {@link
      * io.spine.server.delivery.Delivery Delivery} operations. Therefore, there is typically just
      * a single instance of {@code InboxStorage} per {@link io.spine.server.ServerEnvironment
-     * ServerEnvironment} instance, unlike other {@code Storage} types which instances are created
+     * ServerEnvironment} instance, unlike other {@code Storage} types whose instances are created
      * per-{@link io.spine.server.BoundedContext BoundedContext}.
      *
      * @param multitenant

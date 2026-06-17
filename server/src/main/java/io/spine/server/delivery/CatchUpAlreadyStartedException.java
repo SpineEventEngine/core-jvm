@@ -71,7 +71,7 @@ public final class CatchUpAlreadyStartedException extends IllegalStateException 
     }
 
     /**
-     * Returns the IDs of the targets which were asked to catch up.
+     * Returns the IDs of the targets that were asked to catch up.
      *
      * <p>If all the projection entities were specified as a target, returns an empty {@code Set}.
      */

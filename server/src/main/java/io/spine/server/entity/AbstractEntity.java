@@ -79,7 +79,7 @@ public abstract class AbstractEntity<I, S extends EntityState<I>>
         implements Entity<I, S>, ReceptorLifecycle<AbstractEntity<I, S>> {
 
     /**
-     * The key for the metadata value which contains the list with the names of
+     * The key for the metadata value that contains the list with the names of
      * parameter types of a receptor.
      *
      * @see #beforeInvoke(Receptor)
@@ -588,7 +588,7 @@ public abstract class AbstractEntity<I, S extends EntityState<I>>
      * <p>The list will be displayed as {@code CONTEXT} metadata in a log record,
      * iff the receptor performs logging.
      *
-     * @param method the receptor method which is going to be called
+     * @param method the receptor method that is going to be called
      *
      * @see #afterInvoke(Receptor)
      */

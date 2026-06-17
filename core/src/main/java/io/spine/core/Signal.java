@@ -44,7 +44,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.protobuf.AnyPacker.pack;
 
 /**
- * A message which can be dispatched and cause other messages.
+ * A message that can be dispatched and cause other messages.
  *
  * <p>A signal message travels through the system just like an electronic signal travels through
  * a neural network. It cases the system to change its state either directly or by exciting other

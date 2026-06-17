@@ -33,7 +33,7 @@ import io.spine.test.reflect.event.RefProjectCreated;
 import io.spine.test.reflect.event.RefProjectStarted;
 
 /**
- * Provides a method which has correct parameter and return value, but wrong annotations.
+ * Provides a method that has correct parameter and return value, but wrong annotations.
  */
 public final class RcWrongAnnotation extends TestEventReactor {
 

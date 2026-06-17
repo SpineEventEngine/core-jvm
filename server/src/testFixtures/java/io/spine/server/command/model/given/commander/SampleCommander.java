@@ -55,7 +55,7 @@ import static io.spine.server.command.model.given.commander.TestCommandMessage.p
 import static io.spine.server.command.model.given.commander.TestCommandMessage.startTask;
 
 /**
- * A standalone commander which declares valid {@link Command} substitution methods.
+ * A standalone commander that declares valid {@link Command} substitution methods.
  */
 public final class SampleCommander extends AbstractCommander {
 

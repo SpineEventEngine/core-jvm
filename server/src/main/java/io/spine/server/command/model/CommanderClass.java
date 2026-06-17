@@ -92,7 +92,7 @@ public final class CommanderClass<C extends Commander>
     }
 
     /**
-     * Obtains the method which reacts on the passed event class.
+     * Obtains the method that reacts on the passed event class.
      */
     public Optional<CommandingReaction> commanderOn(EventEnvelope event) {
         return delegate.findReceptorOf(event);

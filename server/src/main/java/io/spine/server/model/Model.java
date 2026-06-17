@@ -77,7 +77,7 @@ public class Model {
     }
 
     /**
-     * Obtains the instance which belongs to the Bounded Context of the passed class.
+     * Obtains the instance that belongs to the Bounded Context of the passed class.
      *
      * <p>The method tries to obtain the context from the annotations of the package "hierarchy"
      * to which the class belongs. If no annotation found,
@@ -140,7 +140,7 @@ public class Model {
         }
     }
 
-    /** Obtains the name of the bounded context which encapsulates this model. */
+    /** Obtains the name of the bounded context that encapsulates this model. */
     public BoundedContextName contextName() {
         return context;
     }

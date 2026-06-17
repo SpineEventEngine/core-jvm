@@ -99,7 +99,7 @@ public final class CommandBus
     private @MonotonicNonNull CommandValidator commandValidator;
 
     /**
-     * An observer which processes the {@linkplain io.spine.base.RejectionThrowable rejections}
+     * An observer that processes the {@linkplain io.spine.base.RejectionThrowable rejections}
      * thrown by the bus {@linkplain BusFilter filters}.
      *
      * <p>When the bus is first created, this observer does nothing. Once an {@link EventBus} is

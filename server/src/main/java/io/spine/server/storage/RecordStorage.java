@@ -234,7 +234,7 @@ public abstract class RecordStorage<I, R extends Message> extends AbstractStorag
     }
 
     /**
-     * Creates a new query which targets the single record with the specified ID.
+     * Creates a new query that targets the single record with the specified ID.
      */
     protected RecordQuery<I, R> toQuery(I id) {
         return queryBuilder().id().is(id).build();
@@ -249,14 +249,14 @@ public abstract class RecordStorage<I, R extends Message> extends AbstractStorag
     }
 
     /**
-     * Creates a new query for the targets which have one of the passed identifiers.
+     * Creates a new query for the targets that have one of the passed identifiers.
      */
     protected RecordQuery<I, R> toQuery(Iterable<I> ids) {
         return queryBuilder().id().in(ids).build();
     }
 
     /**
-     * Creates a new query for the targets which have one of the passed identifiers.
+     * Creates a new query for the targets that have one of the passed identifiers.
      *
      * <p>The results will contain only the fields specified by the given field mask.
      */

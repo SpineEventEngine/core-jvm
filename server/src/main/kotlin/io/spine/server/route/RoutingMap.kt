@@ -50,7 +50,7 @@ import java.util.SortedMap
  * its static methods are ignored.
  *
  * @param I The type of the entity identifiers served by this map.
- * @param entityClass The class of the entity which may declare routing methods.
+ * @param entityClass The class of the entity that may declare routing methods.
  * @property signalType The super interface for the routed signal messages, such as
  *   [CommandMessage] or [EventMessage].
  * @property contextType The super interface for the signal context messages, such as

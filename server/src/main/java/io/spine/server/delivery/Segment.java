@@ -33,7 +33,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Portion of the inbox messages which are headed to the same target.
+ * Portion of the inbox messages that are headed to the same target.
  */
 final class Segment {
 

@@ -189,7 +189,7 @@ import static java.util.stream.Collectors.toSet;
  * each processed by the {@code Delivery} independently of each other. Starting to dispatch
  * the events from a shard, {@code Delivery} reads the details of the ongoing catch-up processes.
  * By interpreting the status of each catch-up, {@code Delivery} decides on the actions to apply
- * to the historical events. For instance, the historical events dispatched from a catch-up which
+ * to the historical events. For instance, the historical events dispatched from a catch-up that
  * is already {@code COMPLETED} are considered junk and are immediately deleted.
  *
  * <p>Before moving to the catch-up completion, it is required to make sure every historical event
@@ -200,7 +200,7 @@ import static java.util.stream.Collectors.toSet;
  * <p>It's important to understand that different shards may be processed at different speeds and
  * potentially by different application nodes. Therefore, in order to switch to the
  * {@code COMPLETED} status, a catch-up process must ensure that <b>each</b> shard was processed
- * by the {@code Delivery} which witnessed the catch-up process in its {@code FINALIZING} state.
+ * by the {@code Delivery} that witnessed the catch-up process in its {@code FINALIZING} state.
  * Such evidence would mean that this {@code Delivery} run is at the point in time by which
  * three things already happened:
  *
@@ -256,7 +256,7 @@ import static java.util.stream.Collectors.toSet;
  * <h3>{@link CatchUpStatus#COMPLETED COMPLETED}</h3>
  *
  * <p>Once the {@code CatchUpCompleted} event is received, the process moves
- * to the {@code COMPLETED} status. At this point, some live events and some historical events which
+ * to the {@code COMPLETED} status. At this point, some live events and some historical events that
  * were located in the "turbulence" window are still paused for dispatching. To ensure they are
  * processed in each shard, the catch-up emits a number of {@code ShardProcessingRequested} events
  * again. By dispatching them, it makes sure that the {@code Delivery} observes the change of
@@ -513,7 +513,7 @@ public final class CatchUpProcess<I>
      * moving to the {@code COMPLETED} status right away would kill these historical events
      * as irrelevant.
      *
-     * <p>See the {@link ShardMaintenanceProcess} which handles each of the emitted requests
+     * <p>See the {@link ShardMaintenanceProcess} that handles each of the emitted requests
      * for the shard processing.
      */
     @React
@@ -529,7 +529,7 @@ public final class CatchUpProcess<I>
      * seen and dispatched by the {@code Delivery}.
      *
      * <p>By gathering the data from {@code ShardProcessed} events, the catch-up
-     * process tracks the shards which are already ready for the catch-up completion. Once all
+     * process tracks the shards that are already ready for the catch-up completion. Once all
      * of the shards affected by this process become ready, a {@code CatchUpCompleted} is emitted.
      *
      * <p>If, for some reason, a {@code ShardProcessed} event is dispatched to this process when
@@ -577,7 +577,7 @@ public final class CatchUpProcess<I>
      * Upon the catch-up completion, requests an additional processing of the messages in those
      * shards, which were involved into the dispatching during the catch-up.
      *
-     * <p>In this way, the process ensures that any events, which delivery may have been potentially
+     * <p>In this way, the process ensures that any events, whose delivery may have been potentially
      * paused during the process finalization, are propagated from their shards to the target
      * projection instances.
      */

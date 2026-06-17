@@ -34,7 +34,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.core.Status.StatusCase.REJECTION;
 
 /**
- * An observer which publishes rejections on {@linkplain Ack acknowledgement} to
+ * An observer that publishes rejections on {@linkplain Ack acknowledgement} to
  * an {@link EventBus}.
  *
  * <p>The {@linkplain io.spine.core.Event rejection events} passed to the {@code Ack} instances are

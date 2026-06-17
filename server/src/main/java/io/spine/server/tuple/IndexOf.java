@@ -31,7 +31,7 @@ package io.spine.server.tuple;
  *
  * <p>Serves to replace numerous "magic numbers" across the codebase.
  *
- * <p>Each index is put into a correspondence to the capital letter which is used as to name
+ * <p>Each index is put into a correspondence to the capital letter that is used as to name
  * a generic parameter in the tuple's declaration.
  */
 enum IndexOf {

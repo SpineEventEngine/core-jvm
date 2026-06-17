@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,6 @@ import io.spine.base.AggregateState;
 import io.spine.reflect.GenericTypeIndex;
 import io.spine.server.aggregate.model.AggregatePartClass;
 import io.spine.validation.ValidatingBuilder;
-
-import static io.spine.server.aggregate.model.AggregatePartClass.asAggregatePartClass;
 
 /**
  * A part of a larger aggregate.
@@ -98,8 +96,9 @@ public abstract class AggregatePart<I,
 
     @Internal
     @Override
+    @SuppressWarnings("deprecation") // Calls into the deprecated `AggregatePartClass`.
     public final AggregatePartClass<?> modelClass() {
-        return asAggregatePartClass(getClass());
+        return AggregatePartClass.asAggregatePartClass(getClass());
     }
 
     /**

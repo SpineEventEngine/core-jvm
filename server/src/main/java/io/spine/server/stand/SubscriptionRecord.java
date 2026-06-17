@@ -100,7 +100,7 @@ final class SubscriptionRecord {
     }
 
     /**
-     * Attaches a callback which notifies the read-side about a subscription update.
+     * Attaches a callback that notifies the read-side about a subscription update.
      *
      * <p>Only active subscription records are eligible to receiving any event/entity updates.
      *

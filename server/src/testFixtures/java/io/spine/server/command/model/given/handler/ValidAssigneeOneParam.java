@@ -33,7 +33,7 @@ import io.spine.test.reflect.event.RefProjectCreated;
 import static io.spine.server.model.given.Given.EventMessage.projectCreated;
 
 /**
- * Provides a method which accepts one parameter.
+ * Provides a method that accepts one parameter.
  */
 public class ValidAssigneeOneParam extends TestCommandAssignee {
     @Assign

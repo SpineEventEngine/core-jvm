@@ -45,7 +45,7 @@ public interface CommandFilter extends BusFilter<CommandEnvelope> {
     /**
      * Rejects the message with a {@linkplain io.spine.base.RejectionMessage rejection} status.
      *
-     * <p>This method is a shortcut which can be used in {@link #filter(MessageEnvelope)} when the
+     * <p>This method is a shortcut that can be used in {@link #filter(MessageEnvelope)} when the
      * message does not pass the filter due to a business rejection.
      *
      * <p>Such rejection method can be used when no technical error occurs but due to the business

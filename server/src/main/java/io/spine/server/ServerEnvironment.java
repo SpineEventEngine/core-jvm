@@ -86,7 +86,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * <h3>Relation to Bounded Contexts</h3>
  *
  * <p>A {@code ServerEnvironment} instance is a singleton. It means that all Bounded Contexts
- * which are deployed within the same JVM share the configuration of the server environment.
+ * that are deployed within the same JVM share the configuration of the server environment.
  * Namely, under the same environment type, all Bounded Contexts will share the same storage
  * factory, transport factory, delivery and tracing tools.
  *
@@ -236,7 +236,7 @@ public final class ServerEnvironment implements Closeable {
 
     /**
      * Sets the default {@linkplain DeploymentType deployment type}
-     * {@linkplain Supplier supplier} which utilizes system properties.
+     * {@linkplain Supplier supplier} that utilizes system properties.
      */
     private void resetDeploymentType() {
         var supplier = DeploymentDetector.newInstance();
@@ -533,7 +533,7 @@ public final class ServerEnvironment implements Closeable {
     }
 
     /**
-     * A function which accepts a class of {@link EnvironmentType} and returns
+     * A function that accepts a class of {@link EnvironmentType} and returns
      * a value {@link ServerEnvironment#when(Class) configured} in a {@code ServerEnvironment}.
      *
      * @param <R> the type of the configured value

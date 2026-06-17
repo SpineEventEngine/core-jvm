@@ -33,7 +33,7 @@ import io.spine.server.event.EventStore;
 import io.spine.server.event.EventStreamQuery;
 
 /**
- * An implementation of {@link EventStore} which never stores any events.
+ * An implementation of {@link EventStore} that never stores any events.
  */
 @Internal
 public final class EmptyEventStore implements EventStore {

@@ -47,7 +47,7 @@
  * </pre>
  *
  * <p>Why do we suggest returning a tuple (a {@code Pair} in the example above) instead of creating
- * a message type which would aggregate those of interest as our colleagues from the Guava team
+ * a message type that would aggregate those of interest as our colleagues from the Guava team
  * <a href="https://github.com/google/guava/wiki/IdeaGraveyard#tuples-for-n--2">suggest</a>?
  *
  * <p>Messages returned from a handling method are loosely coupled. They may not
@@ -91,7 +91,7 @@
  * {@link com.google.protobuf.Message Message} class.
  *
  * <p>Tuple classes allow {@link java.util.Optional Optional} starting from
- * the second generic argument. The example below shows the method which always returns
+ * the second generic argument. The example below shows the method that always returns
  * the {@code TaskCreated} event, and returns the {@code TaskAssigned} event only if
  * the {@code CreateTask} command instructs to assign the task to a person.
  * <pre>

@@ -45,7 +45,7 @@ import static io.spine.util.Preconditions2.checkNotEmptyOrBlank;
  * An external non-Spine based upstream system.
  *
  * <p>{@code ThirdPartyContext} helps to represent an external system as a Bounded Context. Events
- * which occur in the external system are converted into domain events of the user's
+ * that occur in the external system are converted into domain events of the user's
  * Bounded Contexts and dispatched via {@link IntegrationBroker}.
  *
  * @implSpec Note that a {@code ThirdPartyContext} sends a request for external messages to

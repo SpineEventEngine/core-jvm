@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 import static io.spine.util.Exceptions.newIllegalStateException;
 
 /**
- * An executor service which always schedules an operation to throw exception.
+ * An executor service that always schedules an operation to throw exception.
  *
  * <p>Can be used to emulate the failure in the scheduled operation.
  */

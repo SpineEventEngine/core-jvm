@@ -54,7 +54,7 @@ import static com.google.common.collect.Lists.asList;
 import static java.util.stream.Collectors.toList;
 
 /**
- * A class which configures a test environment in which {@link BlackBox} is used.
+ * A class that configures a test environment in which {@link BlackBox} is used.
  *
  * <p>The setup may involve:
  * <ul>
@@ -229,7 +229,7 @@ final class BlackBoxSetup {
     }
 
     /**
-     * Creates a new instance of {@link TestEventFactory} which supplies the passed value
+     * Creates a new instance of {@link TestEventFactory} that supplies the passed value
      * of the {@linkplain io.spine.core.EventContext#getProducerId() event producer ID}.
      *
      * @param producerId

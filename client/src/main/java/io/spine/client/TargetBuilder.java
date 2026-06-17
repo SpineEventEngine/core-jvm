@@ -43,7 +43,7 @@ import static java.util.Collections.singleton;
 
 /**
  * An abstract base for builders that create {@link com.google.protobuf.Message Message instances}
- * which have a {@link Target} and a {@link FieldMask} as attributes.
+ * that have a {@link Target} and a {@link FieldMask} as attributes.
  *
  * <p>The {@link Target} matching the builder configuration is created with {@link #buildTarget()},
  * while the {@link FieldMask} is composed with {@link #composeMask()}.
@@ -249,7 +249,7 @@ public abstract class TargetBuilder<T extends Message, B extends TargetBuilder<T
      * companies that have their company size between 50 and 1000 employees and either have been
      * established less than two years ago, or originate from Germany.
      *
-     * <p>Note that the filters which belong to different {@link Filters#all all(...)} groups
+     * <p>Note that the filters that belong to different {@link Filters#all all(...)} groups
      * may be represented as a single {@link Filters#all all(...)} group. For example, the two
      * following queries would be identical:
      * <pre>{@code

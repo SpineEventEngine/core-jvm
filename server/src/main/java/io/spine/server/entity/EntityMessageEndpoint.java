@@ -48,7 +48,7 @@ public abstract class EntityMessageEndpoint<I,
                                             M extends SignalEnvelope<?, ?, ?>>
         extends AbstractMessageEndpoint<I, M> {
 
-    /** The repository which created this endpoint. */
+    /** The repository that created this endpoint. */
     private final Repository<I, E> repository;
 
     protected EntityMessageEndpoint(Repository<I, E> repository, M envelope) {

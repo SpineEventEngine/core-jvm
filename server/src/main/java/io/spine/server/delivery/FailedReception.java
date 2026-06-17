@@ -30,7 +30,7 @@ import io.spine.annotation.SPI;
 import io.spine.base.Error;
 
 /**
- * The evidence of an {@link InboxMessage} which has failed to be handled
+ * The evidence of an {@link InboxMessage} that has failed to be handled
  * by its receptor, such as an event or a command handler method.
  *
  * <p>End-users may choose to do one of the following:
@@ -91,7 +91,7 @@ public final class FailedReception {
     }
 
     /**
-     * Returns an action which marks the message
+     * Returns an action that marks the message
      * as {@linkplain InboxMessageStatus#DELIVERED delivered}.
      *
      * <p>The message will be automatically removed from its inbox

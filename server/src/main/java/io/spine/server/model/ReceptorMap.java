@@ -52,7 +52,7 @@ import static java.lang.String.format;
 import static java.util.Comparator.comparing;
 
 /**
- * Provides mapping from a class of messages to methods which handle such messages.
+ * Provides mapping from a class of messages to methods that handle such messages.
  *
  * @param <M>
  *         the type of messages
@@ -114,7 +114,7 @@ public final class ReceptorMap<M extends MessageClass<?>,
     }
 
     /**
-     * Obtains classes of messages which receptors satisfy the given {@code predicate}.
+     * Obtains classes of messages whose receptors satisfy the given {@code predicate}.
      *
      * @param predicate
      *         a predicate for receptors to filter the corresponding message classes

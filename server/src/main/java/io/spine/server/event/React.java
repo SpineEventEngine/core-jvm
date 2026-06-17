@@ -160,7 +160,7 @@ import java.lang.annotation.Target;
  *
  * <h2>Handling Incorrect Signatures</h2>
  *
- * <p>If the annotation is applied to a method which does not satisfy either of these requirements,
+ * <p>If the annotation is applied to a method that does not satisfy either of these requirements,
  * this method will not be registering for receiving events.
  */
 @Retention(RetentionPolicy.RUNTIME)

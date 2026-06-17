@@ -82,7 +82,7 @@ final class ReadOperation<I, S extends AggregateState<I>> {
      * Reads the history of the {@code Aggregate} starting from the most recent events until
      * either the snapshot is read or the bottom of the history is reached.
      *
-     * <p>The reading is performed in batches, which size is determined by
+     * <p>The reading is performed in batches, whose size is determined by
      * the {@linkplain ReadOperation#ReadOperation(AggregateStorage, Object, int) pre-configured}
      * batch size.
      *

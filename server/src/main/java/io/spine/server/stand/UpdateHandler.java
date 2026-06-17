@@ -41,7 +41,7 @@ import java.util.Optional;
 import static io.spine.util.Exceptions.newIllegalStateException;
 
 /**
- * Handles the domain and system events which correspond to the specified {@code Subscription}.
+ * Handles the domain and system events that correspond to the specified {@code Subscription}.
  *
  * <p>Compares the event data to the filtering criteria of the {@code Subscription} and
  * notifies the {@linkplain #setCallback(SubscriptionCallback) callback} with
@@ -57,7 +57,7 @@ abstract class UpdateHandler implements WithLogging {
     private final TypeUrl eventType;
 
     /**
-     * An action which accepts the update and notifies the read-side accordingly.
+     * An action that accepts the update and notifies the read-side accordingly.
      */
     private @MonotonicNonNull SubscriptionCallback callback = null;
 

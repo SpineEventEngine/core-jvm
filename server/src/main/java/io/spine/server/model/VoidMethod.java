@@ -36,7 +36,7 @@ import org.jspecify.annotations.Nullable;
 import static java.lang.String.format;
 
 /**
- * A {@link Receptor} which processes a message and produces no response.
+ * A {@link Receptor} that processes a message and produces no response.
  *
  * @param <T>
  *         the type of the target object

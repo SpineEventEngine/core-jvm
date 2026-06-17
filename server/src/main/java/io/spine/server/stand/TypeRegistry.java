@@ -77,7 +77,7 @@ interface TypeRegistry extends Closeable {
     ImmutableSet<TypeUrl> aggregateTypes();
 
     /**
-     * Reads all entity types, which repositories are registered in this instance of registry.
+     * Reads all entity types, whose repositories are registered in this instance of registry.
      *
      * <p>The result includes all values from {@link #aggregateTypes()} as well.
      *

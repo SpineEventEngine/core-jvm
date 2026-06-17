@@ -44,7 +44,7 @@ import static io.spine.util.Exceptions.newIllegalArgumentException;
 import static java.lang.String.format;
 
 /**
- * The marker interface for the repositories which do not require creating a custom subclass
+ * The marker interface for the repositories that do not require creating a custom subclass
  * of {@link Repository}.
  *
  * <p>If no customization is required, {@link DefaultRepository#of} is the easiest way to create

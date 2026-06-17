@@ -59,7 +59,7 @@ public final class InvalidEntityStateException extends ValidationException {
             "Entity state does match the validation constraints";
 
     /**
-     * The entity state which is invalid.
+     * The entity state that is invalid.
      */
     private final EntityState<?> state;
 
@@ -105,7 +105,7 @@ public final class InvalidEntityStateException extends ValidationException {
 
     /**
      * A helper utility aimed to create an {@code InvalidEntityStateException} to report the
-     * entity state which field values violate validation constraint(s).
+     * entity state whose field values violate validation constraint(s).
      */
     private static final class Factory
             extends ExceptionFactory<InvalidEntityStateException,

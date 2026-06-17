@@ -70,7 +70,7 @@ public final class ArgumentFilter implements Predicate<SignalMessage> {
     }
 
     /**
-     * Creates a new filter which accepts only the passed value of the specified field.
+     * Creates a new filter that accepts only the passed value of the specified field.
      */
     public static ArgumentFilter acceptingOnly(FieldPath field, Object fieldValue) {
         checkNotNull(field);
@@ -79,7 +79,7 @@ public final class ArgumentFilter implements Predicate<SignalMessage> {
     }
 
     /**
-     * Creates a filter which accepts all messages.
+     * Creates a filter that accepts all messages.
      */
     public static ArgumentFilter acceptingAll() {
         return acceptingAll;

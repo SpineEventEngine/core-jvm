@@ -19,9 +19,13 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v6
 
-      - name: Build project and run tests
+      # `build` does not run Dokka — its tasks are gated to the publishing
+      # graph — so `dokkaGenerate` is appended to surface documentation
+      # warnings on each push, before merge, instead of only in the post-merge
+      # `Publish` job. `failOnWarning` is enabled in the Dokka setup.
+      - name: Build project, run tests, and check documentation
         shell: bash
-        run: ./gradlew build --stacktrace
+        run: ./gradlew build dokkaGenerate --stacktrace
 
       # See: https://github.com/marketplace/actions/junit-report-action
       - name: Publish Test Report
@@ -35,6 +39,5 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: "**/build/reports/kover/report.xml"
           fail_ci_if_error: true
           verbose: true

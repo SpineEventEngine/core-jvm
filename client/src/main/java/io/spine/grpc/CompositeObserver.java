@@ -32,7 +32,7 @@ import io.grpc.stub.StreamObserver;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * A stream observer which delegates calls to multiple other observers with the same target type.
+ * A stream observer that delegates calls to multiple other observers with the same target type.
  *
  * <p>The observers are called in the exact same order in which they are specified on the object
  * construction.

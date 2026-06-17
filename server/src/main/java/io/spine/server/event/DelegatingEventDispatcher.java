@@ -37,7 +37,7 @@ import io.spine.server.type.EventEnvelope;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * A {@link EventDispatcher} which delegates the responsibilities to an aggregated {@link
+ * A {@link EventDispatcher} that delegates the responsibilities to an aggregated {@link
  * EventDispatcherDelegate delegate instance}.
  *
  * @see EventDispatcherDelegate

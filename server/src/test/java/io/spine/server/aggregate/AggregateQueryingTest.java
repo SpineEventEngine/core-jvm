@@ -177,7 +177,7 @@ class AggregateQueryingTest {
     }
 
     /**
-     * An abstract base which tests querying the {@link AggregateRepository} with a certain types
+     * An abstract base that tests querying the {@link AggregateRepository} with a certain types
      * of queries.
      *
      * @param <Q>

@@ -33,7 +33,7 @@ This repository contains the code of:
 
 ## Quick start and examples
 
-Please see the [“Quick Start” guide][quick-start] which goes through a Hello World project showing
+Please see the [“Quick Start” guide][quick-start] that goes through a Hello World project showing
 how to create a Spine-based project.
  
 More introductory application examples are available from
@@ -54,7 +54,7 @@ They are plugged in as a Git submodule. Use the following command to initialize 
 git submodule update --init --recursive
 ```  
 
-Also, a script called `pull` in the root of the `core-jvm` project which can be used
+Also, a script called `pull` in the root of the `core-jvm` project that can be used
 to update to the latest version of the configuration files.
 
 ## Important warnings

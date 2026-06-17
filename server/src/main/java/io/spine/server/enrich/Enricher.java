@@ -76,7 +76,7 @@ public abstract class Enricher<M extends Message, C extends EnrichableMessageCon
 
     @Override
     public Optional<Enrichment> createEnrichment(M message, C context) {
-        @SuppressWarnings("unchecked") // correct type is ensured by a Bus which uses the Enricher.
+        @SuppressWarnings("unchecked") // correct type is ensured by a Bus that uses the Enricher.
         var cls = (Class<? extends M>) message.getClass();
         @SuppressWarnings("unchecked")  /* Expected according to the `fn` setup. */
         @Nullable SchemaFn<M, C> fn = (SchemaFn<M, C>) schema.enrichmentOf(cls);

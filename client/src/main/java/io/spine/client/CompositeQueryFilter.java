@@ -38,7 +38,7 @@ import static io.spine.client.CompositeFilter.CompositeOperator.ALL;
 import static io.spine.client.CompositeFilter.CompositeOperator.EITHER;
 
 /**
- * A composite query filter which targets one or more entity
+ * A composite query filter that targets one or more entity
  * {@link io.spine.query.EntityColumn columns}.
  *
  * @deprecated This type is deprecated. Use {@linkplain io.spine.query.EntityQuery entity queries}

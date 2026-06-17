@@ -536,7 +536,7 @@ public abstract class Aggregate<I,
     }
 
     /**
-     * Verifies if the aggregate history contains an event which satisfies the passed predicate.
+     * Verifies if the aggregate history contains an event that satisfies the passed predicate.
      */
     protected final boolean historyContains(Predicate<Event> predicate) {
         var iterator = historyBackward();

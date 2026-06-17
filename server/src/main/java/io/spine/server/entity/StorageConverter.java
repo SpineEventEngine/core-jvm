@@ -72,7 +72,7 @@ public abstract class StorageConverter<I, E extends Entity<I, S>, S extends Enti
     }
 
     /**
-     * Obtains the type URL of the state of entities which this converter builds.
+     * Obtains the type URL of the state of entities that this converter builds.
      */
     protected TypeUrl entityStateType() {
         return entityStateType;

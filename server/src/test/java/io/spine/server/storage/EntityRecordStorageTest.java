@@ -91,7 +91,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * Tests the storage which store data as {@link EntityRecord}s.
+ * Tests the storage that store data as {@link EntityRecord}s.
  */
 @DisplayName("`EntityRecordStorage` should")
 public class EntityRecordStorageTest

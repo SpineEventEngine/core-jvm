@@ -25,7 +25,7 @@
  */
 
 /**
- * Contains utilities which work with server-side logs.
+ * Contains utilities that work with server-side logs.
  */
 
 @CheckReturnValue

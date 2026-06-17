@@ -32,7 +32,7 @@ import io.spine.server.integration.ExternalMessage;
 import static io.spine.util.Exceptions.newIllegalStateException;
 
 /**
- * A {@link StreamObserver} which always throws an {@link IllegalStateException} in
+ * A {@link StreamObserver} that always throws an {@link IllegalStateException} in
  * {@code onNext(...)}.
  */
 public final class ThrowingObserver implements StreamObserver<ExternalMessage> {

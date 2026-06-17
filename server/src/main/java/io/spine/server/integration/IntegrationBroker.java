@@ -170,7 +170,7 @@ public final class IntegrationBroker implements ContextAware, Closeable {
     }
 
     /**
-     * Registers a local dispatcher which is subscribed to {@code external} messages.
+     * Registers a local dispatcher that is subscribed to {@code external} messages.
      *
      * @param dispatcher
      *         the dispatcher to register
@@ -181,7 +181,7 @@ public final class IntegrationBroker implements ContextAware, Closeable {
     }
 
     /**
-     * Unregisters a local dispatcher which should no longer be subscribed
+     * Unregisters a local dispatcher that should no longer be subscribed
      * to {@code external} messages.
      *
      * @param dispatcher

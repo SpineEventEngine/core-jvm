@@ -58,7 +58,7 @@ import java.util.Optional;
  * either a command (handling of which produces the event) or an event (reaction on which may
  * produce the event). Such a command or an event:
  * <ol>
- *   <li>serves as a dispatched message type which is used as the first argument of the
+ *   <li>serves as a dispatched message type that is used as the first argument of the
  *       corresponding method in the aggregate;
  *   <li>carries the information about the fact we want to remember.
  * </ol>
@@ -74,7 +74,7 @@ import java.util.Optional;
  * {@linkplain #post(Iterable, io.grpc.stub.StreamObserver) several} events is designed for
  * importing of events <em>as they occur</em>.
  *
- * <p>Importing events which occurred before the events already stored in the aggregate
+ * <p>Importing events that occurred before the events already stored in the aggregate
  * history may result in hard to track bugs, and is not recommended.
  */
 public final class ImportBus

@@ -37,7 +37,7 @@ import io.spine.server.storage.StorageFactory;
 import io.spine.server.storage.memory.InMemoryStorageFactory;
 
 /**
- * In-memory {@code StorageFactory} which substitutes individual storages with the custom ones.
+ * In-memory {@code StorageFactory} that substitutes individual storages with the custom ones.
  */
 public final class PreparedStorageFactory {
 

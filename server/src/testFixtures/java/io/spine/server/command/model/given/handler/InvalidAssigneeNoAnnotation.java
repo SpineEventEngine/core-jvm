@@ -33,7 +33,7 @@ import io.spine.test.reflect.event.RefProjectCreated;
 import static io.spine.server.model.given.Given.EventMessage.projectCreated;
 
 /**
- * Provides a method which is not annotated.
+ * Provides a method that is not annotated.
  *
  * @implNote The "unused" warning is suppressed because the following. There are no calls to this
  * method since all handler methods are called indirectly. Regular handler methods have annotations

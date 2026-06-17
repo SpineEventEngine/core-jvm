@@ -124,7 +124,7 @@ internal class ClientSubscriptionsSpec : AbstractClientTest() {
             // Restoring "shows" the task back. So, it is an update.
             client.assertNumOfUpdates(restoreTask, 2, updates)
 
-            // This is the task which was once marked as deleted.
+            // This is the task that was once marked as deleted.
             noLongerMatchingIds.shouldContainExactly(id)
         }
     }

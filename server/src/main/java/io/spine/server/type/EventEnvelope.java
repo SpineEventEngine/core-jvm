@@ -40,7 +40,7 @@ import io.spine.type.TypeUrl;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * The holder of an {@code Event} which provides convenient access to its properties.
+ * The holder of an {@code Event} that provides convenient access to its properties.
  */
 public final class EventEnvelope
         extends AbstractMessageEnvelope<EventId, Event, EventContext>

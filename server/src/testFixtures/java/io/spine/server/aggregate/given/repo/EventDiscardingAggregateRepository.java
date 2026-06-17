@@ -31,7 +31,7 @@ import io.spine.server.entity.EventFilter;
 import static java.util.Optional.empty;
 
 /**
- * A repository for {@link io.spine.server.aggregate.given.repo.ProjectAggregate}s which never
+ * A repository for {@link io.spine.server.aggregate.given.repo.ProjectAggregate}s that never
  * posts any events, domain or system.
  */
 public class EventDiscardingAggregateRepository

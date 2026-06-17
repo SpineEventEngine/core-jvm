@@ -37,7 +37,7 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * A {@link CommandBus} filter which watches the commands as they appear in the bus.
+ * A {@link CommandBus} filter that watches the commands as they appear in the bus.
  *
  * <p>The filter notifies the {@link io.spine.system.server.SystemContext SystemContext} about
  * new commands with a {@link CommandReceived} system event.

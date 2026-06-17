@@ -36,7 +36,7 @@ import io.spine.server.dispatch.Success;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * An atomic entity state change which advances the entity version.
+ * An atomic entity state change that advances the entity version.
  *
  * <p>The {@code Phase} is a part of {@linkplain Transaction transaction} mechanism and should only
  * be propagated during the active transaction.

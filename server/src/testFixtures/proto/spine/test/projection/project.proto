@@ -62,7 +62,7 @@ message Project {
     string id_string = 5 [(column) = true];
 }
 
-// A message which is marked as internal for the purpose of `QueryServiceTest` checking
+// A message that is marked as internal for the purpose of `QueryServiceTest` checking
 // rejecting queries for internal types.
 message BankAccount {
     option (entity).kind = ENTITY;

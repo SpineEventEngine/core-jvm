@@ -29,7 +29,7 @@ package io.spine.system.server;
 import io.spine.server.event.EventDispatcher;
 
 /**
- * An implementation of {@link SystemReadSide} which never performs an operation.
+ * An implementation of {@link SystemReadSide} that never performs an operation.
  *
  * <p>All the methods inherited from {@link SystemReadSide} exit without any action or exception.
  *

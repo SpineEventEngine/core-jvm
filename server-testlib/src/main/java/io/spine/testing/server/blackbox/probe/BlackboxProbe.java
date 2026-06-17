@@ -36,7 +36,7 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * An implementation of {@link BoundedContext.Probe} which is used by
+ * An implementation of {@link BoundedContext.Probe} that is used by
  * {@link io.spine.testing.server.blackbox.BlackBox BlackBox} to collect
  * commands and events produced by a {@link BoundedContext} being tested.
  */

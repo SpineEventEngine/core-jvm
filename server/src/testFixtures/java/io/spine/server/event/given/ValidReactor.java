@@ -47,7 +47,7 @@ import io.spine.server.tuple.Pair;
 import java.util.Optional;
 
 /**
- * A standalone event reactor which declares valid {@linkplain React event-reacting handlers}
+ * A standalone event reactor that declares valid {@linkplain React event-reacting handlers}
  * for the purposes of {@link io.spine.server.event.model.EventReactorSignatureTest
  * EventReactorSignatureTest}.
  *

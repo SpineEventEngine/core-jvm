@@ -61,7 +61,7 @@ message OrderBy {
     // A direction of sorting for ordering the Query results.
     Direction direction = 1 [(required) = true];
 
-    // A column name which value is used for ordering the query results. 
+    // A column name whose value is used for ordering the query results. 
     string column = 2 [(required) = true];
     
     // A direction of an `OrderBy` clause specifying if greater or lesser values should come first.

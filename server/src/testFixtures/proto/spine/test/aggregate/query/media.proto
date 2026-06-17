@@ -80,7 +80,7 @@ message MRVideo {
     map<string, spine.net.Url> subtitles_url = 5 [(validate) = true, (required) = false];
 }
 
-// An aggregate which is used to ensure it is NOT available to querying.
+// An aggregate that is used to ensure it is NOT available to querying.
 message MRSoundRecord {
     option (entity) = {kind: AGGREGATE visibility: NONE};
 

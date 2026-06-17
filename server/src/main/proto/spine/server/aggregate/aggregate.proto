@@ -95,7 +95,7 @@ message AggregateEventRecord {
         server.aggregate.Snapshot snapshot = 3;
     }
 
-    // An identifier of the aggregate which history the `AggregateEventRecord` is a part of .
+    // An identifier of the aggregate whose history the `AggregateEventRecord` is a part of .
     //
     // This field is technically `(required)`, but left optional intentionally
     // to comply with the legacy data.
@@ -103,7 +103,7 @@ message AggregateEventRecord {
     google.protobuf.Any aggregate_id = 5;
 }
 
-// A history of an aggregate is a sequence of its events which is used by the aggregate
+// A history of an aggregate is a sequence of its events that is used by the aggregate
 // to restore its state.
 //
 // The history may start from a snapshot of the aggregate state. If so, the snapshot will be

@@ -232,7 +232,7 @@ class ServerEnvironmentConfigTest {
     }
 
     /**
-     * Test fixture implementing {@link ServerEnvironment.Fn} which remembers a type
+     * Test fixture implementing {@link ServerEnvironment.Fn} that remembers a type
      * passed to {@link #apply(Class)} and returns the configured value.
      *
      * @param <R>
@@ -429,7 +429,7 @@ class ServerEnvironmentConfigTest {
     }
 
     /**
-     * Stub implementation of {@code TransportFactory} which delegates all the calls
+     * Stub implementation of {@code TransportFactory} that delegates all the calls
      * to {@code InMemoryTransportFactory}.
      */
     static class StubTransportFactory implements TransportFactory {

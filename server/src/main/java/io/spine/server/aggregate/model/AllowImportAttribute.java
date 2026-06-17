@@ -37,7 +37,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * A meta-attribute of an {@linkplain io.spine.server.aggregate.Apply event applier method},
- * telling whether the aggregate which declares the method allows importing events accepted
+ * telling whether the aggregate that declares the method allows importing events accepted
  * by this method.
  *
  * @see io.spine.server.aggregate.Apply#allowImport()

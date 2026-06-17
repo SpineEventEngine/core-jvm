@@ -312,7 +312,7 @@ public final class GrpcContainer {
     }
 
     /**
-     * Creates a gRPC server which uses a specified executor.
+     * Creates a gRPC server that uses a specified executor.
      *
      * <p>If {@code null} is passed, a default behavior of the gRPC {@link ServerBuilder}
      * is applied.
@@ -520,7 +520,7 @@ public final class GrpcContainer {
     public interface ConfigureServer extends Function<ServerBuilder<?>, ServerBuilder<?>> {
 
         /**
-         * Returns an instance which does nothing and returns the same {@code ServerBuilder}.
+         * Returns an instance that does nothing and returns the same {@code ServerBuilder}.
          */
         static ConfigureServer doNothing() {
             return builder -> builder;

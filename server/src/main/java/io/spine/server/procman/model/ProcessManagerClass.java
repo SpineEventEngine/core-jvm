@@ -127,7 +127,7 @@ public final class ProcessManagerClass<P extends ProcessManager<?, ?, ?>>
     }
 
     /**
-     * Obtains a method which handles the passed class of commands by producing
+     * Obtains a method that handles the passed class of commands by producing
      * one or more other commands.
      */
     public CommandSubstituter commanderOf(CommandEnvelope command) {
@@ -135,7 +135,7 @@ public final class ProcessManagerClass<P extends ProcessManager<?, ?, ?>>
     }
 
     /**
-     * Obtains a method which may generate one or more commands in response to incoming
+     * Obtains a method that may generate one or more commands in response to incoming
      * event with the passed class.
      */
     public Optional<CommandingReaction> commanderOf(EventEnvelope event) {
@@ -143,7 +143,7 @@ public final class ProcessManagerClass<P extends ProcessManager<?, ?, ?>>
     }
 
     /**
-     * Verifies if the process manager class has a method which generates one or more
+     * Verifies if the process manager class has a method that generates one or more
      * commands in response to a command of the passed class.
      */
     public boolean substitutesCommand(CommandClass commandClass) {

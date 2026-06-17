@@ -35,7 +35,7 @@ import java.io.Serializable;
 import java.util.Comparator;
 
 /**
- * The comparator which sorts the messages chronologically, but ensures that if there is
+ * The comparator that sorts the messages chronologically, but ensures that if there is
  * a {@link CatchUpStarted} event in the sorted batch, it goes on top.
  */
 final class CatchUpMessageComparator

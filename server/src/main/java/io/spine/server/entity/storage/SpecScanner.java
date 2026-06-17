@@ -254,7 +254,7 @@ public final class SpecScanner {
     }
 
     /**
-     * Finds the {@code Column} class which is generated the messages representing the entity
+     * Finds the {@code Column} class that is generated the messages representing the entity
      * state type.
      *
      * <p>If an entity has no such class generated, it does not declare any columns. In this

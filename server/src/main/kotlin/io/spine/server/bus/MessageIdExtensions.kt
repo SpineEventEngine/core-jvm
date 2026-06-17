@@ -56,8 +56,8 @@ public fun Message.acknowledge(): Ack = ackWithStatus(statusOk())
 /**
  * Rejects message with this ID (e.g. [MessageId] or [SignalId]) because the passed error occurred.
  *
- * @param cause the error which prevented the message from being handled
- * @receiver the ID of the message which caused the error
+ * @param cause the error that prevented the message from being handled
+ * @receiver the ID of the message that caused the error
  */
 @VisibleForTesting
 public fun Message.causedError(cause: Error): Ack = ackWithStatus(errorWith(cause))

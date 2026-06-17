@@ -41,12 +41,12 @@ message TxCreated {
     string name = 2;
 }
 
-// The event which causes the handling entity to fail with a `RuntimeException`.
+// The event that causes the handling entity to fail with a `RuntimeException`.
 message TxErrorRequested {
     Id id = 1;
 }
 
-// The event which causes the state builder of the handling entity to go into the state which
+// The event that causes the state builder of the handling entity to go into the state that
 // does not pass the validation.
 message TxStateErrorRequested {
     Id id = 1;

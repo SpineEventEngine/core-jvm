@@ -460,7 +460,7 @@ class AggregateRepositoryTest {
             );
             commandBus.post(createParent, observer);
 
-            // Fire a command which would cause rejection.
+            // Fire a command that would cause rejection.
             var startProject = requestFactory().createCommand(
                     AggStartProjectWithChildren.newBuilder()
                             .setProjectId(parentId)

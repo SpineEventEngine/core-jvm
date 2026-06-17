@@ -40,7 +40,7 @@ public final class GivenCommandService {
     }
 
     /**
-     * Returns a new instance of {@code CommandService} which does not serve
+     * Returns a new instance of {@code CommandService} that does not serve
      * any command type.
      */
     public static CommandService noOpCommandService() {

@@ -40,7 +40,7 @@ import io.spine.system.server.StartPersonCreation;
 import io.spine.type.TypeUrl;
 
 /**
- * A process manager which handles person creation.
+ * A process manager that handles person creation.
  */
 public final class PersonProcman
         extends ProcessManager<PersonId, PersonCreation, PersonCreation.Builder> {

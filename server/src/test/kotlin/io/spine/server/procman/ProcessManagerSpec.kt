@@ -524,7 +524,7 @@ internal class ProcessManagerSpec {
         }
 
         // Execute the commands in the context with both PM and a projection repository
-        // which subscribes to events the PM produces.
+        // that subscribes to events the PM produces.
         // The PM should produce a terminal event with the loaded projection state.
         var assertEvents: EventSubject
         blackBoxWith(

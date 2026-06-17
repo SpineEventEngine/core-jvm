@@ -27,7 +27,7 @@
 package io.spine.server.model;
 
 /**
- * An error which signifies that the {@code external} attribute was misplaced on a handler method.
+ * An error that signifies that the {@code external} attribute was misplaced on a handler method.
  */
 public final class SignalOriginMismatchError extends ModelError {
 

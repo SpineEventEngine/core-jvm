@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import org.gradle.kotlin.dsl.named
  *
  * Runs the unit tests using JUnit or TestNG.
  *
- * Depends on `testClasses`, and all tasks which produce the test runtime classpath.
+ * Depends on `testClasses`, and all tasks that produce the test runtime classpath.
  *
  * @see <a href="https://docs.gradle.org/current/userguide/java_plugin.html#sec:java_tasks">
  *     Tasks | The Java Plugin</a>

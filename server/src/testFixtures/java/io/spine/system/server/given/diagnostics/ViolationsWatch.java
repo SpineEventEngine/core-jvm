@@ -43,7 +43,7 @@ import static io.spine.server.route.EventRoute.withId;
 import static io.spine.string.TemplateStrings.format;
 
 /**
- * A projection which stores contents of invalid {@link TextValidated} events.
+ * A projection that stores contents of invalid {@link TextValidated} events.
  */
 public final class ViolationsWatch extends Projection<WatchId, InvalidText, InvalidText.Builder> {
 

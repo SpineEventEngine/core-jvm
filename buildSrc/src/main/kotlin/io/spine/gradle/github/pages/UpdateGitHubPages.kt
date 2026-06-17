@@ -42,7 +42,7 @@ import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
 
 /**
- * Registers the `updateGitHubPages` task which performs the update of
+ * Registers the `updateGitHubPages` task that performs the update of
  * the GitHub Pages with the documentation generated in Javadoc and HTML format
  * for a particular Gradle project.
  *
@@ -67,7 +67,7 @@ import org.gradle.api.tasks.TaskProvider
  *      REPO_SLUG: SpineEventEngine/base
  * ```
  *
- * @see UpdateGitHubPagesExtension for the extension which is used to configure
+ * @see UpdateGitHubPagesExtension for the extension that is used to configure
  *      this plugin
  */
 class UpdateGitHubPages : Plugin<Project> {
@@ -113,7 +113,7 @@ class UpdateGitHubPages : Plugin<Project> {
     }
 
     /**
-     * Registers `updateGitHubPages` task which performs no actual update, but prints
+     * Registers `updateGitHubPages` task that performs no actual update, but prints
      * the message telling the update is skipped, since the project is in
      * its `SNAPSHOT` version.
      */

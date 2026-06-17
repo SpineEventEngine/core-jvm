@@ -189,7 +189,7 @@ class AbstractReceptor<T,
      *
      * <p>Default implementation returns a one-element set for obtaining {@link ExternalAttribute}.
      *
-     * <p>Overriding classes must return a set which is a
+     * <p>Overriding classes must return a set that is a
      * {@linkplain com.google.common.collect.Sets#union(Set, Set) union} of the
      * set provided by this method and the one needed by the overriding class.
      */

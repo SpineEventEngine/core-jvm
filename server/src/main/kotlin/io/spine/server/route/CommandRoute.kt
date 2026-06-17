@@ -30,7 +30,7 @@ import io.spine.base.CommandMessage
 import io.spine.core.CommandContext
 
 /**
- * Obtains an ID of an entity which would handle the command.
+ * Obtains an ID of an entity that would handle the command.
  *
  * @param I The type of the entity ID.
  * @param M The type of the command to handle.

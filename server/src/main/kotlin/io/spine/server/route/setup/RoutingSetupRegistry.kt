@@ -43,7 +43,7 @@ private typealias RSetup = RoutingSetup<*, *, *, *, *>
  * Contains mappings from an entity class to [routing setup][RoutingSetup] instances
  * discovered for the class.
  *
- * The setup instances are created using the [ServiceLoader] which scans
+ * The setup instances are created using the [ServiceLoader] that scans
  * the implementations of the following interfaces:
  *   * [CommandRoutingSetup]
  *   * [EventRoutingSetup]

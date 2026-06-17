@@ -158,7 +158,7 @@ public final class Inbox<I> {
         }
 
         /**
-         * Adds an endpoint for events which will be delivered through the {@code Inbox} and
+         * Adds an endpoint for events that will be delivered through the {@code Inbox} and
          * marks it with the certain label.
          */
         @CanIgnoreReturnValue
@@ -171,7 +171,7 @@ public final class Inbox<I> {
         }
 
         /**
-         * Adds an endpoint for commands which will be delivered through the {@code Inbox} and
+         * Adds an endpoint for commands that will be delivered through the {@code Inbox} and
          * marks it with the certain label.
          */
         @CanIgnoreReturnValue

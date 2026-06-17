@@ -71,7 +71,7 @@ message PieceOfArt {
     google.protobuf.Any content = 3 [(required) = true];
 }
 
-// The projection which accumulates all the works of the artist.
+// The projection that accumulates all the works of the artist.
 message Works {
     option (entity).kind = PROJECTION;
     ArtistName artist = 1;

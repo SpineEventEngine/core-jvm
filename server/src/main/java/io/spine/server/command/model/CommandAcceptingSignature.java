@@ -50,7 +50,7 @@ import static io.spine.server.model.TypeMatcher.exactly;
 /**
  * The signature of a method, that accepts {@code Command} envelopes as parameter values.
  *
- * @param <H> the type of {@link Receptor} which signature this is
+ * @param <H> the type of {@link Receptor} whose signature this is
  */
 abstract class CommandAcceptingSignature
         <H extends Receptor<?, CommandClass, CommandEnvelope, ?>>
@@ -73,7 +73,7 @@ abstract class CommandAcceptingSignature
      * Returns {@code RejectionThrowable.class} wrapped into {@code Optional}.
      *
      * <p>The methods accepting commands may reject the command by throwing {@linkplain
-     * RejectionThrowable command rejections} which are based on {@code RejectionThrowable}.
+     * RejectionThrowable command rejections} that are based on {@code RejectionThrowable}.
      */
     @Override
     protected Optional<Class<? extends Throwable>> allowedThrowable() {

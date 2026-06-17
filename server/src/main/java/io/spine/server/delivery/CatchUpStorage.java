@@ -71,7 +71,7 @@ public class CatchUpStorage extends MessageStorage<CatchUpId, CatchUp> {
     }
 
     /**
-     * Reads all the catch-up processes which update the projection of the specified type.
+     * Reads all the catch-up processes that update the projection of the specified type.
      *
      * @param projectionType
      *         the type of the projection state to use for filtering

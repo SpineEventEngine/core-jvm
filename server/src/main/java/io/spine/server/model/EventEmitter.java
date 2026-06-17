@@ -39,7 +39,7 @@ import io.spine.type.MessageClass;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A {@link Receptor} which produces events in response to a signal.
+ * A {@link Receptor} that produces events in response to a signal.
  *
  * @param <T>
  *         the type of the target object

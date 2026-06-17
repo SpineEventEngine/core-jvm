@@ -38,7 +38,7 @@ import static io.spine.client.CompositeFilter.CompositeOperator.ALL;
 import static io.spine.client.CompositeFilter.CompositeOperator.EITHER;
 
 /**
- * A subscription filter which aggregates one or more {@link EntityState} filters.
+ * A subscription filter that aggregates one or more {@link EntityState} filters.
  */
 public final class CompositeEntityStateFilter extends TypedCompositeFilter<EntityState<?>> {
 

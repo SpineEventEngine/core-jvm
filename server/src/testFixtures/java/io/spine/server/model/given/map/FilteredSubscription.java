@@ -35,7 +35,7 @@ import io.spine.test.projection.event.Int32Imported;
 import static io.spine.testing.Testing.halt;
 
 /**
- * Valid projection class which filters events by values.
+ * Valid projection class that filters events by values.
  */
 public final class FilteredSubscription
         extends Projection<String, SavedString, SavedString.Builder> {

@@ -367,7 +367,7 @@ public class Given {
     }
 
     /**
-     * A {@link ProjectDetailsRepository} which throws on attempt to
+     * A {@link ProjectDetailsRepository} that throws on attempt to
      * {@link #findRecords(ResponseFormat) load all records}.
      */
     static final class ThrowingProjectDetailsRepository

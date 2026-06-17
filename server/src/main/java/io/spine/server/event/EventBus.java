@@ -338,7 +338,7 @@ public final class EventBus
 
         /**
          * Sets a custom {@link Enricher} for events posted to
-         * the {@code EventBus} which is being built.
+         * the {@code EventBus} that is being built.
          *
          * <p>If the {@code Enricher} is not set, the enrichments
          * will <strong>NOT</strong> be supported for the {@code EventBus} instance built.

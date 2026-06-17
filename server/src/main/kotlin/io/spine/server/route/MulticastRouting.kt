@@ -64,7 +64,7 @@ public abstract class MulticastRouting<
     /**
      * Adds a route for the messages with the given type [N].
      *
-     * @param N The type of the message which descends from
+     * @param N The type of the message that descends from
      *   the super-interface [M] served by this routing schema.
      * @param via The route function to be used for this type of messages.
      * @return `this` to allow chained calls when configuring the routing.
@@ -79,7 +79,7 @@ public abstract class MulticastRouting<
     /**
      * Adds a route for the messages with the given type [N].
      *
-     * @param N The type of the message which descends from
+     * @param N The type of the message that descends from
      *   the super-interface [M] served by this routing schema.
      * @param via The route function to be used for this type of messages.
      * @return `this` to allow chained calls when configuring the routing.
@@ -96,7 +96,7 @@ public abstract class MulticastRouting<
      *
      * This is the Java version of `public inline fun` [unicast].
      *
-     * @param N The type of the message which descends from
+     * @param N The type of the message that descends from
      *   the super-interface [M] served by this routing schema.
      * @param via The route function to be used for this type of messages.
      * @return `this` to allow chained calls when configuring the routing.
@@ -114,7 +114,7 @@ public abstract class MulticastRouting<
      *
      * This is the Java version of `public inline fun` [unicast].
      *
-     * @param N The type of the message which descends from
+     * @param N The type of the message that descends from
      *   the super-interface [M] served by this routing schema.
      * @param via The route function to be used for this type of messages.
      * @return `this` to allow chained calls when configuring the routing.

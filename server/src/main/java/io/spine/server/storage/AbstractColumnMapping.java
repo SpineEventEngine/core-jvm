@@ -61,7 +61,7 @@ public abstract class AbstractColumnMapping<R> implements ColumnMapping<R> {
             = standardTypesMapping();
 
     /**
-     * The mappings which were previously found per column types.
+     * The mappings that were previously found per column types.
      *
      * <p>If the mapping for some given type is not yet discovered, it is going to be searched for
      * and then cached for future use.

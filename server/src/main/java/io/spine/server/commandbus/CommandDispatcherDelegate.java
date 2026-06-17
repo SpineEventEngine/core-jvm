@@ -33,7 +33,7 @@ import io.spine.server.type.CommandClass;
 import io.spine.server.type.CommandEnvelope;
 
 /**
- * A common interface for objects which need to dispatch the
+ * A common interface for objects that need to dispatch the
  * {@linkplain io.spine.core.Command commands}, but are unable to implement
  * the {@link io.spine.server.commandbus.CommandDispatcher CommandDispatcher}.
  *

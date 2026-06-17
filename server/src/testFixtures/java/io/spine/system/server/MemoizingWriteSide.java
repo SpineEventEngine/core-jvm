@@ -38,7 +38,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * A {@link SystemWriteSide} which memoizes the posted system commands.
+ * A {@link SystemWriteSide} that memoizes the posted system commands.
  *
  * <p>This class is a test-only facility, used in order to avoid mocking {@link SystemWriteSide}
  * instances.
@@ -75,7 +75,7 @@ public final class MemoizingWriteSide implements SystemWriteSide {
     /**
      * {@inheritDoc}
      *
-     * <p>Memoizes the given event message and the {@link TenantId} which it was posted for.
+     * <p>Memoizes the given event message and the {@link TenantId} that it was posted for.
      *
      * @see #lastSeenEvent()
      */

@@ -37,7 +37,7 @@ import java.util.Iterator;
 import java.util.Optional;
 
 /**
- * A {@link RecordStorage} which delegates all of its operations to another instance
+ * A {@link RecordStorage} that delegates all of its operations to another instance
  * of {@code RecordStorage}.
  *
  * <p>The framework code deals with many objects that need to be stored. Some of them are

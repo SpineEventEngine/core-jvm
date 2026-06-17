@@ -34,7 +34,7 @@ import java.util.function.Consumer;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Represents an operation which accepts an event message and its context.
+ * Represents an operation that accepts an event message and its context.
  *
  * @param <E>
  *         the type of the event message

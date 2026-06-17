@@ -37,7 +37,7 @@ import java.util.function.BiFunction;
  * A dispatch of the event to the appropriate handler of an entity.
  *
  * <p>Unlike the {@link io.spine.server.command.DispatchCommand}, this class is a simple wrapper
- * around the {@link BiFunction} which performs an actual event dispatch.
+ * around the {@link BiFunction} that performs an actual event dispatch.
  *
  * @param <I>
  *         the type of entity ID

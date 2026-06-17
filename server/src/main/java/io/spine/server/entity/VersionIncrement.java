@@ -47,9 +47,9 @@ public abstract class VersionIncrement {
     protected abstract Version nextVersion();
 
     /**
-     * Creates a version increment which sets the new version from the given event.
+     * Creates a version increment that sets the new version from the given event.
      *
-     * <p>Such an increment strategy is applied to the {@link Entity} types which represent
+     * <p>Such an increment strategy is applied to the {@link Entity} types that represent
      * a sequence of events.
      *
      * <p>One example of such entity is {@link io.spine.server.aggregate.Aggregate Aggregate}.
@@ -63,9 +63,9 @@ public abstract class VersionIncrement {
     }
 
     /**
-     * Creates a version increment which always advances the given entity version by 1.
+     * Creates a version increment that always advances the given entity version by 1.
      *
-     * <p>Such an increment strategy is applied to the {@link Entity} types which cannot use
+     * <p>Such an increment strategy is applied to the {@link Entity} types that cannot use
      * the event versions, such as {@link io.spine.server.projection.Projection Projection}s.
      *
      * <p>A {@code Projection} represents an arbitrary cast of data in a specific moment in

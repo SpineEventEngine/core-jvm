@@ -45,7 +45,7 @@ final class TransportLink {
     private final PublisherHub publisherHub;
 
     /**
-     * Creates a new link with the name of the Bounded Context which establishes it.
+     * Creates a new link with the name of the Bounded Context that establishes it.
      *
      * <p>Operates on top of the passed hubs of {@code Subscriber}s and {@code Publisher}s.
      */
@@ -74,14 +74,14 @@ final class TransportLink {
     }
 
     /**
-     * Returns the name of the Bounded Context which established this link.
+     * Returns the name of the Bounded Context that established this link.
      */
     BoundedContextName context() {
         return context;
     }
 
     /**
-     * Returns all channels which currently exist in the subscriber hub used in this link.
+     * Returns all channels that currently exist in the subscriber hub used in this link.
      */
     Set<ChannelId> subscriptionChannels() {
         return subscriberHub.ids();

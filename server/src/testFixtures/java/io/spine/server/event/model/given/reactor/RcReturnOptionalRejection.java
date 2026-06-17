@@ -33,7 +33,7 @@ import io.spine.test.reflect.event.RefProjectCreated;
 import java.util.Optional;
 
 /**
- * Provides a method which accepts first parameter of wrong type.
+ * Provides a method that accepts first parameter of wrong type.
  */
 public class RcReturnOptionalRejection extends TestEventReactor {
 

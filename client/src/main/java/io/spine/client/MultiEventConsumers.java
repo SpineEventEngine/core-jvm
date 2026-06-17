@@ -44,7 +44,7 @@ import java.util.function.Consumer;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * An association of event types to their consumers which also delivers events.
+ * An association of event types to their consumers that also delivers events.
  *
  * <p>A consumer of an event can accept {@linkplain EventConsumer event message and its context}
  * or {@linkplain Consumer only event message}.

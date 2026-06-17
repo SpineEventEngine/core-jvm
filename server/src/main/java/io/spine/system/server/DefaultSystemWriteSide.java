@@ -43,7 +43,7 @@ import static io.spine.system.server.SystemEventFactory.forMessage;
 final class DefaultSystemWriteSide implements SystemWriteSide {
 
     /**
-     * The ID of the user which is used for generating system commands and events.
+     * The ID of the user that is used for generating system commands and events.
      */
     static final UserId SYSTEM_USER = UserId
             .newBuilder()

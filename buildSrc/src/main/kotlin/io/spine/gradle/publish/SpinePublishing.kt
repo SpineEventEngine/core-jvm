@@ -65,7 +65,7 @@ import org.gradle.kotlin.dsl.findByType
  * ### Filtering out test-only modules
  *
  * Sometimes a functional or an integration test requires a significant amount of
- * configuration code which is better understood when isolated into a separate module.
+ * configuration code that is better understood when isolated into a separate module.
  * Conventionally, we use the `-tests` suffix for naming such modules.
  *
  * In order to avoid publishing of such a test-only module, we use the following extensions

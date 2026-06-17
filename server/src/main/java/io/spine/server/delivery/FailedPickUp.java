@@ -40,7 +40,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * <p>Although not marked {@code Internal} explicitly, this type <em>is</em> internal to framework
  * in terms of extensibility. End-users should not extend it directly.
  * Its descendants are provided by the framework itself, and represent different
- * pick-up failure scenarios which may happen in {@code Delivery} at run-time.
+ * pick-up failure scenarios that may happen in {@code Delivery} at run-time.
  *
  * <p>On the other hand, nested {@link Action} is designed to be implemented by the framework
  * users to provide a custom behaviour for pickup failures in the {@linkplain DeliveryMonitor}
@@ -80,7 +80,7 @@ public abstract class FailedPickUp {
     }
 
     /**
-     * Returns an index of the shard which failed to pick up.
+     * Returns an index of the shard that failed to pick up.
      */
     public final ShardIndex shard() {
         return shard;

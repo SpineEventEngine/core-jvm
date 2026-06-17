@@ -108,7 +108,7 @@ message DeliveryRunInfo {
     repeated catchup.CatchUp catch_up_job = 1;
 }
 
-// An identifier of a worker which processes a shard.
+// An identifier of a worker that processes a shard.
 //
 // This value is unique across the application. It is used to indicate who is currently processing
 // which shard. A single node can contain several workers (typically represented by threads)
@@ -120,7 +120,7 @@ message WorkerId {
 
     // Worker's identifier.
     //
-    // An example of such an identifier could be ID of the thread which processes a shard.
+    // An example of such an identifier could be ID of the thread that processes a shard.
     string value = 2 [(required) = true];
 }
 

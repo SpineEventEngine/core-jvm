@@ -619,7 +619,7 @@ public final class Filters {
     }
 
     /**
-     * Creates a new filter which targets a certain column by its name comparing the actual
+     * Creates a new filter that targets a certain column by its name comparing the actual
      * column values to the one passed value according to the passed operator.
      *
      * @param columnName
@@ -636,7 +636,7 @@ public final class Filters {
     }
 
     /**
-     * Creates a new filter which targets a certain {@code Message} field by comparing the actual
+     * Creates a new filter that targets a certain {@code Message} field by comparing the actual
      * field values to the one passed value according to the passed operator.
      *
      * @param field
@@ -654,7 +654,7 @@ public final class Filters {
     }
 
     /**
-     * Creates a filter for {@link Event} instances which is applied to one of the fields in
+     * Creates a filter for {@link Event} instances that is applied to one of the fields in
      * the {@link io.spine.core.EventContext EventContext} corresponding to the {@code Event}.
      *
      * @param field
@@ -772,7 +772,7 @@ public final class Filters {
     }
 
     /**
-     * Creates a filter of events which can apply conditions from the passed
+     * Creates a filter of events that can apply conditions from the passed
      * {@code CompositeFilter} to both event message and its context.
      *
      * <p>The filter is deemed addressing the {@linkplain io.spine.core.EventContext event context}

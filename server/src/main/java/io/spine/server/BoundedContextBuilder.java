@@ -304,7 +304,7 @@ public final class BoundedContextBuilder implements WithLogging {
     }
 
     /**
-     * Adds the passed command dispatcher to the dispatcher registration list which will be
+     * Adds the passed command dispatcher to the dispatcher registration list that will be
      * processed after the Bounded Context is created.
      *
      * @apiNote This method is also capable of registering
@@ -342,7 +342,7 @@ public final class BoundedContextBuilder implements WithLogging {
     }
 
     /**
-     * Adds the passed event dispatcher to the dispatcher registration list which will be processed
+     * Adds the passed event dispatcher to the dispatcher registration list that will be processed
      * after the Bounded Context is created.
      *
      * @apiNote This method is also capable of registering

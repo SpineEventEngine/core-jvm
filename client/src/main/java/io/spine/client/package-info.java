@@ -40,7 +40,7 @@
  *   </dd>
  *
  *   <dt><strong>Low-level {@link io.spine.client.ActorRequestFactory} API</strong></dt>
- *   <dd>is meant for server-side code which needs to speak to backend services without involving
+ *   <dd>is meant for server-side code that needs to speak to backend services without involving
  *   gRPC. This API is also by the High-level API implementation.</dd>
  * </dl>
  *

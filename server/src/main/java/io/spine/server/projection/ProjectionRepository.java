@@ -404,7 +404,7 @@ public abstract class ProjectionRepository<I,
      * @throws CatchUpAlreadyStartedException
      *         if another catch-up for the same entity type and overlapping targets is already in
      *         progress
-     * @see #catchUpAll(Timestamp) on a shortcut method which starts the catch-up for all
+     * @see #catchUpAll(Timestamp) on a shortcut method that starts the catch-up for all
      *         entities in this repository
      */
     public CatchUpId catchUp(Timestamp since, @Nullable Set<I> ids)

@@ -71,7 +71,7 @@ message ExternalEventsWanted {
     repeated ExternalEventType type = 1;
 }
 
-// The type of a domain event which is emitted by one Bounded Context and consumed by
+// The type of a domain event that is emitted by one Bounded Context and consumed by
 // other Bounded Contexts as "external" event
 message ExternalEventType {
     option (is).java_type = "ExternalEventTypeMixin";
@@ -100,12 +100,12 @@ enum ExternalMessageValidationError {
 // is able to provide them.
 //
 // Please note this message does not signify that some context has _just_ connected
-// to the transport. It may be sent by some context which has been using the shared transport
+// to the transport. It may be sent by some context that has been using the shared transport
 // for quite some time — in which case this message may serve to notify just-connected Bounded
 // Contexts of its existence.
 //
 message BoundedContextOnline {
 
-    // The name of the Bounded Context which is connected to the transport.
+    // The name of the Bounded Context that is connected to the transport.
     spine.core.BoundedContextName context = 1 [(required) = true];
 }

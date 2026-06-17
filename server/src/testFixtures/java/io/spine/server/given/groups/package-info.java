@@ -29,7 +29,7 @@
  * A bounded context for testing entity state updates.
  *
  * <p>This package hosts a number of Protobuf definitions marked an {@code (entity)}-s and event
- * subscribers which receive updates of those entities.
+ * subscribers that receive updates of those entities.
  */
 
 @BoundedContext("Groups")

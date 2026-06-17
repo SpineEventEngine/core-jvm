@@ -188,7 +188,7 @@ import static java.util.Collections.synchronizedList;
  *
  * <b>3. Cleanup station</b>
  *
- * <p>This station removes the messages which are already delivered and are no longer needed for the
+ * <p>This station removes the messages that are already delivered and are no longer needed for the
  * deduplication. See {@link CleanupStation} for the description.
  *
  * <b>Deduplication</b>
@@ -233,7 +233,7 @@ public final class Delivery implements WithLogging {
     private static final Duration LOCAL_DEDUPLICATION_WINDOW = Durations.fromSeconds(30);
 
     /**
-     * The name of the system bounded context which performs the delivery of signals.
+     * The name of the system bounded context that performs the delivery of signals.
      *
      * <p>This name is used to initialize the storage implementations.
      */
@@ -399,13 +399,13 @@ public final class Delivery implements WithLogging {
     }
 
     /**
-     * Creates a new instance of {@code Delivery} which makes all signals to skip
+     * Creates a new instance of {@code Delivery} that makes all signals to skip
      * the {@code Inbox}es and be delivered straight to their respective targets.
      *
      * <p>In this mode, no signals are stored in the {@code InboxStorage}. Also, the signals
      * are not sharded.
      *
-     * <p>This mode only suits the applications which operate in a single-thread mode
+     * <p>This mode only suits the applications that operate in a single-thread mode
      * and in scope of a single JVM. Typically, that would be some tools executing
      * linear-style jobs, which aim for the maximum performance under
      * the strictly controlled circumstances.
@@ -523,7 +523,7 @@ public final class Delivery implements WithLogging {
     }
 
     /**
-     * Runs the delivery for the shard, which session is passed.
+     * Runs the delivery for the shard, whose session is passed.
      *
      * <p>The messages are read page-by-page according to the {@link #pageSize page size} setting.
      *

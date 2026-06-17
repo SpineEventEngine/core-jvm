@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ package io.spine.gradle.github.pages
 object TaskName {
 
     /**
-     * The name of the task which updates the GitHub Pages.
+     * The name of the task that updates the GitHub Pages.
      */
     const val updateGitHubPages = "updateGitHubPages"
 

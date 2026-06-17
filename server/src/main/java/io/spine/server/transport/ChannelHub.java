@@ -39,7 +39,7 @@ import static java.util.Collections.unmodifiableSet;
 /**
  * The hub of channels grouped in some logical way.
  *
- * <p>Serves for channel creation and storage-per-ID which in a way makes the hub similar to
+ * <p>Serves for channel creation and storage-per-ID that in a way makes the hub similar to
  * an entity repository.
  *
  * @param <C>

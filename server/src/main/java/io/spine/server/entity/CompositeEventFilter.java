@@ -35,7 +35,7 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * An {@link EventFilter} which composes several other filters.
+ * An {@link EventFilter} that composes several other filters.
  *
  * <p>The filters are applied to the input event one by one in the order of
  * {@linkplain Builder#add(EventFilter) addition}. The next filter is applied to the result of

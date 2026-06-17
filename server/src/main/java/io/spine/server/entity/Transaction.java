@@ -59,7 +59,7 @@ import static java.lang.String.format;
  * <p>Serves as a buffer, accumulating the changes, intended for the enclosed {@code Entity};
  * the changes are only applied to the actual object upon {@linkplain #commit() commit}.
  *
- * <p>The transaction is injected to the entity, which state should be modified. By doing so,
+ * <p>The transaction is injected to the entity, whose state should be modified. By doing so,
  * the {@linkplain Transaction#builder() "buffering" builder} is exposed to concrete
  * {@code TransactionalEntity} subclasses. In turn, they receive an ability to change the entity
  * state by modifying {@link TransactionalEntity#builder() entity state builder}.
@@ -85,7 +85,7 @@ public abstract class Transaction<I,
                                   B extends ValidatingBuilder<S>> {
 
     /**
-     * The entity, which state and attributes are modified in this transaction.
+     * The entity, whose state and attributes are modified in this transaction.
      */
     private final E entity;
 
@@ -328,7 +328,7 @@ public abstract class Transaction<I,
      * the message was successfully dispatched.
      *
      * <p>This is needed for the cases of dispatching more than one message during a transaction.
-     * After the state is propagated to the entity, its message handler which is invoked during
+     * After the state is propagated to the entity, its message handler that is invoked during
      * the next step would “see” the {@linkplain Entity#state() state of the entity}.
      *
      * @param increment

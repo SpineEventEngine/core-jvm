@@ -64,14 +64,14 @@ message CommandLog {
     CommandTimeline timeline = 4 [(required) = true];
 }
 
-// An identifier of an entity which is the target of a command.
+// An identifier of an entity that is the target of a command.
 //
 message CommandTarget {
 
-    // The ID of the entity which the command is dispatched to.
+    // The ID of the entity that the command is dispatched to.
     spine.client.EntityId entity_id = 1 [(validate) = true];
 
-    // The state type URL of the entity which receives the command.
+    // The state type URL of the entity that receives the command.
     string type_url = 2 [(required) = true];
 }
 

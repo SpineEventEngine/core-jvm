@@ -390,7 +390,7 @@ class EventBusTest {
     }
 
     /**
-     * Ensures that events which pass filters and the ones that don’t are treated independently when
+     * Ensures that events that pass filters and the ones that don’t are treated independently when
      * sent in batch.
      *
      * <p> To filter the {@link EBTaskAdded} events the {@linkplain EventBus} has a custom filter.
@@ -446,7 +446,7 @@ class EventBusTest {
      * Tests the concurrent access to the {@linkplain io.spine.server.bus.BusFilter bus filters}.
      *
      * <p>The {@linkplain io.spine.server.bus.FilterChain filter chain} is a queue of the filters
-     * which are sequentially applied to the posted message. The first {@code Bus.post()} call
+     * that are sequentially applied to the posted message. The first {@code Bus.post()} call
      * invokes the filters lazy initialization. In the concurrent environment (which is natural for
      * a {@link io.spine.server.bus.Bus Bus}), the initialization may be performed multiple times.
      * Thus, some unexpected issues may appear when accessing the non-synchronously initialized

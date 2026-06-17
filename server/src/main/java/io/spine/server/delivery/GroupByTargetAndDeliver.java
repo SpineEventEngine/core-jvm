@@ -57,7 +57,7 @@ final class GroupByTargetAndDeliver implements DeliveryAction {
      *
      * <p>In case of an exception, the messages are marked as delivered, in order to avoid
      * repetitive delivery. However, if a JVM {@link Error} is thrown, only the messages
-     * which were delivered successfully are marked as delivered. Moreover, a JVM {@link Error}
+     * that were delivered successfully are marked as delivered. Moreover, a JVM {@link Error}
      * halts the delivery for all the subsequent messages in the batch.
      * However, this is not true for {@link ModelError}s, which are treated
      * in the same way as exceptions.

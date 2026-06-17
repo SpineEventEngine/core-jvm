@@ -165,7 +165,7 @@ message EntityStateChanged {
     // The new state of the entity.
     google.protobuf.Any new_state = 2 [(required) = true];
 
-    // The IDs of the signals which caused the mutation.
+    // The IDs of the signals that caused the mutation.
     repeated core.MessageId signal_id = 3 [(required) = true, (validate) = true];
 
     // The instant when the entity was changed.
@@ -182,7 +182,7 @@ message EntityArchived {
     // The ID of the entity.
     core.MessageId entity = 1 [(required) = true];
 
-    // The IDs of the signals which caused the mutation.
+    // The IDs of the signals that caused the mutation.
     repeated core.MessageId signal_id = 2 [(required) = true, (validate) = true];
 
     // The instant when the entity was archived.
@@ -202,7 +202,7 @@ message EntityDeleted {
     // The ID of the entity.
     core.MessageId entity = 1 [(required) = true];
 
-    // The IDs of the signals which caused the mutation.
+    // The IDs of the signals that caused the mutation.
     repeated core.MessageId signal_id = 2 [(required) = true, (validate) = true];
 
     // The instant when the entity was deleted.
@@ -231,7 +231,7 @@ message EntityUnarchived {
     // The ID of the entity.
     core.MessageId entity = 1 [(required) = true];
 
-    // The IDs of the signals which caused the mutation.
+    // The IDs of the signals that caused the mutation.
     repeated core.MessageId signal_id = 2 [(required) = true, (validate) = true];
 
     // The instant when the entity was extracted.
@@ -251,7 +251,7 @@ message EntityRestored {
     // The ID of the entity.
     core.MessageId entity = 1 [(required) = true];
 
-    // The IDs of the signals which caused the mutation.
+    // The IDs of the signals that caused the mutation.
     repeated core.MessageId signal_id = 2 [(required) = true, (validate) = true];
 
     // The instant when the entity was restored.

@@ -43,7 +43,7 @@ import io.spine.server.model.given.SignatureTestEvent;
 import java.io.IOException;
 
 /**
- * A standalone commander which declares invalid {@link Command} reaction methods.
+ * A standalone commander that declares invalid {@link Command} reaction methods.
  *
  * <p>Being similar to {@link ValidCommander}, this class also declares duplicate handlers
  * for the same events. Again, this seems to be the simplest way to test invalid signatures

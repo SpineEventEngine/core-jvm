@@ -31,12 +31,12 @@ import io.spine.server.transport.Publisher;
 import io.spine.server.transport.Subscriber;
 
 /**
- * An exchange which uses a single channel for inbound and outbound traffic.
+ * An exchange that uses a single channel for inbound and outbound traffic.
  */
 abstract class SingleChannelExchange extends AbstractExchange {
 
     /**
-     * Creates a new exchange which uses the passed link.
+     * Creates a new exchange that uses the passed link.
      */
     SingleChannelExchange(TransportLink link) {
         super(link);

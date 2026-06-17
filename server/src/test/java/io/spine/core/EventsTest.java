@@ -50,7 +50,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * Test functionality of {@link Events} utility class.
  *
  * <p>This test suite is placed under the {@code server} module to avoid dependency on the event
- * generation code which belongs to server-side.
+ * generation code that belongs to server-side.
  */
 @DisplayName("`Events` utility should")
 public class EventsTest extends UtilityClassTest<Events> {

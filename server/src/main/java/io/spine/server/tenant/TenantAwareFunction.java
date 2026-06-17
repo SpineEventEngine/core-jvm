@@ -32,7 +32,7 @@ import io.spine.core.TenantId;
 import java.util.function.Function;
 
 /**
- * A function which is calculated in a tenant context.
+ * A function that is calculated in a tenant context.
  *
  * @param <F>
  *         the type of the input

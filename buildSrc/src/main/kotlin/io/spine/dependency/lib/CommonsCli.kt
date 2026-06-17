@@ -27,7 +27,7 @@
 package io.spine.dependency.lib
 
 /**
- * Commons CLI is a transitive dependency which we don't use directly.
+ * Commons CLI is a transitive dependency that we don't use directly.
  * We `force` it in [forceVersions].
  *
  * [Commons CLI](https://commons.apache.org/proper/commons-cli/)

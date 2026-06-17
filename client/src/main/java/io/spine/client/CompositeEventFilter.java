@@ -38,7 +38,7 @@ import static io.spine.client.CompositeFilter.CompositeOperator.ALL;
 import static io.spine.client.CompositeFilter.CompositeOperator.EITHER;
 
 /**
- * A composite subscription filter which can aggregate both event message and event context
+ * A composite subscription filter that can aggregate both event message and event context
  * filters.
  */
 public final class CompositeEventFilter extends TypedCompositeFilter<Event> {

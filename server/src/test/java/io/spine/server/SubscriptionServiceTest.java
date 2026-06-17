@@ -218,7 +218,7 @@ class SubscriptionServiceTest {
     }
 
     /**
-     * Creates a topic on the type which is not available in the Bounded Context used
+     * Creates a topic on the type that is not available in the Bounded Context used
      * in these tests.
      */
     private Topic invalidTopic() {

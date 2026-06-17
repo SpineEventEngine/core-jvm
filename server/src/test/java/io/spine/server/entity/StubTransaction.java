@@ -30,7 +30,7 @@ import io.spine.base.EntityState;
 import io.spine.validation.ValidatingBuilder;
 
 /**
- * Stub implementation of {@code Transaction} which behaves as told in the passed parameters.
+ * Stub implementation of {@code Transaction} that behaves as told in the passed parameters.
  */
 final class StubTransaction<I,
                             E extends TransactionalEntity<I, S, B>,

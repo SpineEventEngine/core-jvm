@@ -82,7 +82,7 @@ public final class DispatchOutcomes {
     }
 
     /**
-     * Returns an outcome which tells about a successful dispatching
+     * Returns an outcome that tells about a successful dispatching
      * of the passed command envelope.
      *
      * @param command

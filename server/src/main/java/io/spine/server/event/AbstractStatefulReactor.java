@@ -46,7 +46,7 @@ import static io.spine.server.dispatch.DispatchOutcomes.sentToInbox;
 import static io.spine.util.Exceptions.newIllegalStateException;
 
 /**
- * An abstract base for {@link AbstractEventReactor}s which have state and require
+ * An abstract base for {@link AbstractEventReactor}s that have state and require
  * {@linkplain io.spine.server.delivery.Delivery delivering} the messages through an
  * {@link io.spine.server.delivery.Inbox Inbox}.
  *

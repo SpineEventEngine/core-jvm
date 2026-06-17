@@ -36,7 +36,7 @@ import io.spine.type.TypeUrl;
 import java.util.Optional;
 
 /**
- * Abstract base for handlers which detect changes in {@code Entity} state,
+ * Abstract base for handlers that detect changes in {@code Entity} state,
  * leading to concluding it as {@linkplain EntityStateUpdate#getNoLongerMatching()
  * no longer matching} the subscription criteria.
  */

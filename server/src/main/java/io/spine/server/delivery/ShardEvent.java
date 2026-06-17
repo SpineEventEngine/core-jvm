@@ -31,7 +31,7 @@ import io.spine.annotation.Internal;
 import io.spine.base.EventMessage;
 
 /**
- * An event which is always delivered via the shard, which index is determined by the identifier
+ * An event that is always delivered via the shard, whose index is determined by the identifier
  * of this message.
  */
 @Immutable

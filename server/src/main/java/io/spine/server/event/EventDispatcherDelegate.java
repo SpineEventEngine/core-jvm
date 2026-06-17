@@ -34,7 +34,7 @@ import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
 
 /**
- * A common interface for objects which need to dispatch {@linkplain io.spine.core.Event events},
+ * A common interface for objects that need to dispatch {@linkplain io.spine.core.Event events},
  * but are unable to implement {@link io.spine.server.event.EventDispatcher EventDispatcher}.
  *
  * <p>This interface defines own contract for dispatching events, instead of extending

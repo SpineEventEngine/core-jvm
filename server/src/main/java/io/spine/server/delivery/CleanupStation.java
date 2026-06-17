@@ -31,7 +31,7 @@ import com.google.protobuf.util.Timestamps;
 import io.spine.base.Time;
 
 /**
- * The station which removes the delivered messages, unless they are
+ * The station that removes the delivered messages, unless they are
  * {@linkplain InboxMessage#getKeepUntil() set} to be kept for longer.
  */
 final class CleanupStation extends Station {
@@ -41,7 +41,7 @@ final class CleanupStation extends Station {
     private static final Result NOTHING_DELIVERED = new Result(0, NO_ERRORS);
 
     /**
-     * Looks up through the passed conveyor in order to find the messages which may already be
+     * Looks up through the passed conveyor in order to find the messages that may already be
      * removed.
      *
      * <p>Always reports that no messages were delivered and, therefore, no delivery errors were

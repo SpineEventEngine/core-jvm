@@ -318,7 +318,7 @@ internal fun TaskContainer.getOrCreate(name: String, init: Jar.() -> Unit): Task
  * Obtains as a set of [Jar] tasks, output of which is used as Maven artifacts.
  *
  * By default, only a jar with Java compilation output is included into publication. This method
- * registers tasks which produce additional artifacts according to the values of [jarFlags].
+ * registers tasks that produce additional artifacts according to the values of [jarFlags].
  *
  * @return the list of the registered tasks.
  */

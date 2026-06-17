@@ -104,7 +104,7 @@ public abstract class ReceptorSignature<R extends Receptor<?, ?, E, ?>,
     protected abstract ReturnTypes returnTypes();
 
     /**
-     * Obtains the type of {@code Throwable} which a method can declare.
+     * Obtains the type of {@code Throwable} that a method can declare.
      *
      * <p>A receptor may declare more than one {@code Throwable}, but they must
      * extend the same type required by this type of signature.

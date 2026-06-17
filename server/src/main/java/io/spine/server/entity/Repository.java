@@ -344,7 +344,7 @@ public abstract class Repository<I, E extends Entity<I, ?>>
      * Creates the storage for this repository.
      *
      * <p>Default implementations use {@link #defaultStorageFactory()} invoking its method
-     * which creates a storage compatible with the repository.
+     * that creates a storage compatible with the repository.
      *
      * <p>Overwrite this method for creating a custom implementation of {@code Storage}.
      *
@@ -468,7 +468,7 @@ public abstract class Repository<I, E extends Entity<I, ?>>
      * <p>All the events posted by this repository, domain, and system are first passed through this
      * filter.
      *
-     * <p>By default, the filter allows all the events to be posted. For entities which do not allow
+     * <p>By default, the filter allows all the events to be posted. For entities that do not allow
      * state subscription, the {@link io.spine.system.server.event.EntityStateChanged} event is
      * filtered out. Override this method to change this behaviour.
      *

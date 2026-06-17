@@ -36,7 +36,7 @@ import io.spine.type.TypeName;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * The holder of a {@code Command} which provides convenient access to its properties.
+ * The holder of a {@code Command} that provides convenient access to its properties.
  */
 public final class CommandEnvelope
         extends AbstractMessageEnvelope<CommandId, Command, CommandContext>

@@ -49,7 +49,7 @@ public final class Identity {
     }
 
     /**
-     * Creates the ID which has only the passed value.
+     * Creates the ID that has only the passed value.
      *
      * <p>The returned ID does not contain the type information.
      */
@@ -60,7 +60,7 @@ public final class Identity {
     }
 
     /**
-     * Creates the ID which has only fully qualified name of the passed class.
+     * Creates the ID that has only fully qualified name of the passed class.
      *
      * <p>The returned ID does not contain the type information.
      */

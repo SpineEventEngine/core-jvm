@@ -74,7 +74,7 @@ final class IdField {
     }
 
     /**
-     * Returns {@code true} if the entity state type declares a field which is
+     * Returns {@code true} if the entity state type declares a field that is
      * the ID of the entity, {@code false} otherwise.
      */
     private boolean declared() {

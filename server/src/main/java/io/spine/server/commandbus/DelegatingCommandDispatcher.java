@@ -34,7 +34,7 @@ import io.spine.server.type.CommandClass;
 import io.spine.server.type.CommandEnvelope;
 
 /**
- * A dispatcher of commands which delegates the responsibilities to
+ * A dispatcher of commands that delegates the responsibilities to
  * a {@link CommandDispatcherDelegate}.
  *
  * @see CommandDispatcherDelegate

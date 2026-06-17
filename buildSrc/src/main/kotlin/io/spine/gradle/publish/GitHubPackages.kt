@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,12 +82,12 @@ private fun Project.readGitHubToken(): String {
 }
 
 /**
- * Read the personal access token for the `developers@spine.io` account which
- * has only the permission to read public GitHub packages.
+ * Reads the personal access token for the `developers@spine.io` account.
+ * The token grants only read access to public GitHub packages.
  *
  * The token is extracted from the archive called `aus.weis` stored under `buildSrc`.
  * The archive has such an unusual name to avoid scanning for tokens placed in repositories
- * which is performed by GitHub. Since we do not violate any security, it is OK to
+ * that is performed by GitHub. Since we do not violate any security, it is OK to
  * use such a workaround.
  */
 private fun Project.readTokenFromArchive(): String {

@@ -41,14 +41,14 @@ abstract class AbstractExchange {
     private final TransportLink link;
 
     /**
-     * Creates a new exchange which uses the passed link.
+     * Creates a new exchange that uses the passed link.
      */
     AbstractExchange(TransportLink link) {
         this.link = link;
     }
 
     /**
-     * Returns the name of the Bounded Context which uses this exchange.
+     * Returns the name of the Bounded Context that uses this exchange.
      */
     protected final BoundedContextName context() {
         return link.context();

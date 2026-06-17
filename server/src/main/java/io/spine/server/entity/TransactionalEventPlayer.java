@@ -32,7 +32,7 @@ import io.spine.server.dispatch.BatchDispatchOutcome;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * An {@link EventPlayer} which plays events upon the given {@link Transaction}.
+ * An {@link EventPlayer} that plays events upon the given {@link Transaction}.
  */
 final class TransactionalEventPlayer implements EventPlayer {
 

@@ -46,7 +46,7 @@ import static io.spine.protobuf.Messages.isDefault;
 import static io.spine.server.entity.FieldMasks.applyMask;
 
 /**
- * An {@link EventFilter} which allows all the events but trims some of their message fields.
+ * An {@link EventFilter} that allows all the events but trims some of their message fields.
  *
  * <p>By default, the input event is returned unchanged. Specify a {@link FieldMask} for an event
  * type to trim certain fields off the event messages. The fields in the mask are

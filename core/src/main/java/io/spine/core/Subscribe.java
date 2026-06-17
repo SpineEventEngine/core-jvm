@@ -88,7 +88,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *         the only parameter.
  * </ul>
  *
- * <p>If the annotation is applied to a method which doesn't satisfy either of these requirements,
+ * <p>If the annotation is applied to a method that doesn't satisfy either of these requirements,
  * this method is not considered a subscriber and is not registered for the command output delivery.
  *
  * <p>Event subscriber methods are designed to be called by the framework only.

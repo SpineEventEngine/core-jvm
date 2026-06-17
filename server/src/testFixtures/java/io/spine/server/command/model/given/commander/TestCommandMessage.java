@@ -32,7 +32,7 @@ import io.spine.model.contexts.projects.command.SigPauseTask;
 import io.spine.model.contexts.projects.command.SigStartTask;
 
 /**
- * A test environment class which provides command messages.
+ * A test environment class that provides command messages.
  */
 final class TestCommandMessage {
 

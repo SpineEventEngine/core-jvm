@@ -156,7 +156,7 @@ fun Module.forceConfigurations() {
                    set by `mc-java` in the `:core` module when specifying compiler artifact
                    for the gRPC plugin.
                    See `io.spine.tools.mc.java.gradle.plugins.JavaProtocConfigurationPlugin
-                   .configureProtocPlugins()` method which sets the version from resources. */
+                   .configureProtocPlugins()` method that sets the version from resources. */
                 Grpc.forceArtifacts(project, this@all, this@resolutionStrategy)
                 force(Grpc.ProtocPlugin.artifact)
 

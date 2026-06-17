@@ -54,7 +54,7 @@ final class EntityChangeHandler extends AbstractEntityUpdateHandler {
     /**
      * {@inheritDoc}
      *
-     * <p>Entity state often experience several changes down the lifecycle path. Some entities which
+     * <p>Entity state often experience several changes down the lifecycle path. Some entities that
      * initially passed the subscription criteria, stop passing those as their state updates.
      *
      * <p>In this case a special {@code SubscriptionUpdate} is emitted. Its

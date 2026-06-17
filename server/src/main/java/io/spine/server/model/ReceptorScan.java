@@ -132,7 +132,7 @@ final class ReceptorScan<R extends Receptor<?, ?, ?, ?>> {
         var existingReceptor = messageToHandler.put(receptorClass, receptor);
         if (existingReceptor != null && !filter.sameField(existingReceptor.filter())) {
             // There is already a receptor for this message class.
-            // Check that the field which is used as the condition for filtering is the same.
+            // Check that the field that is used as the condition for filtering is the same.
             // It's not allowed to have filtered receptors by various fields because it
             // makes the dispatching ambiguous: "Do we need to dispatch to this receptor
             // and that receptor too?"

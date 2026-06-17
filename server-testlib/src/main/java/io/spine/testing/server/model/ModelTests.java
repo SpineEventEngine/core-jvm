@@ -49,7 +49,7 @@ public final class ModelTests {
      * Clears all models.
      *
      * @implNote This method is the only way to drop models because {@link Model#dropAllModels()}
-     * verifies the name of the class which calls the method.
+     * verifies the name of the class that calls the method.
      * It must be {@code ModelTests this class}.
      */
     public static void dropAllModels() {

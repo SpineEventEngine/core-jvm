@@ -83,7 +83,7 @@ public final class CommandFactory {
     /**
      * Creates a new {@code Command} with the passed message and target entity version.
      *
-     * <p>The {@code targetVersion} parameter defines the version of the entity which handles
+     * <p>The {@code targetVersion} parameter defines the version of the entity that handles
      * the resulting command. Note that the framework performs no validation of the target version
      * before a command is handled. Instead, users themselves can perform validation.
      *

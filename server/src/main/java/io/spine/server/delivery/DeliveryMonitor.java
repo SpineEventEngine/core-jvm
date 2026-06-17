@@ -107,7 +107,7 @@ public class DeliveryMonitor {
      *
      * <p>Returns an action to take in relation to the failure.
      *
-     * <p>By default, this callback returns an action which
+     * <p>By default, this callback returns an action that
      * marks the message as {@linkplain InboxMessageStatus#DELIVERED delivered}.
      *
      * <p>See {@link FailedReception} for more pre-defined actions.
@@ -161,7 +161,7 @@ public class DeliveryMonitor {
     }
 
     /**
-     * Returns an instance of {@code DeliveryMonitor} which always says to continue.
+     * Returns an instance of {@code DeliveryMonitor} that always says to continue.
      */
     static DeliveryMonitor alwaysContinue() {
         return ALWAYS_CONTINUE;

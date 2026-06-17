@@ -101,6 +101,6 @@ message CmdSetTaskDescription {
     string description = 3;
 }
 
-// Invalid command message which does not contain any fields.
+// Invalid command message that does not contain any fields.
 message CmdEmpty {
 }

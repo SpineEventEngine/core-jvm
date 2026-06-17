@@ -59,7 +59,7 @@ final class Element implements Serializable {
     private Type type;
 
     /**
-     * Creates a tuple element with a value which can be {@link Message},
+     * Creates a tuple element with a value that can be {@link Message},
      * {@link Optional}, or {@link Either}.
      */
     @SuppressWarnings({
@@ -202,7 +202,7 @@ final class Element implements Serializable {
     }
 
     /**
-     * A marker interface for a tuple element which value can be
+     * A marker interface for a tuple element whose value can be
      * {@link java.util.Optional Optional}.
      */
     interface OptionalValue {

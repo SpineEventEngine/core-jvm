@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,6 @@ import io.spine.dependency.build.PluginPublishPlugin
 import io.spine.dependency.lib.Protobuf
 import io.spine.dependency.local.Compiler
 import io.spine.dependency.local.CoreJvmCompiler
-import io.spine.dependency.local.McJava
 import io.spine.dependency.local.ProtoTap
 import io.spine.dependency.test.Kotest
 import io.spine.dependency.test.Kover
@@ -89,12 +88,6 @@ val ScriptHandlerScope.coreJvmCompiler: CoreJvmCompiler
     get() = CoreJvmCompiler
 
 /**
- * Shortcut to [McJava] dependency object for using under `buildScript`.
- */
-val ScriptHandlerScope.mcJava: McJava
-    get() = McJava
-
-/**
  * Shortcut to [CoreJvmCompiler] dependency object.
  *
  * This plugin is not published to Gradle Portal and cannot be applied directly to a project.
@@ -112,10 +105,10 @@ val ScriptHandlerScope.spineCompiler: Compiler
 /**
  * Shortcut to [Compiler] dependency object.
  *
- * This plugin is published at Gradle Plugin Portal.
- * But when used in a pair with [mcJava], it cannot be applied directly to a project.
- * It is so, because [mcJava] uses [spineCompiler] as its dependency.
- * And the buildscript's classpath ends up with both of them.
+ * This plugin is published at Gradle Plugin Portal. But when another plugin that
+ * depends on the Compiler is also on the buildscript's classpath, the Compiler
+ * cannot be applied directly to a project. In such a case, declare it here so that
+ * it is added to the classpath, then apply it by ID.
  */
 val PluginDependenciesSpec.spineCompiler: Compiler
     get() = Compiler
@@ -344,7 +337,7 @@ val buildToolConfigurations: Array<String> = arrayOf(
 )
 
 /**
- * Make the `sourcesJar` task accept duplicated input which seems to occur
+ * Make the `sourcesJar` task accept duplicated input, which seems to occur
  * somewhere inside Protobuf Gradle Plugin.
  */
 fun Project.allowDuplicationInSourcesJar() {

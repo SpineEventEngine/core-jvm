@@ -33,7 +33,7 @@ import org.jspecify.annotations.Nullable;
 import static io.spine.server.storage.ColumnTypeMapping.identity;
 
 /**
- * A default column mapping which stores all values "as-is".
+ * A default column mapping that stores all values "as-is".
  *
  * <p>May be sufficient for in-memory storage implementations and storages that do manual
  * conversion of column values.

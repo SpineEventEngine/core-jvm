@@ -43,7 +43,7 @@ message EngineStopped {
     EngineId id = 1 [(required) = true];
 }
 
-// This is a state event which does not have corresponding command (import-only event).
+// This is a state event that does not have corresponding command (import-only event).
 message SettingsAdjusted {
     EngineId id = 1 [(required) = true];
 }
@@ -53,7 +53,7 @@ message TankEmpty {
     EngineId id = 1 [(required) = true];
 }
 
-// An event which is not handled in any way.
+// An event that is not handled in any way.
 message UnsupportedEngineEvent {
     EngineId id = 1 [(required) = true];
 }

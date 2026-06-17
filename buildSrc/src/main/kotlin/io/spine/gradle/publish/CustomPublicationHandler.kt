@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import org.gradle.api.publish.maven.MavenPublication
  * which is <em>created</em> for a module. Instead, since the publications are already declared,
  * this class only [assigns Maven coordinates][copyProjectAttributes].
  *
- * A module which declares custom publications must be specified in
+ * A module that declares custom publications must be specified in
  * the [SpinePublishing.modulesWithCustomPublishing] property.
  *
  * If a module with [publications] declared locally is not specified as one with custom publishing,

@@ -62,7 +62,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
 public final class EntityQueryToProto implements Function<EntityQuery<?, ?, ?>, Query> {
 
     /**
-     * A factory of the {@code Query} instances which is used in a transformation process.
+     * A factory of the {@code Query} instances that is used in a transformation process.
      */
     private final QueryFactory factory;
 
@@ -89,7 +89,7 @@ public final class EntityQueryToProto implements Function<EntityQuery<?, ?, ?>, 
     }
 
     /**
-     * Creates an instance of a transformer which would use the passed query factory.
+     * Creates an instance of a transformer that would use the passed query factory.
      *
      * @param factory
      *         the query factory

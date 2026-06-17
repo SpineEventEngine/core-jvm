@@ -83,7 +83,7 @@ internal class PolicySpec {
 }
 
 /**
- * A policy which attempts to define two `@Command` receptors to handle more than one
+ * A policy that attempts to define two `@Command` receptors to handle more than one
  * event type, which is not allowed by the `Policy` contract.
  */
 private class GreedyPolicy : Policy<SomethingHappened>() {

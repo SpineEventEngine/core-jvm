@@ -35,7 +35,7 @@ import io.spine.server.tenant.TenantAwareRunner;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * A test repository which can load an aggregate by its ID and fail the test if the
+ * A test repository that can load an aggregate by its ID and fail the test if the
  * aggregate with such ID is not found.
  *
  * @param <I>

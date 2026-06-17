@@ -27,7 +27,7 @@
 package io.spine.system.server;
 
 /**
- * An implementation of {@link SystemClient} which never performs an action.
+ * An implementation of {@link SystemClient} that never performs an action.
  *
  * <p>When requested for a read/write side of a system context, always obtains a NOP implementation.
  *

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ interface JsEnvironment {
         get() = projectDir.resolve("test")
 
     /**
-     * A directory which all artifacts are generated into.
+     * A directory that all artifacts are generated into.
      *
      * Default value: "$projectDir/build".
      */

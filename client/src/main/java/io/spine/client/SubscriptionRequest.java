@@ -82,7 +82,7 @@ public final class SubscriptionRequest<S extends EntityState<?>>
     }
 
     /**
-     * Adds a consumer observing the entities which previously matched the subscription criteria,
+     * Adds a consumer observing the entities that previously matched the subscription criteria,
      * but stopped to do so.
      *
      * <p>The consumer is fed with the ID of the entity in one of the following cases:
