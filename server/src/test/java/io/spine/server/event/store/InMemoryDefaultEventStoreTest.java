@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -24,36 +24,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.server.delivery;
+package io.spine.server.event.store;
 
-import com.google.protobuf.util.Durations;
-import io.spine.environment.Tests;
-import io.spine.server.ServerEnvironment;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 
 /**
- * An abstract base for the tests performing actual delivery.
+ * Runs the {@link DefaultEventStoreTest} contract against the default in-memory
+ * {@code StorageFactory} configured for tests.
  */
-abstract class AbstractDeliveryTest {
-
-    private Delivery originalDelivery;
-
-    @BeforeEach
-    public void setUp() {
-        this.originalDelivery = ServerEnvironment.instance()
-                                                 .delivery();
-    }
-
-    @AfterEach
-    public void tearDown() {
-        ServerEnvironment.when(Tests.class)
-                         .use(originalDelivery);
-    }
-
-    static void changeShardCountTo(int shards) {
-        var newDelivery = Delivery.localWithShardsAndWindow(shards, Durations.ZERO);
-        ServerEnvironment.when(Tests.class)
-                         .use(newDelivery);
-    }
+@DisplayName("In-memory `EventStore` should")
+class InMemoryDefaultEventStoreTest extends DefaultEventStoreTest {
 }
