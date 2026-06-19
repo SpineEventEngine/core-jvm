@@ -41,6 +41,9 @@ import "spine/server/given/context/sorting/figure.proto";
 // The generation is repeated [count] times.
 //
 message GenerateFigures {
+    // This field makes this command be compatible with the contact of the ID fields.
+    // Please see `io.spine.base.Identifier` class for details.
+    uint32 id_compatibility_shim = 3;
     repeated Figure figure = 1 [(required) = true, (distinct) = true];
     int32 count = 2 [(min).value = "1"];
 }

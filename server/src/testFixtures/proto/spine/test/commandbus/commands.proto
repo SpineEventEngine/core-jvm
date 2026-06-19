@@ -109,5 +109,8 @@ message CmdBusSetTaskDescription {
 // the client simply adds the label names. The server takes care of routing the command.
 //
 message CmdBusCreateLabels {
+    // This field makes this command be compatible with the contact of the ID fields.
+    // Please see `io.spine.base.Identifier` class for details.
+    uint32 id_compatibility_shim = 2;
     repeated string label = 1 [(required) = true];
 }

@@ -36,5 +36,8 @@ option java_multiple_files = true;
 
 message Halt {
     option (internal_type) = true;
+    // This field makes this command be compatible with the contact of the ID fields.
+    // Please see `io.spine.base.Identifier` class for details.
+    uint32 id_compatibility_shim = 2;
     bool value = 1;
 }
