@@ -225,7 +225,7 @@ internal class DependencyWriterSpec {
 
         @Test
         fun `preferring a known scope over that of an unknown configuration`() {
-            subproject("a-tools").declare("protoData", SPINE_BASE)
+            subproject("a-tools").declare("spineCompiler", SPINE_BASE)
             subproject("b-tests").declare("testImplementation", SPINE_BASE)
 
             val dependency = rootProject.dependencies().single()
@@ -236,7 +236,7 @@ internal class DependencyWriterSpec {
 
         @Test
         fun `preferring the 'provided' scope over that of an unknown configuration`() {
-            subproject("a-tools").declare("protoData", SPINE_BASE)
+            subproject("a-tools").declare("spineCompiler", SPINE_BASE)
             subproject("b-lib").declare("compileOnly", SPINE_BASE)
 
             val dependency = rootProject.dependencies().single()
@@ -248,7 +248,7 @@ internal class DependencyWriterSpec {
 
     @Test
     fun `omit the scope of a dependency coming only from an unknown configuration`() {
-        subproject("lib").declare("protoData", SPINE_BASE)
+        subproject("lib").declare("spineCompiler", SPINE_BASE)
 
         val dependency = rootProject.dependencies().single()
 

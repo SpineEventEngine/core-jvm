@@ -6,6 +6,9 @@ jobs:
   build:
     name: Build on Ubuntu
     runs-on: ubuntu-latest
+    concurrency:  # Avoid canceling in-progress runs for the same branch.
+      group: ubuntu-ci-${{ github.ref }}
+      cancel-in-progress: false
 
     steps:
       - uses: actions/checkout@v6
@@ -19,13 +22,24 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v6
 
+      # Mirrors the pagefile step in build-on-windows.yml. The Linux runner
+      # ships with effectively no swap, so a memory peak becomes an instant
+      # OOM kill; this gives the kernel somewhere to fall back to.
+      - name: Add swap space
+        uses: pierotofy/set-swap-space@v1.0
+        with:
+          swap-size-gb: 8
+
+      - name: Build project, run tests
+        shell: bash
+        run: ./gradlew build --stacktrace
+
       # `build` does not run Dokka — its tasks are gated to the publishing
       # graph — so `dokkaGenerate` is appended to surface documentation
       # warnings on each push, before merge, instead of only in the post-merge
       # `Publish` job. `failOnWarning` is enabled in the Dokka setup.
-      - name: Build project, run tests, and check documentation
-        shell: bash
-        run: ./gradlew build dokkaGenerate --stacktrace
+      - name: Check documentation
+        run: ./gradlew dokkaGenerate --stacktrace
 
       # See: https://github.com/marketplace/actions/junit-report-action
       - name: Publish Test Report

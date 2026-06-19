@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,11 +63,14 @@ class Cli(private val workingFolder: File) {
             redirectError(PIPE)
         }.start()
 
-        val exitCode = process.run {
-            inputStream!!.pourTo(outWriter)
-            errorStream!!.pourTo(errWriter)
-            waitFor()
-        }
+        val outReader = process.inputStream!!.pourTo(outWriter)
+        val errReader = process.errorStream!!.pourTo(errWriter)
+        val exitCode = process.waitFor()
+        // `waitFor()` returns on process exit but does not wait for the reader
+        // threads to finish draining the pipes; join them so the buffers hold
+        // the complete output before it is read below.
+        outReader.join()
+        errReader.join()
 
         if (exitCode == 0) {
             return outWriter.toString()
@@ -83,14 +86,14 @@ class Cli(private val workingFolder: File) {
 }
 
 /**
- * Asynchronously reads all lines from this [InputStream] and appends them
- * to the passed [StringWriter].
+ * Starts a background thread that reads all lines from this [InputStream] and
+ * appends them to [dest], returning the thread so the caller can [join][Thread.join]
+ * it once the process has exited, ensuring the buffer holds the complete output.
  */
-private fun InputStream.pourTo(dest: StringWriter) {
+private fun InputStream.pourTo(dest: StringWriter): Thread =
     Thread {
         val sc = Scanner(this)
         while (sc.hasNextLine()) {
             dest.append(sc.nextLine())
         }
-    }.start()
-}
+    }.also { it.start() }

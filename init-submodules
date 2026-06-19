@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+
+################################################################################
+#
+# Materialize the *config-managed* submodules a fresh working tree is missing, so
+# agent assets resolve.
+#
+# `git worktree add` — and some shallow CI / cloud checkouts — populate only the
+# superproject's own tracked files; registered submodules are left UNinitialized.
+# In a Spine repo that means the `config` and `.agents/shared` submodules are
+# empty, the `.agents/skills` -> `.agents/shared/skills` symlink dangles, and no
+# agent skills, scripts, or guidelines can be found.
+#
+# This script is the bootstrap that has to run BEFORE `./config/pull`: `pull`
+# lives inside the `config` submodule, so on a fresh worktree it does not yet
+# exist. `init-submodules`, by contrast, is a plain tracked file at the repo root
+# (distributed by `config`), so `git worktree add` always checks it out — it can
+# therefore bring `config` itself into existence.
+#
+# It initializes ONLY submodules that are BOTH:
+#
+#   * not yet checked out — those `git submodule status` marks with a leading `-`,
+#     at the commit the branch pins; and
+#
+#   * config-managed — `config` itself (the bootstrap target `pull` lives inside,
+#     which carries no tracked `branch` in a consumer's `.gitmodules`), plus every
+#     submodule that declares a tracked `branch` in `.gitmodules`. This is exactly
+#     the rule `./config/pull` uses to decide what it floats, so the two scripts
+#     can never disagree about what is shared.
+#
+# Consumer-owned submodules (a Hugo theme, a vendored library, documentation
+# examples, ...) declare no tracked branch and are deliberately left untouched.
+# Because a `SessionStart` hook runs this script automatically on every session,
+# initializing them would mean trying to clone — or failing on credentials for —
+# a submodule this project does not manage, on every single start. They are
+# skipped (noted on stderr).
+#
+# Submodules already present are left exactly as they are, so a tree that floated
+# `config` / `.agents/shared` to a branch tip via `./config/pull` is never
+# silently rewound to the pin. That makes the script idempotent and safe to run on
+# every session start.
+#
+# It does NOT float submodules to their branch tips — run `./config/pull`
+# afterwards for that. Unlike `pull`, it depends on no pre-existing `config`
+# submodule, so it can bootstrap a bare worktree where `./config/pull` does not
+# yet exist.
+#
+################################################################################
+
+set -u
+
+root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+cd "$root" || exit 0
+
+# Nothing to do in a repo without submodules.
+[ -f .gitmodules ] || exit 0
+
+# The set of config-managed submodule paths: `config` itself (handled specially —
+# it carries no tracked branch, exactly as in `./config/pull`), plus every
+# submodule declaring a tracked `branch` in `.gitmodules`. Mirrors `pull`'s rule.
+config_managed_paths() {
+    printf '%s\n' 'config'
+    git config -f .gitmodules --get-regexp '^submodule\..*\.branch$' 2>/dev/null \
+    | while read -r key _branch; do
+        name=${key#submodule.}; name=${name%.branch}
+        git config -f .gitmodules --get "submodule.$name.path" 2>/dev/null
+    done
+}
+
+managed=$(config_managed_paths | sort -u)
+
+# `git submodule status` prefixes each uninitialized submodule with `-`; an
+# initialized one starts with a space (at the pinned commit) or `+` (ahead of it).
+# Act only on the `-` lines, taking the path from the second field, and only when
+# that path is config-managed.
+git submodule status 2>/dev/null | awk '$1 ~ /^-/ { print $2 }' | while read -r path; do
+    [ -n "$path" ] || continue
+    if printf '%s\n' "$managed" | grep -qxF -- "$path"; then
+        echo "init-submodules: initializing '$path'"
+        git submodule update --init --recursive -- "$path" \
+            || echo "init-submodules: WARNING — could not initialize '$path' (offline?)." >&2
+    else
+        echo "init-submodules: skipping consumer-owned '$path' (not config-managed)." >&2
+    fi
+done
+
+exit 0

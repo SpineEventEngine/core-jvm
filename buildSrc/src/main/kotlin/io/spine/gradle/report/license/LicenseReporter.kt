@@ -96,6 +96,20 @@ object LicenseReporter {
 
             renderers = arrayOf(MarkdownReportRenderer(Paths.outputFilename))
         }
+
+        // The rendered report embeds the project's Maven coordinates — including its
+        // version — in the report header (see `Template.writeHeader`). The
+        // `generateLicenseReport` task is a `@CacheableTask` that keys its up-to-date check
+        // and build-cache entry on the resolved dependencies only, not on the project version.
+        // Without the version as an explicit input, a version-only change leaves the task
+        // `UP-TO-DATE` (or restorable from the build cache), so the report keeps the previous
+        // version while `pom.xml`, produced by an always-running task, is updated. Declaring
+        // the version as an input invalidates the cached output when it changes, so the report
+        // is regenerated. The value is read lazily so it reflects the version resolved at
+        // execution time, regardless of when `project.version` is assigned during configuration.
+        project.tasks.generateLicenseReport.configure {
+            inputs.property("projectVersion", project.provider { project.version.toString() })
+        }
     }
 
     /**
