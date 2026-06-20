@@ -53,7 +53,7 @@ import org.gradle.api.tasks.TaskProvider
  * repository root. It is recommended to encrypt it in the repository and then decrypt
  * it on CI upon publication. Also, the script uses the `FORMAL_GIT_HUB_PAGES_AUTHOR`
  * environment variable to set the author email for the commits. The `gh-pages`
- * branch itself should exist before the plugin is run.
+ * branch is created automatically if it does not exist yet.
  *
  * NOTE: when changing the value of "FORMAL_GIT_HUB_PAGES_AUTHOR", one also must change
  * the SSH private (encrypted `deploy_key_rsa`) and the public

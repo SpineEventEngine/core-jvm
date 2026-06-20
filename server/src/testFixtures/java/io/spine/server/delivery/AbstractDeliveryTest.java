@@ -24,27 +24,36 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-syntax = "proto3";
+package io.spine.server.delivery;
 
-package spine.server.given.context.sorting;
+import com.google.protobuf.util.Durations;
+import io.spine.environment.Tests;
+import io.spine.server.ServerEnvironment;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
-import "spine/options.proto";
+/**
+ * An abstract base for the tests performing actual delivery.
+ */
+public abstract class AbstractDeliveryTest {
 
-option (type_url_prefix) = "type.spine.io";
-option java_package="io.spine.server.given.context.sorting.command";
-option java_outer_classname = "SortingCommandsProto";
-option java_multiple_files = true;
+    private Delivery originalDelivery;
 
-import "spine/server/given/context/sorting/figure.proto";
+    @BeforeEach
+    public void setUp() {
+        this.originalDelivery = ServerEnvironment.instance()
+                                                 .delivery();
+    }
 
-// A request to generate geometric figures specified in the [figure] field of the command.
-//
-// The generation is repeated [count] times.
-//
-message GenerateFigures {
-    // This field makes this command be compatible with the contract of the ID fields.
-    // Please see `io.spine.base.Identifier` class for details.
-    uint32 id_compatibility_shim = 3;
-    repeated Figure figure = 1 [(required) = true, (distinct) = true];
-    int32 count = 2 [(min).value = "1"];
+    @AfterEach
+    public void tearDown() {
+        ServerEnvironment.when(Tests.class)
+                         .use(originalDelivery);
+    }
+
+    static void changeShardCountTo(int shards) {
+        var newDelivery = Delivery.localWithShardsAndWindow(shards, Durations.ZERO);
+        ServerEnvironment.when(Tests.class)
+                         .use(newDelivery);
+    }
 }

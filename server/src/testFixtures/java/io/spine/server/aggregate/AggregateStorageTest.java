@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,7 +92,15 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class AggregateStorageTest
+/**
+ * An abstract base for tests of {@link AggregateStorage} implementations.
+ *
+ * <p>The storage under test is produced by the
+ * {@linkplain ServerEnvironment#storageFactory() current} {@code StorageFactory}. Descendants
+ * cover a specific storage engine by configuring the corresponding factory before the suite runs;
+ * with the default test configuration the suite runs against the in-memory storage.
+ */
+public abstract class AggregateStorageTest
         extends AbstractStorageTest<ProjectId,
                                     AggregateHistory,
                                     AggregateStorage<ProjectId, AggProject>> {

@@ -24,27 +24,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-syntax = "proto3";
+package io.spine.server.delivery;
 
-package spine.server.given.context.sorting;
+import io.spine.testing.SlowTest;
+import org.junit.jupiter.api.DisplayName;
 
-import "spine/options.proto";
-
-option (type_url_prefix) = "type.spine.io";
-option java_package="io.spine.server.given.context.sorting.command";
-option java_outer_classname = "SortingCommandsProto";
-option java_multiple_files = true;
-
-import "spine/server/given/context/sorting/figure.proto";
-
-// A request to generate geometric figures specified in the [figure] field of the command.
-//
-// The generation is repeated [count] times.
-//
-message GenerateFigures {
-    // This field makes this command be compatible with the contract of the ID fields.
-    // Please see `io.spine.base.Identifier` class for details.
-    uint32 id_compatibility_shim = 3;
-    repeated Figure figure = 1 [(required) = true, (distinct) = true];
-    int32 count = 2 [(min).value = "1"];
+/**
+ * Runs the {@link CatchUpTest} suite against the default in-memory {@code Delivery}.
+ */
+@SlowTest
+@DisplayName("In-memory catch-up of projection instances should")
+class InMemoryCatchUpTest extends CatchUpTest {
 }
