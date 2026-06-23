@@ -84,4 +84,16 @@ git submodule status 2>/dev/null | awk '$1 ~ /^-/ { print $2 }' | while read -r 
     fi
 done
 
+# Route Git hooks to the shared hooks directory so the secret-scan `pre-commit`
+# hook is active even in a brand-new worktree, before `./config/pull` runs. The
+# path floats with the `.agents/shared` submodule; until that submodule is
+# initialized the hook simply does not fire (Git skips a missing hook). Set only
+# when unset or already ours — never override a repo's own `core.hooksPath`.
+desired_hooks=".agents/scripts/git-hooks"
+current_hooks=$(git config --local --get core.hooksPath 2>/dev/null || true)
+if [ -z "$current_hooks" ] || [ "$current_hooks" = "$desired_hooks" ]; then
+    git config --local core.hooksPath "$desired_hooks" \
+        && echo "init-submodules: Git hooks routed to '$desired_hooks' (secret-scan pre-commit active)."
+fi
+
 exit 0
