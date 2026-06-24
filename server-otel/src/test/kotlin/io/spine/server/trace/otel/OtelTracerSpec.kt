@@ -64,9 +64,7 @@ internal class OtelTracerSpec {
     @BeforeEach
     fun setUp() {
         spans = RecordingSpanProcessor()
-        factory = OtelTracerFactory.newBuilder()
-            .setOpenTelemetry(recordingOpenTelemetry(spans))
-            .build()
+        factory = OtelTracerFactory(recordingOpenTelemetry(spans))
         command = requests.command().create(scheduleFlight())
     }
 
@@ -76,6 +74,15 @@ internal class OtelTracerSpec {
             it.processedBy(flightReceiver(), flightType())
         }
         spans.spans shouldHaveSize 1
+    }
+
+    @Test
+    fun `report the configured instrumentation scope`() {
+        val scope = "custom.tracer.scope"
+        OtelTracerFactory(recordingOpenTelemetry(spans), scope)
+            .trace(spec, command)
+            .use { it.processedBy(flightReceiver(), flightType()) }
+        span().instrumentationScopeInfo.name shouldBe scope
     }
 
     @Nested

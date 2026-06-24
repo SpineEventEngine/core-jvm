@@ -28,7 +28,6 @@
 
 package io.spine.server.trace.otel
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.opentelemetry.kotlin.ExperimentalApi
@@ -52,16 +51,7 @@ internal class OtelTracerFactorySpec {
     @BeforeEach
     fun setUp() {
         val otel = recordingOpenTelemetry(RecordingSpanProcessor())
-        factory = OtelTracerFactory.newBuilder()
-            .setOpenTelemetry(otel)
-            .build()
-    }
-
-    @Test
-    fun `require an 'OpenTelemetry' instance`() {
-        shouldThrow<IllegalStateException> {
-            OtelTracerFactory.newBuilder().build()
-        }
+        factory = OtelTracerFactory(otel)
     }
 
     @Test

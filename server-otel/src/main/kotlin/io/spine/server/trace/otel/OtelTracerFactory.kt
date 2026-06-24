@@ -37,36 +37,39 @@ import io.spine.server.trace.Tracer
 import io.spine.server.trace.TracerFactory
 
 /**
- * The default instrumentation scope name used for the OpenTelemetry tracer.
+ * The default instrumentation scope name reported to OpenTelemetry.
  */
-private const val DEFAULT_SCOPE_NAME = "io.spine.server.trace.otel"
+public const val DEFAULT_INSTRUMENTATION_SCOPE_NAME: String = "io.spine.server.trace.otel"
 
 /**
  * A [TracerFactory] that records signal handling as OpenTelemetry spans.
  *
  * This factory is backend-agnostic: it maps Spine signals onto OpenTelemetry
- * spans and relies on a caller-supplied [OpenTelemetry] instance to process and
- * export them. To send traces to a particular backend (an OTLP collector, Google
- * Cloud Trace, Jaeger, etc.), configure the corresponding span processor and
- * exporter on the [OpenTelemetry] instance before passing it here.
+ * spans and relies on the supplied [openTelemetry] instance to process and export
+ * them. To send traces to a particular backend (an OTLP collector, Google Cloud
+ * Trace, Jaeger, etc.), configure the corresponding span processor and exporter on
+ * the [OpenTelemetry] instance before passing it here.
  *
- * The [OpenTelemetry] instance is owned by the caller. Closing this factory does
+ * The [openTelemetry] instance is owned by the caller. Closing this factory does
  * not shut it down.
  *
- * Use the [Builder] to create instances:
  * ```
- * val factory = OtelTracerFactory.newBuilder()
- *     .setOpenTelemetry(openTelemetry)
- *     .build()
+ * val factory = OtelTracerFactory(openTelemetry)
  * ServerEnvironment.instance()
  *     .use(factory)
  * ```
  *
+ * @param openTelemetry
+ *         the OpenTelemetry instance that processes and exports the recorded spans
+ * @param instrumentationScopeName
+ *         the instrumentation scope name reported to OpenTelemetry;
+ *         defaults to [DEFAULT_INSTRUMENTATION_SCOPE_NAME]
+ *
  * @see <a href="https://opentelemetry.io/docs/languages/kotlin/">OpenTelemetry Kotlin</a>
  */
-public class OtelTracerFactory private constructor(
+public class OtelTracerFactory @JvmOverloads constructor(
     private val openTelemetry: OpenTelemetry,
-    instrumentationScopeName: String,
+    instrumentationScopeName: String = DEFAULT_INSTRUMENTATION_SCOPE_NAME,
 ) : TracerFactory {
 
     private val tracer: OpenTelemetryTracer =
@@ -87,61 +90,5 @@ public class OtelTracerFactory private constructor(
         // The `OpenTelemetry` instance is owned by the caller and is not shut
         // down here. This factory only marks itself as closed.
         open = false
-    }
-
-    public companion object {
-
-        /**
-         * The default instrumentation scope name reported to OpenTelemetry.
-         */
-        public const val DEFAULT_INSTRUMENTATION_SCOPE_NAME: String = DEFAULT_SCOPE_NAME
-
-        /**
-         * Creates a new builder for [OtelTracerFactory] instances.
-         */
-        @JvmStatic
-        public fun newBuilder(): Builder = Builder()
-    }
-
-    /**
-     * A builder for [OtelTracerFactory] instances.
-     */
-    public class Builder internal constructor() {
-
-        private var openTelemetry: OpenTelemetry? = null
-        private var instrumentationScopeName: String = DEFAULT_SCOPE_NAME
-
-        /**
-         * Sets the [OpenTelemetry] instance that processes and exports the
-         * recorded spans.
-         *
-         * This is a required property.
-         */
-        public fun setOpenTelemetry(openTelemetry: OpenTelemetry): Builder {
-            this.openTelemetry = openTelemetry
-            return this
-        }
-
-        /**
-         * Sets the instrumentation scope name reported to OpenTelemetry.
-         *
-         * If not set, [DEFAULT_INSTRUMENTATION_SCOPE_NAME] is used.
-         */
-        public fun setInstrumentationScopeName(name: String): Builder {
-            this.instrumentationScopeName = name
-            return this
-        }
-
-        /**
-         * Creates a new [OtelTracerFactory].
-         *
-         * @throws IllegalStateException if the [OpenTelemetry] instance is not set
-         */
-        public fun build(): OtelTracerFactory {
-            val otel = checkNotNull(openTelemetry) {
-                "The `OpenTelemetry` instance must be set."
-            }
-            return OtelTracerFactory(otel, instrumentationScopeName)
-        }
     }
 }

@@ -66,9 +66,13 @@ private const val NANOS_PER_SECOND = 1_000_000_000L
  * A single handling of a [signal] by an entity, recorded as an OpenTelemetry span.
  *
  * A signal may be handled once or many times by different entities. Each handling
- * is recorded as its own span. Spans produced for signals that descend from a
- * common root signal share a single [trace][traceIdOf], so that a whole causal
- * chain appears as one trace.
+ * is recorded as its own span — deliberately, not as a span event on a shared span:
+ * OpenTelemetry deprecated the Span Events API in March 2026 in favor of log-based
+ * events, so per-handling data is carried by dedicated spans and their attributes.
+ * Spans produced for signals that descend from a common root signal share a single
+ * [trace][traceIdOf], so that a whole causal chain appears as one trace.
+ *
+ * @see <a href="https://opentelemetry.io/blog/2026/deprecating-span-events/">Deprecating Span Events</a>
  */
 internal class SignalSpan(
     val contextName: BoundedContextName,

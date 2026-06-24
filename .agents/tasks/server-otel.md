@@ -23,11 +23,16 @@ repo); this task only adds the new module.
 
 New module `core-jvm/server-otel`, package `io.spine.server.trace.otel`:
 
-- `OtelTracerFactory` — `TracerFactory` built via `newBuilder().setOpenTelemetry(otel)`.
-  Holds a caller-supplied `OpenTelemetry` and derives one OTel `Tracer`. `close()` only
-  flips `isOpen()`; it does **not** shut down the caller-owned `OpenTelemetry`.
+- `OtelTracerFactory` — `TracerFactory` constructed directly via a Kotlin constructor
+  with a default: `OtelTracerFactory(openTelemetry, instrumentationScopeName = DEFAULT)`
+  (`@JvmOverloads` so Java can call the single-arg form). No builder — idiomatic Kotlin,
+  KMP-friendly. Holds a caller-supplied `OpenTelemetry` and derives one OTel `Tracer`;
+  `open` is `@Volatile`. `close()` only flips `isOpen()`; it does **not** shut down the
+  caller-owned `OpenTelemetry`.
 - `OtelTracer` — `AbstractTracer`; each `processedBy(...)` starts and immediately ends
-  one span. `close()` is a no-op (export is the SDK's job).
+  one span. `close()` is a no-op (export is the SDK's job). Each handling is its **own
+  span**, never a span event — OpenTelemetry deprecated the Span Events API (March 2026)
+  in favor of log-based events; per-handling data is carried as span attributes.
 - `SignalSpan` — maps `(context, signal, receiver, receiverType)` to a span: start =
   signal timestamp, end = now, name `"<Receiver> handles <Signal>"` (≤128 chars),
   attributes, and a synthetic sampled parent context carrying the derived trace ID.
