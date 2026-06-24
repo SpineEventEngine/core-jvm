@@ -113,7 +113,7 @@ internal enum class SpanAttribute(val key: String) {
 /**
  * Returns this string limited to at most [maxLength] UTF-16 code units.
  *
- * If the cut would fall between the two halves of a surrogate pair, the trailing
+ * If the cut falls between the two halves of a surrogate pair, the trailing
  * high surrogate is dropped as well, so the result never ends with a broken character.
  */
 internal fun String.truncated(maxLength: Int): String {
