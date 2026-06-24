@@ -9,7 +9,7 @@ all modules and does not describe the project structure per-subproject.
  
  -->
 <groupId>io.spine</groupId>
-<artifactId>spine-core-jvm</artifactId>
+<artifactId>core-jvm</artifactId>
 <version>2.0.0-SNAPSHOT.381</version>
 
 <inceptionYear>2015</inceptionYear>
@@ -57,6 +57,12 @@ all modules and does not describe the project structure per-subproject.
     <groupId>io.grpc</groupId>
     <artifactId>grpc-stub</artifactId>
     <version>1.81.0</version>
+    <scope>compile</scope>
+  </dependency>
+  <dependency>
+    <groupId>io.opentelemetry.kotlin</groupId>
+    <artifactId>api</artifactId>
+    <version>0.4.0</version>
     <scope>compile</scope>
   </dependency>
   <dependency>
@@ -201,6 +207,18 @@ all modules and does not describe the project structure per-subproject.
     <groupId>io.kotest</groupId>
     <artifactId>kotest-assertions-core</artifactId>
     <version>6.1.11</version>
+    <scope>test</scope>
+  </dependency>
+  <dependency>
+    <groupId>io.opentelemetry.kotlin</groupId>
+    <artifactId>core</artifactId>
+    <version>0.4.0</version>
+    <scope>test</scope>
+  </dependency>
+  <dependency>
+    <groupId>io.opentelemetry.kotlin</groupId>
+    <artifactId>implementation</artifactId>
+    <version>0.4.0</version>
     <scope>test</scope>
   </dependency>
   <dependency>
