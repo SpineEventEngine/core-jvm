@@ -31,6 +31,7 @@ package io.spine.server.trace.otel
 import io.opentelemetry.kotlin.ExperimentalApi
 import io.opentelemetry.kotlin.OpenTelemetry
 import io.opentelemetry.kotlin.tracing.Tracer as OpenTelemetryTracer
+import io.spine.annotation.Experimental
 import io.spine.core.BoundedContextName
 import io.spine.core.MessageId
 import io.spine.core.Signal
@@ -49,6 +50,8 @@ import io.spine.system.server.EntityTypeName
  * Instances are created by [OtelTracerFactory] and are not meant to be reused
  * across signals.
  */
+@ExperimentalOtelTracing
+@Experimental
 public class OtelTracer internal constructor(
     signal: Signal<*, *, *>,
     private val openTelemetry: OpenTelemetry,

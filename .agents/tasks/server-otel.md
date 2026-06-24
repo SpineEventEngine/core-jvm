@@ -46,6 +46,12 @@ New module `core-jvm/server-otel`, package `io.spine.server.trace.otel`:
   (32-char trace ID / 16-char span ID), fixing the un-padded `Long.toHexString` gap in
   the old code; non-UUID IDs fall back to a stable name-based UUID.
 
+The public API (`OtelTracerFactory`, `OtelTracer`, `DEFAULT_INSTRUMENTATION_SCOPE_NAME`)
+is marked **experimental** twice: a Kotlin opt-in marker `@ExperimentalOtelTracing`
+(`@RequiresOptIn`, ERROR — Kotlin consumers must `@OptIn`) and Spine's
+`@io.spine.annotation.Experimental` (source-level documentation marker). This reflects
+the alpha status of the underlying Kotlin OpenTelemetry API.
+
 Behavioral parity with `stackdriver-trace`, minus the GCP coupling: export, batching,
 and sampling are delegated to the caller's `OpenTelemetry` SDK (no manual batch-write,
 no GCP credentials, no sync/async service, no `forbidMultiThreading`). The parent

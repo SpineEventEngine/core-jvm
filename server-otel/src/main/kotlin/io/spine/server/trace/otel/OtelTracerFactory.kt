@@ -31,6 +31,7 @@ package io.spine.server.trace.otel
 import io.opentelemetry.kotlin.ExperimentalApi
 import io.opentelemetry.kotlin.OpenTelemetry
 import io.opentelemetry.kotlin.tracing.Tracer as OpenTelemetryTracer
+import io.spine.annotation.Experimental
 import io.spine.core.Signal
 import io.spine.server.ContextSpec
 import io.spine.server.trace.Tracer
@@ -39,6 +40,8 @@ import io.spine.server.trace.TracerFactory
 /**
  * The default instrumentation scope name reported to OpenTelemetry.
  */
+@ExperimentalOtelTracing
+@Experimental
 public const val DEFAULT_INSTRUMENTATION_SCOPE_NAME: String = "io.spine.server.trace.otel"
 
 /**
@@ -67,6 +70,8 @@ public const val DEFAULT_INSTRUMENTATION_SCOPE_NAME: String = "io.spine.server.t
  *
  * @see <a href="https://opentelemetry.io/docs/languages/kotlin/">OpenTelemetry Kotlin</a>
  */
+@ExperimentalOtelTracing
+@Experimental
 public class OtelTracerFactory @JvmOverloads constructor(
     private val openTelemetry: OpenTelemetry,
     instrumentationScopeName: String = DEFAULT_INSTRUMENTATION_SCOPE_NAME,

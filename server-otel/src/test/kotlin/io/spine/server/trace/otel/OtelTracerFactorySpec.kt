@@ -24,7 +24,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-@file:OptIn(ExperimentalApi::class)
+@file:OptIn(ExperimentalApi::class, ExperimentalOtelTracing::class)
 
 package io.spine.server.trace.otel
 
