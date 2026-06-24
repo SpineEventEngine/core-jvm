@@ -50,9 +50,9 @@ private val uuidPattern =
  * OpenTelemetry [trace ID][io.opentelemetry.kotlin.tracing.SpanContext.traceId]
  * format.
  *
- * Signal IDs are version 3 or version 4 UUIDs, whose version and variant bits keep
- * both halves non-zero; the derived trace ID is therefore always a valid (non-zero)
- * OpenTelemetry trace ID.
+ * The derived trace ID is always a valid (non-zero) OpenTelemetry trace ID:
+ * canonical UUID signal IDs (versions 3 and 4) carry non-zero version and variant
+ * bits, and the fallback for non-UUID IDs forces both 64-bit halves to be non-zero.
  *
  * @see spanIdOf
  */
@@ -93,12 +93,23 @@ private fun SignalId.toUuid(): Uuid {
 /**
  * Folds this byte array into exactly [Uuid.SIZE_BYTES] bytes, so that it can be
  * turned into a [Uuid]. The fold is deterministic but not cryptographic.
+ *
+ * Both 64-bit halves of the result are kept non-zero, so that the derived trace ID
+ * and span ID are valid (non-zero) OpenTelemetry identifiers — even for inputs that
+ * would otherwise fold to all zeros (such as an empty or a uniformly repeated string).
  */
 private fun ByteArray.foldToUuidSize(): ByteArray {
     val result = ByteArray(Uuid.SIZE_BYTES)
     forEachIndexed { index, byte ->
         val i = index % Uuid.SIZE_BYTES
         result[i] = (result[i].toInt() xor byte.toInt()).toByte()
+    }
+    val half = Uuid.SIZE_BYTES / 2
+    if ((0 until half).all { result[it].toInt() == 0 }) {
+        result[0] = 1
+    }
+    if ((half until Uuid.SIZE_BYTES).all { result[it].toInt() == 0 }) {
+        result[half] = 1
     }
     return result
 }

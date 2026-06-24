@@ -80,6 +80,16 @@ internal class TraceIdsSpec {
         traceIdOf(id) shouldBe traceIdOf(signalId("not-a-uuid"))
     }
 
+    @Test
+    fun `produce valid non-zero IDs for inputs that would otherwise fold to zero`() {
+        // `"0".repeat(32)` folds to all-zero bytes; `"ab"` leaves the lower half zero.
+        listOf("0".repeat(32), "ab").forEach { value ->
+            val id = signalId(value)
+            traceIdOf(id) shouldNotBe "0".repeat(32)
+            spanIdOf(id) shouldNotBe "0".repeat(16)
+        }
+    }
+
     private fun signalId(value: String): SignalId = commandId { uuid = value }
 
     private companion object {

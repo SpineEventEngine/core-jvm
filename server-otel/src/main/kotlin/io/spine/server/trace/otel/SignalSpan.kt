@@ -110,8 +110,9 @@ internal class SignalSpan(
     /**
      * Obtains the ID of the root signal of the causal chain this signal belongs to.
      *
-     * The ID is unpacked as a concrete message (e.g. a `CommandId` or `EventId`),
-     * since [SignalId] is an interface and cannot be instantiated directly.
+     * The ID of a root message always wraps a [SignalId], so the cast is safe. It is
+     * unpacked as a concrete message (e.g. a `CommandId` or `EventId`), since
+     * [SignalId] is an interface and cannot be instantiated directly.
      */
     private fun rootSignalId(): SignalId =
         unpack(signal.rootMessage().id) as SignalId
