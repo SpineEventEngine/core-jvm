@@ -52,7 +52,7 @@ import io.spine.time.toNanos
  * Spans produced for signals that descend from a common root signal share a single
  * [trace][traceIdOf], so that a whole causal chain appears as one trace.
  *
- * @see <a href="https://opentelemetry.io/blog/2026/deprecating-span-events/">Deprecating Span Events</a>
+ * @see <a href="https://opentelemetry.io/blog/2026/deprecating-span-events/">Span Events</a>
  */
 internal class SignalSpan(
     val contextName: BoundedContextName,

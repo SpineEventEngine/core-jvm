@@ -36,8 +36,8 @@ Each handler invocation becomes its own span that carries the following attribut
 dependencies {
     implementation("io.spine:spine-server-otel:$spineVersion")
 
-    // Plus a Kotlin OpenTelemetry SDK and an exporter of your choice, for example:
-    // implementation("io.opentelemetry.kotlin:core:$otelKotlinVersion")
+    // Plus a Kotlin OpenTelemetry SDK and exporter of your choice — see the
+    // OpenTelemetry Kotlin documentation (linked under "Usage") for the artifacts.
 }
 ```
 

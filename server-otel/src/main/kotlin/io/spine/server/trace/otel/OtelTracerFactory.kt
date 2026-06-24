@@ -50,9 +50,11 @@ import io.spine.server.trace.TracerFactory
  * not shut it down.
  *
  * ```
- * val factory = OtelTracerFactory(openTelemetry)
- * ServerEnvironment.instance()
- *     .use(factory)
+ * @OptIn(ExperimentalOtelTracing::class)
+ * fun configureTracing(openTelemetry: OpenTelemetry) {
+ *     ServerEnvironment.`when`(Production::class.java)
+ *         .use(OtelTracerFactory(openTelemetry))
+ * }
  * ```
  *
  * @param openTelemetry
