@@ -24,21 +24,29 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-pluginManagement {
-    repositories {
-        mavenCentral()
-        gradlePluginPortal()
-    }
+import io.spine.dependency.lib.OpenTelemetryKotlin
+
+plugins {
+    module
+    id("io.spine.core-jvm")
 }
 
-rootProject.name = "core-jvm"
+dependencies {
+    api(project(":server"))
 
-include(
-    "core",
-    "core-testlib",
-    "client",
-    "client-testlib",
-    "server",
-    "server-testlib",
-    "server-otel",
-)
+    // The Kotlin OpenTelemetry API. Exposed in the public API of
+    // `OtelTracerFactory`, hence `api` rather than `implementation`.
+    api(OpenTelemetryKotlin.api)
+
+    // The Kotlin OpenTelemetry SDK is required only by tests, which configure
+    // an `OpenTelemetry` instance with a recording span processor. `core`
+    // exposes the SDK API; `implementation` adds the `createOpenTelemetry { }`
+    // entry point.
+    testImplementation(OpenTelemetryKotlin.core)
+    testImplementation(OpenTelemetryKotlin.implementation)
+
+    // Reuse the message-tracing test fixtures (the `Airport` sample context)
+    // declared by the `server` module.
+    testImplementation(testFixtures(project(":server")))
+    testImplementation(project(":server-testlib"))
+}

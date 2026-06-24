@@ -24,21 +24,21 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-pluginManagement {
-    repositories {
-        mavenCentral()
-        gradlePluginPortal()
+@file:OptIn(ExperimentalApi::class)
+
+package io.spine.server.trace.otel.given
+
+import io.opentelemetry.kotlin.ExperimentalApi
+import io.opentelemetry.kotlin.OpenTelemetry
+import io.opentelemetry.kotlin.createOpenTelemetry
+
+/**
+ * Builds an [OpenTelemetry] SDK instance that records every ended span into the
+ * given [processor].
+ */
+fun recordingOpenTelemetry(processor: RecordingSpanProcessor): OpenTelemetry =
+    createOpenTelemetry {
+        tracerProvider {
+            export { processor }
+        }
     }
-}
-
-rootProject.name = "core-jvm"
-
-include(
-    "core",
-    "core-testlib",
-    "client",
-    "client-testlib",
-    "server",
-    "server-testlib",
-    "server-otel",
-)
