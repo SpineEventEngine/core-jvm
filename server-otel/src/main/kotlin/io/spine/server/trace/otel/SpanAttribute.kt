@@ -31,13 +31,6 @@ import io.spine.string.Stringifiers
 import io.spine.type.toCompactJson
 
 /**
- * The maximum length of a string attribute value, in characters.
- *
- * Longer values are truncated to keep span payloads bounded.
- */
-private const val ATTRIBUTE_VALUE_MAX_LENGTH = 256
-
-/**
  * The Spine-specific attributes attached to each emitted span.
  *
  * Keys follow the OpenTelemetry attribute naming convention: lowercase, dotted,
@@ -105,6 +98,16 @@ internal enum class SpanAttribute(val key: String) {
      */
     fun truncatedValueIn(span: SignalSpan): String =
         valueIn(span).truncated(ATTRIBUTE_VALUE_MAX_LENGTH)
+
+    private companion object {
+
+        /**
+         * The maximum length of a string attribute value, in characters.
+         *
+         * Longer values are truncated to keep span payloads bounded.
+         */
+        const val ATTRIBUTE_VALUE_MAX_LENGTH = 256
+    }
 }
 
 /**

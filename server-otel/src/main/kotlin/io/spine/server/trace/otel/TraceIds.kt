@@ -55,7 +55,7 @@ private val uuidPattern =
  * @see spanIdOf
  */
 internal fun traceIdOf(rootSignalId: SignalId): String {
-    val uuid = uuidOf(rootSignalId)
+    val uuid = rootSignalId.toUuid()
     return "%016x%016x".format(uuid.mostSignificantBits, uuid.leastSignificantBits)
 }
 
@@ -70,19 +70,19 @@ internal fun traceIdOf(rootSignalId: SignalId): String {
  * @see traceIdOf
  */
 internal fun spanIdOf(rootSignalId: SignalId): String {
-    val uuid = uuidOf(rootSignalId)
+    val uuid = rootSignalId.toUuid()
     return "%016x".format(uuid.leastSignificantBits)
 }
 
 /**
- * Converts the given signal ID to a [UUID].
+ * Converts this signal ID to a [UUID].
  *
  * Signal IDs are normally canonical UUID strings. For an ID that is not a UUID,
  * a stable name-based UUID is derived from its bytes, so that the mapping remains
  * deterministic for any input.
  */
-private fun uuidOf(signalId: SignalId): UUID {
-    val value = signalId.value()
+private fun SignalId.toUuid(): UUID {
+    val value = value()
     return if (uuidPattern.matches(value)) {
         UUID.fromString(value)
     } else {

@@ -38,13 +38,6 @@ import io.spine.server.trace.Tracer
 import io.spine.server.trace.TracerFactory
 
 /**
- * The default instrumentation scope name reported to OpenTelemetry.
- */
-@ExperimentalOtelTracing
-@Experimental
-public const val DEFAULT_INSTRUMENTATION_SCOPE_NAME: String = "io.spine.server.trace.otel"
-
-/**
  * A [TracerFactory] that records signal handling as OpenTelemetry spans.
  *
  * This factory is backend-agnostic: it maps Spine signals onto OpenTelemetry
@@ -77,8 +70,11 @@ public class OtelTracerFactory @JvmOverloads constructor(
     instrumentationScopeName: String = DEFAULT_INSTRUMENTATION_SCOPE_NAME,
 ) : TracerFactory {
 
-    private val tracer: OpenTelemetryTracer =
+    // Created lazily so that wiring a factory into the server environment does not
+    // touch the OpenTelemetry SDK until the first signal is actually traced.
+    private val tracer: OpenTelemetryTracer by lazy {
         openTelemetry.tracerProvider.getTracer(instrumentationScopeName)
+    }
 
     // A factory is shared across the server environment, so `trace()`, `isOpen()`,
     // and `close()` may run on different threads. The flag is `@Volatile` for safe
@@ -95,5 +91,16 @@ public class OtelTracerFactory @JvmOverloads constructor(
         // The `OpenTelemetry` instance is owned by the caller and is not shut
         // down here. This factory only marks itself as closed.
         open = false
+    }
+
+    public companion object {
+
+        /**
+         * The default instrumentation scope name reported to OpenTelemetry.
+         */
+        @ExperimentalOtelTracing
+        @Experimental
+        public const val DEFAULT_INSTRUMENTATION_SCOPE_NAME: String =
+            "io.spine.server.trace.otel"
     }
 }

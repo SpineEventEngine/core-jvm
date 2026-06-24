@@ -28,7 +28,6 @@
 
 package io.spine.server.trace.otel
 
-import com.google.protobuf.Timestamp
 import io.opentelemetry.kotlin.ExperimentalApi
 import io.opentelemetry.kotlin.OpenTelemetry
 import io.opentelemetry.kotlin.context.Context
@@ -41,6 +40,7 @@ import io.spine.core.Signal
 import io.spine.core.SignalId
 import io.spine.protobuf.AnyPacker.unpack
 import io.spine.system.server.EntityTypeName
+import io.spine.time.toNanos
 
 /**
  * The maximum length of a span display name, in characters.
@@ -56,11 +56,6 @@ private const val DISPLAY_NAME_MAX_LENGTH = 128
  * may still apply its own sampling via the configured `OpenTelemetry` SDK.
  */
 private const val SAMPLED_TRACE_FLAGS = "01"
-
-/**
- * The number of nanoseconds in a second.
- */
-private const val NANOS_PER_SECOND = 1_000_000_000L
 
 /**
  * A single handling of a [signal] by an entity, recorded as an OpenTelemetry span.
@@ -93,13 +88,13 @@ internal class SignalSpan(
         val span = tracer.startSpan(
             name = displayName(),
             parentContext = parentContext(otel),
-            startTimestamp = signal.timestamp().toEpochNanos(),
+            startTimestamp = signal.timestamp().toNanos(),
         ) {
             SpanAttribute.entries.forEach { attribute ->
                 setStringAttribute(attribute.key, attribute.truncatedValueIn(this@SignalSpan))
             }
         }
-        span.end(Time.currentTime().toEpochNanos())
+        span.end(Time.currentTime().toNanos())
     }
 
     /**
@@ -136,9 +131,3 @@ internal class SignalSpan(
     private fun rootSignalId(): SignalId =
         unpack(signal.rootMessage().id) as SignalId
 }
-
-/**
- * Converts this protobuf timestamp to the number of nanoseconds since the Unix epoch.
- */
-private fun Timestamp.toEpochNanos(): Long =
-    seconds * NANOS_PER_SECOND + nanos

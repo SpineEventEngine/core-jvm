@@ -46,6 +46,7 @@ import io.spine.string.Stringifiers
 import io.spine.system.server.EntityTypeName
 import io.spine.system.server.entityTypeName
 import io.spine.testing.client.TestActorRequestFactory
+import io.spine.time.toNanos
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -103,8 +104,7 @@ internal class OtelTracerSpec {
 
         @Test
         fun `the signal timestamp as the start time`() {
-            val timestamp = command.timestamp()
-            span().startTimestamp shouldBe timestamp.seconds * NANOS_PER_SECOND + timestamp.nanos
+            span().startTimestamp shouldBe command.timestamp().toNanos()
         }
 
         @Test
@@ -162,7 +162,6 @@ internal class OtelTracerSpec {
     }
 
     private companion object {
-        const val NANOS_PER_SECOND = 1_000_000_000L
         const val FLIGHT_AGGREGATE_CLASS = "io.spine.server.trace.given.airport.FlightAggregate"
     }
 }
