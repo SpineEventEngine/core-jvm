@@ -24,10 +24,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+@file:OptIn(ExperimentalUuidApi::class)
+
 package io.spine.server.trace.otel
 
 import io.spine.core.SignalId
-import java.util.UUID
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 /**
  * The canonical form of a UUID string, e.g. `123e4567-e89b-12d3-a456-426614174000`.
@@ -43,10 +46,9 @@ private val uuidPattern =
  * behavior: a command and all the events and further commands it triggers appear
  * under a single trace.
  *
- * The result is a 32-character (16-byte) lowercase hex string, as required by
- * the OpenTelemetry [trace ID][io.opentelemetry.kotlin.tracing.SpanContext.traceId]
- * format. Each half of the backing UUID is zero-padded to 16 hex characters so
- * that the value is always exactly 32 characters long.
+ * The result is the 32-character (16-byte) lowercase hex form required by the
+ * OpenTelemetry [trace ID][io.opentelemetry.kotlin.tracing.SpanContext.traceId]
+ * format.
  *
  * Signal IDs are version 3 or version 4 UUIDs, whose version and variant bits keep
  * both halves non-zero; the derived trace ID is therefore always a valid (non-zero)
@@ -54,38 +56,49 @@ private val uuidPattern =
  *
  * @see spanIdOf
  */
-internal fun traceIdOf(rootSignalId: SignalId): String {
-    val uuid = rootSignalId.toUuid()
-    return "%016x%016x".format(uuid.mostSignificantBits, uuid.leastSignificantBits)
-}
+internal fun traceIdOf(rootSignalId: SignalId): String =
+    rootSignalId.toUuid().toHexString()
 
 /**
  * Derives a deterministic OpenTelemetry span ID for the synthetic parent span of
  * a causal chain identified by the given root signal ID.
  *
  * The emitted handler spans use this value as their parent, so that they form a
- * coherent tree rooted at the chain's origin. The result is a 16-character
- * (8-byte) lowercase hex string.
+ * coherent tree rooted at the chain's origin. The result is the lower 64 bits of
+ * the backing UUID, as a 16-character (8-byte) lowercase hex string.
  *
  * @see traceIdOf
  */
-internal fun spanIdOf(rootSignalId: SignalId): String {
-    val uuid = rootSignalId.toUuid()
-    return "%016x".format(uuid.leastSignificantBits)
+internal fun spanIdOf(rootSignalId: SignalId): String =
+    rootSignalId.toUuid().toLongs { _, leastSignificantBits ->
+        leastSignificantBits.toHexString()
+    }
+
+/**
+ * Converts this signal ID to a [Uuid].
+ *
+ * Signal IDs are normally canonical UUID strings. For an ID that is not a UUID,
+ * a deterministic [Uuid] is derived from its bytes, so that the mapping remains
+ * stable for any input.
+ */
+private fun SignalId.toUuid(): Uuid {
+    val value = value()
+    return if (uuidPattern.matches(value)) {
+        Uuid.parse(value)
+    } else {
+        Uuid.fromByteArray(value.encodeToByteArray().foldToUuidSize())
+    }
 }
 
 /**
- * Converts this signal ID to a [UUID].
- *
- * Signal IDs are normally canonical UUID strings. For an ID that is not a UUID,
- * a stable name-based UUID is derived from its bytes, so that the mapping remains
- * deterministic for any input.
+ * Folds this byte array into exactly [Uuid.SIZE_BYTES] bytes, so that it can be
+ * turned into a [Uuid]. The fold is deterministic but not cryptographic.
  */
-private fun SignalId.toUuid(): UUID {
-    val value = value()
-    return if (uuidPattern.matches(value)) {
-        UUID.fromString(value)
-    } else {
-        UUID.nameUUIDFromBytes(value.encodeToByteArray())
+private fun ByteArray.foldToUuidSize(): ByteArray {
+    val result = ByteArray(Uuid.SIZE_BYTES)
+    forEachIndexed { index, byte ->
+        val i = index % Uuid.SIZE_BYTES
+        result[i] = (result[i].toInt() xor byte.toInt()).toByte()
     }
+    return result
 }
