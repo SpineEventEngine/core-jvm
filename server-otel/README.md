@@ -21,14 +21,14 @@ Google-Cloud-specific `stackdriver-trace` module without coupling to Google Clou
 
 Each handler invocation becomes its own span that carries the following attributes:
 
-| Attribute | Meaning |
-|-----------|---------|
+| Attribute               | Meaning                                     |
+|-------------------------|---------------------------------------------|
 | `spine.bounded_context` | the bounded context that handled the signal |
-| `spine.tenant` | the tenant, as compact JSON |
-| `spine.entity.id` | the ID of the receiving entity |
-| `spine.entity.type` | the type URL of the receiving entity |
-| `spine.signal.id` | the ID of the handled signal |
-| `spine.signal.type` | the type URL of the handled signal |
+| `spine.tenant`          | the tenant, as compact JSON                 |
+| `spine.entity.id`       | the ID of the receiving entity              |
+| `spine.entity.type`     | the type URL of the receiving entity        |
+| `spine.signal.id`       | the ID of the handled signal                |
+| `spine.signal.type`     | the type URL of the handled signal          |
 
 ## Dependency
 
