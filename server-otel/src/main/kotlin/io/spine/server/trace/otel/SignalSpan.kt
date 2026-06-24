@@ -127,11 +127,10 @@ internal class SignalSpan(
         /**
          * The hex representation of the "sampled" trace flags.
          *
-         * The synthetic parent span context is always marked as sampled, so that a
-         * parent-based sampler records and exports the emitted handler spans. This
-         * matches the always-export behavior of the retired Stackdriver tracer; a
-         * caller may still apply its own sampling via the configured `OpenTelemetry`
-         * SDK.
+         * The synthetic parent span context is always marked as sampled so that a
+         * parent-based sampler records and exports the emitted handler spans.
+         * This matches the always-export behavior of the retired Stackdriver tracer;
+         * a caller may still apply its own sampling via the configured `OpenTelemetry` SDK.
          */
         const val SAMPLED_TRACE_FLAGS = "01"
     }
