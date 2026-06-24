@@ -1,3 +1,4 @@
+# >>> shared config (managed by ./config/pull -- do not edit inside this block) >>>
 #
 # Copyright 2025, TeamDev. All rights reserved.
 #
@@ -103,13 +104,47 @@ gradle-app.setting
 # Spine internal directory for storing intermediate artifacts
 **/.spine/**
 
-# Login details to Maven repository.
-# Each workstation should have developer's login defined in this file.
+# ---------------------------------------------------------------------------
+# Secrets — NEVER commit these.
+#
+# Encrypted credentials live under `.github/keys/*.gpg` and ARE committed.
+# `config/scripts/decrypt.sh` turns each into its PLAINTEXT twin at build / CI /
+# publish time (e.g. `spine-dev-framework-ci.json.gpg` -> `spine-dev.json`). The
+# decrypted twins below — and any private key or service-account file — must stay
+# out of Git. The shared `secret-scan` pre-commit hook is the backstop if one ever
+# slips past these patterns.
+# ---------------------------------------------------------------------------
+
+# Maven repository login details; each workstation defines its own.
 credentials.tar
 credentials.properties
 cloudrepo.properties
 deploy_key_rsa
 gcs-auth-key.json
+
+# Decrypted Google / GCP service-account keys (plaintext twins of *.gpg).
+spine-dev.json
+spine-dev-*.json
+maven-publisher.json
+firebase-sa.json
+*-sa.json
+*service-account*.json
+
+# Decrypted credential property files and portal / publisher secrets.
+*.secret.properties
+
+# Private SSH keys (public keys are *.pub and remain committable).
+*_rsa
+*_dsa
+*_ecdsa
+*_ed25519
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
+
+# ...but always keep the committed ENCRYPTED forms.
+!*.gpg
 
 # Log files
 *.log
@@ -152,3 +187,38 @@ __pycache__/
 docs/_preview/node_modules/
 docs/_preview/public/
 docs/_preview/resources/
+# <<< shared config <<<
+
+# >>> repo-local entries (preserved across ./config/pull) >>>
+!.idea/misc.xml
+!.idea/codeStyleSettings.xml
+!.idea/codeStyles/
+!.idea/copyright/
+!**/src/**/build/**
+!gradle-wrapper.jar
+# Login details to Maven repository.
+# Each workstation should have developer's login defined in this file.
+# <<< repo-local entries <<<
+
+# >>> secret ignores re-asserted last (managed by ./config/pull -- do not edit) >>>
+credentials.tar
+credentials.properties
+cloudrepo.properties
+deploy_key_rsa
+gcs-auth-key.json
+spine-dev.json
+spine-dev-*.json
+maven-publisher.json
+firebase-sa.json
+*-sa.json
+*service-account*.json
+*.secret.properties
+*_rsa
+*_dsa
+*_ecdsa
+*_ed25519
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
+# <<< secret ignores <<<

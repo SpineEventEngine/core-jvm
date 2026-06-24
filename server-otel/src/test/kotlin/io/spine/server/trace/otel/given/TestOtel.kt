@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,21 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+@file:OptIn(ExperimentalApi::class)
+
+package io.spine.server.trace.otel.given
+
+import io.opentelemetry.kotlin.ExperimentalApi
+import io.opentelemetry.kotlin.OpenTelemetry
+import io.opentelemetry.kotlin.createOpenTelemetry
+
 /**
- *  The version of this library.
- *
- * For versions of Spine-based dependencies, please see [io.spine.dependency.local.Spine].
+ * Builds an [OpenTelemetry] SDK instance that records every ended span into the
+ * given [processor].
  */
-val versionToPublish: String by extra("2.0.0-SNAPSHOT.381")
+fun recordingOpenTelemetry(processor: RecordingSpanProcessor): OpenTelemetry =
+    createOpenTelemetry {
+        tracerProvider {
+            export { processor }
+        }
+    }

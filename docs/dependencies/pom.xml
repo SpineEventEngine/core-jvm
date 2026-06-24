@@ -9,8 +9,8 @@ all modules and does not describe the project structure per-subproject.
  
  -->
 <groupId>io.spine</groupId>
-<artifactId>spine-core-jvm</artifactId>
-<version>2.0.0-SNAPSHOT.380</version>
+<artifactId>core-jvm</artifactId>
+<version>2.0.0-SNAPSHOT.381</version>
 
 <inceptionYear>2015</inceptionYear>
 
@@ -60,9 +60,15 @@ all modules and does not describe the project structure per-subproject.
     <scope>compile</scope>
   </dependency>
   <dependency>
+    <groupId>io.opentelemetry.kotlin</groupId>
+    <artifactId>api</artifactId>
+    <version>0.4.0</version>
+    <scope>compile</scope>
+  </dependency>
+  <dependency>
     <groupId>io.spine</groupId>
     <artifactId>spine-base</artifactId>
-    <version>2.0.0-SNAPSHOT.413</version>
+    <version>2.0.0-SNAPSHOT.420</version>
     <scope>compile</scope>
   </dependency>
   <dependency>
@@ -80,7 +86,7 @@ all modules and does not describe the project structure per-subproject.
   <dependency>
     <groupId>io.spine</groupId>
     <artifactId>spine-environment</artifactId>
-    <version>2.0.0-SNAPSHOT.413</version>
+    <version>2.0.0-SNAPSHOT.420</version>
     <scope>compile</scope>
   </dependency>
   <dependency>
@@ -204,6 +210,18 @@ all modules and does not describe the project structure per-subproject.
     <scope>test</scope>
   </dependency>
   <dependency>
+    <groupId>io.opentelemetry.kotlin</groupId>
+    <artifactId>core</artifactId>
+    <version>0.4.0</version>
+    <scope>test</scope>
+  </dependency>
+  <dependency>
+    <groupId>io.opentelemetry.kotlin</groupId>
+    <artifactId>implementation</artifactId>
+    <version>0.4.0</version>
+    <scope>test</scope>
+  </dependency>
+  <dependency>
     <groupId>io.spine.tools</groupId>
     <artifactId>time-testlib</artifactId>
     <version>2.0.0-SNAPSHOT.242</version>
@@ -276,12 +294,12 @@ all modules and does not describe the project structure per-subproject.
   <dependency>
     <groupId>io.spine.tools</groupId>
     <artifactId>compiler-cli-all</artifactId>
-    <version>2.0.0-SNAPSHOT.053</version>
+    <version>2.0.0-SNAPSHOT.054</version>
   </dependency>
   <dependency>
     <groupId>io.spine.tools</groupId>
     <artifactId>compiler-protoc-plugin</artifactId>
-    <version>2.0.0-SNAPSHOT.053</version>
+    <version>2.0.0-SNAPSHOT.054</version>
   </dependency>
   <dependency>
     <groupId>io.spine.tools</groupId>

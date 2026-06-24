@@ -1,6 +1,19 @@
 name: Ubuntu CI
 
-on: push
+# Triggers:
+#   * push to a default or release-line branch — those ending in `master` or
+#     `main`, the same set `increment-guard.yml` guards as PR bases (e.g.
+#     `master`, `2.x-jdk8-master`). These post-merge runs are the only source
+#     of base-branch coverage, since `Publish` runs `publish -x test` and
+#     uploads none; `target: auto` in `.codecov.yml` compares each pull request
+#     against its base baseline.
+#   * pull_request — gates a change on its merge result, not the branch tip.
+on:
+  push:
+    branches:
+      - '**master'
+      - '**main'
+  pull_request:
 
 jobs:
   build:
@@ -36,8 +49,8 @@ jobs:
 
       # `build` does not run Dokka — its tasks are gated to the publishing
       # graph — so `dokkaGenerate` is appended to surface documentation
-      # warnings on each push, before merge, instead of only in the post-merge
-      # `Publish` job. `failOnWarning` is enabled in the Dokka setup.
+      # warnings before merge, instead of only in the post-merge `Publish`
+      # job. `failOnWarning` is enabled in the Dokka setup.
       - name: Check documentation
         run: ./gradlew dokkaGenerate --stacktrace
 
@@ -49,7 +62,31 @@ jobs:
           report_paths: '**/build/test-results/**/TEST-*.xml'
           require_tests: true # will fail workflow if test reports not found
 
+      # Probe whether the upload token is available without exposing its value
+      # to the build/test steps. Scoping `CODECOV_TOKEN` to this trivial step
+      # (and to the upload step's `with.token`) keeps PR-authored code in
+      # `./gradlew build` from ever seeing the secret. The `secrets` context is
+      # not available in a step `if:`, so the upload gates on this output.
+      - name: Detect Codecov token
+        id: codecov
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        run: |
+          if [ -n "$CODECOV_TOKEN" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # On `push` (master) always upload — these runs are the only source of
+      # the `target: auto` baseline, so an absent token there is a
+      # misconfiguration that should fail loudly rather than silently stop
+      # refreshing coverage. On `pull_request`, skip when the token is absent:
+      # forked and Dependabot PRs run without secrets, and `fail_ci_if_error`
+      # would otherwise redden a healthy PR (coverage gating is meaningless
+      # there anyway).
       - name: Upload code coverage report
+        if: steps.codecov.outputs.available == 'true' || github.event_name == 'push'
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}

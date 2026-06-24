@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,29 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- *  The version of this library.
- *
- * For versions of Spine-based dependencies, please see [io.spine.dependency.local.Spine].
- */
-val versionToPublish: String by extra("2.0.0-SNAPSHOT.381")
+import io.spine.dependency.lib.OpenTelemetryKotlin
+
+plugins {
+    module
+    id("io.spine.core-jvm")
+}
+
+dependencies {
+    api(project(":server"))
+
+    // The Kotlin OpenTelemetry API. Exposed in the public API of
+    // `OtelTracerFactory`, hence `api` rather than `implementation`.
+    api(OpenTelemetryKotlin.api)
+
+    // The Kotlin OpenTelemetry SDK is required only by tests, which configure
+    // an `OpenTelemetry` instance with a recording span processor. `core`
+    // exposes the SDK API; `implementation` adds the `createOpenTelemetry { }`
+    // entry point.
+    testImplementation(OpenTelemetryKotlin.core)
+    testImplementation(OpenTelemetryKotlin.implementation)
+
+    // Reuse the message-tracing test fixtures (the `Airport` sample context)
+    // declared by the `server` module.
+    testImplementation(testFixtures(project(":server")))
+    testImplementation(project(":server-testlib"))
+}

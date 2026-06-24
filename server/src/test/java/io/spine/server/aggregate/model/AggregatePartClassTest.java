@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -37,7 +37,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static io.spine.server.aggregate.model.AggregatePartClass.asAggregatePartClass;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -47,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class AggregatePartClassTest {
 
     private final AggregatePartClass<AnAggregatePart> partClass =
-            asAggregatePartClass(AnAggregatePart.class);
+            AggregatePartClass.asAggregatePartClass(AnAggregatePart.class);
     private AnAggregateRoot root;
 
     @BeforeEach
@@ -67,7 +66,7 @@ class AggregatePartClassTest {
     @Test
     @DisplayName("throw exception when aggregate part does not have appropriate constructor")
     void throwOnNoProperCtorAvailable() {
-        var wrongPartClass = asAggregatePartClass(WrongAggregatePart.class);
+        var wrongPartClass = AggregatePartClass.asAggregatePartClass(WrongAggregatePart.class);
         assertThrows(ModelError.class, wrongPartClass::constructor);
     }
 

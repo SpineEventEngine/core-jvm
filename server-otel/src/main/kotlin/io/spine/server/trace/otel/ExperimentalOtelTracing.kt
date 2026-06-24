@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,26 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+package io.spine.server.trace.otel
+
 /**
- *  The version of this library.
+ * Marks the OpenTelemetry-based Spine tracing API as experimental.
  *
- * For versions of Spine-based dependencies, please see [io.spine.dependency.local.Spine].
+ * The API is built on the alpha Kotlin OpenTelemetry API
+ * (`io.opentelemetry.kotlin`) and may change in a backward-incompatible way, or be
+ * removed, in a future release. Opt in explicitly — either by annotating the using
+ * declaration with this marker, or with `@OptIn(ExperimentalOtelTracing::class)` —
+ * to acknowledge the instability.
  */
-val versionToPublish: String by extra("2.0.0-SNAPSHOT.381")
+@RequiresOptIn(
+    level = RequiresOptIn.Level.ERROR,
+    message = "The Spine OpenTelemetry tracing API is experimental and may change."
+)
+@MustBeDocumented
+@Retention(AnnotationRetention.BINARY)
+@Target(
+    AnnotationTarget.CLASS,
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY,
+)
+public annotation class ExperimentalOtelTracing
