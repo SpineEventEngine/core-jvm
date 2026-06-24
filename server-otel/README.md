@@ -57,7 +57,7 @@ import io.spine.server.under
 @OptIn(ExperimentalOtelTracing::class)
 fun configureTracing(openTelemetry: OpenTelemetry) {
     val factory = OtelTracerFactory(openTelemetry)
-    under<Production::class.java> {
+    under<Production> {
         use(factory)
     }
 }
