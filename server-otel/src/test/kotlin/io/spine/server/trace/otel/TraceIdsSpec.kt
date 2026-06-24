@@ -90,6 +90,19 @@ internal class TraceIdsSpec {
         }
     }
 
+    @Test
+    fun `guard canonical UUIDs whose halves are zero`() {
+        // The nil UUID is all-zero; the second has an all-zero lower half.
+        listOf(
+            "00000000-0000-0000-0000-000000000000",
+            "12345678-1234-1234-0000-000000000000",
+        ).forEach { value ->
+            val id = signalId(value)
+            traceIdOf(id) shouldNotBe "0".repeat(32)
+            spanIdOf(id) shouldNotBe "0".repeat(16)
+        }
+    }
+
     private fun signalId(value: String): SignalId = commandId { uuid = value }
 
     private companion object {

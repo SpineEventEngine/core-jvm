@@ -50,9 +50,9 @@ private val uuidPattern =
  * OpenTelemetry [trace ID][io.opentelemetry.kotlin.tracing.SpanContext.traceId]
  * format.
  *
- * The derived trace ID is always a valid (non-zero) OpenTelemetry trace ID:
- * canonical UUID signal IDs (versions 3 and 4) carry non-zero version and variant
- * bits, and the fallback for non-UUID IDs forces both 64-bit halves to be non-zero.
+ * The derived trace ID is always a valid (non-zero) OpenTelemetry trace ID: the
+ * backing value always has both of its 64-bit halves forced to be non-zero,
+ * regardless of whether the signal ID is a canonical UUID or some other form.
  *
  * @see spanIdOf
  */
@@ -75,19 +75,22 @@ internal fun spanIdOf(rootSignalId: SignalId): String =
     }
 
 /**
- * Converts this signal ID to a [Uuid].
+ * Converts this signal ID to a [Uuid] with both 64-bit halves non-zero.
  *
- * Signal IDs are normally canonical UUID strings. For an ID that is not a UUID,
- * a deterministic [Uuid] is derived from its bytes, so that the mapping remains
- * stable for any input.
+ * Signal IDs are normally canonical UUID strings; for an ID that is not a UUID,
+ * a deterministic [Uuid] is derived from its bytes. In both cases the backing bytes
+ * are forced to keep both halves non-zero — including for a canonical UUID that is
+ * all-zero or whose lower half is all-zero, which would otherwise yield an invalid
+ * OpenTelemetry trace or span ID.
  */
 private fun SignalId.toUuid(): Uuid {
     val value = value()
-    return if (uuidPattern.matches(value)) {
-        Uuid.parse(value)
+    val bytes = if (uuidPattern.matches(value)) {
+        Uuid.parse(value).toByteArray()
     } else {
-        Uuid.fromByteArray(value.encodeToByteArray().foldToUuidSize())
+        value.encodeToByteArray()
     }
+    return Uuid.fromByteArray(bytes.foldToUuidSize())
 }
 
 /**
@@ -95,8 +98,9 @@ private fun SignalId.toUuid(): Uuid {
  * turned into a [Uuid]. The fold is deterministic but not cryptographic.
  *
  * Both 64-bit halves of the result are kept non-zero, so that the derived trace ID
- * and span ID are valid (non-zero) OpenTelemetry identifiers — even for inputs that
- * would otherwise fold to all zeros (such as an empty or a uniformly repeated string).
+ * and span ID are valid (non-zero) OpenTelemetry identifiers — even for inputs whose
+ * halves would otherwise be all zeros (an empty or uniformly repeated string, or a
+ * canonical UUID with a zero half).
  */
 private fun ByteArray.foldToUuidSize(): ByteArray {
     val result = ByteArray(Uuid.SIZE_BYTES)
