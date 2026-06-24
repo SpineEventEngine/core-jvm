@@ -43,21 +43,6 @@ import io.spine.system.server.EntityTypeName
 import io.spine.time.toNanos
 
 /**
- * The maximum length of a span display name, in characters.
- */
-private const val DISPLAY_NAME_MAX_LENGTH = 128
-
-/**
- * The hex representation of the "sampled" trace flags.
- *
- * The synthetic parent span context is always marked as sampled, so that a
- * parent-based sampler records and exports the emitted handler spans. This
- * matches the always-export behavior of the retired Stackdriver tracer; a caller
- * may still apply its own sampling via the configured `OpenTelemetry` SDK.
- */
-private const val SAMPLED_TRACE_FLAGS = "01"
-
-/**
  * A single handling of a [signal] by an entity, recorded as an OpenTelemetry span.
  *
  * A signal may be handled once or many times by different entities. Each handling
@@ -130,4 +115,23 @@ internal class SignalSpan(
      */
     private fun rootSignalId(): SignalId =
         unpack(signal.rootMessage().id) as SignalId
+
+    private companion object {
+
+        /**
+         * The maximum length of a span display name, in characters.
+         */
+        const val DISPLAY_NAME_MAX_LENGTH = 128
+
+        /**
+         * The hex representation of the "sampled" trace flags.
+         *
+         * The synthetic parent span context is always marked as sampled, so that a
+         * parent-based sampler records and exports the emitted handler spans. This
+         * matches the always-export behavior of the retired Stackdriver tracer; a
+         * caller may still apply its own sampling via the configured `OpenTelemetry`
+         * SDK.
+         */
+        const val SAMPLED_TRACE_FLAGS = "01"
+    }
 }
