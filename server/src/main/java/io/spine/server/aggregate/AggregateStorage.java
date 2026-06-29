@@ -206,11 +206,13 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      *
      * <p>The identifiers found only in the persisted events are <em>not</em> taken into account,
      * as obtaining them would require scanning and de-duplicating too many event records.
-     * As a consequence, Aggregates persisted by an older framework version — those present only
-     * in the event storage or in the now-deprecated {@link io.spine.system.server.Mirror Mirror}
-     * projection — are not returned until their states are written to this storage. Use the
-     * {@linkplain io.spine.server.migration.mirror Mirror migration} to populate the state
-     * storage for such legacy data.
+     * As a consequence, an Aggregate persisted by an older framework version is not returned
+     * until its state is written to this storage. For an Aggregate that still has a record in
+     * the now-deprecated {@link io.spine.system.server.Mirror Mirror} projection, run the
+     * {@link io.spine.server.migration.mirror.MirrorMigration Mirror migration}, which writes
+     * the migrated states into this storage. An Aggregate that exists only as events — with
+     * neither a state record nor a {@code Mirror} record — is picked up once its state is next
+     * {@linkplain #writeState(Aggregate) written}, for example, on its next update.
      */
     @Override
     public Iterator<I> index() {
