@@ -1,5 +1,9 @@
-# Ensures that the current lib version is not yet published by executing the Gradle
-# `checkVersionIncrement` task.
+# Guards the project version by executing the Gradle `checkVersionIncrement` task,
+# which verifies that the version is both (a) strictly greater than the base branch
+# version in `version.gradle.kts` and (b) not already published. The result is
+# published as the `Version Guard` commit status — the context required by branch
+# protection and re-published by `revalidate-versions.yml` on the heads of other open
+# PRs when the base branch advances (so a stale duplicate bump turns red before merge).
 #
 # The check runs only for pull requests targeting a default (`master`/`main`) or
 # a release-line (e.g. `2.x-jdk8-master`) branch. It is the responsibility of a branch
@@ -15,18 +19,44 @@ name: Version Guard
 
 on:
   pull_request:
+    # Beyond the default activity types (`opened`, `synchronize`, `reopened`), two more are
+    # needed because they change what the guard must compare against without a new head SHA,
+    # which would otherwise leave a stale-green `Version Guard` status mergeable:
+    #   * `ready_for_review` — a draft that went stale while in draft becomes ready; and
+    #   * `edited` — the base branch is retargeted (e.g. a release line -> `master`), so the
+    #     strict comparison must be recomputed against the new base.
+    types: [opened, synchronize, reopened, ready_for_review, edited]
 
 jobs:
   check:
     name: Check version increment
     runs-on: ubuntu-latest
-    # Default and release-line branches, e.g. `master`, `main`, `2.x-jdk8-master`.
-    if: endsWith(github.base_ref, 'master') || endsWith(github.base_ref, 'main')
+    # Default and release-line branches, e.g. `master`, `main`, `2.x-jdk8-master`. For an
+    # `edited` event, run only when the base actually changed (a retarget carries
+    # `changes.base.ref.from`); title/body edits carry no `changes.base` and are skipped, so
+    # the guard is not rebuilt needlessly.
+    if: >-
+      (endsWith(github.base_ref, 'master') || endsWith(github.base_ref, 'main'))
+      && (github.event.action != 'edited' || github.event.changes.base.ref.from != '')
+
+    # `statuses: write` lets the job publish the `Version Guard` commit status that
+    # branch protection requires.
+    permissions:
+      contents: read
+      statuses: write
 
     steps:
       - uses: actions/checkout@v6
         with:
           submodules: 'true'
+
+      # `checkVersionIncrement` reads `origin/<base>:version.gradle.kts`. The pull request
+      # checkout does not include the base branch, so fetch its tip into the expected ref.
+      - name: Fetch the base branch
+        shell: bash
+        run: |
+          git fetch --no-tags --depth=1 \
+            origin "+refs/heads/${GITHUB_BASE_REF}:refs/remotes/origin/${GITHUB_BASE_REF}"
 
       - uses: actions/setup-java@v5
         with:
@@ -35,6 +65,36 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v6
 
-      - name: Check version is not yet published
+      - name: Check version increment
+        id: guard
         shell: bash
+        # `VERSION_GUARD` enables the strict base-branch comparison in `checkVersionIncrement`.
+        # Only this workflow fetches the base ref (the step above), so the comparison is gated
+        # to it: other CI builds pull the task in via `publishToMavenLocal` on a shallow
+        # checkout and must not attempt to read `origin/<base>`.
+        env:
+          VERSION_GUARD: "true"
         run: ./gradlew checkVersionIncrement --stacktrace
+
+      # Publish the verdict as the `Version Guard` commit status on the PR head. Posting it
+      # on every run (success or failure) is what lets a later re-bump clear a failure that
+      # `revalidate-versions.yml` set when the base branch advanced.
+      #
+      # Skipped for fork PRs: `GITHUB_TOKEN` is read-only for them, so the status cannot be
+      # posted (and a fork head SHA is not in this repo). The Spine agent workflow pushes PR
+      # branches to the same repository; fork contributions are handled by a maintainer, who
+      # owns the version bump.
+      - name: Report the Version Guard status
+        if: always() && github.event.pull_request.head.repo.fork == false
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          state=failure
+          if [ "${{ steps.guard.outcome }}" = "success" ]; then
+            state=success
+          fi
+          gh api -X POST "repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }}" \
+            -f state="${state}" \
+            -f context="Version Guard" \
+            -f description="Version increment check"

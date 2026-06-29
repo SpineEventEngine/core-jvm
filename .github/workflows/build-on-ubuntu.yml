@@ -87,7 +87,7 @@ jobs:
       # there anyway).
       - name: Upload code coverage report
         if: steps.codecov.outputs.available == 'true' || github.event_name == 'push'
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true

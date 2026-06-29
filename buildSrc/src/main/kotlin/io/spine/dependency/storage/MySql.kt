@@ -24,23 +24,18 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.dependency.lib
+package io.spine.dependency.storage
 
 /**
- * https://github.com/googleapis/google-cloud-java
+ * MySQL Connector/J — the official JDBC driver for MySQL.
+ *
+ * Used by the MySQL-based storage tests. Note the modern `com.mysql:mysql-connector-j`
+ * coordinates, which superseded the legacy `mysql:mysql-connector-java` artifact.
+ *
+ * @see <a href="https://github.com/mysql/mysql-connector-j">MySQL Connector/J at GitHub</a>
  */
 @Suppress("unused", "ConstPropertyName")
-object GoogleCloud {
-
-    // https://github.com/googleapis/google-cloud-java/tree/main/sdk-platform-java/java-core
-    const val core = "com.google.cloud:google-cloud-core:2.71.0"
-
-    // https://github.com/googleapis/google-cloud-java/tree/main/java-pubsub/proto-google-cloud-pubsub-v1
-    const val pubSubGrpcApi = "com.google.api.grpc:proto-google-cloud-pubsub-v1:1.151.0"
-
-    // https://github.com/googleapis/google-cloud-java/tree/main/java-trace
-    const val trace = "com.google.cloud:google-cloud-trace:2.93.0"
-
-    // https://github.com/googleapis/google-cloud-java/tree/main/java-datastore
-    const val datastore = "com.google.cloud:google-cloud-datastore:2.31.2"
+object MySql {
+    private const val version = "9.7.0"
+    const val connector = "com.mysql:mysql-connector-j:$version"
 }

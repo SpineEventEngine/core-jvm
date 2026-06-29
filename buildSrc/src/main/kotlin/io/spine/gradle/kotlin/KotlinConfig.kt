@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,20 +55,26 @@ fun KotlinJvmProjectExtension.applyJvmToolchain(version: String) =
  */
 @Suppress("unused")
 fun KotlinCommonCompilerOptions.setFreeCompilerArgs() {
+    val optIns = mutableListOf(
+        "kotlin.contracts.ExperimentalContracts",
+        "kotlin.ExperimentalUnsignedTypes",
+        "kotlin.ExperimentalStdlibApi",
+        "kotlin.experimental.ExperimentalTypeInference",
+    )
     if (this is KotlinJvmCompilerOptions) {
         jvmDefault.set(JvmDefaultMode.NO_COMPATIBILITY)
+        // `kotlin.io.path` ships only in the JVM standard library, so for common
+        // and Native compilations this opt-in marker is unresolved and the compiler
+        // warns about it. Scope it to JVM compilations; multiplatform common and
+        // Native code cannot use the API anyway.
+        optIns.add("kotlin.io.path.ExperimentalPathApi")
     }
     freeCompilerArgs.addAll(
         listOf(
             "-Xskip-prerelease-check",
             "-Xexpect-actual-classes",
             "-Xcontext-parameters",
-            "-opt-in=" +
-                    "kotlin.contracts.ExperimentalContracts," +
-                    "kotlin.io.path.ExperimentalPathApi," +
-                    "kotlin.ExperimentalUnsignedTypes," +
-                    "kotlin.ExperimentalStdlibApi," +
-                    "kotlin.experimental.ExperimentalTypeInference",
+            "-opt-in=" + optIns.joinToString(separator = ","),
         )
     )
 }

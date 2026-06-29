@@ -64,3 +64,18 @@ jobs:
           REPO_SLUG: ${{ github.repository }}    # e.g. SpineEventEngine/core-jvm
           GOOGLE_APPLICATION_CREDENTIALS: ./maven-publisher.json
           NPM_TOKEN: ${{ secrets.NPM_SECRET }}
+
+      # A failed publication on `master` is most often a version collision: a stale
+      # duplicate bump merged before `revalidate-versions.yml` could turn it red (the
+      # narrow auto-merge race). The artifact is safe — the registry rejects the
+      # overwrite — but the fix needs a human/agent, so make the failure loud and
+      # actionable instead of a quiet red run.
+      - name: Report a failed publication
+        if: failure()
+        shell: bash
+        run: |
+          echo "::error title=Publish failed::Publishing to Maven failed on the base branch. If this is a version collision, the version is already published (immutable). Bump 'version.gradle.kts' on the base branch (e.g. via a small PR) and re-run this workflow."
+          echo "Publish failed. If the cause is a version collision:"
+          echo "  1. Bump 'version.gradle.kts' on the base branch to the next free version."
+          echo "  2. Re-run this 'Publish' workflow."
+          echo "Stale duplicate bumps are normally caught before merge by 'revalidate-versions.yml'."

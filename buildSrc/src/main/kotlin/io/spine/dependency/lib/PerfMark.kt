@@ -26,21 +26,9 @@
 
 package io.spine.dependency.lib
 
-/**
- * https://github.com/googleapis/google-cloud-java
- */
+// https://github.com/perfmark/perfmark
 @Suppress("unused", "ConstPropertyName")
-object GoogleCloud {
-
-    // https://github.com/googleapis/google-cloud-java/tree/main/sdk-platform-java/java-core
-    const val core = "com.google.cloud:google-cloud-core:2.71.0"
-
-    // https://github.com/googleapis/google-cloud-java/tree/main/java-pubsub/proto-google-cloud-pubsub-v1
-    const val pubSubGrpcApi = "com.google.api.grpc:proto-google-cloud-pubsub-v1:1.151.0"
-
-    // https://github.com/googleapis/google-cloud-java/tree/main/java-trace
-    const val trace = "com.google.cloud:google-cloud-trace:2.93.0"
-
-    // https://github.com/googleapis/google-cloud-java/tree/main/java-datastore
-    const val datastore = "com.google.cloud:google-cloud-datastore:2.31.2"
+object PerfMark {
+    private const val version = "0.27.0"
+    const val api = "io.perfmark:perfmark-api:$version"
 }

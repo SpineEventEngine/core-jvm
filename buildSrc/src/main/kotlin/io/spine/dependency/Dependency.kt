@@ -111,6 +111,17 @@ abstract class DependencyWithBom : Dependency() {
 fun Configuration.diagSuffix(project: Project): String =
     "the configuration `$name` in the project: `${project.path}`."
 
+/**
+ * Tells if this configuration belongs to Dokka's own generator/plugin classpath.
+ *
+ * Dokka resolves these `dokka*` configurations using dependency versions pinned by
+ * Dokka itself (for example, Jackson or Kotlin), which legitimately differ from the
+ * project's. Forcing the project's versions onto them breaks `dokkaGenerate`, so such
+ * configurations must be excluded from the project's version forcing.
+ */
+val Configuration.isDokka: Boolean
+    get() = name.startsWith("dokka")
+
 private fun ResolutionStrategy.forceWithLogging(
     project: Project,
     configuration: Configuration,

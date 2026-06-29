@@ -24,23 +24,17 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.dependency.lib
+package io.spine.dependency.storage
 
 /**
- * https://github.com/googleapis/google-cloud-java
+ * HikariCP — a fast, lightweight JDBC connection pool.
+ *
+ * The JDBC storage uses it to pool database connections.
+ *
+ * @see <a href="https://github.com/brettwooldridge/HikariCP">HikariCP at GitHub</a>
  */
 @Suppress("unused", "ConstPropertyName")
-object GoogleCloud {
-
-    // https://github.com/googleapis/google-cloud-java/tree/main/sdk-platform-java/java-core
-    const val core = "com.google.cloud:google-cloud-core:2.71.0"
-
-    // https://github.com/googleapis/google-cloud-java/tree/main/java-pubsub/proto-google-cloud-pubsub-v1
-    const val pubSubGrpcApi = "com.google.api.grpc:proto-google-cloud-pubsub-v1:1.151.0"
-
-    // https://github.com/googleapis/google-cloud-java/tree/main/java-trace
-    const val trace = "com.google.cloud:google-cloud-trace:2.93.0"
-
-    // https://github.com/googleapis/google-cloud-java/tree/main/java-datastore
-    const val datastore = "com.google.cloud:google-cloud-datastore:2.31.2"
+object Hikari {
+    private const val version = "7.1.0"
+    const val lib = "com.zaxxer:HikariCP:$version"
 }

@@ -24,23 +24,40 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.dependency.lib
+package io.spine.dependency.test
 
 /**
- * https://github.com/googleapis/google-cloud-java
+ * Testcontainers for Java — provides throwaway, lightweight instances of databases and other
+ * services running in Docker containers.
+ *
+ * The modules below are versioned and released together, so a single [version] applies to all
+ * of them.
+ *
+ * @see <a href="https://github.com/testcontainers/testcontainers-java">
+ *     Testcontainers for Java at GitHub</a>
  */
 @Suppress("unused", "ConstPropertyName")
-object GoogleCloud {
+object Testcontainers {
+    private const val version = "1.21.4"
+    private const val group = "org.testcontainers"
 
-    // https://github.com/googleapis/google-cloud-java/tree/main/sdk-platform-java/java-core
-    const val core = "com.google.cloud:google-cloud-core:2.71.0"
+    /**
+     * The core Testcontainers library.
+     */
+    const val lib = "$group:testcontainers:$version"
 
-    // https://github.com/googleapis/google-cloud-java/tree/main/java-pubsub/proto-google-cloud-pubsub-v1
-    const val pubSubGrpcApi = "com.google.api.grpc:proto-google-cloud-pubsub-v1:1.151.0"
+    /**
+     * The JUnit 5 (Jupiter) integration.
+     */
+    const val junitJupiter = "$group:junit-jupiter:$version"
 
-    // https://github.com/googleapis/google-cloud-java/tree/main/java-trace
-    const val trace = "com.google.cloud:google-cloud-trace:2.93.0"
+    /**
+     * The Google Cloud (GCP) emulator container support.
+     */
+    const val gcloud = "$group:gcloud:$version"
 
-    // https://github.com/googleapis/google-cloud-java/tree/main/java-datastore
-    const val datastore = "com.google.cloud:google-cloud-datastore:2.31.2"
+    /**
+     * The MySQL container support.
+     */
+    const val mySql = "$group:mysql:$version"
 }
