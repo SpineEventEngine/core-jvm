@@ -1,0 +1,57 @@
+# Re-judges every other open pull request when the base branch advances.
+#
+# Publishing runs on every push to a release base branch, so once one pull request merges
+# and bumps the version, any other open PR that bumped to the same (or a lower) value is
+# now stale: its publish would collide. GitHub does not re-run a PR's checks when its base
+# advances, so this workflow does it actively — for each other open PR whose
+# `version.gradle.kts` version is `<=` the new base version, it posts a failing
+# `Version Guard` commit status on the PR head, blocking the merge until the author
+# re-bumps. The status self-clears: the re-bump push runs `increment-guard.yml`, which
+# posts a fresh `success` on the new head.
+#
+# This narrows, but does not close, the race against auto-merge. A PR that is already
+# mergeable can merge in the seconds before this fan-out marks it stale; that late merge
+# produces a publish collision which the immutable Maven registry rejects (a loud,
+# recoverable red Publish), never an overwrite. The deterministic guarantee is the
+# registry's immutability, not this signal.
+
+name: Revalidate Versions
+
+on:
+  push:
+    # Matches the PR guard's `endsWith(base_ref, 'master'|'main')` and the same scope as
+    # `build-on-ubuntu.yml`. `**` (unlike `*`) also crosses `/`, so slash-named release
+    # lines such as `release/2.x-master` are covered. Keeping these definitions identical
+    # ensures every branch guarded on the PR side is also revalidated here.
+    branches:
+      - '**master'
+      - '**main'
+
+permissions:
+  contents: read
+  statuses: write
+  pull-requests: read
+
+concurrency:
+  # Only the newest tip of a given base matters; a later push to the same ref cancels an
+  # in-flight fan-out for it. Different bases run independently.
+  group: revalidate-versions-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  revalidate:
+    name: Revalidate open PRs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: 'true'
+
+      - name: Revalidate open PRs against the new base version
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          BASE_REF: ${{ github.ref_name }}
+        # Invoked via `bash` so it does not depend on the script's committed executable bit.
+        run: bash ./config/scripts/revalidate-versions.sh

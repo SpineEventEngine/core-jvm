@@ -29,6 +29,7 @@ import io.spine.dependency.build.CheckerFramework
 import io.spine.dependency.build.Dokka
 import io.spine.dependency.build.ErrorProne
 import io.spine.dependency.build.JSpecify
+import io.spine.dependency.isDokka
 import io.spine.dependency.lib.Guava
 import io.spine.dependency.lib.Jackson
 import io.spine.dependency.lib.Kotlin
@@ -132,6 +133,9 @@ fun Module.forceConfigurations() {
         forceVersions()
         excludeProtobufLite()
         all {
+            if (isDokka) {
+                return@all
+            }
             resolutionStrategy {
                 val cfg = this@all
                 val rs = this@resolutionStrategy

@@ -27,6 +27,7 @@
 package io.spine.gradle.report.pom
 
 import groovy.xml.MarkupBuilder
+import io.spine.gradle.VersionComparator
 import java.io.Writer
 import java.util.*
 import kotlin.reflect.full.isSubclassOf

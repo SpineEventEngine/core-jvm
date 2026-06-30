@@ -24,23 +24,30 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.dependency.lib
+package io.spine.gradle.publish
 
-/**
- * https://github.com/googleapis/google-cloud-java
- */
-@Suppress("unused", "ConstPropertyName")
-object GoogleCloud {
+import com.fasterxml.jackson.dataformat.xml.XmlMapper
+import io.kotest.matchers.collections.shouldContainExactly
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
 
-    // https://github.com/googleapis/google-cloud-java/tree/main/sdk-platform-java/java-core
-    const val core = "com.google.cloud:google-cloud-core:2.71.0"
+@DisplayName("`MavenMetadata` should")
+internal class MavenMetadataSpec {
 
-    // https://github.com/googleapis/google-cloud-java/tree/main/java-pubsub/proto-google-cloud-pubsub-v1
-    const val pubSubGrpcApi = "com.google.api.grpc:proto-google-cloud-pubsub-v1:1.151.0"
+    /**
+     * Round-trips through the same [XmlMapper] used in production, asserting the version list
+     * survives. This guards the `var` properties of [MavenMetadata] and [Versioning]: a `val`
+     * (or `internal`-mangled setter) would leave the list empty after deserialization, silently
+     * disabling the "already published" check.
+     */
+    @Test
+    fun `survive a Jackson round-trip, keeping its versions`() {
+        val versions = listOf("2.0.0-SNAPSHOT.79", "2.0.0-SNAPSHOT.80", "2.0.0-SNAPSHOT.81")
+        val mapper = XmlMapper()
 
-    // https://github.com/googleapis/google-cloud-java/tree/main/java-trace
-    const val trace = "com.google.cloud:google-cloud-trace:2.93.0"
+        val xml = mapper.writeValueAsString(MavenMetadata(Versioning(versions)))
+        val parsed = mapper.readValue(xml, MavenMetadata::class.java)
 
-    // https://github.com/googleapis/google-cloud-java/tree/main/java-datastore
-    const val datastore = "com.google.cloud:google-cloud-datastore:2.31.2"
+        parsed.versioning.versions shouldContainExactly versions
+    }
 }

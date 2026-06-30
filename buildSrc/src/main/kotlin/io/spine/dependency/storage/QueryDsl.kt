@@ -24,23 +24,22 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.dependency.lib
+package io.spine.dependency.storage
 
 /**
- * https://github.com/googleapis/google-cloud-java
+ * QueryDSL — a framework for constructing type-safe SQL-like queries in Java.
+ *
+ * The JDBC storage uses the SQL module to build database queries.
+ *
+ * @see <a href="https://github.com/querydsl/querydsl">QueryDSL at GitHub</a>
  */
 @Suppress("unused", "ConstPropertyName")
-object GoogleCloud {
+object QueryDsl {
+    private const val version = "5.1.0"
+    private const val group = "com.querydsl"
 
-    // https://github.com/googleapis/google-cloud-java/tree/main/sdk-platform-java/java-core
-    const val core = "com.google.cloud:google-cloud-core:2.71.0"
-
-    // https://github.com/googleapis/google-cloud-java/tree/main/java-pubsub/proto-google-cloud-pubsub-v1
-    const val pubSubGrpcApi = "com.google.api.grpc:proto-google-cloud-pubsub-v1:1.151.0"
-
-    // https://github.com/googleapis/google-cloud-java/tree/main/java-trace
-    const val trace = "com.google.cloud:google-cloud-trace:2.93.0"
-
-    // https://github.com/googleapis/google-cloud-java/tree/main/java-datastore
-    const val datastore = "com.google.cloud:google-cloud-datastore:2.31.2"
+    /**
+     * The SQL module of QueryDSL.
+     */
+    const val sql = "$group:querydsl-sql:$version"
 }

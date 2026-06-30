@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import io.spine.dependency.build.Dokka
 import io.spine.dependency.build.ErrorProne
 import io.spine.dependency.build.FindBugs
 import io.spine.dependency.build.JSpecify
+import io.spine.dependency.isDokka
 import io.spine.dependency.lib.Asm
 import io.spine.dependency.lib.AutoCommon
 import io.spine.dependency.lib.AutoService
@@ -73,6 +74,9 @@ fun doForceVersions(configurations: ConfigurationContainer) {
  */
 fun NamedDomainObjectContainer<Configuration>.forceVersions() {
     all {
+        if (isDokka) {
+            return@all
+        }
         resolutionStrategy {
             failOnVersionConflict()
             cacheChangingModulesFor(0, "seconds")

@@ -29,6 +29,7 @@ package io.spine.dependency.boms
 import io.gitlab.arturbosch.detekt.getSupportedKotlinVersion
 import io.spine.dependency.DependencyWithBom
 import io.spine.dependency.diagSuffix
+import io.spine.dependency.isDokka
 import io.spine.dependency.kotlinx.Coroutines
 import io.spine.dependency.lib.Kotlin
 import io.spine.dependency.test.JUnit
@@ -88,7 +89,7 @@ class BomsPlugin : Plugin<Project>  {
                 applyBoms(project, Boms.core + Boms.testing)
             }
 
-            matching { !supportsBom(it.name) }.all {
+            matching { !supportsBom(it.name) && !it.isDokka }.all {
                 resolutionStrategy.eachDependency {
                     if (requested.group == Kotlin.group) {
                         val kotlinVersion = Kotlin.runtimeVersion
@@ -170,7 +171,7 @@ private fun supportsBom(name: String) =
 private fun Project.forceArtifacts() =
     configurations.all {
         resolutionStrategy {
-            if (!isDetekt) {
+            if (!isDetekt && !isDokka) {
                 val rs = this@resolutionStrategy
                 val project = this@forceArtifacts
                 val cfg = this@all

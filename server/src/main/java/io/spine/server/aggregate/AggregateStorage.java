@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -196,11 +196,23 @@ public class AggregateStorage<I, S extends AggregateState<I>>
     /**
      * Returns an iterator over identifiers of Aggregates served by this storage.
      *
-     * <p>The results include IDs corresponding only to those Aggregate instances that were
-     * {@linkplain #writeState(Aggregate) explicitly written} to this storage. The Aggregate
-     * identifiers that are included into the persisted events are not taken into account
-     * by this method due to a performance considerations, as too many event records
-     * must be scanned and de-duplicated for this.
+     * <p>The results include IDs corresponding only to those Aggregate instances whose state
+     * was {@linkplain #writeState(Aggregate) written} to this storage. Starting with Spine 2.0,
+     * the framework writes the essential bits of every Aggregate — its identifier, lifecycle
+     * flags, and version — to this storage on each update, regardless of the
+     * {@linkplain io.spine.option.EntityOption.Visibility visibility} of the Aggregate state.
+     * Therefore, for the data produced by the current framework version, this index returns all
+     * the Aggregates of the served type.
+     *
+     * <p>The identifiers found only in the persisted events are <em>not</em> taken into account,
+     * as obtaining them would require scanning and de-duplicating too many event records.
+     * As a consequence, an Aggregate persisted by an older framework version is not returned
+     * until its state is written to this storage. For an Aggregate that still has a record in
+     * the now-deprecated {@link io.spine.system.server.Mirror Mirror} projection, run the
+     * {@link io.spine.server.migration.mirror.MirrorMigration Mirror migration}, which writes
+     * the migrated states into this storage. An Aggregate that exists only as events — with
+     * neither a state record nor a {@code Mirror} record — is picked up once its state is next
+     * {@linkplain #writeState(Aggregate) written}, for example, on its next update.
      */
     @Override
     public Iterator<I> index() {
