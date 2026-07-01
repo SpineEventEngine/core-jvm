@@ -29,4 +29,4 @@
  *
  * For versions of Spine-based dependencies, please see [io.spine.dependency.local.Spine].
  */
-extra.set("versionToPublish", "2.0.0-SNAPSHOT.384")
+extra.set("versionToPublish", "2.0.0-SNAPSHOT.385")
