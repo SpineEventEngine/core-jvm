@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ package io.spine.server.delivery.given;
 
 import com.google.common.collect.ImmutableList;
 import io.spine.environment.Tests;
+import io.spine.server.BoundedContextBuilder;
 import io.spine.server.DefaultRepository;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.delivery.Delivery;
@@ -35,8 +36,10 @@ import io.spine.server.delivery.DeliveryMonitor;
 import io.spine.server.delivery.FailedReception;
 import io.spine.server.delivery.InboxContents;
 import io.spine.server.delivery.InboxMessage;
+import io.spine.server.delivery.LocalDispatchingObserver;
 import io.spine.server.delivery.ShardObserver;
 import io.spine.server.tenant.TenantAwareRunner;
+import io.spine.system.server.DiagnosticMonitor;
 import io.spine.test.delivery.Receptionist;
 import io.spine.test.delivery.command.TurnConditionerOn;
 import io.spine.testing.server.blackbox.BlackBox;
@@ -63,11 +66,52 @@ public final class ReceptionFailureTestEnv {
         return context;
     }
 
+    /**
+     * Creates a single-tenant black box over the {@link ReceptionistAggregate} and the
+     * {@link CalcAggregate}, with the passed {@link DiagnosticMonitor} registered as an event
+     * dispatcher.
+     *
+     * <p>The {@code CalcAggregate} serves as a "bystander" of a different type: its applier is not
+     * governed by {@link ReceptionistAggregate#makeApplierFail()}, so it can be delivered
+     * successfully while a {@code ReceptionistAggregate} in the same shard keeps failing.
+     *
+     * <p>The monitor allows observing the diagnostic events, such as
+     * {@link io.spine.system.server.CannotDispatchDuplicateCommand}, produced while the commands
+     * are delivered to the aggregates.
+     */
+    public static BlackBox blackBoxWith(DiagnosticMonitor monitor) {
+        var builder = BoundedContextBuilder.assumingTests();
+        builder.add(DefaultRepository.of(ReceptionistAggregate.class));
+        builder.add(DefaultRepository.of(CalcAggregate.class));
+        var context = builder.build();
+        context.internalAccess()
+               .registerEventDispatcher(monitor);
+        return BlackBox.from(context);
+    }
+
     public static void configureDelivery(DeliveryMonitor monitor) {
         var delivery = Delivery.newBuilder()
                 .setMonitor(monitor)
                 .build();
         delivery.subscribe(new IgnoringObserver());
+        ServerEnvironment.when(Tests.class)
+                         .use(delivery);
+    }
+
+    /**
+     * Configures a {@code Delivery} that dispatches the messages synchronously, in the calling
+     * thread, using the passed monitor.
+     *
+     * <p>Unlike {@link #configureDelivery(DeliveryMonitor)}, which delivers asynchronously and
+     * thus requires a {@link #sleep()}, this variant makes the delivery deterministic: by the time
+     * {@code BlackBox.receivesCommand(...)} returns, the command has already been delivered to its
+     * target.
+     */
+    public static void configureSynchronousDelivery(DeliveryMonitor monitor) {
+        var delivery = Delivery.newBuilder()
+                .setMonitor(monitor)
+                .build();
+        delivery.subscribe(new LocalDispatchingObserver());
         ServerEnvironment.when(Tests.class)
                          .use(delivery);
     }
