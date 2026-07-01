@@ -33,14 +33,20 @@ import org.gradle.api.GradleException
  * Reads a `version.gradle.kts` file and resolves the `extra` properties it declares.
  *
  * [contentUnder] and [contentInBase] read the file (from the working tree or a base branch);
- * [keyForValue] and [valueForKey] resolve its `extra` properties. The following declaration
- * shapes are handled (see the `bump-version` skill):
+ * [keyForValue] and [valueForKey] resolve its `extra` properties. Each property is registered
+ * either with the current `extra.set("name", …)` call or the legacy `by extra(…)` property
+ * delegate that Gradle deprecated (the `bump-version` skill migrates the latter to the former);
+ * both spellings are recognized, so a file is read correctly whether or not it has migrated.
+ * The following value shapes are handled:
  *
- *  1. a literal: `val versionToPublish: String by extra("2.0.0-SNAPSHOT.182")`;
- *  2. an alias to another `extra`: `val versionToPublish by extra(compilerVersion)` paired
- *     with `val compilerVersion: String by extra("2.0.0-SNAPSHOT.043")`;
- *  3. an alias to a plain `val`: `val versionToPublish by extra(base)` paired with
- *     `val base = "2.0.0-SNAPSHOT.043"`.
+ *  1. a literal:
+ *     `extra.set("versionToPublish", "2.0.0-SNAPSHOT.182")`, or the legacy
+ *     `val versionToPublish: String by extra("2.0.0-SNAPSHOT.182")`;
+ *  2. an alias to a plain `val` (or, in the legacy spelling, to another `extra`):
+ *     `extra.set("versionToPublish", compilerVersion)` paired with
+ *     `val compilerVersion = "2.0.0-SNAPSHOT.043"`, or the legacy
+ *     `val versionToPublish by extra(compilerVersion)` paired with
+ *     `val compilerVersion: String by extra("2.0.0-SNAPSHOT.043")`.
  *
  * The publishing-version property is identified by [keyForValue] using the already-resolved
  * project version as an oracle, so the specific property name (`versionToPublish`,
@@ -56,10 +62,19 @@ internal object VersionGradleFile {
      */
     const val NAME = "version.gradle.kts"
 
+    // Legacy `by extra(…)` property-delegate spellings (deprecated by Gradle).
     private val literalExtra =
         Regex("""val\s+(\w+)\s*(?::\s*String)?\s+by\s+extra\(\s*"([^"]+)"\s*\)""")
     private val aliasExtra =
         Regex("""val\s+(\w+)\s*(?::\s*String)?\s+by\s+extra\(\s*([A-Za-z_]\w*)\s*\)""")
+
+    // Current `extra.set("name", …)` spellings.
+    private val literalSet =
+        Regex("""extra\.set\(\s*"(\w+)"\s*,\s*"([^"]+)"\s*\)""")
+    private val aliasSet =
+        Regex("""extra\.set\(\s*"(\w+)"\s*,\s*([A-Za-z_]\w*)\s*\)""")
+
+    // A plain `val name = "value"` that an alias may reference.
     private val plainAssignment =
         Regex("""val\s+(\w+)\s*(?::\s*String)?\s*=\s*"([^"]+)"""")
 
@@ -68,12 +83,12 @@ internal object VersionGradleFile {
      * string value.
      */
     private fun parse(content: String): Map<String, String> {
-        val literals = literalExtra.findAll(content)
+        val literals = (literalExtra.findAll(content) + literalSet.findAll(content))
             .associate { it.groupValues[1] to it.groupValues[2] }
         val plains = plainAssignment.findAll(content)
             .associate { it.groupValues[1] to it.groupValues[2] }
         val resolved = literals.toMutableMap()
-        aliasExtra.findAll(content).forEach { match ->
+        (aliasExtra.findAll(content) + aliasSet.findAll(content)).forEach { match ->
             val name = match.groupValues[1]
             val source = match.groupValues[2]
             if (name !in resolved) {

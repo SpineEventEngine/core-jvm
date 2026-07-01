@@ -65,6 +65,28 @@ internal class VersionGradleFileSpec {
     }
 
     @Test
+    fun `declared as a literal via 'extra set'`() {
+        val content = """
+            extra.set("versionToPublish", "2.0.0-SNAPSHOT.182")
+        """.trimIndent()
+
+        VersionGradleFile.keyForValue(content, "2.0.0-SNAPSHOT.182") shouldBe "versionToPublish"
+        VersionGradleFile.valueForKey(content, "versionToPublish") shouldBe "2.0.0-SNAPSHOT.182"
+    }
+
+    @Test
+    fun `declared as an alias via 'extra set'`() {
+        val content = """
+            val compilerVersion = "2.0.0-SNAPSHOT.043"
+            extra.set("compilerVersion", compilerVersion)
+            extra.set("versionToPublish", compilerVersion)
+        """.trimIndent()
+
+        VersionGradleFile.valueForKey(content, "versionToPublish") shouldBe "2.0.0-SNAPSHOT.043"
+        VersionGradleFile.valueForKey(content, "compilerVersion") shouldBe "2.0.0-SNAPSHOT.043"
+    }
+
+    @Test
     fun `identified by the resolved project version, not a hard-coded name`() {
         val content = """
             val kotlinVersion: String by extra("2.1.0")
