@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -27,11 +27,14 @@
 package io.spine.server.delivery;
 
 import com.google.protobuf.Duration;
+import io.spine.annotation.VisibleForTesting;
+import io.spine.core.SignalId;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -173,13 +176,15 @@ final class LiveDeliveryStation extends Station {
      * <p>Duplicated messages are {@linkplain Conveyor#recentDuplicates() remembered by the
      * conveyor} and marked for removal.
      *
-     * <p>Messages are sorted {@linkplain InboxMessageComparator#chronologically chronologically}.
+     * <p>Messages are sorted {@linkplain InboxMessageComparator#chronologically chronologically}
+     * and then reordered so that, within each origin, subscribers are served before reactors —
+     * see {@link #subscribersBeforeReactors(List)}.
      *
      * @param messages
      *         message to deduplicate and sort
      * @param conveyor
      *         current conveyor
-     * @return deduplicated and sorted messages
+     * @return deduplicated, sorted, and reordered messages
      */
     private static List<InboxMessage> deduplicateAndSort(Collection<InboxMessage> messages,
                                                          Conveyor conveyor) {
@@ -194,6 +199,73 @@ final class LiveDeliveryStation extends Station {
             }
         }
         result.sort(InboxMessageComparator.chronologically);
+        return subscribersBeforeReactors(result);
+    }
+
+    /**
+     * Reorders the chronologically sorted messages so that, within each originating signal,
+     * the messages updating subscribers are delivered before those triggering reactions.
+     *
+     * <p>A message {@linkplain InboxLabel#UPDATE_SUBSCRIBER updating a subscriber} feeds a
+     * read-side projection, while a message {@linkplain InboxLabel#REACT_UPON_EVENT reacting
+     * upon an event} may make an entity emit new events. When one origin event is delivered
+     * both to a subscriber and to a reactor, delivering it to the subscriber first guarantees
+     * that a reaction — produced while the same origin event is dispatched to the reactor —
+     * observes the already committed read-side effects of that origin event. This matters when
+     * a reaction is routed by querying the state of a projection updated by the origin event.
+     * See <a href="https://github.com/SpineEventEngine/core-java/issues/925">issue&nbsp;#925</a>.
+     *
+     * <p>The messages are grouped by their {@linkplain #originOf(InboxMessage) originating
+     * signal}, keeping the chronological order of groups by first appearance. Within a group,
+     * {@code UPDATE_SUBSCRIBER} messages are emitted first, and both partitions keep their
+     * relative chronological order.
+     *
+     * <p>The reordering is a stable grouped transform rather than an
+     * {@link java.util.Comparator Comparator}: a comparator ordering by label only for
+     * same-origin messages, and chronologically otherwise, would not be transitive and could
+     * make the sort throw at runtime.
+     *
+     * @param chronological
+     *         the messages already sorted {@linkplain InboxMessageComparator#chronologically
+     *         chronologically}
+     * @return the reordered messages
+     */
+    @VisibleForTesting
+    static List<InboxMessage> subscribersBeforeReactors(List<InboxMessage> chronological) {
+        Map<SignalId, List<InboxMessage>> byOrigin = new LinkedHashMap<>();
+        for (var message : chronological) {
+            byOrigin.computeIfAbsent(originOf(message), id -> new ArrayList<>())
+                    .add(message);
+        }
+        List<InboxMessage> result = new ArrayList<>(chronological.size());
+        for (var group : byOrigin.values()) {
+            for (var message : group) {
+                if (updatesSubscriber(message)) {
+                    result.add(message);
+                }
+            }
+            for (var message : group) {
+                if (!updatesSubscriber(message)) {
+                    result.add(message);
+                }
+            }
+        }
         return result;
+    }
+
+    /**
+     * Obtains the identifier of the signal delivered by the passed message.
+     *
+     * <p>Deliveries of the same origin event to different targets share this identifier,
+     * which is what groups them together in {@link #subscribersBeforeReactors(List)}.
+     */
+    private static SignalId originOf(InboxMessage message) {
+        return message.hasEvent()
+               ? message.getEvent().getId()
+               : message.getCommand().getId();
+    }
+
+    private static boolean updatesSubscriber(InboxMessage message) {
+        return message.getLabel() == InboxLabel.UPDATE_SUBSCRIBER;
     }
 }
