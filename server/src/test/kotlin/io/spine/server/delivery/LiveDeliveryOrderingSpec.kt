@@ -41,7 +41,7 @@ import org.junit.jupiter.api.Test
  * [LiveDeliveryStation.subscribersBeforeReactors], which guarantees that an event reaches
  * its subscribers before its reactors within a delivery page.
  *
- * See the [issue #925](https://github.com/SpineEventEngine/core-java/issues/925).
+ * See the [issue #925](https://github.com/SpineEventEngine/core-jvm/issues/925).
  */
 @DisplayName("`LiveDeliveryStation` when ordering a delivery page should")
 internal class LiveDeliveryOrderingSpec {

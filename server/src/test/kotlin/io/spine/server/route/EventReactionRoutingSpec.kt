@@ -49,7 +49,8 @@ internal class EventReactionRoutingSpec {
      * The reaction is routed by querying the session by its `userId`, so it can only reach the
      * right projection once the origin event has been delivered to that projection. The delivery
      * pipeline now dispatches an event to its subscribers before its reactors, making this
-     * ordering deterministic. See the GitHub issue link for details.
+     * ordering deterministic. See [issue #925](https://github.com/SpineEventEngine/core-jvm/issues/925)
+     * for details.
      *
      * The test is kept `@RepeatedTest` as a regression guard, since it historically failed
      * intermittently depending on the non-deterministic dispatch order.

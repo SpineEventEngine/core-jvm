@@ -213,7 +213,7 @@ final class LiveDeliveryStation extends Station {
      * reaction — produced while the same origin event is dispatched to the reactor — observe
      * the already committed read-side effects of that origin event. This matters when a
      * reaction is routed by querying the state of a projection updated by the origin event.
-     * See <a href="https://github.com/SpineEventEngine/core-java/issues/925">issue&nbsp;#925</a>.
+     * See <a href="https://github.com/SpineEventEngine/core-jvm/issues/925">issue&nbsp;#925</a>.
      *
      * <p>The messages are grouped by their {@linkplain #originOf(InboxMessage) originating
      * signal}, keeping the chronological order of groups by first appearance. Within a group,
