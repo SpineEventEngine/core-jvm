@@ -146,7 +146,7 @@ class FiltersTest extends UtilityClassTest<Filters> {
             assertEquals(EQUAL, filter.getOperator());
         }
 
-        private void checkCreatesInstance(Filter filter, Operator operator) {
+        private static void checkCreatesInstance(Filter filter, Operator operator) {
             var actual = Field.withPath(filter.getFieldPath()).toString();
             assertEquals(FIELD, actual);
             assertEquals(pack(REQUESTED_VALUE), filter.getValue());
@@ -194,10 +194,10 @@ class FiltersTest extends UtilityClassTest<Filters> {
             checkCreates(eq(field, value), expectedPath, value, EQUAL);
         }
 
-        private void checkCreates(Filter filter,
-                                  String expectedPath,
-                                  Object expectedValue,
-                                  Operator expectedOperator) {
+        private static void checkCreates(Filter filter,
+                                         String expectedPath,
+                                         Object expectedValue,
+                                         Operator expectedOperator) {
             var fieldPath = Field.withPath(filter.getFieldPath()).toString();
             assertThat(fieldPath).isEqualTo(expectedPath);
 
@@ -234,9 +234,9 @@ class FiltersTest extends UtilityClassTest<Filters> {
             checkCreatesInstance(Filters.either(filters[0], filters[1]), EITHER, filters);
         }
 
-        private void checkCreatesInstance(CompositeFilter filter,
-                                          CompositeOperator operator,
-                                          Filter[] groupedFilters) {
+        private static void checkCreatesInstance(CompositeFilter filter,
+                                                 CompositeOperator operator,
+                                                 Filter[] groupedFilters) {
             assertEquals(operator, filter.getOperator());
             assertThat(filter.getFilterList())
                     .containsExactlyElementsIn(groupedFilters);
