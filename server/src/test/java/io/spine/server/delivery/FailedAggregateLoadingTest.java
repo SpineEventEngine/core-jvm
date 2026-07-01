@@ -49,8 +49,8 @@ import static io.spine.server.delivery.given.ReceptionistAggregate.makeApplierPa
  *
  * <p>When an aggregate cannot apply an event (e.g. its {@code @Apply} method throws), its command
  * fails to be handled. This test verifies that such a failure is contained: it does not leak into
- * the delivery of <em>other</em> signals sharing the same shard, and — in particular — a further,
- * distinct command to the failing aggregate is <em>not</em> mistaken for a duplicate.
+ * the delivery of <em>other</em> signals sharing the same shard, and — in particular — a
+ * further, distinct command to the failing aggregate is <em>not</em> mistaken for a duplicate.
  */
 @DisplayName("`Delivery` should handle a failed aggregate loading during message delivery")
 final class FailedAggregateLoadingTest extends AbstractDeliveryTest {
