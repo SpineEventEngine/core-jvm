@@ -34,6 +34,7 @@ import kotlin.reflect.full.isSubclassOf
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
+import org.gradle.api.artifacts.result.ResolvedComponentResult
 import org.gradle.api.internal.artifacts.dependencies.AbstractExternalModuleDependency
 import org.gradle.kotlin.dsl.withGroovyBuilder
 
@@ -53,6 +54,11 @@ import org.gradle.kotlin.dsl.withGroovyBuilder
  *      ...
  *  </dependencies>
  * ```
+ *
+ * The version reported for each dependency is the one selected by Gradle's
+ * dependency resolution — the version actually placed on the classpath — rather
+ * than the version requested in the build script. This reflects `force(...)`
+ * directives, platform/BOM constraints, and conflict resolution.
  *
  * When there are several versions of the same dependency, only the one with
  * the newest version is retained. If the retained version is used in several
@@ -107,38 +113,70 @@ private constructor(
 
 /**
  * Returns the [scoped dependencies][ScopedDependency] of a Gradle project.
+ *
+ * The version of each dependency is the one selected by dependency resolution
+ * for the project it comes from. See [resolvedVersions].
  */
-fun Project.dependencies(): SortedSet<ScopedDependency> {
-    val dependencies = mutableSetOf<ModuleDependency>()
-    dependencies.addAll(this.depsFromAllConfigurations())
+fun Project.dependencies(): SortedSet<ScopedDependency> =
+    collectScopedDependencies { it.resolvedVersions() }
 
-    this.subprojects.forEach { subproject ->
-        val subprojectDeps = subproject.depsFromAllConfigurations()
+/**
+ * Returns the [scoped dependencies][ScopedDependency] of a Gradle project, taking
+ * the version of each dependency from the given [resolvedVersions] map instead of
+ * resolving the project's own configurations.
+ *
+ * This overload exists for tests: a project created with `ProjectBuilder` cannot
+ * resolve its configurations against real repositories, so the resolved versions
+ * are supplied directly. The keys are the `"group:name"` of the modules.
+ */
+internal fun Project.dependencies(
+    resolvedVersions: Map<String, String>
+): SortedSet<ScopedDependency> =
+    collectScopedDependencies { resolvedVersions }
+
+/**
+ * Collects the [scoped dependencies][ScopedDependency] of this project and its
+ * subprojects, deduplicates them, and returns them in the conventional Maven order.
+ *
+ * The version of each dependency is taken from the map returned by the supplied
+ * `resolvedVersionsOf` function for the project the dependency comes from.
+ */
+private fun Project.collectScopedDependencies(
+    resolvedVersionsOf: (Project) -> Map<String, String>
+): SortedSet<ScopedDependency> {
+    val dependencies = mutableSetOf<ModuleDependency>()
+    dependencies.addAll(depsFromAllConfigurations(resolvedVersionsOf(this)))
+
+    subprojects.forEach { subproject ->
+        val subprojectDeps = subproject.depsFromAllConfigurations(resolvedVersionsOf(subproject))
         dependencies.addAll(subprojectDeps)
     }
 
-    val result = deduplicate(dependencies)
+    return deduplicate(dependencies)
         .map { it.scoped }
         .toSortedSet()
-    return result
 }
 
 /**
  * Returns the external dependencies of the project from all the project configurations.
+ *
+ * The version of each returned dependency is taken from [resolvedVersions] by its
+ * `"group:name"` key, falling back to the declared version when the module is on no
+ * resolvable configuration — for example, a version managed by a BOM, which carries
+ * no explicit version of its own.
  */
-private fun Project.depsFromAllConfigurations(): Set<ModuleDependency> {
+private fun Project.depsFromAllConfigurations(
+    resolvedVersions: Map<String, String>
+): Set<ModuleDependency> {
     val result = mutableSetOf<ModuleDependency>()
-    this.configurations.forEach { configuration ->
+    configurations.forEach { configuration ->
         configuration.dependencies
             .filter { it.isExternal() }
             .forEach { dependency ->
-                val forcedVersion = configuration.forcedVersionOf(dependency)
+                val version = resolvedVersions[moduleKey(dependency.group, dependency.name)]
+                    ?: dependency.version
                 val moduleDependency =
-                    if (forcedVersion != null) {
-                        ModuleDependency(project, configuration, dependency, forcedVersion)
-                    } else {
-                        ModuleDependency(project, configuration, dependency)
-                    }
+                    ModuleDependency(this, configuration, dependency, factualVersion = version)
                 result.add(moduleDependency)
             }
     }
@@ -146,19 +184,54 @@ private fun Project.depsFromAllConfigurations(): Set<ModuleDependency> {
 }
 
 /**
- * Searches for a forced version of given [dependency] in this [Configuration].
+ * Returns the versions selected by dependency resolution for this project, keyed
+ * by the `"group:name"` of each module.
  *
- * Returns `null`, if it wasn't forced.
+ * The declared version of a dependency is what the build script *requested*, which
+ * may differ from what the build *uses*: a `force(...)`, a platform/BOM constraint,
+ * or Gradle's conflict resolution can all select another version. Reading the
+ * resolution result captures the selected version, so the report describes the
+ * dependencies actually on the classpath rather than the requested ones.
+ *
+ * Only resolvable configurations contribute. When a module resolves to different
+ * versions across configurations, the newest one (by [VersionComparator]) is kept,
+ * matching the deduplication applied afterwards. A configuration that fails to
+ * resolve in isolation is skipped and logged, so the report never breaks the build.
  */
-private fun Configuration.forcedVersionOf(dependency: Dependency): String? {
-    val forcedModules = resolutionStrategy.forcedModules
-    val maybeForced = forcedModules.firstOrNull {
-        it.group == dependency.group
-                && it.name == dependency.name
-                && it.version != null
-    }
-    return maybeForced?.version
+private fun Project.resolvedVersions(): Map<String, String> {
+    // Resolving an individual configuration may fail for reasons unrelated to the
+    // report — missing repositories for a niche configuration, an unsatisfiable
+    // constraint, and the like. Such a configuration contributes no versions.
+    @Suppress("TooGenericExceptionCaught") // Any resolution failure is non-fatal here.
+    fun componentsOf(configuration: Configuration): Set<ResolvedComponentResult> =
+        try {
+            configuration.incoming.resolutionResult.allComponents
+        } catch (e: Exception) {
+            logger.info(
+                "Skipping configuration `${configuration.name}` " +
+                    "while collecting resolved dependency versions.",
+                e
+            )
+            emptySet()
+        }
+
+    return configurations
+        .filter { it.isCanBeResolved }
+        .flatMap { componentsOf(it) }
+        .mapNotNull { it.moduleVersion }
+        .groupBy { moduleKey(it.group, it.name) }
+        .mapValues { (_, versions) -> versions.maxOfWith(VersionComparator) { it.version } }
 }
+
+/**
+ * Builds the `"group:name"` key under which a module's resolved version is recorded
+ * and looked up.
+ *
+ * Forming the key in one place keeps the lookup in [depsFromAllConfigurations]
+ * consistent with what [resolvedVersions] records and with the grouping done by
+ * [deduplicate].
+ */
+private fun moduleKey(group: String?, name: String): String = "$group:$name"
 
 /**
  * Tells whether the dependency is an external module dependency.
@@ -193,7 +266,7 @@ private fun Dependency.isExternal(): Boolean {
  * The rejected duplicates are logged.
  */
 private fun Project.deduplicate(dependencies: Set<ModuleDependency>): List<ModuleDependency> {
-    val groups = dependencies.groupBy { it.run { "$group:$name" } }
+    val groups = dependencies.groupBy { moduleKey(it.group, it.name) }
 
     logDuplicates(groups.mapValues { (_, deps) -> deps.distinctBy { it.gav } })
 
