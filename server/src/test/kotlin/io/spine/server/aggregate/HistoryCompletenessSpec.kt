@@ -38,8 +38,7 @@ import org.junit.jupiter.api.Test
 internal class HistoryCompletenessSpec {
 
     @Nested
-    @DisplayName("accept a history that")
-    inner class Accept {
+    inner class `accept a history that` {
 
         @Test
         fun `is complete when read from the beginning`() {
@@ -79,8 +78,7 @@ internal class HistoryCompletenessSpec {
     }
 
     @Nested
-    @DisplayName("skip the check when")
-    inner class Skip {
+    inner class `skip the check when` {
 
         @Test
         fun `no authoritative version is available (legacy data)`() {
@@ -105,8 +103,7 @@ internal class HistoryCompletenessSpec {
     }
 
     @Nested
-    @DisplayName("reject a history that")
-    inner class Reject {
+    inner class `reject a history that` {
 
         @Test
         fun `is missing the newest event (tail loss)`() {
