@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,9 +30,7 @@ import groovy.xml.MarkupBuilder
 import java.io.StringWriter
 import kotlin.reflect.KProperty
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.PropertyDelegate
 import org.gradle.kotlin.dsl.extra
-import org.gradle.kotlin.dsl.provideDelegate
 import org.gradle.kotlin.dsl.withGroovyBuilder
 
 /**
@@ -90,10 +88,10 @@ private fun Project.nonEmptyValue(prop: Any): NonEmptyValue {
 private class NonEmptyValue(
     private val defaultValue: String,
     private val project: Project
-) : PropertyDelegate {
+) {
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> getValue(receiver: Any?, property: KProperty<*>): T {
+    operator fun <T> getValue(receiver: Any?, property: KProperty<*>): T {
         if (defaultValue.isNotEmpty()) {
             return defaultValue as T
         }
