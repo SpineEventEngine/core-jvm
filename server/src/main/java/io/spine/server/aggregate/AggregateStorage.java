@@ -221,7 +221,11 @@ public class AggregateStorage<I, S extends AggregateState<I>>
 
     /**
      * Forms and returns an {@link AggregateHistory} based on the
-     * {@linkplain #historyBackward(Object, int)}  aggregate history}.
+     * {@linkplain #historyBackward(Object, int) aggregate history}.
+     *
+     * <p>The number of events read is reconciled against the aggregate's
+     * {@linkplain #writeState(Aggregate) stored state version} to detect a history left
+     * incomplete by an eventually-consistent storage; see {@link HistoryCompleteness}.
      *
      * @param id
      *         the identifier of the aggregate for which to return the history
@@ -231,6 +235,8 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      *         {@linkplain #historyBackward(Object, int) aggregate history} is empty
      * @throws IllegalStateException
      *         if the storage was closed before
+     * @throws IncompleteHistoryException
+     *         if the read history is provably incomplete
      */
     @SuppressWarnings("CheckReturnValue") // calling builder method
     public Optional<AggregateHistory> read(I id, int batchSize) {

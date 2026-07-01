@@ -136,7 +136,7 @@ internal class HistoryCompletenessSpec {
         /**
          * Builds a [Version] with the given [number].
          *
-         * Uses [buildPartial] so that the fixture does not need to satisfy the
+         * Uses `buildPartial()` so that the fixture does not need to satisfy the
          * `timestamp` constraint of `spine.core.Version`; the completeness check only
          * reads the version number.
          */
