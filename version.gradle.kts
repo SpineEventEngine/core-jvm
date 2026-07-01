@@ -25,8 +25,6 @@
  */
 
 /**
- *  The version of this library.
- *
- * For versions of Spine-based dependencies, please see [io.spine.dependency.local.Spine].
+ * The version of this library.
  */
-val versionToPublish: String by extra("2.0.0-SNAPSHOT.383")
+extra.set("versionToPublish", "2.0.0-SNAPSHOT.383")
