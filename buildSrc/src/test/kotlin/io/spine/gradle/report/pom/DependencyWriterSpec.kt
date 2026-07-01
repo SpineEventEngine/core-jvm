@@ -31,12 +31,16 @@ import io.kotest.matchers.ints.shouldBeLessThan
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
+import java.io.File
 import java.io.StringWriter
+import org.gradle.api.Action
 import org.gradle.api.Project
+import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
 
 @DisplayName("`DependencyWriter` should")
 internal class DependencyWriterSpec {
@@ -246,6 +250,112 @@ internal class DependencyWriterSpec {
         }
     }
 
+    @Nested inner class
+    `report the version selected by dependency resolution` {
+
+        /**
+         * A `force(...)` pins an artifact to a version that is *older* than one of
+         * the declared ones. The report must show the resolved version — the one
+         * actually on the classpath — and not the newest of the declared ones,
+         * which the deduplication would otherwise pick.
+         */
+        @Test
+        fun `preferring it over a newer declared version`() {
+            val older = "$VALIDATION_RUNTIME:2.0.0-SNAPSHOT.40"
+            val newer = "$VALIDATION_RUNTIME:2.0.0-SNAPSHOT.61"
+            subproject("a-text").declare("implementation", newer)
+            subproject("b-text").declare("implementation", older)
+
+            val resolved = mapOf(VALIDATION_RUNTIME to "2.0.0-SNAPSHOT.40")
+            val dependency = rootProject.dependencies(resolved).single()
+
+            dependency.dependency().version shouldBe "2.0.0-SNAPSHOT.40"
+        }
+
+        /**
+         * Two versions of the same artifact declared in a single module and
+         * configuration — the case that used to log a spurious "several versions"
+         * warning — collapse to the single resolved version.
+         */
+        @Test
+        fun `collapsing several declarations within one configuration`() {
+            val text = subproject("text")
+            text.declare("implementation", "$VALIDATION_RUNTIME:2.0.0-SNAPSHOT.61")
+            text.declare("implementation", "$VALIDATION_RUNTIME:2.0.0-SNAPSHOT.40")
+
+            val resolved = mapOf(VALIDATION_RUNTIME to "2.0.0-SNAPSHOT.61")
+            val dependency = rootProject.dependencies(resolved).single()
+
+            dependency.dependency().version shouldBe "2.0.0-SNAPSHOT.61"
+        }
+
+        @Test
+        fun `falling back to the declared version when it is not resolved`() {
+            subproject("lib").declare("api", SPINE_BASE)
+
+            val dependency = rootProject.dependencies(emptyMap()).single()
+
+            dependency.dependency().version shouldBe "2.0.0"
+        }
+    }
+
+    @Nested inner class
+    `read the version from a resolved configuration` {
+
+        /**
+         * Drives the real (non-injected) `dependencies()` entry point against an
+         * actually resolved configuration. A module is declared at one version but
+         * `force`d to an older one; the report must show the forced, i.e. resolved,
+         * version. The forcing is observable only through resolution, so the module
+         * is resolved from a local repository of metadata-only POMs.
+         */
+        @Test
+        fun `honoring a forced version over the declared one`(@TempDir repoDir: File) {
+            val group = "io.spine.validation"
+            val name = "spine-validation-java-runtime"
+            publishPom(repoDir, group, name, "1.0.40")
+            publishPom(repoDir, group, name, "1.0.61")
+
+            val text = subproject("text")
+            text.addMavenRepository(repoDir)
+            val api = text.configurations.create("api")
+            api.isCanBeResolved = true
+            api.resolutionStrategy.force("$group:$name:1.0.40")
+            text.dependencies.add("api", "$group:$name:1.0.61")
+
+            val dependency = rootProject.dependencies().single()
+
+            dependency.dependency().version shouldBe "1.0.40"
+        }
+
+        /** Writes a metadata-only Maven POM for the module under [repoDir]. */
+        private fun publishPom(repoDir: File, group: String, name: String, version: String) {
+            val dir = File(repoDir, "${group.replace('.', '/')}/$name/$version")
+            dir.mkdirs()
+            File(dir, "$name-$version.pom").writeText(
+                """
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>$group</groupId>
+                  <artifactId>$name</artifactId>
+                  <version>$version</version>
+                </project>
+                """.trimIndent()
+            )
+        }
+
+        private fun Project.addMavenRepository(dir: File) {
+            // The `org.gradle.kotlin.dsl` `maven { }` accessors are not on the
+            // `buildSrc` test compile classpath, so the core `Action` overload is
+            // used directly rather than the DSL lambda.
+            repositories.maven(object : Action<MavenArtifactRepository> {
+                override fun execute(repository: MavenArtifactRepository) {
+                    repository.setUrl(dir.toURI())
+                }
+            })
+        }
+    }
+
     @Test
     fun `omit the scope of a dependency coming only from an unknown configuration`() {
         subproject("lib").declare("spineCompiler", SPINE_BASE)
@@ -308,5 +418,8 @@ internal class DependencyWriterSpec {
     private companion object {
         const val SPINE_BASE = "io.spine:spine-base:2.0.0"
         const val SPINE_BASE_NEWER = "io.spine:spine-base:2.0.1"
+
+        /** The `"group:name"` of the validation runtime artifact, without a version. */
+        const val VALIDATION_RUNTIME = "io.spine.validation:spine-validation-java-runtime"
     }
 }
