@@ -209,16 +209,23 @@ final class LiveDeliveryStation extends Station {
      * <p>A message {@linkplain InboxLabel#UPDATE_SUBSCRIBER updating a subscriber} feeds a
      * read-side projection, while a message {@linkplain InboxLabel#REACT_UPON_EVENT reacting
      * upon an event} may make an entity emit new events. When one origin event is delivered
-     * both to a subscriber and to a reactor, delivering it to the subscriber first guarantees
-     * that a reaction — produced while the same origin event is dispatched to the reactor —
-     * observes the already committed read-side effects of that origin event. This matters when
-     * a reaction is routed by querying the state of a projection updated by the origin event.
+     * both to a subscriber and to a reactor, delivering it to the subscriber first lets a
+     * reaction — produced while the same origin event is dispatched to the reactor — observe
+     * the already committed read-side effects of that origin event. This matters when a
+     * reaction is routed by querying the state of a projection updated by the origin event.
      * See <a href="https://github.com/SpineEventEngine/core-java/issues/925">issue&nbsp;#925</a>.
      *
      * <p>The messages are grouped by their {@linkplain #originOf(InboxMessage) originating
      * signal}, keeping the chronological order of groups by first appearance. Within a group,
      * {@code UPDATE_SUBSCRIBER} messages are emitted first, and both partitions keep their
      * relative chronological order.
+     *
+     * <p>This reordering acts on a single delivery page, so it establishes the order only when
+     * the subscriber and reactor deliveries of the origin event share that page — the case
+     * under the default single-shard delivery with the default page size. If those deliveries
+     * are split across pages (for example, with a page size of one) or routed to different
+     * shards, the read side stays eventually consistent by contract; a guarantee spanning page
+     * and shard boundaries would require ordering the deliveries before they are partitioned.
      *
      * <p>The reordering is a stable grouped transform rather than an
      * {@link java.util.Comparator Comparator}: a comparator ordering by label only for

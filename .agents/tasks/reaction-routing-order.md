@@ -95,14 +95,31 @@ by-design. Two framework approaches were designed and adversarially reviewed:
   **earlier, already-delivered** event.
 - A reaction depending on a read model of a **different, concurrent** event in the same page remains
   eventually consistent by contract — inherently unfixable by in-JVM ordering, out of scope.
-- Targets the common single-page case. If an origin's two targets land in different pages of a huge
-  backlog, the earlier page delivers first; only an exact page-boundary split could reorder — rare,
-  and still eventually consistent.
+- **The reorder acts on a single delivery page.** It establishes the order when the origin's
+  subscriber and reactor deliveries share a page — the default single-shard delivery with the default
+  page size (500), which is the reported #925 scenario. Two known residuals fall back to
+  eventual consistency:
+  - **Same shard, split pages** — `InboxStorage.readAll` reads by `(received_at, version)`, which
+    follows the hash-random inbox-write order, so a `pageSize=1` (or an exact page-boundary split)
+    can still read the reactor record first. Closing this needs the order established at
+    dispatch/write time (before paging), which storage's version-ordered reads would then preserve.
+  - **Different shards** — when the projection and reactor entities hash to different shards (opt-in
+    multi-shard / multi-node), their deliveries run independently; no in-JVM ordering can serialize
+    them. This is the read side's eventual-consistency contract.
+  A guarantee spanning page/shard boundaries requires ordering the deliveries **before** partitioning
+  (see follow-ups) — a larger change to bus dispatch order, deferred out of this fix. Raised by the
+  PR #1640 review (P1).
 - Cross-origin interleaving within a page changes from strict microsecond-chronological to "grouped
   by originating signal, earliest-origin first" — a refinement of an already reordered,
   eventually-consistent delivery; independent events carry no cross-entity ordering guarantee.
 
 ## Out of scope (follow-ups)
 
+- **Order same-origin deliveries before page/shard partitioning** (PR #1640 review, P1). Establish
+  subscriber-before-reactor order at dispatch/write time so it survives any page size within a shard.
+  The accurate subscriber/reactor signal is the `InboxLabel`, known only after routing; at dispatch
+  time the only classifier is `instanceof EventProducingRepository`, which misses standalone
+  `AbstractEventReactor`s and changes global bus dispatch order — hence a deliberate design task, not
+  a fold-in. The cross-shard case stays eventually consistent regardless.
 - Documenting, in the routing guide, that routing a reaction by querying read-model state is only
   reliable for same-origin dependencies (otherwise carry the routing key on the event).
