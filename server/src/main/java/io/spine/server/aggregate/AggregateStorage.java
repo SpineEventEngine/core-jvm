@@ -235,7 +235,12 @@ public class AggregateStorage<I, S extends AggregateState<I>>
     @SuppressWarnings("CheckReturnValue") // calling builder method
     public Optional<AggregateHistory> read(I id, int batchSize) {
         var op = new ReadOperation<>(this, id, batchSize);
-        return op.perform();
+        var history = op.perform();
+        var authoritativeVersion = stateStorage.read(id)
+                                               .map(EntityRecord::getVersion)
+                                               .orElse(null);
+        HistoryCompleteness.check(id, history.orElse(null), authoritativeVersion);
+        return history;
     }
 
     @Override

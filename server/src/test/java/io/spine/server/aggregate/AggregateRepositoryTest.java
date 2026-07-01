@@ -1,11 +1,11 @@
 /*
- * Copyright 2023, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -26,6 +26,7 @@
 
 package io.spine.server.aggregate;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import io.grpc.stub.StreamObserver;
@@ -33,6 +34,7 @@ import io.spine.base.Identifier;
 import io.spine.core.Ack;
 import io.spine.core.Event;
 import io.spine.core.Events;
+import io.spine.core.Version;
 import io.spine.server.aggregate.given.repo.AnemicAggregateRepository;
 import io.spine.server.aggregate.given.repo.EventDiscardingAggregateRepository;
 import io.spine.server.aggregate.given.repo.FailingAggregateRepository;
@@ -73,6 +75,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -388,6 +391,17 @@ class AggregateRepositoryTest {
         assertThrows(IllegalStateException.class, () -> repository().find(id));
     }
 
+    @SuppressWarnings("CheckReturnValue")
+    @Test
+    @DisplayName("throw when the read history is shorter than the stored aggregate version")
+    void throwWhenHistoryIncomplete() {
+        var aggregate = givenStoredAggregate();
+        var id = aggregate.id();
+        var storage = new NewestEventDroppingStorage(repository().aggregateStorage());
+        var batchSize = repository().snapshotTrigger() + 1;
+        assertThrows(IncompleteHistoryException.class, () -> storage.read(id, batchSize));
+    }
+
     @Nested
     @DisplayName("allow aggregates to react")
     class AllowAggregatesReact {
@@ -686,5 +700,41 @@ class AggregateRepositoryTest {
         assertThrows(IllegalStateException.class,
                      () -> context().internalAccess()
                                     .register(new AnemicAggregateRepository()));
+    }
+
+    /**
+     * An {@link AggregateStorage} that simulates an eventually-consistent read which
+     * misses the newest event.
+     *
+     * <p>It drops the first {@code EVENT} record returned by the initial backward read,
+     * leaving the stored aggregate state (and its version) intact. This reproduces the
+     * scenario of issue #838, in which {@link AggregateStorage#read} must detect the
+     * shortfall against the authoritative stored version.
+     */
+    private static final class NewestEventDroppingStorage
+            extends AggregateStorage<ProjectId, AggProject> {
+
+        NewestEventDroppingStorage(AggregateStorage<ProjectId, AggProject> delegate) {
+            super(delegate);
+        }
+
+        @Override
+        protected Iterator<AggregateEventRecord>
+        historyBackward(ProjectId id, int batchSize, Version startingFrom) {
+            var records = ImmutableList.copyOf(super.historyBackward(id, batchSize, startingFrom));
+            if (startingFrom != null) {
+                return records.iterator();
+            }
+            List<AggregateEventRecord> kept = Lists.newArrayList();
+            var dropped = false;
+            for (var record : records) {
+                if (!dropped && record.getKindCase() == AggregateEventRecord.KindCase.EVENT) {
+                    dropped = true;
+                    continue;
+                }
+                kept.add(record);
+            }
+            return kept.iterator();
+        }
     }
 }
