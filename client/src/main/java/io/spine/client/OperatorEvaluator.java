@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -27,16 +27,16 @@
 package io.spine.client;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.protobuf.Timestamp;
 import io.spine.annotation.Internal;
+import io.spine.compare.ComparatorRegistry;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Comparator;
 import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.client.Filter.Operator;
-import static io.spine.time.TimestampExtensions.isAfter;
 import static io.spine.util.Exceptions.newIllegalArgumentException;
 import static java.lang.String.format;
 
@@ -48,8 +48,10 @@ import static java.lang.String.format;
  * <p>The equality checks support all types. The check is performed via the {@link Object#equals}
  * method. A {@code null} reference is equal to another {@code null} reference.
  *
- * <p>Order-based comparison supports only {@code Comparable} types and
- * {@link com.google.protobuf.Timestamp}. When trying to compare unsupported types,
+ * <p>Order-based comparison supports {@code Comparable} types and types that have a
+ * {@link java.util.Comparator} registered in the
+ * {@link io.spine.compare.ComparatorRegistry ComparatorRegistry} (for example,
+ * {@link com.google.protobuf.Timestamp}). When trying to compare an unsupported type,
  * an {@code UnsupportedOperationException} is thrown.
  *
  * <p>It is required that the runtime Java class of the two compared values is the same. Otherwise,
@@ -67,7 +69,6 @@ public enum OperatorEvaluator {
         }
     },
     GREATER_THAN {
-        @SuppressWarnings("ChainOfInstanceofChecks") // Generic but limited operand types
         @Override
         public boolean eval(@Nullable Object left, @Nullable Object right) {
             if (left == null || right == null) {
@@ -79,16 +80,10 @@ public enum OperatorEvaluator {
                         classNameOf(left), classNameOf(right)
                 );
             }
-            if (left instanceof Timestamp) {
-                return isAfter((Timestamp) left, (Timestamp) right);
-            }
             if (left instanceof Comparable<?>) {
                 return compare((Comparable<?>) left, (Comparable<?>) right);
             }
-            throw new UnsupportedOperationException(format(
-                    "Comparison operations are not supported for type `%s`.",
-                    classNameOf(left))
-            );
+            return compareWithRegistered(left, right);
         }
 
         private String classNameOf(Object left) {
@@ -101,6 +96,26 @@ public enum OperatorEvaluator {
             Comparable cmpLeft = left;
             Comparable cmpRight = right;
             var result = cmpLeft.compareTo(cmpRight);
+            return result > 0;
+        }
+
+        /**
+         * Compares two non-{@code Comparable} values using the {@link Comparator} registered for
+         * their type in the {@link ComparatorRegistry} (e.g. {@code Timestamp}).
+         *
+         * @throws UnsupportedOperationException
+         *         if no comparator is registered for the type
+         */
+        @SuppressWarnings({"rawtypes", "unchecked"}) // The comparator matches the runtime type.
+        private boolean compareWithRegistered(Object left, Object right) {
+            Comparator comparator = ComparatorRegistry.find(left.getClass());
+            if (comparator == null) {
+                throw new UnsupportedOperationException(format(
+                        "Comparison operations are not supported for type `%s`.",
+                        classNameOf(left))
+                );
+            }
+            var result = comparator.compare(left, right);
             return result > 0;
         }
     },

@@ -303,9 +303,8 @@ class FiltersTest extends UtilityClassTest<Filters> {
         @DisplayName("for types with a comparator in `ComparatorRegistry`")
         void forRegisteredComparatorTypes() {
             // `Duration` is not `Comparable` but has a comparator registered in
-            // `ComparatorRegistry`, so it passes this creation-time gate. Whether such a filter
-            // can then be evaluated depends on the storage (e.g. a `ColumnMapping` to an orderable
-            // form): the in-memory evaluators handle `Comparable` values and `Timestamp` only.
+            // `ComparatorRegistry`; it passes the gate, and the client-side `OperatorEvaluator`
+            // compares it via that comparator (see `OperatorEvaluatorTest`).
             var duration = Durations.fromSeconds(42);
             var filter = gt("duration_field", duration);
 
