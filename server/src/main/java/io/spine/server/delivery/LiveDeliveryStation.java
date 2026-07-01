@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -87,7 +87,9 @@ final class LiveDeliveryStation extends Station {
      * not propagated to the conveyor.
      *
      * <p>After the messages are dispatched, they are marked {@link InboxMessageStatus#DELIVERED
-     * DELIVERED}.
+     * DELIVERED} — except those a {@link DeliveryMonitor} chose to
+     * {@linkplain FailedReception#keepForRedelivery() keep for redelivery}, which are left in
+     * {@link InboxMessageStatus#TO_DELIVER TO_DELIVER} to be read again on a later run.
      *
      * @param conveyor
      *         the conveyor on which the messages are travelling
@@ -103,8 +105,14 @@ final class LiveDeliveryStation extends Station {
         }
         var toDispatch = deduplicateAndSort(filtered, conveyor);
         var errors = action.executeFor(toDispatch);
-        conveyor.markDelivered(toDispatch);
-        var result = new Result(toDispatch.size(), errors);
+        List<InboxMessage> delivered = new ArrayList<>();
+        for (var message : toDispatch) {
+            if (!conveyor.isKeptForRetry(message.getId())) {
+                delivered.add(message);
+            }
+        }
+        conveyor.markDelivered(delivered);
+        var result = new Result(delivered.size(), errors);
         return result;
     }
 

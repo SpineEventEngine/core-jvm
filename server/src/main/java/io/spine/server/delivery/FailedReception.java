@@ -1,11 +1,11 @@
 /*
- * Copyright 2023, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -37,7 +37,8 @@ import io.spine.base.Error;
  *
  * <ul>
  *     <li>{@linkplain #markDelivered() mark} the message as delivered;
- *     <li>{@linkplain #repeatDispatching() repeat dispatching} of the message immediately.
+ *     <li>{@linkplain #repeatDispatching() repeat dispatching} of the message immediately;
+ *     <li>{@linkplain #keepForRedelivery() keep} the message for a later redelivery attempt.
  * </ul>
  *
  * <p>Alternatively, end-users may choose to define their own way of reacting
@@ -103,11 +104,33 @@ public final class FailedReception {
     }
 
     /**
-     * Returns an action immediately repeats the dispatching of the message.
+     * Returns an action that immediately repeats the dispatching of the message.
      */
     @SuppressWarnings("WeakerAccess" /* Part of the public API. */)
     public Action repeatDispatching() {
         return repeat::dispatchAgain;
+    }
+
+    /**
+     * Returns an action that keeps the message in its inbox in the
+     * {@link InboxMessageStatus#TO_DELIVER TO_DELIVER} status, so it is read again
+     * on a subsequent delivery run.
+     *
+     * <p>Unlike {@link #repeatDispatching()}, this does <em>not</em> re-dispatch the message
+     * immediately. It is intended for a {@link DeliveryMonitor} that schedules a delayed
+     * retry — for example, to let an eventually-consistent storage reach consistency — rather
+     * than marking the message delivered or retrying it synchronously. Such a monitor should
+     * also return {@code false} from
+     * {@link DeliveryMonitor#shouldDeliverNow(InboxMessage) shouldDeliverNow(message)} while the
+     * message is within its back-off window, and trigger the redelivery itself once the delay
+     * elapses.
+     *
+     * <p>This is honored by the live delivery of messages. A message dispatched during a
+     * projection catch-up is marked delivered regardless of this action.
+     */
+    @SuppressWarnings("WeakerAccess" /* Part of the public API. */)
+    public Action keepForRedelivery() {
+        return () -> conveyor.keepForRedelivery(message);
     }
 
     /**

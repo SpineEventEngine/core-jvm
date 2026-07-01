@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -118,6 +118,32 @@ public class DeliveryMonitor {
     @SuppressWarnings("WeakerAccess" /* Part of public API. */)
     public FailedReception.Action onReceptionFailure(FailedReception reception) {
         return reception.markDelivered();
+    }
+
+    /**
+     * Tells whether the shard should be re-delivered immediately because the given message
+     * is still pending delivery.
+     *
+     * <p>After a delivery run for a shard completes, if the shard still holds a message in
+     * {@link InboxMessageStatus#TO_DELIVER TO_DELIVER} status, the framework triggers another
+     * delivery run for that shard right away. A monitor that
+     * {@linkplain FailedReception#keepForRedelivery() defers} a failed message for a
+     * <em>timed</em> retry should return {@code false} while that message is within its
+     * back-off window, so the immediate re-trigger does not spin on a message whose read is
+     * expected to keep failing until the storage reaches consistency. Such a monitor is then
+     * responsible for triggering the redelivery of the shard itself once the delay elapses.
+     *
+     * <p>This gate applies only to the framework's own end-of-run re-trigger; delivery is still
+     * triggered normally when a new message is written to the shard.
+     *
+     * <p>By default returns {@code true}, preserving the immediate re-trigger.
+     *
+     * @param message
+     *         the newest message still to be delivered in the shard
+     */
+    @SuppressWarnings({"WeakerAccess" /* Part of public API. */, "unused"})
+    public boolean shouldDeliverNow(InboxMessage message) {
+        return true;
     }
 
     /**

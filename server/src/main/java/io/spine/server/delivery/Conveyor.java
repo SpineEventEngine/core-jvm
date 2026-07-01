@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -64,6 +64,7 @@ final class Conveyor implements Iterable<InboxMessage> {
     private final Set<InboxMessageId> dirtyMessages = new HashSet<>();
     private final Set<InboxMessage> removals = new HashSet<>();
     private final Set<InboxMessage> duplicates = new HashSet<>();
+    private final Set<InboxMessageId> keptForRetry = new HashSet<>();
 
     /**
      * Creates an instance of conveyor with the messages to process and the cache of the previously
@@ -110,6 +111,27 @@ final class Conveyor implements Iterable<InboxMessage> {
         for (var message : messages) {
             markDelivered(message);
         }
+    }
+
+    /**
+     * Keeps the passed message in its {@code Inbox} in the
+     * {@link InboxMessageStatus#TO_DELIVER TO_DELIVER} status for a later redelivery attempt.
+     *
+     * <p>Unlike {@link #markDelivered(InboxMessage)}, this neither changes the message status
+     * nor records it as delivered, so the message is read again on a subsequent delivery run.
+     * It is used by a {@link DeliveryMonitor} that defers a failed reception for a timed retry
+     * instead of draining it.
+     */
+    void keepForRedelivery(InboxMessage message) {
+        keptForRetry.add(message.getId());
+    }
+
+    /**
+     * Tells whether the message with the passed identifier was
+     * {@linkplain #keepForRedelivery(InboxMessage) kept for redelivery} within this conveyor.
+     */
+    boolean isKeptForRetry(InboxMessageId id) {
+        return keptForRetry.contains(id);
     }
 
     /**
