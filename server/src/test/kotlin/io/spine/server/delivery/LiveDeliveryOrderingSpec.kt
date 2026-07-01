@@ -32,6 +32,7 @@ import io.spine.core.EventId
 import io.spine.server.delivery.InboxLabel.IMPORT_EVENT
 import io.spine.server.delivery.InboxLabel.REACT_UPON_EVENT
 import io.spine.server.delivery.InboxLabel.UPDATE_SUBSCRIBER
+import io.spine.validation.NonValidated
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
@@ -116,13 +117,13 @@ internal class LiveDeliveryOrderingSpec {
      * only the origin event ID and the label are relevant for the ordering under test, so the
      * other required fields of [InboxMessage] and [Event] are intentionally left unset.
      */
-    private fun message(origin: String, label: InboxLabel): InboxMessage =
+    private fun message(origin: String, label: InboxLabel): @NonValidated InboxMessage =
         InboxMessage.newBuilder()
             .setEvent(event(origin))
             .setLabel(label)
             .buildPartial()
 
-    private fun event(id: String): Event =
+    private fun event(id: String): @NonValidated Event =
         Event.newBuilder()
             .setId(EventId.newBuilder().setValue(id))
             .buildPartial()
