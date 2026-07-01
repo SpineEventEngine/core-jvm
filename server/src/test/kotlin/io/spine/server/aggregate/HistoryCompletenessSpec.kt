@@ -65,6 +65,17 @@ internal class HistoryCompletenessSpec {
                 HistoryCompleteness.check(ID, history(eventCount = 3), version(2))
             }
         }
+
+        @Test
+        fun `starts from a snapshot newer than a lagging stored state version`() {
+            // A partial write can leave the state version trailing the snapshot the read
+            // starts from; the expected count must clamp to zero rather than go negative.
+            shouldNotThrowAny {
+                HistoryCompleteness.check(
+                    ID, history(eventCount = 0, snapshotVersion = 5), version(3)
+                )
+            }
+        }
     }
 
     @Nested

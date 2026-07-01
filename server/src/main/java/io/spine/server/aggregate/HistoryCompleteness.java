@@ -93,7 +93,10 @@ final class HistoryCompleteness {
                                    .getNumber()
                           : 0;
         var eventsRead = history == null ? 0 : history.getEventCount();
-        var expected = authoritative - baseVersion;
+        // The stored state version may lag the events (e.g. after a partial write) and can
+        // even trail the snapshot the read starts from; clamp so the expected count is never
+        // negative and such a lagging witness is simply treated as "nothing to reconcile".
+        var expected = Math.max(0, authoritative - baseVersion);
         if (eventsRead < expected) {
             throw new IncompleteHistoryException(
                     Identifier.toString(id), authoritative, baseVersion, eventsRead);
