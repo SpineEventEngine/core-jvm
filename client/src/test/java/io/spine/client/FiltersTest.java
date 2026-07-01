@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -28,8 +28,10 @@ package io.spine.client;
 
 import com.google.common.testing.NullPointerTester;
 import com.google.protobuf.DoubleValue;
+import com.google.protobuf.Duration;
 import com.google.protobuf.StringValue;
 import com.google.protobuf.Timestamp;
+import com.google.protobuf.util.Durations;
 import io.spine.base.EventMessageField;
 import io.spine.base.Field;
 import io.spine.client.Filter.Operator;
@@ -48,7 +50,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.Calendar;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -290,18 +291,33 @@ class FiltersTest extends UtilityClassTest<Filters> {
             var value = unpack(filter.getValue(), Version.class);
             assertThat(value).isEqualTo(version);
         }
+
+        @Test
+        @DisplayName("for `Comparable` enumerated types")
+        void forEnums() {
+            var filter = ge(ENUM_FIELD, ENUM_VALUE);
+            assertThat(filter.getOperator()).isEqualTo(GREATER_OR_EQUAL);
+        }
+
+        @Test
+        @DisplayName("for types with a comparator in `ComparatorRegistry`")
+        void forRegisteredComparatorTypes() {
+            // `Duration` is not `Comparable` but has a comparator registered in
+            // `ComparatorRegistry`, so it passes this creation-time gate. Whether such a filter
+            // can then be evaluated depends on the storage (e.g. a `ColumnMapping` to an orderable
+            // form): the in-memory evaluators handle `Comparable` values and `Timestamp` only.
+            var duration = Durations.fromSeconds(42);
+            var filter = gt("duration_field", duration);
+
+            assertThat(filter.getOperator()).isEqualTo(GREATER_THAN);
+            var value = unpack(filter.getValue(), Duration.class);
+            assertThat(value).isEqualTo(duration);
+        }
     }
 
     @Nested
     @DisplayName("fail to create ordering filter")
     class FailToCreateOrderingFilter {
-
-        @Test
-        @DisplayName("for enumerated types")
-        void forEnums() {
-            assertThrows(IllegalArgumentException.class,
-                         () -> ge(ENUM_FIELD, ENUM_VALUE));
-        }
 
         @Test
         @DisplayName("for non-primitive number types")
@@ -311,9 +327,9 @@ class FiltersTest extends UtilityClassTest<Filters> {
         }
 
         @Test
-        @DisplayName("for not supported types")
+        @DisplayName("for types that are neither `Comparable` nor registered")
         void forUnsupportedTypes() {
-            Comparable<?> value = Calendar.getInstance(); // Comparable but not supported
+            var value = StringValue.of("not comparable");
             assertThrows(IllegalArgumentException.class, () -> le("invalidField", value));
         }
     }

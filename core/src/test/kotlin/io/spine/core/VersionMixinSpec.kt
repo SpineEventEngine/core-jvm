@@ -178,4 +178,23 @@ internal class VersionMixinSpec {
             withNumber(5).isDecrementOrEqual(withNumber(2)) shouldBe false
         }
     }
+
+    @Nested inner class
+    `be Comparable, ordering by number` {
+
+        @Test
+        fun `treating a greater number as greater`() {
+            (withNumber(3) > withNumber(2)) shouldBe true
+        }
+
+        @Test
+        fun `treating equal numbers as equal regardless of the timestamp`() {
+            withNumber(2).compareTo(withNumber(2)) shouldBe 0
+        }
+
+        @Test
+        fun `treating a smaller number as smaller`() {
+            (withNumber(1) < withNumber(2)) shouldBe true
+        }
+    }
 }

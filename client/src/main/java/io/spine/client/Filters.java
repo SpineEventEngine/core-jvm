@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -35,6 +35,7 @@ import io.spine.base.EventMessageField;
 import io.spine.base.Field;
 import io.spine.base.FieldPath;
 import io.spine.client.CompositeFilter.CompositeOperator;
+import io.spine.compare.ComparatorRegistry;
 import io.spine.core.Event;
 import io.spine.core.EventContextField;
 import io.spine.core.Version;
@@ -74,13 +75,19 @@ import static java.util.Arrays.stream;
  * <p>The {@linkplain #eq equality comparison} supports any data type for the compared objects.
  *
  * <p>The ordering comparison ({@link #gt &gt;}, {@link #lt &lt;}, {@link #ge &gt;=},
- * {@link #le &lt;=}) supports only the following types:
+ * {@link #le &lt;=}) supports a value type that is either:
  * <ul>
- *     <li>{@link Timestamp com.google.protobuf.Timestamp};
- *     <li>{@link Version io.spine.core.Version};
- *     <li>Java primitive number types;
- *     <li>{@code String}.
+ *     <li>{@link Comparable} — this covers Java primitive number types, {@code String}, and
+ *         any message type marked with the {@code (compare_by)} option (e.g.
+ *         {@link Version io.spine.core.Version} and the {@code io.spine.time} date/time types);
+ *     <li>registered in the {@link io.spine.compare.ComparatorRegistry ComparatorRegistry} —
+ *         this covers types such as {@link Timestamp com.google.protobuf.Timestamp} for which
+ *         a {@link java.util.Comparator} is provided instead of implementing {@code Comparable}.
  * </ul>
+ *
+ * <p>Therefore, to make a custom column type usable in the ordering comparison, either mark its
+ * message type with the {@code (compare_by)} option, or register a {@code Comparator} for it in
+ * the {@code ComparatorRegistry}.
  *
  * @see QueryBuilder for the application
  * @see QueryFilter
@@ -748,27 +755,26 @@ public final class Filters {
     /**
      * Ensures that the instances of the passed type are supported for ordering comparison.
      *
-     * <p>Throws an {@link IllegalArgumentException} if the passed type does not qualify for that.
+     * <p>A type qualifies if it is {@link Comparable} (for a message type, this is achieved with
+     * the {@code (compare_by)} option) or has a {@link java.util.Comparator Comparator} registered
+     * in the {@link io.spine.compare.ComparatorRegistry ComparatorRegistry}.
      *
      * @param cls
      *         the type to check
+     * @throws IllegalArgumentException
+     *         if the passed type does not qualify for the ordering comparison
      */
     static void checkSupportedOrderingComparisonType(Class<?> cls) {
         checkNotNull(cls);
         var dataType = Primitives.wrap(cls);
-        var supported = isSupportedNumber(dataType)
-                || Timestamp.class.isAssignableFrom(dataType)
-                || Version.class.isAssignableFrom(dataType)
-                || String.class.isAssignableFrom(dataType);
+        var supported = Comparable.class.isAssignableFrom(dataType)
+                || ComparatorRegistry.contains(dataType);
         checkArgument(supported,
-                      "The type `%s` is not supported for the ordering comparison.",
+                      "The type `%s` is not supported for the ordering comparison. A type "
+                              + "qualifies if it is `Comparable` (for a message, apply the "
+                              + "`(compare_by)` option) or has a comparator registered in "
+                              + "`io.spine.compare.ComparatorRegistry`.",
                       dataType.getCanonicalName());
-    }
-
-    private static boolean isSupportedNumber(Class<?> wrapperClass) {
-        var result = (Number.class.isAssignableFrom(wrapperClass)
-                && Comparable.class.isAssignableFrom(wrapperClass));
-        return result;
     }
 
     /**

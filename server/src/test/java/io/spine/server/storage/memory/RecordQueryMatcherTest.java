@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -26,6 +26,7 @@
 
 package io.spine.server.storage.memory;
 
+import io.spine.core.Version;
 import io.spine.server.storage.RecordWithColumns;
 import io.spine.server.storage.given.GivenStorageProject.StgProjectColumns;
 import io.spine.test.storage.StgProject;
@@ -35,6 +36,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static com.google.common.truth.Truth.assertThat;
+import static io.spine.base.Time.currentTime;
+import static io.spine.core.Versions.newVersion;
 import static io.spine.protobuf.AnyPacker.pack;
 import static io.spine.server.storage.given.GivenStorageProject.newState;
 import static io.spine.server.storage.given.GivenStorageProject.messageSpec;
@@ -126,5 +129,49 @@ class RecordQueryMatcherTest {
         var recordWithColumns = asRecord(newState());
         assertThat(matcher.test(recordWithColumns))
                 .isFalse();
+    }
+
+    @Test
+    @DisplayName("match records by a `greater than` comparison on a `Version` column")
+    void matchByVersionGreaterThan() {
+        var query = newQueryBuilder()
+                .where(StgProjectColumns.project_version).isGreaterThan(version(3))
+                .build();
+        var matcher = new RecordQueryMatcher<>(query);
+
+        assertThat(matcher.test(asRecord(withVersion(5))))
+                .isTrue();
+        assertThat(matcher.test(asRecord(withVersion(2))))
+                .isFalse();
+    }
+
+    @Test
+    @DisplayName("match records by a `less than` comparison on a `Version` column")
+    void matchByVersionLessThan() {
+        var query = newQueryBuilder()
+                .where(StgProjectColumns.project_version).isLessThan(version(3))
+                .build();
+        var matcher = new RecordQueryMatcher<>(query);
+
+        assertThat(matcher.test(asRecord(withVersion(1))))
+                .isTrue();
+        assertThat(matcher.test(asRecord(withVersion(4))))
+                .isFalse();
+    }
+
+    /**
+     * Creates a project state with the given version number.
+     *
+     * <p>The {@code Version} type participates in the ordering comparison thanks to the
+     * {@code (compare_by)} option applied to it, which orders versions by their number.
+     */
+    private static StgProject withVersion(int number) {
+        return newState().toBuilder()
+                .setProjectVersion(version(number))
+                .build();
+    }
+
+    private static Version version(int number) {
+        return newVersion(number, currentTime());
     }
 }
