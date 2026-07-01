@@ -67,17 +67,22 @@ public final class ReceptionFailureTestEnv {
     }
 
     /**
-     * Creates a single-tenant black box over the {@link ReceptionistAggregate} with the passed
-     * {@link DiagnosticMonitor} registered as an event dispatcher.
+     * Creates a single-tenant black box over the {@link ReceptionistAggregate} and the
+     * {@link CalcAggregate}, with the passed {@link DiagnosticMonitor} registered as an event
+     * dispatcher.
      *
-     * <p>The monitor allows to observe diagnostic events, such as
+     * <p>The {@code CalcAggregate} serves as a "bystander" of a different type: its applier is not
+     * governed by {@link ReceptionistAggregate#makeApplierFail()}, so it can be delivered
+     * successfully while a {@code ReceptionistAggregate} in the same shard keeps failing.
+     *
+     * <p>The monitor allows observing the diagnostic events, such as
      * {@link io.spine.system.server.CannotDispatchDuplicateCommand}, produced while the commands
-     * are delivered to the aggregate.
+     * are delivered to the aggregates.
      */
     public static BlackBox blackBoxWith(DiagnosticMonitor monitor) {
-        var repository = DefaultRepository.of(ReceptionistAggregate.class);
         var builder = BoundedContextBuilder.assumingTests();
-        builder.add(repository);
+        builder.add(DefaultRepository.of(ReceptionistAggregate.class));
+        builder.add(DefaultRepository.of(CalcAggregate.class));
         var context = builder.build();
         context.internalAccess()
                .registerEventDispatcher(monitor);

@@ -28,6 +28,8 @@ package io.spine.server.delivery;
 
 import io.spine.server.delivery.given.ReceptionFailureTestEnv.ObservingMonitor;
 import io.spine.system.server.DiagnosticMonitor;
+import io.spine.test.delivery.AddNumber;
+import io.spine.test.delivery.Calc;
 import io.spine.testing.logging.mute.MuteLogging;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -38,7 +40,6 @@ import static io.spine.base.Identifier.newUuid;
 import static io.spine.server.delivery.given.ReceptionFailureTestEnv.blackBoxWith;
 import static io.spine.server.delivery.given.ReceptionFailureTestEnv.configureSynchronousDelivery;
 import static io.spine.server.delivery.given.ReceptionFailureTestEnv.inboxMessages;
-import static io.spine.server.delivery.given.ReceptionFailureTestEnv.receptionist;
 import static io.spine.server.delivery.given.ReceptionFailureTestEnv.tellToTurnConditioner;
 import static io.spine.server.delivery.given.ReceptionistAggregate.makeApplierFail;
 import static io.spine.server.delivery.given.ReceptionistAggregate.makeApplierPass;
@@ -72,21 +73,27 @@ final class FailedAggregateLoadingTest extends AbstractDeliveryTest {
         var diagnostics = new DiagnosticMonitor();
         var context = blackBoxWith(diagnostics).tolerateFailures();
 
-        // The "poison" aggregate whose event applier always throws.
+        // The "poison" aggregate whose event applier always throws. The failure stays active for
+        // the whole test — the bystander below is a different aggregate type, so the assertions
+        // are made while the poison messages could still be `TO_DELIVER` if delivery regressed.
         var poisonId = newUuid();
         makeApplierFail();
         context.receivesCommand(tellToTurnConditioner(poisonId));  // The first command.
         context.receivesCommand(tellToTurnConditioner(poisonId));  // The second command.
 
-        // A different entity, sharing the same (single) shard, is not affected by the failure.
+        // A `CalcAggregate` bystander, sharing the same (single) shard, is delivered successfully
+        // even though the poison aggregate keeps failing.
         var bystanderId = newUuid();
-        makeApplierPass();
-        context.receivesCommand(tellToTurnConditioner(bystanderId));
+        context.receivesCommand(AddNumber.newBuilder()
+                                        .setCalculatorId(bystanderId)
+                                        .setValue(42)
+                                        .build());
 
         // Both commands to the poison aggregate failed and were reported as
         // `HandlerFailedUnexpectedly`. This also confirms the monitor is wired to the same
         // diagnostic sink that would emit `CannotDispatchDuplicateCommand`, so the emptiness
-        // asserted below is a real absence, not a missed subscription.
+        // asserted below is a real absence, not a missed subscription. A regression that
+        // re-delivered the poison messages would push this count above two.
         assertThat(diagnostics.handlerFailureEvents()).hasSize(2);
 
         // The second command to the failing aggregate is not treated as a duplicate.
@@ -95,10 +102,15 @@ final class FailedAggregateLoadingTest extends AbstractDeliveryTest {
         // The failure of the poison aggregate was observed by the delivery monitor.
         assertThat(deliveryMonitor.lastFailure()).isPresent();
 
-        // The other entity handled its command successfully.
-        context.assertState(bystanderId, receptionist(bystanderId, 1));
+        // The bystander handled its command successfully, despite sharing the shard.
+        context.assertState(bystanderId, Calc.newBuilder()
+                                             .setId(bystanderId)
+                                             .setSum(42)
+                                             .build());
 
-        // No message is stuck in the inbox for an endless re-delivery.
+        // No message is stuck in the inbox for an endless re-delivery. Because the poison applier
+        // is still failing here, an inbox left with `TO_DELIVER` poison messages could not have
+        // been drained — so this asserts the failed messages were actually removed.
         assertThat(inboxMessages()).isEmpty();
     }
 }
