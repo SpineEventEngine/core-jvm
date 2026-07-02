@@ -24,9 +24,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+package io.spine.server.aggregate.given.repo;
+
+import io.spine.server.aggregate.AggregateRepository;
+import io.spine.test.aggregate.AggProject;
+import io.spine.test.aggregate.ProjectId;
+
 /**
- *  The version of this library.
- *
- * For versions of Spine-based dependencies, please see [io.spine.dependency.local.Spine].
+ * The repository of {@link FailingApplierAggregate}s.
  */
-extra.set("versionToPublish", "2.0.0-SNAPSHOT.386")
+public final class FailingApplierAggregateRepository
+        extends AggregateRepository<ProjectId, FailingApplierAggregate, AggProject> {
+}

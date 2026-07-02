@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -372,7 +372,11 @@ public abstract class Aggregate<I,
      *
      * <p>All the events applied to the aggregate instance are
      * {@linkplain UncommittedHistory#startTracking(int) tracked} as a part of the aggregate's
-     * {@link UncommittedHistory} and later are stored.
+     * {@link UncommittedHistory} and later are stored. If applying the events fails, the events
+     * tracked during this call are {@linkplain UncommittedHistory#stopTracking(boolean) discarded},
+     * so a failed dispatch leaves the uncommitted history unchanged. This matters for a cached
+     * aggregate reused across a batch of signals: without it, events of a failed dispatch would be
+     * stored together with a later successful one, corrupting the aggregate history.
      *
      * <p>If during the application of the events, the number of the events since the last snapshot
      * exceeds the passed snapshot trigger, a new snapshot is made. The snapshot is then tracked
@@ -382,14 +386,15 @@ public abstract class Aggregate<I,
      *         the events to apply
      * @param snapshotTrigger
      *         the snapshot trigger
-     * @return the exact list of {@code events} but with adjusted versions
+     * @return the {@link BatchDispatchOutcome} of applying the events, unsuccessful if any of
+     *         them failed to apply
      */
     final BatchDispatchOutcome apply(List<Event> events, int snapshotTrigger) {
         var versionSequence = new VersionSequence(version());
         var versionedEvents = versionSequence.update(events);
         uncommittedHistory.startTracking(snapshotTrigger);
         var result = play(versionedEvents);
-        uncommittedHistory.stopTracking();
+        uncommittedHistory.stopTracking(result.getSuccessful());
         return result;
     }
 

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -54,8 +54,9 @@ import static java.util.stream.Collectors.toList;
  * <p>In order to ignore the events fed to the aggregate when it's being loaded from the storage,
  * the {@code UncommittedHistory}'s tracking is only {@linkplain #startTracking(int) activated}
  * when the new and truly un-yet-committed events are dispatched to the applier methods.
- * The tracking {@linkplain #stopTracking() stops} after all the new events have been played
- * on the aggregate instance.
+ * The tracking {@linkplain #stopTracking(boolean) stops} after all the new events have been played
+ * on the aggregate instance; if the batch failed to apply, its events are discarded rather than
+ * remembered.
  *
  * @see Aggregate#apply(List, int) on activation and deactivation of event tracking
  * @see Aggregate#replay(AggregateHistory) on supplying the history stats when loading aggregate
@@ -70,6 +71,18 @@ final class UncommittedHistory {
     private int eventCountAfterLastSnapshot;
     private @Nullable Integer snapshotTrigger = null;
     private boolean enabled = false;
+
+    /**
+     * The size of {@link #historySegments}, a copy of {@link #currentSegment}, and the value of
+     * {@link #eventCountAfterLastSnapshot} captured when the current batch
+     * {@linkplain #startTracking(int) started}.
+     *
+     * <p>These fields allow {@linkplain #stopTracking(boolean) rolling the batch back} if it fails
+     * to apply, so that events of a rolled-back dispatch do not linger in the uncommitted history.
+     */
+    private int segmentCountBeforeBatch;
+    private @Nullable List<Event> currentSegmentBeforeBatch;
+    private int eventCountBeforeBatch;
 
     /**
      * Creates an instance of the uncommitted history.
@@ -93,6 +106,9 @@ final class UncommittedHistory {
     void startTracking(int snapshotTrigger) {
         enabled = true;
         this.snapshotTrigger = snapshotTrigger;
+        this.segmentCountBeforeBatch = historySegments.size();
+        this.currentSegmentBeforeBatch = new ArrayList<>(currentSegment);
+        this.eventCountBeforeBatch = eventCountAfterLastSnapshot;
     }
 
     /**
@@ -100,10 +116,36 @@ final class UncommittedHistory {
      *
      * <p>All the events {@linkplain #track(EventEnvelope) sent to the tracking} will be counted
      * as the events already present in the aggregate storage.
+     *
+     * <p>If the batch of events failed to apply, all the events tracked since the matching
+     * {@link #startTracking(int)} are discarded, restoring the uncommitted history to the state
+     * it had before the batch. This prevents events of a rolled-back dispatch from lingering in
+     * the uncommitted history and being stored later — e.g. together with a subsequent successful
+     * dispatch of a cached aggregate.
+     *
+     * @param successful
+     *         whether the batch of events was applied without an error
      */
-    void stopTracking() {
+    void stopTracking(boolean successful) {
         enabled = false;
         snapshotTrigger = null;
+        if (!successful) {
+            discardCurrentBatch();
+        }
+        currentSegmentBeforeBatch = null;
+    }
+
+    /**
+     * Removes from the uncommitted history all the events tracked during the current batch,
+     * restoring it to the state captured when the batch {@linkplain #startTracking(int) started}.
+     */
+    private void discardCurrentBatch() {
+        var addedSegments =
+                historySegments.subList(segmentCountBeforeBatch, historySegments.size());
+        addedSegments.clear();
+        currentSegment.clear();
+        currentSegment.addAll(requireNonNull(currentSegmentBeforeBatch));
+        eventCountAfterLastSnapshot = eventCountBeforeBatch;
     }
 
     /**
