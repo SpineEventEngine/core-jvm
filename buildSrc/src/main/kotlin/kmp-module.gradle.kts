@@ -38,6 +38,7 @@ import io.spine.gradle.javac.configureJavac
 import io.spine.gradle.kotlin.setFreeCompilerArgs
 import io.spine.gradle.publish.IncrementGuard
 import io.spine.gradle.report.license.LicenseReporter
+import io.spine.gradle.testing.configureLogging
 
 /**
  * Configures this [Project] as a Kotlin Multiplatform module.
@@ -161,10 +162,21 @@ java {
  *
  * Also, Kotlin and Java share the same test executor (JUnit), so tests
  * configuration is for both.
+ *
+ * The `jvmTest` task mirrors the setup made by `module-testing` for
+ * the `test` task of a `jvm-module` (`module-testing` itself cannot be
+ * applied here because it brings `java-library`, which conflicts with
+ * the Kotlin Multiplatform plugin). Unlike `module-testing`, no engine
+ * filter is imposed: `jvmTest` dependencies include the Kotest runner,
+ * which is a JUnit Platform engine of its own.
  */
 tasks {
     withType<JavaCompile>().configureEach {
         configureJavac()
+    }
+    named<Test>("jvmTest") {
+        useJUnitPlatform()
+        configureLogging()
     }
 }
 
