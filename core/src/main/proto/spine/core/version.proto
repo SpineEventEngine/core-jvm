@@ -41,13 +41,14 @@ import "google/protobuf/timestamp.proto";
 message Version {
     option (is).java_type = "io.spine.core.VersionMixin";
 
-    // Order versions by their number, which is the identity of a version.
+    // Order versions by their number first, and then by their timestamp.
     //
-    // Making `Version` `Comparable` allows using it in the ordering comparison filters
-    // (`Filters.gt`, `Filters.lt`, etc.).
+    // Versions are compared by their `number` first; when the numbers are equal,
+    // the `timestamp` of the version creation breaks the tie.
     //
     option (compare_by) = {
         field: "number"
+        field: "timestamp"
     };
 
     // A zero-based version number.
