@@ -48,8 +48,7 @@ internal class AggregateEventBusSpec {
 
     @Test
     @MuteLogging
-    @DisplayName("not be posted to the `EventBus` if it fails to apply")
-    fun `not be posted when it fails to apply`() {
+    fun `not be posted to the 'EventBus' if it fails to apply`() {
         BlackBox.singleTenantWith(FailingApplierAggregateRepository()).use { context ->
             // The applier fails on purpose; tolerate it so we can assert on the `EventBus`.
             context.tolerateFailures()
@@ -62,8 +61,7 @@ internal class AggregateEventBusSpec {
     }
 
     @Test
-    @DisplayName("be posted to the `EventBus` if it is applied successfully")
-    fun `be posted when applied successfully`() {
+    fun `be posted to the 'EventBus' if it is applied successfully`() {
         BlackBox.singleTenantWith(ProjectAggregateRepository()).use { context ->
             context.receivesCommand(createProject(ID))
 

@@ -62,8 +62,7 @@ internal class AggregateUncommittedEventsSpec {
 
     @Test
     @MuteLogging
-    @DisplayName("not record an event that fails to apply as uncommitted")
-    fun `not record a failed event`() {
+    fun `not record an event that fails to apply as uncommitted`() {
         val aggregate: Aggregate<*, *, *> =
             FaultyAggregate(ID, /* brokenHandler = */ false, /* brokenApplier = */ true)
 
@@ -75,8 +74,7 @@ internal class AggregateUncommittedEventsSpec {
 
     @Test
     @MuteLogging
-    @DisplayName("keep already recorded events intact when a later event fails to apply")
-    fun `not corrupt recorded events`() {
+    fun `keep already recorded events intact when a later event fails to apply`() {
         val aggregate: Aggregate<*, *, *> =
             FaultyAggregate(ID, /* brokenHandler = */ false, /* brokenApplier = */ false)
 
