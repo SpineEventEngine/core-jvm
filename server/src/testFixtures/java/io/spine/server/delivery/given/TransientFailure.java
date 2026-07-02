@@ -24,9 +24,26 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+package io.spine.server.delivery.given;
+
+import java.io.Serial;
+
 /**
- *  The version of this library.
+ * A retryable failure simulating a transient inability to load an aggregate — for example, an
+ * incomplete history read from an eventually-consistent storage.
  *
- * For versions of Spine-based dependencies, please see [io.spine.dependency.local.Spine].
+ * <p>Declared as a top-level type so that its {@linkplain Class#getCanonicalName() canonical name}
+ * equals its {@linkplain Class#getName() binary name}, making it unambiguous to match against the
+ * {@linkplain io.spine.base.Error#getType() error type} reported by the delivery.
+ *
+ * @see io.spine.server.aggregate.IncompleteHistoryException
  */
-extra.set("versionToPublish", "2.0.0-SNAPSHOT.385")
+public final class TransientFailure extends RuntimeException {
+
+    @Serial
+    private static final long serialVersionUID = 0L;
+
+    TransientFailure() {
+        super("Simulated transient failure while loading an aggregate.");
+    }
+}

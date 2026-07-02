@@ -49,11 +49,14 @@ import static java.lang.String.format;
  *
  * <p>The condition is normally <b>transient</b>: retrying the operation once the storage
  * reaches consistency reads the full history and succeeds. The framework does not retry
- * automatically; a {@link io.spine.server.delivery.DeliveryMonitor DeliveryMonitor} may
- * {@linkplain io.spine.server.delivery.FailedReception#repeatDispatching() repeat the
- * dispatching} of the affected signal to recover.
+ * automatically by default. Install an {@link IncompleteHistoryRetryMonitor} to have the
+ * affected signal re-delivered after a back-off delay, or handle the failure with a custom
+ * {@link io.spine.server.delivery.DeliveryMonitor DeliveryMonitor} — for example, by
+ * {@linkplain io.spine.server.delivery.FailedReception#repeatDispatching() re-dispatching the
+ * signal immediately}.
  *
  * @see HistoryCompleteness
+ * @see IncompleteHistoryRetryMonitor
  */
 public final class IncompleteHistoryException extends IllegalStateException {
 
