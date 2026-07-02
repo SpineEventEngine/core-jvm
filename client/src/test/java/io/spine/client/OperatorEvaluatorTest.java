@@ -1,11 +1,11 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2022, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * https://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -167,59 +167,6 @@ class OperatorEvaluatorTest {
             assertTrue(medium, LESS_OR_EQUAL, medium);
             assertFalse(big, LESS_OR_EQUAL, small);
             assertFalse(medium, LESS_OR_EQUAL, nullRef());
-        }
-    }
-
-    @Nested
-    @DisplayName("compare types with a registered comparator (e.g. `Duration`) by")
-    class CompareRegisteredComparatorTypesBy {
-
-        @Test
-        @DisplayName("`GREATER_THAN`")
-        void gt() {
-            var small = seconds(5);
-            var medium = seconds(10);
-            var big = seconds(15);
-
-            assertTrue(medium, GREATER_THAN, small);
-            assertTrue(big, GREATER_THAN, small);
-            assertFalse(small, GREATER_THAN, small);
-            assertFalse(small, GREATER_THAN, big);
-        }
-
-        @Test
-        @DisplayName("`LESS_THAN`")
-        void lt() {
-            var small = seconds(5);
-            var medium = seconds(10);
-            var big = seconds(15);
-
-            assertTrue(small, LESS_THAN, medium);
-            assertTrue(small, LESS_THAN, big);
-            assertFalse(big, LESS_THAN, small);
-            assertFalse(big, LESS_THAN, big);
-        }
-
-        @Test
-        @DisplayName("`GREATER_OR_EQUAL`")
-        void ge() {
-            var small = seconds(5);
-            var big = seconds(15);
-
-            assertTrue(big, GREATER_OR_EQUAL, small);
-            assertTrue(small, GREATER_OR_EQUAL, small);
-            assertFalse(small, GREATER_OR_EQUAL, big);
-        }
-
-        @Test
-        @DisplayName("`LESS_OR_EQUAL`")
-        void le() {
-            var small = seconds(5);
-            var big = seconds(15);
-
-            assertTrue(small, LESS_OR_EQUAL, big);
-            assertTrue(big, LESS_OR_EQUAL, big);
-            assertFalse(big, LESS_OR_EQUAL, small);
         }
     }
 

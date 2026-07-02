@@ -35,7 +35,6 @@ import io.spine.base.EventMessageField;
 import io.spine.base.Field;
 import io.spine.base.FieldPath;
 import io.spine.client.CompositeFilter.CompositeOperator;
-import io.spine.compare.ComparatorRegistry;
 import io.spine.core.Event;
 import io.spine.core.EventContextField;
 import io.spine.core.Version;
@@ -74,19 +73,13 @@ import static java.util.Arrays.stream;
  * <p>The {@linkplain #eq equality comparison} supports any data type for the compared objects.
  *
  * <p>The ordering comparison ({@link #gt &gt;}, {@link #lt &lt;}, {@link #ge &gt;=},
- * {@link #le &lt;=}) supports a value type that is either:
+ * {@link #le &lt;=}) supports only the following types:
  * <ul>
- *     <li>{@link Comparable} — this covers Java primitive number types, {@code String}, and
- *         any message type marked with the {@code (compare_by)} option (e.g.
- *         {@link Version io.spine.core.Version} and the {@code io.spine.time} date/time types);
- *     <li>registered in the {@link io.spine.compare.ComparatorRegistry ComparatorRegistry} —
- *         this covers types such as {@link Timestamp com.google.protobuf.Timestamp} for which
- *         a {@link java.util.Comparator} is provided instead of implementing {@code Comparable}.
+ *     <li>{@link Timestamp com.google.protobuf.Timestamp};
+ *     <li>{@link Version io.spine.core.Version};
+ *     <li>Java primitive number types;
+ *     <li>{@code String}.
  * </ul>
- *
- * <p>Therefore, to make a custom column type usable in the ordering comparison, either mark its
- * message type with the {@code (compare_by)} option, or register a {@code Comparator} for it in
- * the {@code ComparatorRegistry}.
  *
  * @see QueryBuilder for the application
  * @see EntityStateFilter
@@ -589,13 +582,14 @@ public final class Filters {
      * chooses to pass instances of {@link Filter} directly to the {@link QueryBuilder}.
      *
      * @param filters
-     *         the aggregated filters
+     *         the aggregated filters, must contain at least one filter
      * @return new instance of {@link CompositeFilter}
      * @see #either(Filter, Filter...) for the public API equivalent
+     * @throws IllegalArgumentException if the given filters are empty
      */
     static CompositeFilter either(Collection<Filter> filters) {
         checkNotNull(filters);
-        checkFiltersNotEmpty(filters);
+        requireNonEmpty(filters);
         return composeFilters(filters, EITHER);
     }
 
@@ -609,19 +603,20 @@ public final class Filters {
      * instances of {@link Filter} directly to the {@link QueryBuilder}.
      *
      * @param filters
-     *         the aggregated filters
+     *         the aggregated filters, must contain at least one filter
      * @return new instance of {@code CompositeFilter}
      * @see #all(Filter, Filter...) for the public API equivalent
+     * @throws IllegalArgumentException if the given filters are empty
      */
     static CompositeFilter all(Collection<Filter> filters) {
         checkNotNull(filters);
-        checkFiltersNotEmpty(filters);
+        requireNonEmpty(filters);
         return composeFilters(filters, ALL);
     }
 
-    private static void checkFiltersNotEmpty(Collection<Filter> filters) {
+    private static void requireNonEmpty(Collection<Filter> filters) {
         checkArgument(!filters.isEmpty(),
-                      "Composite filter must contain at least one plain filter in it.");
+                      "Composite filter must contain at least one simple filter in it.");
     }
 
     /**
@@ -754,26 +749,27 @@ public final class Filters {
     /**
      * Ensures that the instances of the passed type are supported for ordering comparison.
      *
-     * <p>A type qualifies if it is {@link Comparable} (for a message type, this is achieved with
-     * the {@code (compare_by)} option) or has a {@link java.util.Comparator Comparator} registered
-     * in the {@link io.spine.compare.ComparatorRegistry ComparatorRegistry}.
+     * <p>Throws an {@link IllegalArgumentException} if the passed type does not qualify for that.
      *
      * @param cls
      *         the type to check
-     * @throws IllegalArgumentException
-     *         if the passed type does not qualify for the ordering comparison
      */
     static void checkSupportedOrderingComparisonType(Class<?> cls) {
         checkNotNull(cls);
         var dataType = Primitives.wrap(cls);
-        var supported = Comparable.class.isAssignableFrom(dataType)
-                || ComparatorRegistry.contains(dataType);
+        var supported = isSupportedNumber(dataType)
+                || Timestamp.class.isAssignableFrom(dataType)
+                || Version.class.isAssignableFrom(dataType)
+                || String.class.isAssignableFrom(dataType);
         checkArgument(supported,
-                      "The type `%s` is not supported for the ordering comparison. A type "
-                              + "qualifies if it is `Comparable` (for a message, apply the "
-                              + "`(compare_by)` option) or has a comparator registered in "
-                              + "`io.spine.compare.ComparatorRegistry`.",
+                      "The type `%s` is not supported for the ordering comparison.",
                       dataType.getCanonicalName());
+    }
+
+    private static boolean isSupportedNumber(Class<?> wrapperClass) {
+        var result = (Number.class.isAssignableFrom(wrapperClass)
+                && Comparable.class.isAssignableFrom(wrapperClass));
+        return result;
     }
 
     /**
