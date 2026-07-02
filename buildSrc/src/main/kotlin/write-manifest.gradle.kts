@@ -104,7 +104,7 @@ val manifestAttributes = mapOf(
  * when running tests. We cannot depend on the `Jar` from `resources` because it would
  * form a circular dependency.
  */
-val exposeManifestForTests by tasks.registering {
+val exposeManifestForTests = tasks.register("exposeManifestForTests") {
 
     group = SpineTaskGroup.name
     description = "Writes a `MANIFEST.MF` to `resources/main` so that it is visible to tests"

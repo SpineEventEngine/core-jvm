@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -64,7 +64,6 @@ import static java.util.Arrays.stream;
  * A factory of {@link Filter} instances.
  *
  * <p>Public methods of this class represent the recommended way to create a {@link Filter}.
- *
  * <a name="types"></a>
  * <h3>Supported Types</h3>
  *
@@ -83,7 +82,6 @@ import static java.util.Arrays.stream;
  * </ul>
  *
  * @see QueryBuilder for the application
- * @see QueryFilter
  * @see EntityStateFilter
  * @see EventFilter
  */
@@ -550,8 +548,6 @@ public final class Filters {
      *         the array of additional {@linkplain Filter filters}, possibly empty
      * @return new instance of {@link CompositeFilter}
      */
-    @SuppressWarnings("OverloadedVarargsMethod")
-    // OK as the method is clearly distinguished by the first argument.
     public static CompositeFilter all(Filter first, Filter... rest) {
         checkNotNull(first);
         checkNotNull(rest);
@@ -586,14 +582,14 @@ public final class Filters {
      * chooses to pass instances of {@link Filter} directly to the {@link QueryBuilder}.
      *
      * @param filters
-     *         the aggregated filters
+     *         the aggregated filters, must contain at least one filter
      * @return new instance of {@link CompositeFilter}
      * @see #either(Filter, Filter...) for the public API equivalent
+     * @throws IllegalArgumentException if the given filters are empty
      */
     static CompositeFilter either(Collection<Filter> filters) {
         checkNotNull(filters);
-        checkArgument(!filters.isEmpty(),
-                      "Composite filter must contain at least one plain filter in it.");
+        requireNonEmpty(filters);
         return composeFilters(filters, EITHER);
     }
 
@@ -607,15 +603,20 @@ public final class Filters {
      * instances of {@link Filter} directly to the {@link QueryBuilder}.
      *
      * @param filters
-     *         the aggregated filters
+     *         the aggregated filters, must contain at least one filter
      * @return new instance of {@code CompositeFilter}
      * @see #all(Filter, Filter...) for the public API equivalent
+     * @throws IllegalArgumentException if the given filters are empty
      */
     static CompositeFilter all(Collection<Filter> filters) {
         checkNotNull(filters);
+        requireNonEmpty(filters);
+        return composeFilters(filters, ALL);
+    }
+
+    private static void requireNonEmpty(Collection<Filter> filters) {
         checkArgument(!filters.isEmpty(),
                       "Composite filter must contain at least one simple filter in it.");
-        return composeFilters(filters, ALL);
     }
 
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Durations;
 import com.google.protobuf.util.Timestamps;
 import io.spine.base.Identifier;
+import io.spine.core.Version;
 import io.spine.protobuf.AnyPacker;
 import io.spine.query.Columns;
 import io.spine.query.RecordColumn;
@@ -200,6 +201,10 @@ public final class GivenStorageProject {
         public static final RecordColumn<StgProject, Any> state_as_any =
                 RecordColumn.create("state_as_any", Any.class, AnyPacker::pack);
 
+        public static final RecordColumn<StgProject, Version> project_version =
+                RecordColumn.create("project_version", Version.class,
+                                    StgProject::getProjectVersion);
+
         public static final RecordColumn<StgProject, String> random_non_stored_column =
                 RecordColumn.create("random_non_stored_column", String.class, (p) -> "31415926");
 
@@ -207,7 +212,7 @@ public final class GivenStorageProject {
          * Returns all the column definitions.
          */
         public static Columns<StgProject> definitions() {
-            return Columns.of(name, due_date, status, state_as_any);
+            return Columns.of(name, due_date, status, state_as_any, project_version);
         }
     }
 }

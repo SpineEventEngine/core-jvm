@@ -26,6 +26,7 @@
 
 package io.spine.core
 
+import com.google.protobuf.Timestamp
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.spine.base.Time.currentTime
@@ -178,4 +179,60 @@ internal class VersionMixinSpec {
             withNumber(5).isDecrementOrEqual(withNumber(2)) shouldBe false
         }
     }
+
+    @Nested inner class
+    `be Comparable, ordering by number first` {
+
+        @Test
+        fun `treating a greater number as greater`() {
+            (withNumber(3) > withNumber(2)) shouldBe true
+        }
+
+        @Test
+        fun `treating a smaller number as smaller`() {
+            (withNumber(1) < withNumber(2)) shouldBe true
+        }
+
+        @Test
+        fun `ignoring the timestamp when the numbers differ`() {
+            val earlier = Versions.newVersion(1, secondsAfterEpoch(1))
+            val later = Versions.newVersion(2, secondsAfterEpoch(2))
+            (later > earlier) shouldBe true
+
+            val newerButSmaller = Versions.newVersion(1, secondsAfterEpoch(100))
+            val olderButGreater = Versions.newVersion(2, secondsAfterEpoch(1))
+            (olderButGreater > newerButSmaller) shouldBe true
+        }
+    }
+
+    @Nested inner class
+    `break ties by timestamp when the numbers are equal` {
+
+        @Test
+        fun `treating a later timestamp as greater`() {
+            val earlier = Versions.newVersion(2, secondsAfterEpoch(1))
+            val later = Versions.newVersion(2, secondsAfterEpoch(2))
+            (later > earlier) shouldBe true
+        }
+
+        @Test
+        fun `treating an earlier timestamp as smaller`() {
+            val earlier = Versions.newVersion(2, secondsAfterEpoch(1))
+            val later = Versions.newVersion(2, secondsAfterEpoch(2))
+            (earlier < later) shouldBe true
+        }
+
+        @Test
+        fun `treating equal number and timestamp as equal`() {
+            val timestamp = secondsAfterEpoch(42)
+            val left = Versions.newVersion(2, timestamp)
+            val right = Versions.newVersion(2, timestamp)
+            left.compareTo(right) shouldBe 0
+        }
+    }
 }
+
+private fun secondsAfterEpoch(seconds: Long): Timestamp =
+    Timestamp.newBuilder()
+        .setSeconds(seconds)
+        .build()

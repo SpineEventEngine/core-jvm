@@ -76,13 +76,10 @@ public interface VersionMixin extends VersionOrBuilder, FieldAwareMessage, WithT
     @Internal
     @Override
     default Object readValue(FieldDescriptor field) {
-        switch (field.getIndex()) {
-            case 0:
-                return getNumber();
-            case 1:
-                return getTimestamp();
-            default:
-                return getField(field);
-        }
+        return switch (field.getIndex()) {
+            case 0 -> getNumber();
+            case 1 -> getTimestamp();
+            default -> getField(field);
+        };
     }
 }
