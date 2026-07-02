@@ -112,6 +112,5 @@ final class KnownMappings<R> {
     @FunctionalInterface
     interface FindMapping<R>
             extends Function<Class<?>, Optional<ColumnTypeMapping<?, ? extends R>>> {
-
     }
 }
