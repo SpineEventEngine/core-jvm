@@ -90,7 +90,6 @@ import static java.util.Arrays.stream;
  * the {@code ComparatorRegistry}.
  *
  * @see QueryBuilder for the application
- * @see QueryFilter
  * @see EntityStateFilter
  * @see EventFilter
  */
