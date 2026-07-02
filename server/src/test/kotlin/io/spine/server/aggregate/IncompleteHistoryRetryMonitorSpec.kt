@@ -26,6 +26,7 @@
 
 package io.spine.server.aggregate
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.spine.base.Error
 import java.time.Duration
@@ -64,6 +65,35 @@ internal class IncompleteHistoryRetryMonitorSpec {
             val unrelatedType = "io.spine.server.aggregate.SomeOtherFailure"
             monitor().canRetry(errorOfType(superclassType)) shouldBe false
             monitor().canRetry(errorOfType(unrelatedType)) shouldBe false
+        }
+    }
+
+    @Nested
+    inner class `be constructed` {
+
+        @Test
+        fun `with default settings`() {
+            IncompleteHistoryRetryMonitor().use { }
+        }
+
+        @Test
+        fun `through its builder`() {
+            IncompleteHistoryRetryMonitor.newBuilder()
+                .maxAttempts(4)
+                .initialDelay(Duration.ofMillis(50))
+                .maxDelay(Duration.ofSeconds(1))
+                .build()
+                .use { }
+        }
+
+        @Test
+        fun `rejecting a maximum delay smaller than the initial delay`() {
+            shouldThrow<IllegalArgumentException> {
+                IncompleteHistoryRetryMonitor.newBuilder()
+                    .initialDelay(Duration.ofSeconds(10))
+                    .maxDelay(Duration.ofSeconds(1))
+                    .build()
+            }
         }
     }
 

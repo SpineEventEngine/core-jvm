@@ -40,6 +40,7 @@ import io.spine.server.delivery.ShardIndex;
 import io.spine.server.tenant.TenantAwareRunner;
 
 import java.time.Duration;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
@@ -152,6 +153,9 @@ public class IncompleteHistoryRetryMonitor extends DeliveryMonitor
         this.maxAttempts = builder.maxAttempts;
         this.initialDelayMillis = builder.initialDelay.toMillis();
         this.maxDelayMillis = builder.maxDelay.toMillis();
+        checkArgument(maxDelayMillis >= initialDelayMillis,
+                      "`maxDelay` (%sms) must not be smaller than `initialDelay` (%sms).",
+                      maxDelayMillis, initialDelayMillis);
         this.multiplier = builder.multiplier;
         this.scheduler = checkNotNull(scheduler);
         this.clock = checkNotNull(clock);
@@ -189,8 +193,11 @@ public class IncompleteHistoryRetryMonitor extends DeliveryMonitor
                             + "incomplete history; marking the message as delivered.");
             return reception.markDelivered();
         }
-        if (decision.scheduleDelayMillis >= 0) {
-            scheduleRetry(message, decision.scheduleDelayMillis);
+        if (decision.scheduleDelayMillis >= 0
+                && !scheduleRetry(message, decision.scheduleDelayMillis)) {
+            // The scheduler is unavailable (e.g. the monitor was closed); drain the message
+            // instead of leaving it in `TO_DELIVER` with no pending retry.
+            return reception.markDelivered();
         }
         return reception.keepForRedelivery();
     }
@@ -238,11 +245,27 @@ public class IncompleteHistoryRetryMonitor extends DeliveryMonitor
                                                .equals(error.getType());
     }
 
-    private void scheduleRetry(InboxMessage message, long delayMillis) {
+    /**
+     * Schedules the redelivery of the message's shard after the given delay.
+     *
+     * @return {@code true} if the retry was scheduled, {@code false} if the scheduler rejected it
+     *         (for example, because the monitor has been {@linkplain #close() closed})
+     */
+    private boolean scheduleRetry(InboxMessage message, long delayMillis) {
         var index = message.shardIndex();
         var tenant = message.tenant();
-        @SuppressWarnings("FutureReturnValueIgnored") // Fire-and-forget; failures are logged.
-        var unused = scheduler.schedule(() -> redeliver(index, tenant), delayMillis, MILLISECONDS);
+        try {
+            @SuppressWarnings("FutureReturnValueIgnored") // Fire-and-forget; failures are logged.
+            var unused =
+                    scheduler.schedule(() -> redeliver(index, tenant), delayMillis, MILLISECONDS);
+            return true;
+        } catch (RejectedExecutionException e) {
+            logger().atDebug()
+                    .withCause(e)
+                    .log(() -> "The retry scheduler is unavailable; draining message `"
+                            + message.getId().getUuid() + "`.");
+            return false;
+        }
     }
 
     @SuppressWarnings("OverlyBroadCatchBlock") // A scheduler task must not die on any failure.
@@ -381,10 +404,13 @@ public class IncompleteHistoryRetryMonitor extends DeliveryMonitor
 
         /**
          * Builds a new monitor with the configured settings.
+         *
+         * @throws IllegalArgumentException
+         *         if {@code maxDelay} is smaller than {@code initialDelay} (also enforced by the
+         *         {@linkplain IncompleteHistoryRetryMonitor#IncompleteHistoryRetryMonitor(Builder)
+         *         constructor})
          */
         public IncompleteHistoryRetryMonitor build() {
-            checkArgument(maxDelay.compareTo(initialDelay) >= 0,
-                          "`maxDelay` must not be smaller than `initialDelay`.");
             return new IncompleteHistoryRetryMonitor(this);
         }
     }

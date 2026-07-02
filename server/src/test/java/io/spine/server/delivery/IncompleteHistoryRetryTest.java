@@ -140,6 +140,26 @@ final class IncompleteHistoryRetryTest extends AbstractDeliveryTest {
         assertInboxEmpty();
     }
 
+    @Test
+    @DisplayName("drain the message when the retry scheduler is unavailable")
+    @MuteLogging
+    void drainWhenSchedulerUnavailable() {
+        var retryMonitor = retryMonitor(5);
+        this.monitor = retryMonitor;
+        configureDelivery(retryMonitor);
+        var context = blackBox().tolerateFailures();
+        retryMonitor.close();
+        var id = newUuid();
+        ReceptionistAggregate.failAlwaysTransiently(id);
+
+        context.receivesCommand(tellToTurnConditioner(id));
+        sleep();
+
+        // The retry could not be scheduled, so the message is drained instead of left stuck.
+        assertThat(ReceptionistAggregate.applierInvocations(id)).isEqualTo(1);
+        assertInboxEmpty();
+    }
+
     private BlackBox configure(int maxAttempts) {
         monitor = retryMonitor(maxAttempts);
         configureDelivery(monitor);
