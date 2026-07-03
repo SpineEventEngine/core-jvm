@@ -45,8 +45,13 @@ When something about aggregates breaks, the whole system becomes less truthful.
 2. Update the state of the aggregates in the body of the command handler method, and
    emit events as the facts that the command was applied to the aggregate state.
 3. Keep the event history only for the purpose of trackability of the aggregate history.
+   The `AggregateStorage` seem to support storing the latest aggregate state via
+   `EntityRecordStorage`, and this works (if memory serves) when aggregate state
+   can be queried from the client side.
 4. Optionally keep the history of recent aggregate states to the configured depth.
    This is to help with analyzing the history alogn with the stored events.
+   We probably need an additional `EntityHistoryStorage` for this.
+   We may want to store the histroy of `ProcessManager`s in the future too.
 5. Deprecate `@Apply` annotation during the transition period and remove it in v2.0.0.
 6. All the test fixtures and all the examples (spine-examples GitHub org.) must be migrated 
    to non-event sourced aggregates.
