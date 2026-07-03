@@ -251,7 +251,13 @@ green-per-commit sequence.
 8. `UncommittedHistory` (`server/.../aggregate/UncommittedHistory.java`):
    collapse to a plain uncommitted-events list — no snapshot segmentation.
 9. `AggregateStorage.writeAll()`: events + **unconditional** state record
-   (business state always packed, per step 5).
+   (business state always packed, per step 5). **Expand the store gate:**
+   `AggregateEndpoint.storeAndPost` (`AggregateEndpoint.java:83-100`) today calls
+   `store()` only on `withEvents || lifecycleFlags changed`. Because a handler
+   may now mutate business state with no event and no lifecycle change (a
+   zero-event `@React`, D4/A4), also store when the **built state changed** —
+   else the change is silently dropped (never persisted, lingers in cache).
+   Add a test for a zero-event, state-only reactor.
 10. `Aggregate.toSnapshot()`, `AggregateStorage.writeSnapshot()`: deprecate.
 
 **`@Apply` fail-fast & deprecations (steps 11–12):**

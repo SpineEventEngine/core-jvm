@@ -48,10 +48,10 @@ The runtime facts this ADR is grounded in (verified against the tree
 
 | # | Decision |
 |---|----------|
-| D1 | Event import survives via a new Kotlin `@Import` receptor that mutates `builder()`; the imported event is recorded as the fact. `ImportBus`/routing unchanged. |
+| D1 | Event import survives via a new Kotlin `@Import` receptor that *may* mutate `builder()`; the imported event is recorded as the fact. `ImportBus`/routing unchanged. |
 | D2 | `@Apply` on any aggregate (incl. `AggregatePart`) is a **`ModelError` at model-building time** after cutover — fail fast, never a silent no-op. |
 | D3 | Aggregate version advances **+1 per command dispatch**, not per event — `ProcessManager` semantics via `CommandDispatchingPhase` + `VersionIncrement.sequentially`. |
-| D4 | The "must produce an event" guard is **endpoint-scoped**: `@Assign` must emit ≥1 event; `@React` may be a no-op or a lifecycle-only change; `@Import` must mutate state and needs no emitted event. |
+| D4 | State update is never forced in any handler. Only `@Assign` must emit ≥1 event (or reject); `@React` emission is optional; `@Import` returns nothing and may leave state unchanged. Persistence must trigger on a business-state change, not only on events/lifecycle. |
 | D5 | Dedup is the delivery layer's job; the aggregate `IdempotencyGuard` is **opt-in, off by default**. Recent history is loaded **lazily** from the journal tail, bounded by `historyDepth` (default 100). |
 | D6 | A handler mutates the open transaction's `builder()`; validation happens **once, at commit**; any failure rolls the whole transaction back. This structurally eliminates partial validity (brief problem #2). |
 | D7 | Snapshot-index journal trimming is dropped; count/date-based trimming is deferred to Phase D. The journal is append-only until then. |
@@ -242,8 +242,19 @@ only records a request), so we do not constrain the author's business logic:
 | `@Import` | Consumes the imported event and **may** update state via `builder()`, or leave it unchanged — **both are OK, neither is an error.** The imported event is always recorded as the fact and the version advances +1 (D1). |
 
 `setArchived()` / `setDeleted()` are explicitly allowed in `@Assign` and `@React`
-bodies. The store decision is unchanged: `AggregateEndpoint.storeAndPost`
-persists when `withEvents || lifecycleFlags changed` (`AggregateEndpoint.java:83-100`).
+bodies.
+
+**The store condition must be expanded.** Today `AggregateEndpoint.storeAndPost`
+persists only when `withEvents || lifecycleFlags changed`
+(`AggregateEndpoint.java:83-100`). That was sufficient while state changed only
+through appliers driven by events. Now a handler may mutate **business state**
+with *no* emitted event and *no* lifecycle change — a zero-event `@React` (D4)
+that updates state — and the current gate would **silently drop** that change
+(it never calls `store()`, so the committed state is not persisted and only
+lingers in the cache until eviction). The commit/store path must therefore also
+persist when the **built business state changed**, e.g. store when
+`withEvents || lifecycleFlags changed || state changed`. PR-B2 must add this and
+test a zero-event, state-only reactor.
 
 **Migration note — lifecycle flags move from appliers into handlers.** Today an
 aggregate never flips its own lifecycle flags inside a reactor/handler; the flip
