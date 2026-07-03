@@ -24,7 +24,31 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * The version of this library.
- */
-extra.set("versionToPublish", "2.0.0-SNAPSHOT.383")
+package io.spine.gradle.fs
+
+import io.kotest.matchers.shouldBe
+import java.nio.file.Path
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
+
+@DisplayName("`SpineTempDir` should")
+class SpineTempDirSpec {
+
+    @Test
+    fun `place its per-JVM directory under the package-named namespace`() {
+        val namespace = Path.of(
+            System.getProperty("java.io.tmpdir"),
+            LazyTempPath::class.java.packageName
+        )
+
+        SpineTempDir.path.parent shouldBe namespace
+    }
+
+    @Test
+    fun `create the directory on access`() {
+        val directory = SpineTempDir.path.toFile()
+
+        directory.exists() shouldBe true
+        directory.isDirectory shouldBe true
+    }
+}
