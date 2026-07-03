@@ -63,9 +63,11 @@ EventBus.post(events)   (unchanged — projections, PMs, catch-up unaffected)
 
 Load path: `AggregateRepository.load(id)` reads the latest `EntityRecord`
 from the state storage and restores state, version, and lifecycle flags. No
-snapshot, no replay. `RecentHistory` (for `IdempotencyGuard` and
-`historyBackward()`) is loaded from the tail of the event journal, bounded by
-a new `historyDepth` repository setting.
+snapshot, no replay. Deduplication is primarily the delivery layer's job; the
+aggregate `IdempotencyGuard` is an **opt-in, off-by-default** backstop. Recent
+history (for the guard when enabled, and for `historyBackward()`/
+`historyContains()`) is loaded **lazily on demand** from the tail of the event
+journal, bounded by a new `historyDepth` repository setting (default 100).
 
 ### Two load-critical invariants the cutover MUST establish
 
@@ -141,11 +143,11 @@ Open points with recommendations:
 
 | #  | Question                                                                               | Recommendation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 |----|----------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| A1 | Name and shape of the import receptor annotation                                       | `@Import` in `io.spine.server.aggregate`, Kotlin, method form mirroring `@Assign`: mutates `builder()`, returns nothing (the imported event *is* the fact); routing unchanged via `setupImportRouting`                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| A1 | Name and shape of the import receptor annotation                                       | `@Import` in `io.spine.server.aggregate`, Kotlin, method form mirroring `@Assign`: may mutate `builder()` (optional), returns nothing (the imported event *is* the fact); routing unchanged via `setupImportRouting`                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | A2 | Fate of classes that still declare `@Apply` after cutover                              | Fail fast: `AggregateClass` (**and `AggregatePartClass`**) raises a `ModelError` at model-building time with a migration message. Silent non-invocation is unacceptable. (`@Apply` on a `ProcessManager` is invalid and unsupported — the one such downstream fixture is fixed in `model-tools`; see Phase E)                                                                                                                                                                                                                                                                                                                                            |
 | A3 | Version advancement                                                                    | Aggregate version advances **+1 per command handler, not per event** (product decision) — the `ProcessManager` semantics. Reuse the PM path: one `CommandDispatchingPhase` + `VersionIncrement.sequentially`. Emitted events carry the resulting version; the per-event `VersionSequence` is removed. Confirm/adjust emitted-event version stamping and document the change from prior per-event versions. Own test                                                                                                                                                                                                                                      |
-| A4 | State mutation without emitted events                                                  | For `@Assign`: must emit ≥1 event or reject (unchanged contract). For `@React`/`@Import`: **distinguish business-state mutation from lifecycle-flag changes.** A zero-event reaction that only flips archived/deleted is legal today (`AggregateEventReactionEndpoint.onEmptyResult` is a no-op; `AggregateEndpoint.storeAndPost` stores on lifecycle change with no events) and must stay legal. `@Import` legitimately mutates business state with no emitted event. So the commit-time guard is **endpoint/receptor-scoped**, not a blanket "builder touched but no event → reject" — that rule would break both archive-on-react and every `@Import` |
-| A5 | `historyDepth` default (recent-history window for idempotency and `historyBackward()`) | Default to the old `DEFAULT_SNAPSHOT_TRIGGER` value (100) to keep the effective dedup window; configurable per repository. **Semantics change:** the window shifts from "events since last snapshot" to "last `historyDepth` journal events" — document it                                                                                                                                                                                                                                                                                                                                                                                               |
+| A4 | State mutation without emitted events                                                  | Command handlers and reactors work the same way (**may** update state via `builder()`, may call `setArchived()`/`setDeleted()` — state update never forced), differing only in emission: `@Assign` **must emit ≥1 event or reject**; `@React` **may emit zero events**. `@Import` **may** update state or leave it unchanged — both OK, neither an error (the imported event is always the recorded fact). No blanket "builder touched but no event → reject" and no new "must change state" guard. Lifecycle-flag flips that lived in appliers migrate into the handler body. See ADR D4 |
+| A5 | Deduplication + recent-history window | Delivery layer owns dedup; the aggregate `IdempotencyGuard` is **opt-in per repository, off by default** (`useIdempotencyGuard()`), kept so it can be removed later. Recent history loaded **lazily on demand** from the journal tail, bounded by `historyDepth` (default 100, = old `DEFAULT_SNAPSHOT_TRIGGER`; per-repository = per-aggregate-type). Guard-off dispatch does only the state read; guard-on pays the bounded journal read. Delivery durable dedup needs a configured `deduplicationWindow` in production. See ADR D5                                                                                                                                                                                                                                                                                                                    |
 | A6 | Rejection/exception semantics                                                          | Transaction rollback discards builder mutations; nothing is stored or posted. Verify `Transaction` rollback covers this; add tests                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | A7 | Journal trimming without snapshots                                                     | Snapshot-index `truncateOlderThan` dies with snapshots. Phase D introduces count/date-based trimming; until then journal grows append-only                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | A8 | `state()` visibility inside an open transaction                                        | Handlers read pre-transaction state, mutate via `builder()` (same shape as `ProcessManager`)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
@@ -211,7 +213,8 @@ green-per-commit sequence.
    `historyContains()` now iterate the depth-bounded `RecentHistory` —
    document the changed window.
 4. `@React` path (`AggregateEventReactionEndpoint.java`): same transaction
-   pattern; enforce A4 (keep the legal zero-event lifecycle-only reaction).
+   pattern; enforce A4 (reactor emission optional; migrate applier-set
+   lifecycle flags into the handler body).
 
 **Load path (steps 5–7):**
 
@@ -223,20 +226,25 @@ green-per-commit sequence.
 6. `AggregateRepository` (`server/.../aggregate/AggregateRepository.java`):
    `load(id)` = state read + instance restore (state, version, lifecycle
    flags — reuse the restore-shape from `Aggregate.restore(Snapshot)` but
-   sourced from `EntityRecord`); load `RecentHistory` from the journal tail
+   sourced from `EntityRecord`). **Do not** load `RecentHistory` eagerly — make
+   the journal-tail read **lazy on demand** (triggered by the opt-in guard on
+   dispatch, or by `historyBackward()`/`historyContains()` in business logic),
    via `HistoryBackwardOperation` bounded by `historyDepth` (A5). Keep
    `extends Repository` — do **not** re-parent onto `RecordBasedRepository`
    (minimal-diff constraint). `restore(...)` no longer calls
    `onCorruptedState(...)` (there is no replay to corrupt).
-7. `IdempotencyGuard` (`server/.../aggregate/IdempotencyGuard.java`): logic
-   unchanged, but note **it matches on previously *emitted* events whose
-   `EventContext.pastMessage` origin equals the incoming signal id**
-   (`IdempotencyGuard.java:119-160`), not on the incoming id directly. So the
-   journal-tail `RecentHistory` read must return emitted events **with intact
-   `pastMessage`**. Verify `AggregateStorage.writeEvent`'s
+7. `IdempotencyGuard` (`server/.../aggregate/IdempotencyGuard.java`): make it
+   **opt-in per repository, off by default** (`AggregateRepository.useIdempotencyGuard()`
+   / `enabled` flag) — delivery owns dedup; keep the guard so it can be removed
+   later. When enabled, its logic is unchanged, but note **it matches on
+   previously *emitted* events whose `EventContext.pastMessage` origin equals the
+   incoming signal id** (`IdempotencyGuard.java:119-160`), not on the incoming id
+   directly. So the lazy journal-tail read must return emitted events **with
+   intact `pastMessage`**. Verify `AggregateStorage.writeEvent`'s
    `event.clearEnrichments()` (`AggregateStorage.java:284-290`) does not strip
-   `pastMessage`, and add a test proving dedup works purely from the journal
-   tail with no snapshot.
+   `pastMessage`, and add a test proving guard-on dedup works purely from the
+   journal tail with no snapshot, plus a test that guard-off dispatch does no
+   journal read.
 
 **Save path (steps 8–10):**
 
@@ -394,9 +402,9 @@ repos except the deprecated annotation type itself.**
 |------|-----------|
 | **`NONE`-visibility aggregates persist no state** and become unloadable | Decouple state write from `queryingEnabled` (PR-B2 step 5/9) — the single most important correctness change; test load of a `NONE`-visibility aggregate |
 | **Aggregate version stops advancing** once replay is gone | A3: reuse the PM per-dispatch `VersionIncrement.sequentially` (+1 per command); dedicated test asserting version increments by exactly 1 per command, regardless of event count |
-| Idempotency window shrinks from "since last snapshot" to `historyDepth`, and dedup relies on `pastMessage` surviving in the journal tail | A5 default = old trigger; verify `clearEnrichments` keeps `pastMessage`; test dedup from journal tail with no snapshot |
+| Dropping the eager aggregate dedup guard could let duplicates through after a JVM restart / cache eviction when no delivery `deduplicationWindow` is set | Guard kept as opt-in backstop (A5/D5); document that production sets a `deduplicationWindow`; when guard on, verify `clearEnrichments` keeps `pastMessage` and test journal-tail dedup with no snapshot |
 | Accidentally removing the shared `EventPlayer` type breaks `Projection` | Drop only `Aggregate`'s `implements`; keep the entity-layer type |
-| A4 blanket "no event → reject" breaks archive-on-react and every `@Import` | Endpoint/receptor-scoped guard comparing built business state, not "builder touched"; tests for react-that-only-archives and for `@Import` |
+| A4: over-strict emission guard rejects a legal empty `@React` or a no-op `@Import` | Per-receptor rule (only `@Assign` must emit ≥1 event); tests for an empty reactor, a lifecycle-only handler, and a no-op import |
 | PR-B2 is large and cannot land green-per-commit | Accept it as one atomic commit; fixture edits are mechanical and reviewable in bulk; keep runtime diff Java-minimal |
 | Storage backends (incl. `delivery-server` redis/hazelcast) break on state-write semantics | Phase C smoke builds all vendors before the rollout wave |
 | `AggregatePart` silently breaks | PR-B2 step 11 covers `AggregatePart`/`AggregatePartClass`/`PartFactory` in the A2 fail-fast and the state-load path |
@@ -406,4 +414,4 @@ repos except the deprecated annotation type itself.**
 - Data migration tooling (decision 2).
 - `ProcessManager` state history wiring (Phase D designs for it only).
 - Removing the deprecated `@Apply` annotation itself and the other
-  deprecations — happens at v2.0.0 final, tracked separately.
+  deprecations — happens at v2.0.0 (final), tracked separately.
