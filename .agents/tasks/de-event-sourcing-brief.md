@@ -65,3 +65,8 @@ New types should be written in Kotlin to minimise the future migration.
 
 If a test suite needs to be updated and is in Java, it stays in Java.
 New test suites should be written in Kotlin.
+                   
+## One of the vefirication methods
+
+The task is fully completed when we don't have `@Apply` anywhere in the code
+the of SpineEventEngine organisation, apart from the deprecated annotation type itself.
