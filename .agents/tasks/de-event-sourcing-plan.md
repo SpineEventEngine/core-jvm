@@ -345,28 +345,36 @@ fixtures or vendored doc copies. Do not over-scope.
 
 | Order | Repos | Actual `@Apply` work |
 |-------|-------|----------------------|
-| 1 | `core-jvm-compiler`, `mc-java` | **Test fixtures only.** No codegen/validation reference to appliers. Each has the same `routing-tests` fixture `.../given/home/HomeAutomationContext.kt` (`DeviceAggregate`, 2 methods) |
+| 1 | `core-jvm-compiler` | **Test fixtures only.** No codegen/validation reference to appliers. Has a `routing-tests` fixture `.../given/home/HomeAutomationContext.kt` (`DeviceAggregate`, 2 methods) |
 | 2 | `jdbc-storage`, `gcloud-jvm` | **None** — zero `@Apply`. Recompile + test-fallout only (already smoke-built in Phase C) |
 | 2 | `firebase-storage` | **Test env only** — one aggregate in `firebase-mirror/src/test/.../given/FirebaseMirrorTestEnv.java`; no product aggregates |
-| 3 | `web` | **Integration test-app only** (`web/integration-tests/test-app/.../given/{Task,Project,UserInfo}Aggregate.java`); the shipped `web` library has none. Depends only on core + compiler (not on any storage repo) — can migrate right after Order 1 |
 | 3 | `delivery-server` | Storage vendor (see Phase C) **and** has aggregate fixtures (`SessionRegistry`, `GreatGreeter`). Keep the SPI recompile separate from the fixture migration |
-| 4 | `users`, `roles`, `organizations`, `chat-bot` | Product/domain repos — verify each whether `@Apply` is production or fixture before scoping |
+| 4 | `chat-bot` | Product/domain repo — verify whether `@Apply` is production or fixture before scoping |
 | 4 | `model-tools` | **Test fixtures only** — `EditAggregate` (aggregate) plus `RenameProcMan`, a `ProcessManager` carrying a stray `@Apply`. `@Apply` on a `ProcessManager` is invalid; `model-tools` removes it (repo owner will update). Confirm `ModelCheckTest` still passes afterward |
 | 5 | `examples` (spine-examples org) | brief item 6 — real sample aggregates |
 | 6 | `documentation`, `spine.io` | **12** files with `@Apply`: 10 Java sample aggregates under `docs/_code/examples/{airport,blog,kanban,todo-list}` + `docs/_code/samples/.../TaskAggregate.java`, and 1 prose file `docs/content/docs/introduction/_index.md`. **`docs/_code/examples/*` are vendored copies of the `examples` repo** — migrate in lockstep with Order 5 |
 
-Excluded: `core-java-1x` (the 1.x line keeps event sourcing). Confirm no
-other org repo implements `AggregateStorage`/`StorageFactory` or declares
-`@Apply` before declaring Phase F clean.
+Excluded from the rollout:
+- **Retired/archived** — `core-java-1x` (the 1.x line keeps event sourcing),
+  `mc-java`, `web`. Do not touch; excluded from the Phase F gate.
+- **Dormant** — `users`, `roles`, `organizations`. Not scheduled here; migrate
+  only if/when a repo is reactivated. Out of the Phase F blocking set for now
+  (they may still contain `@Apply`).
+
+Confirm no other **active** org repo implements
+`AggregateStorage`/`StorageFactory` or declares `@Apply` before declaring
+Phase F clean.
 
 ## Phase F — Org-wide verification gate
 
-The brief's completion criterion: **no `@Apply` anywhere in the
-SpineEventEngine org except the deprecated annotation type itself.**
+The brief's completion criterion: **no `@Apply` in the active SpineEventEngine
+repos except the deprecated annotation type itself.**
 
 1. Script an org-wide check (`gh search code` or local clone sweep) for
    `@Apply` / `io.spine.server.aggregate.Apply`; allowed hits: the
    annotation source, its tests for the `ModelError` path, migration docs.
+   Exclude retired/archived repos (`mc-java`, `web`, `core-java-1x`) and the
+   dormant repos (`users`, `roles`, `organizations`) from the sweep.
 2. Run the check; file issues for stragglers; re-run until clean.
 3. Archive this plan and the brief to `.agents/tasks/archive/`.
 
