@@ -69,9 +69,11 @@ Load path: `AggregateRepository.load(id)` reads the latest `EntityRecord`
 from the state storage and restores state, version, and lifecycle flags. No
 snapshot, no replay. Deduplication is primarily the delivery layer's job; the
 aggregate `IdempotencyGuard` is an **opt-in, off-by-default** backstop. Recent
-history (for the guard when enabled, and for `historyBackward()`/
-`historyContains()`) is loaded **lazily on demand** from the tail of the event
-journal, bounded by a new `historyDepth` repository setting (default 100).
+history is loaded **lazily on demand** from the tail of the event journal,
+sized to the request: business calls state their own window via
+`historyBackward(depth)` / `historyContains(depth, …)` (ADR D10), while the
+new `historyDepth` repository setting (default 100) is the guard's window and
+the default of the deprecated parameterless forms.
 
 ### Two load-critical invariants the cutover MUST establish
 
@@ -222,9 +224,11 @@ green-per-commit sequence.
 3. `Aggregate` (`server/.../aggregate/Aggregate.java`): drop `implements
    EventPlayer`; remove `invokeApplier`, `play`, `replay`, `apply`,
    `ApplierWatcher` gating; relax `ensureAccessToState()` per A8. Leave the
-   shared `EventPlayer` type intact for `Projection`. `historyBackward()` /
-   `historyContains()` now iterate the depth-bounded `RecentHistory` —
-   document the changed window.
+   shared `EventPlayer` type intact for `Projection`. Add
+   `historyBackward(int depth)` / `historyContains(int depth, Predicate)` per
+   ADR D10; deprecate the parameterless forms (delegating with
+   `depth = historyDepth()`) — document the changed window and cover the
+   depth forms with Kotlin tests.
 4. `@React` path (`AggregateEventReactionEndpoint.java`): same transaction
    pattern; enforce A4 (reactor emission optional; migrate applier-set
    lifecycle flags into the handler body).
@@ -241,8 +245,10 @@ green-per-commit sequence.
    flags — reuse the restore-shape from `Aggregate.restore(Snapshot)` but
    sourced from `EntityRecord`). **Do not** load `RecentHistory` eagerly — make
    the journal-tail read **lazy on demand** (triggered by the opt-in guard on
-   dispatch, or by `historyBackward()`/`historyContains()` in business logic),
-   via `HistoryBackwardOperation` bounded by `historyDepth` (A5). Keep
+   dispatch, or by `historyBackward(depth)`/`historyContains(depth, …)` in
+   business logic), via `HistoryBackwardOperation` sized to the requested
+   depth — `historyDepth` for the guard and the deprecated parameterless
+   forms (A5, ADR D10). Keep
    `extends Repository` — do **not** re-parent onto `RecordBasedRepository`
    (minimal-diff constraint). `restore(...)` no longer calls
    `onCorruptedState(...)` (there is no replay to corrupt).
@@ -319,9 +325,11 @@ green-per-commit sequence.
 17. Migration guide: `docs/` note covering the handler migration recipe,
     the preventive-validation recipe (`tryAlter`, ADR D9), import receptor,
     removed snapshot config, the idempotency-window semantics change (A5),
-    and the **precise data caveat** — only querying-visible aggregates
-    survive; `NONE`-visibility replay-only aggregates are a hard break
-    (decision 2 / Data assumptions).
+    the history-window change (`historyBackward(depth)` explicit; the
+    deprecated parameterless forms now read the last `historyDepth` events —
+    ADR D10), and the **precise data caveat** — only querying-visible
+    aggregates survive; `NONE`-visibility replay-only aggregates are a hard
+    break (decision 2 / Data assumptions).
 
 ## Phase C — Storage & SPI verification
 

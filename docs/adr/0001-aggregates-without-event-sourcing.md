@@ -1,6 +1,6 @@
 # ADR 0001 — Aggregates without event sourcing
 
-- **Status:** Accepted (product owner, 2026-07-03; amended with D9, 2026-07-04) — unblocks Phase B
+- **Status:** Accepted (product owner, 2026-07-03; amended with D9–D10, 2026-07-04) — unblocks Phase B
 - **Date:** 2026-07-03
 - **Deciders:** Alexander Yevsyukov (product owner)
 - **Feature branch:** `de-event-sourcing`
@@ -11,10 +11,11 @@
 This ADR is the design authority for Phase B of the delivery plan. It resolves
 the eight open design points (A1–A8) and fixes the public-API surface
 (signatures only) so the implementation PRs have a single source of truth.
-Decision **Dn** below resolves plan point **An**. **D9** was added on
-2026-07-04 in response to the
+Decision **Dn** below resolves plan point **An**. **D9** and **D10** were
+added on 2026-07-04 in response to the
 [PR #1642 review](https://github.com/SpineEventEngine/core-jvm/pull/1642#pullrequestreview-4629642991)
-(developer control over validation failures) and has no A-counterpart.
+(D9 — developer control over validation failures, review point 1; D10 — the
+explicit recent-history window, review point 4); neither has an A-counterpart.
 
 ---
 
@@ -60,6 +61,7 @@ The runtime facts this ADR is grounded in (verified against the tree
 | D7 | Snapshot-index journal trimming is dropped; count/date-based trimming is deferred to Phase D. The journal is append-only until then. |
 | D8 | Handlers read the **pre-transaction** `state()` and mutate via `builder()`; the applier-only access guard is relaxed to allow `@Assign`/`@React`/`@Import` to touch the builder. |
 | D9 | *(added 2026-07-04, from PR review)* Preventive validation: `tryAlter {}` runs a mutation on a scratch builder, validates it via the commit path, and merges only when clean — otherwise it returns the violations and leaves live state untouched. `@Assign` rejects; `@React` skips the update (returning `NoReaction` speaks only about emission — D4); `@Import` fails loudly. The D6 commit-time safety net is unchanged. |
+| D10 | *(added 2026-07-04, from PR review)* Business history access states its window explicitly: `historyBackward(depth)` / `historyContains(depth, predicate)` read up to `depth` latest journal events. The parameterless forms are deprecated, delegating with `depth = historyDepth`; `historyDepth` is demoted to the guard's window plus that default. |
 
 ---
 
@@ -347,6 +349,11 @@ redelivery/retry horizon.
 > be removed later if unneeded); recent history is loaded **lazily on demand**,
 > bounded by `historyDepth` (default 100, name approved).
 
+> **Amended** by D10 (2026-07-04): business-logic history access now states its
+> window explicitly — `historyBackward(depth)` / `historyContains(depth,
+> predicate)`. `historyDepth` remains the guard's window and the default of the
+> deprecated parameterless forms.
+
 ---
 
 ## D6 — Mutation model, validation, and rollback (resolves A6)
@@ -533,6 +540,75 @@ gap all along):
 
 ---
 
+## D10 — Explicit recent-history window (`historyBackward(depth)`)
+
+*Added 2026-07-04 in response to the PR #1642 review, point 4 (`recentHistory`
+"will need to have a parameter now"). Amends the business-access clause of D5.
+No A-counterpart in the plan.*
+
+**Decision.** The business-facing history API on `Aggregate` states its
+window explicitly, in events, at the call site (edited code stays Java —
+plan decision 7):
+
+```java
+protected final Iterator<Event> historyBackward(int depth);
+protected final boolean historyContains(int depth, Predicate<Event> predicate);
+```
+
+Contract:
+
+- up to `depth` most recent journal events, newest first; fewer if the journal
+  holds fewer (or, after Phase D, has been trimmed); `depth` must be positive;
+- the count is **events**, not commands — after D3 one command may emit
+  several events sharing one version;
+- the current dispatch's own uncommitted events are excluded (as today);
+- the first call triggers the D5 lazy journal-tail read, sized to satisfy the
+  request; the result is cached in `RecentHistory`, which becomes a
+  framework-internal cache (`Aggregate.recentHistory()` is already
+  `@VisibleForTesting`, `Aggregate.java:518-522`); a deeper later call
+  re-reads.
+
+**`historyDepth` is demoted to one job.** It remains the per-repository window
+of the opt-in `IdempotencyGuard` (D5) — and the default of the deprecated
+parameterless forms — an operational knob, no longer a hidden business
+parameter. A business call deeper than `historyDepth` simply reads deeper: the
+journal is append-only until Phase D (D7).
+
+**Deprecation path (parameterless forms).** `historyBackward()`
+(`Aggregate.java:534`) and `historyContains(Predicate)` (`Aggregate.java:541`)
+are deprecated, **not** fail-fast: they keep working, delegating to the
+explicit forms with `depth = historyDepth`. Old code compiles and runs; its
+window changes from "everything since the last snapshot" to "the last
+`historyDepth` events" — called out in the migration guide (plan, PR-B3).
+Removal at v2.0.0 (final), with the other deprecations. `IdempotencyGuard`
+itself calls the parameterized form with the repository's `historyDepth`.
+
+**Why not fail-fast like D2's `@Apply`?** An un-migrated `@Apply` class would
+*silently lose behavior* — fail-fast is the only safe answer there. An
+un-migrated `historyBackward()` call keeps a well-defined, documented window
+close to the old default (100 = the old `DEFAULT_SNAPSHOT_TRIGGER`); breaking
+every caller at once buys little.
+
+**Rejected alternatives.**
+
+- *Parameterless as the only API, window = `historyDepth`* (D5 as originally
+  approved) — the window is invisible at the call site and couples business
+  behavior to an operational knob: tuning the guard would silently change
+  domain logic (review point 4).
+- *Fail-fast parameterless forms* — rejected by the product owner in favor of
+  the `historyDepth`-defaulted delegation (see above).
+- *Time-based window* (`historyBackward(since: Timestamp)`) — composable by
+  the caller on top of the count-bounded iterator; the count is the
+  storage-native bound of a journal-tail read. Possible future sugar, not
+  core.
+
+> **Approved** by product owner, 2026-07-04: explicit `depth` parameter on
+> `historyBackward` / `historyContains`; parameterless forms deprecated and
+> `historyDepth`-defaulted (not fail-fast); `historyDepth` remains the guard's
+> window.
+
+---
+
 ## Public API sketch (signatures only)
 
 Illustrative shapes for review; final names/packages are fixed here, bodies are
@@ -665,6 +741,18 @@ protected final void useIdempotencyGuard();        // enable the journal-backed 
 protected final boolean idempotencyGuardEnabled(); // default false — delivery owns dedup
 ```
 
+**Changed — aggregate history access states its window** (D10). The explicit
+forms read up to `depth` latest journal events (newest first), lazily loaded
+per D5; the parameterless forms are deprecated and delegate with
+`depth = historyDepth`:
+
+```java
+protected final Iterator<Event> historyBackward(int depth);                      // NEW
+protected final boolean historyContains(int depth, Predicate<Event> predicate);  // NEW
+@Deprecated protected final Iterator<Event> historyBackward();                   // → historyBackward(historyDepth)
+@Deprecated protected final boolean historyContains(Predicate<Event> predicate); // → historyContains(historyDepth, p)
+```
+
 **Deprecated (removed at v2.0.0 (final)):**
 
 ```java
@@ -672,6 +760,7 @@ io.spine.server.aggregate.Apply                       // annotation
 io.spine.server.aggregate.Apply#allowImport
 AggregateRepository#setSnapshotTrigger(int)           // no-op → historyDepth
 AggregateRepository#snapshotTrigger()
+Aggregate#historyBackward(), Aggregate#historyContains(Predicate)  // → depth forms (D10)
 AggregateStorage#read(I, int), AggregateStorage#read(I)  // journal reads; load uses readState(I)
 AggregateStorage#writeSnapshot(I, Snapshot)
 AggregateStorage#truncateOlderThan(int[, Timestamp])  // → Phase D trimming
@@ -718,6 +807,8 @@ a no-op retain buys nothing). Tracked in plan PR-B2 steps 12/15.
   commands reject, reactions skip the update, and imports fail loudly —
   validation failures become business outcomes instead of dispatch errors.
   Process managers benefit immediately.
+- History reads state their window at the call site (`historyBackward(depth)`,
+  D10), decoupling domain logic from the `historyDepth` operational knob.
 
 **Negative / risks (tracked in the delivery plan's risk table).**
 - `NONE`-visibility aggregates that never persisted state are a **hard break**
@@ -754,3 +845,6 @@ for same-timestamp ordering (D3 / `EventComparator`, Phase E).
 - [x] Product owner sign-off on D9 (`tryAlter` preventive validation),
   2026-07-04 — designed in the PR #1642 review follow-up; prevention chosen
   over a post-hoc repair callback; name `tryAlter` confirmed.
+- [x] Product owner sign-off on D10 (explicit history window), 2026-07-04 —
+  depth parameter on `historyBackward`/`historyContains`; parameterless forms
+  deprecated with the `historyDepth` default (not fail-fast).
