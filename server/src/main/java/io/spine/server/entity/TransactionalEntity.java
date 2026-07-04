@@ -139,7 +139,7 @@ class TransactionalEntity<I, S extends EntityState<I>, B extends ValidatingBuild
      *
      * <p>This method must be called only from within an active transaction.
      *
-     * @return the instance of the new state builder
+     * @return an instance of the new state builder
      * @throws IllegalStateException if the method is called not within a transaction
      */
     protected B builder() {
