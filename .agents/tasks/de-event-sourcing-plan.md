@@ -28,6 +28,10 @@ a side effect of playing events** — are called out inline; do not lose them.
    validates + commits after it returns — structurally like the
    `ProcessManager` dispatch path (`PmEndpoint.runTransactionFor()`),
    **including the once-per-dispatch version increment; see A3**.
+   A receptor that must guard against invalid transitions uses `tryAlter {}`
+   (ADR D9, added 2026-07-04 from PR review): validate-before-apply on a
+   scratch builder — reject or skip the update *before* the live builder is
+   dirtied.
 4. **Event import survives** via a new receptor annotation (working name
    `@Import`, final name in Phase A). `ImportBus` and import routing stay.
 5. **State history (`EntityHistoryStorage`)** is in this plan as a later,
@@ -159,7 +163,7 @@ own. PR-B2 does NOT decompose into green sub-commits** — see the atomicity
 note in PR-B2. Each PR bumps the version once per branch and runs
 `./gradlew build` + `dokkaGenerate` (proto changes: `clean build`).
 
-### PR-B1 — Import receptor (additive)
+### PR-B1 — Import receptor & preventive validation (additive)
 
 1. New Kotlin annotation (per A1) + signature/receptor classes in
    `server/src/main/kotlin/io/spine/server/aggregate/` and
@@ -176,6 +180,15 @@ note in PR-B2. Each PR bumps the version once per branch and runs
    prefer the new receptor when present.
 4. New Kotlin test suite (`kotlin-jvm-tester` conventions) + one fixture
    aggregate using `@Import`.
+5. `tryAlter` in
+   `server/src/main/kotlin/io/spine/server/entity/TransactionalEntityExts.kt`
+   per ADR D9: scratch-copy validate-before-apply returning
+   `List<ConstraintViolation>`; fold setter-thrown `ValidationException`s into
+   the returned list; fix the merge mechanics and the Java-caller access
+   (facade vs. protected method) here. Benefits `ProcessManager` immediately.
+6. Kotlin test suite for `tryAlter`: clean apply, violation return,
+   `(set_once)` folding, consecutive-call composition, and a failed
+   `tryAlter` leaving no trace (no store; persisted state/version unchanged).
 
 ### PR-B2 — The cutover (large; ATOMIC build-breaking change)
 
@@ -304,10 +317,11 @@ green-per-commit sequence.
     section, lines ~97–122), `AggregateRepository`, `Apply` deprecation
     text, package-info. Run `review-docs`.
 17. Migration guide: `docs/` note covering the handler migration recipe,
-    import receptor, removed snapshot config, the idempotency-window
-    semantics change (A5), and the **precise data caveat** — only
-    querying-visible aggregates survive; `NONE`-visibility replay-only
-    aggregates are a hard break (decision 2 / Data assumptions).
+    the preventive-validation recipe (`tryAlter`, ADR D9), import receptor,
+    removed snapshot config, the idempotency-window semantics change (A5),
+    and the **precise data caveat** — only querying-visible aggregates
+    survive; `NONE`-visibility replay-only aggregates are a hard break
+    (decision 2 / Data assumptions).
 
 ## Phase C — Storage & SPI verification
 

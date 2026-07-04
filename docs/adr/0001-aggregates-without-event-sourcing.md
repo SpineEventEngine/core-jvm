@@ -1,6 +1,6 @@
 # ADR 0001 — Aggregates without event sourcing
 
-- **Status:** Accepted (product owner, 2026-07-03) — unblocks Phase B
+- **Status:** Accepted (product owner, 2026-07-03; amended with D9, 2026-07-04) — unblocks Phase B
 - **Date:** 2026-07-03
 - **Deciders:** Alexander Yevsyukov (product owner)
 - **Feature branch:** `de-event-sourcing`
@@ -11,7 +11,10 @@
 This ADR is the design authority for Phase B of the delivery plan. It resolves
 the eight open design points (A1–A8) and fixes the public-API surface
 (signatures only) so the implementation PRs have a single source of truth.
-Decision **Dn** below resolves plan point **An**.
+Decision **Dn** below resolves plan point **An**. **D9** was added on
+2026-07-04 in response to the
+[PR #1642 review](https://github.com/SpineEventEngine/core-jvm/pull/1642#pullrequestreview-4629642991)
+(developer control over validation failures) and has no A-counterpart.
 
 ---
 
@@ -40,7 +43,7 @@ traceability journal, and remove event-sourced loading in one delivery train.
 `@Apply` is deprecated now and removed at v2.0.0 (final).
 
 The runtime facts this ADR is grounded in (verified against the tree
-2026-07-03) are cited inline as `File.java:line`.
+2026-07-03; D9 facts 2026-07-04) are cited inline as `File.java:line`.
 
 ---
 
@@ -56,6 +59,7 @@ The runtime facts this ADR is grounded in (verified against the tree
 | D6 | A handler mutates the open transaction's `builder()`; validation happens **once, at commit**; any failure rolls the whole transaction back. This structurally eliminates partial validity (brief problem #2). |
 | D7 | Snapshot-index journal trimming is dropped; count/date-based trimming is deferred to Phase D. The journal is append-only until then. |
 | D8 | Handlers read the **pre-transaction** `state()` and mutate via `builder()`; the applier-only access guard is relaxed to allow `@Assign`/`@React`/`@Import` to touch the builder. |
+| D9 | *(added 2026-07-04, from PR review)* Preventive validation: `tryAlter {}` runs a mutation on a scratch builder, validates it via the commit path, and merges only when clean — otherwise it returns the violations and leaves live state untouched. `@Assign` rejects; `@React` skips the update (returning `NoReaction` speaks only about emission — D4); `@Import` fails loudly. The D6 commit-time safety net is unchanged. |
 
 ---
 
@@ -414,6 +418,121 @@ and the applier-scoped guard are removed with the appliers (PR-B2 step 3).
 
 ---
 
+## D9 — Preventive state validation in receptors (`tryAlter`)
+
+*Added 2026-07-04 in response to the PR #1642 review, point 1 (how developers
+control the state becoming invalid). The mechanism half of review point 2
+(reactors) follows by construction. No A-counterpart in the plan.*
+
+**Decision.** Introduce one new Kotlin extension for `TransactionalEntity`,
+next to `update {}` / `alter {}` in
+`server/src/main/kotlin/io/spine/server/entity/TransactionalEntityExts.kt`:
+
+```kotlin
+public fun <I : Any, E : TransactionalEntity<I, S, B>, S : EntityState<I>, B : ValidatingBuilder<S>>
+        E.tryAlter(block: B.() -> Unit): List<ConstraintViolation>
+```
+
+`tryAlter` is **validate-before-apply**:
+
+1. clone the live transaction builder (`builder()`);
+2. run `block` on the clone — the live builder is not touched;
+3. `buildPartial()` the candidate and validate it via the same
+   `checkEntityState` the commit uses (`AbstractEntity.java:328-349`);
+4. no violations → merge the candidate into the live builder, return an empty
+   list;
+5. violations → leave the live builder **untouched**, return them.
+
+A setter-throwing option (`(set_once)` today; any future one) raises
+`io.spine.validation.ValidationException` inside `block` — against the
+scratch, not the live builder. `tryAlter` catches it and returns its
+violations, so both constraint families (setter-time and build-time) surface
+uniformly as the returned list. Any other exception from `block` propagates
+unchanged; in every failure mode the live builder stays untouched.
+
+**Why probing the live builder is not enough.** `update {}` / `alter {}`
+mutate the transaction's builder directly (`TransactionalEntityExts.kt:63-98`),
+and there is no way to un-mutate. Returning `NoReaction` does not help: it
+means only "this reaction emits no events" (D4) and says nothing about state —
+the dispatch still succeeds, the transaction commits, and per D4 the expanded
+store gate fires on a business-state change even with zero events, so an
+invalid state already in the live builder reaches commit validation and kills
+the dispatch. The only way to withhold an invalid change is to never put it
+into the live builder; hence scratch-copy semantics, not a probe of the live
+builder.
+
+**Receptor idioms.** Each receptor kind keeps its natural failure vocabulary
+(samples in the API sketch below): `@Assign` **rejects** — a business NACK to
+the client; `@React` **skips the state update** — the violations came back, so
+the reactor does not apply the change, and since the fact it would have
+announced did not happen, it typically returns `NoReaction`, alone or as an
+`EitherOf…` alternative (an event is a fact and cannot be rejected); `@Import`
+**fails loudly** — a developer-driven migration wants noise, not silence.
+Note (D4): `NoReaction` speaks only about *emission* — "this reaction emits no
+events" — and implies nothing about state; whether state changed is the
+entity's internal business. In the failure path above the state is untouched
+because `tryAlter` withheld the mutation, not because `NoReaction` was
+returned.
+
+**Interaction with D3–D6.**
+
+- A mutation withheld by `tryAlter` never reaches the live builder, so
+  `changed()` stays `false`: the D4 store gate stays silent and the persisted
+  state and version are unchanged (composes with D3/D4).
+- The probe and the commit share one validation path (`checkEntityState`), so
+  a clean `tryAlter` verdict cannot be contradicted at commit for those
+  changes — no verdict drift.
+- Consecutive `tryAlter` calls compose: each validates the cumulative
+  candidate (the scratch is a clone of the live builder, including previously
+  applied changes).
+- **The D6 safety net is unchanged.** `tryAlter` is opt-in control; a receptor
+  that skips it and commits invalid state gets today's semantics — single
+  validate-at-commit, rollback, failed dispatch (`Transaction.java:369-373`).
+
+**Implementation notes for PR-B1** (additive; lands with the `@Import`
+receptor PR — `ProcessManager`s benefit immediately, having had exactly this
+gap all along):
+
+- The same-package placement that already lets `update {}` call the protected
+  `builder()` (see the file's API note) also covers `checkEntityState`
+  (`AbstractEntity.java:328`).
+- Merge mechanics — `clear()` + `mergeFrom(candidate)` on the live builder, or
+  swapping the transaction's builder as `incrementStateAndVersion` already
+  does (`Transaction.java:343`) — fixed in PR-B1.
+- Java callers: via the existing
+  `@file:JvmName("TransactionalEntityExtensions")` facade or a thin protected
+  method — decided in PR-B1.
+- KDoc must warn that `block` operates on its receiver (the scratch) only;
+  nesting `alter {}` / `update {}` inside `block` would bypass the scratch and
+  dirty the live builder.
+- Double validation (probe + commit) is accepted; skipping commit validation
+  when nothing changed after a clean probe is an optional later optimization,
+  not a promise.
+- Kotlin test suite (`kotlin-jvm-tester` conventions): clean apply, violation
+  return, `(set_once)` folding, consecutive-call composition, and a failed
+  `tryAlter` leaving no trace (no store; persisted state/version unchanged).
+
+**Rejected alternatives.**
+
+- *Post-hoc repair callback* — `onValidationError(builder, signal, context,
+  wouldBeEvents)` invoked when commit validation fails: it repairs state
+  *after* the events describing the transition were produced, risking
+  state/event divergence, and needs a new context data structure plus
+  re-validation semantics. Prevention keeps the knowledge where it already
+  lives — inside the receptor (product owner, 2026-07-04).
+- *Probe-the-live-builder API* — cannot serve reactors: there is no un-mutate
+  (see above).
+- *Making `update {}` / `alter {}` validate eagerly* — changes the semantics
+  of released API, breaks legal multi-step mutation sequences whose
+  intermediate states are transiently invalid, and pays validation cost on
+  every call.
+
+> **Approved** by product owner, 2026-07-04: prevention over repair; name
+> `tryAlter`; validate-before-apply (scratch-copy) semantics; setter-thrown
+> `ValidationException`s folded into the returned violations.
+
+---
+
 ## Public API sketch (signatures only)
 
 Illustrative shapes for review; final names/packages are fixed here, bodies are
@@ -450,6 +569,68 @@ and now mutate the builder in-body:
 ItemAdded handle(AddItem c) {
     builder().addItem(c.getItem());        // NEW: state change in the handler
     return ItemAdded.newBuilder()./* … */.build();
+}
+```
+
+**New — preventive state validation in receptors** (D9; in
+`TransactionalEntityExts.kt`, so `ProcessManager`s get it too). Runs the
+mutation on a scratch copy of the builder, validates the candidate, merges
+only when clean — a failed attempt never dirties the live builder:
+
+```kotlin
+public fun <I : Any, E : TransactionalEntity<I, S, B>, S : EntityState<I>, B : ValidatingBuilder<S>>
+        E.tryAlter(block: B.() -> Unit): List<ConstraintViolation>
+```
+
+Usage across the three receptor kinds. The declared constraint is *reused*,
+never duplicated in handler code. Given a state field
+
+```proto
+int32 in_stock = 2 [(min).value = "0"];    // invariant: stock never negative
+```
+
+a command handler turns violations into a **rejection** — the business NACK
+the client can act on:
+
+```kotlin
+@Assign
+@Throws(OutOfStock::class)
+fun handle(cmd: ReserveItems): ItemsReserved {
+    val violations = tryAlter { inStock = state.inStock - cmd.quantity }
+    if (violations.isNotEmpty()) {                  // would go negative
+        throw OutOfStock.newBuilder()
+                .setStock(id())
+                .setRequested(cmd.quantity)
+                .build()
+    }
+    return itemsReserved { stock = id(); quantity = cmd.quantity }
+}
+```
+
+a reactor **skips the state update** — an event is a fact and cannot be
+rejected. `NoReaction` here says only "this reaction emits no events"; the
+state stays untouched because `tryAlter` withheld the change, not because
+`NoReaction` was returned (emission and state are orthogonal — D4):
+
+```kotlin
+@React
+fun on(event: BulkOrderPlaced): EitherOf2<ItemsReserved, NoReaction> {
+    val violations = tryAlter { inStock = state.inStock - event.quantity }
+    return if (violations.isEmpty())
+        EitherOf2.withA(itemsReserved { stock = id(); quantity = event.quantity })
+    else
+        EitherOf2.withB(noReaction())      // no events; `tryAlter` withheld the change
+}
+```
+
+an import receptor **fails loudly** — a data migration wants noise, not
+silence:
+
+```kotlin
+@Import
+fun from(event: LegacyStockImported) {
+    val violations = tryAlter { inStock = event.count }
+    check(violations.isEmpty()) { "Importing $event left the state invalid: $violations" }
 }
 ```
 
@@ -532,6 +713,11 @@ a no-op retain buys nothing). Tracked in plan PR-B2 steps 12/15.
 - The aggregate dispatch path converges on the `ProcessManager` model
   (transaction-open-then-handler, +1 version per dispatch), reducing conceptual
   and code surface.
+- Receptors gain a uniform preventive control point (`tryAlter`, D9): a
+  would-be-invalid state is caught **before** the live builder changes, so
+  commands reject, reactions skip the update, and imports fail loudly —
+  validation failures become business outcomes instead of dispatch errors.
+  Process managers benefit immediately.
 
 **Negative / risks (tracked in the delivery plan's risk table).**
 - `NONE`-visibility aggregates that never persisted state are a **hard break**
@@ -565,3 +751,6 @@ for same-timestamp ordering (D3 / `EventComparator`, Phase E).
   per-event µs timestamps, no synthetic deltas), D4 (state update never forced in
   any handler; `@React` emission optional; `@Import` may no-op),
   D5 (delivery owns dedup; guard opt-in/off by default; history lazy).
+- [x] Product owner sign-off on D9 (`tryAlter` preventive validation),
+  2026-07-04 — designed in the PR #1642 review follow-up; prevention chosen
+  over a post-hoc repair callback; name `tryAlter` confirmed.
