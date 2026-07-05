@@ -1,6 +1,6 @@
 # ADR 0001 — Aggregates without event sourcing
 
-- **Status:** Accepted (product owner, 2026-07-03; amended with D9–D10, 2026-07-04; D9 extended with `ValidatingBuilder.validate()`, 2026-07-05) — unblocks Phase B
+- **Status:** Accepted (product owner, 2026-07-03; amended with D9–D10, 2026-07-04; D9 extended with `ValidatingBuilder.validate()` and D1 revised — event import dropped, 2026-07-05) — unblocks Phase B
 - **Date:** 2026-07-03
 - **Deciders:** Alexander Yevsyukov (product owner)
 - **Feature branch:** `de-event-sourcing`
@@ -17,7 +17,9 @@ added on 2026-07-04 in response to the
 (D9 — developer control over validation failures, review point 1; D10 — the
 explicit recent-history window, review point 4); neither has an A-counterpart.
 On 2026-07-05, D9 was extended with the `ValidatingBuilder.validate()`
-companion (review follow-up).
+companion, and **D1 was revised: event import is dropped** — the usage
+research that drove the reversal is recorded inside D1 (both review
+follow-ups).
 
 ---
 
@@ -54,76 +56,89 @@ The runtime facts this ADR is grounded in (verified against the tree
 
 | # | Decision |
 |---|----------|
-| D1 | Event import survives via a new Kotlin `@Import` receptor that *may* mutate `builder()`; the imported event is recorded as the fact. `ImportBus`/routing unchanged. |
+| D1 | **Revised 2026-07-05: event import is dropped.** No `@Import` receptor; `ImportBus`, the import endpoint/routing, and `BlackBox.importsEvent` are removed in PR-B2; `InboxLabel.IMPORT_EVENT` and the `EventImported` system event are deprecated for wire compatibility. External facts enter via `(external) = true` reactions or context gateways. |
 | D2 | `@Apply` on any aggregate (incl. `AggregatePart`) is a **`ModelError` at model-building time** after cutover — fail fast, never a silent no-op. |
 | D3 | Aggregate version advances **+1 per command dispatch**, not per event — `ProcessManager` semantics via `CommandDispatchingPhase` + `VersionIncrement.sequentially`. |
-| D4 | State update is never forced in any handler. Only `@Assign` must emit ≥1 event (or reject); `@React` emission is optional; `@Import` returns nothing and may leave state unchanged. Persistence must trigger on a business-state change, not only on events/lifecycle. |
+| D4 | State update is never forced in any handler. Only `@Assign` must emit ≥1 event (or reject); `@React` emission is optional. Persistence must trigger on a business-state change, not only on events/lifecycle. |
 | D5 | Dedup is the delivery layer's job; the aggregate `IdempotencyGuard` is **opt-in, off by default**. Recent history is loaded **lazily** from the journal tail, bounded by `historyDepth` (default 100). |
 | D6 | A handler mutates the open transaction's `builder()`; validation happens **once, at commit**; any failure rolls the whole transaction back. This structurally eliminates partial validity (brief problem #2). |
 | D7 | Snapshot-index journal trimming is dropped; count/date-based trimming is deferred to Phase D. The journal is append-only until then. |
-| D8 | Handlers read the **pre-transaction** `state()` and mutate via `builder()`; the applier-only access guard is relaxed to allow `@Assign`/`@React`/`@Import` to touch the builder. |
-| D9 | *(added 2026-07-04, from PR review)* Preventive validation: `tryAlter {}` runs a mutation on a scratch builder, validates it via the commit path, and merges only when clean — otherwise it returns the violations and leaves live state untouched. `@Assign` rejects; `@React` skips the update (returning `NoReaction` speaks only about emission — D4); `@Import` fails loudly. The D6 commit-time safety net is unchanged. Companion (2026-07-05): `ValidatingBuilder.validate()` probes any builder in place. |
+| D8 | Handlers read the **pre-transaction** `state()` and mutate via `builder()`; the applier-only access guard is relaxed to allow `@Assign`/`@React` to touch the builder. |
+| D9 | *(added 2026-07-04, from PR review)* Preventive validation: `tryAlter {}` runs a mutation on a scratch builder, validates it via the commit path, and merges only when clean — otherwise it returns the violations and leaves live state untouched. `@Assign` rejects; `@React` skips the update (returning `NoReaction` speaks only about emission — D4). The D6 commit-time safety net is unchanged. Companion (2026-07-05): `ValidatingBuilder.validate()` probes any builder in place. |
 | D10 | *(added 2026-07-04, from PR review)* Business history access states its window explicitly: `historyBackward(depth)` / `historyContains(depth, predicate)` read up to `depth` latest journal events. The parameterless forms are deprecated, delegating with `depth = historyDepth`; `historyDepth` is demoted to the guard's window plus that default. |
 
 ---
 
-## D1 — Event import (resolves A1)
+## D1 — Event import is dropped (resolves A1; revised 2026-07-05)
 
-**Decision.** Introduce a new receptor annotation `@Import` in
-`io.spine.server.aggregate` (Kotlin, `@Retention(RUNTIME)`,
-`@Target(FUNCTION)`). An import receptor:
+*Originally resolved as "import survives via a new `@Import` receptor"
+(approved 2026-07-03; recorded below). Revised after the PR #1642 review
+questioned the concept post-cutover and requested usage research
+([comment](https://github.com/SpineEventEngine/core-jvm/pull/1642#issuecomment-4885996205)).*
 
-- accepts the imported event message (deriving from `io.spine.base.EventMessage`)
-  as its first parameter, and optionally an `EventContext` as the second;
-- **may** mutate aggregate state via `builder()` — updating state is optional
-  (see D4); an import that changes nothing is valid;
-- returns **nothing** — the imported event *is* the recorded fact.
+**Decision.** Event import is **removed** together with event-sourced loading.
+No `@Import` receptor is introduced. Deleted in PR-B2: `ImportBus`,
+`EventImportEndpoint`, `EventImportDispatcher`,
+`UnsupportedImportEventException`, `AggregateRepository.eventImportRouting` /
+`setupImportRouting` (`AggregateRepository.java:120,306,485`),
+`AggregateClass.importableEvents()` / `importsEvents()`, and the testing API
+`BlackBox.importsEvent` (`server-testlib`, `BlackBox.java:507`). Deprecated
+and retained for wire compatibility only: the `IMPORT_EVENT` inbox label
+(`spine/server/delivery/inbox.proto`) and the `EventImported` system event
+with its emitter `EntityLifecycle.onEventImported`
+(`EntityLifecycle.java:251`).
 
-Routing is unchanged: `ImportBus`, `AggregateRepository.setupImportRouting`
-(`AggregateRepository.java:306`), `eventImportRouting`
-(`AggregateRepository.java:120,485`), and the `IMPORT_EVENT` inbox label
-(`AggregateRepository.java:214`) all stay.
+**Research record (2026-07-05).** Import exists since August 2018 for two
+scenarios (`ImportBus` Javadoc, `ImportBus.java:49-78`): registering facts
+from a legacy or third-party system as the context's own history, and
+recording facts inside a context *without intermediate commands or events*.
+Its defining mechanics: unicast delivery to exactly one target aggregate
+(`ImportBus` is a `UnicastBus`), and **adoption** — the imported event is
+journaled as the aggregate's *own* fact, re-stamped with its version, then
+posted to `EventBus` like any emitted event.
 
-**Why the endpoint must change.** Today import invokes *no* handler:
-`EventImportEndpoint.invokeDispatcher` (`EventImportEndpoint.java`) merely wraps
-the incoming event as a "produced event", and state is mutated later by the
-`@Apply(allowImport = true)` applier during `Aggregate.apply(...)`. With
-appliers gone, the endpoint must instead:
+Usage evidence (org-wide code search, 2026-07-05):
 
-1. open the transaction (as for command/reaction — see D6);
-2. invoke the matching `@Import` receptor (which *may* mutate `builder()`);
-3. **inject the incoming event as the produced fact** — as
-   `EventImportEndpoint.invokeDispatcher` already does today
-   (`EventImportEndpoint.java:67-78`, wrapping the event into
-   `Success.producedEvents`), re-stamped with the aggregate's version. This is
-   *required*, not incidental: the store/post path gates on
-   `successfulOutcome.hasEvents()` (`AggregateEndpoint.java:117-121`), so a void
-   receptor alone yields zero produced events and `applyProducedEvents`, the
-   post branch of `storeAndPost`, and the journal write are all skipped —
-   `onEmptyResult` would merely log. The imported event must be placed into the
-   outcome's `producedEvents` for storage + posting to occur;
-4. commit, then store + post as usual.
+- **Production: one class, ever** — `GoogleGroupPart` in
+  `SpineEventEngine/auth`, importing Google Workspace Directory facts
+  (`GoogleGroupCreated`, `GoogleGroupAliasesChanged`); that repository is
+  dormant (last push 2020-03).
+- Nothing in `spine-examples`, nothing in the documentation samples, no
+  downstream callers of `setupImportRouting` or `BlackBox.importsEvent`.
+- Everything else is this repository's own machinery, fixtures, and tests.
 
-So the new import endpoint keeps today's event-injection *and* adds the receptor
-invocation for the state mutation. `AggregateClass.importableEvents()` /
-`importsEvents()` now read the `@Import` receptor map instead of scanning
-appliers for `allowImport`; `importsEvents()` still gates registration of the
-import dispatcher (`AggregateRepository.java:169`).
+Functional-gap analysis against `@React`: the replay-era value — imported
+events *rebuilding state* — dies with event sourcing; that was the concept's
+substance. What remains is journal provenance (adopting a foreign fact as the
+aggregate's own journal entry) and the no-intermediate-message entry point —
+conveniences with standard replacements:
 
-**Consequences.** Per D4, an `@Import` receptor **may** leave state unchanged —
-that is not an error. Because the endpoint always injects the imported event as
-the produced fact (step 3), the outcome always "has events", so the no-events
-branch `EventImportEndpoint.onEmptyResult` (which logs an error today) is never
-reached and is removed. The event is journaled and the version advances +1
-whether or not state changed.
+- facts from another Bounded Context — `@React` on `(external) = true` events;
+- facts from a third-party or legacy system — a gateway (adapter, process
+  manager, or a plain command) turns them into the context's own commands or
+  events;
+- bulk seeding and migration — storage-level state writes (the record is the
+  source of truth after the cutover);
+- test arrangement — real commands and events through `BlackBox`
+  (`importsEvent` is removed; the search found no external callers).
 
-**Rejected alternatives.** Overloading `@React` for import (conflates two
-distinct routing paths and dedup rules); deprecating import entirely and
-forcing conversion to commands (product owner chose to keep import — plan
-decision 4).
+**Consequences.** A whole unicast bus, an endpoint, a routing schema, and a
+receptor kind vanish — D2, D4, D8, and D9 no longer carry an import case. The
+sole known production usage (`auth`) is dormant and outside the rollout; it
+breaks on upgrade and migrates to a gateway only if reactivated (delivery
+plan, Phase E). `AggregatePart` needs no import coverage either.
 
-> **Approved** by product owner, 2026-07-03: separate `@Import` annotation,
-> name `@Import`, receptor returns nothing.
+**Rejected alternatives (this revision).** Keeping `@Import` per the original
+decision — one dormant user in six years does not justify a receptor kind,
+its signature/map wiring, and a parallel bus. Renaming (e.g. `@Adopt`) —
+churn without removing any complexity.
+
+> **Approved** by product owner, 2026-07-03 (original): separate `@Import`
+> annotation, name `@Import`, receptor returns nothing.
+
+> **Revised** by product owner, 2026-07-05: event import is dropped entirely —
+> fewer moving parts outweigh the narrow conveniences. The research above is
+> the standing answer to "why do we have it and who used it".
 
 ---
 
@@ -136,8 +151,9 @@ this ADR or any design document. Suggested text:
 
 > *"Event appliers (`@Apply`) are no longer supported. Move the state update
 > from this method into the `@Assign` or `@React` handler that emits the event,
-> applying the change via `builder()`, then delete this method. For imported
-> events, use an `@Import` method instead."*
+> applying the change via `builder()`, then delete this method. If this applier
+> used `allowImport`, note that event import was removed as well — convert the
+> flow into a command or an event reaction."*
 
 Raising happens in `AggregateClass` and `AggregatePartClass`
 (`server/.../aggregate/model/AggregateClass.java`,
@@ -173,7 +189,7 @@ is dispatched.
 ## D3 — Version advancement (resolves A3)
 
 **Decision.** The aggregate's own `Version` advances **by +1 per command (or
-reaction/import) dispatch**, regardless of how many events the handler emits —
+reaction) dispatch**, regardless of how many events the handler emits —
 the same rule `ProcessManager` already uses. Reuse the PM mechanism directly: a
 single `CommandDispatchingPhase` driven by `VersionIncrement.sequentially(tx)`,
 whose `AutoIncrement.nextVersion()` is `Versions.increment(current)` = `current
@@ -247,7 +263,6 @@ only records a request), so we do not constrain the author's business logic:
 |----------|----------|
 | `@Assign` (command) | **May** update state via `builder()` and/or set lifecycle flags via `setArchived()` / `setDeleted()` — state update is optional. **Must emit ≥1 event or reject** — empty success stays illegal. |
 | `@React` (reaction) | Same as `@Assign`, **except emitting an event is optional** — a reactor may emit zero events. May update state and set lifecycle flags, or neither. `AggregateEventReactionEndpoint.onEmptyResult` stays a no-op (`AggregateEventReactionEndpoint.java:60-67`). |
-| `@Import` | Consumes the imported event and **may** update state via `builder()`, or leave it unchanged — **both are OK, neither is an error.** The imported event is always recorded as the fact and the version advances +1 (D1). |
 
 `setArchived()` / `setDeleted()` are explicitly allowed in `@Assign` and `@React`
 bodies.
@@ -278,13 +293,16 @@ migrated this way, or the flag change is silently lost when the applier becomes 
 
 **Explicitly rejected:** a blanket "builder was touched but no event was produced
 → reject" rule, and any new "must change state" guard. A reactor may legitimately
-emit nothing; an import may legitimately change nothing. The only hard emission
-requirement is `@Assign`'s "emit ≥1 event or reject".
+emit nothing. The only hard emission requirement is `@Assign`'s "emit ≥1 event
+or reject".
 
 > **Approved** by product owner, 2026-07-03: command handlers and reactors may
 > update state or only emit events (state update is never forced); `@React` may
 > emit zero events; `setArchived()`/`setDeleted()` are allowed in `@Assign` and
 > `@React`; `@Import` may update state or not — both OK.
+
+> **Amended** by the D1 revision (2026-07-05): event import is dropped; the
+> `@Import` clauses above no longer apply.
 
 ---
 
@@ -301,8 +319,8 @@ per-repository `historyDepth` setting that **defaults to 100** (the old
 **Why delivery can own dedup.** The delivery layer deduplicates on
 `DispatchingId = (signalId, inboxId)` — effectively *(incoming signal id, target
 entity + type)* (`DispatchingId.java`, `InboxIds.java:94-103`). It covers commands
-(`HANDLE_COMMAND`), reacted events (`REACT_UPON_EVENT`), and imported events
-(`IMPORT_EVENT`) alike, and because the key includes the target, one event fanned
+(`HANDLE_COMMAND`) and reacted events (`REACT_UPON_EVENT`) alike, and because
+the key includes the target, one event fanned
 out to N aggregates yields N distinct keys — **no false dedup on fanout**
 (`AggregateRepository.java:439-445`; `LiveDeliveryStation.java`).
 
@@ -418,7 +436,7 @@ and is noted as a known limitation in the migration guide.
 `state()` and writes via `builder()` — exactly the `ProcessManager` handler
 model. The current rule that forbids `state()` inside an applier and permits
 only `builder()` (`Aggregate.ensureAccessToState`, guarded by `ApplierWatcher`)
-is **relaxed**: `@Assign`, `@React`, and `@Import` bodies may read `state()`
+is **relaxed**: `@Assign` and `@React` bodies may read `state()`
 (the committed value at dispatch start) and mutate `builder()`. `ApplierWatcher`
 and the applier-scoped guard are removed with the appliers (PR-B2 step 3).
 
@@ -475,8 +493,7 @@ builder.
 the client; `@React` **skips the state update** — the violations came back, so
 the reactor does not apply the change, and since the fact it would have
 announced did not happen, it typically returns `NoReaction`, alone or as an
-`EitherOf…` alternative (an event is a fact and cannot be rejected); `@Import`
-**fails loudly** — a developer-driven migration wants noise, not silence.
+`EitherOf…` alternative (an event is a fact and cannot be rejected).
 Note (D4): `NoReaction` speaks only about *emission* — "this reaction emits no
 events" — and implies nothing about state; whether state changed is the
 entity's internal business. In the failure path above the state is untouched
@@ -498,9 +515,8 @@ returned.
   that skips it and commits invalid state gets today's semantics — single
   validate-at-commit, rollback, failed dispatch (`Transaction.java:369-373`).
 
-**Implementation notes for PR-B1** (additive; lands with the `@Import`
-receptor PR — `ProcessManager`s benefit immediately, having had exactly this
-gap all along):
+**Implementation notes for PR-B1** (additive — `ProcessManager`s benefit
+immediately, having had exactly this gap all along):
 
 - The same-package placement that already lets `update {}` call the protected
   `builder()` (see the file's API note) also covers `checkEntityState`
@@ -563,8 +579,8 @@ default List<ConstraintViolation> validate() {
 - Division of labor: `validate()` **probes in place** — including a builder
   that may already hold invalid content; `tryAlter` **protects** the live
   builder. A command handler about to reject may mutate live and probe — the
-  rejection rolls the whole transaction back anyway (D6). A reactor or import
-  that must stay committable prefers `tryAlter` (no un-mutate — see above).
+  rejection rolls the whole transaction back anyway (D6). A reactor that must
+  stay committable prefers `tryAlter` (no un-mutate — see above).
 - Works on *any* generated builder — entity states, commands, events — since
   the method lives in the validation library, not in `core-jvm`.
 - Cross-repo sequencing: lands in the `validation` repository; `core-jvm`
@@ -651,28 +667,13 @@ every caller at once buys little.
 Illustrative shapes for review; final names/packages are fixed here, bodies are
 Phase B. New types are Kotlin (delivery plan, decision 7).
 
-**New — import receptor annotation** (`io.spine.server.aggregate.Import`) — the
-first Kotlin-declared Spine receptor annotation (`@Apply`/`@React`/`@Assign` are
-Java, `@Target(METHOD)`). `AnnotationTarget.FUNCTION` compiles to
-`ElementType.METHOD`, so a Java aggregate method is annotatable and `ReceptorScan`
-(`getDeclaredMethods()` + `isAnnotationPresent`) discovers it. It needs its
-**own** `ReceptorSignature` + `ReceptorMap` wiring in `AggregateClass` (today
-only `EventApplierSignature` is scanned, `AggregateClass.java:62-63`):
-
-```kotlin
-@Retention(AnnotationRetention.RUNTIME)
-@Target(AnnotationTarget.FUNCTION)
-public annotation class Import
-```
-
-Usage (Java aggregate, migrated from `@Apply(allowImport = true)`):
-
-```java
-@Import
-private void on(InventoryAdjusted e) {
-    builder().setCount(e.getNewCount());   // mutates state; returns nothing
-}
-```
+**Removed — event import** (revised D1, 2026-07-05). No `@Import` receptor is
+introduced; the import path is deleted with the cutover: `ImportBus`,
+`EventImportEndpoint`, `EventImportDispatcher`,
+`UnsupportedImportEventException`, `AggregateRepository.eventImportRouting` /
+`setupImportRouting`, `AggregateClass.importableEvents()` / `importsEvents()`,
+and the testing API `BlackBox.importsEvent` (no callers outside this
+repository). Wire-compatibility deprecations are listed below.
 
 **Changed — command/reaction handlers** keep their signatures (return events)
 and now mutate the builder in-body:
@@ -695,7 +696,7 @@ public fun <I : Any, E : TransactionalEntity<I, S, B>, S : EntityState<I>, B : V
         E.tryAlter(block: B.() -> Unit): List<ConstraintViolation>
 ```
 
-Usage across the three receptor kinds. The declared constraint is *reused*,
+Usage across the receptor kinds. The declared constraint is *reused*,
 never duplicated in handler code. Given a state field
 
 ```proto
@@ -733,17 +734,6 @@ fun on(event: BulkOrderPlaced): EitherOf2<ItemsReserved, NoReaction> {
         EitherOf2.withA(itemsReserved { stock = id(); quantity = event.quantity })
     else
         EitherOf2.withB(noReaction())      // no events; `tryAlter` withheld the change
-}
-```
-
-an import receptor **fails loudly** — a data migration wants noise, not
-silence:
-
-```kotlin
-@Import
-fun from(event: LegacyStockImported) {
-    val violations = tryAlter { inStock = event.count }
-    check(violations.isEmpty()) { "Importing $event left the state invalid: $violations" }
 }
 ```
 
@@ -816,6 +806,8 @@ Aggregate#toSnapshot()
 // proto (kept for wire compat, marked deprecated):
 //   spine.server.aggregate.Snapshot, AggregateHistory
 //   spine.system.server.AggregateHistoryCorrupted   + EntityLifecycle#onCorruptedState
+//   spine.system.server.EventImported               + EntityLifecycle#onEventImported (revised D1)
+//   spine.server.delivery.InboxLabel.IMPORT_EVENT   (revised D1)
 ```
 
 **Removed internals** (not public API — deleted, not deprecated):
@@ -834,7 +826,8 @@ a no-op retain buys nothing). Tracked in plan PR-B2 steps 12/15.
 (`createAggregateStorage`, `createAggregateEventStorage`,
 `createEntityRecordStorage`); the client query path (`QueryService` → `Stand` →
 `EntityQueryProcessor` → `AggregateRepository.findRecords` →
-`AggregateStorage.readStates`); `BlackBox` / `EventSubject` / `CommandSubject`;
+`AggregateStorage.readStates`); `BlackBox` / `EventSubject` / `CommandSubject`
+(except `BlackBox.importsEvent`, removed with event import — revised D1);
 `EventPlayer` / `EventPlayingTransaction` (retained for `Projection`).
 
 ---
@@ -852,9 +845,12 @@ a no-op retain buys nothing). Tracked in plan PR-B2 steps 12/15.
   and code surface.
 - Receptors gain a uniform preventive control point (`tryAlter`, D9): a
   would-be-invalid state is caught **before** the live builder changes, so
-  commands reject, reactions skip the update, and imports fail loudly —
-  validation failures become business outcomes instead of dispatch errors.
-  Process managers benefit immediately.
+  commands reject and reactions skip the update — validation failures become
+  business outcomes instead of dispatch errors. Process managers benefit
+  immediately.
+- Event import is gone (revised D1): a whole unicast bus, an endpoint, a
+  routing schema, and a receptor kind vanish from the runtime; external facts
+  flow through the standard `(external) = true` reactions and gateway idioms.
 - History reads state their window at the call site (`historyBackward(depth)`,
   D10), decoupling domain logic from the `historyDepth` operational knob.
 
@@ -870,6 +866,9 @@ a no-op retain buys nothing). Tracked in plan PR-B2 steps 12/15.
 - PR-B2 is a large **atomic** change (runtime rewrite + all fixture migrations
   in one commit); it cannot land as green sub-commits (plan, PR-B2 atomicity
   note).
+- `BlackBox.importsEvent` is removed with event import (revised D1) — a public
+  testing-API break. Org-wide search found no external callers; the migration
+  guide covers the rewrite onto real commands/events.
 
 ## Open questions for approval
 
@@ -899,3 +898,6 @@ for same-timestamp ordering (D3 / `EventComparator`, Phase E).
 - [x] Product owner sign-off on the D9 amendment
   (`ValidatingBuilder.validate()`), 2026-07-05 — in-place probe as a `default`
   method in the `validation` repository, returning `List<ConstraintViolation>`.
+- [x] Product owner sign-off on the D1 revision (event import dropped),
+  2026-07-05 — driven by the usage research requested in review: one dormant
+  production usage in six years, and the replay-era rationale is gone.
