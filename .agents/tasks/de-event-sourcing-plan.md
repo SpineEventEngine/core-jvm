@@ -31,7 +31,8 @@ a side effect of playing events** — are called out inline; do not lose them.
    A receptor that must guard against invalid transitions uses `tryAlter {}`
    (ADR D9, added 2026-07-04 from PR review): validate-before-apply on a
    scratch builder — reject or skip the update *before* the live builder is
-   dirtied.
+   dirtied. `builder().validate()` (D9 amendment, 2026-07-05) probes a builder
+   in place — e.g., right before throwing a rejection.
 4. **Event import survives** via a new receptor annotation (working name
    `@Import`, final name in Phase A). `ImportBus` and import routing stay.
 5. **State history (`EntityHistoryStorage`)** is in this plan as a later,
@@ -191,6 +192,12 @@ note in PR-B2. Each PR bumps the version once per branch and runs
 6. Kotlin test suite for `tryAlter`: clean apply, violation return,
    `(set_once)` folding, consecutive-call composition, and a failed
    `tryAlter` leaving no trace (no store; persisted state/version unchanged).
+7. Cross-repo item (the `validation` repository): default
+   `ValidatingBuilder.validate(): List<ConstraintViolation>` built from
+   `buildPartial()` + `ValidatableMessage.validate()` (ADR D9 amendment,
+   2026-07-05). Consumed here via a `Validation` dependency bump once
+   published. `tryAlter` does not block on it — it validates via
+   `checkEntityState`.
 
 ### PR-B2 — The cutover (large; ATOMIC build-breaking change)
 
@@ -323,7 +330,8 @@ green-per-commit sequence.
     section, lines ~97–122), `AggregateRepository`, `Apply` deprecation
     text, package-info. Run `review-docs`.
 17. Migration guide: `docs/` note covering the handler migration recipe,
-    the preventive-validation recipe (`tryAlter`, ADR D9), import receptor,
+    the preventive-validation recipe (`tryAlter` and `builder().validate()`,
+    ADR D9), import receptor,
     removed snapshot config, the idempotency-window semantics change (A5),
     the history-window change (`historyBackward(depth)` explicit; the
     deprecated parameterless forms now read the last `historyDepth` events —

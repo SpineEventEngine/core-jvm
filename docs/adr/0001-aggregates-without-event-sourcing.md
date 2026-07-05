@@ -1,6 +1,6 @@
 # ADR 0001 — Aggregates without event sourcing
 
-- **Status:** Accepted (product owner, 2026-07-03; amended with D9–D10, 2026-07-04) — unblocks Phase B
+- **Status:** Accepted (product owner, 2026-07-03; amended with D9–D10, 2026-07-04; D9 extended with `ValidatingBuilder.validate()`, 2026-07-05) — unblocks Phase B
 - **Date:** 2026-07-03
 - **Deciders:** Alexander Yevsyukov (product owner)
 - **Feature branch:** `de-event-sourcing`
@@ -16,6 +16,8 @@ added on 2026-07-04 in response to the
 [PR #1642 review](https://github.com/SpineEventEngine/core-jvm/pull/1642#pullrequestreview-4629642991)
 (D9 — developer control over validation failures, review point 1; D10 — the
 explicit recent-history window, review point 4); neither has an A-counterpart.
+On 2026-07-05, D9 was extended with the `ValidatingBuilder.validate()`
+companion (review follow-up).
 
 ---
 
@@ -60,7 +62,7 @@ The runtime facts this ADR is grounded in (verified against the tree
 | D6 | A handler mutates the open transaction's `builder()`; validation happens **once, at commit**; any failure rolls the whole transaction back. This structurally eliminates partial validity (brief problem #2). |
 | D7 | Snapshot-index journal trimming is dropped; count/date-based trimming is deferred to Phase D. The journal is append-only until then. |
 | D8 | Handlers read the **pre-transaction** `state()` and mutate via `builder()`; the applier-only access guard is relaxed to allow `@Assign`/`@React`/`@Import` to touch the builder. |
-| D9 | *(added 2026-07-04, from PR review)* Preventive validation: `tryAlter {}` runs a mutation on a scratch builder, validates it via the commit path, and merges only when clean — otherwise it returns the violations and leaves live state untouched. `@Assign` rejects; `@React` skips the update (returning `NoReaction` speaks only about emission — D4); `@Import` fails loudly. The D6 commit-time safety net is unchanged. |
+| D9 | *(added 2026-07-04, from PR review)* Preventive validation: `tryAlter {}` runs a mutation on a scratch builder, validates it via the commit path, and merges only when clean — otherwise it returns the violations and leaves live state untouched. `@Assign` rejects; `@React` skips the update (returning `NoReaction` speaks only about emission — D4); `@Import` fails loudly. The D6 commit-time safety net is unchanged. Companion (2026-07-05): `ValidatingBuilder.validate()` probes any builder in place. |
 | D10 | *(added 2026-07-04, from PR review)* Business history access states its window explicitly: `historyBackward(depth)` / `historyContains(depth, predicate)` read up to `depth` latest journal events. The parameterless forms are deprecated, delegating with `depth = historyDepth`; `historyDepth` is demoted to the guard's window plus that default. |
 
 ---
@@ -538,6 +540,41 @@ gap all along):
 > `tryAlter`; validate-before-apply (scratch-copy) semantics; setter-thrown
 > `ValidationException`s folded into the returned violations.
 
+**Amendment (2026-07-05) — the `validate()` in-place probe.** Review
+follow-up
+([comment](https://github.com/SpineEventEngine/core-jvm/pull/1642#issuecomment-4885985767)):
+in addition to `tryAlter`, `io.spine.validation.ValidatingBuilder` gains a
+`default` method probing the builder's *current* content without building:
+
+```java
+// In the `validation` repository (io.spine.validation.ValidatingBuilder):
+default List<ConstraintViolation> validate() {
+    // buildPartial() + ValidatableMessage.validate(); empty list = valid
+}
+```
+
+- Built from parts already at hand: `buildPartial()` and
+  `ValidatableMessage.validate()` (which returns `Optional<ValidationError>`);
+  the default method unwraps the error into `List<ConstraintViolation>` — the
+  same currency as `tryAlter` and `checkEntityState`. The asymmetry with
+  `ValidatableMessage.validate()` is deliberate: builder-side callers consume
+  violations directly. A build result that is not a `ValidatableMessage` (not
+  produced by Spine codegen) yields an empty list.
+- Division of labor: `validate()` **probes in place** — including a builder
+  that may already hold invalid content; `tryAlter` **protects** the live
+  builder. A command handler about to reject may mutate live and probe — the
+  rejection rolls the whole transaction back anyway (D6). A reactor or import
+  that must stay committable prefers `tryAlter` (no un-mutate — see above).
+- Works on *any* generated builder — entity states, commands, events — since
+  the method lives in the validation library, not in `core-jvm`.
+- Cross-repo sequencing: lands in the `validation` repository; `core-jvm`
+  picks it up via a `Validation` dependency bump. `tryAlter` (PR-B1) does not
+  block on it — it validates via `checkEntityState`.
+
+> **Approved** by product owner, 2026-07-05: add default
+> `ValidatingBuilder.validate(): List<ConstraintViolation>`; home — the
+> `validation` repository; `tryAlter` unaffected.
+
 ---
 
 ## D10 — Explicit recent-history window (`historyBackward(depth)`)
@@ -710,6 +747,17 @@ fun from(event: LegacyStockImported) {
 }
 ```
 
+Its in-place companion (D9 amendment, 2026-07-05) is
+`ValidatingBuilder.validate()` from the `validation` repository — probe any
+builder's current content, including one already holding invalid data:
+
+```kotlin
+// Command handler: a live probe is fine — a rejection rolls the tx back anyway.
+alter { inStock = state.inStock - cmd.quantity }
+val violations = builder().validate()
+if (violations.isNotEmpty()) { /* throw the rejection */ }
+```
+
 **New — state read on the storage** (`AggregateStorage`), delegating to the
 internal `EntityRecordStorage.read(I)` (inherited `Optional<EntityRecord>
 read(I)`) and **bypassing** the `ensureStatesQueryable()` gate
@@ -848,3 +896,6 @@ for same-timestamp ordering (D3 / `EventComparator`, Phase E).
 - [x] Product owner sign-off on D10 (explicit history window), 2026-07-04 —
   depth parameter on `historyBackward`/`historyContains`; parameterless forms
   deprecated with the `historyDepth` default (not fail-fast).
+- [x] Product owner sign-off on the D9 amendment
+  (`ValidatingBuilder.validate()`), 2026-07-05 — in-place probe as a `default`
+  method in the `validation` repository, returning `List<ConstraintViolation>`.
