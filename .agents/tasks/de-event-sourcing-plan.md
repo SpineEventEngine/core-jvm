@@ -22,8 +22,9 @@ a side effect of playing events** — are called out inline; do not lose them.
    querying users are fine").
 3. **Mutation API: `builder()` inside handlers.** `@Assign` / `@React`
    receptors keep their signatures (return events) and mutate state via the
-   existing `builder()` (Kotlin: `update {}` / `alter {}` from
-   `server/src/main/kotlin/io/spine/server/entity/TransactionalEntityExts.kt`).
+   existing `builder()` (Kotlin: `update {}` / `alter {}` — since 2026-07-06
+   protected members of
+   `server/src/main/kotlin/io/spine/server/entity/TransactionalEntity.kt`).
    The framework opens the transaction *before* invoking the receptor and
    validates + commits after it returns — structurally like the
    `ProcessManager` dispatch path (`PmEndpoint.runTransactionFor()`),
