@@ -24,7 +24,33 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * The version of this library.
- */
-extra.set("versionToPublish", "2.0.0-SNAPSHOT.401")
+syntax = "proto3";
+
+package spine.test.tryalter;
+
+import "spine/options.proto";
+
+option (type_url_prefix) = "type.spine.io";
+option java_package = "io.spine.test.tryalter";
+option java_outer_classname = "StockProto";
+option java_multiple_files = true;
+
+// A stock of goods maintained by the `StockKeeper` process manager.
+message Stock {
+    option (entity).kind = PROCESS_MANAGER;
+
+    // The ID of the stock.
+    string id = 1;
+
+    // The number of items in the stock.
+    //
+    // Can never go negative.
+    //
+    int32 in_stock = 2 [(min).value = "0"];
+
+    // The name of the vendor supplying the stock.
+    //
+    // Once assigned, cannot be changed.
+    //
+    string vendor = 3 [(set_once) = true];
+}

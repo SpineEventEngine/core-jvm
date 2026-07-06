@@ -24,7 +24,23 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * The version of this library.
- */
-extra.set("versionToPublish", "2.0.0-SNAPSHOT.401")
+syntax = "proto3";
+
+package spine.test.tryalter.command;
+
+import "spine/options.proto";
+
+option (type_url_prefix) = "type.spine.io";
+option java_package = "io.spine.test.tryalter.command";
+option java_outer_classname = "TryAlterCommandsProto";
+option java_multiple_files = true;
+
+// A command to add items to the stock.
+message ReplenishStock {
+
+    // The ID of the stock.
+    string stock = 1;
+
+    // How many items to add.
+    int32 quantity = 2;
+}

@@ -24,7 +24,43 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * The version of this library.
- */
-extra.set("versionToPublish", "2.0.0-SNAPSHOT.401")
+syntax = "proto3";
+
+package spine.test.tryalter.event;
+
+import "spine/options.proto";
+
+option (type_url_prefix) = "type.spine.io";
+option java_package = "io.spine.test.tryalter.event";
+option java_outer_classname = "TryAlterEventsProto";
+option java_multiple_files = true;
+
+// New items were added to the stock.
+message StockReplenished {
+
+    // The ID of the stock.
+    string stock = 1;
+
+    // How many items were added.
+    int32 quantity = 2;
+}
+
+// A bulk order was placed, requesting items from the stock.
+message BulkOrderPlaced {
+
+    // The ID of the stock.
+    string stock = 1;
+
+    // How many items are requested.
+    int32 quantity = 2;
+}
+
+// Items were reserved in the stock for an order.
+message StockReserved {
+
+    // The ID of the stock.
+    string stock = 1;
+
+    // How many items were reserved.
+    int32 quantity = 2;
+}
