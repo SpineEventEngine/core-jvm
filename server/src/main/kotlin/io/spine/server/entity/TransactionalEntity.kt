@@ -123,8 +123,8 @@ public abstract class TransactionalEntity<I : Any, S : EntityState<I>, B : Valid
     public fun changed(): Boolean {
         val lifecycleFlagsChanged = lifecycleFlagsChanged()
         val tx = transaction
-        val stateChanged = tx?.stateChanged() ?: this.stateChanged
-        return stateChanged || lifecycleFlagsChanged
+        val effectiveStateChanged = tx?.stateChanged() ?: this.stateChanged
+        return effectiveStateChanged || lifecycleFlagsChanged
     }
 
     /**
