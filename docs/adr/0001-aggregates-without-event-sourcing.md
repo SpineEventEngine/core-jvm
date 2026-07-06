@@ -523,10 +523,15 @@ immediately, having had exactly this gap all along):
   (`AbstractEntity.java:328`).
 - Merge mechanics — `clear()` + `mergeFrom(candidate)` on the live builder, or
   swapping the transaction's builder as `incrementStateAndVersion` already
-  does (`Transaction.java:343`) — fixed in PR-B1.
+  does (`Transaction.java:343`) — fixed in PR-B1. *Fixed: `clear()` +
+  `mergeFrom` — the `Transaction.initAll` pattern; the transaction keeps its
+  builder reference, and no new `Transaction` mutator is needed.*
 - Java callers: via the existing
   `@file:JvmName("TransactionalEntityExtensions")` facade or a thin protected
-  method — decided in PR-B1.
+  method — decided in PR-B1. *Decided: the facade. A same-name `protected`
+  member taking a `Consumer<B>` would shadow the extension in Kotlin
+  subclasses (a member beats an extension in overload resolution), breaking
+  the receiver-lambda idiom `tryAlter { … }` at every Kotlin call site.*
 - KDoc must warn that `block` operates on its receiver (the scratch) only;
   nesting `alter {}` / `update {}` inside `block` would bypass the scratch and
   dirty the live builder.
