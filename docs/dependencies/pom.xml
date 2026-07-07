@@ -194,11 +194,13 @@ all modules and does not describe the project structure per-subproject.
   <dependency>
     <groupId>io.grpc</groupId>
     <artifactId>grpc-netty</artifactId>
+    <version>1.81.0</version>
     <scope>test</scope>
   </dependency>
   <dependency>
     <groupId>io.grpc</groupId>
     <artifactId>grpc-netty-shaded</artifactId>
+    <version>1.81.0</version>
     <scope>test</scope>
   </dependency>
   <dependency>
@@ -240,6 +242,7 @@ all modules and does not describe the project structure per-subproject.
   <dependency>
     <groupId>org.junit.jupiter</groupId>
     <artifactId>junit-jupiter-engine</artifactId>
+    <version>6.1.0</version>
     <scope>test</scope>
   </dependency>
   <dependency>
