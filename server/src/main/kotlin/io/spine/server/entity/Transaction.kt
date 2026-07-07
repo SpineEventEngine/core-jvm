@@ -311,8 +311,8 @@ public abstract class Transaction<I : Any,
     /**
      * Commits this transaction and sets the new state to the entity.
      *
-     * In case there are no entity state changes, still checks the entity column values and meta
-     * attributes for updates, as these values may change independently of entity state.
+     * In case there are no entity state changes, still checks the entity column values and
+     * meta-attributes for updates, as these values may change independently of the entity state.
      *
      * In case something goes wrong during the commit, the transaction is rolled back and the
      * entity keeps its current state.
