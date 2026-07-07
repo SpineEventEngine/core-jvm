@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,12 +40,6 @@ import static java.lang.String.format;
 
 public final class DocumentRepository
         extends AggregateRepository<DocumentId, DocumentAggregate, Document> {
-
-    @Override
-    protected void setupImportRouting(EventRouting<DocumentId> routing) {
-        super.setupImportRouting(routing);
-        routing.route(PaperDocumentScanned.class, (message, context) -> withId(message.getId()));
-    }
 
     @Override
     protected void setupEventRouting(EventRouting<DocumentId> routing) {

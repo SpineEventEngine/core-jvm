@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,7 +82,7 @@ object AggregateTestSupport : WithLogging {
     private fun <I : Any, A : Aggregate<I, *, *>> dispatchAndCollect(
         endpoint: AggregateEndpoint<I, A, *>,
         aggregate: A
-    ): DispatchOutcome = endpoint.handleAndApplyEvents(aggregate)
+    ): DispatchOutcome = endpoint.runTransactionFor(aggregate)
 
     /**
      * Prints the `Error` message as a warning-level log message,

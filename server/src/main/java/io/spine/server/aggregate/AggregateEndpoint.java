@@ -84,7 +84,7 @@ abstract class AggregateEndpoint<I,
      * {@link Aggregate#builder() builder()} within it, and the aggregate version advances by one
      * per dispatch.
      */
-    private DispatchOutcome runTransactionFor(A aggregate) {
+    final DispatchOutcome runTransactionFor(A aggregate) {
         var tx = startTransaction(aggregate);
         var outcome = invokeDispatcher(aggregate);
         tx.commitIfActive();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,16 +35,4 @@ import io.spine.server.route.EventRouting;
  */
 public final class DotSpace extends AggregateRepository<ObjectId, Dot, Point> {
 
-    /**
-     * Replaces event import routing to take first message field.
-     *
-     * @implNote Default behaviour defined in {@link AggregateRepository#eventImportRoute}
-     *         is to take producer ID from an {@code EventContext}. We redefine this to avoid the
-     *         need of creating {@code Event} instances. Real imports would need to create those.
-     */
-    @Override
-    protected void setupImportRouting(EventRouting<ObjectId> routing) {
-        super.setupImportRouting(routing);
-        routing.replaceDefault(EventRoute.byFirstMessageField(idClass()));
-    }
 }
