@@ -60,7 +60,7 @@ private typealias ProjTx = Transaction<Id, ProjEntity, ProjectionState, Projecti
  * Tests for [io.spine.server.projection.ProjectionTransaction].
  */
 @DisplayName("`ProjectionTransaction` should")
-internal class ProjectionTransactionTest :
+internal class ProjectionTransactionSpec :
     TransactionTest<Id, ProjEntity, ProjectionState, ProjectionState.Builder>() {
 
     override fun createTx(entity: ProjEntity): ProjTx =

@@ -29,8 +29,8 @@ caller `Transaction.java` must become Kotlin first so it can still call them.
 - `AggregateTransaction.java`: deleted the pure re-export `lifecycleFlags()` override so the base
   can be non-`open` `internal @JvmName` (`Aggregate.java` still resolves `tx.lifecycleFlags()`).
 - **Coupled tests → Kotlin** (chosen to drop the six test-only `@JvmName`s from production):
-  `TransactionTest` (+ subclasses `AggregateTransactionTest`, `PmTransactionTest`,
-  `ProjectionTransactionTest`), `StubTransaction`, `TransactionalEventPlayerTest`. Backtick names,
+  `TransactionTest` (+ subclasses `AggregateTransactionTest`, `PmTransactionSpec`,
+  `ProjectionTransactionSpec`), `StubTransaction`, `TransactionalEventPlayerTest`. Backtick names,
   Kotest, class-level `@DisplayName` only.
 - `TransactionalEntityJavaSpec.java` stays **Java** (deliberate Java-bridge): reroute — the
   `StubTransaction` ctor auto-injects; live state via same-package `entity.tx().builder()`.

@@ -42,7 +42,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
 @DisplayName("`TransactionalEventPlayer` should")
-internal class TransactionalEventPlayerTest {
+internal class TransactionalEventPlayerSpec {
 
     @Test
     fun `require active transaction to play events`() {

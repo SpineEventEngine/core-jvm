@@ -45,7 +45,7 @@ private typealias AggEntity = Aggregate<Id, AggregateState, AggregateState.Build
 private typealias AggTx = Transaction<Id, AggEntity, AggregateState, AggregateState.Builder>
 
 @DisplayName("`AggregateTransaction` should")
-internal class AggregateTransactionTest :
+internal class AggregateTransactionSpec :
     TransactionTest<Id, AggEntity, AggregateState, AggregateState.Builder>() {
 
     override fun createTx(entity: AggEntity): AggTx =

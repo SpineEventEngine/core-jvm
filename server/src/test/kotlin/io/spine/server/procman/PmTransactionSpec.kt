@@ -44,7 +44,7 @@ private typealias PmEntity = ProcessManager<Id, PmState, PmState.Builder>
 private typealias PmTx = Transaction<Id, PmEntity, PmState, PmState.Builder>
 
 @DisplayName("`PmTransaction` should")
-internal class PmTransactionTest :
+internal class PmTransactionSpec :
     TransactionTest<Id, PmEntity, PmState, PmState.Builder>() {
 
     override fun createTx(entity: PmEntity): PmTx =
