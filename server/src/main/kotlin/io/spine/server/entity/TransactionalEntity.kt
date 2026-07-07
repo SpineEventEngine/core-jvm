@@ -111,6 +111,17 @@ public abstract class TransactionalEntity<I : Any, S : EntityState<I>, B : Valid
     }
 
     /**
+     * Triggers the [onBeforeCommit] callback from the transaction managing this entity.
+     *
+     * Declared here because [onBeforeCommit] is `protected`, while the [Transaction] that
+     * invokes it resides in the same module but is not a subclass of this class.
+     */
+    @JvmSynthetic
+    internal fun triggerOnBeforeCommit() {
+        onBeforeCommit()
+    }
+
+    /**
      * Determines whether the state of this entity or its lifecycle flags have been modified
      * since this entity instance creation.
      *
@@ -123,7 +134,7 @@ public abstract class TransactionalEntity<I : Any, S : EntityState<I>, B : Valid
     public fun changed(): Boolean {
         val lifecycleFlagsChanged = lifecycleFlagsChanged()
         val tx = transaction
-        val effectiveStateChanged = tx?.stateChanged() ?: this.stateChanged
+        val effectiveStateChanged = tx?.stateChanged ?: this.stateChanged
         return effectiveStateChanged || lifecycleFlagsChanged
     }
 
@@ -135,7 +146,7 @@ public abstract class TransactionalEntity<I : Any, S : EntityState<I>, B : Valid
      * @return An instance of the new state builder.
      * @throws IllegalStateException If the method is called not within a transaction.
      */
-    protected open fun builder(): B = tx().builder()
+    protected open fun builder(): B = tx().builder
 
     /**
      * Provides the `update` block for accessing properties of the entity
@@ -368,15 +379,15 @@ public abstract class TransactionalEntity<I : Any, S : EntityState<I>, B : Valid
      * @throws IllegalStateException If the given transaction is wrapped around another entity.
      */
     @Internal
-    @JvmName("injectTransaction") // Keeps the plain JVM name; `internal` mangles it otherwise.
+    @JvmSynthetic // Hidden from Java: transaction control must stay within the framework's Kotlin.
     internal fun injectTransaction(tx: Transaction<I, out TransactionalEntity<I, S, B>, S, B>) {
         /*
             To ensure we are not hijacked, we must be sure that the transaction
             is injected to the very same object and wrapped into the transaction.
         */
-        check(tx.entity() === this) {
+        check(tx.entity === this) {
             "Transaction injected to this $this is wrapped around a different entity:" +
-                    " `${tx.entity()}`."
+                    " `${tx.entity}`."
         }
         this.transaction = tx
     }
@@ -385,7 +396,7 @@ public abstract class TransactionalEntity<I : Any, S : EntityState<I>, B : Valid
      * Releases the transaction that was modifying this entity.
      */
     @Internal
-    @JvmName("releaseTransaction") // Keeps the plain JVM name; `internal` mangles it otherwise.
+    @JvmSynthetic // Hidden from Java: transaction control must stay within the framework's Kotlin.
     internal fun releaseTransaction() {
         this.transaction = null
     }
@@ -400,7 +411,7 @@ public abstract class TransactionalEntity<I : Any, S : EntityState<I>, B : Valid
      */
     @Internal
     @VisibleForTesting
-    @JvmName("transaction") // Keeps the plain JVM name; `internal` mangles it otherwise.
+    @JvmSynthetic // Hidden from Java: transaction control must stay within the framework's Kotlin.
     internal fun transaction(): Transaction<I, out TransactionalEntity<I, S, B>, S, B>? =
         transaction
 
@@ -408,9 +419,9 @@ public abstract class TransactionalEntity<I : Any, S : EntityState<I>, B : Valid
      * Updates own `stateChanged` flag from the underlying transaction.
      */
     @Internal
-    @JvmName("updateStateChanged") // Keeps the plain JVM name; `internal` mangles it otherwise.
+    @JvmSynthetic // Hidden from Java: transaction control must stay within the framework's Kotlin.
     internal fun updateStateChanged() {
-        this.stateChanged = tx().stateChanged()
+        this.stateChanged = tx().stateChanged
     }
 
     /**
@@ -430,7 +441,7 @@ public abstract class TransactionalEntity<I : Any, S : EntityState<I>, B : Valid
      */
     final override fun getLifecycleFlags(): LifecycleFlags =
         if (isTransactionInProgress()) {
-            tx().lifecycleFlags()
+            tx().lifecycleFlags
         } else {
             super.getLifecycleFlags()
         }

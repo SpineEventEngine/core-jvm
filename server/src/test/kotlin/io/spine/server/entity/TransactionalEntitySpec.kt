@@ -444,7 +444,7 @@ private fun StockKeeper.liveState(): @NonValidated Stock {
     val tx = requireNotNull(transaction()) {
         "The process manager under test must have a transaction injected."
     }
-    return tx.builder().buildPartial()
+    return tx.builder.buildPartial()
 }
 
 /**

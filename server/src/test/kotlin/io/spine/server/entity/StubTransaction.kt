@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -24,27 +24,33 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.server.entity;
+package io.spine.server.entity
 
-import io.spine.base.EntityState;
-import io.spine.validation.ValidatingBuilder;
+import io.spine.base.EntityState
+import io.spine.validation.ValidatingBuilder
 
 /**
- * Stub implementation of {@code Transaction} that behaves as told in the passed parameters.
+ * Stub implementation of [Transaction] that behaves as told in the passed parameters.
+ *
+ * This class is deliberately not `internal` so that the Java-based
+ * `TransactionalEntityJavaSpec` bridge test can construct it, which in turn injects
+ * the transaction into the entity through the constructor of [Transaction].
  */
-final class StubTransaction<I,
-                            E extends TransactionalEntity<I, S, B>,
-                            S extends EntityState<I>,
-                            B extends ValidatingBuilder<S>>
-        extends Transaction<I, E, S, B> {
+public class StubTransaction<I : Any,
+                             E : TransactionalEntity<I, S, B>,
+                             S : EntityState<I>,
+                             B : ValidatingBuilder<S>>(
+    entity: E,
+    active: Boolean,
+    stateChanged: Boolean
+) : Transaction<I, E, S, B>(entity) {
 
-    StubTransaction(E entity, boolean active, boolean stateChanged) {
-        super(entity);
+    init {
         if (!active) {
-            deactivate();
+            deactivate()
         }
         if (stateChanged) {
-            markStateChanged();
+            markStateChanged()
         }
     }
 }

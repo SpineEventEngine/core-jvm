@@ -35,7 +35,6 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static com.google.common.truth.Truth.assertThat;
-import static java.util.Objects.requireNonNull;
 
 /**
  * Verifies that the state-modification members of {@link TransactionalEntity},
@@ -96,14 +95,15 @@ class TransactionalEntityJavaSpec {
                 .build();
         var entity = new StockEntity(ID);
         entity.setState(state);
-        var tx = new StubTransaction<>(entity, /* active = */ true, /* stateChanged = */ false);
-        entity.injectTransaction(tx);
+        // Instantiating the stub transaction injects it into the `entity`.
+        new StubTransaction<>(entity, /* active = */ true, /* stateChanged = */ false);
         return entity;
     }
 
     private static @NonValidated Stock liveState(StockEntity entity) {
-        var tx = requireNonNull(entity.transaction());
-        return tx.builder().buildPartial();
+        // `tx()` is `protected` in `TransactionalEntity`; this spec resides in the
+        // same package, so it is reachable here. `builder()` is module-internal.
+        return entity.tx().builder().buildPartial();
     }
 
     /**

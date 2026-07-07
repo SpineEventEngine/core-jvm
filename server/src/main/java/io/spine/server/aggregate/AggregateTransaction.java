@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package io.spine.server.aggregate;
 
 import io.spine.annotation.Internal;
@@ -31,7 +32,6 @@ import io.spine.base.AggregateState;
 import io.spine.core.Version;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.EventPlayingTransaction;
-import io.spine.server.entity.LifecycleFlags;
 import io.spine.server.entity.VersionIncrement;
 import io.spine.server.type.EventEnvelope;
 import io.spine.validation.ValidatingBuilder;
@@ -94,17 +94,8 @@ public class AggregateTransaction<I,
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * <p>Overrides to expose to the package.
-     */
-    @Override
-    protected final LifecycleFlags lifecycleFlags() {
-        return super.lifecycleFlags();
-    }
-
-    /**
-     * Returns the current version of the "dirty" entity being modified in scope of the transaction.
+     * Returns the current version of the "dirty" entity being modified in
+     * the scope of the transaction.
      */
     final Version currentVersion() {
         return version();
