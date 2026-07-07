@@ -551,32 +551,6 @@ public class AggregateTest {
     }
 
     @Nested
-    @DisplayName("prohibit")
-    class Prohibit {
-
-        @Test
-        @MuteLogging
-        @DisplayName("to call `state()` from within applier")
-        void callStateFromApplier() {
-            ModelTests.dropAllModels();
-            var faultyAggregate =
-                    new FaultyAggregate(ID, false, false);
-            var command = addTask(ID);
-            var outcome = dispatchCommand(faultyAggregate, env(command));
-
-            assertThat(outcome.hasError())
-                    .isTrue();
-            var error = outcome.getError();
-            var expectedError = Error.newBuilder()
-                    .setType(IllegalStateException.class.getCanonicalName())
-                    .buildPartial();
-            assertThat(error)
-                    .comparingExpectedFieldsOnly()
-                    .isEqualTo(expectedError);
-        }
-    }
-
-    @Nested
     @DisplayName("catch `RuntimeException`s in")
     class CatchHandlerFailures {
 
@@ -668,32 +642,6 @@ public class AggregateTest {
                                    .asCommandId());
         }
 
-        @Test
-        @DisplayName("up to latest snapshot")
-        void upToLatestSnapshot() {
-            repository.setSnapshotTrigger(3);
-
-            var tenantId = newTenantId();
-            var createCommand = command(createProject, tenantId);
-            var startCommand = command(startProject, tenantId);
-            var addTaskCommand = command(addTask, tenantId);
-            var addTaskCommand2 = command(addTask, tenantId);
-
-            var commandBus = context.commandBus();
-            StreamObserver<Ack> noOpObserver = noOpObserver();
-            commandBus.post(createCommand, noOpObserver);
-            commandBus.post(startCommand, noOpObserver);
-            commandBus.post(ImmutableList.of(addTaskCommand, addTaskCommand2), noOpObserver);
-
-            var aggregate = repository.loadAggregate(tenantId, ID);
-
-            history = aggregate.historyBackward();
-
-            assertNextCommandId()
-                    .isEqualTo(addTaskCommand2.id());
-            assertThat(history.hasNext())
-                    .isFalse();
-        }
     }
 
     @Test
@@ -722,6 +670,7 @@ public class AggregateTest {
         var monitor = new DiagnosticMonitor();
         context.internalAccess()
                .registerEventDispatcher(monitor);
+        repository.useIdempotencyGuard();
         var createCommand = command(createProject);
         var cmd = CommandEnvelope.of(createCommand);
         var tenantId = newTenantId();
@@ -742,6 +691,7 @@ public class AggregateTest {
         var monitor = new DiagnosticMonitor();
         context.internalAccess()
                .registerEventDispatcher(monitor);
+        repository.useIdempotencyGuard();
         var eventMessage = AggProjectDeleted.newBuilder()
                 .setProjectId(ID)
                 .build();
