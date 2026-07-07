@@ -1,5 +1,38 @@
 # PR-B2 — Aggregate event-sourcing cutover (execution plan)
 
+## CURRENT STATUS (branch `de-event-source-PR-B2`, 11 commits ahead of master)
+
+**✅ Runtime cutover DONE and compiling.** `server` main, `server` testFixtures,
+`server-testlib` (main + test), and `server` test-**Kotlin** all compile green.
+Dispatch/tx/version rewrite, load-from-state, `@Apply`→`ModelError`, event-import
+removal, and IdempotencyGuard opt-in are committed. ~63 fixtures migrated off
+`@Apply` (applier bodies → emitting `@Assign`/`@React` receptors), verified by a
+successful `compileTestFixtures`.
+
+**⏳ REMAINING to a green `clean build`:**
+1. **`server` test-Java compile** — two behavioral suites only:
+   - `AggregateTest.java` (lines ~427/445/554/680): rewrite replay/`Snapshot`
+     cases to load-from-`EntityRecord` (`restore(EntityRecord)`); drop
+     `toSnapshot`/`play`/`apply` references.
+   - `AggregateClassTest.java:93`: applier-detection assertions →
+     the new "aggregate declares appliers" `ModelError`.
+2. **Runtime (tests then pass):** model-validation fixtures still declaring
+   `@Apply` on purpose — `IndecisiveEngineAggregate` (`AggregateClassTest.checkOneApplier`),
+   `ModSplitEventAggregate` (`FilterTest.apply`), `RcWrongAnnotation` — keep their
+   `@Apply` and update the assertions to expect the new `ModelError`; `ApplierTest`
+   becomes the D2 ModelError test. Import aggregates `EngineAggregate`/`Dot`/
+   `DocumentAggregate` still carry `@Apply` (their events were import-only) — remove
+   the dead appliers and adjust `AggregateClassTest`/`DotSpace`/integration usage.
+   `TxAggregate` + `AggregateTransactionSpec`/`TransactionTest` (compiles via
+   `dispatchEvent` now; verify/rewrite the version-from-event assertion for +1/dispatch).
+3. **Non-blocking refinements:** lazy journal-tail read for the opt-in guard;
+   proto deprecations (`InboxLabel.IMPORT_EVENT`, `EventImported`,
+   `AggregateHistoryCorrupted`, `Snapshot`/`AggregateHistory`); deprecate
+   `AggregateStorage.read`/`writeSnapshot`/`truncateOlderThan`.
+
+WIP commits (squash on finalize): `ac906c41a2`, `6f59025cde`, `7645ffd354`,
+`99c914dfed`, `1f24c21ee5`, `dd99cb6b33`.
+
 ## Context
 
 Spine `Aggregate`s currently load by **replaying their event journal**. That is
