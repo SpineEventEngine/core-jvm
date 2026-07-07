@@ -51,6 +51,7 @@ import io.spine.validation.ValidatingBuilder;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.IntFunction;
 import java.util.function.Predicate;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -158,6 +159,15 @@ public abstract class Aggregate<I,
     private IdempotencyGuard idempotencyGuard;
 
     /**
+     * Lazily loads up to a requested number of the most recent journal events (newest first)
+     * when {@linkplain #historyBackward(int) recent history} is accessed.
+     *
+     * <p>Set by the repository when the aggregate is created or loaded. When absent, recent
+     * history falls back to the in-memory {@link #recentHistory() recentHistory}.
+     */
+    private transient IntFunction<Iterator<Event>> recentHistoryLoader;
+
+    /**
      * Creates a new instance.
      *
      * @apiNote Constructors of derived classes are likely to have package-private access
@@ -214,6 +224,16 @@ public abstract class Aggregate<I,
      */
     final void enableIdempotencyGuard(int historyDepth) {
         idempotencyGuard.enable(historyDepth);
+    }
+
+    /**
+     * Installs the loader that reads the most recent journal events on demand.
+     *
+     * <p>Called by the repository so that {@link #historyBackward(int)} and the opt-in
+     * {@link IdempotencyGuard} can inspect recent history after a state-only load.
+     */
+    final void setRecentHistoryLoader(IntFunction<Iterator<Event>> loader) {
+        this.recentHistoryLoader = loader;
     }
 
     /**
@@ -463,6 +483,9 @@ public abstract class Aggregate<I,
      */
     protected final Iterator<Event> historyBackward(int depth) {
         checkArgument(depth > 0, "History depth must be positive. Got %s.", depth);
+        if (recentHistoryLoader != null) {
+            return recentHistoryLoader.apply(depth);
+        }
         return limit(recentHistory().iterator(), depth);
     }
 

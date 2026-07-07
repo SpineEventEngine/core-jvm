@@ -433,6 +433,31 @@ public class AggregateStorage<I, S extends AggregateState<I>>
     }
 
     /**
+     * Reads up to {@code depth} most recent events of the aggregate's journal, newest first.
+     *
+     * <p>Used to lazily load recent history for the opt-in {@link IdempotencyGuard} and for
+     * business access via {@link Aggregate#historyBackward(int)}. Non-event (snapshot) records
+     * are skipped.
+     *
+     * @param id
+     *         the identifier of the aggregate
+     * @param depth
+     *         the maximum number of the most recent events to read
+     * @return the most recent events, newest first
+     */
+    java.util.List<Event> readHistoryBackward(I id, int depth) {
+        var records = historyBackward(id, depth);
+        java.util.List<Event> events = new java.util.ArrayList<>(depth);
+        while (records.hasNext() && events.size() < depth) {
+            var record = records.next();
+            if (record.hasEvent()) {
+                events.add(record.getEvent());
+            }
+        }
+        return events;
+    }
+
+    /**
      * Acts similar to {@link #historyBackward(Object, int) historyBackward(id, batchSize)},
      * but also allows to set the Aggregate version to start the reading from.
      *

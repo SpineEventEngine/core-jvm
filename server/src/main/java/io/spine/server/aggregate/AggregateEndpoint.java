@@ -88,16 +88,19 @@ abstract class AggregateEndpoint<I,
         var tx = startTransaction(aggregate);
         var outcome = invokeDispatcher(aggregate);
         tx.commitIfActive();
+        // Record the produced events as the aggregate's uncommitted history right after the
+        // transaction commits (success only) — so a rolled-back dispatch leaves nothing to store.
+        if (outcome.hasSuccess() && outcome.getSuccess().hasEvents()) {
+            aggregate.recordEvents(outcome.getSuccess()
+                                          .getProducedEvents()
+                                          .getEventList());
+        }
         return outcome;
     }
 
     private void storeAndPost(A aggregate, DispatchOutcome outcome) {
         var success = outcome.getSuccess();
         var withEvents = success.hasEvents();
-        if (withEvents) {
-            aggregate.recordEvents(success.getProducedEvents()
-                                          .getEventList());
-        }
         // Store when the dispatch emitted events (to journal them) or changed the business state
         // or lifecycle flags. The latter covers a zero-event, state-only reaction, which the
         // former (events-only) gate would have silently dropped.

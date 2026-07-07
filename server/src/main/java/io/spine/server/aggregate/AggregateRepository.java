@@ -267,6 +267,9 @@ public abstract class AggregateRepository<I,
     @Override
     public A create(I id) {
         var aggregate = aggregateClass().create(id);
+        aggregate.setRecentHistoryLoader(
+                depth -> aggregateStorage().readHistoryBackward(id, depth)
+                                           .iterator());
         if (idempotencyGuardEnabled) {
             aggregate.enableIdempotencyGuard(snapshotTrigger);
         }

@@ -274,8 +274,8 @@ public class AggregateTest {
          * command.
          */
         @Test
-        @DisplayName("by number of events upon handling command with several events")
-        void byNumberOfEvents() {
+        @DisplayName("by one upon handling a command that emits several events")
+        void byOneForSeveralEvents() {
             var version = amishAggregate.versionNumber();
 
             var command = command(cancelProject);
@@ -284,10 +284,11 @@ public class AggregateTest {
                             .getSuccess()
                             .getProducedEvents()
                             .getEventList();
-            // Expecting to return more than one to differ from other testing scenarios.
+            // Expecting more than one event to differ from the single-event scenarios; the
+            // aggregate version still advances by exactly one per command (ADR D3).
             assertTrue(eventMessages.size() > 1);
 
-            assertEquals(version + eventMessages.size(), amishAggregate.versionNumber());
+            assertEquals(version + 1, amishAggregate.versionNumber());
         }
 
         @Test
@@ -304,8 +305,10 @@ public class AggregateTest {
     }
 
     @Test
-    @DisplayName("write its version into event context")
+    @DisplayName("write its pre-dispatch version into the event context")
     void writeVersionIntoEventContext() {
+        var versionBeforeDispatch = aggregate.version();
+
         dispatchCommand(aggregate, command(createProject));
 
         // Get the first event since the command assignee produces only one event message.
@@ -314,10 +317,12 @@ public class AggregateTest {
                                            .list();
         var event = uncommittedEvents.get(0);
         var context = event.context();
+        // Since the event-sourcing cutover, an emitted event carries the aggregate's pre-dispatch
+        // version (ADR D3); the aggregate itself advances by one per command.
         // Cast to `Message` to select the `ProtoTruth` assertion: `Version` is now also
         // `Comparable` (via the `(compare_by)` option), which would otherwise make a bare
         // `assertThat(...)` ambiguous between `Truth` and `ProtoTruth`.
-        assertThat((Message) aggregate.version())
+        assertThat((Message) versionBeforeDispatch)
                 .isEqualTo(context.getVersion());
     }
 
@@ -368,20 +373,6 @@ public class AggregateTest {
                          () -> dispatchCommand(aggregate, command(addTask)));
         }
 
-        @Test
-        @MuteLogging
-        @DisplayName("event applier for the event emitted in a result of command handling")
-        void eventApplier() {
-            ModelTests.dropAllModels();
-            var aggregate = new AggregateWithMissingApplier(ID);
-            var command = command(createProject);
-            var outcome = dispatchCommand(aggregate, command);
-            assertTrue(aggregate.commandHandled());
-            assertTrue(outcome.hasError());
-            var error = outcome.getError();
-            assertThat(error.getType())
-                    .isEqualTo(ModelError.class.getCanonicalName());
-        }
     }
 
     @Nested

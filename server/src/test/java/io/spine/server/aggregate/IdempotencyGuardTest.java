@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -110,11 +110,13 @@ class IdempotencyGuardTest {
         }
 
         @Test
-        @DisplayName("not throw exception when command was handled but snapshot was made")
-        void notThrowForCommandHandledAfterSnapshot() {
-            repository.setSnapshotTrigger(1);
+        @DisplayName("not throw exception when the command is older than the recent-history window")
+        void notThrowForCommandOutsideWindow() {
+            repository.setHistoryDepth(1);
             var createCommand = command(createProject(projectId));
             post(createCommand);
+            // Push the create command's event out of the depth-1 window with a newer command.
+            post(command(startProject(projectId)));
 
             var aggregate = aggregate();
 
@@ -156,6 +158,7 @@ class IdempotencyGuardTest {
         }
 
         private Optional<Error> check(IdempotencyGuard guard, Command command) {
+            guard.enable(repository.historyDepth());
             var envelope = CommandEnvelope.of(command);
             return guard.check(envelope);
         }
@@ -186,12 +189,14 @@ class IdempotencyGuardTest {
         }
 
         @Test
-        @DisplayName("not throw exception when event was handled but snapshot was made")
-        void notThrowForCommandHandledAfterSnapshot() {
-            repository.setSnapshotTrigger(1);
+        @DisplayName("not throw exception when the event is older than the recent-history window")
+        void notThrowForEventOutsideWindow() {
+            repository.setHistoryDepth(1);
 
             var event = event(taskStarted(projectId));
             post(event);
+            // Push the reaction to the task event out of the depth-1 window with a newer event.
+            post(event(projectPaused(projectId)));
 
             var aggregate = repository.loadAggregate(projectId);
             var guard = new IdempotencyGuard(aggregate);
@@ -232,6 +237,7 @@ class IdempotencyGuardTest {
         }
 
         private Optional<Error> check(IdempotencyGuard guard, Event event) {
+            guard.enable(repository.historyDepth());
             var envelope = EventEnvelope.of(event);
             return guard.check(envelope);
         }
