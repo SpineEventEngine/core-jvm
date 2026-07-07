@@ -6,22 +6,27 @@
 **Runtime tests: aggregate suite down to 17 failures** (from 23), dominated by ONE
 root cause plus a few test rewrites:
 
-- **🔴 KEY BLOCKER — store→load round-trip.** After a *bus-dispatched* command
-  (`commandBus().post(...)`), `AggregateRepository.find`→`load`→`AggregateStorage.readState`
-  returns empty ("Aggregate not found"), so the opt-in guard + history-traversal
-  tests (~10) fail at `repository.loadAggregate(...)`. Direct-dispatch tests
-  (`AggregateTestSupport`) PASS, so the dispatch + `builder()` mutation are correct;
-  the migrated `IgTestAggregate` is clean; `doStore`→`writeAll`→`writeState` and
-  `readState` look correct in isolation. Suspect: `writeState` not persisting to
-  `stateStorage` in the delivery/`RepositoryCache` flush path, or a delivery-timing
-  difference (the OLD load read the event journal, which may be written write-through,
-  vs the state record written at cache-flush). **Needs a runtime debug pass**
-  (log in `writeState`/`readState`; check whether the state record exists after
-  `post`). Fixing this likely clears ~10 failures at once.
-- **Remaining test rewrites (not blocked by the above):** `create a single event
-  when emitting a pair` (3 — investigate the Pair fixture/version), `allow having
-  validation on the aggregate state` (2), `throw when missing command assignee` (1),
-  `prohibit to call state() from within applier` (1 — obsolete, remove).
+- **✅ LOAD-FROM-STATE VERIFIED WORKING.** Diagnostic proved `readState` returns
+  `found=true` after every write (single-tenant); the round-trip is correct. The
+  earlier "Aggregate not found" was **test pollution** — `IdempotencyGuardTest`
+  **passes in isolation** (BUILD SUCCESSFUL) but fails when run in the same JVM
+  after `AggregateTest`/model tests (which call `ModelTests.dropAllModels()` / reset
+  global state). *Cross-suite isolation is a remaining item for `./gradlew build`*
+  (add `forkEvery`, or make the polluting tests restore state).
+- **`AggregateTest` in isolation: 7 failures remain** (down from 11; guard-dispatch,
+  obsolete `state()`/snapshot tests fixed):
+  - **Pair fixtures (3, `CreateSingleEventForPair`)** — a fresh aggregate handling
+    `assignTask()` alone produces 0 events: the migrated handler sets `assignee` but
+    not the state `id`, so the **new commit-time validation (D6)** rejects the built
+    state. Fix: the migrated `TaskAggregate` (aggregate/given/aggregate) handlers
+    must set the state `id` (or the test must create the task first).
+  - **validation (2, `AllowValidatedAggregates`/`SafeThermometer`)** — `tryAlter` /
+    zero-event-reactor store-gate interaction (a withheld change must NOT store).
+  - **multitenant history (1, `traverse history iterating newest first`)** — uses
+    `loadAggregate(tenantId, ID)`; single-tenant loads work, so a tenant-scoped
+    readState/loader nuance.
+  - **command-assignee (1)** — `AggregateWithMissingApplier` no longer raises
+    `ModelError` (missing-applier concept gone); rewrite/remove the test.
 
 Fixed this session: event-recording seam (moved to `runTransactionFor`), `+1`/dispatch
 + pre-dispatch event-version tests, lazy recent-history read (`Aggregate.historyBackward(int)`
