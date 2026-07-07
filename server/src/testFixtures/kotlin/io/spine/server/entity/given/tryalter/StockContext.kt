@@ -27,8 +27,6 @@
 package io.spine.server.entity.given.tryalter
 
 import io.spine.server.command.Assign
-import io.spine.server.entity.alter
-import io.spine.server.entity.tryAlter
 import io.spine.server.event.NoReaction
 import io.spine.server.event.React
 import io.spine.server.procman.ProcessManager

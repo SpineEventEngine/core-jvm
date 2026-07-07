@@ -39,7 +39,6 @@ import io.spine.server.given.context.counting.range
 import io.spine.testing.client.TestActorRequestFactory
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
@@ -89,7 +88,6 @@ internal class QueryingClientSpec {
     }
 
     @Test
-    @Disabled("Until Validation support field references in constraints.")
     fun `fetch the only one`() {
         val client = QueryingClient(context, RangeStats::class.java, actor)
         val rangeStats = client.findById(range)
@@ -99,7 +97,6 @@ internal class QueryingClientSpec {
     }
 
     @Test
-    @Disabled("Until Validation support field references in constraints.")
     fun `fetch none`() {
         val client = QueryingClient(context, RangeStats::class.java, actor)
         val nonExisting = range {

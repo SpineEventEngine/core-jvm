@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ import io.spine.server.BoundedContext
 import io.spine.server.BoundedContext.singleTenant
 import io.spine.server.command.Assign
 import io.spine.server.command.SingleCommandAssignee
-import io.spine.server.entity.alter
 import io.spine.server.given.context.counting.command.GenerateNumbers
 import io.spine.server.given.context.counting.event.NumberGenerated
 import io.spine.server.given.context.counting.event.numberGenerated
