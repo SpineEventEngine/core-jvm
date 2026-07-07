@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@
 package io.spine.server.aggregate.given.importado;
 
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.aggregate.given.importado.command.Move;
 import io.spine.server.aggregate.given.importado.event.Moved;
 import io.spine.server.command.Assign;
@@ -41,20 +40,15 @@ final class Dot extends Aggregate<ObjectId, Point, Point.Builder> {
 
     @Assign
     Moved on(Move command) {
+        var newPosition = move(id(), state(), command.getDirection());
+        builder().setId(command.getObject())
+                 .setX(newPosition.getX())
+                 .setY(newPosition.getY());
         return Moved.newBuilder()
                 .setObject(command.getObject())
                 .setDirection(command.getDirection())
-                .setCurrentPosition(move(id(), state(), command.getDirection()))
+                .setCurrentPosition(newPosition)
                 .build();
-    }
-
-    @Apply(allowImport = true)
-    private void event(Moved event) {
-        var newPosition = move(id(), builder(), event.getDirection());
-
-        builder().setId(event.getObject())
-                 .setX(newPosition.getX())
-                 .setY(newPosition.getY());
     }
 
     private static Point move(ObjectId id, PointOrBuilder p, Direction direction) {

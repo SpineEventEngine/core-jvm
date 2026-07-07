@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,12 @@ import io.spine.server.aggregate.given.klasse.command.StartEngine;
 import io.spine.server.aggregate.given.klasse.event.EngineStarted;
 import io.spine.server.command.Assign;
 
+/**
+ * A test-only aggregate that still declares an {@link Apply @Apply} event applier.
+ *
+ * <p>Event sourcing has been removed, so appliers are no longer supported. Building the model
+ * for this class fails fast with a {@link io.spine.server.model.ModelError ModelError}.
+ */
 public class IndecisiveEngineAggregate extends Aggregate<EngineId, Engine, Engine.Builder> {
 
     @Assign
@@ -44,11 +50,6 @@ public class IndecisiveEngineAggregate extends Aggregate<EngineId, Engine, Engin
 
     @Apply
     private void on(EngineStarted event) {
-        // An Aggregate cannot have two appliers for one event.
-    }
-
-    @Apply
-    private void secondOn(EngineStarted event) {
-        // A `ModelError` is expected.
+        // Declaring any `@Apply` applier makes model building fail with a `ModelError`.
     }
 }

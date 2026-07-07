@@ -30,7 +30,6 @@ import io.spine.server.aggregate.AggregateRepository;
 import io.spine.server.integration.Document;
 import io.spine.server.integration.DocumentId;
 import io.spine.server.integration.OpenOfficeDocumentUploaded;
-import io.spine.server.integration.PaperDocumentScanned;
 import io.spine.server.route.EventRouting;
 
 import java.util.Set;

@@ -41,6 +41,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static com.google.common.truth.Truth.assertThat;
 import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
 import static io.spine.testing.server.Assertions.assertCommandClassesExactly;
 import static io.spine.testing.server.Assertions.assertEventClassesExactly;
@@ -108,7 +109,10 @@ class AggregateClassTest {
     @Test
     @DisplayName("reject a class that declares `@Apply` event appliers")
     void rejectAppliers() {
-        assertThrows(ModelError.class,
-                     () -> asAggregateClass(IndecisiveEngineAggregate.class));
+        var error = assertThrows(ModelError.class,
+                                 () -> asAggregateClass(IndecisiveEngineAggregate.class));
+        assertThat(error)
+                .hasMessageThat()
+                .contains("declares `@Apply`-annotated event applier");
     }
 }

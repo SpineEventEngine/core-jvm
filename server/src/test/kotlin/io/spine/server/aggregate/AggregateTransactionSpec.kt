@@ -39,7 +39,6 @@ import io.spine.server.entity.given.tx.Id
 import io.spine.server.entity.given.tx.TxAggregate
 import io.spine.server.type.EventEnvelope
 import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Test
 
 private typealias AggEntity = Aggregate<Id, AggregateState, AggregateState.Builder>
 private typealias AggTx = Transaction<Id, AggEntity, AggregateState, AggregateState.Builder>
@@ -80,8 +79,8 @@ internal class AggregateTransactionSpec :
         return cast.dispatchEvent(envelope)
     }
 
-    @Test
-    fun `advance version from event`() {
-        advanceVersionFromEvent()
-    }
+    // Note: the `advance version from event` case (adopting the event's own version) is not
+    // applicable since the event-sourcing cutover — an `AggregateTransaction` now advances the
+    // version sequentially (+1 per dispatch), exactly like a `ProcessManager`. Sequential
+    // version advancement is covered by `AggregateTest` (the `AdvanceVersion` cases).
 }

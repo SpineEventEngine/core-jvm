@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,12 +30,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.protobuf.Message;
 import io.spine.core.CommandContext;
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.server.entity.given.tx.command.TxCreate;
 import io.spine.server.entity.given.tx.event.TxCreated;
 import io.spine.server.entity.given.tx.event.TxErrorRequested;
 import io.spine.server.entity.given.tx.event.TxStateErrorRequested;
+import io.spine.server.event.NoReaction;
+import io.spine.server.event.React;
 
 import java.util.List;
 
@@ -61,30 +62,31 @@ public class TxAggregate extends Aggregate<Id, AggregateState, AggregateState.Bu
                 .build();
     }
 
-    @Apply
-    private void event(TxCreated e) {
+    @React
+    NoReaction event(TxCreated e) {
         receivedEvents.add(e);
         builder().setId(id())
                  .setName(e.getName());
+        return noReaction();
     }
 
     /**
-     * Always throws {@code RuntimeException} to emulate an error in an applier method of
+     * Always throws {@code RuntimeException} to emulate an error in a reacting method of
      * a failing Aggregate.
      *
      * @see io.spine.server.aggregate.AggregateTransactionTest#failingInHandler()
      */
-    @Apply
-    @SuppressWarnings("MethodMayBeStatic")
-    private void event(TxErrorRequested e) {
+    @React
+    NoReaction event(TxErrorRequested e) {
         throw new RuntimeException("that tests the tx behaviour");
     }
 
-    @Apply
-    private void event(TxStateErrorRequested e) {
+    @React
+    NoReaction event(TxStateErrorRequested e) {
         // By convention the first field of state is required.
         // Clearing it should fail the validation when the transaction is committed.
         builder().clearId();
+        return noReaction();
     }
 
     public List<Message> receivedEvents() {
