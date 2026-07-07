@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -28,146 +28,59 @@ package io.spine.server.aggregate;
 
 import com.google.common.collect.ImmutableList;
 import io.spine.core.Event;
-import io.spine.server.type.EventEnvelope;
-import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
-
-import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.toList;
 
 /**
- * Uncommitted events and snapshots created for this aggregate during the dispatching.
+ * The events produced by an aggregate during the current dispatch that are not yet stored.
  *
- * <p>Watches how the events {@linkplain Aggregate#invokeApplier(EventEnvelope) are sent}
- * to the {@link Aggregate} applier methods. Remembers all such events as uncommitted.
- *
- * <p>Once an aggregate is loaded from the storage, the {@code UncommittedHistory}
- * {@linkplain #onAggregateRestored(AggregateHistory) remembers} the event count
- * after the last snapshot.
- *
- * <p>If during the dispatching of events the number of events since the last snapshot exceeds
- * the snapshot trigger, a snapshot is created and remembered as a part of uncommitted history.
- *
- * <p>In order to ignore the events fed to the aggregate when it's being loaded from the storage,
- * the {@code UncommittedHistory}'s tracking is only {@linkplain #startTracking(int) activated}
- * when the new and truly un-yet-committed events are dispatched to the applier methods.
- * The tracking {@linkplain #stopTracking() stops} after all the new events have been played
- * on the aggregate instance.
- *
- * @see Aggregate#apply(List, int) on activation and deactivation of event tracking
- * @see Aggregate#replay(AggregateHistory) on supplying the history stats when loading aggregate
- *         instances from the storage
+ * <p>Since the event-sourcing cutover, an aggregate no longer replays events to rebuild its
+ * state, so this class no longer segments the events by snapshots — it is a plain, ordered list
+ * of the events emitted by the current command or reaction. The framework
+ * {@linkplain Aggregate#recordEvents(List) records} the produced events here after a successful
+ * dispatch, {@linkplain AggregateStorage#writeAll(Aggregate, ImmutableList) stores} them into the
+ * append-only journal alongside the latest state record, and then {@link #commit() commits}.
  */
 final class UncommittedHistory {
 
-    private final Supplier<Snapshot> makeSnapshot;
-    private final List<AggregateHistory> historySegments = new ArrayList<>();
-    private final List<Event> currentSegment = new ArrayList<>();
-
-    private int eventCountAfterLastSnapshot;
-    private @Nullable Integer snapshotTrigger = null;
-    private boolean enabled = false;
+    private final List<Event> events = new ArrayList<>();
 
     /**
-     * Creates an instance of the uncommitted history.
+     * Records the events produced during the current dispatch.
      *
-     * @param makeSnapshot
-     *         a callback which would supply a snapshot of the aggregate upon demand
+     * <p>Rejection events are not journaled and are ignored.
+     *
+     * @param produced the events emitted by the current command handler or reactor
      */
-    UncommittedHistory(Supplier<Snapshot> makeSnapshot) {
-        this.makeSnapshot = makeSnapshot;
-    }
-
-    /**
-     * Enables the tracking of events.
-     *
-     * <p>All events {@linkplain #track(EventEnvelope) sent} to this instance will now be counted
-     * as new and uncommitted events in the aggregate's history.
-     *
-     * @param snapshotTrigger
-     *         the snapshot trigger to consider each time a new event is tracked
-     */
-    void startTracking(int snapshotTrigger) {
-        enabled = true;
-        this.snapshotTrigger = snapshotTrigger;
-    }
-
-    /**
-     * Stops the tracking of the events.
-     *
-     * <p>All the events {@linkplain #track(EventEnvelope) sent to the tracking} will be counted
-     * as the events already present in the aggregate storage.
-     */
-    void stopTracking() {
-        enabled = false;
-        snapshotTrigger = null;
-    }
-
-    /**
-     * Tracks the event dispatched to the Aggregate's applier.
-     *
-     * <p>If the tracking is not {@linkplain #startTracking(int) started}, the event is considered
-     * an old one and such as not requiring storage and tracking. In this case, this method
-     * does nothing.
-     *
-     * <p>If the event is a new one, it is remembered as a part of the uncommitted history.
-     *
-     * <p>If the number of events since the last snapshot equals or exceeds the snapshot trigger,
-     * a new snapshot is made and saved to the uncommitted history.
-     *
-     * @param envelope
-     *         an event to track
-     */
-    void track(EventEnvelope envelope) {
-        if (!enabled) {
-            return;
-        }
-        requireNonNull(snapshotTrigger,
-                       "The snapshot trigger must be set" +
-                               " to track the events applied to an `Aggregate`.");
-
-        var event = envelope.outerObject();
-        if (event.isRejection()) {
-            return;
-        }
-        currentSegment.add(event);
-        var eventsInSegment = currentSegment.size();
-        if (eventCountAfterLastSnapshot + eventsInSegment >= snapshotTrigger) {
-            var snapshot = makeSnapshot.get();
-            var completedSegment = historyFrom(currentSegment, snapshot);
-            historySegments.add(completedSegment);
-            currentSegment.clear();
-            eventCountAfterLastSnapshot = 0;
+    void record(Iterable<Event> produced) {
+        for (var event : produced) {
+            if (!event.isRejection()) {
+                events.add(event);
+            }
         }
     }
 
     /**
-     * Composes and obtains the collected uncommitted history.
+     * Obtains the uncommitted events wrapped into a single {@link AggregateHistory} segment.
      *
-     * <p>The returned items represent the uncommitted events split into {@code AggregateHistory},
-     * each containing a snapshot made for each segment, if the snapshot was triggered.
+     * <p>Returns an empty list when there are no uncommitted events. The segment never carries a
+     * {@code Snapshot} — snapshots were removed with event-sourced loading.
      */
     ImmutableList<AggregateHistory> get() {
-        ImmutableList.Builder<AggregateHistory> builder = ImmutableList.builder();
-        builder.addAll(historySegments);
-        if (currentSegment.size() > 0) {
-            var lastSegment = historyFrom(currentSegment);
-            builder.add(lastSegment);
+        if (events.isEmpty()) {
+            return ImmutableList.of();
         }
-        return builder.build();
+        var history = AggregateHistory.newBuilder()
+                .addAllEvent(events)
+                .build();
+        return ImmutableList.of(history);
     }
 
     /**
-     * Returns all tracked uncommitted events.
+     * Returns all uncommitted events.
      */
     UncommittedEvents events() {
-        var events = get().stream()
-                                  .flatMap(segment -> segment.getEventList()
-                                                             .stream())
-                                  .collect(toList());
         return UncommittedEvents.ofNone()
                                 .append(events);
     }
@@ -176,36 +89,13 @@ final class UncommittedHistory {
      * Tells if this history contains any uncommitted events.
      */
     boolean hasEvents() {
-        return !currentSegment.isEmpty() || !historySegments.isEmpty();
+        return !events.isEmpty();
     }
 
     /**
-     * Marks this history as stored and no longer uncommitted.
+     * Marks the recorded events as stored and no longer uncommitted.
      */
     void commit() {
-        historySegments.clear();
-        currentSegment.clear();
-    }
-
-    /**
-     * Records the history loaded from the aggregate storage.
-     *
-     * <p>This is only required in order to know the number of events since the last snapshot.
-     */
-    void onAggregateRestored(AggregateHistory history) {
-        this.eventCountAfterLastSnapshot = history.getEventCount();
-    }
-
-    private static AggregateHistory historyFrom(List<Event> events, Snapshot snapshot) {
-        return AggregateHistory.newBuilder()
-                .addAllEvent(events)
-                .setSnapshot(snapshot)
-                .build();
-    }
-
-    private static AggregateHistory historyFrom(List<Event> events) {
-        return AggregateHistory.newBuilder()
-                .addAllEvent(events)
-                .build();
+        events.clear();
     }
 }

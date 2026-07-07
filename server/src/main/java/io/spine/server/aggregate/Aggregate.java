@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,12 +36,13 @@ import io.spine.core.Version;
 import io.spine.protobuf.AnyPacker;
 import io.spine.server.aggregate.model.AggregateClass;
 import io.spine.server.command.AssigneeEntity;
-import io.spine.server.dispatch.BatchDispatchOutcome;
 import io.spine.server.dispatch.DispatchOutcome;
-import io.spine.server.entity.EventPlayer;
+import io.spine.server.entity.EntityRecord;
 import io.spine.server.entity.HasLifecycleColumns;
 import io.spine.server.entity.LifecycleFlags;
 import io.spine.server.entity.RecentHistory;
+import io.spine.server.entity.Transaction;
+import io.spine.server.entity.TransactionalEntity;
 import io.spine.server.event.EventReactor;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventClass;
@@ -52,13 +53,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Predicate;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterators.any;
+import static com.google.common.collect.Iterators.limit;
 import static io.spine.base.Time.currentTime;
 import static io.spine.protobuf.AnyPacker.unpack;
-import static io.spine.protobuf.Messages.isNotDefault;
 import static io.spine.server.Ignored.ignored;
 import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
-import static io.spine.util.Exceptions.newIllegalStateException;
 
 /**
  * Abstract base for aggregates.
@@ -138,20 +139,23 @@ public abstract class Aggregate<I,
                                 S extends AggregateState<I>,
                                 B extends ValidatingBuilder<S>>
         extends AssigneeEntity<I, S, B>
-        implements EventPlayer, EventReactor, HasLifecycleColumns<I, S> {
+        implements EventReactor, HasLifecycleColumns<I, S> {
 
-    private final UncommittedHistory uncommittedHistory = new UncommittedHistory(this::toSnapshot);
+    /**
+     * The number of the most recent journal events exposed by the deprecated parameterless
+     * {@linkplain #historyBackward() history accessors} and used as the window of the opt-in
+     * {@link IdempotencyGuard}.
+     *
+     * <p>Equal to the former {@code AggregateRepository.DEFAULT_SNAPSHOT_TRIGGER}.
+     */
+    private static final int DEFAULT_HISTORY_DEPTH = 100;
+
+    private final UncommittedHistory uncommittedHistory = new UncommittedHistory();
 
     /**
      * A guard for ensuring idempotency of messages dispatched by this aggregate.
      */
     private IdempotencyGuard idempotencyGuard;
-
-    /**
-     * Tells whether any applier method is being invoked
-     * right now for this instance of aggregate.
-     */
-    private final ApplierWatcher applierWatcher = new ApplierWatcher();
 
     /**
      * Creates a new instance.
@@ -221,10 +225,9 @@ public abstract class Aggregate<I,
     /**
      * {@inheritDoc}
      *
-     * <p>In {@code Aggregate} this method must be called only from within an event applier.
-     *
-     * @throws IllegalStateException
-     *         if the method is called from outside an event applier
+     * <p>In {@code Aggregate} the builder is mutated by a command handler ({@code @Assign}) or a
+     * reactor ({@code @React}) while the framework-opened transaction is active — the same way a
+     * {@link io.spine.server.procman.ProcessManager ProcessManager} mutates its state.
      */
     @Override
     protected final B builder() {
@@ -232,24 +235,15 @@ public abstract class Aggregate<I,
     }
 
     /**
-     * Prohibits invoking {@link #state() state()} method from within an applier method.
+     * {@inheritDoc}
      *
-     * <p>All applier methods are always invoked in scope of an active transaction.
-     * Until this transaction is completed, the {@code state()} of the corresponding aggregate
-     * is not up-to-date. Therefore, relying upon it in code is prone to errors,
-     * and is prohibited for good sake.
-     *
-     * @throws IllegalStateException
-     *         if this method is called from within an event applier
+     * <p>Overridden to be accessible from the {@code aggregate} package so that the endpoint can
+     * dispatch a command or an event through the aggregate's transaction, mirroring
+     * {@link io.spine.server.procman.ProcessManager#tx() ProcessManager.tx()}.
      */
     @Override
-    protected void ensureAccessToState() {
-        if (applierWatcher.inProgress()) {
-            throw newIllegalStateException(
-                    "Aggregate `state()` method must not be used from `@Apply`-marked method." +
-                            " Use `builder()` instead. The issue detected in `%s` aggregate class.",
-                    getClass().getName());
-        }
+    protected Transaction<I, ? extends TransactionalEntity<I, S, B>, S, B> tx() {
+        return super.tx();
     }
 
     /**
@@ -306,25 +300,6 @@ public abstract class Aggregate<I,
 
     }
 
-    /**
-     * Invokes applier method for the passed event message.
-     *
-     * @param event
-     *         the event to apply
-     */
-    final DispatchOutcome invokeApplier(EventEnvelope event) {
-        var method = thisClass().applierOf(event);
-        var outcome = applierWatcher.perform(() -> method.invoke(this, event));
-        return outcome;
-    }
-
-    @Override
-    public final BatchDispatchOutcome play(Iterable<Event> events) {
-        return EventPlayer
-                .forTransactionOf(this)
-                .play(events);
-    }
-
     @Override
     @Internal
     public ImmutableSet<EventClass> producedEvents() {
@@ -332,94 +307,36 @@ public abstract class Aggregate<I,
     }
 
     /**
-     * Restores the aggregate state from the passed event history.
+     * Records the events produced by the current dispatch so that they are stored into the
+     * journal and made available as recent history.
      *
-     * <p>The historical events are {@linkplain #play(Iterable) played} on this aggregate instance.
-     * If the history includes a {@code Snapshot}, the aggregate state is restored from it first,
-     * and only then the event history is applied.
+     * <p>Called by the framework after a command or reaction has been dispatched and its
+     * transaction committed. Rejection events are not journaled.
      *
-     * @param history
-     *         the aggregate state with events to play
-     * @throws IllegalStateException
-     *         if applying events caused an exception, which is set as the {@code cause} for
-     *         the thrown instance
+     * @param events the events emitted by the current command handler or reactor
      */
-    final BatchDispatchOutcome replay(AggregateHistory history) {
-        var snapshot = history.getSnapshot();
-        if (isNotDefault(snapshot)) {
-            restore(snapshot);
-        }
-        var events = history.getEventList();
-        var batchDispatchOutcome = play(events);
-        uncommittedHistory.onAggregateRestored(history);
-        appendToRecentHistory(events);
-        return batchDispatchOutcome;
+    final void recordEvents(List<Event> events) {
+        uncommittedHistory.record(events);
     }
 
     /**
-     * Applies events to this {@code Aggregate}.
+     * Restores the state, the version, and the lifecycle flags of this aggregate from the
+     * passed record loaded from the state storage.
      *
-     * <p>Before applying the events, changes their versions as follows:
-     * <ol>
-     *     <li>The first event in the list gets the current version of the aggregate incremented
-     *         by one.
-     *     <li>All the next events get the following versions.
-     * </ol>
+     * <p>Since the event-sourcing cutover, an aggregate loads from its latest persisted
+     * {@link EntityRecord} rather than by replaying its event journal. This method must be
+     * invoked in the scope of an {@linkplain #isTransactionInProgress() active transaction}.
      *
-     * <p>For example, if the current version number of the aggregate is {@code 42}, and
-     * the {@code events} list is of size 3, the applied events will have versions {@code 43},
-     * {@code 44}, and {@code 45}.
-     *
-     * <p>All the events applied to the aggregate instance are
-     * {@linkplain UncommittedHistory#startTracking(int) tracked} as a part of the aggregate's
-     * {@link UncommittedHistory} and later are stored.
-     *
-     * <p>If during the application of the events, the number of the events since the last snapshot
-     * exceeds the passed snapshot trigger, a new snapshot is made. The snapshot is then tracked
-     * as a part of the aggregate's {@code UncommittedHistory}.
-     *
-     * @param events
-     *         the events to apply
-     * @param snapshotTrigger
-     *         the snapshot trigger
-     * @return the exact list of {@code events} but with adjusted versions
+     * @param record
+     *         the latest state record of the aggregate
      */
-    final BatchDispatchOutcome apply(List<Event> events, int snapshotTrigger) {
-        var versionSequence = new VersionSequence(version());
-        var versionedEvents = versionSequence.update(events);
-        uncommittedHistory.startTracking(snapshotTrigger);
-        var result = play(versionedEvents);
-        uncommittedHistory.stopTracking();
-        return result;
-    }
-
-    /**
-     * A callback telling that the event has been played on this aggregate in scope
-     * of a transaction.
-     *
-     * <p>If this event is new in the aggregate history (e.g. it's not already stored), it is
-     * recorded as a part of the aggregate's {@link UncommittedHistory}.
-     */
-    final void onAfterEventPlayed(EventEnvelope event) {
-        uncommittedHistory.track(event);
-    }
-
-    /**
-     * Restores the state, the version and the lifecycle flags from the passed snapshot.
-     *
-     * <p>This method must be invoked in the scope of an {@linkplain #isTransactionInProgress()
-     * active transaction}.
-     *
-     * @param snapshot
-     *         the snapshot with the state to restore
-     */
-    final void restore(Snapshot snapshot) {
-        @SuppressWarnings("unchecked") /* The cast is safe since the snapshot is created
-            with the state of this aggregate, which is bound by the type <S>. */
-        var stateToRestore = (S) unpack(snapshot.getState());
-        var versionFromSnapshot = snapshot.getVersion();
-        setInitialState(stateToRestore, versionFromSnapshot);
-        var lifecycle = snapshot.getLifecycle();
+    final void restore(EntityRecord record) {
+        @SuppressWarnings("unchecked") /* The cast is safe since the record holds the state of
+            this aggregate, which is bound by the type <S>. */
+        var stateToRestore = (S) unpack(record.getState());
+        var version = record.getVersion();
+        setInitialState(stateToRestore, version);
+        var lifecycle = record.getLifecycleFlags();
         setArchived(lifecycle.getArchived());
         setDeleted(lifecycle.getDeleted());
     }
@@ -475,7 +392,11 @@ public abstract class Aggregate<I,
      * version and lifecycle are taken from the transactional data.
      *
      * @return new snapshot
+     * @deprecated Snapshots were removed with event-sourced loading; an aggregate now loads from
+     *         its latest {@link EntityRecord}. Retained only for wire compatibility of the
+     *         {@code Snapshot} message and scheduled for removal in v2.0.0.
      */
+    @Deprecated
     final Snapshot toSnapshot() {
         S state;
         Version version;
@@ -522,26 +443,56 @@ public abstract class Aggregate<I,
     }
 
     /**
-     * Creates an iterator of the aggregate event history with reverse traversal.
+     * Creates an iterator over up to {@code depth} most recent events of this aggregate's
+     * journal, newest first.
      *
-     * <p>The records are returned sorted by timestamp in descending order
-     * (from newer to older).
+     * <p>Fewer events are returned if the journal holds fewer. The events emitted by the
+     * current, not-yet-committed dispatch are excluded.
      *
-     * <p>The iterator is empty if there's no history for the aggregate.
-     *
+     * @param depth
+     *         the maximal number of the most recent events to return; must be positive
      * @return new iterator instance
      */
+    protected final Iterator<Event> historyBackward(int depth) {
+        checkArgument(depth > 0, "History depth must be positive. Got %s.", depth);
+        return limit(recentHistory().iterator(), depth);
+    }
+
+    /**
+     * Verifies if up to {@code depth} most recent events of this aggregate's journal contain an
+     * event that satisfies the passed predicate.
+     *
+     * @param depth
+     *         the maximal number of the most recent events to inspect; must be positive
+     * @param predicate
+     *         the predicate to test the events against
+     */
+    protected final boolean historyContains(int depth, Predicate<Event> predicate) {
+        var iterator = historyBackward(depth);
+        return any(iterator, predicate::test);
+    }
+
+    /**
+     * Creates an iterator of the aggregate event history with reverse traversal.
+     *
+     * @deprecated Please use {@link #historyBackward(int)} and state the history window
+     *         explicitly. This form reads the last {@value #DEFAULT_HISTORY_DEPTH} events.
+     */
+    @Deprecated
     protected final Iterator<Event> historyBackward() {
-        return recentHistory().iterator();
+        return historyBackward(DEFAULT_HISTORY_DEPTH);
     }
 
     /**
      * Verifies if the aggregate history contains an event that satisfies the passed predicate.
+     *
+     * @deprecated Please use {@link #historyContains(int, Predicate)} and state the history
+     *         window explicitly. This form inspects the last {@value #DEFAULT_HISTORY_DEPTH}
+     *         events.
      */
+    @Deprecated
     protected final boolean historyContains(Predicate<Event> predicate) {
-        var iterator = historyBackward();
-        var found = any(iterator, predicate::test);
-        return found;
+        return historyContains(DEFAULT_HISTORY_DEPTH, predicate);
     }
 
     /**
