@@ -94,7 +94,8 @@ public class AggregateTransaction<I,
     }
 
     /**
-     * Returns the current version of the "dirty" entity being modified in scope of the transaction.
+     * Returns the current version of the "dirty" entity being modified in
+     * the scope of the transaction.
      */
     final Version currentVersion() {
         return version();
