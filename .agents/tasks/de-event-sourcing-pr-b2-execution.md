@@ -1,6 +1,36 @@
 # PR-B2 — Aggregate event-sourcing cutover (execution plan)
 
-## CURRENT STATUS (branch `de-event-source-PR-B2`, 11 commits ahead of master)
+## CURRENT STATUS (branch `de-event-source-PR-B2`, ~16 commits ahead of master)
+
+**✅ EVERYTHING COMPILES** (main + testFixtures + test Java/Kotlin + server-testlib).
+**Runtime tests: aggregate suite down to 17 failures** (from 23), dominated by ONE
+root cause plus a few test rewrites:
+
+- **🔴 KEY BLOCKER — store→load round-trip.** After a *bus-dispatched* command
+  (`commandBus().post(...)`), `AggregateRepository.find`→`load`→`AggregateStorage.readState`
+  returns empty ("Aggregate not found"), so the opt-in guard + history-traversal
+  tests (~10) fail at `repository.loadAggregate(...)`. Direct-dispatch tests
+  (`AggregateTestSupport`) PASS, so the dispatch + `builder()` mutation are correct;
+  the migrated `IgTestAggregate` is clean; `doStore`→`writeAll`→`writeState` and
+  `readState` look correct in isolation. Suspect: `writeState` not persisting to
+  `stateStorage` in the delivery/`RepositoryCache` flush path, or a delivery-timing
+  difference (the OLD load read the event journal, which may be written write-through,
+  vs the state record written at cache-flush). **Needs a runtime debug pass**
+  (log in `writeState`/`readState`; check whether the state record exists after
+  `post`). Fixing this likely clears ~10 failures at once.
+- **Remaining test rewrites (not blocked by the above):** `create a single event
+  when emitting a pair` (3 — investigate the Pair fixture/version), `allow having
+  validation on the aggregate state` (2), `throw when missing command assignee` (1),
+  `prohibit to call state() from within applier` (1 — obsolete, remove).
+
+Fixed this session: event-recording seam (moved to `runTransactionFor`), `+1`/dispatch
++ pre-dispatch event-version tests, lazy recent-history read (`Aggregate.historyBackward(int)`
++ `AggregateStorage.readHistoryBackward` + repo loader), guard opt-in test updates,
+`AggregateTest`/`AggregateClassTest` model tests, `EngineAggregate` migration.
+
+---
+
+### (superseded) earlier status
 
 **✅ Runtime cutover DONE and compiling.** `server` main, `server` testFixtures,
 `server-testlib` (main + test), and `server` test-**Kotlin** all compile green.
