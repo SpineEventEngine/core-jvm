@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -77,9 +77,18 @@ public abstract class Phase<I> {
     }
 
     private void incrementTransaction(Success success) {
-        if (!success.hasRejection()) {
-            transaction.incrementStateAndVersion(versionIncrement);
+        if (success.hasRejection()) {
+            return;
         }
+        var producedEvents = success.getProducedEvents()
+                                    .getEventCount() > 0;
+        if (!producedEvents && !transaction.stateChangedInPhase()) {
+            // A pure no-op dispatch — neither events nor a state change (e.g. an `@React`
+            // reaction that withheld itself). Do not validate or advance the version, so the
+            // entity is not forced into existence with an unmodified (possibly invalid) state.
+            return;
+        }
+        transaction.incrementStateAndVersion(versionIncrement);
     }
 
     /**

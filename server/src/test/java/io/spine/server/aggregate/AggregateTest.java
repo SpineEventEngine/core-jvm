@@ -54,7 +54,6 @@ import io.spine.server.aggregate.given.thermometer.Thermometer;
 import io.spine.server.aggregate.given.thermometer.ThermometerId;
 import io.spine.server.aggregate.given.thermometer.event.TemperatureChanged;
 import io.spine.server.delivery.MessageEndpoint;
-import io.spine.server.model.ModelError;
 import io.spine.server.type.CommandClass;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventClass;
@@ -358,21 +357,24 @@ public class AggregateTest {
     }
 
     @Nested
-    @DisplayName("throw when missing")
-    class ThrowOnMissing {
+    @DisplayName("report an error")
+    class ReportError {
 
         @Test
         @MuteLogging
-        @DisplayName("command assignee")
+        @DisplayName("when dispatched a command it cannot handle")
         void commandHandler() {
             ModelTests.dropAllModels();
             var aggregate = new AggregateWithMissingApplier(ID);
 
-            // Pass a command for which the target aggregate does not have a handling method.
-            assertThrows(ModelError.class,
-                         () -> dispatchCommand(aggregate, command(addTask)));
-        }
+            // The aggregate has no receptor for this command. Since the event-sourcing cutover
+            // the aggregate is dispatched exactly like a `ProcessManager`: the receptor lookup
+            // runs inside the transaction, so the resulting `ModelError` is caught by the
+            // transaction failsafe and surfaced as an error outcome rather than being thrown.
+            var outcome = dispatchCommand(aggregate, command(addTask));
 
+            assertThat(outcome.hasError()).isTrue();
+        }
     }
 
     @Nested
@@ -625,7 +627,10 @@ public class AggregateTest {
             commandBus.post(newArrayList(addTaskCommand2, startCommand), noOpObserver);
 
             var aggregate = repository.loadAggregate(tenantId, ID);
-            history = aggregate.historyBackward();
+            // Since the cutover, recent history is read lazily from storage on demand rather than
+            // replayed eagerly at load. Reading it therefore requires the tenant context (the read
+            // is eager, so the returned iterator is safe to consume outside the context).
+            history = with(tenantId).evaluate(aggregate::historyBackward);
 
             assertNextCommandId().isEqualTo(startCommand.id());
             assertNextCommandId().isEqualTo(addTaskCommand2.id());
