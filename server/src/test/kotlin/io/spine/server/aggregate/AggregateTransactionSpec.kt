@@ -77,7 +77,7 @@ internal class AggregateTransactionSpec :
     override fun applyEvent(tx: AggTx, event: Event): DispatchOutcome {
         val cast = tx as AggregateTransaction<*, *, *>
         val envelope = EventEnvelope.of(event)
-        return cast.play(envelope)
+        return cast.dispatchEvent(envelope)
     }
 
     @Test
