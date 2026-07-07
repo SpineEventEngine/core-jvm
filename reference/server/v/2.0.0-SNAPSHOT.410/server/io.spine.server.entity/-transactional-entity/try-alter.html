@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>tryAlter</title>
+    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
+        <script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+      if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      } else {
+        const savedDarkMode = JSON.parse(storage)
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      }
+    </script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../../ui-kit/ui-kit.min.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/safe-local-storage_blocking.js"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../ui-kit/ui-kit.min.js" defer="defer"></script>
+<link href="../../../images/logo-icon.svg">
+<link href="../../../styles/custom-styles.css" rel="Stylesheet">
+</head>
+<body>
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+            <a class="library-name--link" href="../../../index.html" tabindex="1">
+                    server
+            </a>
+        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle"
+                type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">
+2.0.0-SNAPSHOT.410        </div>
+        <div class="navigation-controls">
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector jvm-like" data-active="" aria-pressed="true"
+                        data-filter=":server/main">jvm</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
+                        data-role="dropdown-toggle"
+                        aria-controls="platform-tags-listbox"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-label="Toggle source sets"
+                ></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option jvm-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":server/main"
+                                       data-filter=":server/main"/>
+                                <span class="checkbox--icon"></span>
+                                jvm
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </ul>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
+                    type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
+        </div>
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config='{"defaultSize": 280, "minSize": 200, "maxSize": 400}'>
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list"
+                    data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
+                            <span>
+                                    server
+                            </span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
+<div class="main-content" data-page-type="member" id="content" pageIds="server::io.spine.server.entity/TransactionalEntity/tryAlter/#kotlin.Function1[TypeParam(bounds=[io.spine.validation.ValidatingBuilder[TypeParam(bounds=[io.spine.base.EntityState[TypeParam(bounds=[kotlin.Any])]])]]),kotlin.Unit]/PointingToDeclaration//332232451">
+  <div class="breadcrumbs"><a href="../../../index.html">server</a><span class="delimiter">/</span><a href="../index.html">io.spine.server.entity</a><span class="delimiter">/</span><a href="index.html">TransactionalEntity</a><span class="delimiter">/</span><span class="current">tryAlter</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>try</span><wbr></wbr><span><span>Alter</span></span></h1>
+  </div>
+  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="io.spine.annotation/VisibleForTesting///PointingToDeclaration/"><span class="token annotation builtin">VisibleForTesting</span></span></div></div><span class="token keyword">fun </span><a href="try-alter.html"><span class="token function">tryAlter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="index.html">B</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span data-unresolved-link="io.spine.validation/ConstraintViolation///PointingToDeclaration/">ConstraintViolation</span><span class="token operator">&gt;</span><span class="source-link-wrapper"><span class="source-link" data-element-type="source-link">(<a href="https://github.com/SpineEventEngine/core-jvm/tree/master/server/src/main/kotlin/io/spine/server/entity/TransactionalEntity.kt#L294">source</a>)</span></span></div><p class="paragraph">Attempts to change the state of this entity, modifying the live state <a href="builder.html">builder</a> only if the resulting state is valid.</p><p class="paragraph">The <a href="try-alter.html">block</a> runs on a scratch copy of the live builder, and the candidate state it produces is validated before being applied:</p><ol><li><p class="paragraph">If the candidate state is valid, the changes are merged into the live builder,      and an empty list is returned.</p></li><li><p class="paragraph">If the candidate state violates constraints declared in the entity state type,      the live builder is left untouched, and the violations are returned.</p></li></ol><p class="paragraph">This makes <code class="lang-kotlin">tryAlter</code> the validate-before-apply counterpart of <a href="alter.html">alter</a>: a receptor can reject a command or skip a reaction <i>before</i> an invalid change reaches the live builder, instead of failing the whole dispatch when the transaction is committed.</p><p class="paragraph">For example, a reaction that reserves the ordered items only when the stock allows it:</p><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">@React<br>fun on(event: BulkOrderPlaced): EitherOf2&lt;StockReserved, NoReaction&gt; {<br>    val violations = tryAlter {<br>        inStock -= event.quantity<br>    }<br>    return if (violations.isEmpty()) {<br>        EitherOf2.withA(stockReserved { /* … */})<br>    } else {<br>        EitherOf2.withB(noReaction())<br>    }<br>}</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div><p class="paragraph">A constraint enforced at setter time, such as <code class="lang-kotlin">(set_once)</code>, makes the generated builder throw <span data-unresolved-link="io.spine.validation/ValidationException///PointingToDeclaration/">ValidationException</span> from inside <a href="try-alter.html">block</a> — against the scratch copy, not the live builder. <code class="lang-kotlin">tryAlter</code> catches this exception and returns its violations, so both setter-time and build-time constraints surface uniformly as the returned list. Any other exception thrown by <a href="try-alter.html">block</a> propagates unchanged, leaving the live builder untouched.</p><p class="paragraph">Consecutive calls compose: each call validates the cumulative candidate state, including the changes applied by the preceding successful calls.</p><p class="paragraph">To probe the current content of a builder in place — including content that is already invalid — without the protective scratch copy, use <span data-unresolved-link="io.spine.validation/ValidatingBuilder/validate/#/PointingToDeclaration/">ValidatingBuilder.validate</span>.</p><p class="paragraph"><strong>Warning:</strong> <a href="try-alter.html">block</a> must mutate only its receiver — the scratch builder. Calling <a href="alter.html">alter</a> or <a href="update.html">update</a> from inside <a href="try-alter.html">block</a> bypasses the scratch copy and modifies the live builder directly, defeating the purpose of this function. Also, avoid building other messages, such as events, inside <a href="try-alter.html">block</a>: any <span data-unresolved-link="io.spine.validation/ValidationException///PointingToDeclaration/">ValidationException</span> raised in <a href="try-alter.html">block</a> is reported as a withheld state change, even if a foreign message failing its own validation caused it.</p><p class="paragraph"><strong>API Note:</strong> This function is not <code class="lang-kotlin">inline</code> because <a href="builder.html">builder</a> is <code class="lang-kotlin">protected</code> while inline functions can use only <code class="lang-kotlin">public</code> API.</p><p class="paragraph">This function is <code class="lang-kotlin">public</code> and annotated <span data-unresolved-link="io.spine.annotation/VisibleForTesting///PointingToDeclaration/">@VisibleForTesting</span>: tests may call it directly on an entity with an injected transaction. Otherwise, the function would have been <code class="lang-kotlin">protected</code>, because it can only be used when a transaction is open, and the entity is inside one of its receptor functions.</p><span class="kdoc-tag"><h4 class="">Return</h4><p class="paragraph">An empty list if the changes were applied to the live builder, or the constraint violations of the candidate state if the changes were withheld.</p></span><h4 class="tableheader">Parameters</h4><div class="table"><div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span><span>block</span></span></u></div></span></div><div><div class="title"><p class="paragraph">The mutation to attempt, running on a scratch copy of the live builder.</p></div></div></div></div></div><h4 class="tableheader">See also</h4><div class="table"><div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="alter.html"><span><span>alter</span></span></a></div></span></div><div><div class="title"><p class="paragraph">for the version of this method that applies changes unconditionally.</p></div></div></div></div></div><hr><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="io.spine.annotation/VisibleForTesting///PointingToDeclaration/"><span class="token annotation builtin">VisibleForTesting</span></span></div></div><span class="token keyword">fun </span><a href="try-alter.html"><span class="token function">tryAlter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Consumer.html">Consumer</a><span class="token operator">&lt;</span><a href="index.html">B</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span data-unresolved-link="io.spine.validation/ConstraintViolation///PointingToDeclaration/">ConstraintViolation</span><span class="token operator">&gt;</span><span class="source-link-wrapper"><span class="source-link" data-element-type="source-link">(<a href="https://github.com/SpineEventEngine/core-jvm/tree/master/server/src/main/kotlin/io/spine/server/entity/TransactionalEntity.kt#L326">source</a>)</span></span></div><p class="paragraph">A Java-friendly overload of <a href="try-alter.html">tryAlter</a>.</p><p class="paragraph">Accepts a <code class="lang-kotlin">void</code>-compatible <a href="try-alter.html">block</a>, so that Java code does not have to return <code class="lang-kotlin">Unit.INSTANCE</code> from the lambda. Please see the primary overload for the full contract, including the visibility note.</p><span class="kdoc-tag"><h4 class="">Return</h4><p class="paragraph">An empty list if the changes were applied to the live builder, or the constraint violations of the candidate state if the changes were withheld.</p></span><h4 class="tableheader">Parameters</h4><div class="table"><div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span><span>block</span></span></u></div></span></div><div><div class="title"><p class="paragraph">The mutation to attempt, running on a scratch copy of the live builder.</p></div></div></div></div></div><h4 class="tableheader">See also</h4><div class="table"><div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="try-alter.html"><span>try</span><wbr></wbr><span><span>Alter</span></span></a></div></span></div><div></div></div></div></div></div></div>
+</div>
+    <div class="footer">
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>Copyright 2026, TeamDev</div>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
