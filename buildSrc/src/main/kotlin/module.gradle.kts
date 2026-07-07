@@ -24,6 +24,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import com.google.protobuf.gradle.GenerateProtoTask
 import io.spine.dependency.boms.BomsPlugin
 import io.spine.dependency.build.ErrorProne
 import io.spine.dependency.lib.Grpc
@@ -86,6 +87,7 @@ project.run {
 
     setupPublishing()
     configureTaskDependencies()
+    workAroundDescriptorSetCacheBug()
 }
 
 kover {
@@ -94,6 +96,28 @@ kover {
 }
 
 typealias Module = Project
+
+/**
+ * TEMPORARY: works around a descriptor-set build-cache correctness bug.
+ *
+ * `GenerateProtoTask` is a `@CacheableTask` whose build-cache key covers the `.proto`
+ * sources and the compiler configuration, but not the descriptor-set file name — and
+ * that name embeds the project's Maven version. On a version bump the proto sources are
+ * unchanged, so the shared build cache restores a descriptor produced under the previous
+ * version's name while the build expects the new one. The mismatch leaves Protobuf types
+ * unresolvable at runtime, surfacing as `io.spine.type.UnknownTypeException` in modules
+ * unrelated to the change (observed on PR #1645 bumping `.410` -> `.411`).
+ *
+ * Disabling the build cache for `generateProto` forces a fresh descriptor every build,
+ * sidestepping the stale-cache restore. Remove this once the Spine Compiler ships
+ * `tool-base` `.403`+ (upstream fix `502e3dfe`), which keys the descriptor-set cache on
+ * the file name; the Compiler currently pins `tool-base` `.402`, which predates the fix.
+ */
+fun Module.workAroundDescriptorSetCacheBug() {
+    tasks.withType<GenerateProtoTask>().configureEach {
+        outputs.cacheIf { false }
+    }
+}
 
 /**
  * Configures Java tasks in this project.
