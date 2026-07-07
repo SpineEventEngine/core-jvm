@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@
 package io.spine.server.aggregate.given.repo;
 
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.server.event.React;
 import io.spine.test.aggregate.AggProject;
@@ -56,42 +55,33 @@ public class ProjectAggregate
 
     @Assign
     AggProjectCreated handle(AggCreateProject msg) {
-        return AggProjectCreated.newBuilder()
+        var event = AggProjectCreated.newBuilder()
                 .setProjectId(msg.getProjectId())
                 .setName(msg.getName())
                 .build();
-    }
-
-    @Apply
-    private void apply(AggProjectCreated event) {
         builder().setId(event.getProjectId())
                  .setName(event.getName());
+        return event;
     }
 
     @Assign
     AggTaskAdded handle(AggAddTask msg) {
-        return AggTaskAdded.newBuilder()
+        var event = AggTaskAdded.newBuilder()
                 .setProjectId(msg.getProjectId())
                 .setTask(msg.getTask())
                 .build();
-    }
-
-    @Apply
-    private void apply(AggTaskAdded event) {
         builder().setId(event.getProjectId())
                  .addTask(event.getTask());
+        return event;
     }
 
     @Assign
     AggProjectStarted handle(AggStartProject msg) {
-        return AggProjectStarted.newBuilder()
+        var event = AggProjectStarted.newBuilder()
                 .setProjectId(msg.getProjectId())
                 .build();
-    }
-
-    @Apply
-    private void apply(AggProjectStarted event) {
         builder().setStatus(Status.STARTED);
+        return event;
     }
 
     /**
@@ -107,15 +97,11 @@ public class ProjectAggregate
             var reaction = AggProjectArchived.newBuilder()
                     .setProjectId(id())
                     .build();
+            archive();
             return Optional.of(reaction);
         } else {
             return Optional.empty();
         }
-    }
-
-    @Apply
-    private void apply(AggProjectArchived event) {
-        archive();
     }
 
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@
 package io.spine.server.delivery.given;
 
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.test.delivery.Receptionist;
 import io.spine.test.delivery.command.TurnConditionerOff;
@@ -45,35 +44,29 @@ public final class ReceptionistAggregate
     private static boolean failInAppliers = false;
 
     @Assign
+    @SuppressWarnings("ResultOfMethodCallIgnored" /* Using Proto builder. */)
     ConditionerTurnedOn handler(TurnConditionerOn cmd) {
-        return ConditionerTurnedOn.newBuilder()
+        var event = ConditionerTurnedOn.newBuilder()
                 .setReceptionist(id())
                 .build();
-    }
-
-    @Apply
-    @SuppressWarnings("ResultOfMethodCallIgnored" /* Using Proto builder. */)
-    private void apply(ConditionerTurnedOn event) {
         maybeFail();
         var newValue = builder().getHowManyCmdsHandled() + 1;
         builder().setId(event.getReceptionist())
                  .setHowManyCmdsHandled(newValue);
+        return event;
     }
 
     @Assign
+    @SuppressWarnings("ResultOfMethodCallIgnored" /* Using Proto builder. */)
     ConditionerTurnedOff handler(TurnConditionerOff cmd) {
-        return ConditionerTurnedOff.newBuilder()
+        var event = ConditionerTurnedOff.newBuilder()
                 .setReceptionist(id())
                 .build();
-    }
-
-    @Apply
-    @SuppressWarnings("ResultOfMethodCallIgnored" /* Using Proto builder. */)
-    private void apply(ConditionerTurnedOff event) {
         maybeFail();
         var newValue = builder().getHowManyCmdsHandled() + 1;
         builder().setId(event.getReceptionist())
                  .setHowManyCmdsHandled(newValue);
+        return event;
     }
 
     private static void maybeFail() throws IllegalStateException {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@
 package io.spine.server.commandbus.given.caffetteria;
 
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.test.commandbus.CmdBusOrder;
 import io.spine.test.commandbus.CmdBusOrderId;
@@ -39,7 +38,7 @@ public final class OrderAggregate
 
     @Assign
     CmdBusTableAllocated handle(CmdBusAllocateTable cmd) {
-        return CmdBusTableAllocated
+        var event = CmdBusTableAllocated
                 .newBuilder()
                 .setId(cmd.getId())
                 .setCaffetteria(cmd.getCaffetteria())
@@ -48,11 +47,8 @@ public final class OrderAggregate
                 .setVisitorCount(cmd.getVisitors()
                                     .getCount())
                 .build();
-    }
-
-    @Apply
-    private void on(CmdBusTableAllocated event) {
         builder().setCaffetteria(event.getCaffetteria());
         builder().setTableIndex(event.getTableIndex());
+        return event;
     }
 }

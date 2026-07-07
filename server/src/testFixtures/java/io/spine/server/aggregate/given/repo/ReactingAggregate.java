@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@
 package io.spine.server.aggregate.given.repo;
 
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.event.React;
 import io.spine.test.aggregate.ParentState;
 import io.spine.test.aggregate.ProjectId;
@@ -62,6 +61,7 @@ public class ReactingAggregate
             var reaction = AggProjectArchived.newBuilder()
                     .setProjectId(id())
                     .build();
+            builder().setValue(PROJECT_ARCHIVED);
             return Optional.of(reaction);
         } else {
             return Optional.empty();
@@ -81,19 +81,10 @@ public class ReactingAggregate
             var reaction = AggProjectDeleted.newBuilder()
                     .setProjectId(id())
                     .build();
+            builder().setValue(PROJECT_DELETED);
             return Optional.of(reaction);
         } else {
             return Optional.empty();
         }
-    }
-
-    @Apply
-    private void apply(AggProjectArchived event) {
-        builder().setValue(PROJECT_ARCHIVED);
-    }
-
-    @Apply
-    private void apply(AggProjectDeleted event) {
-        builder().setValue(PROJECT_DELETED);
     }
 }

@@ -23,13 +23,13 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package io.spine.server.given.context.switchman
 
 import com.google.common.collect.ImmutableSet
 import io.spine.base.Time
 import io.spine.server.aggregate.Aggregate
 import io.spine.server.aggregate.AggregateRepository
-import io.spine.server.aggregate.Apply
 import io.spine.server.event.React
 import io.spine.server.given.context.switchman.event.SwitchPositionConfirmed
 import io.spine.server.given.context.switchman.event.SwitchWorkRecorded
@@ -47,32 +47,32 @@ import io.spine.server.route.EventRouting
 class Log : Aggregate<Long, LogState, LogState.Builder>() {
 
     @React
-    internal fun on(rejection: SwitchmanUnavailable): SwitchmanAbsenceRecorded =
-        switchmanAbsenceRecorded {
+    internal fun on(rejection: SwitchmanUnavailable): SwitchmanAbsenceRecorded {
+        val event = switchmanAbsenceRecorded {
             switchmanName = rejection.switchmanName
             timestamp = Time.currentTime()
         }
-
-    @Apply
-    private fun event(event: SwitchmanAbsenceRecorded) = alter {
-        addMissingSwitchman(event.switchmanName)
+        alter {
+            addMissingSwitchman(event.switchmanName)
+        }
+        return event
     }
 
     @React
-    internal fun on(event: SwitchPositionConfirmed): SwitchWorkRecorded =
-        switchWorkRecorded {
+    internal fun on(event: SwitchPositionConfirmed): SwitchWorkRecorded {
+        val recorded = switchWorkRecorded {
             switchId = event.switchId
             switchmanName = event.switchmanName
         }
-
-    @Apply
-    private fun event(event: SwitchWorkRecorded) = alter {
-        val switchmanName = event.switchmanName
-        val currentCount = countersMap[switchmanName]
-        putCounters(
-            switchmanName,
-            if (currentCount == null) 1 else currentCount + 1
-        )
+        alter {
+            val switchmanName = recorded.switchmanName
+            val currentCount = countersMap[switchmanName]
+            putCounters(
+                switchmanName,
+                if (currentCount == null) 1 else currentCount + 1
+            )
+        }
+        return recorded
     }
 
     /**

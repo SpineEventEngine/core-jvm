@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ package io.spine.client.given;
 import com.google.common.collect.ImmutableList;
 import io.spine.base.EventMessage;
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.test.client.tasks.CTask;
 import io.spine.test.client.tasks.CTaskId;
@@ -56,19 +55,14 @@ public final class TaskAggregate extends Aggregate<CTaskId, CTask, CTask.Builder
      */
     @Assign
     List<EventMessage> handle(CreateCTask cmd) {
-        return ImmutableList.of(
-                CTaskCreated.newBuilder()
-                        .setId(cmd.getId())
-                        .setName(cmd.getName())
-                        .setAuthor(cmd.getAuthor())
-                        .build()
-        );
-    }
-
-    @Apply
-    private void on(CTaskCreated event) {
+        var event = CTaskCreated.newBuilder()
+                .setId(cmd.getId())
+                .setName(cmd.getName())
+                .setAuthor(cmd.getAuthor())
+                .build();
         builder().setName(event.getName())
                  .setAuthor(event.getAuthor());
+        return ImmutableList.of(event);
     }
 
     @Assign
@@ -76,12 +70,8 @@ public final class TaskAggregate extends Aggregate<CTaskId, CTask, CTask.Builder
         var event = CTaskDeleted.newBuilder()
                 .setId(cmd.getId())
                 .build();
-        return event;
-    }
-
-    @Apply
-    private void on(CTaskDeleted event) {
         setDeleted(true);
+        return event;
     }
 
     @Assign
@@ -89,12 +79,8 @@ public final class TaskAggregate extends Aggregate<CTaskId, CTask, CTask.Builder
         var event = CTaskRestored.newBuilder()
                 .setId(cmd.getId())
                 .build();
-        return event;
-    }
-
-    @Apply
-    private void on(CTaskRestored event) {
         setDeleted(false);
+        return event;
     }
 
     @Assign
@@ -102,12 +88,8 @@ public final class TaskAggregate extends Aggregate<CTaskId, CTask, CTask.Builder
         var event = CTaskArchived.newBuilder()
                 .setId(cmd.getId())
                 .build();
-        return event;
-    }
-
-    @Apply
-    private void on(CTaskArchived event) {
         setArchived(true);
+        return event;
     }
 
     @Assign
@@ -115,11 +97,7 @@ public final class TaskAggregate extends Aggregate<CTaskId, CTask, CTask.Builder
         var event = CTaskUnarchived.newBuilder()
                 .setId(cmd.getId())
                 .build();
-        return event;
-    }
-
-    @Apply
-    private void on(CTaskUnarchived event) {
         setArchived(false);
+        return event;
     }
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -34,7 +34,6 @@ import io.spine.model.contexts.projects.event.SigProjectCreated;
 import io.spine.model.contexts.projects.event.SigProjectStarted;
 import io.spine.model.contexts.projects.rejection.SigProjectAlreadyCompleted;
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 
 /**
@@ -59,15 +58,5 @@ public final class ProjectAgg extends Aggregate<ProjectId, Project, Project.Buil
                 .newBuilder()
                 .setProject(c.getId())
                 .build();
-    }
-
-    @Apply
-    private void on(SigProjectStarted e) {
-        // do nothing.
-    }
-
-    @Apply
-    private void on(SigProjectCreated e) {
-        // do nothing.
     }
 }

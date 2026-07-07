@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@
 package io.spine.server.aggregate.given.aggregate;
 
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.server.event.React;
 import io.spine.test.aggregate.AggProject;
@@ -61,19 +60,29 @@ public class IgTestAggregate
     AggProjectCreated handle(AggCreateProject cmd) {
         var event = projectCreated(cmd.getProjectId(),
                                    cmd.getName());
+        builder()
+                .setId(event.getProjectId())
+                .setStatus(Status.CREATED);
         return event;
     }
 
     @Assign
     AggProjectStarted handle(AggStartProject cmd) {
         var message = projectStarted(cmd.getProjectId());
+        builder()
+                .setId(message.getProjectId())
+                .setStatus(Status.STARTED);
         return message;
     }
 
     @React
     Optional<AggProjectStarted> reactOn(AggTaskStarted event) {
         if (state().getStatus() == Status.CREATED) {
-            return Optional.of(projectStarted(id()));
+            var started = projectStarted(id());
+            builder()
+                    .setId(started.getProjectId())
+                    .setStatus(Status.STARTED);
+            return Optional.of(started);
         } else {
             return Optional.empty();
         }
@@ -81,28 +90,11 @@ public class IgTestAggregate
 
     @React
     AggProjectArchived reactOn(AggProjectPaused event) {
-        return AggProjectArchived
+        var archived = AggProjectArchived
                 .newBuilder()
                 .setProjectId(event.getProjectId())
                 .build();
-    }
-
-    @Apply
-    private void event(AggProjectCreated event) {
-        builder()
-                .setId(event.getProjectId())
-                .setStatus(Status.CREATED);
-    }
-
-    @Apply
-    private void event(AggProjectStarted event) {
-        builder()
-                .setId(event.getProjectId())
-                .setStatus(Status.STARTED);
-    }
-
-    @Apply
-    private void event(AggProjectArchived event) {
         setArchived(true);
+        return archived;
     }
 }

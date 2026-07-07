@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@
 package io.spine.server.trace.given.airport;
 
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.test.trace.CancelFlight;
 import io.spine.test.trace.Flight;
@@ -42,7 +41,7 @@ final class FlightAggregate extends Aggregate<FlightId, Flight, Flight.Builder> 
 
     @Assign
     FlightScheduled handle(ScheduleFlight command) {
-        return FlightScheduled
+        var event = FlightScheduled
                 .newBuilder()
                 .setId(command.getId())
                 .setFrom(command.getFrom())
@@ -50,41 +49,32 @@ final class FlightAggregate extends Aggregate<FlightId, Flight, Flight.Builder> 
                 .setScheduledDeparture(command.getScheduledDeparture())
                 .setScheduledArrival(command.getScheduledArrival())
                 .build();
-    }
-
-    @Apply
-    private void on(FlightScheduled event) {
         builder().setFrom(event.getFrom())
                  .setTo(event.getTo())
                  .setScheduledDeparture(event.getScheduledDeparture())
                  .setScheduledArrival(event.getScheduledArrival());
+        return event;
     }
 
     @Assign
     FlightRescheduled handle(RescheduleFlight command) {
-        return FlightRescheduled
+        var event = FlightRescheduled
                 .newBuilder()
                 .setId(command.getId())
                 .setScheduledDeparture(command.getScheduledDeparture())
                 .setScheduledArrival(command.getScheduledArrival())
                 .build();
-    }
-
-    @Apply
-    private void on(FlightRescheduled event) {
         builder().setScheduledDeparture(event.getScheduledDeparture())
                  .setScheduledArrival(event.getScheduledArrival());
+        return event;
     }
 
     @Assign
     FlightCanceled handle(CancelFlight command) {
-        return FlightCanceled.newBuilder()
+        var event = FlightCanceled.newBuilder()
                              .setId(command.getId())
                              .build();
-    }
-
-    @Apply
-    private void on(FlightCanceled event) {
         setDeleted(true);
+        return event;
     }
 }

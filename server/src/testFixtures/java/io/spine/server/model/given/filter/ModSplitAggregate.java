@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -28,7 +28,6 @@ package io.spine.server.model.given.filter;
 
 import io.spine.core.Where;
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.test.model.ModCreateProject;
 import io.spine.test.model.ModProjectCreated;
@@ -46,22 +45,21 @@ public final class ModSplitAggregate extends Aggregate<String, ModProject, ModPr
     @Assign
     ModProjectCreated handleFancy(@Where(field = "id", equals = FANCY_ID)
                                   ModCreateProject cmd) {
-        return ModProjectCreated
+        var e = ModProjectCreated
                 .newBuilder()
                 .setId(INTERNAL_FANCY_ID)
                 .build();
+        builder().setProjectId(e.getId());
+        return e;
     }
 
     @Assign
     ModProjectCreated handle(ModCreateProject cmd) {
-        return ModProjectCreated
+        var e = ModProjectCreated
                 .newBuilder()
                 .setId(cmd.getId())
                 .build();
-    }
-
-    @Apply
-    private void on(ModProjectCreated e) {
         builder().setProjectId(e.getId());
+        return e;
     }
 }

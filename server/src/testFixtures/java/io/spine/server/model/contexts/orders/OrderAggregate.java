@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@
 package io.spine.server.model.contexts.orders;
 
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.test.model.contexts.orders.Order;
 import io.spine.test.model.contexts.orders.OrderId;
@@ -44,31 +43,25 @@ class OrderAggregate extends Aggregate<OrderId, Order, Order.Builder> {
 
     @Assign
     OrderCreated handle(CreateOrder cmd) {
-        return OrderCreated
+        var event = OrderCreated
                 .newBuilder()
                 .setId(cmd.getId())
                 .setOrder(Order.newBuilder()
                                .setId(cmd.getId())
                                .setName(cmd.getName()))
                 .build();
-    }
-
-    @Apply
-    private void event(OrderCreated event) {
         builder().mergeFrom(event.getOrder());
+        return event;
     }
 
     @Assign
     ItemAdded handle(AddItem cmd) {
-        return ItemAdded
+        var event = ItemAdded
                 .newBuilder()
                 .setId(cmd.getId())
                 .setItem(cmd.getItem())
                 .build();
-    }
-
-    @Apply
-    private void event(ItemAdded event) {
         builder().addItem(event.getItem());
+        return event;
     }
 }

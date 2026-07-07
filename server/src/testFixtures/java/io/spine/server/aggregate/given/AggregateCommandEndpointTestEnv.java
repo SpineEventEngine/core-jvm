@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import io.spine.core.Command;
 import io.spine.core.CommandContext;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.AggregateRepository;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.server.command.CommandHistory;
 import io.spine.test.aggregate.AggProject;
@@ -69,29 +68,23 @@ public final class AggregateCommandEndpointTestEnv {
         @Assign
         AggProjectCreated handle(AggCreateProject msg, CommandContext context) {
             commandsHandled.add(msg, context);
-            return AggProjectCreated.newBuilder()
+            var event = AggProjectCreated.newBuilder()
                                     .setProjectId(msg.getProjectId())
                                     .setName(msg.getName())
                                     .build();
-        }
-
-        @Apply
-        private void apply(AggProjectCreated event) {
             builder().setId(event.getProjectId())
                      .setName(event.getName());
+            return event;
         }
 
         @Assign
         AggTaskAdded handle(AggAddTask msg, CommandContext context) {
             commandsHandled.add(msg, context);
-            return AggTaskAdded.newBuilder()
+            var event = AggTaskAdded.newBuilder()
                                .setProjectId(msg.getProjectId())
                                .build();
-        }
-
-        @Apply
-        private void apply(AggTaskAdded event) {
             builder().setId(event.getProjectId());
+            return event;
         }
 
         @Assign
@@ -100,10 +93,6 @@ public final class AggregateCommandEndpointTestEnv {
             return AggProjectStarted.newBuilder()
                                     .setProjectId(msg.getProjectId())
                                     .build();
-        }
-
-        @Apply
-        private void apply(AggProjectStarted event) {
         }
     }
 

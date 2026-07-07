@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ package io.spine.server.aggregate.given.aggregate;
 
 import io.spine.core.UserId;
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.server.event.React;
 import io.spine.server.tuple.Pair;
@@ -74,6 +73,10 @@ public class TaskAggregate extends Aggregate<AggTaskId, AggTask, AggTask.Builder
         var assignee = command.getAssignee();
         var assignedEvent = taskAssignedOrNull(id, assignee);
 
+        builder().setId(createdEvent.getTaskId());
+        if (assignedEvent != null) {
+            builder().setAssignee(assignedEvent.getNewAssignee());
+        }
         return Pair.withNullable(createdEvent, assignedEvent);
     }
 
@@ -106,6 +109,7 @@ public class TaskAggregate extends Aggregate<AggTaskId, AggTask, AggTask.Builder
         var previousAssignee = state().getAssignee();
 
         var event = taskAssigned(id, previousAssignee, newAssignee);
+        builder().setAssignee(event.getNewAssignee());
         return event;
     }
 
@@ -124,6 +128,7 @@ public class TaskAggregate extends Aggregate<AggTaskId, AggTask, AggTask.Builder
         }
 
         var event = taskAssigned(id, previousAssignee, newAssignee);
+        builder().setAssignee(event.getNewAssignee());
         return event;
     }
 
@@ -135,16 +140,6 @@ public class TaskAggregate extends Aggregate<AggTaskId, AggTask, AggTask.Builder
                 .setPreviousAssignee(previousAssignee)
                 .setNewAssignee(newAssignee)
                 .build();
-    }
-
-    @Apply
-    private void event(AggTaskCreated event) {
-        builder().setId(event.getTaskId());
-    }
-
-    @Apply
-    private void event(AggTaskAssigned event) {
-        builder().setAssignee(event.getNewAssignee());
     }
 
     @React
@@ -180,10 +175,5 @@ public class TaskAggregate extends Aggregate<AggTaskId, AggTask, AggTask.Builder
         var event = userNotified(rejection.getTaskId(),
                                  rejection.getUserId());
         return Pair.withNullable(event, null);
-    }
-
-    @Apply
-    private void event(AggUserNotified event) {
-        // Do nothing.
     }
 }

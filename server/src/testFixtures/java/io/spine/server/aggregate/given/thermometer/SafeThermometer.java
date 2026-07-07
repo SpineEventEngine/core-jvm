@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ package io.spine.server.aggregate.given.thermometer;
 
 import io.spine.core.External;
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.aggregate.given.thermometer.event.TemperatureChanged;
 import io.spine.server.aggregate.given.thermometer.event.TermTemperatureChanged;
 import io.spine.server.event.React;
@@ -52,21 +51,16 @@ public final class SafeThermometer extends Aggregate<ThermometerId, Thermometer,
         var change = TemperatureChange.newBuilder()
                 .setNewValue(temperature)
                 .setPreviousValue(state().getFahrenheit());
-        return Optional.of(
-                TermTemperatureChanged.newBuilder()
-                        .setThermometer(id())
-                        .setChange(change)
-                        .build()
-        );
+        var event = TermTemperatureChanged.newBuilder()
+                .setThermometer(id())
+                .setChange(change)
+                .build();
+        builder().setFahrenheit(event.getChange()
+                                     .getNewValue());
+        return Optional.of(event);
     }
 
     private static boolean withinBounds(double temperature) {
         return temperature > MIN && temperature < MAX;
-    }
-
-    @Apply
-    private void on(TermTemperatureChanged e) {
-        builder().setFahrenheit(e.getChange()
-                                 .getNewValue());
     }
 }

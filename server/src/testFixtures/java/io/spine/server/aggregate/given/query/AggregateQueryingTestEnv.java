@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ import io.spine.server.BoundedContextBuilder;
 import io.spine.server.DefaultRepository;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.AggregateRepository;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.test.aggregate.query.MRPhoto;
 import io.spine.test.aggregate.query.MRPhotoId;
@@ -160,11 +159,6 @@ public final class AggregateQueryingTestEnv {
                     .setHeight(cmd.getHeight())
                     .setSourceType(cmd.getSourceType())
                     .build();
-            return event;
-        }
-
-        @Apply
-        private void on(MRPhotoUploaded event) {
             builder().setId(event.getId())
                      .setFullSizeUrl(event.getFullSizeUrl())
                      .setThumbnailUrl(event.getThumbnailUrl())
@@ -172,30 +166,25 @@ public final class AggregateQueryingTestEnv {
                      .setWidth(event.getWidth())
                      .setHeight(event.getHeight())
                      .setSourceType(event.getSourceType());
+            return event;
         }
 
         @Assign
         MRPhotoArchived handle(MRArchivePhoto photo) {
-            return MRPhotoArchived.newBuilder()
+            var event = MRPhotoArchived.newBuilder()
                     .setId(photo.getId())
                     .build();
-        }
-
-        @Apply
-        private void on(MRPhotoArchived event) {
             setArchived(true);
+            return event;
         }
 
         @Assign
         MRPhotoDeleted handle(MRDeletePhoto photo) {
-            return MRPhotoDeleted.newBuilder()
+            var event = MRPhotoDeleted.newBuilder()
                     .setId(photo.getId())
                     .build();
-        }
-
-        @Apply
-        private void on(MRPhotoDeleted event) {
             setDeleted(true);
+            return event;
         }
     }
 
@@ -221,14 +210,11 @@ public final class AggregateQueryingTestEnv {
 
         @Assign
         MRSoundUploaded handle(MRUploadSound cmd) {
-            return MRSoundUploaded.newBuilder()
+            var event = MRSoundUploaded.newBuilder()
                     .setId(cmd.getId())
                     .build();
-        }
-
-        @Apply
-        private void event(MRSoundUploaded event) {
             builder().setId(event.getId());
+            return event;
         }
     }
 }

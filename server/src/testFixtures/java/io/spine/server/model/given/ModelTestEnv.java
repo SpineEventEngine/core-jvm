@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -28,7 +28,6 @@ package io.spine.server.model.given;
 
 import io.spine.core.External;
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.AbstractAssignee;
 import io.spine.server.command.Assign;
 import io.spine.server.command.Command;
@@ -58,22 +57,16 @@ public class ModelTestEnv {
 
         @Assign
         RefProjectCreated on(RefCreateProject cmd) {
-            return RefProjectCreated.getDefaultInstance();
-        }
-
-        @Apply
-        private void event(RefProjectCreated evt) {
+            var evt = RefProjectCreated.getDefaultInstance();
             builder().setId(evt.getProjectId());
+            return evt;
         }
 
         @Assign
         RefProjectStarted on(RefStartProject cmd) {
-            return RefProjectStarted.getDefaultInstance();
-        }
-
-        @Apply
-        private void event(RefProjectStarted evt) {
+            var evt = RefProjectStarted.getDefaultInstance();
             builder().setId(evt.getProjectId());
+            return evt;
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ package io.spine.server.model.handler.given;
 
 import com.google.common.collect.ImmutableList;
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.server.model.handler.given.command.Start;
 import io.spine.server.model.handler.given.event.MovedEast;
@@ -63,22 +62,38 @@ public class RoverBot extends Aggregate<Integer, Position, Position.Builder> {
         var nextMove = TestValues.random(4);
         var id = id();
         switch (nextMove) {
-            case 0:
-                return MovedNorth.newBuilder()
+            case 0: {
+                var e = MovedNorth.newBuilder()
                         .setBotId(id)
                         .build();
-            case 1:
-                return MovedEast.newBuilder()
+                builder().setId(e.getBotId())
+                         .setY(currentY() + 1);
+                return e;
+            }
+            case 1: {
+                var e = MovedEast.newBuilder()
                         .setBotId(id)
                         .build();
-            case 2:
-                return MovedSouth.newBuilder()
+                builder().setId(e.getBotId())
+                         .setX(currentX() + 1);
+                return e;
+            }
+            case 2: {
+                var e = MovedSouth.newBuilder()
                         .setBotId(id)
                         .build();
-            case 3:
-                return MovedWest.newBuilder()
+                builder().setId(e.getBotId())
+                         .setY(currentY() - 1);
+                return e;
+            }
+            case 3: {
+                var e = MovedWest.newBuilder()
                         .setBotId(id)
                         .build();
+                builder().setId(e.getBotId())
+                         .setX(currentX() - 1);
+                return e;
+            }
             default:
                 throw newIllegalStateException("Unable to create a move event for %d.", nextMove);
         }
@@ -90,29 +105,5 @@ public class RoverBot extends Aggregate<Integer, Position, Position.Builder> {
 
     private int currentY() {
         return builder().getY();
-    }
-
-    @Apply
-    private void on(MovedNorth e) {
-        builder().setId(e.getBotId())
-                 .setY(currentY() + 1);
-    }
-
-    @Apply
-    private void on(MovedEast e) {
-        builder().setId(e.getBotId())
-                 .setX(currentX() + 1);
-    }
-
-    @Apply
-    private void on(MovedSouth e) {
-        builder().setId(e.getBotId())
-                 .setY(currentY() - 1);
-    }
-
-    @Apply
-    private void on(MovedWest e) {
-        builder().setId(e.getBotId())
-                 .setX(currentX() - 1);
     }
 }

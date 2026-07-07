@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import io.spine.client.ArchivedColumn;
 import io.spine.client.DeletedColumn;
 import io.spine.client.EntityLifecycleColumn;
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.server.test.shared.LongIdAggregate;
 import io.spine.test.aggregate.cli.Evaluate;
@@ -46,22 +45,19 @@ public class AggregateWithLifecycle
     Evaluated handle(Evaluate commandMessage) {
         var command = commandMessage.getCmd();
         var result = command + 'd';
-        return Evaluated
+        var event = Evaluated
                 .newBuilder()
                 .setCmd(result)
                 .build();
-    }
-
-    @Apply
-    private void on(Evaluated eventMessage) {
-        var msg = RepoOfAggregateWithLifecycle.getMessage(eventMessage);
+        var msg = RepoOfAggregateWithLifecycle.getMessage(event);
         if (namedAfterColumn(msg, ArchivedColumn.instance())) {
             setArchived(true);
         }
         if (namedAfterColumn(msg, DeletedColumn.instance())) {
             setDeleted(true);
         }
-        builder().setValue(eventMessage.hashCode());
+        builder().setValue(event.hashCode());
+        return event;
     }
 
     private static boolean namedAfterColumn(String msg, EntityLifecycleColumn<?> column) {

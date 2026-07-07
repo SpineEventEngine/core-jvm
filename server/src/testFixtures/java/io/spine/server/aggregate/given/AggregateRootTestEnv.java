@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import io.spine.server.BoundedContext;
 import io.spine.server.aggregate.AggregatePart;
 import io.spine.server.aggregate.AggregatePartRepository;
 import io.spine.server.aggregate.AggregateRoot;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.test.aggregate.ProjectDefinition;
 import io.spine.test.aggregate.ProjectId;
@@ -68,13 +67,9 @@ public final class AggregateRootTestEnv {
                     .setProjectId(msg.getProjectId())
                     .setName(msg.getName())
                     .build();
+            builder().setId(result.getProjectId())
+                     .setName(result.getName());
             return result;
-        }
-
-        @Apply
-        private void apply(AggProjectCreated event) {
-            builder().setId(event.getProjectId())
-                     .setName(event.getName());
         }
     }
 
@@ -99,12 +94,8 @@ public final class AggregateRootTestEnv {
             var result = AggProjectStarted.newBuilder()
                     .setProjectId(msg.getProjectId())
                     .build();
-            return result;
-        }
-
-        @Apply
-        private void apply(AggProjectStarted event) {
             builder().setStatus(Status.STARTED);
+            return result;
         }
     }
 

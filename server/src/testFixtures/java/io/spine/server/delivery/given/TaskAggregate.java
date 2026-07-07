@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@
 package io.spine.server.delivery.given;
 
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.test.delivery.DCreateTask;
 import io.spine.test.delivery.DTask;
@@ -37,13 +36,10 @@ public class TaskAggregate extends Aggregate<String, DTask, DTask.Builder> {
 
     @Assign
     DTaskCreated handle(DCreateTask command) {
-        return DTaskCreated.newBuilder()
-                           .setId(command.getId())
-                           .build();
-    }
-
-    @Apply
-    private void event(DTaskCreated taskCreated) {
-        builder().setId(taskCreated.getId());
+        var event = DTaskCreated.newBuilder()
+                                .setId(command.getId())
+                                .build();
+        builder().setId(event.getId());
+        return event;
     }
 }

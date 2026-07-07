@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@
 package io.spine.server.aggregate.given.fibonacci;
 
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.aggregate.given.fibonacci.command.MoveSequence;
 import io.spine.server.aggregate.given.fibonacci.command.SetStartingNumbers;
 import io.spine.server.aggregate.given.fibonacci.event.SequenceMoved;
@@ -48,6 +47,13 @@ public final class FibonacciAggregate extends Aggregate<SequenceId, Sequence, Se
                 .setNumberOne(cmd.getNumberOne())
                 .setNumberTwo(cmd.getNumberTwo())
                 .build();
+        var numberOne = event.getNumberOne();
+        var numberTwo = event.getNumberTwo();
+        builder().setId(event.getId())
+                 .setCurrentNumberOne(numberOne)
+                 .setCurrentNumberTwo(numberTwo);
+        lastNumberOne = numberOne;
+        lastNumberTwo = numberTwo;
         return event;
     }
 
@@ -56,22 +62,6 @@ public final class FibonacciAggregate extends Aggregate<SequenceId, Sequence, Se
         var event = SequenceMoved.newBuilder()
                 .setId(cmd.getId())
                 .build();
-        return event;
-    }
-
-    @Apply
-    private void on(StartingNumbersSet event) {
-        var numberOne = event.getNumberOne();
-        var numberTwo = event.getNumberTwo();
-        builder().setId(event.getId())
-                 .setCurrentNumberOne(numberOne)
-                 .setCurrentNumberTwo(numberTwo);
-        lastNumberOne = numberOne;
-        lastNumberTwo = numberTwo;
-    }
-
-    @Apply
-    private void on(SequenceMoved event) {
         var numberOne = builder().getCurrentNumberOne();
         var numberTwo = builder().getCurrentNumberTwo();
         var sum = numberOne + numberTwo;
@@ -80,6 +70,7 @@ public final class FibonacciAggregate extends Aggregate<SequenceId, Sequence, Se
                  .setCurrentNumberTwo(sum);
         lastNumberOne = numberTwo;
         lastNumberTwo = sum;
+        return event;
     }
 
     public static int lastNumberOne() {

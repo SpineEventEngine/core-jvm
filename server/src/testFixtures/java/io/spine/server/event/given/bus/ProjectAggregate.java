@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ package io.spine.server.event.given.bus;
 import com.google.common.collect.ImmutableList;
 import io.spine.core.CommandContext;
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.test.event.EBProjectCreated;
 import io.spine.test.event.EBTaskAdded;
@@ -46,6 +45,8 @@ public final class ProjectAggregate extends Aggregate<ProjectId, Project, Projec
     @Assign
     EBProjectCreated on(EBCreateProject command, CommandContext ctx) {
         var event = projectCreated(command.getProjectId());
+        builder().setId(event.getProjectId())
+                 .setStatus(Project.Status.CREATED);
         return event;
     }
 
@@ -55,22 +56,12 @@ public final class ProjectAggregate extends Aggregate<ProjectId, Project, Projec
 
         for (var task : command.getTaskList()) {
             var event = taskAdded(command.getProjectId(), task);
+            builder().setId(event.getProjectId())
+                     .addTask(event.getTask());
             events.add(event);
         }
 
         return events.build();
-    }
-
-    @Apply
-    private void event(EBProjectCreated event) {
-        builder().setId(event.getProjectId())
-                 .setStatus(Project.Status.CREATED);
-    }
-
-    @Apply
-    private void event(EBTaskAdded event) {
-        builder().setId(event.getProjectId())
-                 .addTask(event.getTask());
     }
 
     private static EBProjectCreated projectCreated(ProjectId projectId) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@
 package io.spine.system.server.given.diagnostics;
 
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.system.server.test.TextValidated;
 import io.spine.system.server.test.ValidateAndSet;
@@ -38,16 +37,13 @@ public final class ValidatedAggregate extends Aggregate<ValidatedId, Validated, 
 
     @Assign
     TextValidated handle(ValidateAndSet command) {
-        return TextValidated
+        var event = TextValidated
                 .newBuilder()
                 .setId(id())
                 .setValidText(command.getTextToValidate())
                 .build();
-    }
-
-    @Apply
-    private void on(TextValidated event) {
         builder().setId(event.getId())
                  .setOnlyLetters(event.getValidText());
+        return event;
     }
 }

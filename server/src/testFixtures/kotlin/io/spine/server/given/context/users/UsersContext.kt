@@ -34,7 +34,6 @@ import io.spine.server.BoundedContext.singleTenant
 import io.spine.server.BoundedContextBuilder
 import io.spine.server.aggregate.Aggregate
 import io.spine.server.aggregate.AggregateRepository
-import io.spine.server.aggregate.Apply
 import io.spine.server.event.React
 import io.spine.server.given.context.users.event.RUserConsentRequested
 import io.spine.server.given.context.users.event.RUserSignedIn
@@ -92,13 +91,14 @@ private class SessionRepository : ProjectionRepository<RSessionId, SessionProjec
 private class UserAggregate : Aggregate<UserId, RUser, RUser.Builder>() {
 
     @React
-    fun on(event: RUserSignedIn): RUserConsentRequested = rUserConsentRequested {
-        user = event.user
-    }
-
-    @Apply
-    private fun on(@Suppress("UNUSED_PARAMETER") event: RUserConsentRequested) = alter {
-        userConsentRequested = true
+    fun on(event: RUserSignedIn): RUserConsentRequested {
+        val consentRequested = rUserConsentRequested {
+            user = event.user
+        }
+        alter {
+            userConsentRequested = true
+        }
+        return consentRequested
     }
 }
 

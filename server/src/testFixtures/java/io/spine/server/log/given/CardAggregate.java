@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.spine.logging.WithLogging;
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.server.log.Book;
 import io.spine.server.log.BookReturned;
@@ -89,7 +88,9 @@ public final class CardAggregate
                     .addAllBook(unknownBooks)
                     .build();
         } else {
-            return event.build();
+            var borrowed = event.build();
+            builder().addAllBook(borrowed.getBookList());
+            return borrowed;
         }
     }
 
@@ -105,23 +106,14 @@ public final class CardAggregate
                     "Cannot return an unknown book. ISBN: `%s`", isbn.getValue()));
             throw rejection;
         } else {
-            return BookReturned.newBuilder()
+            var event = BookReturned.newBuilder()
                     .setCard(id())
                     .setBook(book)
                     .build();
+            var list = builder().getBookList();
+            var bookIndex = list.indexOf(book);
+            builder().removeBook(bookIndex);
+            return event;
         }
-    }
-
-    @Apply
-    private void on(BooksBorrowed event) {
-        builder().addAllBook(event.getBookList());
-    }
-
-    @Apply
-    private void on(BookReturned event) {
-        var list = builder().getBookList();
-        var book = event.getBook();
-        var bookIndex = list.indexOf(book);
-        builder().removeBook(bookIndex);
     }
 }

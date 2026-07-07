@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -29,7 +29,6 @@ package io.spine.server.bc.given;
 import com.google.common.collect.Lists;
 import io.spine.core.CommandContext;
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.test.bc.Project;
 import io.spine.test.bc.ProjectId;
@@ -51,7 +50,10 @@ public class ProjectAggregate
 
     @Assign
     BcProjectCreated handle(BcCreateProject cmd, CommandContext ctx) {
-        return Given.EventMessage.projectCreated(cmd.getProjectId());
+        var event = Given.EventMessage.projectCreated(cmd.getProjectId());
+        builder().setId(event.getProjectId())
+                 .setStatus(Project.Status.CREATED);
+        return event;
     }
 
     @Assign
@@ -62,23 +64,8 @@ public class ProjectAggregate
     @Assign
     List<BcProjectStarted> handle(BcStartProject cmd, CommandContext ctx) {
         var message = Given.EventMessage.projectStarted(cmd.getProjectId());
-        return Lists.newArrayList(message);
-    }
-
-    @Apply
-    private void event(BcProjectCreated event) {
-        builder().setId(event.getProjectId())
-                 .setStatus(Project.Status.CREATED);
-    }
-
-    @Apply
-    private void event(@SuppressWarnings("unused") BcTaskAdded event) {
-        // NOP
-    }
-
-    @Apply
-    private void event(BcProjectStarted event) {
-        builder().setId(event.getProjectId())
+        builder().setId(message.getProjectId())
                  .setStatus(Project.Status.STARTED);
+        return Lists.newArrayList(message);
     }
 }
