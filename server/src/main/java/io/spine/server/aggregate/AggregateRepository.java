@@ -120,8 +120,11 @@ public abstract class AggregateRepository<I,
 
     private @MonotonicNonNull RepositoryCache<I, A> cache;
 
-    /** The number of events to store between snapshots. */
+    /** The recent-history window (formerly the snapshot trigger). */
     private int snapshotTrigger = DEFAULT_SNAPSHOT_TRIGGER;
+
+    /** Whether the opt-in {@link IdempotencyGuard} is enabled for this repository. */
+    private boolean idempotencyGuardEnabled = false;
 
     /** Creates a new instance. */
     protected AggregateRepository() {
@@ -264,6 +267,9 @@ public abstract class AggregateRepository<I,
     @Override
     public A create(I id) {
         var aggregate = aggregateClass().create(id);
+        if (idempotencyGuardEnabled) {
+            aggregate.enableIdempotencyGuard(snapshotTrigger);
+        }
         return aggregate;
     }
 
@@ -414,31 +420,68 @@ public abstract class AggregateRepository<I,
     }
 
     /**
+     * Returns the number of the most recent journal events made available to the opt-in
+     * {@link IdempotencyGuard} and to the deprecated parameterless history accessors of
+     * {@link Aggregate}.
+     *
+     * @return a positive integer value; the default is {@value #DEFAULT_SNAPSHOT_TRIGGER}
+     */
+    protected int historyDepth() {
+        return this.snapshotTrigger;
+    }
+
+    /**
+     * Sets the {@linkplain #historyDepth() recent-history window} to the passed value.
+     *
+     * @param depth
+     *         a positive number of the most recent events to keep available
+     */
+    protected void setHistoryDepth(int depth) {
+        checkArgument(depth > 0);
+        this.snapshotTrigger = depth;
+    }
+
+    /**
+     * Enables the opt-in, journal-backed {@link IdempotencyGuard} for the aggregates of this
+     * repository.
+     *
+     * <p>The guard is <b>off by default</b> — deduplication is primarily the delivery layer's
+     * responsibility. Enable it as a durable backstop against duplicate dispatches; when enabled,
+     * each dispatch scans the last {@link #historyDepth()} journal events.
+     */
+    protected void useIdempotencyGuard() {
+        this.idempotencyGuardEnabled = true;
+    }
+
+    /**
+     * Tells whether the opt-in {@link IdempotencyGuard} is enabled for this repository.
+     *
+     * @return {@code false} by default
+     */
+    protected boolean idempotencyGuardEnabled() {
+        return idempotencyGuardEnabled;
+    }
+
+    /**
      * Returns the number of events until a next {@code Snapshot} is made.
      *
-     * @return a positive integer value
-     * @see #DEFAULT_SNAPSHOT_TRIGGER
+     * @deprecated Snapshots were removed with event-sourced loading. Superseded by
+     *         {@link #historyDepth()}; this method now returns the history depth.
      */
+    @Deprecated
     protected int snapshotTrigger() {
-        return this.snapshotTrigger;
+        return historyDepth();
     }
 
     /**
      * Changes the number of events between making aggregate snapshots to the passed value.
      *
-     * <p>The default value is defined in {@link #DEFAULT_SNAPSHOT_TRIGGER}.
-     *
-     * <p><b>NOTE</b>: repository read operations are optimized around the current snapshot
-     * trigger. Setting the snapshot trigger to a new value may cause read operations to perform
-     * suboptimally, until a new snapshot is created. This doesn't apply to newly created
-     * repositories.
-     *
-     * @param snapshotTrigger
-     *         a positive number of the snapshot trigger
+     * @deprecated Snapshots were removed with event-sourced loading. Superseded by
+     *         {@link #setHistoryDepth(int)}; this method now sets the history depth.
      */
+    @Deprecated
     protected void setSnapshotTrigger(int snapshotTrigger) {
-        checkArgument(snapshotTrigger > 0);
-        this.snapshotTrigger = snapshotTrigger;
+        setHistoryDepth(snapshotTrigger);
     }
 
     /**

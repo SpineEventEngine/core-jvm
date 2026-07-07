@@ -209,6 +209,14 @@ public abstract class Aggregate<I,
     }
 
     /**
+     * Enables the opt-in {@link IdempotencyGuard} for this aggregate, scanning up to
+     * {@code historyDepth} most recent journal events for a duplicate on each dispatch.
+     */
+    final void enableIdempotencyGuard(int historyDepth) {
+        idempotencyGuard.enable(historyDepth);
+    }
+
+    /**
      * Obtains model class for this aggregate.
      */
     @Override
