@@ -33,6 +33,7 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.spine.base.EntityState
+import io.spine.base.Error
 import io.spine.base.EventMessage
 import io.spine.base.Errors.fromThrowable
 import io.spine.base.Identifier
@@ -324,6 +325,30 @@ abstract class TransactionTest<I : Any,
         val outcome = applyEvent(tx, event)
         outcome.hasError() shouldBe true
         checkRollback(entity, originalState, originalVersion)
+    }
+
+    @Test
+    fun `roll back when the transaction listener fails during commit`() {
+        val entity = createEntity()
+        val originalState = entity.state()
+        val failing = object : TransactionListener<I> {
+            override fun onBeforePhase(phase: Phase<I>) = Unit
+            override fun onAfterPhase(phase: Phase<I>) = Unit
+            override fun onBeforeCommit(entityRecord: EntityRecord) {
+                error("Simulated commit-time failure.")
+            }
+            override fun onTransactionFailed(cause: Error, entityRecord: EntityRecord) = Unit
+            override fun onTransactionFailed(cause: Event, entityRecord: EntityRecord) = Unit
+            override fun onAfterCommit(change: EntityRecordChange) = Unit
+        }
+        val tx = createTx(entity, failing)
+
+        // `onBeforeCommit` throws inside `commit()`; the transaction must catch it,
+        // roll back, and release itself instead of letting the exception escape.
+        tx.commit()
+
+        entity.transaction().shouldBeNull()
+        entity.state() shouldBe originalState
     }
 
     @Test
