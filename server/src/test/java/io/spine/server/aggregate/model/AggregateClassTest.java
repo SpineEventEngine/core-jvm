@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -34,7 +34,6 @@ import io.spine.server.aggregate.given.klasse.event.EmissionTestStarted;
 import io.spine.server.aggregate.given.klasse.event.EmissionTestStopped;
 import io.spine.server.aggregate.given.klasse.event.EngineStarted;
 import io.spine.server.aggregate.given.klasse.event.EngineStopped;
-import io.spine.server.aggregate.given.klasse.event.SettingsAdjusted;
 import io.spine.server.aggregate.given.klasse.event.TankEmpty;
 import io.spine.server.aggregate.given.klasse.rejection.Rejections;
 import io.spine.server.model.ModelError;
@@ -88,20 +87,11 @@ class AggregateClassTest {
         }
 
         @Test
-        @DisplayName("events imported by the aggregate")
-        void importedEvents() {
-            assertEventClassesExactly(aggregateClass.importableEvents(),
-                                      EngineStopped.class,
-                                      SettingsAdjusted.class);
-        }
-
-        @Test
-        @DisplayName("events (including rejections and importable) produced by the aggregate")
+        @DisplayName("events (including rejections) produced by the aggregate")
         void producedEvents() {
             assertEventClassesExactly(aggregateClass.outgoingEvents(),
                                       EngineStarted.class,
                                       EngineStopped.class,
-                                      SettingsAdjusted.class,
                                       Rejections.EngineAlreadyStarted.class,
                                       Rejections.EngineAlreadyStopped.class);
         }
@@ -116,8 +106,8 @@ class AggregateClassTest {
     }
 
     @Test
-    @DisplayName("check that there is only one applier per event type")
-    void checkOneApplier() {
+    @DisplayName("reject a class that declares `@Apply` event appliers")
+    void rejectAppliers() {
         assertThrows(ModelError.class,
                      () -> asAggregateClass(IndecisiveEngineAggregate.class));
     }

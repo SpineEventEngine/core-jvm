@@ -415,41 +415,6 @@ public class AggregateTest {
         }
     }
 
-    @Test
-    @DisplayName("replay historical events")
-    void playEvents() {
-        var events = generateProjectEvents();
-        var aggregateHistory = AggregateHistory.newBuilder()
-                .addAllEvent(events)
-                .build();
-
-        AggregateTransaction<?, ?, ?> tx = AggregateTransaction.start(aggregate);
-        aggregate().replay(aggregateHistory);
-        tx.commit();
-
-        assertTrue(aggregate.projectCreatedEventApplied);
-        assertTrue(aggregate.taskAddedEventApplied);
-        assertTrue(aggregate.projectStartedEventApplied);
-    }
-
-    @Test
-    @DisplayName("restore snapshot during play")
-    void restoreSnapshot() {
-        dispatchCommand(aggregate, command(createProject));
-
-        var snapshot = aggregate().toSnapshot();
-
-        Aggregate<?, ?, ?> anotherAggregate = newAggregate(aggregate.id());
-
-        AggregateTransaction<?, ?, ?> tx = AggregateTransaction.start(anotherAggregate);
-        anotherAggregate.replay(AggregateHistory.newBuilder()
-                                                .setSnapshot(snapshot)
-                                                .build());
-        tx.commit();
-
-        assertEquals(aggregate, anotherAggregate);
-    }
-
     @Nested
     @DisplayName("after dispatch, return event records")
     class ReturnEventRecords {
@@ -541,17 +506,17 @@ public class AggregateTest {
     }
 
     @Test
-    @DisplayName("restore state from snapshot")
-    void restoreStateFromSnapshot() {
+    @DisplayName("restore state, version, and lifecycle flags from the latest state record")
+    void restoreStateFromRecord() {
 
         dispatchCommand(aggregate, command(createProject));
 
-        var snapshotNewProject = aggregate().toSnapshot();
+        var record = AggregateRecords.newStateRecord(aggregate());
 
         Aggregate<?, ?, ?> anotherAggregate = newAggregate(aggregate.id());
 
         AggregateTransaction<?, ?, ?> tx = AggregateTransaction.start(anotherAggregate);
-        anotherAggregate.restore(snapshotNewProject);
+        anotherAggregate.restore(record);
         tx.commit();
 
         assertEquals(aggregate.state(), anotherAggregate.state());
@@ -665,37 +630,6 @@ public class AggregateTest {
                                     .buildPartial());
         }
 
-        @Test
-        @DisplayName("the event replay")
-        void whenPlayThrows() {
-            ModelTests.dropAllModels();
-            var faultyAggregate = new FaultyAggregate(ID, false, true);
-
-            var event = event(projectCreated(ID, getClass().getSimpleName()), 1);
-            AggregateTransaction.start(faultyAggregate);
-            var history = AggregateHistory.newBuilder()
-                    .addEvent(event)
-                    .build();
-            var batchDispatchOutcome =
-                    ((Aggregate<?, ?, ?>) faultyAggregate).replay(history);
-            assertThat(batchDispatchOutcome.getSuccessful()).isFalse();
-            var expectedTarget = MessageId.newBuilder()
-                    .setId(Identifier.pack(faultyAggregate.id()))
-                    .setTypeUrl(faultyAggregate.modelClass()
-                                               .stateTypeUrl()
-                                               .value())
-                    .buildPartial();
-            assertThat(batchDispatchOutcome.getTargetEntity())
-                    .comparingExpectedFieldsOnly()
-                    .isEqualTo(expectedTarget);
-            assertThat(batchDispatchOutcome.getOutcomeCount()).isEqualTo(1);
-            var outcome = batchDispatchOutcome.getOutcome(0);
-            assertThat(outcome.hasError()).isTrue();
-            assertThat(outcome.getPropagatedSignal()).isEqualTo(event.messageId());
-            var error = outcome.getError();
-            assertThat(error.getType()).isEqualTo(IllegalStateException.class.getCanonicalName());
-            assertThat(error.getMessage()).isEqualTo(FaultyAggregate.BROKEN_APPLIER);
-        }
     }
 
     @Test
