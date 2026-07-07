@@ -370,6 +370,24 @@ public class AggregateStorage<I, S extends AggregateState<I>>
         return result;
     }
 
+    /**
+     * Reads the latest persisted state record of the aggregate with the passed ID.
+     *
+     * <p>Since the event-sourcing cutover this record is the source of truth for
+     * {@linkplain AggregateRepository#load(Object) loading} an aggregate. Unlike the
+     * {@link #readStates(ResponseFormat) query reads}, this method is <em>not</em> gated by the
+     * querying/visibility check — the state must be readable even for {@code NONE}-visibility
+     * aggregates, which never expose their states for client querying.
+     *
+     * @param id
+     *         the identifier of the aggregate
+     * @return the latest state record, or {@code Optional.empty()} if the aggregate has never
+     *         been stored
+     */
+    Optional<EntityRecord> readState(I id) {
+        return stateStorage.read(id);
+    }
+
     private void ensureStatesQueryable() {
         if (!queryingEnabled) {
             throw newIllegalStateException(
@@ -385,7 +403,7 @@ public class AggregateStorage<I, S extends AggregateState<I>>
     }
 
     protected void writeState(Aggregate<I, ?, ?> aggregate) {
-        var record = AggregateRecords.newStateRecord(aggregate, queryingEnabled);
+        var record = AggregateRecords.newStateRecord(aggregate);
         var result = RecordWithColumns.create(record, stateStorage.recordSpec());
         stateStorage.write(result);
     }
