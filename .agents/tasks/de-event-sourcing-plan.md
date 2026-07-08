@@ -409,6 +409,15 @@ Decoupled; starts after Phase B is merged and stable.
    must not be aggregate-specific; actual PM wiring is out of scope.
 5. Read API for debugging/analysis (state history alongside the journal).
 
+### Follow-up: journal type cleanup (`EventHistory`)
+
+Introduce a snapshot-free `EventHistory` type and deprecate `AggregateHistory` —
+its `snapshot` field is dead weight after the cutover, and the "history =
+snapshot + tail" semantics no longer hold. Detailed task:
+[`introduce-event-history-type.md`](introduce-event-history-type.md). Coordinate
+with the count/date journal trimming in D3 above, since both touch the journal
+representation.
+
 ## Phase E — Downstream rollout (dependency order)
 
 Publish a `core-jvm` snapshot after Phase B; then migrate consumers in
