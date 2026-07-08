@@ -69,9 +69,12 @@ import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
  * Aggregates guarantee the consistency of data modifications in response to
  * commands they receive.
  *
- * <p>An aggregate modifies its state in response to a command and produces
- * one or more events. These events are used later to restore the state of the
- * aggregate.
+ * <p>An aggregate modifies its state in response to a command — or to an event it reacts to —
+ * and produces one or more events describing what happened. Since the event-sourcing cutover the
+ * state is persisted directly: an aggregate loads from its latest
+ * {@link io.spine.server.entity.EntityRecord EntityRecord} rather than by replaying its events.
+ * The produced events form an append-only journal kept for traceability and for the opt-in
+ * {@link IdempotencyGuard}.
  *
  * <h2>Creating an aggregate class</h2>
  *
@@ -86,48 +89,27 @@ import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
  *         state types as generic parameters.
  * </ol>
  *
- * <h3>Assigning methods to handle commands</h3>
+ * <h3>Handling commands and reacting to events</h3>
  *
- * <p>Command receptors of an {@code Aggregate} are defined in
- * the same way as described in {@link AssigneeEntity}.
- * Please also refer to {@link io.spine.server.command.Assign Assign}.
+ * <p>Command receptors of an {@code Aggregate} are defined in the same way as described in
+ * {@link AssigneeEntity}; please also refer to {@link io.spine.server.command.Assign Assign}.
+ * An aggregate may additionally react to events with {@link io.spine.server.event.React @React}
+ * methods. Event(s) returned by these receptors are posted to the
+ * {@link io.spine.server.event.EventBus EventBus} automatically by {@link AggregateRepository}.
  *
- * <p>Event(s) returned by command-handling methods are posted to
- * the {@link io.spine.server.event.EventBus EventBus} automatically
- * by {@link AggregateRepository}.
+ * <h3>Changing the state</h3>
  *
- * <h3>Adding event appliers</h3>
+ * <p>A receptor changes the aggregate state through the builder obtained from
+ * {@link #builder() builder()} and returns the event(s) it produces. The framework opens a
+ * transaction <em>before</em> invoking the receptor — exactly as it does for a
+ * {@link io.spine.server.procman.ProcessManager ProcessManager} — so the changes accumulated in
+ * {@code builder()} are validated and committed as the new {@link #state() state()} when the
+ * receptor returns. The version advances by one per dispatch, and the emitted events carry the
+ * aggregate's pre-dispatch version.
  *
- * <p>Aggregate data is stored as a sequence of events it produces.
- * The state of the aggregate is restored by re-playing the history of
- * events and invoking corresponding <em>event applier methods</em>.
- *
- * <p>An event applier is a method that changes the state of the aggregate
- * in response to an event. An event applier takes a single parameter of the
- * event message it handles and returns {@code void}.
- * Please see {@link Apply} for more details.
- *
- * <p>The modification of the state is done using a builder instance obtained
- * from {@link #builder() builder()}. All changes to state become reflected
- * in {@link #state() state()}, after <em>all</em> events (obtained from
- * aggregate's history when loading an aggregate, or emitted by command handlers
- * during the command dispatching) are played.
- *
- * <p>End-users must not call {@code state()} method within an event applier.
- * It is so, because event appliers are invoked in scope of an active transaction,
- * which accumulates the model updates in aggregate's {@code builder()},
- * and not in {@code state()}. Therefore, {@code state()} invocation from
- * the applier's code may return some inconsistent result, and thus
- * is prone to errors. All such attempts will result in a {@code RuntimeException}.
- *
- * <p>An {@code Aggregate} class must have applier methods for
- * <em>all</em> types of the events that it produces.
- *
- * <h2>Performance considerations</h2>
- *
- * <p>To improve performance of loading aggregates, an
- * {@link AggregateRepository} periodically stores aggregate snapshots.
- * See {@link AggregateRepository#setSnapshotTrigger(int)} for details.
+ * <p>Event sourcing has been removed: an aggregate no longer declares {@code @Apply} event
+ * appliers, and its state is not reconstructed by replaying events. Declaring an applier now fails
+ * model building with a {@link io.spine.server.model.ModelError ModelError}. See {@link Apply}.
  *
  * @param <I>
  *         the type for IDs of this class of aggregates
