@@ -28,6 +28,8 @@ package io.spine.system.server.given.diagnostics;
 
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.command.Assign;
+import io.spine.server.event.NoReaction;
+import io.spine.server.event.React;
 import io.spine.system.server.test.TextValidated;
 import io.spine.system.server.test.ValidateAndSet;
 import io.spine.system.server.test.Validated;
@@ -37,13 +39,26 @@ public final class ValidatedAggregate extends Aggregate<ValidatedId, Validated, 
 
     @Assign
     TextValidated handle(ValidateAndSet command) {
-        var event = TextValidated
+        return TextValidated
                 .newBuilder()
                 .setId(id())
                 .setValidText(command.getTextToValidate())
                 .build();
+    }
+
+    /**
+     * Applies the {@link TextValidated} event to the aggregate state.
+     *
+     * <p>Since the event-sourcing cutover the state mutation that used to live in an
+     * {@code @Apply} applier runs here, in the reaction to the event. An invalid value therefore
+     * surfaces as a constraint violation <em>as a result of an event</em>: the transaction fails
+     * when the resulting state is validated, and the framework emits a {@code ConstraintViolated}
+     * whose {@code last_message} is this event.
+     */
+    @React
+    NoReaction on(TextValidated event) {
         builder().setId(event.getId())
                  .setOnlyLetters(event.getValidText());
-        return event;
+        return noReaction();
     }
 }

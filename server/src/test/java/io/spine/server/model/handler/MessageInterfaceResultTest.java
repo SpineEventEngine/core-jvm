@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -26,27 +26,19 @@
 
 package io.spine.server.model.handler;
 
-import io.spine.server.aggregate.model.AggregateClass;
 import io.spine.server.model.handler.given.RoverBot;
 import io.spine.server.model.handler.given.command.Start;
-import io.spine.server.model.handler.given.event.MovedEast;
-import io.spine.server.model.handler.given.event.MovedNorth;
-import io.spine.server.model.handler.given.event.MovedSouth;
-import io.spine.server.model.handler.given.event.MovedWest;
 import io.spine.testing.server.blackbox.BlackBox;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
 import static io.spine.testing.TestValues.random;
-import static io.spine.testing.server.Assertions.assertEventClassesExactly;
 
 @DisplayName("An aggregate class with a handler returning events via common interface should")
 class MessageInterfaceResultTest {
 
-    private final AggregateClass<?> aggregateClass = asAggregateClass(RoverBot.class);
     private BlackBox context;
 
     @BeforeEach
@@ -59,14 +51,12 @@ class MessageInterfaceResultTest {
         context.close();
     }
 
-    @Test
-    @DisplayName("provide state events")
-    void generatedEvents() {
-        assertEventClassesExactly(
-                aggregateClass.stateEvents(),
-                MovedNorth.class, MovedEast.class, MovedSouth.class, MovedWest.class
-        );
-    }
+    // The former "provide state events" case asserted that the concrete event types a handler
+    // returns via a common interface (`List<MovingEvent>`) are exposed as the aggregate's state
+    // events. Those concrete types used to be declared by `@Apply` appliers; since the
+    // event-sourcing cutover removed appliers, they are no longer part of the static model, so the
+    // case is obsolete. The runtime behavior — the handler producing the concrete events — is
+    // covered by "dispatch the command" below.
 
     @Test
     @DisplayName("dispatch the command")

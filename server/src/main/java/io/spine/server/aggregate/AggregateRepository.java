@@ -296,6 +296,13 @@ public abstract class AggregateRepository<I,
 
     @VisibleForTesting
     protected void doStore(A aggregate) {
+        // Since the cutover the state is persisted unconditionally with respect to visibility, but
+        // still only for an aggregate that was actually modified. Persisting an untouched instance
+        // would overwrite the stored state of another instance sharing the same ID with a default
+        // (empty) record. An unmodified aggregate has neither a state change nor uncommitted events.
+        if (!aggregate.changed() && !aggregate.hasUncommittedEvents()) {
+            return;
+        }
         var history = aggregate.uncommittedHistory();
         aggregateStorage().writeAll(aggregate, history.get());
         aggregate.commitEvents();
