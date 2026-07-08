@@ -1,37 +1,41 @@
 # PR-B2 — Aggregate event-sourcing cutover (execution plan)
 
-## CURRENT STATUS (branch `de-event-source-PR-B2`, ~16 commits ahead of master)
+## CURRENT STATUS — ✅ COMPLETE (branch `de-event-source-PR-B2`, 20 commits ahead of master)
 
-**✅ EVERYTHING COMPILES** (main + testFixtures + test Java/Kotlin + server-testlib).
-**Runtime tests: aggregate suite down to 17 failures** (from 23), dominated by ONE
-root cause plus a few test rewrites:
+**`./gradlew clean build` is GREEN** (BUILD SUCCESSFUL): every module compiles, all
+tests pass, static analysis passes, docs generate. The event-sourcing cutover is done.
 
-- **✅ LOAD-FROM-STATE VERIFIED WORKING.** Diagnostic proved `readState` returns
-  `found=true` after every write (single-tenant); the round-trip is correct. The
-  earlier "Aggregate not found" was **test pollution** — `IdempotencyGuardTest`
-  **passes in isolation** (BUILD SUCCESSFUL) but fails when run in the same JVM
-  after `AggregateTest`/model tests (which call `ModelTests.dropAllModels()` / reset
-  global state). *Cross-suite isolation is a remaining item for `./gradlew build`*
-  (add `forkEvery`, or make the polluting tests restore state).
-- **`AggregateTest` in isolation: 7 failures remain** (down from 11; guard-dispatch,
-  obsolete `state()`/snapshot tests fixed):
-  - **Pair fixtures (3, `CreateSingleEventForPair`)** — a fresh aggregate handling
-    `assignTask()` alone produces 0 events: the migrated handler sets `assignee` but
-    not the state `id`, so the **new commit-time validation (D6)** rejects the built
-    state. Fix: the migrated `TaskAggregate` (aggregate/given/aggregate) handlers
-    must set the state `id` (or the test must create the task first).
-  - **validation (2, `AllowValidatedAggregates`/`SafeThermometer`)** — `tryAlter` /
-    zero-event-reactor store-gate interaction (a withheld change must NOT store).
-  - **multitenant history (1, `traverse history iterating newest first`)** — uses
-    `loadAggregate(tenantId, ID)`; single-tenant loads work, so a tenant-scoped
-    readState/loader nuance.
-  - **command-assignee (1)** — `AggregateWithMissingApplier` no longer raises
-    `ModelError` (missing-applier concept gone); rewrite/remove the test.
+Load-from-state, `+1`-per-dispatch versioning (events carry the pre-dispatch version,
+ADR D3), the opt-in `IdempotencyGuard` with lazy recent-history, `@Apply`→`ModelError`,
+and event-import removal are all in and verified.
 
-Fixed this session: event-recording seam (moved to `runTransactionFor`), `+1`/dispatch
-+ pre-dispatch event-version tests, lazy recent-history read (`Aggregate.historyBackward(int)`
-+ `AggregateStorage.readHistoryBackward` + repo loader), guard opt-in test updates,
-`AggregateTest`/`AggregateClassTest` model tests, `EngineAggregate` migration.
+### Test-tail fixes that closed the last failures (35 → 0 across `:server:test`)
+
+- **No-op dispatch guard** (`Phase.incrementTransaction` + `Transaction.stateChangedInPhase`):
+  a dispatch that produces no events and leaves the state unchanged skips the validating
+  `build()` and the version bump — so a withheld `@React` (e.g. `SafeThermometer` out of
+  range) is a true no-op instead of validating an invalid default state. This one fix
+  closed both the validation cluster and the `CreateSingleEventForPair` self-reaction
+  cluster (the no-op was rolling back the whole command chain).
+- **`doStore` gates on modified-ness** — storing an untouched aggregate no longer
+  overwrites another instance sharing the same ID (`AggregatePartTest`). "State stored
+  unconditionally" was always about *visibility*, never about *unmodified* instances.
+- **`ConstraintViolated` `last_message`** — `ValidatedAggregate` applies its invalid value
+  in a `@React on(TextValidated)` (as the old applier did), so the diagnostic carries the
+  event, matching `ViolationsWatch`'s `@Where(last_message.type_url == TextValidated)`.
+- **Unhandled command** now surfaces as an error outcome (transaction failsafe), like a
+  ProcessManager, rather than a thrown `ModelError`.
+- **Fixture migrations**: `TxAggregate`, `DocumentAggregate`, `Dot`, `IndecisiveEngineAggregate`
+  (+ `ModSplitEventAggregate` removed) moved off `@Apply`.
+- **Obsolete-mechanism tests** updated/removed: snapshot creation, snapshot-trigger batch
+  read, corrupted-journal replay, applier-only "state events", `advance version from event`
+  (fromEvent semantics), and snapshot-boundary truncation counts.
+
+### Follow-ups (non-blocking, for the PR or a later change)
+- Squash the 18 WIP commits into the atomic cutover commit at merge time.
+- `importado` package (`Dot`/`DotSpace`/`MoveMessages` + protos) is now dead code — delete.
+- Consider renaming `IndecisiveEngineAggregate` (its "duplicate applier" premise is gone;
+  it is now the canonical single-`@Apply` "reject appliers" fixture).
 
 ---
 
