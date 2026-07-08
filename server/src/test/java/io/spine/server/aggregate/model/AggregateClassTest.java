@@ -27,7 +27,7 @@
 package io.spine.server.aggregate.model;
 
 import io.spine.server.aggregate.given.klasse.EngineAggregate;
-import io.spine.server.aggregate.given.klasse.IndecisiveEngineAggregate;
+import io.spine.server.aggregate.given.klasse.EngineAggregateWithApplier;
 import io.spine.server.aggregate.given.klasse.command.StartEngine;
 import io.spine.server.aggregate.given.klasse.command.StopEngine;
 import io.spine.server.aggregate.given.klasse.event.EmissionTestStarted;
@@ -110,7 +110,7 @@ class AggregateClassTest {
     @DisplayName("reject a class that declares `@Apply` event appliers")
     void rejectAppliers() {
         var error = assertThrows(ModelError.class,
-                                 () -> asAggregateClass(IndecisiveEngineAggregate.class));
+                                 () -> asAggregateClass(EngineAggregateWithApplier.class));
         assertThat(error)
                 .hasMessageThat()
                 .contains("declares `@Apply`-annotated event applier");
