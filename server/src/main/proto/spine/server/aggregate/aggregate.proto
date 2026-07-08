@@ -125,36 +125,3 @@ message AggregateHistory {
     repeated core.Event event = 2;
 }
 
-
-// The state of an aggregate at some point in time stored as a distinct record.
-//
-// Being persisted separately from aggregate's history (i.e. event and snapshot records),
-// state records unlock the possibility to query the storage for aggregate instances.
-//
-// The records of this type are not used to replay the aggregate history, but rather serve as
-// an eventually-consistent "read-side" of the stored aggregate instance.
-//
-message AggregateStateRecord {
-
-    // The ID of the corresponding aggregate packed as Any.
-    google.protobuf.Any value = 1 [(required) = true, (validate) = true];
-
-    // The type URL of the aggregate ID.
-    string id_type = 2 [(required) = true];
-
-    // The state of the aggregate.
-    //
-    // This field is populated if the aggregate is visible for querying.
-    //
-    google.protobuf.Any state = 3;
-
-    // The version of the aggregate.
-    core.Version version = 4;
-
-    // The aggregate type URL.
-    string aggregate_type = 5 [(column) = true];
-
-    // The lifecycle flags of the aggregate.
-    spine.server.entity.LifecycleFlags lifecycle = 6;
-}
-
