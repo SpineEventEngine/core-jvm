@@ -32,7 +32,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks a method of an aggregate as an <i>event applier</i> — a method that modified the
+ * Marks a method of an aggregate as an <i>event applier</i> — a method that modifies the
  * aggregate's state from a played event.
  *
  * @deprecated Event sourcing has been removed from aggregates. An aggregate now mutates its state

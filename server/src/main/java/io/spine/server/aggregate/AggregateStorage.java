@@ -48,7 +48,9 @@ import io.spine.server.storage.RecordWithColumns;
 import io.spine.server.storage.StorageFactory;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -437,7 +439,10 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      *
      * <p>Used to lazily load recent history for the opt-in {@link IdempotencyGuard} and for
      * business access via {@link Aggregate#historyBackward(int)}. Non-event (snapshot) records
-     * are skipped.
+     * are skipped, so on legacy data that still holds {@code Snapshot} records within the first
+     * {@code depth} entries the returned window may contain fewer than {@code depth} events.
+     * Snapshots are no longer written since the event-sourcing cutover, so this affects only
+     * pre-cutover journals.
      *
      * @param id
      *         the identifier of the aggregate
@@ -445,9 +450,9 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      *         the maximum number of the most recent events to read
      * @return the most recent events, newest first
      */
-    java.util.List<Event> readHistoryBackward(I id, int depth) {
+    List<Event> readHistoryBackward(I id, int depth) {
         var records = historyBackward(id, depth);
-        java.util.List<Event> events = new java.util.ArrayList<>(depth);
+        List<Event> events = new ArrayList<>(depth);
         while (records.hasNext() && events.size() < depth) {
             var record = records.next();
             if (record.hasEvent()) {

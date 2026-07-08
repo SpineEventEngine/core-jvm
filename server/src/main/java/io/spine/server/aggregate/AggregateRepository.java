@@ -296,10 +296,10 @@ public abstract class AggregateRepository<I,
 
     @VisibleForTesting
     protected void doStore(A aggregate) {
-        // Since the cutover the state is persisted unconditionally with respect to visibility, but
-        // still only for an aggregate that was actually modified. Persisting an untouched instance
-        // would overwrite the stored state of another instance sharing the same ID with a default
-        // (empty) record. An unmodified aggregate has neither a state change nor uncommitted events.
+        // Since the cutover the state is persisted independently of visibility, but still only
+        // for an aggregate that was actually modified. Persisting an untouched instance would
+        // overwrite the stored state of another instance sharing the same ID with a default
+        // (empty) record. An unmodified aggregate has no state change and no uncommitted events.
         if (!aggregate.changed() && !aggregate.hasUncommittedEvents()) {
             return;
         }
@@ -473,7 +473,7 @@ public abstract class AggregateRepository<I,
     }
 
     /**
-     * Returns the number of events until a next {@code Snapshot} is made.
+     * Returns the {@linkplain #historyDepth() recent-history window}.
      *
      * @deprecated Snapshots were removed with event-sourced loading. Superseded by
      *         {@link #historyDepth()}; this method now returns the history depth.
@@ -484,7 +484,7 @@ public abstract class AggregateRepository<I,
     }
 
     /**
-     * Changes the number of events between making aggregate snapshots to the passed value.
+     * Sets the {@linkplain #historyDepth() recent-history window}.
      *
      * @deprecated Snapshots were removed with event-sourced loading. Superseded by
      *         {@link #setHistoryDepth(int)}; this method now sets the history depth.

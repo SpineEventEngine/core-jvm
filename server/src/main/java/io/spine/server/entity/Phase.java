@@ -86,6 +86,8 @@ public abstract class Phase<I> {
             // A pure no-op dispatch — neither events nor a state change (e.g. an `@React`
             // reaction that withheld itself). Do not validate or advance the version, so the
             // entity is not forced into existence with an unmodified (possibly invalid) state.
+            // This applies to every transactional entity (aggregates and process managers alike):
+            // a receptor that changes nothing is deliberately a no-op and leaves the version as is.
             return;
         }
         transaction.incrementStateAndVersion(versionIncrement);

@@ -79,8 +79,8 @@ public class AggregateClass<A extends Aggregate<?, ?, ?>>
             throw new ModelError(
                     "The aggregate class `%s` declares `@Apply`-annotated event applier(s) for " +
                             "%s. Event sourcing has been removed: move each applier's body into " +
-                            "the `@Assign` / `@React` receptor that emits the event (mutating the " +
-                            "state via `builder()`), and delete the `@Apply` method(s).",
+                            "the `@Assign` / `@React` receptor that emits the event (mutating " +
+                            "the state via `builder()`), and delete the `@Apply` method(s).",
                     cls.getName(), appliers);
         }
     }

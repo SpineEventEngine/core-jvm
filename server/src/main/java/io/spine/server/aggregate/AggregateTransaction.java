@@ -46,8 +46,9 @@ import io.spine.validation.ValidatingBuilder;
  *
  * <p>Since the event-sourcing cutover, an {@code Aggregate} is modified exactly like a
  * {@link io.spine.server.procman.ProcessManager ProcessManager}: the framework opens the
- * transaction <em>before</em> invoking the receptor, the receptor mutates {@link Aggregate#builder()
- * builder()} and returns its events, and the version advances <b>by one per dispatch</b> via
+ * transaction <em>before</em> invoking the receptor, the receptor mutates
+ * {@link Aggregate#builder() builder()} and returns its events, and the version advances
+ * <b>by one per dispatch</b> via
  * {@link VersionIncrement#sequentially(Transaction)} — no longer once per applied event. The
  * emitted events therefore carry the aggregate's pre-dispatch version, exactly as
  * process-manager events do.
@@ -89,7 +90,7 @@ public class AggregateTransaction<I,
      *
      * @param dispatch the {@code DispatchCommand} task
      * @return the events generated from the command dispatch
-     * @see Aggregate#dispatchCommand(CommandEnvelope)
+     * @see Aggregate#dispatchCommand(io.spine.server.type.CommandEnvelope)
      */
     final DispatchOutcome perform(DispatchCommand<I> dispatch) {
         var vi = createVersionIncrement();
