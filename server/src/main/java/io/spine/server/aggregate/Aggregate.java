@@ -49,7 +49,6 @@ import io.spine.validation.ValidatingBuilder;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.function.IntFunction;
 import java.util.function.Predicate;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -156,7 +155,7 @@ public abstract class Aggregate<I,
      * <p>Set by the repository when the aggregate is created or loaded. When absent, recent
      * history falls back to the in-memory {@link #recentHistory() recentHistory}.
      */
-    private transient IntFunction<Iterator<Event>> recentHistoryLoader;
+    private transient RecentHistoryLoader recentHistoryLoader;
 
     /**
      * Creates a new instance.
@@ -223,7 +222,7 @@ public abstract class Aggregate<I,
      * <p>Called by the repository so that {@link #historyBackward(int)} and the opt-in
      * {@link IdempotencyGuard} can inspect recent history after a state-only load.
      */
-    final void setRecentHistoryLoader(IntFunction<Iterator<Event>> loader) {
+    final void setRecentHistoryLoader(RecentHistoryLoader loader) {
         this.recentHistoryLoader = loader;
     }
 
@@ -449,7 +448,7 @@ public abstract class Aggregate<I,
     protected final Iterator<Event> historyBackward(int depth) {
         checkArgument(depth > 0, "History depth must be positive. Got %s.", depth);
         if (recentHistoryLoader != null) {
-            return recentHistoryLoader.apply(depth);
+            return recentHistoryLoader.load(depth);
         }
         return limit(recentHistory().iterator(), depth);
     }
