@@ -85,7 +85,7 @@ import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
  *         define a protobuf message for the ID type.
  *     <li>Define the structure of the aggregate state as a Protobuf message.
  *     <li>Generate Java code for ID and state types.
- *     <li>Create new Java class derived from {@code Aggregate} passing ID and
+ *     <li>Create a new Java class derived from {@code Aggregate} passing ID and
  *         state types as generic parameters.
  * </ol>
  *
@@ -106,6 +106,18 @@ import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
  * {@code builder()} are validated and committed as the new {@link #state() state()} when the
  * receptor returns. The version advances by one per dispatch, and the emitted events carry the
  * aggregate's pre-dispatch version.
+ *
+ * <p>In Kotlin, a receptor can mutate the state more idiomatically through the builder DSL
+ * inherited from {@link io.spine.server.entity.TransactionalEntity TransactionalEntity} rather
+ * than calling {@link #builder() builder()} directly. Each method takes a lambda with the state
+ * builder as its receiver:
+ * <ul>
+ *     <li>{@code alter} applies the changes to the live builder;
+ *     <li>{@code update} does the same and returns the builder for further use;
+ *     <li>{@code tryAlter} validates the candidate state first, applying it only when it is valid
+ *         and otherwise leaving the state untouched and returning the constraint violations — a
+ *         validate-before-apply guard for conditionally withholding a change.
+ * </ul>
  *
  * <p>Event sourcing has been removed: an aggregate no longer declares {@code @Apply} event
  * appliers, and its state is not reconstructed by replaying events. Declaring an applier now fails
