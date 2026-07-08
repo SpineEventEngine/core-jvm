@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 syntax = "proto3";
 
 package spine.server.aggregate;
@@ -43,7 +44,13 @@ import "spine/core/version.proto";
 import "spine/server/entity/entity.proto";
 
 
-// The message for storing an aggregate snapshot.
+// A snapshot of an aggregate's state at a point in its history.
+//
+// Retained for wire compatibility with pre-cutover journal data. The runtime no
+// longer produces snapshots: event-sourced loading was removed, so an aggregate's
+// state is restored from its latest record rather than by replaying events from
+// a snapshot.
+//
 message Snapshot {
 
     // The state of the aggregate.
@@ -103,13 +110,14 @@ message AggregateEventRecord {
     google.protobuf.Any aggregate_id = 5;
 }
 
-// A history of an aggregate is a sequence of its events that is used by the aggregate
-// to restore its state.
+// The recorded history of an aggregate: the sequence of events it emitted.
 //
-// The history may start from a snapshot of the aggregate state. If so, the snapshot will be
-// used as the starting point before playing events that occurred after the snapshot.
+// Since the de-event-sourcing cutover, aggregate state is no longer restored by
+// replaying this history. It is kept as an append-only journal for
+// traceability and recent-history lookups.
 //
-// If no snapshot is available, events represent the full history of the aggregate.
+// The `snapshot` field is retained for wire compatibility with pre-cutover data
+// and is not populated by the current runtime.
 //
 message AggregateHistory {
 

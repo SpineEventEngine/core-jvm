@@ -87,6 +87,23 @@ import static java.util.Objects.requireNonNull;
 /**
  * The repository that manages instances of {@code Aggregate}s.
  *
+ * <p>The repository routes commands and events to its aggregates, stores the events they
+ * produce, and posts those events to the {@link io.spine.server.event.EventBus EventBus}.
+ *
+ * <p>Since the event-sourcing cutover, an aggregate is loaded from its latest persisted
+ * {@link io.spine.server.entity.EntityRecord EntityRecord} rather than by replaying its event
+ * journal. The journal is kept append-only for traceability and for the opt-in
+ * {@link IdempotencyGuard}.
+ *
+ * <p>Two per-repository settings tune this behavior:
+ * <ul>
+ *     <li>{@linkplain #historyDepth() historyDepth} — the number of most recent journal events
+ *         exposed as an aggregate's recent history (default {@value #DEFAULT_HISTORY_DEPTH}).
+ *     <li>{@link #useIdempotencyGuard()} — enables the journal-backed {@link IdempotencyGuard}.
+ *         The guard is <b>off by default</b>: deduplication is primarily the responsibility of
+ *         the delivery layer.
+ * </ul>
+ *
  * @param <I>
  *         the type of the aggregate IDs
  * @param <A>
@@ -103,7 +120,7 @@ public abstract class AggregateRepository<I,
         implements CommandDispatcher, EventProducingRepository,
                    EventDispatcherDelegate, QueryableRepository<I, S> {
 
-    /** The default number of events to be stored before a new snapshot is made. */
+    /** The default {@link #historyDepth()} value. */
     static final int DEFAULT_HISTORY_DEPTH = 100;
 
     /** The routing schema for commands handled by the aggregates. */
@@ -120,7 +137,7 @@ public abstract class AggregateRepository<I,
 
     private @MonotonicNonNull RepositoryCache<I, A> cache;
 
-    /** The recent-history window (formerly the snapshot trigger). */
+    /** The recent-history window. */
     private int historyDepth = DEFAULT_HISTORY_DEPTH;
 
     /** Whether the opt-in {@link IdempotencyGuard} is enabled for this repository. */
@@ -430,9 +447,8 @@ public abstract class AggregateRepository<I,
     }
 
     /**
-     * Returns the number of the most recent journal events made available to the opt-in
-     * {@link IdempotencyGuard} and to the deprecated parameterless history accessors of
-     * {@link Aggregate}.
+     * Returns the number of the most recent journal events scanned by the opt-in
+     * {@link IdempotencyGuard} when it is enabled.
      *
      * @return a positive integer value; the default is {@value #DEFAULT_HISTORY_DEPTH}
      */

@@ -9,3 +9,4 @@ Each entry is a memory file with YAML frontmatter and a body. Types: `feedback`,
 - [Java→Kotlin visibility traps](java-to-kotlin-visibility-traps.md) — protected/package-private mapping, `@JvmName` for Java callers, `HasVersionColumn.getVersion()` clash
 - [KDoc tag descriptions: sentence case](feedback_kdoc_tag_descriptions_sentence_case.md) — `@param I The type...`; don't carry lowercase over from legacy Javadoc
 - [Document `internal` members](feedback_document_internal_members.md) — every Kotlin `internal` method gets KDoc; project convention
+- [New proto types: separate file](feedback_proto_one_message_per_file.md) — one message per file recommended; don't append new types to existing multi-message protos

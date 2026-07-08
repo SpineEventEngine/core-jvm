@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 syntax = "proto3";
 
 package spine.system.server;
@@ -116,32 +117,12 @@ message RoutingFailed {
     base.Error error = 3;
 }
 
-// An event emitted when an Aggregate cannot load its history due to an error while applying
-// historical events.
+// Emitted when an Aggregate could not load its history because an error occurred while
+// replaying historical events.
 //
-// The event is emitted upon each attempt to load the Aggregate.
-//
-// An Aggregate with a corrupted history cannot handle new signals.
-//
-// The Aggregate state accessible to read side is undefined. It may reflect the state of the
-// Aggregate after the last successful event, or may have advanced further, including changes caused
-// by the erroneous event. An `EntityStateChanged` event must be emitted after the error is resolved
-// to catch up the read-side on the valid Aggregate state.
-//
-// The error may take place some time after the erroneous event was emitted. In this case, there may
-// be newer events in the Aggregate history. Those events cannot be applied to the Aggregate either.
-// See `interrupted_events` for the number of such events.
-//
-// The framework does not provide a turn-key solution for resolving this kind of data corruption.
-// Depending on the situation, there may be different approaches to the problem. Most common ones
-// are:
-//   - Change the logic in the event applier, so that a runtime error is not produced for the given
-//     event.
-//   - Manually change the event in the database. Note that the erroneous event may have been
-//     propagated to other entities. Re-writing part of the system's history might lead to
-//     inconsistent data.
-//   - Manually delete the event in the database. Just like the previous approach, this is
-//     a dangerous operation as the consequences of changing the history are unpredictable.
+// Retained for wire compatibility; no longer emitted. Aggregates no longer replay events to
+// load their state — event-sourced loading was removed during the de-event-sourcing cutover —
+// so this kind of load-time corruption can no longer occur.
 //
 message AggregateHistoryCorrupted {
 
