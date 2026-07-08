@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ package io.spine.server.command.model.given.handler;
 
 import io.spine.base.Identifier;
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.server.entity.rejection.EntityAlreadyArchived;
 import io.spine.test.reflect.Project;
@@ -50,10 +49,5 @@ public class RejectingAggregate extends Aggregate<ProjectId, Project, Project.Bu
                 .newBuilder()
                 .setEntityId(Identifier.pack(cmd.getProjectId()))
                 .build();
-    }
-
-    @Apply
-    private void event(RefProjectCreated evt) {
-        // Do nothing.
     }
 }

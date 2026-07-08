@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,47 +23,33 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-syntax = "proto3";
 
-package spine.test.aggregate.command;
+package io.spine.server.aggregate.given.klasse;
 
-import "spine/options.proto";
+import io.spine.server.aggregate.Aggregate;
+import io.spine.server.aggregate.Apply;
+import io.spine.server.aggregate.given.klasse.command.StartEngine;
+import io.spine.server.aggregate.given.klasse.event.EngineStarted;
+import io.spine.server.command.Assign;
 
-option (type_url_prefix) = "type.spine.io";
-option java_package="io.spine.server.aggregate.given.importado";
-option java_outer_classname = "MovementProto";
-option java_multiple_files = true;
+/**
+ * A test-only aggregate that still declares an {@link Apply @Apply} event applier.
+ *
+ * <p>Event sourcing has been removed, so appliers are no longer supported. Building the model
+ * for this class fails fast with a {@link io.spine.server.model.ModelError ModelError}.
+ */
+public class EngineAggregateWithApplier extends Aggregate<EngineId, Engine, Engine.Builder> {
 
-//
-// This file describes data types a simple problem domain of movements in two-dimensional space.
-//
+    @Assign
+    EngineStarted handle(StartEngine command) {
+        var id = command.getId();
+        return EngineStarted.newBuilder()
+                .setId(id)
+                .build();
+    }
 
-// A point in 2-D space.
-//
-// Fields are not marked as `required` since [0,0] is a valid point value.
-//
-message Point {
-    option (entity).kind = AGGREGATE;
-
-    ObjectId id = 1;
-
-    int32 x = 2;
-    int32 y = 3;
-}
-
-// Describes a movenent in terms of cardinal directions.
-//
-// See: https://en.wikipedia.org/wiki/Cardinal_direction
-//
-enum Direction {
-    DIRECTION_UNSPECIFIED = 0;
-    NORTH = 1;
-    EAST  = 2;
-    SOUTH = 3;
-    WEST  = 4;
-}
-
-// An identifier of a moving object.
-message ObjectId {
-    string value = 1;
+    @Apply
+    private void on(EngineStarted event) {
+        // Declaring any `@Apply` applier makes model building fail with a `ModelError`.
+    }
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2023, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -32,7 +32,6 @@ import io.grpc.stub.StreamObserver;
 import io.spine.base.Identifier;
 import io.spine.core.Ack;
 import io.spine.core.Event;
-import io.spine.core.Events;
 import io.spine.server.aggregate.given.repo.AnemicAggregateRepository;
 import io.spine.server.aggregate.given.repo.EventDiscardingAggregateRepository;
 import io.spine.server.aggregate.given.repo.FailingAggregateRepository;
@@ -80,7 +79,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static io.spine.base.Time.currentTime;
 import static io.spine.grpc.StreamObservers.noOpObserver;
 import static io.spine.protobuf.Messages.isNotDefault;
-import static io.spine.server.aggregate.AggregateRepository.DEFAULT_SNAPSHOT_TRIGGER;
+import static io.spine.server.aggregate.AggregateRepository.DEFAULT_HISTORY_DEPTH;
 import static io.spine.server.aggregate.given.repo.AggregateRepositoryTestEnv.context;
 import static io.spine.server.aggregate.given.repo.AggregateRepositoryTestEnv.givenAggregate;
 import static io.spine.server.aggregate.given.repo.AggregateRepositoryTestEnv.givenAggregateId;
@@ -152,22 +151,8 @@ class AggregateRepositoryTest {
     class StoreAndLoadAggregate {
 
         @Test
-        @DisplayName("using snapshot")
-        void usingSnapshot() {
-            var id = Sample.messageOfType(ProjectId.class);
-            repository().setSnapshotTrigger(3);
-            var expected = givenAggregate().withUncommittedEvents(id);
-            repository().store(expected);
-
-            var actual = assertFound(id);
-
-            assertEquals(expected.id(), actual.id());
-            assertEquals(expected.state(), actual.state());
-        }
-
-        @Test
-        @DisplayName("without using snapshot")
-        void notUsingSnapshot() {
+        @DisplayName("restoring the stored state")
+        void restoreStoredState() {
             var id = Sample.messageOfType(ProjectId.class);
             var expected = givenAggregate().withUncommittedEvents(id);
 
@@ -186,119 +171,47 @@ class AggregateRepositoryTest {
         }
     }
 
-    @Nested
-    @DisplayName("manage snapshots properly")
-    class ManageSnapshots {
-
-        @Test
-        @DisplayName("when it's required to store snapshot")
-        void whenNeededToStore() {
-            // This should make the repository write the snapshot.
-            repository().setSnapshotTrigger(3);
-            var aggregate = givenAggregate().withUncommittedEvents();
-
-            repository().store(aggregate);
-            var record = readRecord(aggregate);
-            assertTrue(record.hasSnapshot());
-            assertEquals(0, record.getEventCount());
-        }
-
-        @Test
-        @DisplayName("when storing snapshot isn't needed")
-        void whenStoreNotNeeded() {
-            var aggregate = givenAggregate().withUncommittedEvents();
-
-            repository().store(aggregate);
-            var record = readRecord(aggregate);
-            assertFalse(record.hasSnapshot());
-        }
-
-        private AggregateHistory readRecord(ProjectAggregate aggregate) {
-            var optional = repository().aggregateStorage()
-                                       .read(aggregate.id(), DEFAULT_SNAPSHOT_TRIGGER);
-            assertTrue(optional.isPresent());
-            return optional.get();
-        }
-    }
+    // Since the event-sourcing cutover the aggregate loads from its latest state record and no
+    // longer writes journal snapshots, so the former "manage snapshots properly" cases (which
+    // asserted a snapshot is written once the trigger is reached) are obsolete and removed. The
+    // former snapshot trigger is superseded by the recent-history window, covered below.
 
     @Nested
-    @DisplayName("have snapshot trigger")
-    class HaveSnapshotTrigger {
+    @DisplayName("have a recent-history window")
+    class HaveHistoryDepth {
 
         @Test
-        @DisplayName("set to default value initially")
+        @DisplayName("set to the default value initially")
         void setToDefault() {
-            assertEquals(DEFAULT_SNAPSHOT_TRIGGER, repository().snapshotTrigger());
+            assertEquals(DEFAULT_HISTORY_DEPTH, repository().historyDepth());
         }
 
         @Test
-        @DisplayName("set to specified value")
+        @DisplayName("set to a specified value")
         void setToSpecifiedValue() {
-            var newSnapshotTrigger = 1000;
+            var newDepth = 1000;
 
-            repository().setSnapshotTrigger(newSnapshotTrigger);
+            repository().setHistoryDepth(newDepth);
 
-            assertEquals(newSnapshotTrigger, repository().snapshotTrigger());
+            assertEquals(newDepth, repository().historyDepth());
         }
 
         @Test
-        @DisplayName("never set to negative value")
+        @DisplayName("never set to a negative value")
         void notSetToNegative() {
-            assertThrows(IllegalArgumentException.class, () -> repository().setSnapshotTrigger(-1));
+            assertThrows(IllegalArgumentException.class, () -> repository().setHistoryDepth(-1));
         }
 
         @Test
-        @DisplayName("never set to zero value")
+        @DisplayName("never set to a zero value")
         void notSetToZero() {
-            assertThrows(IllegalArgumentException.class, () -> repository().setSnapshotTrigger(0));
+            assertThrows(IllegalArgumentException.class, () -> repository().setHistoryDepth(0));
         }
     }
 
-    @Nested
-    @DisplayName("pass (snapshot trigger + 1) to `AggregateReadRequest`")
-    class PassSnapshotTrigger {
-
-        @Test
-        @DisplayName("when it's set to default value")
-        void whenItsDefault() {
-            var repository = repository();
-            var storage = new TestAggregateStorage(repository.aggregateStorage());
-            repository.injectStorage(storage);
-
-            var id = Sample.messageOfType(ProjectId.class);
-            loadOrCreate(repository, id);
-
-            assertThat(storage.memoizedId())
-                    .isEqualTo(id);
-
-            assertThat(storage.memoizedBatchSize())
-                    .isEqualTo(repository.snapshotTrigger() + 1);
-        }
-
-        @Test
-        @DisplayName("when it's set to non-default value")
-        void whenItsNonDefault() {
-            var repository = repository();
-            var storage = new TestAggregateStorage(repository.aggregateStorage());
-            repository.injectStorage(storage);
-
-            var nonDefaultSnapshotTrigger = DEFAULT_SNAPSHOT_TRIGGER * 2;
-            repository.setSnapshotTrigger(nonDefaultSnapshotTrigger);
-            var id = Sample.messageOfType(ProjectId.class);
-            loadOrCreate(repository, id);
-
-            assertThat(storage.memoizedId())
-                    .isEqualTo(id);
-
-            assertThat(storage.memoizedBatchSize())
-                    .isEqualTo(nonDefaultSnapshotTrigger + 1);
-        }
-    }
-
-    private static void loadOrCreate(
-            AggregateRepository<ProjectId, ProjectAggregate, AggProject> repository, ProjectId id) {
-        repository.loadOrCreate(id);
-    }
+    // The former "pass (snapshot trigger + 1) to `AggregateReadRequest`" cases are obsolete: since
+    // the cutover an aggregate loads from a single latest-state record (`readState`) rather than by
+    // reading a snapshot-trigger-sized batch of the journal, so no batch size is passed on load.
 
     @Nested
     @DisplayName("find aggregates with status flag")
@@ -365,28 +278,9 @@ class AggregateRepositoryTest {
         assertThrows(IllegalStateException.class, () -> Lists.newArrayList(iterator));
     }
 
-    @SuppressWarnings("CheckReturnValue")
-    @Test
-    @DisplayName("throw an `ISE` when history is corrupted")
-    void throwWhenCorrupted() {
-        var aggregate = givenStoredAggregate();
-        var history = aggregate.recentHistory();
-        var eventBuilder = history.stream()
-                .findFirst()
-                .orElseGet(Assertions::fail)
-                .toBuilder();
-        eventBuilder.setId(Events.generateId());
-        eventBuilder.getContextBuilder()
-                    .setTimestamp(currentTime());
-        var duplicateEvent = eventBuilder.build();
-        var corruptedHistory = AggregateHistory.newBuilder()
-                .addEvent(duplicateEvent)
-                .build();
-        var id = aggregate.id();
-        repository().aggregateStorage()
-                    .write(id, corruptedHistory);
-        assertThrows(IllegalStateException.class, () -> repository().find(id));
-    }
+    // Since the event-sourcing cutover an aggregate loads from its latest state record rather than
+    // by replaying its event journal, so a corrupted journal can no longer make loading fail. The
+    // former "throw an `ISE` when history is corrupted" case is therefore obsolete and removed.
 
     @Nested
     @DisplayName("allow aggregates to react")
@@ -525,7 +419,9 @@ class AggregateRepositoryTest {
                     .setProjectId(id)
                     .build();
             context.receivesCommands(create, addTask, start);
-            assertEventVersions(1, 2, 3);
+            // Since the event-sourcing cutover an emitted event carries the aggregate's
+            // pre-dispatch version (ADR D3), so the three commands produce versions 0, 1, 2.
+            assertEventVersions(0, 1, 2);
         }
 
         @Test
@@ -546,9 +442,10 @@ class AggregateRepositoryTest {
                     .build();
             context.receivesCommands(create, start)
                    .receivesEvent(archived);
+            // Emitted events carry the aggregate's pre-dispatch version (ADR D3).
             assertEventVersions(
-                    1, 2, // Results of commands.
-                    3  // The result of the `archived` event.
+                    0, 1, // Results of commands.
+                    2  // The result of the `archived` event.
             );
         }
 

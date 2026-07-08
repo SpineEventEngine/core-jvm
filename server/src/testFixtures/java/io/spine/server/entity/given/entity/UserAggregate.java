@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ package io.spine.server.entity.given.entity;
 
 import io.spine.core.UserId;
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.test.user.ChooseDayOfBirth;
 import io.spine.test.user.DayOfBirthChosen;
@@ -40,28 +39,22 @@ public final class UserAggregate extends Aggregate<UserId, User, User.Builder> {
 
     @Assign
     UserSignedUp handle(SignUpUser command) {
-        return UserSignedUp
+        var event = UserSignedUp
                 .newBuilder()
                 .setId(command.getId())
                 .build();
+        builder().setId(event.getId());
+        return event;
     }
 
     @Assign
     DayOfBirthChosen handle(ChooseDayOfBirth command) {
-        return DayOfBirthChosen
+        var event = DayOfBirthChosen
                 .newBuilder()
                 .setId(command.getId())
                 .setDayOfBirth(command.getDayOfBirth())
                 .build();
-    }
-
-    @Apply
-    private void on(UserSignedUp event) {
-        builder().setId(event.getId());
-    }
-
-    @Apply
-    private void on(DayOfBirthChosen event) {
         builder().setDateOfBirth(event.getDayOfBirth());
+        return event;
     }
 }

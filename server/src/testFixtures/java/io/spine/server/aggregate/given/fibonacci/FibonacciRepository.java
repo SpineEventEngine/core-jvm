@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,15 +32,14 @@ import io.spine.server.aggregate.AggregateStorage;
 public final class FibonacciRepository
         extends AggregateRepository<SequenceId, FibonacciAggregate, Sequence> {
 
-    private static final int SNAPSHOT_TRIGGER = 5;
+    private static final int HISTORY_DEPTH = 5;
+
+    public FibonacciRepository() {
+        setHistoryDepth(HISTORY_DEPTH);
+    }
 
     @Override
     public AggregateStorage<SequenceId, Sequence> aggregateStorage() {
         return super.aggregateStorage();
-    }
-
-    @Override
-    public int snapshotTrigger() {
-        return SNAPSHOT_TRIGGER;
     }
 }

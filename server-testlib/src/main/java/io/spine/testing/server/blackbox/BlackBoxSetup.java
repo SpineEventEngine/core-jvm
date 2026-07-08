@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,6 @@ import io.spine.core.Event;
 import io.spine.core.Events;
 import io.spine.grpc.MemoizingObserver;
 import io.spine.server.BoundedContext;
-import io.spine.server.aggregate.ImportBus;
 import io.spine.server.commandbus.CommandBus;
 import io.spine.server.event.EventBus;
 import io.spine.testing.client.TestActorRequestFactory;
@@ -68,7 +67,6 @@ final class BlackBoxSetup {
 
     private final CommandBus commandBus;
     private final EventBus eventBus;
-    private final ImportBus importBus;
     private final TestActorRequestFactory requestFactory;
     private final TestEventFactory eventFactory;
     private final MemoizingObserver<Ack> observer;
@@ -78,7 +76,6 @@ final class BlackBoxSetup {
                   MemoizingObserver<Ack> observer) {
         this.commandBus = context.commandBus();
         this.eventBus = context.eventBus();
-        this.importBus = context.importBus();
         this.requestFactory = checkNotNull(requestFactory);
         var defaultProducer = BlackBoxId.newBuilder()
                 .setContextName(context.name())
@@ -153,26 +150,6 @@ final class BlackBoxSetup {
     void postExternal(List<Event> events) {
         var external = Events.toExternal(events);
         eventBus.post(external);
-    }
-
-    /**
-     * {@linkplain ImportBus Imports} events to the bounded context.
-     *
-     * @param domainEvents
-     *         a list of events to import
-     */
-    void importEvents(Collection<EventMessage> domainEvents) {
-        var events = toEvents(domainEvents);
-        postImport(events);
-    }
-
-    private void postImport(List<Event> events) {
-        importBus.post(events, observer);
-    }
-
-    void importEvent(Message eventOrMessage) {
-        List<Event> event = ImmutableList.of(event(eventOrMessage));
-        postImport(event);
     }
 
     private static

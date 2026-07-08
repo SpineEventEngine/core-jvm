@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -36,6 +36,7 @@ import io.spine.server.type.EventEnvelope;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static io.spine.core.CommandValidationError.DUPLICATE_COMMAND_VALUE;
 import static io.spine.core.EventValidationError.DUPLICATE_EVENT_VALUE;
 import static java.lang.String.format;
@@ -47,8 +48,30 @@ final class IdempotencyGuard {
 
     private final Aggregate<?, ?, ?> aggregate;
 
+    /**
+     * Whether this journal-backed guard is active.
+     *
+     * <p>Off by default: deduplication is primarily the delivery layer's responsibility, and this
+     * guard is an opt-in per-repository backstop (see
+     * {@link AggregateRepository#useIdempotencyGuard()}).
+     */
+    private boolean enabled = false;
+
+    /** The number of the most recent journal events scanned for a duplicate when enabled. */
+    private int historyDepth = 100;
+
     IdempotencyGuard(Aggregate<?, ?, ?> aggregate) {
         this.aggregate = aggregate;
+    }
+
+    /**
+     * Enables the guard, scanning up to {@code historyDepth} most recent journal events for a
+     * duplicate on each dispatch.
+     */
+    void enable(int historyDepth) {
+        checkArgument(historyDepth > 0);
+        this.enabled = true;
+        this.historyDepth = historyDepth;
     }
 
     /**
@@ -60,7 +83,7 @@ final class IdempotencyGuard {
      *         {@code Optional.empty()} otherwise
      */
     Optional<Error> check(CommandEnvelope command) {
-        if (didHandleRecently(command)) {
+        if (enabled && didHandleRecently(command)) {
             var errorMessage = format(
                     "Command %s[%s] is a duplicate.",
                     command.messageClass(),
@@ -86,7 +109,7 @@ final class IdempotencyGuard {
      *         {@code Optional.empty()} otherwise
      */
     Optional<Error> check(EventEnvelope event) {
-        if (didHandleRecently(event)) {
+        if (enabled && didHandleRecently(event)) {
             var errorMessage = format(
                     "Event %s[%s] is a duplicate.",
                     event.messageClass(),
@@ -127,7 +150,7 @@ final class IdempotencyGuard {
                                                   .messageId()
                                                   .asEventId()
                                                   .equals(eventId);
-        var found = aggregate.historyContains(causedByEvent.and(originHasGivenId));
+        var found = aggregate.historyContains(historyDepth, causedByEvent.and(originHasGivenId));
         return found;
     }
 
@@ -155,7 +178,7 @@ final class IdempotencyGuard {
                                                   .messageId()
                                                   .asCommandId()
                                                   .equals(commandId);
-        var found = aggregate.historyContains(causedByCommand.and(originHasGivenId));
+        var found = aggregate.historyContains(historyDepth, causedByCommand.and(originHasGivenId));
         return found;
     }
 }

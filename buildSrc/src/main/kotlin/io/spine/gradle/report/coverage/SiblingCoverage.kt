@@ -101,8 +101,10 @@ private fun Project.execFilesOf(testTasks: TaskCollection<Test>): Provider<Itera
 private const val BIN_REPORTS_DIR: String = "kover/bin-reports"
 
 /**
- * Tells whether this is a Kover task that reads the binary reports and therefore
- * must run only after the [contributor's][creditTestCoverageFrom] test data exists.
+ * Tells whether this is a Kover task that reads binary execution-data reports
+ * and therefore must run only after the tasks that produce them — the
+ * [contributor's][creditTestCoverageFrom] test tasks, or the forked Spine
+ * Compiler launch tasks (see [io.spine.gradle.testing.enableSpineCompilerCoverage]).
  *
  * This matches both the report tasks (`koverXmlReport`, `koverHtmlReport`,
  * `koverBinaryReport`) and the verification tasks (`koverVerify` and its
@@ -110,5 +112,5 @@ private const val BIN_REPORTS_DIR: String = "kover/bin-reports"
  * `Cached*` variants Kover registers, which are the ones that actually consume
  * the binary reports.
  */
-private fun Task.consumesCoverageBinaryReports(): Boolean =
+internal fun Task.consumesCoverageBinaryReports(): Boolean =
     name.startsWith("kover") && (name.endsWith("Report") || name.endsWith("Verify"))

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@
 package io.spine.server.enrich.given;
 
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.server.enrich.given.command.EitAssignTask;
 import io.spine.server.enrich.given.command.EitCreateTask;
@@ -38,19 +37,16 @@ final class EitTaskAggregate extends Aggregate<EitTaskId, EitTask, EitTask.Build
 
     @Assign
     EitTaskCreated handle(EitCreateTask cmd) {
-        return EitTaskCreated
+        var event = EitTaskCreated
                 .newBuilder()
                 .setTask(cmd.getTask())
                 .setName(cmd.getName())
                 .setDescription(cmd.getDescription())
                 .build();
-    }
-
-    @Apply
-    private void event(EitTaskCreated event) {
         builder().setId(event.getTask())
                  .setName(event.getName())
                  .setDescription(event.getDescription());
+        return event;
     }
 
     @Assign

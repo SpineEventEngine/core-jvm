@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -492,44 +492,6 @@ public abstract class BlackBox implements WithLogging, Closeable {
     private BlackBox receivesEvents(Collection<EventMessage> domainEvents) {
         var sentEvents = setup().postEvents(domainEvents);
         this.postedEvents.addAll(sentEvents);
-        return this;
-    }
-
-    /**
-     * Imports the event into the Bounded Context.
-     *
-     * @param eventOrMessage
-     *         and event message or {@link Event} instance
-     * @return current instance
-     * @apiNote Returned value can be ignored when this method invoked for test setup.
-     */
-    @CanIgnoreReturnValue
-    public BlackBox importsEvent(Message eventOrMessage) {
-        setup().importEvent(eventOrMessage);
-        return this;
-    }
-
-    /**
-     * Imports passed events into the Bounded Context.
-     *
-     * @param first
-     *         an event message or {@code Event} to be imported first
-     * @param second
-     *         an event message or {@code Event} to be imported second
-     * @param rest
-     *         optional event messages or instances of {@code Event} to be imported
-     *         in the supplied order
-     * @return current instance
-     * @apiNote Returned value can be ignored when this method invoked for test setup.
-     */
-    @CanIgnoreReturnValue
-    public final BlackBox
-    importsEvents(EventMessage first, EventMessage second, EventMessage... rest) {
-        return importAll(asList(first, second, rest));
-    }
-
-    private BlackBox importAll(Collection<EventMessage> eventMessages) {
-        setup().importEvents(eventMessages);
         return this;
     }
 

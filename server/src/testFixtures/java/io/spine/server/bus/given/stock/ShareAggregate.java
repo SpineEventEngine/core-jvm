@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@
 package io.spine.server.bus.given.stock;
 
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.server.tuple.Pair;
 import io.spine.test.bus.Buy;
@@ -57,6 +56,11 @@ public final class ShareAggregate extends Aggregate<ShareId, Share, Share.Builde
                 .setShare(id())
                 .setPercent(percent)
                 .build();
+        builder().setId(traded.getShare());
+        var priceBuilder = builder().getPriceBuilder();
+        var oldPrice = priceBuilder.getUsd();
+        var newPrice = oldPrice + percentage(oldPrice, raised.getPercent());
+        priceBuilder.setUsd(newPrice);
         return Pair.of(traded, raised);
     }
 
@@ -72,28 +76,12 @@ public final class ShareAggregate extends Aggregate<ShareId, Share, Share.Builde
                 .setShare(id())
                 .setPercent(percent)
                 .build();
+        builder().setId(traded.getShare());
+        var priceBuilder = builder().getPriceBuilder();
+        var oldPrice = priceBuilder.getUsd();
+        var newPrice = oldPrice - percentage(oldPrice, raised.getPercent());
+        priceBuilder.setUsd(newPrice);
         return Pair.of(traded, raised);
-    }
-
-    @Apply
-    private void event(ShareTraded event) {
-        builder().setId(event.getShare());
-    }
-
-    @Apply
-    private void event(PriceRaised event) {
-        var priceBuilder = builder().getPriceBuilder();
-        var oldPrice = priceBuilder.getUsd();
-        var newPrice = oldPrice + percentage(oldPrice, event.getPercent());
-        priceBuilder.setUsd(newPrice);
-    }
-
-    @Apply
-    private void event(PriceDropped event) {
-        var priceBuilder = builder().getPriceBuilder();
-        var oldPrice = priceBuilder.getUsd();
-        var newPrice = oldPrice - percentage(oldPrice, event.getPercent());
-        priceBuilder.setUsd(newPrice);
     }
 
     private static float percentage(float value, float percent) {

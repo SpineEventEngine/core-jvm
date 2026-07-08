@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -32,37 +32,29 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks a method of an aggregate as one that modifies the state of the aggregate with data
- * from the passed event.
+ * Marks a method of an aggregate as an <i>event applier</i> — a method that modifies the
+ * aggregate's state from a played event.
  *
- * <p>As we apply the event to the aggregate state, we call such a method <i>Event Applier</i>.
- *
- * <p>An event applier method:
- * <ul>
- *     <li>is annotated with {@link Apply};
- *     <li>is {@code private};
- *     <li>is {@code void};
- *     <li>accepts an event derived from {@link io.spine.base.EventMessage EventMessage}
- *         as the only parameter.
- * </ul>
- *
- * <p>To update the state of the aggregate, the {@link Aggregate#builder()} method
- * should be used.
- *
- * <p>If the annotation comes with the attribute {@link #allowImport() allowImport} set to
- * {@code true}, the aggregate can receive incoming events as if they were produced
- * by the aggregate.
+ * @deprecated Event sourcing has been removed from aggregates. An aggregate now mutates its state
+ *         directly in {@code @Assign} / {@code @React} receptors via {@link Aggregate#builder()}
+ *         and loads from its latest persisted state instead of replaying events. A class that
+ *         still declares an {@code @Apply}-annotated method fails fast at model-building time with
+ *         a {@code ModelError}: move each applier's body into the receptor that emits the event,
+ *         and delete the {@code @Apply} method. This annotation is retained (deprecated) only so
+ *         that such classes are detected for the fail-fast check; it is scheduled for removal in
+ *         v2.0.0.
  */
+@Deprecated
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Apply {
 
     /**
-     * If {@code true} the aggregate supports importing of events with the messages
-     * defined as the first parameter of the annotated method.
+     * Formerly enabled importing of events into the aggregate.
      *
-     * @see ImportBus
-     * @see AggregateRepository#setupImportRouting(io.spine.server.route.EventRouting)
+     * @deprecated Event import has been removed. External facts now enter via
+     *         {@code (external) = true} reactions or context gateways. This attribute is ignored.
      */
+    @Deprecated
     boolean allowImport() default false;
 }

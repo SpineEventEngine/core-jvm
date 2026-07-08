@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ package io.spine.testing.server.blackbox.probe;
 import io.spine.base.Identifier;
 import io.spine.core.Subscribe;
 import io.spine.server.event.AbstractEventSubscriber;
-import io.spine.system.server.AggregateHistoryCorrupted;
 import io.spine.system.server.CannotDispatchDuplicateCommand;
 import io.spine.system.server.CannotDispatchDuplicateEvent;
 import io.spine.system.server.ConstraintViolated;
@@ -98,15 +97,4 @@ final class DiagnosticLog
                  .getMessage());
     }
 
-    @Subscribe
-    void on(AggregateHistoryCorrupted event) {
-        var aggregate = event.getEntity();
-        var idAsString = Identifier.toString(aggregate.getId());
-        log(event,
-            "Unable to load the history of the aggregate (state type: `%s`, ID: `%s`):%n%s%n",
-            aggregate.getTypeUrl(),
-            idAsString,
-            event.getError()
-                 .getMessage());
-    }
 }

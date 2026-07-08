@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -35,7 +35,6 @@ import io.spine.server.entity.Entity;
 import io.spine.server.model.given.filter.CreateProjectCommander;
 import io.spine.server.model.given.filter.CreateProjectEventCommander;
 import io.spine.server.model.given.filter.ModSplitAggregate;
-import io.spine.server.model.given.filter.ModSplitEventAggregate;
 import io.spine.server.model.given.filter.ProjectCreatedReactor;
 import io.spine.server.model.given.filter.ProjectCreatedSubscriber;
 import io.spine.server.model.given.filter.ProjectTasksRepository;
@@ -106,19 +105,11 @@ class FilterTest {
         }
 
         @Test
-        @DisplayName("`@Apply`-er")
-        void apply() {
-            assertInvalid(ModSplitEventAggregate.class);
-        }
-
-
-        @Test
         @DisplayName("be not acceptable for a state `@Subscribe`-r method")
         void state() {
             assertInvalid(ProjectTasksSubscriber.class);
         }
     }
-
 
     @Nested
     @DisplayName("filter out events before they hit inbox")

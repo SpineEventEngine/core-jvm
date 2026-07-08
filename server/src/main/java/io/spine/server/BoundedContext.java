@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,6 @@ import io.spine.core.BoundedContextNames;
 import io.spine.logging.WithLogging;
 import io.spine.option.EntityOption.Visibility;
 import io.spine.server.aggregate.AggregateRootDirectory;
-import io.spine.server.aggregate.ImportBus;
 import io.spine.server.bus.Listener;
 import io.spine.server.commandbus.CommandBus;
 import io.spine.server.commandbus.CommandDispatcher;
@@ -103,9 +102,6 @@ public abstract class BoundedContext
     /** The Event Bus of this context. */
     private final EventBus eventBus;
 
-    /** The bus for importing events. */
-    private final ImportBus importBus;
-
     /** The broker for interaction with other contexts. */
     private final IntegrationBroker broker;
 
@@ -152,7 +148,6 @@ public abstract class BoundedContext
         this.tenantIndex = builder.buildTenantIndex();
         this.broker = new IntegrationBroker();
         this.commandBus = builder.buildCommandBus();
-        this.importBus = buildImportBus(tenantIndex);
         this.aggregateRootDirectory = builder.aggregateRootDirectory();
         this.internalAccess = new InternalAccess();
         this.onBeforeClose = builder.getOnBeforeClose();
@@ -169,7 +164,7 @@ public abstract class BoundedContext
         broker.registerWith(this);
         commandBus.initObservers(eventBus);
     }
-    
+
     /**
      * Prevents 3rd party code from creating classes extending from {@code BoundedContext}.
      */
@@ -182,12 +177,6 @@ public abstract class BoundedContext
                 "The class `BoundedContext` is not designed for " +
                         "inheritance by the framework users."
         );
-    }
-
-    private static ImportBus buildImportBus(TenantIndex tenantIndex) {
-        var result = ImportBus.newBuilder()
-                .injectTenantIndex(tenantIndex);
-        return result.build();
     }
 
     /**
@@ -417,11 +406,6 @@ public abstract class BoundedContext
         return eventBus;
     }
 
-    /** Obtains instance of {@link ImportBus} of this {@code BoundedContext}. */
-    public ImportBus importBus() {
-        return this.importBus;
-    }
-
     /** Obtains instance of {@link Stand} of this {@code BoundedContext}. */
     public Stand stand() {
         return stand;
@@ -472,7 +456,6 @@ public abstract class BoundedContext
      *     <li>Closes {@link EventBus}.
      *     <li>Closes {@link IntegrationBroker}.
      *     <li>Closes {@link Stand}.
-     *     <li>Closes {@link ImportBus}.
      *     <li>Closes all registered {@linkplain Repository repositories}.
      *     <li>Removes a {@link Probe}, if it was {@linkplain #install(Probe) installed}.
      * </ol>
@@ -488,7 +471,6 @@ public abstract class BoundedContext
         eventBus.closeIfOpen();
         broker.closeIfOpen();
         stand.closeIfOpen();
-        importBus.closeIfOpen();
 
         if (isOpen) {
             shutDownRepositories();

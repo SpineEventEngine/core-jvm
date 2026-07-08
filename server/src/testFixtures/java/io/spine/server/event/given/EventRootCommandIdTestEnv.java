@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,6 @@ import io.spine.core.UserId;
 import io.spine.net.EmailAddress;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.AggregateRepository;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.server.event.EventStreamQuery;
 import io.spine.server.event.React;
@@ -229,6 +228,9 @@ public class EventRootCommandIdTestEnv {
                     .setProjectId(command.getProjectId())
                     .setTeamId(command.getTeamId())
                     .build();
+            builder()
+                    .setId(event.getProjectId())
+                    .setStatus(Project.Status.CREATED);
             return event;
         }
 
@@ -242,24 +244,13 @@ public class EventRootCommandIdTestEnv {
                         .setProjectId(command.getProjectId())
                         .setTask(task)
                         .build();
+                builder()
+                        .setId(event.getProjectId())
+                        .addTask(event.getTask());
                 events.add(event);
             }
 
             return events.build();
-        }
-
-        @Apply
-        private void event(ProjectCreated event) {
-            builder()
-                    .setId(event.getProjectId())
-                    .setStatus(Project.Status.CREATED);
-        }
-
-        @Apply
-        private void event(TaskAdded event) {
-            builder()
-                    .setId(event.getProjectId())
-                    .addTask(event.getTask());
         }
     }
 
@@ -272,14 +263,10 @@ public class EventRootCommandIdTestEnv {
         @React
         EvTeamProjectAdded on(ProjectCreated command) {
             var event = projectAdded(id(), command);
-            return event;
-        }
-
-        @Apply
-        private void event(EvTeamProjectAdded event) {
             builder()
                     .setId(event.getTeamId())
                     .addProjectId(event.getProjectId());
+            return event;
         }
 
         private static EvTeamProjectAdded projectAdded(EvTeamId id, ProjectCreated command) {

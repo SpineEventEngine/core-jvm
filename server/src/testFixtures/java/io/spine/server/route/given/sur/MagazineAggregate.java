@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ package io.spine.server.route.given.sur;
 import io.spine.core.CommandContext;
 import io.spine.protobuf.AnyPacker;
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.server.route.given.sur.command.PublishArticle;
 import io.spine.server.route.given.sur.event.ArticlePublished;
@@ -39,18 +38,15 @@ public final class MagazineAggregate extends Aggregate<String, Magazine, Magazin
     @Assign
     ArticlePublished handle(PublishArticle cmd, CommandContext ctx) {
 
-        return ArticlePublished
+        var event = ArticlePublished
                 .newBuilder()
                 .setMagazineName(id())
                 .setAuthor(author(cmd, ctx))
                 .setArticle(cmd.getArticle())
                 .build();
-    }
-
-    @Apply
-    private void event(ArticlePublished e) {
         builder().setName(id())
-                 .addArticle(e.getArticle());
+                 .addArticle(event.getArticle());
+        return event;
     }
 
     ArtistName author(PublishArticle cmd, CommandContext ctx) {

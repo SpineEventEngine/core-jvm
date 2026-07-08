@@ -283,6 +283,23 @@ public abstract class Transaction<I : Any,
     }
 
     /**
+     * Tells whether the receptor dispatched in the current phase changed the entity state.
+     *
+     * Compares the live [builder] against a freshly recomputed baseline for the entity's
+     * current state (which, for a fresh entity, carries the framework-injected ID). When the two
+     * are equal, the receptor left the state untouched — for example an `@React` reaction that
+     * withheld its reaction and returned no events.
+     *
+     * The phase uses this to avoid validating and versioning a pure no-op dispatch, which would
+     * otherwise force a [build][ValidatingBuilder.build] of an as-yet-unmodified state — failing
+     * whenever that default state is itself invalid (e.g. a not-yet-initialized aggregate whose
+     * state declares required constraints).
+     */
+    @JvmName("stateChangedInPhase")
+    internal fun stateChangedInPhase(): Boolean =
+        builder.buildPartial() != toBuilder(entity).buildPartial()
+
+    /**
      * Commits this transaction if it is still active.
      *
      * If the transaction is not active, does nothing.

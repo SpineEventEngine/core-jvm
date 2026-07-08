@@ -48,13 +48,15 @@ import io.spine.server.storage.RecordWithColumns;
 import io.spine.server.storage.StorageFactory;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.server.aggregate.AggregateRecords.newEventRecord;
-import static io.spine.server.aggregate.AggregateRepository.DEFAULT_SNAPSHOT_TRIGGER;
+import static io.spine.server.aggregate.AggregateRepository.DEFAULT_HISTORY_DEPTH;
 import static io.spine.server.storage.QueryConverter.convert;
 import static io.spine.util.Exceptions.newIllegalStateException;
 
@@ -240,7 +242,7 @@ public class AggregateStorage<I, S extends AggregateState<I>>
 
     @Override
     public Optional<AggregateHistory> read(I id) {
-        return read(id, DEFAULT_SNAPSHOT_TRIGGER);
+        return read(id, DEFAULT_HISTORY_DEPTH);
     }
 
     /**
@@ -370,6 +372,24 @@ public class AggregateStorage<I, S extends AggregateState<I>>
         return result;
     }
 
+    /**
+     * Reads the latest persisted state record of the aggregate with the passed ID.
+     *
+     * <p>Since the event-sourcing cutover this record is the source of truth for
+     * {@linkplain AggregateRepository#load(Object) loading} an aggregate. Unlike the
+     * {@link #readStates(ResponseFormat) query reads}, this method is <em>not</em> gated by the
+     * querying/visibility check — the state must be readable even for {@code NONE}-visibility
+     * aggregates, which never expose their states for client querying.
+     *
+     * @param id
+     *         the identifier of the aggregate
+     * @return the latest state record, or {@code Optional.empty()} if the aggregate has never
+     *         been stored
+     */
+    Optional<EntityRecord> readState(I id) {
+        return stateStorage.read(id);
+    }
+
     private void ensureStatesQueryable() {
         if (!queryingEnabled) {
             throw newIllegalStateException(
@@ -385,7 +405,7 @@ public class AggregateStorage<I, S extends AggregateState<I>>
     }
 
     protected void writeState(Aggregate<I, ?, ?> aggregate) {
-        var record = AggregateRecords.newStateRecord(aggregate, queryingEnabled);
+        var record = AggregateRecords.newStateRecord(aggregate);
         var result = RecordWithColumns.create(record, stateStorage.recordSpec());
         stateStorage.write(result);
     }
@@ -412,6 +432,34 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      */
     Iterator<AggregateEventRecord> historyBackward(I id, int batchSize) {
         return historyBackward(id, batchSize, null);
+    }
+
+    /**
+     * Reads up to {@code depth} most recent events of the aggregate's journal, newest first.
+     *
+     * <p>Used to lazily load recent history for the opt-in {@link IdempotencyGuard} and for
+     * business access via {@link Aggregate#historyBackward(int)}. Non-event (snapshot) records
+     * are skipped, so on legacy data that still holds {@code Snapshot} records within the first
+     * {@code depth} entries the returned window may contain fewer than {@code depth} events.
+     * Snapshots are no longer written since the event-sourcing cutover, so this affects only
+     * pre-cutover journals.
+     *
+     * @param id
+     *         the identifier of the aggregate
+     * @param depth
+     *         the maximum number of the most recent events to read
+     * @return the most recent events, newest first
+     */
+    List<Event> readHistoryBackward(I id, int depth) {
+        var records = historyBackward(id, depth);
+        List<Event> events = new ArrayList<>(depth);
+        while (records.hasNext() && events.size() < depth) {
+            var record = records.next();
+            if (record.hasEvent()) {
+                events.add(record.getEvent());
+            }
+        }
+        return events;
     }
 
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import io.spine.core.CommandContext;
 import io.spine.core.EventContext;
 import io.spine.core.External;
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.server.event.React;
 import io.spine.server.integration.CreateDocument;
@@ -41,7 +40,6 @@ import io.spine.server.integration.DocumentImported;
 import io.spine.server.integration.Edit;
 import io.spine.server.integration.EditText;
 import io.spine.server.integration.OpenOfficeDocumentUploaded;
-import io.spine.server.integration.PaperDocumentScanned;
 import io.spine.server.integration.TextEdited;
 import io.spine.server.tuple.Pair;
 import io.spine.time.Now;
@@ -55,12 +53,14 @@ public class DocumentAggregate extends Aggregate<DocumentId, Document, Document.
 
     @Assign
     DocumentCreated handle(CreateDocument command, CommandContext context) {
-        return DocumentCreated
+        var event = DocumentCreated
                 .newBuilder()
                 .setId(command.getId())
                 .setOwner(context.actor())
                 .setWhenCreated(Now.get().asLocalDateTime())
                 .build();
+        applyDocumentCreated(event);
+        return event;
     }
 
     @Assign
@@ -71,10 +71,12 @@ public class DocumentAggregate extends Aggregate<DocumentId, Document, Document.
                 .setTextAdded(command.getNewText())
                 .setCharsDeleted(command.getCharsToDelete())
                 .build();
-        return TextEdited.newBuilder()
+        var event = TextEdited.newBuilder()
                 .setId(command.getId())
                 .setEdit(edit)
                 .build();
+        applyTextEdited(event);
+        return event;
     }
 
     /**
@@ -114,23 +116,32 @@ public class DocumentAggregate extends Aggregate<DocumentId, Document, Document.
                 .setId(documentId)
                 .setEdit(edit)
                 .build();
+        applyDocumentCreated(created);
+        applyTextEdited(edited);
         return Pair.of(created, edited);
     }
 
-    @Apply
-    private void event(DocumentImported event) {
-        // Do nothing. As the event is produced, it must be applied.
-    }
-
-    @Apply
-    private void event(DocumentCreated e) {
+    /**
+     * Applies the state change carried by a {@link DocumentCreated} event to {@code builder()}.
+     *
+     * <p>Since the event-sourcing cutover the aggregate no longer replays events through
+     * {@code @Apply} appliers; each emitting receptor mutates the state directly. As
+     * {@code DocumentCreated} is emitted both while handling {@link CreateDocument} and while
+     * reacting to {@link DocumentImported}, the shared mutation lives here.
+     */
+    private void applyDocumentCreated(DocumentCreated e) {
         builder()
                 .setOwner(e.getOwner())
                 .setLastEdit(e.getWhenCreated());
     }
 
-    @Apply
-    private void event(TextEdited e) {
+    /**
+     * Applies the state change carried by a {@link TextEdited} event to {@code builder()}.
+     *
+     * <p>{@code TextEdited} is emitted both while handling {@link EditText} and while reacting to
+     * {@link DocumentImported}, so the shared splice logic lives here.
+     */
+    private void applyTextEdited(TextEdited e) {
         var edit = e.getEdit();
         var text = builder().getText();
         var position = edit.getPosition();
@@ -142,13 +153,5 @@ public class DocumentAggregate extends Aggregate<DocumentId, Document, Document.
         }
         var resultText = start + edit.getTextAdded() + end;
         builder().setText(resultText);
-    }
-
-    @Apply(allowImport = true)
-    private void event(PaperDocumentScanned e) {
-        builder()
-                .setText(e.getText())
-                .setOwner(e.getOwner())
-                .setLastEdit(e.getWhenCreated());
     }
 }

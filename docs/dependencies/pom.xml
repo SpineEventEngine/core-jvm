@@ -10,7 +10,7 @@ all modules and does not describe the project structure per-subproject.
  -->
 <groupId>io.spine</groupId>
 <artifactId>core-jvm</artifactId>
-<version>2.0.0-SNAPSHOT.412</version>
+<version>2.0.0-SNAPSHOT.420</version>
 
 <inceptionYear>2015</inceptionYear>
 
@@ -122,7 +122,7 @@ all modules and does not describe the project structure per-subproject.
   <dependency>
     <groupId>io.spine</groupId>
     <artifactId>spine-validation-jvm-runtime</artifactId>
-    <version>2.0.0-SNAPSHOT.449</version>
+    <version>2.0.0-SNAPSHOT.450</version>
     <scope>compile</scope>
   </dependency>
   <dependency>
@@ -319,7 +319,7 @@ all modules and does not describe the project structure per-subproject.
   <dependency>
     <groupId>io.spine.tools</groupId>
     <artifactId>validation-java-bundle</artifactId>
-    <version>2.0.0-SNAPSHOT.449</version>
+    <version>2.0.0-SNAPSHOT.450</version>
   </dependency>
   <dependency>
     <groupId>net.sourceforge.pmd</groupId>

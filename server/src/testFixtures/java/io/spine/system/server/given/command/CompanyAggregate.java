@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@
 package io.spine.system.server.given.command;
 
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.system.server.Company;
 import io.spine.system.server.CompanyEstablished;
@@ -53,16 +52,13 @@ public class CompanyAggregate extends Aggregate<CompanyId, Company, Company.Buil
                     .setTakenName(TAKEN_NAME)
                     .build();
         }
-        return CompanyEstablished
+        var event = CompanyEstablished
                 .newBuilder()
                 .setId(command.getId())
                 .setName(command.getFinalName())
                 .build();
-    }
-
-    @Apply
-    private void on(CompanyEstablished event) {
         builder().setId(event.getId())
                  .setName(event.getName());
+        return event;
     }
 }

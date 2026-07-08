@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import io.spine.base.EventMessage;
 import io.spine.base.Identifier;
 import io.spine.base.Time;
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.server.entity.rejection.CannotModifyArchivedEntity;
 import io.spine.server.event.React;
@@ -69,7 +68,13 @@ class FailingAggregate extends Aggregate<Long, LongIdAggregate, LongIdAggregate.
         if (value.getNumber() < 0) {
             throw new IllegalArgumentException("Negative value passed");
         }
-        return now();
+        var event = now();
+        var whichSecond = TimestampTemporal
+                .from(event.getWhen())
+                .toInstant()
+                .get(ChronoField.MILLI_OF_SECOND);
+        builder().setValue(builder().getValue() + whichSecond);
+        return event;
     }
 
     /** Rejects a negative value via command rejection. */
@@ -81,7 +86,13 @@ class FailingAggregate extends Aggregate<Long, LongIdAggregate, LongIdAggregate.
                     .setEntityId(Identifier.pack(id()))
                     .build();
         }
-        return now();
+        var event = now();
+        var whichSecond = TimestampTemporal
+                .from(event.getWhen())
+                .toInstant()
+                .get(ChronoField.MILLI_OF_SECOND);
+        builder().setValue(builder().getValue() + whichSecond);
+        return event;
     }
 
     /** Invalid command handler, which does not produce events. */
@@ -101,16 +112,13 @@ class FailingAggregate extends Aggregate<Long, LongIdAggregate, LongIdAggregate.
                 throw new IllegalArgumentException("Negative floating point value passed");
             }
         }
-        return now();
-    }
-
-    @Apply
-    private void apply(NumberPassed event) {
+        var event = now();
         var whichSecond = TimestampTemporal
                 .from(event.getWhen())
                 .toInstant()
                 .get(ChronoField.MILLI_OF_SECOND);
         builder().setValue(builder().getValue() + whichSecond);
+        return event;
     }
 
     private static NumberPassed now() {

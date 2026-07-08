@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ package io.spine.test.client.users
 
 import io.spine.core.UserId
 import io.spine.server.aggregate.Aggregate
-import io.spine.server.aggregate.Apply
 import io.spine.server.command.Assign
 import io.spine.test.client.users.command.ChangePassword
 import io.spine.test.client.users.event.PasswordChanged
@@ -47,7 +46,4 @@ internal class UserAccountAggregate : Aggregate<UserId, UserAccount, UserAccount
         passwordChanged {
             user = c.user
         }
-
-    @Apply
-    fun event(@Suppress("unused") ignored: PasswordChanged) = Unit
 }

@@ -54,7 +54,6 @@ import io.spine.server.aggregate.given.thermometer.Thermometer;
 import io.spine.server.aggregate.given.thermometer.ThermometerId;
 import io.spine.server.aggregate.given.thermometer.event.TemperatureChanged;
 import io.spine.server.delivery.MessageEndpoint;
-import io.spine.server.model.ModelError;
 import io.spine.server.type.CommandClass;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventClass;
@@ -99,7 +98,6 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.extensions.proto.ProtoTruth.assertThat;
 import static io.spine.grpc.StreamObservers.noOpObserver;
-import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.server.aggregate.given.Given.ACommand.addTask;
 import static io.spine.server.aggregate.given.Given.EventMessage.projectCreated;
 import static io.spine.server.aggregate.given.Given.EventMessage.projectStarted;
@@ -274,8 +272,8 @@ public class AggregateTest {
          * command.
          */
         @Test
-        @DisplayName("by number of events upon handling command with several events")
-        void byNumberOfEvents() {
+        @DisplayName("by one upon handling a command that emits several events")
+        void byOneForSeveralEvents() {
             var version = amishAggregate.versionNumber();
 
             var command = command(cancelProject);
@@ -284,10 +282,11 @@ public class AggregateTest {
                             .getSuccess()
                             .getProducedEvents()
                             .getEventList();
-            // Expecting to return more than one to differ from other testing scenarios.
+            // Expecting more than one event to differ from the single-event scenarios; the
+            // aggregate version still advances by exactly one per command (ADR D3).
             assertTrue(eventMessages.size() > 1);
 
-            assertEquals(version + eventMessages.size(), amishAggregate.versionNumber());
+            assertEquals(version + 1, amishAggregate.versionNumber());
         }
 
         @Test
@@ -304,8 +303,10 @@ public class AggregateTest {
     }
 
     @Test
-    @DisplayName("write its version into event context")
+    @DisplayName("write its pre-dispatch version into the event context")
     void writeVersionIntoEventContext() {
+        var versionBeforeDispatch = aggregate.version();
+
         dispatchCommand(aggregate, command(createProject));
 
         // Get the first event since the command assignee produces only one event message.
@@ -314,10 +315,12 @@ public class AggregateTest {
                                            .list();
         var event = uncommittedEvents.get(0);
         var context = event.context();
+        // Since the event-sourcing cutover, an emitted event carries the aggregate's pre-dispatch
+        // version (ADR D3); the aggregate itself advances by one per command.
         // Cast to `Message` to select the `ProtoTruth` assertion: `Version` is now also
         // `Comparable` (via the `(compare_by)` option), which would otherwise make a bare
         // `assertThat(...)` ambiguous between `Truth` and `ProtoTruth`.
-        assertThat((Message) aggregate.version())
+        assertThat((Message) versionBeforeDispatch)
                 .isEqualTo(context.getVersion());
     }
 
@@ -353,34 +356,23 @@ public class AggregateTest {
     }
 
     @Nested
-    @DisplayName("throw when missing")
-    class ThrowOnMissing {
+    @DisplayName("report an error")
+    class ReportError {
 
         @Test
         @MuteLogging
-        @DisplayName("command assignee")
+        @DisplayName("when dispatched a command it cannot handle")
         void commandHandler() {
             ModelTests.dropAllModels();
             var aggregate = new AggregateWithMissingApplier(ID);
 
-            // Pass a command for which the target aggregate does not have a handling method.
-            assertThrows(ModelError.class,
-                         () -> dispatchCommand(aggregate, command(addTask)));
-        }
+            // The aggregate has no receptor for this command. Since the event-sourcing cutover
+            // the aggregate is dispatched exactly like a `ProcessManager`: the receptor lookup
+            // runs inside the transaction, so the resulting `ModelError` is caught by the
+            // transaction failsafe and surfaced as an error outcome rather than being thrown.
+            var outcome = dispatchCommand(aggregate, command(addTask));
 
-        @Test
-        @MuteLogging
-        @DisplayName("event applier for the event emitted in a result of command handling")
-        void eventApplier() {
-            ModelTests.dropAllModels();
-            var aggregate = new AggregateWithMissingApplier(ID);
-            var command = command(createProject);
-            var outcome = dispatchCommand(aggregate, command);
-            assertTrue(aggregate.commandHandled());
-            assertTrue(outcome.hasError());
-            var error = outcome.getError();
-            assertThat(error.getType())
-                    .isEqualTo(ModelError.class.getCanonicalName());
+            assertThat(outcome.hasError()).isTrue();
         }
     }
 
@@ -413,41 +405,6 @@ public class AggregateTest {
         } finally {
             Time.resetProvider();
         }
-    }
-
-    @Test
-    @DisplayName("replay historical events")
-    void playEvents() {
-        var events = generateProjectEvents();
-        var aggregateHistory = AggregateHistory.newBuilder()
-                .addAllEvent(events)
-                .build();
-
-        AggregateTransaction<?, ?, ?> tx = AggregateTransaction.start(aggregate);
-        aggregate().replay(aggregateHistory);
-        tx.commit();
-
-        assertTrue(aggregate.projectCreatedEventApplied);
-        assertTrue(aggregate.taskAddedEventApplied);
-        assertTrue(aggregate.projectStartedEventApplied);
-    }
-
-    @Test
-    @DisplayName("restore snapshot during play")
-    void restoreSnapshot() {
-        dispatchCommand(aggregate, command(createProject));
-
-        var snapshot = aggregate().toSnapshot();
-
-        Aggregate<?, ?, ?> anotherAggregate = newAggregate(aggregate.id());
-
-        AggregateTransaction<?, ?, ?> tx = AggregateTransaction.start(anotherAggregate);
-        anotherAggregate.replay(AggregateHistory.newBuilder()
-                                                .setSnapshot(snapshot)
-                                                .build());
-        tx.commit();
-
-        assertEquals(aggregate, anotherAggregate);
     }
 
     @Nested
@@ -528,35 +485,45 @@ public class AggregateTest {
     }
 
     @Test
-    @DisplayName("transform current state to snapshot event")
-    void transformCurrentStateToSnapshot() {
+    @DisplayName("restore state, version, and lifecycle flags from the latest state record")
+    void restoreStateFromRecord() {
 
         dispatchCommand(aggregate, command(createProject));
 
-        var snapshot = aggregate().toSnapshot();
-        var state = unpack(snapshot.getState(), AggProject.class);
-
-        assertEquals(ID, state.getId());
-        assertEquals(Status.CREATED, state.getStatus());
-    }
-
-    @Test
-    @DisplayName("restore state from snapshot")
-    void restoreStateFromSnapshot() {
-
-        dispatchCommand(aggregate, command(createProject));
-
-        var snapshotNewProject = aggregate().toSnapshot();
+        var record = AggregateRecords.newStateRecord(aggregate());
 
         Aggregate<?, ?, ?> anotherAggregate = newAggregate(aggregate.id());
 
         AggregateTransaction<?, ?, ?> tx = AggregateTransaction.start(anotherAggregate);
-        anotherAggregate.restore(snapshotNewProject);
+        anotherAggregate.restore(record);
         tx.commit();
 
         assertEquals(aggregate.state(), anotherAggregate.state());
         assertEquals(aggregate.version(), anotherAggregate.version());
         assertEquals(aggregate.lifecycleFlags(), anotherAggregate.lifecycleFlags());
+    }
+
+    @Test
+    @DisplayName("restore from a legacy record that has no packed state")
+    void restoreFromStatelessRecord() {
+        dispatchCommand(aggregate, command(createProject));
+
+        // Emulate a pre-cutover `NONE`-visibility record: only the ID, version, and lifecycle
+        // flags were persisted, with the business state left in the (no longer replayed) journal.
+        var statelessRecord = AggregateRecords.newStateRecord(aggregate())
+                                              .toBuilder()
+                                              .clearState()
+                                              .build();
+
+        Aggregate<?, ?, ?> restored = newAggregate(aggregate.id());
+        AggregateTransaction<?, ?, ?> tx = AggregateTransaction.start(restored);
+        // Must not throw while unpacking the empty `Any`.
+        restored.restore(statelessRecord);
+        tx.commit();
+
+        // The version is recovered; the business state stays at its default.
+        assertEquals(aggregate.version(), restored.version());
+        assertEquals(AggProject.getDefaultInstance(), restored.state());
     }
 
     @Test
@@ -591,32 +558,6 @@ public class AggregateTest {
             assertEquals(currentTime, aggregate.whenModified());
         } finally {
             Time.resetProvider();
-        }
-    }
-
-    @Nested
-    @DisplayName("prohibit")
-    class Prohibit {
-
-        @Test
-        @MuteLogging
-        @DisplayName("to call `state()` from within applier")
-        void callStateFromApplier() {
-            ModelTests.dropAllModels();
-            var faultyAggregate =
-                    new FaultyAggregate(ID, false, false);
-            var command = addTask(ID);
-            var outcome = dispatchCommand(faultyAggregate, env(command));
-
-            assertThat(outcome.hasError())
-                    .isTrue();
-            var error = outcome.getError();
-            var expectedError = Error.newBuilder()
-                    .setType(IllegalStateException.class.getCanonicalName())
-                    .buildPartial();
-            assertThat(error)
-                    .comparingExpectedFieldsOnly()
-                    .isEqualTo(expectedError);
         }
     }
 
@@ -665,37 +606,6 @@ public class AggregateTest {
                                     .buildPartial());
         }
 
-        @Test
-        @DisplayName("the event replay")
-        void whenPlayThrows() {
-            ModelTests.dropAllModels();
-            var faultyAggregate = new FaultyAggregate(ID, false, true);
-
-            var event = event(projectCreated(ID, getClass().getSimpleName()), 1);
-            AggregateTransaction.start(faultyAggregate);
-            var history = AggregateHistory.newBuilder()
-                    .addEvent(event)
-                    .build();
-            var batchDispatchOutcome =
-                    ((Aggregate<?, ?, ?>) faultyAggregate).replay(history);
-            assertThat(batchDispatchOutcome.getSuccessful()).isFalse();
-            var expectedTarget = MessageId.newBuilder()
-                    .setId(Identifier.pack(faultyAggregate.id()))
-                    .setTypeUrl(faultyAggregate.modelClass()
-                                               .stateTypeUrl()
-                                               .value())
-                    .buildPartial();
-            assertThat(batchDispatchOutcome.getTargetEntity())
-                    .comparingExpectedFieldsOnly()
-                    .isEqualTo(expectedTarget);
-            assertThat(batchDispatchOutcome.getOutcomeCount()).isEqualTo(1);
-            var outcome = batchDispatchOutcome.getOutcome(0);
-            assertThat(outcome.hasError()).isTrue();
-            assertThat(outcome.getPropagatedSignal()).isEqualTo(event.messageId());
-            var error = outcome.getError();
-            assertThat(error.getType()).isEqualTo(IllegalStateException.class.getCanonicalName());
-            assertThat(error.getMessage()).isEqualTo(FaultyAggregate.BROKEN_APPLIER);
-        }
     }
 
     @Test
@@ -726,7 +636,10 @@ public class AggregateTest {
             commandBus.post(newArrayList(addTaskCommand2, startCommand), noOpObserver);
 
             var aggregate = repository.loadAggregate(tenantId, ID);
-            history = aggregate.historyBackward();
+            // Since the cutover, recent history is read lazily from storage on demand rather than
+            // replayed eagerly at load. Reading it therefore requires the tenant context (the read
+            // is eager, so the returned iterator is safe to consume outside the context).
+            history = with(tenantId).evaluate(aggregate::historyBackward);
 
             assertNextCommandId().isEqualTo(startCommand.id());
             assertNextCommandId().isEqualTo(addTaskCommand2.id());
@@ -743,32 +656,6 @@ public class AggregateTest {
                                    .asCommandId());
         }
 
-        @Test
-        @DisplayName("up to latest snapshot")
-        void upToLatestSnapshot() {
-            repository.setSnapshotTrigger(3);
-
-            var tenantId = newTenantId();
-            var createCommand = command(createProject, tenantId);
-            var startCommand = command(startProject, tenantId);
-            var addTaskCommand = command(addTask, tenantId);
-            var addTaskCommand2 = command(addTask, tenantId);
-
-            var commandBus = context.commandBus();
-            StreamObserver<Ack> noOpObserver = noOpObserver();
-            commandBus.post(createCommand, noOpObserver);
-            commandBus.post(startCommand, noOpObserver);
-            commandBus.post(ImmutableList.of(addTaskCommand, addTaskCommand2), noOpObserver);
-
-            var aggregate = repository.loadAggregate(tenantId, ID);
-
-            history = aggregate.historyBackward();
-
-            assertNextCommandId()
-                    .isEqualTo(addTaskCommand2.id());
-            assertThat(history.hasNext())
-                    .isFalse();
-        }
     }
 
     @Test
@@ -797,6 +684,7 @@ public class AggregateTest {
         var monitor = new DiagnosticMonitor();
         context.internalAccess()
                .registerEventDispatcher(monitor);
+        repository.useIdempotencyGuard();
         var createCommand = command(createProject);
         var cmd = CommandEnvelope.of(createCommand);
         var tenantId = newTenantId();
@@ -817,6 +705,7 @@ public class AggregateTest {
         var monitor = new DiagnosticMonitor();
         context.internalAccess()
                .registerEventDispatcher(monitor);
+        repository.useIdempotencyGuard();
         var eventMessage = AggProjectDeleted.newBuilder()
                 .setProjectId(ID)
                 .build();

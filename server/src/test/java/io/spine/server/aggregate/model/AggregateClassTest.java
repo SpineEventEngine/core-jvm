@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -27,14 +27,13 @@
 package io.spine.server.aggregate.model;
 
 import io.spine.server.aggregate.given.klasse.EngineAggregate;
-import io.spine.server.aggregate.given.klasse.IndecisiveEngineAggregate;
+import io.spine.server.aggregate.given.klasse.EngineAggregateWithApplier;
 import io.spine.server.aggregate.given.klasse.command.StartEngine;
 import io.spine.server.aggregate.given.klasse.command.StopEngine;
 import io.spine.server.aggregate.given.klasse.event.EmissionTestStarted;
 import io.spine.server.aggregate.given.klasse.event.EmissionTestStopped;
 import io.spine.server.aggregate.given.klasse.event.EngineStarted;
 import io.spine.server.aggregate.given.klasse.event.EngineStopped;
-import io.spine.server.aggregate.given.klasse.event.SettingsAdjusted;
 import io.spine.server.aggregate.given.klasse.event.TankEmpty;
 import io.spine.server.aggregate.given.klasse.rejection.Rejections;
 import io.spine.server.model.ModelError;
@@ -42,6 +41,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static com.google.common.truth.Truth.assertThat;
 import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
 import static io.spine.testing.server.Assertions.assertCommandClassesExactly;
 import static io.spine.testing.server.Assertions.assertEventClassesExactly;
@@ -88,20 +88,11 @@ class AggregateClassTest {
         }
 
         @Test
-        @DisplayName("events imported by the aggregate")
-        void importedEvents() {
-            assertEventClassesExactly(aggregateClass.importableEvents(),
-                                      EngineStopped.class,
-                                      SettingsAdjusted.class);
-        }
-
-        @Test
-        @DisplayName("events (including rejections and importable) produced by the aggregate")
+        @DisplayName("events (including rejections) produced by the aggregate")
         void producedEvents() {
             assertEventClassesExactly(aggregateClass.outgoingEvents(),
                                       EngineStarted.class,
                                       EngineStopped.class,
-                                      SettingsAdjusted.class,
                                       Rejections.EngineAlreadyStarted.class,
                                       Rejections.EngineAlreadyStopped.class);
         }
@@ -116,9 +107,12 @@ class AggregateClassTest {
     }
 
     @Test
-    @DisplayName("check that there is only one applier per event type")
-    void checkOneApplier() {
-        assertThrows(ModelError.class,
-                     () -> asAggregateClass(IndecisiveEngineAggregate.class));
+    @DisplayName("reject a class that declares `@Apply` event appliers")
+    void rejectAppliers() {
+        var error = assertThrows(ModelError.class,
+                                 () -> asAggregateClass(EngineAggregateWithApplier.class));
+        assertThat(error)
+                .hasMessageThat()
+                .contains("declares `@Apply`-annotated event applier");
     }
 }

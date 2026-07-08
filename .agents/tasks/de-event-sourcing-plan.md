@@ -147,6 +147,11 @@ in the migration notes (PR-B3). No tooling is shipped to close the gap.
 
 ## Phase A — Design finalization (ADR)
 
+> **✅ COMPLETE — landed in #1642.** The ADR
+> `docs/adr/0001-aggregates-without-event-sourcing.md` is **Accepted**,
+> resolving A1–A8 plus the review follow-ups D9, D10, and the revised D1
+> (event import dropped). The open-point table below is retained for context.
+
 **Deliverable:** a short ADR under `docs/` in `core-jvm` resolving the open
 design points below, plus the agreed public-API sketch (signatures only).
 Get the ADR reviewed and approved by the product owner before Phase B.
@@ -173,6 +178,14 @@ note in PR-B2. Each PR bumps the version once per branch and runs
 
 ### PR-B1 — Preventive validation (additive)
 
+> **✅ COMPLETE — landed in #1643** (`tryAlter`), with its test suite
+> consolidated by the `TransactionalEntity` → Kotlin conversion in **#1644**.
+> Since #1644 `tryAlter` is a `public @VisibleForTesting` member of
+> `server/src/main/kotlin/io/spine/server/entity/TransactionalEntity.kt`
+> (no longer in `TransactionalEntityExts.kt`), beside the `protected`
+> `update {}` / `alter {}`. **#1645** then moved the `Transaction` base class to
+> Kotlin (`entity/Transaction.kt`) — a prerequisite for PR-B2 step 2.
+
 *(2026-07-05: the import-receptor work that used to open this PR is gone —
 event import is dropped; see ADR D1, revised. The import-machinery removal
 happens in PR-B2, step 12.)*
@@ -192,8 +205,22 @@ happens in PR-B2, step 12.)*
    2026-07-05). Consumed here via a `Validation` dependency bump once
    published. `tryAlter` does not block on it — it validates via
    `checkEntityState`.
+   **Status (2026-07-07):** the local `Validation` dependency was advanced
+   `.448 → .449` in this train (`buildSrc/.../dependency/local/Validation.kt`);
+   confirm `.449` is the build shipping the default
+   `ValidatingBuilder.validate()` before consuming it here.
 
 ### PR-B2 — The cutover (large; ATOMIC build-breaking change)
+
+> **Prerequisite refactors already landed — adjust the file pointers below.**
+> `Transaction` is now Kotlin (`entity/Transaction.kt`, #1645, replacing
+> `Transaction.java`); `TransactionalEntity` is now Kotlin
+> (`entity/TransactionalEntity.kt`, #1644) and carries the `builder()`-mutation
+> API (`update` / `alter` / `tryAlter`). `AggregateTransaction`,
+> `PmTransaction`, and `EventPlayingTransaction` are **still Java**, so step 2's
+> "re-base `AggregateTransaction` onto `Transaction`" now re-bases a Java class
+> onto the Kotlin `Transaction.kt` base — exactly as the still-Java
+> `PmTransaction` already extends it.
 
 **Atomicity note.** Runtime steps 1–7 are a single non-decomposable
 compilation unit: `AggregateEndpoint.applyProducedEvents` → `Aggregate.apply`
@@ -381,6 +408,15 @@ Decoupled; starts after Phase B is merged and stable.
 4. Design for future `ProcessManager` reuse (brief item 4) — the contract
    must not be aggregate-specific; actual PM wiring is out of scope.
 5. Read API for debugging/analysis (state history alongside the journal).
+
+### Follow-up: journal type cleanup (`EventHistory`)
+
+Introduce a snapshot-free `EventHistory` type and deprecate `AggregateHistory` —
+its `snapshot` field is dead weight after the cutover, and the "history =
+snapshot + tail" semantics no longer hold. Detailed task:
+[`introduce-event-history-type.md`](introduce-event-history-type.md). Coordinate
+with the count/date journal trimming in D3 above, since both touch the journal
+representation.
 
 ## Phase E — Downstream rollout (dependency order)
 

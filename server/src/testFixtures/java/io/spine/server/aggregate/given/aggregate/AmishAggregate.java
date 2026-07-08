@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,13 +29,11 @@ package io.spine.server.aggregate.given.aggregate;
 import io.spine.base.EventMessage;
 import io.spine.core.CommandContext;
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.test.aggregate.AggProject;
 import io.spine.test.aggregate.ProjectId;
 import io.spine.test.aggregate.command.AggCancelProject;
 import io.spine.test.aggregate.command.AggPauseProject;
-import io.spine.test.aggregate.event.AggProjectCancelled;
 import io.spine.test.aggregate.event.AggProjectPaused;
 
 import java.util.List;
@@ -67,15 +65,5 @@ public class AmishAggregate extends Aggregate<ProjectId, AggProject, AggProject.
         var firstPaused = projectPaused(cmd.getProjectId());
         var thenCancelled = projectCancelled(cmd.getProjectId());
         return newArrayList(firstPaused, thenCancelled);
-    }
-
-    @Apply
-    private void on(AggProjectPaused event) {
-        // do nothing.
-    }
-
-    @Apply
-    private void on(AggProjectCancelled event) {
-        // do nothing.
     }
 }

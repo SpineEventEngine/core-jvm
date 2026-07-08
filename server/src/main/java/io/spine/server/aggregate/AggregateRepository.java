@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,7 +76,6 @@ import static com.google.common.collect.Iterators.transform;
 import static io.spine.option.EntityOption.Kind.AGGREGATE;
 import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
 import static io.spine.server.delivery.InboxLabel.HANDLE_COMMAND;
-import static io.spine.server.delivery.InboxLabel.IMPORT_EVENT;
 import static io.spine.server.delivery.InboxLabel.REACT_UPON_EVENT;
 import static io.spine.server.dispatch.DispatchOutcomes.maybeSentToInbox;
 import static io.spine.server.dispatch.DispatchOutcomes.sentToInbox;
@@ -105,19 +104,13 @@ public abstract class AggregateRepository<I,
                    EventDispatcherDelegate, QueryableRepository<I, S> {
 
     /** The default number of events to be stored before a new snapshot is made. */
-    static final int DEFAULT_SNAPSHOT_TRIGGER = 100;
+    static final int DEFAULT_HISTORY_DEPTH = 100;
 
     /** The routing schema for commands handled by the aggregates. */
     private final Supplier<CommandRouting<I>> commandRouting;
 
     /** The routing schema for events to which aggregates react. */
     private final Supplier<EventRouting<I>> eventRouting;
-
-    /**
-     * The routing for event import, which by default obtains the target aggregate ID as the
-     * {@linkplain io.spine.core.EventContext#getProducerId() producer ID} of the event.
-     */
-    private final Supplier<EventRouting<I>> eventImportRouting;
 
     /**
      * The {@link Inbox} for the messages, which are sent to the instances managed by this
@@ -127,17 +120,17 @@ public abstract class AggregateRepository<I,
 
     private @MonotonicNonNull RepositoryCache<I, A> cache;
 
-    /** The number of events to store between snapshots. */
-    private int snapshotTrigger = DEFAULT_SNAPSHOT_TRIGGER;
+    /** The recent-history window (formerly the snapshot trigger). */
+    private int historyDepth = DEFAULT_HISTORY_DEPTH;
+
+    /** Whether the opt-in {@link IdempotencyGuard} is enabled for this repository. */
+    private boolean idempotencyGuardEnabled = false;
 
     /** Creates a new instance. */
     protected AggregateRepository() {
         super();
         this.commandRouting = memoize(() -> CommandRouting.newInstance(idClass()));
         this.eventRouting = memoize(
-                () -> EventRouting.withDefaultByProducerIdOrFirstField(idClass())
-        );
-        this.eventImportRouting = memoize(
                 () -> EventRouting.withDefaultByProducerIdOrFirstField(idClass())
         );
     }
@@ -148,10 +141,9 @@ public abstract class AggregateRepository<I,
      * <p>Verifies that the class of aggregates of this repository subscribes to at least one
      * type of messages.
      *
-     * <p>Registers itself with {@link io.spine.server.commandbus.CommandBus CommandBus},
-     * {@link io.spine.server.event.EventBus EventBus}, and
-     * {@link io.spine.server.aggregate.ImportBus ImportBus} of the context for dispatching
-     * messages to its aggregates.
+     * <p>Registers itself with {@link io.spine.server.commandbus.CommandBus CommandBus} and
+     * {@link io.spine.server.event.EventBus EventBus} of the context for dispatching messages to
+     * its aggregates.
      *
      * @param context
      *         the context of this repository
@@ -166,10 +158,6 @@ public abstract class AggregateRepository<I,
         setupRouting();
         context.internalAccess()
                .registerCommandDispatcher(this);
-        if (aggregateClass().importsEvents()) {
-            context.importBus()
-                   .register(EventImportDispatcher.of(this));
-        }
         initCache(context.isMultitenant());
         initInbox();
         configureQuerying();
@@ -178,7 +166,6 @@ public abstract class AggregateRepository<I,
     private void setupRouting() {
         doSetupCommandRouting();
         doSetupEventRouting();
-        setupImportRouting(eventImportRouting.get());
     }
 
     private void doSetupCommandRouting() {
@@ -211,8 +198,6 @@ public abstract class AggregateRepository<I,
                 .withBatchListener(newCachingListener())
                 .addEventEndpoint(REACT_UPON_EVENT,
                                   e -> new AggregateEventReactionEndpoint<>(this, e))
-                .addEventEndpoint(IMPORT_EVENT,
-                                  e -> new EventImportEndpoint<>(this, e))
                 .addCommandEndpoint(HANDLE_COMMAND,
                                     c -> new AggregateCommandEndpoint<>(this, c))
                 .build();
@@ -279,37 +264,15 @@ public abstract class AggregateRepository<I,
         // Do nothing.
     }
 
-    /**
-     * A callback for derived classes to customize routing schema for importable events.
-     *
-     * <p>The default routing uses {@linkplain io.spine.core.EventContext#getProducerId()
-     * producer ID} of the event as the ID of the target aggregate.
-     *
-     * <p>This default routing requires that {@link Event Event} instances
-     * {@linkplain ImportBus#post(io.spine.core.Signal, io.grpc.stub.StreamObserver)} posted
-     * for import must {@link io.spine.core.EventContext#getProducerId() contain} the ID of the
-     * target aggregate. Not providing a valid aggregate ID would result in
-     * {@code RuntimeException}.
-     *
-     * <p>Some aggregates may produce events with the aggregate ID as the first field of an event
-     * message. To set the default routing for repositories of such aggregates, please use the
-     * code below:
-     *
-     * <pre>{@code
-     * routing.replaceDefault(EventRoute.byFirstMessageField(SomeId.class));
-     * }</pre>
-     *
-     * @param routing
-     *         the routing schema to customize.
-     */
-    @SuppressWarnings("NoopMethodInAbstractClass") // see Javadoc
-    protected void setupImportRouting(EventRouting<I> routing) {
-        // Do nothing.
-    }
-
     @Override
     public A create(I id) {
         var aggregate = aggregateClass().create(id);
+        aggregate.setRecentHistoryLoader(
+                depth -> aggregateStorage().readHistoryBackward(id, depth)
+                                           .iterator());
+        if (idempotencyGuardEnabled) {
+            aggregate.enableIdempotencyGuard(historyDepth);
+        }
         return aggregate;
     }
 
@@ -333,6 +296,13 @@ public abstract class AggregateRepository<I,
 
     @VisibleForTesting
     protected void doStore(A aggregate) {
+        // Since the cutover the state is persisted independently of visibility, but still only
+        // for an aggregate that was actually modified. Persisting an untouched instance would
+        // overwrite the stored state of another instance sharing the same ID with a default
+        // (empty) record. An unmodified aggregate has no state change and no uncommitted events.
+        if (!aggregate.changed() && !aggregate.hasUncommittedEvents()) {
+            return;
+        }
         var history = aggregate.uncommittedHistory();
         aggregateStorage().writeAll(aggregate, history.get());
         aggregate.commitEvents();
@@ -413,13 +383,6 @@ public abstract class AggregateRepository<I,
         return aggregateClass().externalEvents();
     }
 
-    /**
-     * Obtains classes of events that can be imported by aggregates of this repository.
-     */
-    public ImmutableSet<EventClass> importableEvents() {
-        return aggregateClass().importableEvents();
-    }
-
     @Override
     public ImmutableSet<EventClass> outgoingEvents() {
         return aggregateClass().outgoingEvents();
@@ -453,62 +416,6 @@ public abstract class AggregateRepository<I,
     }
 
     /**
-     * Imports the passed event into one of the aggregates.
-     */
-    final DispatchOutcome importEvent(EventEnvelope event) {
-        checkNotNull(event);
-        var target = routeImport(event);
-        target.ifPresent(id -> inbox().send(event)
-                                      .toImporter(id));
-        return maybeSentToInbox(event, target);
-    }
-
-    private Optional<I> routeImport(EventEnvelope event) {
-        var id = route(eventImportRouting(), event);
-        return id;
-    }
-
-    private RouteFn<? extends EventMessage, EventContext, I> eventImportRouting() {
-        return this::idForImported;
-    }
-
-    /**
-     * Obtains an aggregate ID from the given event message and context applying
-     * {@link #eventImportRouting} to them.
-     *
-     * <p>Assumes that routing should give only one ID.
-     *
-     * @throws IllegalStateException
-     *          if {@link #eventImportRouting} returns more than one ID
-     */
-    private I idForImported(EventMessage message, EventContext context) {
-        var ids = eventImportRouting.get().invoke(message, context);
-        var numberOfTargets = ids.size();
-        var messageType = message.getClass()
-                                 .getName();
-        checkState(
-                numberOfTargets > 0,
-                "Could not get aggregate ID from the event context: `%s`. Event class: `%s`.",
-                context,
-                messageType
-        );
-        checkState(
-                numberOfTargets == 1,
-                "Expected one aggregate ID, but got %s (%s). Event class: `%s`, context: `%s`.",
-                String.valueOf(numberOfTargets),
-                ids,
-                messageType,
-                context
-        );
-        var id = ids.stream()
-                .findFirst()
-                .orElseThrow(() -> newIllegalStateException(
-                        "Unable to route import event `%s`.", messageType)
-                );
-        return id;
-    }
-
-    /**
      * Obtains command routing instance used by this repository.
      */
     private CommandRouting<I> commandRouting() {
@@ -523,31 +430,46 @@ public abstract class AggregateRepository<I,
     }
 
     /**
-     * Returns the number of events until a next {@code Snapshot} is made.
+     * Returns the number of the most recent journal events made available to the opt-in
+     * {@link IdempotencyGuard} and to the deprecated parameterless history accessors of
+     * {@link Aggregate}.
      *
-     * @return a positive integer value
-     * @see #DEFAULT_SNAPSHOT_TRIGGER
+     * @return a positive integer value; the default is {@value #DEFAULT_HISTORY_DEPTH}
      */
-    protected int snapshotTrigger() {
-        return this.snapshotTrigger;
+    protected int historyDepth() {
+        return this.historyDepth;
     }
 
     /**
-     * Changes the number of events between making aggregate snapshots to the passed value.
+     * Sets the {@linkplain #historyDepth() recent-history window} to the passed value.
      *
-     * <p>The default value is defined in {@link #DEFAULT_SNAPSHOT_TRIGGER}.
-     *
-     * <p><b>NOTE</b>: repository read operations are optimized around the current snapshot
-     * trigger. Setting the snapshot trigger to a new value may cause read operations to perform
-     * suboptimally, until a new snapshot is created. This doesn't apply to newly created
-     * repositories.
-     *
-     * @param snapshotTrigger
-     *         a positive number of the snapshot trigger
+     * @param depth
+     *         a positive number of the most recent events to keep available
      */
-    protected void setSnapshotTrigger(int snapshotTrigger) {
-        checkArgument(snapshotTrigger > 0);
-        this.snapshotTrigger = snapshotTrigger;
+    protected void setHistoryDepth(int depth) {
+        checkArgument(depth > 0);
+        this.historyDepth = depth;
+    }
+
+    /**
+     * Enables the opt-in, journal-backed {@link IdempotencyGuard} for the aggregates of this
+     * repository.
+     *
+     * <p>The guard is <b>off by default</b> — deduplication is primarily the delivery layer's
+     * responsibility. Enable it as a durable backstop against duplicate dispatches; when enabled,
+     * each dispatch scans the last {@link #historyDepth()} journal events.
+     */
+    protected void useIdempotencyGuard() {
+        this.idempotencyGuardEnabled = true;
+    }
+
+    /**
+     * Tells whether the opt-in {@link IdempotencyGuard} is enabled for this repository.
+     *
+     * @return {@code false} by default
+     */
+    protected boolean idempotencyGuardEnabled() {
+        return idempotencyGuardEnabled;
     }
 
     /**
@@ -614,10 +536,10 @@ public abstract class AggregateRepository<I,
     /**
      * Loads an aggregate by the passed ID.
      *
-     * <p>This method defines the basic flow of an {@code Aggregate} loading. First,
-     * the {@linkplain AggregateHistory Aggregate history} is
-     * {@linkplain #loadHistory fetched} from the storage. Then the {@code Aggregate} is
-     * {@linkplain #restore restored} from its state history.
+     * <p>Since the event-sourcing cutover, the aggregate is loaded from its latest persisted
+     * {@link EntityRecord state record} rather than by replaying its event journal. The record
+     * is read directly from the state storage, bypassing the querying/visibility gate, so even
+     * {@code NONE}-visibility aggregates load correctly.
      *
      * @param id
      *         the ID of the aggregate
@@ -625,59 +547,29 @@ public abstract class AggregateRepository<I,
      *         with the ID
      */
     private Optional<A> load(I id) {
-        var found = loadHistory(id);
-        var result = found.map(history -> restore(id, history));
+        var found = aggregateStorage().readState(id);
+        var result = found.map(record -> restore(id, record));
         return result;
     }
 
     /**
-     * Loads the history of the {@code Aggregate} with the given ID.
+     * Restores an {@link Aggregate} instance with the given ID from its latest persisted state
+     * record.
      *
-     * <p>The method loads only the recent history of the aggregate.
-     *
-     * <p>The current {@link #snapshotTrigger} is used as a batch size of the read operation,
-     * so the method can perform suboptimally for some time
-     * after the {@link #snapshotTrigger} change.
-     *
-     * @param id
-     *         the ID of the {@code Aggregate} to fetch
-     * @return the {@link AggregateHistory} for the {@code Aggregate} or
-     *         {@code Optional.empty()} if there is no record with the ID
-     */
-    private Optional<AggregateHistory> loadHistory(I id) {
-        var storage = aggregateStorage();
-        var batchSize = snapshotTrigger + 1;
-        var result = storage.read(id, batchSize);
-        return result;
-    }
-
-    /**
-     * Plays the given {@linkplain AggregateHistory Aggregate history} for an instance
-     * of {@link Aggregate} with the given ID.
+     * <p>The state, version, and lifecycle flags are set directly from the record; no events are
+     * replayed, so there is no corrupted-state outcome to report.
      *
      * @param id
      *         the ID of the {@code Aggregate} to load
-     * @param history
-     *         the state record of the {@code Aggregate} to load
+     * @param record
+     *         the latest state record of the {@code Aggregate}
      * @return an instance of {@link Aggregate}
      */
-    protected A restore(I id, AggregateHistory history) {
+    protected A restore(I id, EntityRecord record) {
         var result = create(id);
         AggregateTransaction<I, ?, ?> tx = AggregateTransaction.start(result);
-        var outcome = result.replay(history);
-        var success = outcome.getSuccessful();
+        result.restore(record);
         tx.commitIfActive();
-        if (!success) {
-            lifecycleOf(id).onCorruptedState(outcome);
-            var outcomeDetails = toJson(outcome);
-            var aggClass = aggregateClass().rawClass()
-                                           .getName();
-            throw newIllegalStateException("Aggregate `%s` (ID: %s) cannot be loaded.%n" +
-                                                   "Erroneous dispatch outcome: `%s`.",
-                                           aggClass,
-                                           result.idAsString(),
-                                           outcomeDetails);
-        }
         return result;
     }
 

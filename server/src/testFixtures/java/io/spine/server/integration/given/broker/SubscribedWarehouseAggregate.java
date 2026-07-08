@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ package io.spine.server.integration.given.broker;
 
 import io.spine.core.External;
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.event.React;
 import io.spine.server.integration.broker.PhotosMovedToWarehouse;
 import io.spine.server.integration.broker.PhotosPreparedForArchiving;
@@ -38,11 +37,8 @@ class SubscribedWarehouseAggregate extends Aggregate<String, WarehouseAgg, Wareh
 
     @React
     PhotosMovedToWarehouse on(@External PhotosPreparedForArchiving event) {
-        return PhotosMovedToWarehouse.generate();
-    }
-
-    @Apply
-    private void on(PhotosMovedToWarehouse event) {
-        builder().setId(event.getUuid());
+        var moved = PhotosMovedToWarehouse.generate();
+        builder().setId(moved.getUuid());
+        return moved;
     }
 }

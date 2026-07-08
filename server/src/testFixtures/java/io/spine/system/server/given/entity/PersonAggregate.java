@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@
 package io.spine.system.server.given.entity;
 
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.system.server.CreatePerson;
 import io.spine.system.server.ExposePerson;
@@ -54,60 +53,48 @@ public class PersonAggregate extends Aggregate<PersonId, Person, Person.Builder>
 
     @Assign
     PersonCreated handle(CreatePerson command) {
-        return PersonCreated
+        var event = PersonCreated
                 .newBuilder()
                 .setId(command.getId())
                 .setName(command.getName())
                 .build();
+        builder().setId(event.getId())
+                 .setName(event.getName());
+        return event;
     }
 
     @Assign
     PersonHidden handle(HidePerson command) {
-        return PersonHidden
+        var event = PersonHidden
                 .newBuilder()
                 .setId(command.getId())
                 .build();
+        setArchived(true);
+        return event;
     }
 
     @Assign
     PersonExposed handle(ExposePerson command) {
-        return PersonExposed
+        var event = PersonExposed
                 .newBuilder()
                 .setId(command.getId())
                 .build();
+        setArchived(false);
+        return event;
     }
 
     @Assign
     PersonRenamed handle(RenamePerson command) {
-        return PersonRenamed
+        var event = PersonRenamed
                 .newBuilder()
                 .setId(command.getId())
                 .setNewFirstName(command.getNewFirstName())
                 .build();
-    }
-
-    @Apply
-    private void on(PersonCreated event) {
-        builder().setId(event.getId())
-                 .setName(event.getName());
-    }
-
-    @Apply
-    private void on(PersonHidden event) {
-        setArchived(true);
-    }
-
-    @Apply
-    private void on(PersonExposed event) {
-        setArchived(false);
-    }
-
-    @Apply
-    private void on(PersonRenamed event) {
         var builder = builder();
         var newName = builder.getName().toBuilder()
                 .setGivenName(event.getNewFirstName())
                 .build();
         builder.setName(newName);
+        return event;
     }
 }

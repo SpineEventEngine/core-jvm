@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ package io.spine.server.aggregate.given.aggregate;
 
 import io.spine.core.CommandContext;
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.test.aggregate.AggProject;
 import io.spine.test.aggregate.ProjectId;
@@ -64,26 +63,19 @@ public final class FaultyAggregate
         if (brokenHandler) {
             throw new IllegalStateException(BROKEN_HANDLER);
         }
-        return projectCreated(cmd.getProjectId(), cmd.getName());
-    }
-
-    @Apply
-    private void event(AggProjectCreated event) {
+        var event = projectCreated(cmd.getProjectId(), cmd.getName());
         if (brokenApplier) {
             throw new IllegalStateException(BROKEN_APPLIER);
         }
         builder().setStatus(Status.CREATED);
+        return event;
     }
 
     @Assign
     AggTaskAdded handle(AggAddTask cmd) {
-        return taskAdded(cmd.getProjectId());
-    }
-
-    @Apply
-    private void event(AggTaskAdded event) {
-        /* This call to `state()` is prohibited from `Apply`-marked method. */
+        var event = taskAdded(cmd.getProjectId());
         var id = state().getId();
         builder().setId(id);
+        return event;
     }
 }

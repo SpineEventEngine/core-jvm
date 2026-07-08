@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,6 @@ import io.spine.server.delivery.given.CalculatorSignal;
 import io.spine.server.delivery.given.DeliveryTestEnv;
 import io.spine.test.delivery.AddNumber;
 import io.spine.test.delivery.Calc;
-import io.spine.test.delivery.NumberImported;
 import io.spine.test.delivery.NumberReacted;
 import io.spine.testing.server.blackbox.BlackBox;
 import org.jspecify.annotations.Nullable;
@@ -108,13 +107,12 @@ public class NastyClient {
 
             var targetsIterator = Iterators.cycle(targets);
             var commands = commands(streamSize, targetsIterator);
-            var importEvents = eventsToImport(streamSize, targetsIterator);
             var reactEvents = eventsToReact(streamSize, targetsIterator);
 
-            postAsync(context, commands, importEvents, reactEvents);
+            postAsync(context, commands, reactEvents);
 
             Stream<CalculatorSignal> signals =
-                    concat(commands.stream(), importEvents.stream(), reactEvents.stream());
+                    concat(commands.stream(), reactEvents.stream());
 
             signalsPerTarget = signals.collect(groupingBy(CalculatorSignal::getCalculatorId));
 
@@ -152,7 +150,6 @@ public class NastyClient {
         return repository.storeCallsCount(id);
     }
 
-
     /**
      * Returns the number of calls made to the
      * {@link DeliveryTestEnv.CalculatorRepository#doLoadOrCreate(String) doLoadOrCreate()} method.
@@ -179,17 +176,6 @@ public class NastyClient {
         var ints = IntStream.range(0, streamSize);
         return ints.mapToObj((value) ->
                                      NumberReacted.newBuilder()
-                                             .setCalculatorId(targetsIterator.next())
-                                             .setValue(value)
-                                             .build())
-                   .collect(toList());
-    }
-
-    private static List<NumberImported> eventsToImport(int streamSize,
-                                                       Iterator<String> targetsIterator) {
-        var ints = IntStream.range(streamSize, streamSize * 2);
-        return ints.mapToObj((value) ->
-                                     NumberImported.newBuilder()
                                              .setCalculatorId(targetsIterator.next())
                                              .setValue(value)
                                              .build())
@@ -227,13 +213,11 @@ public class NastyClient {
 
     private void postAsync(BlackBox context,
                            List<AddNumber> commands,
-                           List<NumberImported> eventsToImport,
                            List<NumberReacted> eventsToReact) {
 
         var signalStream =
                 concat(
                         commandCallables(context, commands),
-                        importEventCallables(context, eventsToImport),
                         reactEventsCallables(context, eventsToReact)
                 );
         Collection<Callable<Object>> signals = signalStream.collect(toList());
@@ -272,15 +256,6 @@ public class NastyClient {
                            context.receivesCommand(c);
                            return new Object();
                        });
-    }
-
-    private static Stream<Callable<Object>>
-    importEventCallables(BlackBox context, List<NumberImported> events) {
-        return events.stream()
-                     .map((e) -> () -> {
-                         context.importsEvent(e);
-                         return new Object();
-                     });
     }
 
     private static Stream<Callable<Object>>

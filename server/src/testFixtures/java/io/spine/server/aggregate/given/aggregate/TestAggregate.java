@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ import io.spine.annotation.VisibleForTesting;
 import io.spine.core.Command;
 import io.spine.core.CommandContext;
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.aggregate.given.dispatch.AggregateMessageDispatcher;
 import io.spine.server.command.Assign;
 import io.spine.server.entity.rejection.StandardRejections;
@@ -88,59 +87,43 @@ public class TestAggregate
     AggProjectCreated handle(AggCreateProject cmd, CommandContext ctx) {
         createProjectCommandHandled = true;
         var event = projectCreated(cmd.getProjectId(), cmd.getName());
+        builder().setId(event.getProjectId())
+                 .setStatus(Status.CREATED);
+        projectCreatedEventApplied = true;
         return event;
     }
 
     @Assign
     AggTaskAdded handle(AggAddTask cmd) {
         addTaskCommandHandled = true;
-        var event = taskAdded(cmd.getProjectId());
-        return event.toBuilder()
+        var event = taskAdded(cmd.getProjectId())
+                    .toBuilder()
                     .setTask(cmd.getTask())
                     .build();
+        taskAddedEventApplied = true;
+        builder().addTask(event.getTask());
+        return event;
     }
 
     @Assign
     List<AggProjectStarted> handle(AggStartProject cmd) {
         startProjectCommandHandled = true;
         var message = projectStarted(cmd.getProjectId());
-        return ImmutableList.of(message);
-    }
-
-    @Apply
-    private void event(AggProjectCreated e) {
-        builder().setId(e.getProjectId())
-                 .setStatus(Status.CREATED);
-
-        projectCreatedEventApplied = true;
-    }
-
-    @Apply
-    private void event(AggTaskAdded e) {
-        taskAddedEventApplied = true;
-        builder().addTask(e.getTask());
-    }
-
-    @Apply
-    private void event(AggProjectStarted e) {
-        builder().setId(e.getProjectId())
+        builder().setId(message.getProjectId())
                  .setStatus(Status.STARTED);
-
         projectStartedEventApplied = true;
+        return ImmutableList.of(message);
     }
 
     @React
     AggProjectArchived on(AggProjectDeleted event) {
-        return AggProjectArchived
+        var archived = AggProjectArchived
                 .newBuilder()
                 .setProjectId(event.getProjectId())
                 .buildPartial();
-    }
-
-    @Apply
-    private void event(AggProjectArchived e) {
-        builder().setId(e.getProjectId())
+        builder().setId(archived.getProjectId())
                  .setStatus(Status.CANCELLED);
+        return archived;
     }
 
     @React

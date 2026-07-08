@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,45 +24,30 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.server.aggregate.given.importado;
+package io.spine.server.aggregate;
 
-import io.spine.server.aggregate.given.importado.command.Move;
-import io.spine.server.aggregate.given.importado.event.Moved;
+import io.spine.core.Event;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import java.util.Iterator;
 
 /**
- * Static utilities for movement DSL.
+ * Lazily loads up to a requested number of an aggregate's most recent journal events,
+ * newest first.
+ *
+ * <p>An {@link AggregateRepository} installs a loader on each aggregate it creates or loads
+ * (via {@link Aggregate#setRecentHistoryLoader(RecentHistoryLoader)}), so the aggregate can
+ * access its recent history — for the opt-in {@link IdempotencyGuard} and for business logic —
+ * without eagerly reading the journal on every load.
  */
-public final class MoveMessages {
-
-    /** Prevents instantiation of this utility class. */
-    private MoveMessages() {
-    }
+@FunctionalInterface
+interface RecentHistoryLoader {
 
     /**
-     * Creates a command to move the passed object into the given direction.
+     * Loads up to {@code depth} most recent events of the aggregate's journal, newest first.
+     *
+     * @param depth
+     *         the maximum number of the most recent events to load; positive
+     * @return an iterator over the loaded events, newest first
      */
-    public static Move move(ObjectId object, Direction direction) {
-        checkNotNull(object);
-        checkNotNull(direction);
-        return Move
-                .newBuilder()
-                .setObject(object)
-                .setDirection(direction)
-                .build();
-    }
-
-    /**
-     * Creates an event on the fact that the object moved into the passed direction.
-     */
-    public static Moved moved(ObjectId object, Direction direction) {
-        checkNotNull(object);
-        checkNotNull(direction);
-        return Moved
-                .newBuilder()
-                .setObject(object)
-                .setDirection(direction)
-                .build();
-    }
+    Iterator<Event> load(int depth);
 }

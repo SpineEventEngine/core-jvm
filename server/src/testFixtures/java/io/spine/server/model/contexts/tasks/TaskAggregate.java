@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@
 package io.spine.server.model.contexts.tasks;
 
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.test.model.contexts.tasks.Task;
 import io.spine.test.model.contexts.tasks.TaskId;
@@ -44,7 +43,7 @@ final class TaskAggregate extends Aggregate<TaskId, Task, Task.Builder> {
 
     @Assign
     TaskCreated handle(CreateTask cmd) {
-        return TaskCreated
+        var event = TaskCreated
                 .newBuilder()
                 .setId(cmd.getId())
                 .setTask(Task.newBuilder()
@@ -52,27 +51,21 @@ final class TaskAggregate extends Aggregate<TaskId, Task, Task.Builder> {
                              .setName(cmd.getName())
                              .setDescription(cmd.getDescription()))
                 .build();
-    }
-
-    @Apply
-    private void event(TaskCreated event) {
         var task = event.getTask();
         builder()
                 .setId(event.getId())
                 .setName(task.getName())
                 .setDescription(task.getDescription());
+        return event;
     }
 
     @Assign
     TaskRenamed handle(RenameTask cmd) {
-        return TaskRenamed.newBuilder()
+        var event = TaskRenamed.newBuilder()
                 .setId(cmd.getId())
                 .setNewName(cmd.getNewName())
                 .build();
-    }
-
-    @Apply
-    private void event(TaskRenamed event) {
         builder().setName(event.getNewName());
+        return event;
     }
 }

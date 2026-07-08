@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -117,30 +117,30 @@ final class AggregateRecords {
     /**
      * Creates a new record to store the {@code Aggregate} state.
      *
+     * <p>Since the event-sourcing cutover the persisted {@link EntityRecord} is the source of
+     * truth for loading an aggregate, so the business {@linkplain Aggregate#state() state} is
+     * <em>always</em> packed into the record — unconditionally of the aggregate's visibility.
+     * Visibility now gates only the read-side query exposure, not the state write.
+     *
      * @param aggregate
      *         an instance of the aggregate
-     * @param includeState
-     *         whether the {@linkplain Aggregate#state() business state}
-     *         of the Aggregate should be stored
      * @param <I>
      *         type of Aggregate identifiers
      * @return a new record
      */
-    static <I> EntityRecord newStateRecord(Aggregate<I, ?, ?> aggregate, boolean includeState) {
+    static <I> EntityRecord newStateRecord(Aggregate<I, ?, ?> aggregate) {
         checkNotNull(aggregate);
 
         var flags = aggregate.lifecycleFlags();
         var id = aggregate.id();
         var version = aggregate.version();
+        var state = aggregate.state();
 
         var builder = EntityRecord.newBuilder()
                 .setEntityId(Identifier.pack(id))
                 .setLifecycleFlags(flags)
-                .setVersion(version);
-        if (includeState) {
-            var state = aggregate.state();
-            builder.setState(AnyPacker.pack(state));
-        }
+                .setVersion(version)
+                .setState(AnyPacker.pack(state));
         return builder.build();
     }
 

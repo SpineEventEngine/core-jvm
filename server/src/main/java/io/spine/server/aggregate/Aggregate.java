@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,15 +33,14 @@ import io.spine.annotation.VisibleForTesting;
 import io.spine.base.AggregateState;
 import io.spine.core.Event;
 import io.spine.core.Version;
-import io.spine.protobuf.AnyPacker;
 import io.spine.server.aggregate.model.AggregateClass;
 import io.spine.server.command.AssigneeEntity;
-import io.spine.server.dispatch.BatchDispatchOutcome;
 import io.spine.server.dispatch.DispatchOutcome;
-import io.spine.server.entity.EventPlayer;
+import io.spine.server.entity.EntityRecord;
 import io.spine.server.entity.HasLifecycleColumns;
-import io.spine.server.entity.LifecycleFlags;
 import io.spine.server.entity.RecentHistory;
+import io.spine.server.entity.Transaction;
+import io.spine.server.entity.TransactionalEntity;
 import io.spine.server.event.EventReactor;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventClass;
@@ -52,13 +51,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Predicate;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterators.any;
-import static io.spine.base.Time.currentTime;
+import static com.google.common.collect.Iterators.limit;
 import static io.spine.protobuf.AnyPacker.unpack;
-import static io.spine.protobuf.Messages.isNotDefault;
 import static io.spine.server.Ignored.ignored;
 import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
-import static io.spine.util.Exceptions.newIllegalStateException;
 
 /**
  * Abstract base for aggregates.
@@ -67,9 +65,12 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * Aggregates guarantee the consistency of data modifications in response to
  * commands they receive.
  *
- * <p>An aggregate modifies its state in response to a command and produces
- * one or more events. These events are used later to restore the state of the
- * aggregate.
+ * <p>An aggregate modifies its state in response to a command — or to an event it reacts to —
+ * and produces one or more events describing what happened. Since the event-sourcing cutover the
+ * state is persisted directly: an aggregate loads from its latest
+ * {@link io.spine.server.entity.EntityRecord EntityRecord} rather than by replaying its events.
+ * The produced events form an append-only journal kept for traceability and for the opt-in
+ * {@link IdempotencyGuard}.
  *
  * <h2>Creating an aggregate class</h2>
  *
@@ -80,52 +81,43 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  *         define a protobuf message for the ID type.
  *     <li>Define the structure of the aggregate state as a Protobuf message.
  *     <li>Generate Java code for ID and state types.
- *     <li>Create new Java class derived from {@code Aggregate} passing ID and
+ *     <li>Create a new Java class derived from {@code Aggregate} passing ID and
  *         state types as generic parameters.
  * </ol>
  *
- * <h3>Assigning methods to handle commands</h3>
+ * <h3>Handling commands and reacting to events</h3>
  *
- * <p>Command receptors of an {@code Aggregate} are defined in
- * the same way as described in {@link AssigneeEntity}.
- * Please also refer to {@link io.spine.server.command.Assign Assign}.
+ * <p>Command receptors of an {@code Aggregate} are defined in the same way as described in
+ * {@link AssigneeEntity}; please also refer to {@link io.spine.server.command.Assign Assign}.
+ * An aggregate may additionally react to events with {@link io.spine.server.event.React @React}
+ * methods. Event(s) returned by these receptors are posted to the
+ * {@link io.spine.server.event.EventBus EventBus} automatically by {@link AggregateRepository}.
  *
- * <p>Event(s) returned by command-handling methods are posted to
- * the {@link io.spine.server.event.EventBus EventBus} automatically
- * by {@link AggregateRepository}.
+ * <h3>Changing the state</h3>
  *
- * <h3>Adding event appliers</h3>
+ * <p>A receptor changes the aggregate state through the builder obtained from
+ * {@link #builder() builder()} and returns the event(s) it produces. The framework opens a
+ * transaction <em>before</em> invoking the receptor — exactly as it does for a
+ * {@link io.spine.server.procman.ProcessManager ProcessManager} — so the changes accumulated in
+ * {@code builder()} are validated and committed as the new {@link #state() state()} when the
+ * receptor returns. The version advances by one per dispatch, and the emitted events carry the
+ * aggregate's pre-dispatch version.
  *
- * <p>Aggregate data is stored as a sequence of events it produces.
- * The state of the aggregate is restored by re-playing the history of
- * events and invoking corresponding <em>event applier methods</em>.
+ * <p>In Kotlin, a receptor can mutate the state more idiomatically through the builder DSL
+ * inherited from {@link io.spine.server.entity.TransactionalEntity TransactionalEntity} rather
+ * than calling {@link #builder() builder()} directly. Each method takes a lambda with the state
+ * builder as its receiver:
+ * <ul>
+ *     <li>{@code alter} applies the changes to the live builder;
+ *     <li>{@code update} does the same and returns the builder for further use;
+ *     <li>{@code tryAlter} validates the candidate state first, applying it only when it is valid
+ *         and otherwise leaving the state untouched and returning the constraint violations — a
+ *         validate-before-apply guard for conditionally withholding a change.
+ * </ul>
  *
- * <p>An event applier is a method that changes the state of the aggregate
- * in response to an event. An event applier takes a single parameter of the
- * event message it handles and returns {@code void}.
- * Please see {@link Apply} for more details.
- *
- * <p>The modification of the state is done using a builder instance obtained
- * from {@link #builder() builder()}. All changes to state become reflected
- * in {@link #state() state()}, after <em>all</em> events (obtained from
- * aggregate's history when loading an aggregate, or emitted by command handlers
- * during the command dispatching) are played.
- *
- * <p>End-users must not call {@code state()} method within an event applier.
- * It is so, because event appliers are invoked in scope of an active transaction,
- * which accumulates the model updates in aggregate's {@code builder()},
- * and not in {@code state()}. Therefore, {@code state()} invocation from
- * the applier's code may return some inconsistent result, and thus
- * is prone to errors. All such attempts will result in a {@code RuntimeException}.
- *
- * <p>An {@code Aggregate} class must have applier methods for
- * <em>all</em> types of the events that it produces.
- *
- * <h2>Performance considerations</h2>
- *
- * <p>To improve performance of loading aggregates, an
- * {@link AggregateRepository} periodically stores aggregate snapshots.
- * See {@link AggregateRepository#setSnapshotTrigger(int)} for details.
+ * <p>Event sourcing has been removed: an aggregate no longer declares {@code @Apply} event
+ * appliers, and its state is not reconstructed by replaying events. Declaring an applier now fails
+ * model building with a {@link io.spine.server.model.ModelError ModelError}. See {@link Apply}.
  *
  * @param <I>
  *         the type for IDs of this class of aggregates
@@ -138,9 +130,18 @@ public abstract class Aggregate<I,
                                 S extends AggregateState<I>,
                                 B extends ValidatingBuilder<S>>
         extends AssigneeEntity<I, S, B>
-        implements EventPlayer, EventReactor, HasLifecycleColumns<I, S> {
+        implements EventReactor, HasLifecycleColumns<I, S> {
 
-    private final UncommittedHistory uncommittedHistory = new UncommittedHistory(this::toSnapshot);
+    /**
+     * The number of the most recent journal events exposed by the deprecated parameterless
+     * {@linkplain #historyBackward() history accessors} and used as the window of the opt-in
+     * {@link IdempotencyGuard}.
+     *
+     * <p>Equal to {@code AggregateRepository.DEFAULT_HISTORY_DEPTH}.
+     */
+    private static final int DEFAULT_HISTORY_DEPTH = 100;
+
+    private final UncommittedHistory uncommittedHistory = new UncommittedHistory();
 
     /**
      * A guard for ensuring idempotency of messages dispatched by this aggregate.
@@ -148,10 +149,13 @@ public abstract class Aggregate<I,
     private IdempotencyGuard idempotencyGuard;
 
     /**
-     * Tells whether any applier method is being invoked
-     * right now for this instance of aggregate.
+     * Lazily loads up to a requested number of the most recent journal events (newest first)
+     * when {@linkplain #historyBackward(int) recent history} is accessed.
+     *
+     * <p>Set by the repository when the aggregate is created or loaded. When absent, recent
+     * history falls back to the in-memory {@link #recentHistory() recentHistory}.
      */
-    private final ApplierWatcher applierWatcher = new ApplierWatcher();
+    private transient RecentHistoryLoader recentHistoryLoader;
 
     /**
      * Creates a new instance.
@@ -205,6 +209,24 @@ public abstract class Aggregate<I,
     }
 
     /**
+     * Enables the opt-in {@link IdempotencyGuard} for this aggregate, scanning up to
+     * {@code historyDepth} most recent journal events for a duplicate on each dispatch.
+     */
+    final void enableIdempotencyGuard(int historyDepth) {
+        idempotencyGuard.enable(historyDepth);
+    }
+
+    /**
+     * Installs the loader that reads the most recent journal events on demand.
+     *
+     * <p>Called by the repository so that {@link #historyBackward(int)} and the opt-in
+     * {@link IdempotencyGuard} can inspect recent history after a state-only load.
+     */
+    final void setRecentHistoryLoader(RecentHistoryLoader loader) {
+        this.recentHistoryLoader = loader;
+    }
+
+    /**
      * Obtains model class for this aggregate.
      */
     @Override
@@ -221,10 +243,9 @@ public abstract class Aggregate<I,
     /**
      * {@inheritDoc}
      *
-     * <p>In {@code Aggregate} this method must be called only from within an event applier.
-     *
-     * @throws IllegalStateException
-     *         if the method is called from outside an event applier
+     * <p>In {@code Aggregate} the builder is mutated by a command handler ({@code @Assign}) or a
+     * reactor ({@code @React}) while the framework-opened transaction is active — the same way a
+     * {@link io.spine.server.procman.ProcessManager ProcessManager} mutates its state.
      */
     @Override
     protected final B builder() {
@@ -232,24 +253,15 @@ public abstract class Aggregate<I,
     }
 
     /**
-     * Prohibits invoking {@link #state() state()} method from within an applier method.
+     * {@inheritDoc}
      *
-     * <p>All applier methods are always invoked in scope of an active transaction.
-     * Until this transaction is completed, the {@code state()} of the corresponding aggregate
-     * is not up-to-date. Therefore, relying upon it in code is prone to errors,
-     * and is prohibited for good sake.
-     *
-     * @throws IllegalStateException
-     *         if this method is called from within an event applier
+     * <p>Overridden to be accessible from the {@code aggregate} package so that the endpoint can
+     * dispatch a command or an event through the aggregate's transaction, mirroring
+     * {@link io.spine.server.procman.ProcessManager#tx() ProcessManager.tx()}.
      */
     @Override
-    protected void ensureAccessToState() {
-        if (applierWatcher.inProgress()) {
-            throw newIllegalStateException(
-                    "Aggregate `state()` method must not be used from `@Apply`-marked method." +
-                            " Use `builder()` instead. The issue detected in `%s` aggregate class.",
-                    getClass().getName());
-        }
+    protected Transaction<I, ? extends TransactionalEntity<I, S, B>, S, B> tx() {
+        return super.tx();
     }
 
     /**
@@ -306,25 +318,6 @@ public abstract class Aggregate<I,
 
     }
 
-    /**
-     * Invokes applier method for the passed event message.
-     *
-     * @param event
-     *         the event to apply
-     */
-    final DispatchOutcome invokeApplier(EventEnvelope event) {
-        var method = thisClass().applierOf(event);
-        var outcome = applierWatcher.perform(() -> method.invoke(this, event));
-        return outcome;
-    }
-
-    @Override
-    public final BatchDispatchOutcome play(Iterable<Event> events) {
-        return EventPlayer
-                .forTransactionOf(this)
-                .play(events);
-    }
-
     @Override
     @Internal
     public ImmutableSet<EventClass> producedEvents() {
@@ -332,94 +325,46 @@ public abstract class Aggregate<I,
     }
 
     /**
-     * Restores the aggregate state from the passed event history.
+     * Records the events produced by the current dispatch so that they are stored into the
+     * journal and made available as recent history.
      *
-     * <p>The historical events are {@linkplain #play(Iterable) played} on this aggregate instance.
-     * If the history includes a {@code Snapshot}, the aggregate state is restored from it first,
-     * and only then the event history is applied.
+     * <p>Called by the framework after a command or reaction has been dispatched and its
+     * transaction committed. Rejection events are not journaled.
      *
-     * @param history
-     *         the aggregate state with events to play
-     * @throws IllegalStateException
-     *         if applying events caused an exception, which is set as the {@code cause} for
-     *         the thrown instance
+     * @param events the events emitted by the current command handler or reactor
      */
-    final BatchDispatchOutcome replay(AggregateHistory history) {
-        var snapshot = history.getSnapshot();
-        if (isNotDefault(snapshot)) {
-            restore(snapshot);
+    final void recordEvents(List<Event> events) {
+        uncommittedHistory.record(events);
+    }
+
+    /**
+     * Restores the state, the version, and the lifecycle flags of this aggregate from the
+     * passed record loaded from the state storage.
+     *
+     * <p>Since the event-sourcing cutover, an aggregate loads from its latest persisted
+     * {@link EntityRecord} rather than by replaying its event journal. This method must be
+     * invoked in the scope of an {@linkplain #isTransactionInProgress() active transaction}.
+     *
+     * @param record
+     *         the latest state record of the aggregate
+     */
+    final void restore(EntityRecord record) {
+        var version = record.getVersion();
+        var packedState = record.getState();
+        if (packedState.getTypeUrl().isEmpty()) {
+            // A legacy record. Before the event-sourcing cutover a `NONE`-visibility aggregate
+            // (the default visibility) persisted only its ID, version, and lifecycle flags,
+            // keeping the business state solely in the event journal. That journal is no longer
+            // replayed, so restore the available attributes and leave the state at its default
+            // rather than unpacking an empty `Any` (which would fail).
+            setInitialState(defaultState(), version);
+        } else {
+            @SuppressWarnings("unchecked") /* The cast is safe since the record holds the state of
+                this aggregate, which is bound by the type <S>. */
+            var stateToRestore = (S) unpack(packedState);
+            setInitialState(stateToRestore, version);
         }
-        var events = history.getEventList();
-        var batchDispatchOutcome = play(events);
-        uncommittedHistory.onAggregateRestored(history);
-        appendToRecentHistory(events);
-        return batchDispatchOutcome;
-    }
-
-    /**
-     * Applies events to this {@code Aggregate}.
-     *
-     * <p>Before applying the events, changes their versions as follows:
-     * <ol>
-     *     <li>The first event in the list gets the current version of the aggregate incremented
-     *         by one.
-     *     <li>All the next events get the following versions.
-     * </ol>
-     *
-     * <p>For example, if the current version number of the aggregate is {@code 42}, and
-     * the {@code events} list is of size 3, the applied events will have versions {@code 43},
-     * {@code 44}, and {@code 45}.
-     *
-     * <p>All the events applied to the aggregate instance are
-     * {@linkplain UncommittedHistory#startTracking(int) tracked} as a part of the aggregate's
-     * {@link UncommittedHistory} and later are stored.
-     *
-     * <p>If during the application of the events, the number of the events since the last snapshot
-     * exceeds the passed snapshot trigger, a new snapshot is made. The snapshot is then tracked
-     * as a part of the aggregate's {@code UncommittedHistory}.
-     *
-     * @param events
-     *         the events to apply
-     * @param snapshotTrigger
-     *         the snapshot trigger
-     * @return the exact list of {@code events} but with adjusted versions
-     */
-    final BatchDispatchOutcome apply(List<Event> events, int snapshotTrigger) {
-        var versionSequence = new VersionSequence(version());
-        var versionedEvents = versionSequence.update(events);
-        uncommittedHistory.startTracking(snapshotTrigger);
-        var result = play(versionedEvents);
-        uncommittedHistory.stopTracking();
-        return result;
-    }
-
-    /**
-     * A callback telling that the event has been played on this aggregate in scope
-     * of a transaction.
-     *
-     * <p>If this event is new in the aggregate history (e.g. it's not already stored), it is
-     * recorded as a part of the aggregate's {@link UncommittedHistory}.
-     */
-    final void onAfterEventPlayed(EventEnvelope event) {
-        uncommittedHistory.track(event);
-    }
-
-    /**
-     * Restores the state, the version and the lifecycle flags from the passed snapshot.
-     *
-     * <p>This method must be invoked in the scope of an {@linkplain #isTransactionInProgress()
-     * active transaction}.
-     *
-     * @param snapshot
-     *         the snapshot with the state to restore
-     */
-    final void restore(Snapshot snapshot) {
-        @SuppressWarnings("unchecked") /* The cast is safe since the snapshot is created
-            with the state of this aggregate, which is bound by the type <S>. */
-        var stateToRestore = (S) unpack(snapshot.getState());
-        var versionFromSnapshot = snapshot.getVersion();
-        setInitialState(stateToRestore, versionFromSnapshot);
-        var lifecycle = snapshot.getLifecycle();
+        var lifecycle = record.getLifecycleFlags();
         setArchived(lifecycle.getArchived());
         setDeleted(lifecycle.getDeleted());
     }
@@ -469,38 +414,6 @@ public abstract class Aggregate<I,
     }
 
     /**
-     * Transforms the current state of the aggregate into the {@link Snapshot} instance.
-     *
-     * <p>If the {@linkplain #isTransactionInProgress() transaction is in progress}, the state,
-     * version and lifecycle are taken from the transactional data.
-     *
-     * @return new snapshot
-     */
-    final Snapshot toSnapshot() {
-        S state;
-        Version version;
-        LifecycleFlags lifecycle;
-        if (isTransactionInProgress()) {
-            AggregateTransaction<?, ?, ?> tx = (AggregateTransaction<?, ?, ?>) tx();
-            state = builder().buildPartial();
-            version = tx.currentVersion();
-            lifecycle = tx.lifecycleFlags();
-        } else {
-            state = state();
-            version = version();
-            lifecycle = lifecycleFlags();
-        }
-
-        var packedState = AnyPacker.pack(state);
-        var builder = Snapshot.newBuilder()
-                .setState(packedState)
-                .setVersion(version)
-                .setTimestamp(currentTime())
-                .setLifecycle(lifecycle);
-        return builder.build();
-    }
-
-    /**
      * {@inheritDoc}
      *
      * <p>Opens the method for the repository.
@@ -522,26 +435,59 @@ public abstract class Aggregate<I,
     }
 
     /**
-     * Creates an iterator of the aggregate event history with reverse traversal.
+     * Creates an iterator over up to {@code depth} most recent events of this aggregate's
+     * journal, newest first.
      *
-     * <p>The records are returned sorted by timestamp in descending order
-     * (from newer to older).
+     * <p>Fewer events are returned if the journal holds fewer. The events emitted by the
+     * current, not-yet-committed dispatch are excluded.
      *
-     * <p>The iterator is empty if there's no history for the aggregate.
-     *
+     * @param depth
+     *         the maximal number of the most recent events to return; must be positive
      * @return new iterator instance
      */
+    protected final Iterator<Event> historyBackward(int depth) {
+        checkArgument(depth > 0, "History depth must be positive. Got %s.", depth);
+        if (recentHistoryLoader != null) {
+            return recentHistoryLoader.load(depth);
+        }
+        return limit(recentHistory().iterator(), depth);
+    }
+
+    /**
+     * Verifies if up to {@code depth} most recent events of this aggregate's journal contain an
+     * event that satisfies the passed predicate.
+     *
+     * @param depth
+     *         the maximal number of the most recent events to inspect; must be positive
+     * @param predicate
+     *         the predicate to test the events against
+     */
+    protected final boolean historyContains(int depth, Predicate<Event> predicate) {
+        var iterator = historyBackward(depth);
+        return any(iterator, predicate::test);
+    }
+
+    /**
+     * Creates an iterator of the aggregate event history with reverse traversal.
+     *
+     * @deprecated Please use {@link #historyBackward(int)} and state the history window
+     *         explicitly. This form reads the last {@value #DEFAULT_HISTORY_DEPTH} events.
+     */
+    @Deprecated
     protected final Iterator<Event> historyBackward() {
-        return recentHistory().iterator();
+        return historyBackward(DEFAULT_HISTORY_DEPTH);
     }
 
     /**
      * Verifies if the aggregate history contains an event that satisfies the passed predicate.
+     *
+     * @deprecated Please use {@link #historyContains(int, Predicate)} and state the history
+     *         window explicitly. This form inspects the last {@value #DEFAULT_HISTORY_DEPTH}
+     *         events.
      */
+    @Deprecated
     protected final boolean historyContains(Predicate<Event> predicate) {
-        var iterator = historyBackward();
-        var found = any(iterator, predicate::test);
-        return found;
+        return historyContains(DEFAULT_HISTORY_DEPTH, predicate);
     }
 
     /**

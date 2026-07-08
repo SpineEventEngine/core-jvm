@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,6 @@ import io.spine.core.UserId;
 import io.spine.people.PersonName;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.AggregateRepository;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.AbstractAssignee;
 import io.spine.server.command.Assign;
 import io.spine.server.entity.EntityRecord;
@@ -248,7 +247,10 @@ public class Given {
 
         @Assign
         AggProjectCreated handle(AggCreateProject cmd, CommandContext ctx) {
-            return EventMessage.projectCreated(cmd.getProjectId());
+            var event = EventMessage.projectCreated(cmd.getProjectId());
+            builder().setId(event.getProjectId())
+                     .setStatus(Status.CREATED);
+            return event;
         }
 
         @Assign
@@ -259,23 +261,9 @@ public class Given {
         @Assign
         List<AggProjectStarted> handle(AggStartProject cmd, CommandContext ctx) {
             var message = EventMessage.projectStarted(cmd.getProjectId());
-            return ImmutableList.of(message);
-        }
-
-        @Apply
-        private void event(AggProjectCreated event) {
-            builder().setId(event.getProjectId())
-                     .setStatus(Status.CREATED);
-        }
-
-        @Apply
-        private void event(AggTaskAdded event) {
-        }
-
-        @Apply
-        private void event(AggProjectStarted event) {
-            builder().setId(event.getProjectId())
+            builder().setId(message.getProjectId())
                      .setStatus(Status.STARTED);
+            return ImmutableList.of(message);
         }
     }
 
@@ -343,12 +331,8 @@ public class Given {
                     .setCustomerId(cmd.getCustomerId())
                     .setCustomer(cmd.getCustomer())
                     .build();
-            return event;
-        }
-
-        @Apply
-        private void event(CustomerCreated event) {
             builder().mergeFrom(event.getCustomer());
+            return event;
         }
     }
 

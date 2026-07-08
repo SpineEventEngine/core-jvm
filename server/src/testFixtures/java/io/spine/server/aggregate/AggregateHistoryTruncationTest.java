@@ -1,11 +1,11 @@
 /*
- * Copyright 2023, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -27,7 +27,6 @@
 package io.spine.server.aggregate;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterators;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Durations;
@@ -111,8 +110,8 @@ public abstract class AggregateHistoryTruncationTest {
                 var moveSequence = MoveSequence.newBuilder()
                         .setId(ID)
                         .build();
-                var snapshotTrigger = repo.snapshotTrigger();
-                for (var i = 0; i < snapshotTrigger * 5 + 1; i++) {
+                var historyDepth = repo.historyDepth();
+                for (var i = 0; i < historyDepth * 5 + 1; i++) {
                     context.receivesCommand(moveSequence);
                 }
 
@@ -124,15 +123,12 @@ public abstract class AggregateHistoryTruncationTest {
                 assertThat(lastNumberTwo())
                         .isEqualTo(expectedNumberTwo);
 
-                // Truncate the storage.
+                // Truncate the journal. Since the event-sourcing cutover the aggregate loads from
+                // its latest state record rather than by replaying the journal, so truncation must
+                // not affect the aggregate's behavior. Snapshot-boundary record counts are no
+                // longer asserted here — dispatching commands no longer writes journal snapshots.
                 var storage = repo.aggregateStorage();
-                var countBeforeTruncate = recordCount(storage);
-                assertThat(countBeforeTruncate)
-                        .isGreaterThan(snapshotTrigger);
                 storage.truncateOlderThan(0);
-                var countAfterTruncate = recordCount(storage);
-                assertThat(countAfterTruncate)
-                        .isAtMost(snapshotTrigger);
 
                 // Run one more command and check the result.
                 var expectedNext = lastNumberOne() + lastNumberTwo();
@@ -140,12 +136,6 @@ public abstract class AggregateHistoryTruncationTest {
                 assertThat(lastNumberTwo())
                         .isEqualTo(expectedNext);
             }
-        }
-
-        private int recordCount(AggregateStorage<SequenceId, Sequence> storage) {
-            var iterator = storage.historyBackward(ID,
-                                                   Integer.MAX_VALUE);
-            return Iterators.size(iterator);
         }
     }
 

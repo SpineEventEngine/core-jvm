@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@
 package io.spine.server.aggregate.given.repo;
 
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.test.aggregate.ProjectId;
 import io.spine.test.aggregate.SubProjectList;
@@ -50,15 +49,12 @@ final class RejectingAggregate
 
     @Assign
     AggProjectCreated on(AggCreateProjectWithChildren cmd) {
-        return AggProjectCreated.newBuilder()
+        var event = AggProjectCreated.newBuilder()
                 .setProjectId(cmd.getProjectId())
                 .addAllChildProjectId(cmd.getChildProjectIdList())
                 .build();
-    }
-
-    @Apply
-    private void event(AggProjectCreated event) {
         builder().addAllItem(event.getChildProjectIdList());
+        return event;
     }
 
     @Assign

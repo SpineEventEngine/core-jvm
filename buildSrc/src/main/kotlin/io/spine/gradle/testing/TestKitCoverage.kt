@@ -43,8 +43,8 @@ import org.gradle.kotlin.dsl.withType
  *
  * This method:
  *
- *  1. Resolves the standalone JaCoCo agent JAR pinned to [Jacoco.version]
- *     through a dedicated [AGENT_CONFIGURATION] configuration.
+ *  1. Resolves the standalone JaCoCo agent JAR ([Jacoco.agent]) through a
+ *     dedicated [AGENT_CONFIGURATION] configuration.
  *  2. Passes the agent JAR path and a per-module exec directory
  *     (`build/`[TESTKIT_COVERAGE_DIR]) to the test JVM as system properties.
  *     The `plugin-testlib` harness reads these and writes a `gradle.properties`
@@ -84,7 +84,7 @@ fun Project.enableTestKitCoverage() {
         isCanBeConsumed = false
         isCanBeResolved = true
     }
-    dependencies.add(agent.name, "org.jacoco:org.jacoco.agent:${Jacoco.version}:runtime")
+    dependencies.add(agent.name, Jacoco.agent)
 
     val agentPath = agent.elements.map { it.single().asFile.absolutePath }
     val execDir = layout.buildDirectory.dir(TESTKIT_COVERAGE_DIR)
@@ -150,8 +150,7 @@ private const val EXEC_DIR_PROPERTY: String =
 
 /**
  * The name of the dedicated, resolvable configuration that holds the standalone
- * JaCoCo agent JAR (`org.jacoco:org.jacoco.agent:<version>:runtime`) attached to
- * TestKit worker JVMs.
+ * JaCoCo agent JAR ([Jacoco.agent]) attached to TestKit worker JVMs.
  *
  * The configuration is hidden and non-consumable; it exists only to resolve the
  * agent JAR and to register it as an input of the `test` tasks.

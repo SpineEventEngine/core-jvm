@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,13 +27,11 @@
 package io.spine.server.delivery.given;
 
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.server.event.React;
 import io.spine.test.delivery.AddNumber;
 import io.spine.test.delivery.Calc;
 import io.spine.test.delivery.NumberAdded;
-import io.spine.test.delivery.NumberImported;
 import io.spine.test.delivery.NumberReacted;
 
 /**
@@ -44,33 +42,28 @@ public class CalcAggregate extends Aggregate<String, Calc, Calc.Builder> {
     @Assign
     NumberAdded handle(AddNumber command) {
         var value = command.getValue();
-        return NumberAdded.newBuilder()
+        var event = NumberAdded.newBuilder()
                 .setCalculatorId(id())
                 .setValue(value)
                 .build();
-    }
-
-    @Apply
-    private void on(NumberAdded event) {
-        var currentSum = builder().getSum();
-        builder()
-                .setId(event.getCalculatorId())
-                .setSum(currentSum + event.getValue());
-    }
-
-    @Apply(allowImport = true)
-    private void on(NumberImported event) {
-        var currentSum = builder().getSum();
-        builder()
-                .setId(event.getCalculatorId())
-                .setSum(currentSum + event.getValue());
+        addToSum(event);
+        return event;
     }
 
     @React
     NumberAdded on(NumberReacted event) {
-        return NumberAdded.newBuilder()
+        var added = NumberAdded.newBuilder()
                 .setCalculatorId(event.getCalculatorId())
                 .setValue(event.getValue())
                 .build();
+        addToSum(added);
+        return added;
+    }
+
+    private void addToSum(NumberAdded event) {
+        var currentSum = builder().getSum();
+        builder()
+                .setId(event.getCalculatorId())
+                .setSum(currentSum + event.getValue());
     }
 }

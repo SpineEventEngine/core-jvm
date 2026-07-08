@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,14 +28,12 @@ package io.spine.server.aggregate.given.klasse;
 
 import io.spine.core.External;
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.aggregate.given.klasse.command.StartEngine;
 import io.spine.server.aggregate.given.klasse.command.StopEngine;
 import io.spine.server.aggregate.given.klasse.event.EmissionTestStarted;
 import io.spine.server.aggregate.given.klasse.event.EmissionTestStopped;
 import io.spine.server.aggregate.given.klasse.event.EngineStarted;
 import io.spine.server.aggregate.given.klasse.event.EngineStopped;
-import io.spine.server.aggregate.given.klasse.event.SettingsAdjusted;
 import io.spine.server.aggregate.given.klasse.event.TankEmpty;
 import io.spine.server.aggregate.given.klasse.rejection.EngineAlreadyStarted;
 import io.spine.server.aggregate.given.klasse.rejection.EngineAlreadyStopped;
@@ -60,12 +58,9 @@ public class EngineAggregate extends Aggregate<EngineId, Engine, Engine.Builder>
                     .setId(id)
                     .build();
         }
-        return start(id);
-    }
-
-    @Apply
-    private void on(EngineStarted event) {
+        var event = start(id);
         setStarted();
+        return event;
     }
 
     @Assign
@@ -76,20 +71,9 @@ public class EngineAggregate extends Aggregate<EngineId, Engine, Engine.Builder>
                     .setId(id)
                     .build();
         }
-        return stop(id);
-    }
-
-    @Apply(allowImport = true)
-    private void on(EngineStopped event) {
+        var event = stop(id);
         setStopped();
-    }
-
-    /**
-     * This is an example of import-only method.
-     */
-    @Apply(allowImport = true)
-    private void on(SettingsAdjusted event) {
-        builder().setStatus(STOPPED);
+        return event;
     }
 
     /*
@@ -98,7 +82,9 @@ public class EngineAggregate extends Aggregate<EngineId, Engine, Engine.Builder>
 
     @React
     EngineStopped on(TankEmpty event) {
-        return stop(event.getId());
+        var stopped = stop(event.getId());
+        setStopped();
+        return stopped;
     }
 
     /*

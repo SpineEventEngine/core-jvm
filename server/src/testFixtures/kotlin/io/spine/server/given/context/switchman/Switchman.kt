@@ -23,10 +23,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package io.spine.server.given.context.switchman
 
 import io.spine.server.aggregate.Aggregate
-import io.spine.server.aggregate.Apply
 import io.spine.server.command.Assign
 import io.spine.server.given.context.switchman.command.SetSwitch
 import io.spine.server.given.context.switchman.event.SwitchPositionConfirmed
@@ -39,16 +39,16 @@ class Switchman internal constructor(id: String) :
     Aggregate<String, SwitchmanLog, SwitchmanLog.Builder>(id) {
 
     @Assign
-    internal fun on(cmd: SetSwitch): SwitchPositionConfirmed =
-        switchPositionConfirmed {
+    internal fun on(cmd: SetSwitch): SwitchPositionConfirmed {
+        val event = switchPositionConfirmed {
             switchmanName = id()
             switchId = cmd.switchId
             position = cmd.position
         }
-
-    @Apply
-    private fun event(event: SwitchPositionConfirmed) = alter {
-        name = event.switchmanName
-        switchCount += 1
+        alter {
+            name = event.switchmanName
+            switchCount += 1
+        }
+        return event
     }
 }

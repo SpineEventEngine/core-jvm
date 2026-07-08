@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@
 package io.spine.testing.server.blackbox.given;
 
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.server.event.React;
 import io.spine.testing.server.blackbox.BbReport;
@@ -41,31 +40,25 @@ final class BbReportAggregate extends Aggregate<BbReportId, BbReport, BbReport.B
 
     @Assign
     BbReportCreated handle(BbCreateReport command) {
-        return BbReportCreated
+        var event = BbReportCreated
                 .newBuilder()
                 .setReportId(command.getReportId())
                 .addAllProjectId(command.getProjectIdList())
                 .build();
+        builder().setId(event.getReportId())
+                 .addAllProjectId(event.getProjectIdList());
+        return event;
     }
 
     @React
     BbTaskAddedToReport on(BbTaskAdded event) {
-        return BbTaskAddedToReport
+        var result = BbTaskAddedToReport
                 .newBuilder()
                 .setReportId(id())
                 .setProjectId(event.getProjectId())
                 .setTask(event.getTask())
                 .build();
-    }
-
-    @Apply
-    private void on(BbReportCreated event) {
-        builder().setId(event.getReportId())
-                 .addAllProjectId(event.getProjectIdList());
-    }
-
-    @Apply
-    private void on(BbTaskAddedToReport event) {
-        builder().addTask(event.getTask());
+        builder().addTask(result.getTask());
+        return result;
     }
 }

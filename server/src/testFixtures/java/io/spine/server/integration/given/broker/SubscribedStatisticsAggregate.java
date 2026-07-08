@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ package io.spine.server.integration.given.broker;
 
 import io.spine.core.External;
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.event.React;
 import io.spine.server.integration.broker.PhotosUploaded;
 import io.spine.server.integration.broker.StatisticsAgg;
@@ -38,11 +37,8 @@ final class SubscribedStatisticsAggregate extends Aggregate<String, StatisticsAg
 
     @React
     TotalPhotosUploadedIncreased on(@External PhotosUploaded event) {
-        return TotalPhotosUploadedIncreased.generate();
-    }
-
-    @Apply
-    private void on(TotalPhotosUploadedIncreased event) {
-        builder().setId(event.getUuid());
+        var increased = TotalPhotosUploadedIncreased.generate();
+        builder().setId(increased.getUuid());
+        return increased;
     }
 }

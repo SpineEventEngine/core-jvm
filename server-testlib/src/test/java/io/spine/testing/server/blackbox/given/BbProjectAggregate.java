@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import io.spine.core.CommandContext;
 import io.spine.core.External;
 import io.spine.core.UserId;
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 import io.spine.server.event.React;
 import io.spine.testing.server.blackbox.BbProject;
@@ -60,9 +59,12 @@ final class BbProjectAggregate extends Aggregate<BbProjectId, BbProject, BbProje
 
     @Assign
     BbProjectCreated handle(BbCreateProject command) {
-        return BbProjectCreated.newBuilder()
+        var event = BbProjectCreated.newBuilder()
                 .setProjectId(command.getProjectId())
                 .build();
+        builder().setId(event.getProjectId())
+                 .setStatus(CREATED);
+        return event;
     }
 
     @Assign
@@ -73,9 +75,11 @@ final class BbProjectAggregate extends Aggregate<BbProjectId, BbProject, BbProje
                     .setProjectId(projectId)
                     .build();
         }
-        return BbProjectStarted.newBuilder()
+        var event = BbProjectStarted.newBuilder()
                 .setProjectId(projectId)
                 .build();
+        builder().setStatus(STARTED);
+        return event;
     }
 
     @Assign
@@ -88,27 +92,33 @@ final class BbProjectAggregate extends Aggregate<BbProjectId, BbProject, BbProje
                     .setTask(task)
                     .build();
         }
-        return BbTaskAdded.newBuilder()
+        var event = BbTaskAdded.newBuilder()
                 .setProjectId(projectId)
                 .setTask(task)
                 .build();
+        builder().addTask(event.getTask());
+        return event;
     }
 
     @Assign
     BbAssigneeAdded handle(BbAssignProject command) {
-        return BbAssigneeAdded.newBuilder()
+        var event = BbAssigneeAdded.newBuilder()
                 .setId(id())
                 .setUserId(command.getUserId())
                 .build();
+        builder().addAssignee(event.getUserId());
+        return event;
     }
 
     @Assign
     BbAssigneeAdded handle(BbAssignSelf command, CommandContext context) {
         var assignee = context.actor();
-        return BbAssigneeAdded.newBuilder()
+        var event = BbAssigneeAdded.newBuilder()
                 .setId(id())
                 .setUserId(assignee)
                 .build();
+        builder().addAssignee(event.getUserId());
+        return event;
     }
 
     @React
@@ -118,7 +128,11 @@ final class BbProjectAggregate extends Aggregate<BbProjectId, BbProject, BbProje
         if (!assignees.contains(user)) {
             return empty();
         }
-        return Optional.of(userUnassigned(user));
+        var removed = userUnassigned(user);
+        var builder = builder();
+        var index = builder.getAssigneeList().indexOf(removed.getUserId());
+        builder.removeAssignee(index);
+        return Optional.of(removed);
     }
 
     private BbAssigneeRemoved userUnassigned(UserId user) {
@@ -126,34 +140,5 @@ final class BbProjectAggregate extends Aggregate<BbProjectId, BbProject, BbProje
                 .setId(id())
                 .setUserId(user)
                 .build();
-    }
-
-    @Apply
-    private void on(BbProjectCreated event) {
-        builder().setId(event.getProjectId())
-                 .setStatus(CREATED);
-    }
-
-    @Apply
-    private void on(BbProjectStarted event) {
-        builder().setStatus(STARTED);
-    }
-
-    @Apply
-    private void on(BbTaskAdded event) {
-        builder().addTask(event.getTask());
-    }
-
-    @Apply
-    private void on(BbAssigneeAdded event) {
-        builder().addAssignee(event.getUserId());
-    }
-
-    @Apply
-    private void on(BbAssigneeRemoved event) {
-        var builder = builder();
-        var assignees = builder.getAssigneeList();
-        var index = assignees.indexOf(event.getUserId());
-        builder.removeAssignee(index);
     }
 }

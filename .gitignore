@@ -54,8 +54,12 @@
 .idea/modules
 .idea/shelf
 
+# `.idea/misc.xml` is intentionally NOT re-included below. It is project-local —
+# it holds the per-project JDK name and IDEA's own churn (entry-point list
+# indices, external-storage toggles) — so `.idea/*.xml` above keeps it ignored.
+# `./config/pull` (via `migrate`) untracks any copy an earlier pull committed.
+
 # Do not ignore the following IDEA settings
-!.idea/misc.xml
 !.idea/codeStyleSettings.xml
 !.idea/codeStyles/
 !.idea/copyright/
@@ -173,6 +177,12 @@ __pycache__/
 
 # Claude working files
 /.claude/worktrees/
+# Ephemeral plan-mode scratch (durable task docs live in `.agents/tasks/`).
+/.claude/plans/
+
+# Personal, per-developer Claude Code settings overrides (never committed;
+# the distributed `.claude/settings.json` is the shared, committed layer).
+/.claude/settings.local.json
 
 # Auto-downloaded Lychee binary used by the `check-links` skill.
 /.agents/skills/check-links/.cache/
@@ -190,7 +200,6 @@ docs/_preview/resources/
 # <<< shared config <<<
 
 # >>> repo-local entries (preserved across ./config/pull) >>>
-!.idea/misc.xml
 !.idea/codeStyleSettings.xml
 !.idea/codeStyles/
 !.idea/copyright/

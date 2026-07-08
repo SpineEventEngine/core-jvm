@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,20 +27,16 @@
 package io.spine.server.migration.mirror.given;
 
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
 import io.spine.server.event.React;
 
 public class ParcelAgg extends Aggregate<ParcelId, Parcel, Parcel.Builder> {
 
     @React
     ParcelDelivered on(DeliveryCanceled event) {
-        return ParcelDelivered.newBuilder()
+        var delivered = ParcelDelivered.newBuilder()
                 .setId(event.getId())
                 .build();
-    }
-
-    @Apply
-    private void on(ParcelDelivered event) {
         builder().setDelivered(true);
+        return delivered;
     }
 }

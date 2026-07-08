@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,15 +53,36 @@ public class AggregateClass<A extends Aggregate<?, ?, ?>>
         implements ReactingClass {
 
     private final ReceptorMap<EventClass, EmptyClass, Applier> stateEvents;
-    private final ImmutableSet<EventClass> importableEvents;
     private final ReactorClassDelegate<A> delegate;
 
     /** Creates new instance. */
     protected AggregateClass(Class<A> cls) {
         super(checkNotNull(cls));
         this.stateEvents = ReceptorMap.create(cls, new EventApplierSignature());
-        this.importableEvents = stateEvents.messageClasses(Applier::allowsImport);
+        failIfHasAppliers(cls);
         this.delegate = new ReactorClassDelegate<>(cls);
+    }
+
+    /**
+     * Fails fast if the aggregate (or aggregate part) class still declares any
+     * {@code @Apply}-annotated event applier.
+     *
+     * <p>Event sourcing has been removed: an aggregate mutates its state directly in
+     * {@code @Assign} / {@code @React} receptors via {@code builder()} and loads from its latest
+     * persisted state, so appliers are never invoked. Silently ignoring them would drop state
+     * transitions, hence the hard {@link ModelError}. This check also covers aggregate parts,
+     * because {@code AggregatePartClass} calls {@code super(cls)}.
+     */
+    private void failIfHasAppliers(Class<A> cls) {
+        var appliers = stateEvents.messageClasses();
+        if (!appliers.isEmpty()) {
+            throw new ModelError(
+                    "The aggregate class `%s` declares `@Apply`-annotated event applier(s) for " +
+                            "%s. Event sourcing has been removed: move each applier's body into " +
+                            "the `@Assign` / `@React` receptor that emits the event (mutating " +
+                            "the state via `builder()`), and delete the `@Apply` method(s).",
+                    cls.getName(), appliers);
+        }
     }
 
     /**
@@ -105,47 +126,24 @@ public class AggregateClass<A extends Aggregate<?, ?, ?>>
      *     <li>Events generated in response to commands.
      *     <li>Events generated as reaction to incoming events.
      *     <li>Rejections that may be thrown if incoming commands cannot be handled.
-     *     <li>Events imported by the aggregate.
      * </ol>
-     *
-     * <p>Although technically imported events are not "produced" by the aggregates,
-     * they end up in the same {@code EventBus} and have the same behaviour as the ones
-     * emitted by the aggregates.
      */
     public ImmutableSet<EventClass> outgoingEvents() {
         var methodResults = union(commandOutput(), reactionOutput());
-        var generatedEvents = union(methodResults, rejections());
-        var result = union(generatedEvents, importableEvents());
+        var result = union(methodResults, rejections());
         return result.immutableCopy();
     }
 
     /**
      * Obtains set of classes of events used as arguments of applier methods.
      *
-     * @see #importableEvents()
+     * <p>Since the event-sourcing cutover an aggregate class must not declare any
+     * {@code @Apply}-annotated appliers (see the constructor), so for a successfully built class
+     * this set is always empty. It is used only to <em>detect</em> lingering appliers and fail
+     * fast with a {@link ModelError}.
      */
     public final ImmutableSet<EventClass> stateEvents() {
         return stateEvents.messageClasses();
-    }
-
-    /**
-     * Obtains a set of event classes that are
-     * {@linkplain io.spine.server.aggregate.Apply#allowImport() imported}
-     * by the aggregates of this class.
-     *
-     * @see #stateEvents()
-     */
-    public final ImmutableSet<EventClass> importableEvents() {
-        return importableEvents;
-    }
-
-    /**
-     * Returns {@code true} if aggregates of this class
-     * {@link io.spine.server.aggregate.Apply#allowImport() import} events of at least one class;
-     * {@code false} otherwise.
-     */
-    public final boolean importsEvents() {
-        return !importableEvents.isEmpty();
     }
 
     @Override
