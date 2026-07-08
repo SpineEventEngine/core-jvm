@@ -33,13 +33,11 @@ import io.spine.annotation.VisibleForTesting;
 import io.spine.base.AggregateState;
 import io.spine.core.Event;
 import io.spine.core.Version;
-import io.spine.protobuf.AnyPacker;
 import io.spine.server.aggregate.model.AggregateClass;
 import io.spine.server.command.AssigneeEntity;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.EntityRecord;
 import io.spine.server.entity.HasLifecycleColumns;
-import io.spine.server.entity.LifecycleFlags;
 import io.spine.server.entity.RecentHistory;
 import io.spine.server.entity.Transaction;
 import io.spine.server.entity.TransactionalEntity;
@@ -57,7 +55,6 @@ import java.util.function.Predicate;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterators.any;
 import static com.google.common.collect.Iterators.limit;
-import static io.spine.base.Time.currentTime;
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.server.Ignored.ignored;
 import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
@@ -141,7 +138,7 @@ public abstract class Aggregate<I,
      * {@linkplain #historyBackward() history accessors} and used as the window of the opt-in
      * {@link IdempotencyGuard}.
      *
-     * <p>Equal to the former {@code AggregateRepository.DEFAULT_SNAPSHOT_TRIGGER}.
+     * <p>Equal to {@code AggregateRepository.DEFAULT_HISTORY_DEPTH}.
      */
     private static final int DEFAULT_HISTORY_DEPTH = 100;
 
@@ -415,42 +412,6 @@ public abstract class Aggregate<I,
     protected final String missingTxMessage() {
         return "Modification of aggregate state or its lifecycle flags is not available this way." +
                 " Make sure to modify those only from an event applier method.";
-    }
-
-    /**
-     * Transforms the current state of the aggregate into the {@link Snapshot} instance.
-     *
-     * <p>If the {@linkplain #isTransactionInProgress() transaction is in progress}, the state,
-     * version and lifecycle are taken from the transactional data.
-     *
-     * @return new snapshot
-     * @deprecated Snapshots were removed with event-sourced loading; an aggregate now loads from
-     *         its latest {@link EntityRecord}. Retained only for wire compatibility of the
-     *         {@code Snapshot} message and scheduled for removal in v2.0.0.
-     */
-    @Deprecated
-    final Snapshot toSnapshot() {
-        S state;
-        Version version;
-        LifecycleFlags lifecycle;
-        if (isTransactionInProgress()) {
-            AggregateTransaction<?, ?, ?> tx = (AggregateTransaction<?, ?, ?>) tx();
-            state = builder().buildPartial();
-            version = tx.currentVersion();
-            lifecycle = tx.lifecycleFlags();
-        } else {
-            state = state();
-            version = version();
-            lifecycle = lifecycleFlags();
-        }
-
-        var packedState = AnyPacker.pack(state);
-        var builder = Snapshot.newBuilder()
-                .setState(packedState)
-                .setVersion(version)
-                .setTimestamp(currentTime())
-                .setLifecycle(lifecycle);
-        return builder.build();
     }
 
     /**

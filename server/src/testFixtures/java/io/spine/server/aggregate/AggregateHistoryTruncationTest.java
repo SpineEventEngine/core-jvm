@@ -110,8 +110,8 @@ public abstract class AggregateHistoryTruncationTest {
                 var moveSequence = MoveSequence.newBuilder()
                         .setId(ID)
                         .build();
-                var snapshotTrigger = repo.snapshotTrigger();
-                for (var i = 0; i < snapshotTrigger * 5 + 1; i++) {
+                var historyDepth = repo.historyDepth();
+                for (var i = 0; i < historyDepth * 5 + 1; i++) {
                     context.receivesCommand(moveSequence);
                 }
 

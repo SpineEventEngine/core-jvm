@@ -126,12 +126,4 @@ public class AggregateTransaction<I,
     private VersionIncrement createVersionIncrement() {
         return VersionIncrement.sequentially(this);
     }
-
-    /**
-     * Returns the current version of the "dirty" entity being modified in
-     * the scope of the transaction.
-     */
-    final Version currentVersion() {
-        return version();
-    }
 }

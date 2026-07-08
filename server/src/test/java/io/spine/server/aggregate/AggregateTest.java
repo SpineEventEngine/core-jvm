@@ -98,7 +98,6 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.extensions.proto.ProtoTruth.assertThat;
 import static io.spine.grpc.StreamObservers.noOpObserver;
-import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.server.aggregate.given.Given.ACommand.addTask;
 import static io.spine.server.aggregate.given.Given.EventMessage.projectCreated;
 import static io.spine.server.aggregate.given.Given.EventMessage.projectStarted;
@@ -483,19 +482,6 @@ public class AggregateTest {
         aggregate().commitEvents();
         assertFalse(aggregate().getUncommittedEvents()
                                .nonEmpty());
-    }
-
-    @Test
-    @DisplayName("transform current state to snapshot event")
-    void transformCurrentStateToSnapshot() {
-
-        dispatchCommand(aggregate, command(createProject));
-
-        var snapshot = aggregate().toSnapshot();
-        var state = unpack(snapshot.getState(), AggProject.class);
-
-        assertEquals(ID, state.getId());
-        assertEquals(Status.CREATED, state.getStatus());
     }
 
     @Test

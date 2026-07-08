@@ -104,7 +104,7 @@ public abstract class AggregateRepository<I,
                    EventDispatcherDelegate, QueryableRepository<I, S> {
 
     /** The default number of events to be stored before a new snapshot is made. */
-    static final int DEFAULT_SNAPSHOT_TRIGGER = 100;
+    static final int DEFAULT_HISTORY_DEPTH = 100;
 
     /** The routing schema for commands handled by the aggregates. */
     private final Supplier<CommandRouting<I>> commandRouting;
@@ -121,7 +121,7 @@ public abstract class AggregateRepository<I,
     private @MonotonicNonNull RepositoryCache<I, A> cache;
 
     /** The recent-history window (formerly the snapshot trigger). */
-    private int snapshotTrigger = DEFAULT_SNAPSHOT_TRIGGER;
+    private int historyDepth = DEFAULT_HISTORY_DEPTH;
 
     /** Whether the opt-in {@link IdempotencyGuard} is enabled for this repository. */
     private boolean idempotencyGuardEnabled = false;
@@ -271,7 +271,7 @@ public abstract class AggregateRepository<I,
                 depth -> aggregateStorage().readHistoryBackward(id, depth)
                                            .iterator());
         if (idempotencyGuardEnabled) {
-            aggregate.enableIdempotencyGuard(snapshotTrigger);
+            aggregate.enableIdempotencyGuard(historyDepth);
         }
         return aggregate;
     }
@@ -434,10 +434,10 @@ public abstract class AggregateRepository<I,
      * {@link IdempotencyGuard} and to the deprecated parameterless history accessors of
      * {@link Aggregate}.
      *
-     * @return a positive integer value; the default is {@value #DEFAULT_SNAPSHOT_TRIGGER}
+     * @return a positive integer value; the default is {@value #DEFAULT_HISTORY_DEPTH}
      */
     protected int historyDepth() {
-        return this.snapshotTrigger;
+        return this.historyDepth;
     }
 
     /**
@@ -448,7 +448,7 @@ public abstract class AggregateRepository<I,
      */
     protected void setHistoryDepth(int depth) {
         checkArgument(depth > 0);
-        this.snapshotTrigger = depth;
+        this.historyDepth = depth;
     }
 
     /**
@@ -470,28 +470,6 @@ public abstract class AggregateRepository<I,
      */
     protected boolean idempotencyGuardEnabled() {
         return idempotencyGuardEnabled;
-    }
-
-    /**
-     * Returns the {@linkplain #historyDepth() recent-history window}.
-     *
-     * @deprecated Snapshots were removed with event-sourced loading. Superseded by
-     *         {@link #historyDepth()}; this method now returns the history depth.
-     */
-    @Deprecated
-    protected int snapshotTrigger() {
-        return historyDepth();
-    }
-
-    /**
-     * Sets the {@linkplain #historyDepth() recent-history window}.
-     *
-     * @deprecated Snapshots were removed with event-sourced loading. Superseded by
-     *         {@link #setHistoryDepth(int)}; this method now sets the history depth.
-     */
-    @Deprecated
-    protected void setSnapshotTrigger(int snapshotTrigger) {
-        setHistoryDepth(snapshotTrigger);
     }
 
     /**

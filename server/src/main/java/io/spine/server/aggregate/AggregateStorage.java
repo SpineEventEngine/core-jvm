@@ -56,7 +56,7 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.server.aggregate.AggregateRecords.newEventRecord;
-import static io.spine.server.aggregate.AggregateRepository.DEFAULT_SNAPSHOT_TRIGGER;
+import static io.spine.server.aggregate.AggregateRepository.DEFAULT_HISTORY_DEPTH;
 import static io.spine.server.storage.QueryConverter.convert;
 import static io.spine.util.Exceptions.newIllegalStateException;
 
@@ -242,7 +242,7 @@ public class AggregateStorage<I, S extends AggregateState<I>>
 
     @Override
     public Optional<AggregateHistory> read(I id) {
-        return read(id, DEFAULT_SNAPSHOT_TRIGGER);
+        return read(id, DEFAULT_HISTORY_DEPTH);
     }
 
     /**
