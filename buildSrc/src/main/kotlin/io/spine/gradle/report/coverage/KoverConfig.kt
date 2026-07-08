@@ -29,12 +29,14 @@ package io.spine.gradle.report.coverage
 import io.spine.dependency.test.Jacoco
 import io.spine.dependency.test.Kover
 import io.spine.gradle.testing.TESTKIT_COVERAGE_DIR
+import io.spine.gradle.testing.isSpineCompilerLaunchTask
 import java.io.File
 import kotlinx.kover.gradle.plugin.dsl.KoverProjectExtension
 import org.gradle.api.Project
 import org.gradle.api.file.SourceDirectorySet
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.SourceSet
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -104,6 +106,13 @@ private const val KOTLIN_FILE_CLASS_SUFFIX: String = "Kt"
  *    the probe level against each module's actual bytecode: a line hit both
  *    in-process and out-of-process is counted once. Summing pre-aggregated XML
  *    reports instead would double-count such lines.
+ *  - Feeds the JaCoCo execution data produced by the forked Spine Compiler JVMs
+ *    (see [io.spine.gradle.testing.enableSpineCompilerCoverage]) into the **root**
+ *    `total` report as `additionalBinaryReports`. This credits code-generation
+ *    plugins — renderers and generators that run out-of-process in the compiler
+ *    fork and are otherwise reported at ~0%. Fed only at the root: Codecov ingests
+ *    the root report, whose aggregation owns those classes, so a per-module feed
+ *    would be redundant.
  *
  * This is the Kover-based successor to the deprecated JaCoCo-based
  * coverage aggregation pipeline. The behaviour mirrors what
@@ -198,6 +207,7 @@ class KoverConfig private constructor(
                         onCheck.set(true)
                     }
                     additionalBinaryReports.addAll(rootTestKitExecFilesProvider())
+                    additionalBinaryReports.addAll(rootCompilerExecFilesProvider())
                 }
                 filters {
                     excludes {
@@ -239,7 +249,43 @@ class KoverConfig private constructor(
         rootProject.provider {
             rootProject.subprojects.asSequence()
                 .filter { it.pluginManager.hasPlugin(Kover.id) }
-                .flatMap { testKitExecFiles(it).asSequence() }
+                .flatMap { execFiles(it, TESTKIT_COVERAGE_DIR).asSequence() }
+                .toList()
+        }
+
+    /**
+     * Lazy `Provider` of the JaCoCo execution-data files produced by the forked
+     * Spine Compiler JVMs across every subproject.
+     *
+     * These files credit the out-of-process execution of compiler plugins —
+     * renderers and generators that run inside the compiler fork — to the root
+     * coverage rollup. Unlike the TestKit files, they are collected from **all**
+     * subprojects regardless of whether the producing module applies Kover: the
+     * exec may be produced by a module that does not itself apply Kover
+     * (typically a test-only module), while the classes it credits belong to the
+     * aggregated production modules. Resolved at task-graph time, after the
+     * launch tasks have written them.
+     *
+     * The files are the `.exec` outputs that each subproject's **currently
+     * configured** `launch*SpineCompiler` tasks still declare — read from the task
+     * outputs, not by scanning the coverage directory. A stale exec left in an
+     * un-`clean`ed workspace is therefore never credited, whether its launch task
+     * was removed or the module simply stopped enabling the helper (in which case
+     * the task no longer declares the exec as an output). Filtering by the `exec`
+     * extension drops any non-coverage outputs the compiler task may also declare.
+     *
+     * @see io.spine.gradle.testing.enableSpineCompilerCoverage
+     */
+    private fun rootCompilerExecFilesProvider(): Provider<Iterable<File>> =
+        rootProject.provider {
+            rootProject.subprojects.asSequence()
+                .flatMap { sub ->
+                    sub.tasks.withType(JavaExec::class.java)
+                        .matching { it.isSpineCompilerLaunchTask() }
+                        .asSequence()
+                        .flatMap { it.outputs.files.asSequence() }
+                }
+                .filter { it.isFile && it.extension == "exec" }
                 .toList()
         }
 
@@ -248,7 +294,7 @@ class KoverConfig private constructor(
      * TestKit workers of [sub]. See [rootTestKitExecFilesProvider] for timing notes.
      */
     private fun testKitExecFilesProvider(sub: Project): Provider<Iterable<File>> =
-        sub.provider { testKitExecFiles(sub) }
+        sub.provider { execFiles(sub, TESTKIT_COVERAGE_DIR) }
 
     /**
      * Lazy `Provider` of the generated-class FQN exclusion patterns
@@ -284,15 +330,20 @@ class KoverConfig private constructor(
 }
 
 /**
- * Returns the JaCoCo execution-data (`.exec`) files written by the Gradle TestKit
- * workers of the [project], or an empty list if the module produced none.
+ * Returns the JaCoCo execution-data (`.exec`) files found in the [dirName]
+ * directory under the [project]'s `build` directory, or an empty list if the
+ * module produced none.
  *
- * The files reside under `build/`[TESTKIT_COVERAGE_DIR] and are created by the
- * `plugin-testlib` test harness when a module opts in via
- * [io.spine.gradle.testing.enableTestKitCoverage].
+ * Used for the Gradle TestKit workers, which write into [TESTKIT_COVERAGE_DIR]
+ * when a module opts in via [io.spine.gradle.testing.enableTestKitCoverage]. A
+ * directory scan is safe there because the exec directory is wiped once per build
+ * (see `enableTestKitCoverage`); the Spine Compiler collector instead gathers its
+ * files from the current launch tasks (see
+ * [io.spine.gradle.testing.enableSpineCompilerCoverage]), because its cacheable
+ * tasks cannot wipe the directory.
  */
-private fun testKitExecFiles(project: Project): List<File> {
-    val dir = project.layout.buildDirectory.dir(TESTKIT_COVERAGE_DIR).get().asFile
+private fun execFiles(project: Project, dirName: String): List<File> {
+    val dir = project.layout.buildDirectory.dir(dirName).get().asFile
     if (!dir.isDirectory) {
         return emptyList()
     }

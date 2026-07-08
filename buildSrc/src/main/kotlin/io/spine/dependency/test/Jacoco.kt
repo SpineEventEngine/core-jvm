@@ -34,4 +34,12 @@ package io.spine.dependency.test
 @Suppress("ConstPropertyName")
 object Jacoco {
     const val version = "0.8.15"
+
+    /**
+     * The Maven coordinates of the standalone JaCoCo agent JAR (the `runtime`
+     * classifier), attached via `-javaagent:` to forked JVMs — Gradle TestKit
+     * workers and the Spine Compiler process — so their execution is credited
+     * to coverage.
+     */
+    const val agent = "org.jacoco:org.jacoco.agent:$version:runtime"
 }
