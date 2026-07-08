@@ -35,6 +35,7 @@ import io.spine.server.entity.TransactionListener;
 import io.spine.server.type.SignalEnvelope;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Abstract base for endpoints handling messages sent to aggregates.
@@ -108,8 +109,8 @@ abstract class AggregateEndpoint<I,
             onModified(aggregate);
         }
         if (withEvents) {
-            post(success.getProducedEvents()
-                        .getEventList());
+            var events = success.getProducedEvents().getEventList();
+            post(events);
         } else if (success.hasRejection()) {
             post(success.getRejection());
         } else {
