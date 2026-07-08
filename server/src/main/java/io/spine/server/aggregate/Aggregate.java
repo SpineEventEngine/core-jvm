@@ -359,11 +359,21 @@ public abstract class Aggregate<I,
      *         the latest state record of the aggregate
      */
     final void restore(EntityRecord record) {
-        @SuppressWarnings("unchecked") /* The cast is safe since the record holds the state of
-            this aggregate, which is bound by the type <S>. */
-        var stateToRestore = (S) unpack(record.getState());
         var version = record.getVersion();
-        setInitialState(stateToRestore, version);
+        var packedState = record.getState();
+        if (packedState.getTypeUrl().isEmpty()) {
+            // A legacy record. Before the event-sourcing cutover a `NONE`-visibility aggregate
+            // (the default visibility) persisted only its ID, version, and lifecycle flags,
+            // keeping the business state solely in the event journal. That journal is no longer
+            // replayed, so restore the available attributes and leave the state at its default
+            // rather than unpacking an empty `Any` (which would fail).
+            setInitialState(defaultState(), version);
+        } else {
+            @SuppressWarnings("unchecked") /* The cast is safe since the record holds the state of
+                this aggregate, which is bound by the type <S>. */
+            var stateToRestore = (S) unpack(packedState);
+            setInitialState(stateToRestore, version);
+        }
         var lifecycle = record.getLifecycleFlags();
         setArchived(lifecycle.getArchived());
         setDeleted(lifecycle.getDeleted());

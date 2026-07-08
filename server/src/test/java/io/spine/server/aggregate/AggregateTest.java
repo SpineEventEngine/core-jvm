@@ -518,6 +518,29 @@ public class AggregateTest {
     }
 
     @Test
+    @DisplayName("restore from a legacy record that has no packed state")
+    void restoreFromStatelessRecord() {
+        dispatchCommand(aggregate, command(createProject));
+
+        // Emulate a pre-cutover `NONE`-visibility record: only the ID, version, and lifecycle
+        // flags were persisted, with the business state left in the (no longer replayed) journal.
+        var statelessRecord = AggregateRecords.newStateRecord(aggregate())
+                                              .toBuilder()
+                                              .clearState()
+                                              .build();
+
+        Aggregate<?, ?, ?> restored = newAggregate(aggregate.id());
+        AggregateTransaction<?, ?, ?> tx = AggregateTransaction.start(restored);
+        // Must not throw while unpacking the empty `Any`.
+        restored.restore(statelessRecord);
+        tx.commit();
+
+        // The version is recovered; the business state stays at its default.
+        assertEquals(aggregate.version(), restored.version());
+        assertEquals(AggProject.getDefaultInstance(), restored.state());
+    }
+
+    @Test
     @DisplayName("increment version upon state changing event applied")
     void incrementVersionOnEventApplied() {
         var version = aggregate.version()
