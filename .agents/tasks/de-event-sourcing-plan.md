@@ -38,8 +38,8 @@ a side effect of playing events** — are called out inline; do not lose them.
    a new receptor annotation" — see ADR D1, revised)*. `ImportBus`, the import
    endpoint/routing, and `BlackBox.importsEvent` are removed in PR-B2;
    `InboxLabel.IMPORT_EVENT` and the `EventImported` system event are
-   deprecated for wire compatibility. External facts enter via
-   `(external) = true` reactions or context gateways.
+   deprecated for wire compatibility. External facts enter via reactions to
+   `@External` events or context gateways.
 5. **State history (`EntityHistoryStorage`; renamed
    `EntityStateHistoryStorage`, 2026-07-08)** is in this plan as a later,
    decoupled phase (Phase D). The cutover must not depend on it.
@@ -367,7 +367,7 @@ green-per-commit sequence.
 17. Migration guide: `docs/` note covering the handler migration recipe,
     the preventive-validation recipe (`tryAlter` and `builder().validate()`,
     ADR D9), the removal of event import with its replacement idioms
-    (`(external) = true` reactions, gateways, storage-level seeding —
+    (`@External` event reactions, gateways, storage-level seeding —
     revised D1), removed snapshot config,
     the idempotency-window semantics change (A5),
     the history-window change (`historyBackward(depth)` explicit; the

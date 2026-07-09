@@ -56,7 +56,7 @@ The runtime facts this ADR is grounded in (verified against the tree
 
 | #   | Decision                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 |-----|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| D1  | **Revised 2026-07-05: event import is dropped.** No `@Import` receptor; `ImportBus`, the import endpoint/routing, and `BlackBox.importsEvent` are removed in PR-B2; `InboxLabel.IMPORT_EVENT` and the `EventImported` system event are deprecated for wire compatibility. External facts enter via `(external) = true` reactions or context gateways.                                                                                                                                      |
+| D1  | **Revised 2026-07-05: event import is dropped.** No `@Import` receptor; `ImportBus`, the import endpoint/routing, and `BlackBox.importsEvent` are removed in PR-B2; `InboxLabel.IMPORT_EVENT` and the `EventImported` system event are deprecated for wire compatibility. External facts enter via reactions to `@External` events or context gateways.                                                                                                                                      |
 | D2  | `@Apply` on any aggregate (incl. `AggregatePart`) is a **`ModelError` at model-building time** after cutover — fail fast, never a silent no-op.                                                                                                                                                                                                                                                                                                                                            |
 | D3  | Aggregate version advances **+1 per command dispatch**, not per event — `ProcessManager` semantics via `CommandDispatchingPhase` + `VersionIncrement.sequentially`.                                                                                                                                                                                                                                                                                                                        |
 | D4  | State update is never forced in any handler. Only `@Assign` must emit ≥1 event (or reject); `@React` emission is optional. Persistence must trigger on a business-state change, not only on events/lifecycle.                                                                                                                                                                                                                                                                              |
@@ -113,7 +113,7 @@ substance. What remains is journal provenance (adopting a foreign fact as the
 aggregate's own journal entry) and the no-intermediate-message entry point —
 conveniences with standard replacements:
 
-- facts from another Bounded Context — `@React` on `(external) = true` events;
+- facts from another Bounded Context — `@React` methods accepting `@External` events;
 - facts from a third-party or legacy system — a gateway (adapter, process
   manager, or a plain command) turns them into the context's own commands or
   events;
@@ -855,7 +855,7 @@ a no-op retain buys nothing). Tracked in plan PR-B2 steps 12/15.
   immediately.
 - Event import is gone (revised D1): a whole unicast bus, an endpoint, a
   routing schema, and a receptor kind vanish from the runtime; external facts
-  flow through the standard `(external) = true` reactions and gateway idioms.
+  flow through the standard `@External` event reactions and gateway idioms.
 - History reads state their window at the call site (`historyBackward(depth)`,
   D10), decoupling domain logic from the `historyDepth` operational knob.
 
