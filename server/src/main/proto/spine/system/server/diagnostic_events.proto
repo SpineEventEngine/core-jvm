@@ -117,12 +117,12 @@ message RoutingFailed {
     base.Error error = 3;
 }
 
-// Emitted when an Aggregate could not load its history because an error occurred while
-// replaying historical events.
+// Retained for wire compatibility; no longer emitted.
 //
-// Retained for wire compatibility; no longer emitted. Aggregates no longer replay events to
-// load their state — event-sourced loading was removed during the event-sourcing cutover —
-// so this kind of load-time corruption can no longer occur.
+// Formerly emitted when an Aggregate could not load its history because an error occurred
+// while replaying historical events. Event-sourced loading was removed during the
+// event-sourcing cutover — aggregates no longer replay events to load their state — so this
+// kind of load-time corruption can no longer occur.
 //
 message AggregateHistoryCorrupted {
 

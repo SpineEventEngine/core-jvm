@@ -128,9 +128,9 @@ message CommandDispatchedToHandler {
     EntityTypeName entity_type = 4 [(required) = true];
 }
 
-// An event was imported into an aggregate.
+// Retained for wire compatibility; no longer emitted.
 //
-// Retained for wire compatibility; no longer emitted. Event import was removed
+// Formerly emitted when an event was imported into an aggregate. Event import was removed
 // during the event-sourcing cutover.
 //
 message EventImported {

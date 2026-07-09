@@ -410,8 +410,8 @@ public abstract class Aggregate<I,
     @Override
     protected final String missingTxMessage() {
         return "Modification of aggregate state or its lifecycle flags is not available this way." +
-                " Please modify the state from a command handling (`@Assign`)" +
-                " or event reacting (`@React`) method.";
+                " Modify it from within a command handler (`@Assign`)" +
+                " or an event reactor (`@React`).";
     }
 
     /**

@@ -117,7 +117,9 @@ message AggregateEventRecord {
 // traceability and recent-history lookups.
 //
 // The `snapshot` field is retained for wire compatibility with pre-cutover data
-// and is not populated by the current runtime.
+// and is not populated by the current runtime. The field-level comments below
+// describe the historical (pre-cutover) snapshot-plus-tail semantics and no
+// longer reflect how the runtime uses this message.
 //
 message AggregateHistory {
 
