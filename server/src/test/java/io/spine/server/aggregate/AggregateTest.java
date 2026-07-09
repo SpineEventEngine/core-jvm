@@ -31,11 +31,9 @@ import com.google.common.truth.extensions.proto.ProtoSubject;
 import com.google.protobuf.Message;
 import io.grpc.stub.StreamObserver;
 import io.spine.base.Error;
-import io.spine.base.Identifier;
 import io.spine.base.Time;
 import io.spine.core.Ack;
 import io.spine.core.Event;
-import io.spine.core.MessageId;
 import io.spine.core.TenantId;
 import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
@@ -98,7 +96,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.extensions.proto.ProtoTruth.assertThat;
 import static io.spine.grpc.StreamObservers.noOpObserver;
-import static io.spine.server.aggregate.given.Given.ACommand.addTask;
+import static io.spine.server.aggregate.AggregateRepository.DEFAULT_HISTORY_DEPTH;
 import static io.spine.server.aggregate.given.Given.EventMessage.projectCreated;
 import static io.spine.server.aggregate.given.Given.EventMessage.projectStarted;
 import static io.spine.server.aggregate.given.Given.EventMessage.taskAdded;
@@ -434,7 +432,7 @@ public class AggregateTest {
                                        command(startProject));
             aggregate().commitEvents();
             var historyBackward =
-                    ImmutableList.copyOf(aggregate().historyBackward());
+                    ImmutableList.copyOf(aggregate().historyBackward(DEFAULT_HISTORY_DEPTH));
             assertEventClasses(
                     getEventClasses(historyBackward),
                     AggProjectCreated.class, AggTaskAdded.class, AggProjectStarted.class
@@ -466,7 +464,7 @@ public class AggregateTest {
         @DisplayName("which are being committed")
         void beingCommittedByDefault() {
             aggregate().commitEvents();
-            assertFalse(aggregate.historyBackward()
+            assertFalse(aggregate.historyBackward(DEFAULT_HISTORY_DEPTH)
                                  .hasNext());
         }
     }
@@ -639,7 +637,8 @@ public class AggregateTest {
             // Since the cutover, recent history is read lazily from storage on demand rather than
             // replayed eagerly at load. Reading it therefore requires the tenant context (the read
             // is eager, so the returned iterator is safe to consume outside the context).
-            history = with(tenantId).evaluate(aggregate::historyBackward);
+            history = with(tenantId).evaluate(
+                    () -> aggregate.historyBackward(DEFAULT_HISTORY_DEPTH));
 
             assertNextCommandId().isEqualTo(startCommand.id());
             assertNextCommandId().isEqualTo(addTaskCommand2.id());

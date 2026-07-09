@@ -46,6 +46,7 @@ import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
 import io.spine.validation.ValidatingBuilder;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.List;
@@ -154,7 +155,7 @@ public abstract class Aggregate<I,
      * <p>Set by the repository when the aggregate is created or loaded. When absent, recent
      * history falls back to the in-memory {@link #recentHistory() recentHistory}.
      */
-    private transient RecentHistoryLoader recentHistoryLoader;
+    private @Nullable RecentHistoryLoader recentHistoryLoader;
 
     /**
      * Creates a new instance.
@@ -310,11 +311,8 @@ public abstract class Aggregate<I,
             return outcome;
         }
         var method = thisClass().reactorOf(event);
-        if (method.isEmpty()) {
-            return ignored(thisClass(), event);
-        }
-        return method.get().invoke(this, event);
-
+        return method.map(reactorMethod -> reactorMethod.invoke(this, event))
+                     .orElseGet(() -> ignored(thisClass(), event));
     }
 
     @Override
