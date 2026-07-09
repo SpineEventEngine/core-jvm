@@ -30,13 +30,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Durations;
+import io.spine.base.Identifier;
 import io.spine.core.Event;
 import io.spine.core.Version;
 import io.spine.server.ContextSpec;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.aggregate.AggregateStorageTest.TestAggregate;
 import io.spine.server.aggregate.given.fibonacci.FibonacciRepository;
-import io.spine.server.aggregate.given.fibonacci.Sequence;
 import io.spine.server.aggregate.given.fibonacci.SequenceId;
 import io.spine.server.aggregate.given.fibonacci.command.MoveSequence;
 import io.spine.server.aggregate.given.fibonacci.command.SetStartingNumbers;
@@ -64,11 +64,15 @@ import static io.spine.protobuf.Durations2.seconds;
 import static io.spine.server.aggregate.given.aggregate.AggregateTestEnv.event;
 import static io.spine.server.aggregate.given.fibonacci.FibonacciAggregate.lastNumberOne;
 import static io.spine.server.aggregate.given.fibonacci.FibonacciAggregate.lastNumberTwo;
-import static java.lang.Integer.MAX_VALUE;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * Tests the truncation of an Aggregate history.
+ * Tests the truncation of the legacy Aggregate journal.
+ *
+ * <p>The snapshot-index truncation operates only on the {@link AggregateEventRecord}s written
+ * by the earlier, event-sourced versions of the framework. These tests simulate such legacy
+ * journals by writing the records directly to the {@linkplain AggregateStorage#legacyJournal()
+ * legacy journal storage}.
  *
  * <p>Wishing to customize the storage for these tests, descendants may configure it via:
  * <pre>
@@ -79,7 +83,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * <p>Please note that for the test name to make sense the descendants should have some
  * meaningful display names, e.g. {@code "InMemoryAggregateStorage"}.
  */
-@SuppressWarnings("AbstractClassWithoutAbstractMethods") // designed for the various storage impls.
+@SuppressWarnings({
+        "AbstractClassWithoutAbstractMethods" /* Designed for the various storage impls. */,
+        "deprecation" /* Tests the deprecated legacy-journal truncation on purpose. */})
 public abstract class AggregateHistoryTruncationTest {
 
     private static final SequenceId ID = SequenceId.newBuilder()
@@ -106,7 +112,7 @@ public abstract class AggregateHistoryTruncationTest {
                        .assertEvents()
                        .withType(StartingNumbersSet.class)
                        .hasSize(1);
-                // Send a lot of `MoveSequence` events, so several snapshots are created.
+                // Send a lot of `MoveSequence` events.
                 var moveSequence = MoveSequence.newBuilder()
                         .setId(ID)
                         .build();
@@ -123,10 +129,9 @@ public abstract class AggregateHistoryTruncationTest {
                 assertThat(lastNumberTwo())
                         .isEqualTo(expectedNumberTwo);
 
-                // Truncate the journal. Since the event-sourcing cutover the aggregate loads from
-                // its latest state record rather than by replaying the journal, so truncation must
-                // not affect the aggregate's behavior. Snapshot-boundary record counts are no
-                // longer asserted here — dispatching commands no longer writes journal snapshots.
+                // Run the legacy truncation. Since the event-sourcing cutover the aggregate
+                // loads from its latest state record, and the truncation touches only the
+                // legacy journal records — so it must not affect the aggregate's behavior.
                 var storage = repo.aggregateStorage();
                 storage.truncateOlderThan(0);
 
@@ -140,7 +145,7 @@ public abstract class AggregateHistoryTruncationTest {
     }
 
     @Nested
-    @DisplayName("should truncate the history of an `Aggregate` instance")
+    @DisplayName("should truncate the legacy history of an `Aggregate` instance")
     class Truncate {
 
         private final ProjectId id = Sample.messageOfType(ProjectId.class);
@@ -149,6 +154,7 @@ public abstract class AggregateHistoryTruncationTest {
 
         private Version currentVersion;
         private AggregateStorage<ProjectId, AggProject> storage;
+        private AggregateEventStorage legacyJournal;
 
         @BeforeEach
         void setUp() {
@@ -158,6 +164,7 @@ public abstract class AggregateHistoryTruncationTest {
             storage = ServerEnvironment.instance()
                                        .storageFactory()
                                        .createAggregateStorage(spec, TestAggregate.class);
+            legacyJournal = storage.legacyJournal();
         }
 
         @Test
@@ -249,8 +256,12 @@ public abstract class AggregateHistoryTruncationTest {
         }
 
         private ImmutableList<AggregateEventRecord> historyBackward() {
-            var iterator = storage.historyBackward(id, MAX_VALUE);
-            return ImmutableList.copyOf(iterator);
+            var builder = legacyJournal.queryBuilder()
+                    .where(AggregateEventRecordColumn.aggregate_id)
+                    .is(Identifier.pack(id));
+            var query = TruncateOperation.newestFirst(builder)
+                                         .build();
+            return ImmutableList.copyOf(legacyJournal.readAll(query));
         }
 
         @CanIgnoreReturnValue
@@ -265,7 +276,13 @@ public abstract class AggregateHistoryTruncationTest {
                     .setTimestamp(atTime)
                     .setVersion(currentVersion)
                     .build();
-            storage.writeSnapshot(id, snapshot);
+            var record = AggregateEventRecord.newBuilder()
+                    .setId(legacyRecordId())
+                    .setAggregateId(Identifier.pack(id))
+                    .setTimestamp(atTime)
+                    .setSnapshot(snapshot)
+                    .build();
+            legacyJournal.write(record);
             return snapshot;
         }
 
@@ -279,8 +296,20 @@ public abstract class AggregateHistoryTruncationTest {
             currentVersion = increment(currentVersion);
             var state = AggProject.getDefaultInstance();
             var event = eventFactory.createEvent(event(state), currentVersion, atTime);
-            storage.writeEvent(id, event);
+            var record = AggregateEventRecord.newBuilder()
+                    .setId(legacyRecordId())
+                    .setAggregateId(Identifier.pack(id))
+                    .setTimestamp(atTime)
+                    .setEvent(event)
+                    .build();
+            legacyJournal.write(record);
             return event;
+        }
+
+        private AggregateEventRecordId legacyRecordId() {
+            return AggregateEventRecordId.newBuilder()
+                    .setValue(newUuid())
+                    .build();
         }
     }
 }

@@ -282,10 +282,12 @@ Snapshots no longer exist, so their configuration is gone (not merely deprecated
 | `Aggregate.toSnapshot()` | — (loading reads the state record) |
 
 The `Snapshot` and `AggregateHistory` proto messages are **retained** for journal wire
-compatibility. Snapshot-index journal trimming (`AggregateStorage.truncateOlderThan`) is
-meaningless without snapshots; until count/date-based trimming ships (a later, decoupled
-phase), **the event journal is append-only and grows unbounded**. This is acceptable for the
-pre-GA window; plan storage accordingly for high-volume aggregates.
+compatibility (`AggregateHistory` is superseded by `EntityEventHistory` — §9).
+Snapshot-index journal trimming (`AggregateStorage.truncateOlderThan`) is **deprecated**
+and operates only on the legacy, pre-cutover journal records; until count/date-based
+trimming ships (a later, decoupled phase), **the event journal is append-only and grows
+unbounded**. This is acceptable for the pre-GA window; plan storage accordingly for
+high-volume aggregates.
 
 ## 8. Data caveat — `NONE`-visibility aggregates are a hard break
 
@@ -304,6 +306,37 @@ every aggregate's business state is now stored unconditionally. `queryingEnabled
 to gate only the read-side query exposure, not whether state is stored. But this fixes new
 data only; it cannot reconstruct state that was never persisted before the cutover.
 
+## 9. The journal moves to the entity level
+
+Events are emitted by entities, not by aggregates alone, so the journal types now live at
+the entity level. Initially they serve aggregates; `ProcessManager` journaling is planned
+as a follow-up.
+
+| Superseded | Replacement |
+|------------|-------------|
+| `AggregateHistory` | `spine.server.entity.EntityEventHistory` — events only, no snapshot |
+| `AggregateEventRecord` | `spine.server.entity.EntityEventRecord` |
+| `AggregateEventRecordId` | `spine.server.entity.EntityEventRecordId` |
+| `AggregateEventStorage` | `io.spine.server.entity.storage.EntityEventStorage` |
+| `AggregateEventRecordColumn` | `io.spine.server.entity.storage.EntityEventRecordColumn` |
+| `StorageFactory.createAggregateEventStorage(...)` | `StorageFactory.createEntityEventStorage(...)` |
+
+`AggregateStorage` reads and writes the journal as `EntityEventRecord`s, and its
+`read`/`write` operations work in terms of `EntityEventHistory`. Storage vendors implement
+the same `RecordStorage`-level SPI as before — this is a recompile against the new types,
+not a rewrite.
+
+**Data caveat — pre-upgrade journals become invisible to reads.** Read this before
+upgrading a running system. `EntityEventRecord` is a **new record kind**: storage backends
+persist it separately from the legacy `AggregateEventRecord`s, so journal entries written
+before the upgrade are not visible to the new reads. In particular, the `IdempotencyGuard`
+window and `historyBackward(depth)` **start empty right after the upgrade** and refill as
+new events are emitted. If the guard is your only deduplication safeguard, configure a
+delivery `deduplicationWindow` to cover the upgrade window (§5). As with the
+`NONE`-visibility break (§8), **no migration tooling is shipped** (Spine 2.x is pre-GA).
+The legacy records stay on disk; the current runtime reads them only for the deprecated
+`truncateOlderThan` cleanup.
+
 ## Removed and deprecated API — quick reference
 
 **Removed** (compile errors — migrate the call site):
@@ -321,7 +354,11 @@ data only; it cannot reconstruct state that was never persisted before the cutov
 
 - `@Apply` and `@Apply#allowImport` — detection-only; a declared applier is a `ModelError`
 - `Aggregate.historyBackward()` / `historyContains(Predicate)` → the `depth` forms (§6)
+- `AggregateEventStorage`, `AggregateEventRecordColumn`,
+  `StorageFactory.createAggregateEventStorage` → the entity-level journal types (§9)
+- `AggregateStorage.truncateOlderThan(int)` / `(int, Timestamp)` — legacy journal only (§9)
 
-**Retained for wire compatibility** (do not use in new code): the `Snapshot` and
-`AggregateHistory` proto messages; the `EventImported` and `AggregateHistoryCorrupted` system
-events with their emitters; the `InboxLabel.IMPORT_EVENT` label.
+**Retained for wire compatibility** (do not use in new code): the `Snapshot`,
+`AggregateHistory`, `AggregateEventRecord`, and `AggregateEventRecordId` proto messages;
+the `EventImported` and `AggregateHistoryCorrupted` system events with their emitters;
+the `InboxLabel.IMPORT_EVENT` label.

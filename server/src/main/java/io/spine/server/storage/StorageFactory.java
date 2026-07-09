@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import io.spine.server.aggregate.AggregateStorage;
 import io.spine.server.delivery.CatchUpStorage;
 import io.spine.server.delivery.InboxStorage;
 import io.spine.server.entity.Entity;
+import io.spine.server.entity.storage.EntityEventStorage;
 import io.spine.server.entity.storage.EntityRecordStorage;
 import io.spine.server.event.EventStore;
 import io.spine.server.event.store.DefaultEventStore;
@@ -123,10 +124,24 @@ public interface StorageFactory extends Closeable {
      *
      * @param context
      *         specification of the Bounded Context in scope of which the storage will be used
+     * @deprecated The journal of events moved to the entity level. Please use
+     *         {@link #createEntityEventStorage(ContextSpec)} instead. The storage created by
+     *         this method now serves only the legacy, pre-cutover journal records.
      */
+    @Deprecated
     default AggregateEventStorage
     createAggregateEventStorage(ContextSpec context) {
         return new AggregateEventStorage(context, this);
+    }
+
+    /**
+     * Creates a new {@link EntityEventStorage}.
+     *
+     * @param context
+     *         specification of the Bounded Context in scope of which the storage will be used
+     */
+    default EntityEventStorage createEntityEventStorage(ContextSpec context) {
+        return new EntityEventStorage(context, this);
     }
 
     /**

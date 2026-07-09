@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,8 +31,8 @@ import io.spine.base.EventMessage;
 import io.spine.base.Identifier;
 import io.spine.core.Event;
 import io.spine.core.EventId;
-import io.spine.server.aggregate.AggregateEventRecord;
-import io.spine.server.aggregate.AggregateEventRecordId;
+import io.spine.server.entity.EntityEventRecord;
+import io.spine.server.entity.EntityEventRecordId;
 import io.spine.test.aggregate.ProjectId;
 import io.spine.test.aggregate.event.AggProjectCreated;
 import io.spine.testdata.Sample;
@@ -48,7 +48,7 @@ import static io.spine.server.aggregate.given.Given.EventMessage.projectCreated;
 import static io.spine.server.aggregate.given.Given.EventMessage.taskAdded;
 
 /**
- * Utilities for creating test instances and sequences of {@link AggregateEventRecord}.
+ * Utilities for creating test instances and sequences of {@link EntityEventRecord}.
  */
 public class StorageRecords {
 
@@ -58,25 +58,25 @@ public class StorageRecords {
     private StorageRecords() {
     }
 
-    /** Creates new builder for an aggregate event record and sets the passed timestamp. */
-    private static <I> AggregateEventRecord.Builder
-    newRecordWith(EventId eventId, I aggregateId, Timestamp timestamp) {
-        var recordId = AggregateEventRecordId.newBuilder()
+    /** Creates new builder for an entity event record and sets the passed timestamp. */
+    private static <I> EntityEventRecord.Builder
+    newRecordWith(EventId eventId, I entityId, Timestamp timestamp) {
+        var recordId = EntityEventRecordId.newBuilder()
                 .setValue(eventId.getValue())
                 .build();
-        return AggregateEventRecord.newBuilder()
+        return EntityEventRecord.newBuilder()
                 .setId(recordId)
-                .setAggregateId(Identifier.pack(aggregateId))
+                .setEntityId(Identifier.pack(entityId))
                 .setTimestamp(timestamp);
     }
 
     /**
-     * Creates a sample {@linkplain AggregateEventRecord record} with the passed timestamp.
+     * Creates a sample {@linkplain EntityEventRecord record} with the passed timestamp.
      */
-    public static <I> AggregateEventRecord create(I aggregateId, Timestamp timestamp) {
+    public static <I> EntityEventRecord create(I entityId, Timestamp timestamp) {
         EventMessage eventMessage = Sample.messageOfType(AggProjectCreated.class);
         var event = eventFactory.createEvent(eventMessage);
-        return newRecordWith(event.getId(), aggregateId, timestamp)
+        return newRecordWith(event.getId(), entityId, timestamp)
                 .setEvent(event)
                 .build();
     }
@@ -84,8 +84,8 @@ public class StorageRecords {
     /**
      * Creates a record with the passed event and timestamp.
      */
-    public static <I> AggregateEventRecord create(I aggregateId, Timestamp timestamp, Event event) {
-        return newRecordWith(event.getId(), aggregateId, timestamp)
+    public static <I> EntityEventRecord create(I entityId, Timestamp timestamp, Event event) {
+        return newRecordWith(event.getId(), entityId, timestamp)
                 .setEvent(event)
                 .build();
     }
@@ -94,7 +94,7 @@ public class StorageRecords {
      * Returns several records sorted by timestamp ascending.
      * First record's timestamp is the current time.
      */
-    public static List<AggregateEventRecord> sequenceFor(ProjectId id) {
+    public static List<EntityEventRecord> sequenceFor(ProjectId id) {
         return sequenceFor(id, currentTime());
     }
 
@@ -104,7 +104,7 @@ public class StorageRecords {
      * @param start
      *         the timestamp of first record.
      */
-    public static List<AggregateEventRecord> sequenceFor(ProjectId id, Timestamp start) {
+    public static List<EntityEventRecord> sequenceFor(ProjectId id, Timestamp start) {
         var delta = seconds(10);
         var timestamp2 = add(start, delta);
         var timestamp3 = add(timestamp2, delta);

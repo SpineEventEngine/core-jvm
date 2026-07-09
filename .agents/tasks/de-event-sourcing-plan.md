@@ -420,6 +420,12 @@ independent and may land in parallel or after.
 
 ### Phase opener: journal cleanup (`EntityEventHistory` / `EntityEventStorage`)
 
+> **Implemented on `de-event-sourcing-phase-D` (2026-07-09)** — see the
+> "Implementation notes" in the detailed task file for the deliberate deltas
+> (`ReadOperation`/`HistoryBackwardOperation` deleted in favor of journal-tail
+> reads; `writeSnapshot` removed; `UncommittedHistory.get()` returns a single
+> `EntityEventHistory`). Pending review and merge.
+
 Naming locked 2026-07-08 (product owner): the journal types move to the
 **entity** level — events are emitted by entities, not by aggregates alone.
 

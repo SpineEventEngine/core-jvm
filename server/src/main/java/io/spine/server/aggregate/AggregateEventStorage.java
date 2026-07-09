@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -35,10 +35,22 @@ import io.spine.server.storage.StorageFactory;
 import java.util.Iterator;
 
 /**
- * Storage of events for each {@link Aggregate}.
+ * Storage of the legacy event journal of {@link Aggregate}s.
+ *
+ * <p>Until the event-sourcing cutover, this storage persisted the events emitted
+ * by the Aggregates along with the snapshots of their states. It is superseded by the
+ * entity-level {@link io.spine.server.entity.storage.EntityEventStorage EntityEventStorage},
+ * which stores events only.
+ *
+ * <p>This type is retained to keep the pre-cutover journal records reachable — in particular,
+ * for the deprecated {@linkplain AggregateStorage#truncateOlderThan(int) snapshot-index
+ * truncation}.
  *
  * @see AggregateStorage
+ * @deprecated Please use {@link io.spine.server.entity.storage.EntityEventStorage
+ *         EntityEventStorage} instead.
  */
+@Deprecated
 public class AggregateEventStorage
         extends MessageStorage<AggregateEventRecordId, AggregateEventRecord> {
 

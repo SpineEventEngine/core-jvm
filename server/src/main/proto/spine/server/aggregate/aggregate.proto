@@ -73,6 +73,11 @@ message Snapshot {
     spine.server.entity.LifecycleFlags lifecycle = 4;
 }
 
+// An identifier of an `AggregateEventRecord`.
+//
+// Retained for wire compatibility; no longer produced by the runtime.
+// Superseded by `spine.server.entity.EntityEventRecordId`.
+//
 message AggregateEventRecordId {
 
     string value = 1 [(required) = true];
@@ -81,6 +86,12 @@ message AggregateEventRecordId {
 // A record with information about an event or a snapshot of an aggregate.
 //
 // This message is used by storage implementations.
+//
+// Retained for wire compatibility; no longer produced by the runtime. The journal
+// records written since the event-sourcing cutover are
+// `spine.server.entity.EntityEventRecord`s — a separate record kind, which never
+// carries a snapshot. Records of this legacy kind remain readable so that the
+// pre-cutover journals can still be truncated.
 //
 message AggregateEventRecord {
 
@@ -102,7 +113,7 @@ message AggregateEventRecord {
         server.aggregate.Snapshot snapshot = 3;
     }
 
-    // An identifier of the aggregate whose history the `AggregateEventRecord` is a part of .
+    // An identifier of the aggregate whose history the `AggregateEventRecord` is a part of.
     //
     // This field is technically `(required)`, but left optional intentionally
     // to comply with the legacy data.
@@ -112,14 +123,12 @@ message AggregateEventRecord {
 
 // The recorded history of an aggregate: the sequence of events it emitted.
 //
-// Since the event-sourcing cutover, aggregate state is no longer restored by
-// replaying this history. It is kept as an append-only journal for
-// traceability and recent-history lookups.
-//
-// The `snapshot` field is retained for wire compatibility with pre-cutover data
-// and is not populated by the current runtime. The field-level comments below
-// describe the historical (pre-cutover) snapshot-plus-tail semantics and no
-// longer reflect how the runtime uses this message.
+// Retained for wire compatibility; no longer produced by the runtime.
+// Superseded by `spine.server.entity.EntityEventHistory`, which carries events
+// only: since the event-sourcing cutover, aggregate state is no longer restored
+// by replaying the history, so the "snapshot plus tail" semantics of this
+// message no longer hold. The field-level comments below describe the
+// historical (pre-cutover) semantics.
 //
 message AggregateHistory {
 

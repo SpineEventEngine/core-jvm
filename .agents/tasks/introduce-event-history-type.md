@@ -1,7 +1,9 @@
 # Introduce `EntityEventHistory` and `EntityEventStorage`
 
-**Status:** planned — opens Phase D as its own PR (decided 2026-07-08);
-follows PR-B2 (the event-sourcing cutover, merged in #1647).
+**Status:** implemented on `de-event-sourcing-phase-D` (2026-07-09) — opens
+Phase D as its own PR (decided 2026-07-08); follows PR-B2 (the event-sourcing
+cutover, merged in #1647). See "Implementation notes" at the bottom for the
+deliberate deltas from the sketch below.
 **Effort:** part of the "migrate Aggregates off event sourcing" line of work
 (see [`de-event-sourcing-plan.md`](de-event-sourcing-plan.md)).
 
@@ -172,3 +174,48 @@ in the migration notes the way the `NONE`-visibility caveat is stated.
 - Storage vendors smoke-build against the new core snapshot (the Phase C
   list): the `AggregateStorage` type-parameter change and the new SPI method
   affect them.
+
+## Implementation notes (2026-07-09)
+
+Deliberate deltas from the sketch above, made while implementing:
+
+- **`ReadOperation` and `HistoryBackwardOperation` are deleted, not retyped.**
+  Both were package-private. The backward read folded into a public
+  `EntityEventStorage.historyBackward(entityId, batchSize, startingFrom)`;
+  `AggregateStorage.read(id, batchSize)` became a single journal-tail read
+  returning the most recent `batchSize` events in emission order — matching
+  its long-documented "maximum number of the events" contract. This also
+  retires a latent pagination hazard: the old batch loop advanced with a
+  strict `version < lastVersion` cursor, which loses events once several
+  events of one command share a version (the post-cutover A3 semantics).
+  Phase C item 1 ("simplify to journal-tail reads") sanctioned the direction.
+- **`AggregateStorage.writeSnapshot` and
+  `AggregateRecords.newEventRecord(...)` are removed** (all package-private).
+  The runtime never writes snapshots; the legacy-truncation tests write
+  `AggregateEventRecord`s directly into the legacy journal, reachable via the
+  package-private, deprecated `AggregateStorage.legacyJournal()` accessor.
+- **`UncommittedHistory.get()` returns a single `EntityEventHistory`** (the
+  sketch's plural segment list collapsed), and `writeAll(aggregate, history)`
+  takes it; the journal write is skipped when the history carries no events.
+- **`AggregateStorage` keeps a second, legacy journal storage** created via
+  the (deprecated) `createAggregateEventStorage` — only the deprecated
+  `truncateOlderThan` operates on it, per the settled wiring decision.
+- Proto deprecation is expressed as retention-status comments (no
+  `[deprecated]` options) — mirroring the PR-B3 wire-compat convention.
+- New suites: `EntityEventStorageSpec`, `EntityEventRecordsSpec` (Kotlin,
+  Kotest); `TestAggregateStorage` (unused since PR-B2), `ReadOperationTest`,
+  and `ReadOperationTestEnv` deleted; `AggregateStorageTest`,
+  `AggregateHistoryTruncationTest`, and `StorageRecords` migrated — the
+  truncation suite now simulates pre-cutover journals explicitly.
+- The migration guide gained §9 ("The journal moves to the entity level")
+  with the new-record-kind data caveat, stated the way the `NONE`-visibility
+  caveat is stated.
+- **Version bumped `.422 → .430`** — the `.422` on the branch belongs to the
+  preceding PR-B3 commits, and this change is breaking for storage vendors
+  (`AggregateStorage` type parameter, `writeAll`/`historyBackward` signatures,
+  published test-fixture APIs), so the increment rounds up to the next
+  multiple of ten per the version policy.
+- Post-review adjustments: the relocated sort helper is named
+  `TruncateOperation.newestFirst` (the old "chronological" name misstated the
+  order); `EntityEventStorage.historyBackward` is `@JvmOverloads`;
+  `delete`/`deleteAll` are covered by the new spec.
