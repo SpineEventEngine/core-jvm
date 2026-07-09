@@ -415,7 +415,12 @@ independent and may land in parallel or after.
 2. Repository-level config (depth, enable/disable); write hook in
    `AggregateRepository.doStore()`.
 3. Count/date-based journal trimming replacing the deprecated
-   snapshot-index truncation (A7).
+   snapshot-index truncation (A7). **✅ Shipped with the phase opener in
+   PR #1649** (pulled in when the snapshot-index truncation was removed
+   rather than deprecated): `EntityEventStorage.truncate(keepMostRecent)` /
+   `truncate(keepMostRecent, olderThan)` — per-entity recent-window
+   protection — with delegating `AggregateStorage.truncate(...)` maintenance
+   methods.
 4. Design for future `ProcessManager` reuse (brief item 4) — the contract
    must not be aggregate-specific; actual PM wiring is out of scope.
 5. Read API for debugging/analysis (state history alongside the journal).

@@ -28,6 +28,7 @@ package io.spine.server.aggregate;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.protobuf.Timestamp;
 import io.spine.annotation.SPI;
 import io.spine.base.AggregateState;
 import io.spine.base.EntityState;
@@ -105,6 +106,10 @@ import static io.spine.util.Preconditions2.checkPositive;
  * It narrows down the number of records to traverse when the recent history of an Aggregate
  * is read, compared to searching the {@linkplain io.spine.server.event.EventStore Event Store}
  * of the whole Bounded Context.
+ *
+ * <p>The journal grows as the Aggregates emit events. To bound the growth, production
+ * systems run the {@linkplain #truncate(int) count- or date-based truncation} as a periodic
+ * maintenance operation.
  *
  * <h2>Legacy journal</h2>
  *
@@ -454,6 +459,53 @@ public class AggregateStorage<I, S extends AggregateState<I>>
         var original = eventStorage.historyBackward(id, batchSize, startingFrom);
         var copied = ImmutableList.copyOf(original);
         return copied.iterator();
+    }
+
+    /**
+     * Truncates the journal, keeping up to {@code keepMostRecent} most recent events
+     * for each Aggregate instance.
+     *
+     * <p>Passing zero purges the whole journal of the served Aggregates.
+     *
+     * <p>Truncation bounds the {@linkplain Aggregate#historyBackward(int) recent history}
+     * available to the business logic and to the opt-in {@link IdempotencyGuard}. When
+     * the guard is {@linkplain AggregateRepository#useIdempotencyGuard() enabled}, keep
+     * at least the {@linkplain AggregateRepository#historyDepth() history depth} of
+     * the repository, so that the deduplication window stays intact.
+     *
+     * <p>The operation reads the whole journal, so it is intended for periodic
+     * maintenance rather than for per-dispatch use.
+     *
+     * @param keepMostRecent
+     *         the number of the most recent events to keep for each Aggregate
+     * @throws IllegalArgumentException
+     *         if the {@code keepMostRecent} is negative
+     */
+    public void truncate(int keepMostRecent) {
+        eventStorage.truncate(keepMostRecent);
+    }
+
+    /**
+     * Truncates the journal, deleting the events older than {@code olderThan}, but keeping
+     * at least {@code keepMostRecent} most recent events for each Aggregate instance.
+     *
+     * <p>An event record is deleted only if it is older than the given time <em>and</em>
+     * not among the {@code keepMostRecent} most recent events of its Aggregate. To purge
+     * everything older than the given time, pass zero as {@code keepMostRecent}.
+     *
+     * <p>See {@link #truncate(int)} for the notes on the {@link IdempotencyGuard} window
+     * and the performance expectations.
+     *
+     * @param keepMostRecent
+     *         the number of the most recent events to keep for each Aggregate
+     * @param olderThan
+     *         only the events recorded strictly before this time are deleted
+     * @throws IllegalArgumentException
+     *         if the {@code keepMostRecent} is negative
+     */
+    public void truncate(int keepMostRecent, Timestamp olderThan) {
+        checkNotNull(olderThan);
+        eventStorage.truncate(keepMostRecent, olderThan);
     }
 
     private void checkNotClosedAndArguments(I id, Object argument) {

@@ -234,3 +234,11 @@ Deliberate deltas from the sketch above, made while implementing:
   legacy journal store per aggregate type. Only the proto messages remain —
   marked `option deprecated = true` — so persisted legacy records stay
   parseable.
+- **D3 pulled into this PR (product owner, 2026-07-09):** with the
+  snapshot-index truncation removed, the replacement count/date trimming
+  ships immediately — `EntityEventStorage.truncate(keepMostRecent)` and
+  `truncate(keepMostRecent, olderThan)` (delete only records older than the
+  time, never cutting into the per-entity recent window), plus delegating
+  `AggregateStorage.truncate(...)` methods where the old truncation lived.
+  Covered by the `EntityEventStorageSpec` truncation cases and a
+  vendor-facing `TruncateJournal` group in `AggregateStorageTest`.

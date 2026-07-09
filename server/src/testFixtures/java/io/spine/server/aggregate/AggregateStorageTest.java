@@ -27,6 +27,7 @@
 package io.spine.server.aggregate;
 
 import com.google.common.collect.ImmutableList;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Durations;
 import io.spine.base.AggregateState;
@@ -37,6 +38,7 @@ import io.spine.core.EventContext;
 import io.spine.core.EventId;
 import io.spine.core.MessageId;
 import io.spine.core.Origin;
+import io.spine.core.Version;
 import io.spine.protobuf.AnyPacker;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.server.ContextSpec;
@@ -75,6 +77,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.protobuf.util.Timestamps.add;
+import static com.google.protobuf.util.Timestamps.subtract;
 import static io.spine.base.Identifier.newUuid;
 import static io.spine.base.Time.currentTime;
 import static io.spine.core.Versions.increment;
@@ -415,6 +418,60 @@ public abstract class AggregateStorageTest
             var history = optional.get();
             var expected = written.subList(eventCount - window, eventCount);
             assertEquals(expected, history.getEventList());
+        }
+    }
+
+    @Nested
+    @DisplayName("truncate the journal")
+    class TruncateJournal {
+
+        private Version currentVersion = zero();
+
+        @Test
+        @DisplayName("keeping the requested number of the most recent events per Aggregate")
+        void keepingMostRecent() {
+            var written = writeSequentialEvents(5, currentTime());
+            var keep = 2;
+
+            storage.truncate(keep);
+
+            var remaining = readRecord(id);
+            assertEquals(written.subList(3, 5), remaining.getEventList());
+        }
+
+        @Test
+        @DisplayName("deleting only the events older than the given time")
+        void olderThan() {
+            var longAgo = subtract(currentTime(), Durations.fromDays(365));
+            writeSequentialEvents(2, longAgo);
+            var recent = writeSequentialEvents(2, currentTime());
+            var cutoff = subtract(currentTime(), Durations.fromDays(30));
+
+            storage.truncate(0, cutoff);
+
+            var remaining = readRecord(id);
+            assertEquals(recent, remaining.getEventList());
+        }
+
+        @Test
+        @DisplayName("rejecting a negative count of the events to keep")
+        void rejectingNegativeCount() {
+            assertThrows(IllegalArgumentException.class, () -> storage.truncate(-1));
+            assertThrows(IllegalArgumentException.class,
+                         () -> storage.truncate(-1, currentTime()));
+        }
+
+        @CanIgnoreReturnValue
+        private List<Event> writeSequentialEvents(int count, Timestamp at) {
+            List<Event> events = new ArrayList<>(count);
+            for (var i = 0; i < count; i++) {
+                currentVersion = increment(currentVersion);
+                var state = AggProject.getDefaultInstance();
+                var event = eventFactory.createEvent(event(state), currentVersion, at);
+                events.add(event);
+                storage.writeEvent(id, event);
+            }
+            return events;
         }
     }
 

@@ -285,9 +285,17 @@ The `Snapshot` and `AggregateHistory` proto messages are **retained** for journa
 compatibility (`AggregateHistory` is superseded by `EntityEventHistory` — §9).
 Snapshot-index journal trimming (`AggregateStorage.truncateOlderThan`) is **removed**:
 it could only ever trim by snapshot positions, and the current journal contains no
-snapshots. Until count/date-based trimming ships (a later, decoupled phase), **the event
-journal is append-only and grows unbounded**. This is acceptable for the pre-GA window;
-plan storage accordingly for high-volume aggregates.
+snapshots. Its replacement is **count/date-based truncation**:
+
+```java
+storage.truncate(keepMostRecent);            // keep the N most recent events per aggregate
+storage.truncate(keepMostRecent, olderThan); // drop events older than the time,
+                                             // but never cut into the N most recent
+```
+
+The journal is append-only on the write path, so production systems run the truncation
+as periodic maintenance. When the opt-in `IdempotencyGuard` is enabled (§5), keep at
+least the repository's `historyDepth` events, so the deduplication window stays intact.
 
 ## 8. Data caveat — `NONE`-visibility aggregates are a hard break
 
@@ -331,7 +339,8 @@ compatibility). The storage-level classes — `AggregateEventStorage`,
 `AggregateEventRecordColumn`, `StorageFactory.createAggregateEventStorage` — and the
 snapshot-index `AggregateStorage.truncateOlderThan` trimming are **removed**: org-wide
 usage research found no production callers, and the trimming could only operate on
-pre-cutover journals.
+pre-cutover journals. The current journal is trimmed by the count/date-based
+`truncate(keepMostRecent[, olderThan])` instead (§7).
 
 **Data caveat — pre-upgrade journals become invisible to reads.** Read this before
 upgrading a running system. `EntityEventRecord` is a **new record kind**: storage backends
@@ -357,8 +366,8 @@ The legacy records stay on disk as inert data; the current runtime does not read
   `AggregateClass.importableEvents()` / `importsEvents()`, `BlackBox.importsEvent` (§3)
 - `AggregateEventStorage`, `AggregateEventRecordColumn`,
   `StorageFactory.createAggregateEventStorage` → the entity-level journal types (§9)
-- `AggregateStorage.truncateOlderThan(int)` / `(int, Timestamp)` — snapshot-index
-  trimming of legacy journals (§9)
+- `AggregateStorage.truncateOlderThan(int)` / `(int, Timestamp)` → the count/date-based
+  `AggregateStorage.truncate(int)` / `(int, Timestamp)` (§7, §9)
 
 **Deprecated** (still compile; removed in v2.0.0):
 

@@ -26,6 +26,8 @@
 
 package io.spine.server.entity.storage
 
+import com.google.protobuf.Timestamp
+import com.google.protobuf.util.Timestamps
 import io.spine.base.Identifier
 import io.spine.core.Version
 import io.spine.query.RecordQuery
@@ -98,6 +100,67 @@ public class EntityEventStorage(
     }
 
     /**
+     * Truncates the journal, keeping up to [keepMostRecent] most recent records
+     * for each entity.
+     *
+     * The most recent records are determined per entity, in the order of
+     * [historyBackward]: by the version of the stored event and then by the record
+     * creation time. Passing zero purges the whole journal.
+     *
+     * The operation reads the whole journal, so it is intended for periodic
+     * maintenance rather than for per-dispatch use.
+     *
+     * @param keepMostRecent The number of the most recent records to keep for each entity.
+     * @throws IllegalArgumentException If [keepMostRecent] is negative.
+     */
+    public fun truncate(keepMostRecent: Int) {
+        truncate(keepMostRecent) { true }
+    }
+
+    /**
+     * Truncates the journal, deleting the records older than [olderThan],
+     * but keeping at least [keepMostRecent] most recent records for each entity.
+     *
+     * A record is deleted only if it is older than the given time *and* not
+     * among the [keepMostRecent] most recent records of its entity. To purge
+     * everything older than the given time, pass zero as [keepMostRecent].
+     *
+     * The operation reads the whole journal, so it is intended for periodic
+     * maintenance rather than for per-dispatch use.
+     *
+     * @param keepMostRecent The number of the most recent records to keep for each entity.
+     * @param olderThan Only the records created strictly before this time are deleted.
+     * @throws IllegalArgumentException If [keepMostRecent] is negative.
+     */
+    public fun truncate(keepMostRecent: Int, olderThan: Timestamp) {
+        truncate(keepMostRecent) { record ->
+            Timestamps.compare(record.timestamp, olderThan) < 0
+        }
+    }
+
+    private fun truncate(keepMostRecent: Int, deletionAllowed: (EntityEventRecord) -> Boolean) {
+        require(keepMostRecent >= 0) {
+            "The number of the records to keep must not be negative, got `$keepMostRecent`."
+        }
+        val newestFirst = queryBuilder()
+            .sortDescendingBy(EntityEventRecordColumn.version)
+            .sortDescendingBy(EntityEventRecordColumn.created)
+            .build()
+        val records = readAll(newestFirst)
+        val kept = mutableMapOf<Any, Int>()
+        val toDelete = mutableListOf<EntityEventRecordId>()
+        records.forEach { record ->
+            val entityId = record.entityId
+            val count = (kept[entityId] ?: 0) + 1
+            kept[entityId] = count
+            if (count > keepMostRecent && deletionAllowed(record)) {
+                toDelete.add(record.id)
+            }
+        }
+        deleteAll(toDelete)
+    }
+
+    /**
      * Reads all the journal records matching the given query.
      *
      * Overrides to expose the method as a part of the public API of this storage.
@@ -119,7 +182,7 @@ public class EntityEventStorage(
      * Deletes the journal record with the given identifier.
      *
      * The journal is append-only for the framework write path; this method exists
-     * for the maintenance operations, such as journal trimming.
+     * for the maintenance operations, such as the [truncate] trimming.
      *
      * Overrides to expose the method as a part of the public API of this storage.
      *
@@ -131,7 +194,7 @@ public class EntityEventStorage(
      * Deletes the journal records with the given identifiers.
      *
      * The journal is append-only for the framework write path; this method exists
-     * for the maintenance operations, such as journal trimming.
+     * for the maintenance operations, such as the [truncate] trimming.
      *
      * Overrides to expose the method as a part of the public API of this storage.
      */
