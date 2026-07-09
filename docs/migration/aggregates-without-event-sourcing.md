@@ -76,16 +76,22 @@ fun handle(c: AddItem): ItemAdded {
 ### Lifecycle flags move too
 
 If an applier flipped a lifecycle flag with `setArchived(true)` / `setDeleted(true)`, that
-call moves into the handler body that emits the event (D4). Both `@Assign` and `@React` may
+call moves into the command handler or reactor body (D4). Both `@Assign` and `@React` may
 set lifecycle flags directly:
 
 ```java
-@React
-AggProjectArchived on(AggProjectArchived e) {
+@Assign
+ProjectArchived handle(ArchiveProject c) {
     setArchived(true);   // was in the @Apply applier
-    return e;            // still emitted, e.g. to reach child aggregates
+    return ProjectArchived.newBuilder()
+                          .setProject(id())
+                          .build();
 }
 ```
+
+A reactor that only flips a flag emits nothing (`return noReaction()`); if it must also notify
+other aggregates, emit a *distinct* event rather than re-emitting the one it reacted to (which
+would route straight back into the same reactor).
 
 ### What the framework does for you
 
@@ -194,7 +200,7 @@ Route external facts through standard idioms instead:
 
 | Old use of import | Replacement |
 |-------------------|-------------|
-| Facts from another Bounded Context | a `@React(external = true)` reactor |
+| Facts from another Bounded Context | a `@React` reactor whose event parameter is marked `@External` |
 | Facts from a third-party / legacy system | a gateway (adapter, process manager, or command) that converts them into this context's commands or events |
 | Bulk seeding / data migration | storage-level state writes (the record is the source of truth) |
 | Test arrangement | real commands and events through `BlackBox` |
