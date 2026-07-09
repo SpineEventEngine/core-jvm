@@ -31,6 +31,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Durations;
 import io.spine.base.AggregateState;
+import io.spine.base.Identifier;
 import io.spine.base.Time;
 import io.spine.core.ActorContext;
 import io.spine.core.Event;
@@ -118,6 +119,18 @@ public abstract class AggregateStorageTest
         return EventId.newBuilder()
                       .setValue(newUuid())
                       .build();
+    }
+
+    /**
+     * Creates an event factory producing the events on behalf of the entity with
+     * the passed identifier.
+     *
+     * <p>The journal stores an event under its producer, so the tests writing events
+     * must emit them with the identifier they later read the history by.
+     */
+    private static TestEventFactory eventFactoryFor(Object producerId) {
+        return TestEventFactory.newInstance(Identifier.pack(producerId),
+                                            AggregateStorageTest.class);
     }
 
     @Override
@@ -259,7 +272,7 @@ public abstract class AggregateStorageTest
         }
 
         private <I> void writeAndReadEventTest(I id, AggregateStorage<I, ?> storage) {
-            var expectedEvent = eventFactory.createEvent(event(AggProject.getDefaultInstance()));
+            var expectedEvent = eventFactoryFor(id).createEvent(event(AggProject.getDefaultInstance()));
 
             storage.writeEvent(id, expectedEvent);
 
@@ -375,8 +388,9 @@ public abstract class AggregateStorageTest
             var maxTimestamp = add(minTimestamp, Durations.fromHours(1));
 
             // The first event is an event, which is the oldest, i.e. with the minimal version.
-            var expectedFirst = eventFactory.createEvent(event(state), minVersion, maxTimestamp);
-            var expectedSecond = eventFactory.createEvent(event(state), maxVersion, minTimestamp);
+            var factory = eventFactoryFor(id);
+            var expectedFirst = factory.createEvent(event(state), minVersion, maxTimestamp);
+            var expectedSecond = factory.createEvent(event(state), maxVersion, minTimestamp);
 
             storage.writeEvent(id, expectedSecond);
             storage.writeEvent(id, expectedFirst);
@@ -404,10 +418,11 @@ public abstract class AggregateStorageTest
             var window = 3;
             List<Event> written = new ArrayList<>(eventCount);
             var currentVersion = zero();
+            var factory = eventFactoryFor(id);
             for (var i = 0; i < eventCount; i++) {
                 currentVersion = increment(currentVersion);
                 var state = AggProject.getDefaultInstance();
-                var event = eventFactory.createEvent(event(state), currentVersion);
+                var event = factory.createEvent(event(state), currentVersion);
                 written.add(event);
                 storage.writeEvent(id, event);
             }
@@ -464,10 +479,11 @@ public abstract class AggregateStorageTest
         @CanIgnoreReturnValue
         private List<Event> writeSequentialEvents(int count, Timestamp at) {
             List<Event> events = new ArrayList<>(count);
+            var factory = eventFactoryFor(id);
             for (var i = 0; i < count; i++) {
                 currentVersion = increment(currentVersion);
                 var state = AggProject.getDefaultInstance();
-                var event = eventFactory.createEvent(event(state), currentVersion, at);
+                var event = factory.createEvent(event(state), currentVersion, at);
                 events.add(event);
                 storage.writeEvent(id, event);
             }
@@ -495,7 +511,7 @@ public abstract class AggregateStorageTest
             var enrichedContext = EventContext.newBuilder()
                     .setEnrichment(withOneAttribute())
                     .setTimestamp(Time.currentTime())
-                    .setProducerId(AnyPacker.pack(TestValues.newUuidValue()))
+                    .setProducerId(Identifier.pack(id))
                     .setPastMessage(origin)
                     .build();
             var event = Event.newBuilder()
@@ -523,7 +539,7 @@ public abstract class AggregateStorageTest
             var context = EventContext.newBuilder()
                     .setEventContext(origin)
                     .setTimestamp(Time.currentTime())
-                    .setProducerId(AnyPacker.pack(TestValues.newUuidValue()))
+                    .setProducerId(Identifier.pack(id))
                     .build();
             var event = Event.newBuilder()
                     .setId(newEventId())

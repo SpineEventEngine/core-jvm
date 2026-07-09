@@ -105,7 +105,7 @@ public class StorageRecords {
         var timestamp2 = add(start, delta);
         var timestamp3 = add(timestamp2, delta);
 
-        var factory = TestEventFactory.newInstance(Given.class);
+        var factory = TestEventFactory.newInstance(Identifier.pack(id), Given.class);
 
         var e1 = factory.createEvent(projectCreated(id, Given.projectName(id)), null, start);
         var record1 = create(id, start, e1);

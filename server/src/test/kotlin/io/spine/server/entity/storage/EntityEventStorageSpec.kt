@@ -34,8 +34,10 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import io.spine.base.Identifier
 import io.spine.base.Time.currentTime
 import io.spine.core.Event
+import io.spine.core.EventId
 import io.spine.core.Versions.increment
 import io.spine.core.Versions.zero
 import io.spine.server.ContextSpec
@@ -44,6 +46,8 @@ import io.spine.server.storage.memory.InMemoryStorageFactory
 import io.spine.test.storage.event.StgProjectCreated
 import io.spine.testdata.Sample
 import io.spine.testing.server.TestEventFactory
+import io.spine.validation.NonValidated
+import io.spine.validation.ValidationException
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -87,6 +91,71 @@ internal class EntityEventStorageSpec {
         shouldThrow<IllegalArgumentException> {
             storage.historyBackward(entityId, batchSize = -1)
         }
+    }
+
+    @Nested inner class
+    `transform a written event into the journal record` {
+
+        @Test
+        fun `carrying the event with its identifier, producer, and timestamp`() {
+            val event = newEvent()
+
+            storage.write(event)
+
+            val record = storage.historyBackward(entityId, batchSize = 1).next()
+            record.id shouldBe event.id
+            record.entityId shouldBe event.context().producerId
+            record.timestamp shouldBe event.context().timestamp
+            record.event shouldBe event
+        }
+
+        @Test
+        fun `rejecting an event without a context`() {
+            shouldThrow<ValidationException> {
+                storage.write(withoutContext())
+            }
+        }
+
+        @Test
+        fun `rejecting an event without a message`() {
+            shouldThrow<ValidationException> {
+                storage.write(withoutMessage())
+            }
+        }
+
+        @Test
+        fun `rejecting an event with a blank identifier`() {
+            shouldThrow<ValidationException> {
+                storage.write(withBlankId())
+            }
+        }
+
+        private fun withoutContext(): @NonValidated Event {
+            val valid = newEvent()
+            return Event.newBuilder()
+                .setId(valid.id)
+                .setMessage(valid.message)
+                .buildPartial()
+        }
+
+        private fun withoutMessage(): @NonValidated Event {
+            val valid = newEvent()
+            return Event.newBuilder()
+                .setId(valid.id)
+                .setContext(valid.context)
+                .buildPartial()
+        }
+
+        private fun withBlankId(): @NonValidated Event {
+            val valid = newEvent()
+            return valid.toBuilder()
+                .setId(EventId.getDefaultInstance())
+                .buildPartial()
+        }
+
+        private fun newEvent(): Event =
+            eventFactoryFor(entityId)
+                .createEvent(Sample.messageOfType(StgProjectCreated::class.java))
     }
 
     @Nested inner class
@@ -243,17 +312,18 @@ internal class EntityEventStorageSpec {
         toEntity: String = entityId,
         at: Timestamp? = null
     ): List<Event> {
+        val factory = eventFactoryFor(toEntity)
         val events = List(count) {
             version = increment(version)
             val message = Sample.messageOfType(StgProjectCreated::class.java)
             if (at != null) {
-                eventFactory.createEvent(message, version, at)
+                factory.createEvent(message, version, at)
             } else {
-                eventFactory.createEvent(message, version)
+                factory.createEvent(message, version)
             }
         }
         events.forEach {
-            storage.write(EntityEventRecords.create(toEntity, it))
+            storage.write(it)
         }
         return events
     }
@@ -264,7 +334,17 @@ internal class EntityEventStorageSpec {
 
     private companion object {
 
-        private val eventFactory =
-            TestEventFactory.newInstance(EntityEventStorageSpec::class.java)
+        /**
+         * Creates an event factory producing the events on behalf of the entity
+         * with the passed identifier.
+         *
+         * The journal stores an event under its producer, so the tests emit
+         * the events with the identifier they later read the history by.
+         */
+        private fun eventFactoryFor(entityId: String): TestEventFactory =
+            TestEventFactory.newInstance(
+                Identifier.pack(entityId),
+                EntityEventStorageSpec::class.java
+            )
     }
 }

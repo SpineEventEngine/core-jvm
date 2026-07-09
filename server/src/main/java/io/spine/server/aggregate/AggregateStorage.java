@@ -41,7 +41,6 @@ import io.spine.server.ContextSpec;
 import io.spine.server.entity.EntityEventHistory;
 import io.spine.server.entity.EntityEventRecord;
 import io.spine.server.entity.EntityRecord;
-import io.spine.server.entity.storage.EntityEventRecords;
 import io.spine.server.entity.storage.EntityEventStorage;
 import io.spine.server.entity.storage.EntityRecordStorage;
 import io.spine.server.entity.storage.ToEntityRecordQuery;
@@ -242,8 +241,12 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      * <p><b>NOTE</b>: This method does not rewrite any events, just appends them. Many events
      * can be associated with a single aggregate ID.
      *
+     * <p>Each event is journaled under its producer — the aggregate which emitted it.
+     * For the events emitted by the aggregate with the passed identifier, the producer
+     * and the identifier match.
+     *
      * @param id
-     *         the ID for the record
+     *         the ID of the aggregate which emitted the events
      * @param events
      *         non-empty piece of the event history to store
      */
@@ -255,28 +258,25 @@ public class AggregateStorage<I, S extends AggregateState<I>>
         checkArgument(!eventList.isEmpty(), "Event list must not be empty.");
 
         for (var event : eventList) {
-            var record = EntityEventRecords.create(id, event);
-            writeEventRecord(id, record);
+            eventStorage.write(event);
         }
     }
 
     /**
-     * Writes an event to the storage by an aggregate ID.
+     * Writes an event to the storage.
      *
-     * <p>Before storing, all {@linkplain io.spine.core.Event#clearEnrichments() enrichments}
-     * are removed from the passed event.
+     * <p>The journal storage {@linkplain io.spine.core.Event#clearEnrichments() removes
+     * the enrichments} before storing and journals the event under its producer —
+     * the aggregate which emitted it.
      *
      * @param id
-     *         the aggregate ID
+     *         the ID of the aggregate which emitted the event
      * @param event
      *         the event to write
      */
     void writeEvent(I id, Event event) {
         checkNotClosedAndArguments(id, event);
-
-        var eventWithoutEnrichments = event.clearEnrichments();
-        var record = EntityEventRecords.create(id, eventWithoutEnrichments);
-        writeEventRecord(id, record);
+        eventStorage.write(event);
     }
 
     /**

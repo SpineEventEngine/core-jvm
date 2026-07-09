@@ -5,7 +5,7 @@ metadata:
   type: project
 ---
 
-Hit while writing `EntityEventStorage`/`EntityEventRecords` (Phase D journal cleanup);
+Hit while writing `EntityEventStorage` (Phase D journal cleanup);
 the planned `ProcessManager` journaling PR will meet both again.
 
 1. **`RecordSpec.ExtractId` rejects Kotlin method references.**
@@ -26,5 +26,5 @@ the planned `ProcessManager` journaling PR will meet both again.
 
 **How to apply:** when subclassing `MessageStorage`/building `RecordSpec` from Kotlin,
 start from `server/src/main/kotlin/io/spine/server/entity/storage/EntityEventStorage.kt`
-and `EntityEventRecords.kt` as the reference pattern (also shows the `@JvmField`/
+as the reference pattern (also shows the `@JvmField`/
 `@JvmStatic` column-holder shape and `@JvmOverloads` for optional-parameter reads).

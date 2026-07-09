@@ -29,11 +29,13 @@ package io.spine.server.entity.storage
 import com.google.protobuf.Timestamp
 import com.google.protobuf.util.Timestamps
 import io.spine.base.Identifier
+import io.spine.core.Event
 import io.spine.core.EventId
 import io.spine.core.Version
 import io.spine.query.RecordQuery
 import io.spine.server.ContextSpec
 import io.spine.server.entity.EntityEventRecord
+import io.spine.server.entity.entityEventRecord
 import io.spine.server.storage.MessageStorage
 import io.spine.server.storage.RecordSpec
 import io.spine.server.storage.StorageFactory
@@ -101,6 +103,41 @@ public class EntityEventStorage(
             .limit(batchSize)
             .build()
         return readAll(query)
+    }
+
+    /**
+     * Journals the given event.
+     *
+     * The entity which emitted the event is determined by the producer ID of
+     * the event context; the record is stored under the identifier of the event.
+     *
+     * Before storing, all enrichments are removed from the event. Removing them
+     * rebuilds the event, which also validates it: an incomplete instance — e.g.,
+     * missing its identifier, context, message, or producer — is rejected.
+     *
+     * @param event The event to journal.
+     * @throws io.spine.validation.ValidationException If the event is incomplete.
+     * @throws IllegalArgumentException If the event timestamp is not valid.
+     */
+    public fun write(event: Event) {
+        write(toRecord(event.clearEnrichments()))
+    }
+
+    /**
+     * Transforms the given event into the journal record.
+     */
+    private fun toRecord(event: Event): EntityEventRecord {
+        val context = event.context()
+        val time = Timestamps.checkValid(context.timestamp)
+        // A local copy: inside the DSL block below, a bare `event` resolves to
+        // the builder's own property, so the RHS must not use the parameter name.
+        val emitted = event
+        return entityEventRecord {
+            id = emitted.id
+            entityId = context.producerId
+            timestamp = time
+            this.event = emitted
+        }
     }
 
     /**
