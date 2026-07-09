@@ -73,10 +73,11 @@ public class EntityEventStorage(
      * The records are sorted by the version of the stored event and then by
      * the record creation time, both in the descending order.
      *
-     * @param entityId The identifier of the entity which emitted the journaled events.
+     * @param entityId The identifier of the entity that emitted the journaled events.
      * @param batchSize The maximum number of the records to read.
      * @param startingFrom If set, only the events with versions lower than this one are read.
      * @return An iterator over the read records.
+     * @throws IllegalArgumentException If [batchSize] is not positive.
      */
     @JvmOverloads
     public fun historyBackward(
@@ -84,6 +85,9 @@ public class EntityEventStorage(
         batchSize: Int,
         startingFrom: Version? = null
     ): Iterator<EntityEventRecord> {
+        require(batchSize > 0) {
+            "The batch size must be positive, got `$batchSize`."
+        }
         val packedId = Identifier.pack(entityId)
         val builder = queryBuilder()
             .where(EntityEventRecordColumn.entityId).isEqualTo(packedId)
