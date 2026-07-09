@@ -488,7 +488,7 @@ public class AggregateTest {
 
         dispatchCommand(aggregate, command(createProject));
 
-        var record = AggregateRecords.newStateRecord(aggregate());
+        var record = aggregate().toRecord();
 
         Aggregate<?, ?, ?> anotherAggregate = newAggregate(aggregate.id());
 
@@ -508,10 +508,10 @@ public class AggregateTest {
 
         // Emulate a pre-cutover `NONE`-visibility record: only the ID, version, and lifecycle
         // flags were persisted, with the business state left in the (no longer replayed) journal.
-        var statelessRecord = AggregateRecords.newStateRecord(aggregate())
-                                              .toBuilder()
-                                              .clearState()
-                                              .build();
+        var statelessRecord = aggregate().toRecord()
+                                         .toBuilder()
+                                         .clearState()
+                                         .build();
 
         Aggregate<?, ?, ?> restored = newAggregate(aggregate.id());
         AggregateTransaction<?, ?, ?> tx = AggregateTransaction.start(restored);

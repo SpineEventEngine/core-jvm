@@ -249,3 +249,6 @@ Deliberate deltas from the sketch above, made while implementing:
   records needed synthetic string identifiers; with events-only records the
   event identity is the record identity. An emitted event has exactly one
   producer, so `EventId` is a proper primary key.
+- **`AggregateRecords` dissolved (2026-07-09, in review):** its last remaining
+  factory became the member `Aggregate.toRecord()` (package-private, beside
+  its inverse `restore(EntityRecord)`); the utility class is deleted.

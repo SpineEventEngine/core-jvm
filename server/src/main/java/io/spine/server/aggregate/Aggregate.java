@@ -31,6 +31,7 @@ import com.google.protobuf.Empty;
 import io.spine.annotation.Internal;
 import io.spine.annotation.VisibleForTesting;
 import io.spine.base.AggregateState;
+import io.spine.base.Identifier;
 import io.spine.core.Event;
 import io.spine.core.Version;
 import io.spine.server.aggregate.model.AggregateClass;
@@ -55,6 +56,7 @@ import java.util.function.Predicate;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterators.any;
 import static com.google.common.collect.Iterators.limit;
+import static io.spine.protobuf.AnyPacker.pack;
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.server.Ignored.ignored;
 import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
@@ -364,6 +366,27 @@ public abstract class Aggregate<I,
         var lifecycle = record.getLifecycleFlags();
         setArchived(lifecycle.getArchived());
         setDeleted(lifecycle.getDeleted());
+    }
+
+    /**
+     * Creates a new record storing the latest state of this aggregate along with
+     * its version and lifecycle flags.
+     *
+     * <p>Since the event-sourcing cutover, the persisted {@link EntityRecord} is the source
+     * of truth for {@linkplain #restore(EntityRecord) loading} an aggregate, so the business
+     * {@linkplain #state() state} is <em>always</em> packed into the record — unconditionally
+     * of the aggregate's visibility. Visibility gates only the read-side query exposure,
+     * not the state write.
+     *
+     * @return a new record with the data of this aggregate
+     */
+    final EntityRecord toRecord() {
+        return EntityRecord.newBuilder()
+                .setEntityId(Identifier.pack(id()))
+                .setLifecycleFlags(lifecycleFlags())
+                .setVersion(version())
+                .setState(pack(state()))
+                .build();
     }
 
     /**

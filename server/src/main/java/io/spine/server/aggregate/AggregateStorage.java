@@ -378,7 +378,7 @@ public class AggregateStorage<I, S extends AggregateState<I>>
     }
 
     protected void writeState(Aggregate<I, ?, ?> aggregate) {
-        var record = AggregateRecords.newStateRecord(aggregate);
+        var record = aggregate.toRecord();
         var result = RecordWithColumns.create(record, stateStorage.recordSpec());
         stateStorage.write(result);
     }
