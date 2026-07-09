@@ -52,6 +52,7 @@ import "spine/server/entity/entity.proto";
 // a snapshot.
 //
 message Snapshot {
+    option deprecated = true;
 
     // The state of the aggregate.
     google.protobuf.Any state = 1;
@@ -79,6 +80,7 @@ message Snapshot {
 // Superseded by `spine.server.entity.EntityEventRecordId`.
 //
 message AggregateEventRecordId {
+    option deprecated = true;
 
     string value = 1 [(required) = true];
 }
@@ -94,6 +96,7 @@ message AggregateEventRecordId {
 // pre-cutover journals can still be truncated.
 //
 message AggregateEventRecord {
+    option deprecated = true;
 
     // An identifier of the record.
     //
@@ -131,6 +134,7 @@ message AggregateEventRecord {
 // historical (pre-cutover) semantics.
 //
 message AggregateHistory {
+    option deprecated = true;
 
     // If populated, contains the last snapshot of the aggregate state.
     server.aggregate.Snapshot snapshot = 1;

@@ -359,6 +359,6 @@ The legacy records stay on disk; the current runtime reads them only for the dep
 - `AggregateStorage.truncateOlderThan(int)` / `(int, Timestamp)` — legacy journal only (§9)
 
 **Retained for wire compatibility** (do not use in new code): the `Snapshot`,
-`AggregateHistory`, `AggregateEventRecord`, and `AggregateEventRecordId` proto messages;
-the `EventImported` and `AggregateHistoryCorrupted` system events with their emitters;
-the `InboxLabel.IMPORT_EVENT` label.
+`AggregateHistory`, `AggregateEventRecord`, and `AggregateEventRecordId` proto messages
+and the `InboxLabel.IMPORT_EVENT` label — all marked `deprecated` in the proto;
+the `EventImported` and `AggregateHistoryCorrupted` system events with their emitters.
