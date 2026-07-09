@@ -112,7 +112,7 @@ message AggregateEventRecord {
 
 // The recorded history of an aggregate: the sequence of events it emitted.
 //
-// Since the de-event-sourcing cutover, aggregate state is no longer restored by
+// Since the event-sourcing cutover, aggregate state is no longer restored by
 // replaying this history. It is kept as an append-only journal for
 // traceability and recent-history lookups.
 //

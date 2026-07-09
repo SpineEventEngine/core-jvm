@@ -121,7 +121,7 @@ message RoutingFailed {
 // replaying historical events.
 //
 // Retained for wire compatibility; no longer emitted. Aggregates no longer replay events to
-// load their state — event-sourced loading was removed during the de-event-sourcing cutover —
+// load their state — event-sourced loading was removed during the event-sourcing cutover —
 // so this kind of load-time corruption can no longer occur.
 //
 message AggregateHistoryCorrupted {

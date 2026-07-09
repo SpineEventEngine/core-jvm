@@ -97,11 +97,11 @@ import static java.util.Objects.requireNonNull;
  *
  * <p>Two per-repository settings tune this behavior:
  * <ul>
- *     <li>{@linkplain #historyDepth() historyDepth} — the number of most recent journal events
- *         exposed as an aggregate's recent history (default {@value #DEFAULT_HISTORY_DEPTH}).
- *     <li>{@link #useIdempotencyGuard()} — enables the journal-backed {@link IdempotencyGuard}.
- *         The guard is <b>off by default</b>: deduplication is primarily the responsibility of
- *         the delivery layer.
+ *     <li>{@link #useIdempotencyGuard()} — enables the journal-backed {@link IdempotencyGuard}, a
+ *         backstop against duplicate dispatches. It is <b>off by default</b>: deduplication is
+ *         primarily the responsibility of the delivery layer.
+ *     <li>{@linkplain #historyDepth() historyDepth} — how many recent journal events the guard
+ *         scans on each dispatch when enabled (default {@value #DEFAULT_HISTORY_DEPTH}).
  * </ul>
  *
  * @param <I>
@@ -137,7 +137,7 @@ public abstract class AggregateRepository<I,
 
     private @MonotonicNonNull RepositoryCache<I, A> cache;
 
-    /** The recent-history window. */
+    /** The window (in journal events) the opt-in {@link IdempotencyGuard} scans. */
     private int historyDepth = DEFAULT_HISTORY_DEPTH;
 
     /** Whether the opt-in {@link IdempotencyGuard} is enabled for this repository. */
@@ -457,10 +457,10 @@ public abstract class AggregateRepository<I,
     }
 
     /**
-     * Sets the {@linkplain #historyDepth() recent-history window} to the passed value.
+     * Sets the {@linkplain #historyDepth() history depth} to the passed value.
      *
      * @param depth
-     *         a positive number of the most recent events to keep available
+     *         a positive number of recent journal events the idempotency guard scans
      */
     protected void setHistoryDepth(int depth) {
         checkArgument(depth > 0);

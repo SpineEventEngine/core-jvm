@@ -131,7 +131,7 @@ message CommandDispatchedToHandler {
 // An event was imported into an aggregate.
 //
 // Retained for wire compatibility; no longer emitted. Event import was removed
-// during the de-event-sourcing cutover.
+// during the event-sourcing cutover.
 //
 message EventImported {
     option (is).java_type = "EventDispatchedMixin";

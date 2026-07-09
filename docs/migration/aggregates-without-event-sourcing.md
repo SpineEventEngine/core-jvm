@@ -195,7 +195,7 @@ Route external facts through standard idioms instead:
 | Old use of import | Replacement |
 |-------------------|-------------|
 | Facts from another Bounded Context | a `@React(external = true)` reactor |
-| Facts from a third-party / legacy system | a gateway (adapter, process manager, or plain command) that converts them into this context's commands or events |
+| Facts from a third-party / legacy system | a gateway (adapter, process manager, or command) that converts them into this context's commands or events |
 | Bulk seeding / data migration | storage-level state writes (the record is the source of truth) |
 | Test arrangement | real commands and events through `BlackBox` |
 
