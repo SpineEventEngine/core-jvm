@@ -32,7 +32,6 @@ import io.spine.base.EntityState;
 import io.spine.server.Closeable;
 import io.spine.server.ContextSpec;
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.AggregateEventStorage;
 import io.spine.server.aggregate.AggregateStorage;
 import io.spine.server.delivery.CatchUpStorage;
 import io.spine.server.delivery.InboxStorage;
@@ -117,21 +116,6 @@ public interface StorageFactory extends Closeable {
     default <I, S extends AggregateState<I>> AggregateStorage<I, S>
     createAggregateStorage(ContextSpec context, Class<? extends Aggregate<I, S, ?>> aggregateCls) {
         return new AggregateStorage<>(context, aggregateCls, this);
-    }
-
-    /**
-     * Creates a new {@link AggregateEventStorage}.
-     *
-     * @param context
-     *         specification of the Bounded Context in scope of which the storage will be used
-     * @deprecated The journal of events moved to the entity level. Please use
-     *         {@link #createEntityEventStorage(ContextSpec)} instead. The storage created by
-     *         this method now serves only the legacy, pre-cutover journal records.
-     */
-    @Deprecated
-    default AggregateEventStorage
-    createAggregateEventStorage(ContextSpec context) {
-        return new AggregateEventStorage(context, this);
     }
 
     /**

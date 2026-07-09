@@ -28,11 +28,7 @@ package io.spine.server.aggregate;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.protobuf.Timestamp;
-import com.google.protobuf.util.Timestamps;
-import io.spine.annotation.Internal;
 import io.spine.annotation.SPI;
-import io.spine.annotation.VisibleForTesting;
 import io.spine.base.AggregateState;
 import io.spine.base.EntityState;
 import io.spine.client.ResponseFormat;
@@ -114,9 +110,9 @@ import static io.spine.util.Preconditions2.checkPositive;
  *
  * <p>Before the event-sourcing cutover, the journal was persisted as
  * {@link AggregateEventRecord}s — a record kind that could also hold {@link Snapshot}s.
- * Such records are not visible to the reads performed by this storage. The deprecated
- * {@linkplain #truncateOlderThan(int) snapshot-index truncation} keeps operating on them,
- * so the leftover data can still be trimmed.
+ * The current runtime neither writes nor reads records of that kind. They remain in the
+ * underlying storage as inert data, and their proto definitions are retained so that
+ * the persisted records stay parseable.
  *
  * @param <I>
  *         the type of IDs of aggregates served by this storage
@@ -127,23 +123,10 @@ import static io.spine.util.Preconditions2.checkPositive;
 public class AggregateStorage<I, S extends AggregateState<I>>
         extends AbstractStorage<I, EntityEventHistory> {
 
-    private static final String TRUNCATE_ON_WRONG_SNAPSHOT_MESSAGE =
-            "The specified snapshot index `%d` must be non-negative.";
-
     /**
      * Stores the events emitted by the served Aggregates.
      */
     private final EntityEventStorage eventStorage;
-
-    /**
-     * Stores the legacy journal records written before the event-sourcing cutover.
-     *
-     * <p>Serves only the deprecated {@linkplain #truncateOlderThan(int) snapshot-index
-     * truncation}; the current runtime neither writes to this storage nor otherwise
-     * reads from it.
-     */
-    @SuppressWarnings("deprecation") // Kept on purpose to serve the legacy journal.
-    private final AggregateEventStorage legacyEventStorage;
 
     /**
      * If enabled, stores the latest states of Aggregates.
@@ -154,11 +137,6 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      * Tells whether the latest aggregate states should be stored and exposed for querying.
      */
     private boolean queryingEnabled = false;
-
-    /**
-     * A method object performing the truncation of the legacy journal.
-     */
-    private final TruncateOperation truncation;
 
     /**
      * Creates an instance of the storage for a certain aggregate class registered
@@ -172,25 +150,19 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      *         a storage factory to create the underlying storages for the event journal
      *         and aggregate states
      */
-    @SuppressWarnings("deprecation") /* Creates the legacy journal storage on purpose,
-        to serve the deprecated truncation. */
     public AggregateStorage(ContextSpec context,
                             Class<? extends Aggregate<I, S, ?>> aggregateClass,
                             StorageFactory factory) {
         super(context.isMultitenant());
         eventStorage = factory.createEntityEventStorage(context);
-        legacyEventStorage = factory.createAggregateEventStorage(context);
         stateStorage = factory.createEntityRecordStorage(context, aggregateClass);
-        truncation = new TruncateOperation(legacyEventStorage);
     }
 
     protected AggregateStorage(AggregateStorage<I, S> delegate) {
         super(delegate.isMultitenant());
         this.eventStorage = delegate.eventStorage;
-        this.legacyEventStorage = delegate.legacyEventStorage;
         this.stateStorage = delegate.stateStorage;
         this.queryingEnabled = delegate.queryingEnabled;
-        this.truncation = delegate.truncation;
     }
 
     /**
@@ -482,87 +454,6 @@ public class AggregateStorage<I, S extends AggregateState<I>>
         var original = eventStorage.historyBackward(id, batchSize, startingFrom);
         var copied = ImmutableList.copyOf(original);
         return copied.iterator();
-    }
-
-    /**
-     * Truncates the legacy journal, dropping all records which occur before the N-th snapshot
-     * for each entity.
-     *
-     * <p>The snapshot index is counted from the latest to earliest, with {@code 0} representing
-     * the latest snapshot.
-     *
-     * <p>If the passed value of snapshot index is higher than the overall snapshot count of
-     * the Aggregate, this method does nothing.
-     *
-     * @throws IllegalArgumentException
-     *         if the {@code snapshotIndex} is negative
-     * @deprecated This method operates only on the journal records left by the earlier,
-     *         event-sourced versions of the framework. The current journal contains no
-     *         snapshots, so there is nothing for this method to truncate in it.
-     */
-    @Internal
-    @Deprecated
-    public void truncateOlderThan(int snapshotIndex) {
-        checkArgument(snapshotIndex >= 0, TRUNCATE_ON_WRONG_SNAPSHOT_MESSAGE);
-        doTruncate(snapshotIndex);
-    }
-
-    /**
-     * Truncates the legacy journal, dropping all records which are older than both the passed
-     * {@code date} and N-th snapshot.
-     *
-     * <p>The snapshot index is counted from the latest to earliest, with {@code 0} representing
-     * the latest snapshot for each entity.
-     *
-     * <p>If the passed value of snapshot index is higher than the overall snapshot count of
-     * the Aggregate, this method does nothing.
-     *
-     * @throws IllegalArgumentException
-     *         if the {@code snapshotIndex} is negative
-     * @deprecated This method operates only on the journal records left by the earlier,
-     *         event-sourced versions of the framework. The current journal contains no
-     *         snapshots, so there is nothing for this method to truncate in it.
-     */
-    @Internal
-    @Deprecated
-    @SuppressWarnings("LenientFormatStringValidation")
-    public void truncateOlderThan(int snapshotIndex, Timestamp date) {
-        checkNotNull(date);
-        checkArgument(snapshotIndex >= 0, TRUNCATE_ON_WRONG_SNAPSHOT_MESSAGE, snapshotIndex);
-        doTruncate(snapshotIndex, date);
-    }
-
-    /**
-     * Drops all legacy journal records which occur before the N-th snapshot for each entity.
-     *
-     * @deprecated See {@link #truncateOlderThan(int)}.
-     */
-    @Deprecated
-    protected void doTruncate(int snapshotIndex) {
-        truncation.performWith(snapshotIndex, (r) -> true);
-    }
-
-    /**
-     * Drops all legacy journal records older than {@code date} but not newer than the N-th
-     * snapshot for each entity.
-     *
-     * @deprecated See {@link #truncateOlderThan(int, Timestamp)}.
-     */
-    @Deprecated
-    protected void doTruncate(int snapshotIndex, Timestamp date) {
-        truncation.performWith(snapshotIndex,
-                               (r) -> Timestamps.compare(r.getTimestamp(), date) < 0);
-    }
-
-    /**
-     * Obtains the storage of the legacy journal records for the tests of their truncation.
-     *
-     * @deprecated Exists only until the legacy truncation is removed.
-     */
-    @Deprecated
-    @VisibleForTesting
-    AggregateEventStorage legacyJournal() {
-        return legacyEventStorage;
     }
 
     private void checkNotClosedAndArguments(I id, Object argument) {

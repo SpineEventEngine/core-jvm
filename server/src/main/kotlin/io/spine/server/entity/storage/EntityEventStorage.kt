@@ -47,11 +47,11 @@ import io.spine.server.storage.StorageFactory
  * [Aggregate][io.spine.server.aggregate.Aggregate]s; see
  * [AggregateStorage][io.spine.server.aggregate.AggregateStorage].
  *
- * This storage supersedes the deprecated
- * [AggregateEventStorage][io.spine.server.aggregate.AggregateEventStorage].
- * The records of the two storages are distinct kinds: journal entries written
- * by pre-cutover versions of the framework are not visible to the reads
- * performed by this storage.
+ * This storage supersedes the `AggregateEventStorage`, removed along with the other
+ * event-sourcing machinery. The records of the two storages are distinct kinds:
+ * journal entries written by pre-cutover versions of the framework — the retained
+ * [AggregateEventRecord][io.spine.server.aggregate.AggregateEventRecord]s — are not
+ * visible to the reads performed by this storage.
  *
  * @param context Specification of the Bounded Context in scope of which the storage is used.
  * @param factory The storage factory to use when creating a record storage delegate.
@@ -84,7 +84,7 @@ public class EntityEventStorage(
     ): Iterator<EntityEventRecord> {
         val packedId = Identifier.pack(entityId)
         val builder = queryBuilder()
-            .where(EntityEventRecordColumn.entityId).`is`(packedId)
+            .where(EntityEventRecordColumn.entityId).isEqualTo(packedId)
         if (startingFrom != null) {
             builder.where(EntityEventRecordColumn.version)
                 .isLessThan(startingFrom.number)

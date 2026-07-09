@@ -89,11 +89,11 @@ message AggregateEventRecordId {
 //
 // This message is used by storage implementations.
 //
-// Retained for wire compatibility; no longer produced by the runtime. The journal
-// records written since the event-sourcing cutover are
+// Retained for wire compatibility; no longer produced or read by the runtime.
+// The journal records written since the event-sourcing cutover are
 // `spine.server.entity.EntityEventRecord`s — a separate record kind, which never
-// carries a snapshot. Records of this legacy kind remain readable so that the
-// pre-cutover journals can still be truncated.
+// carries a snapshot. This message is retained so that the records persisted by
+// the earlier versions of the framework stay parseable.
 //
 message AggregateEventRecord {
     option deprecated = true;

@@ -283,11 +283,11 @@ Snapshots no longer exist, so their configuration is gone (not merely deprecated
 
 The `Snapshot` and `AggregateHistory` proto messages are **retained** for journal wire
 compatibility (`AggregateHistory` is superseded by `EntityEventHistory` — §9).
-Snapshot-index journal trimming (`AggregateStorage.truncateOlderThan`) is **deprecated**
-and operates only on the legacy, pre-cutover journal records; until count/date-based
-trimming ships (a later, decoupled phase), **the event journal is append-only and grows
-unbounded**. This is acceptable for the pre-GA window; plan storage accordingly for
-high-volume aggregates.
+Snapshot-index journal trimming (`AggregateStorage.truncateOlderThan`) is **removed**:
+it could only ever trim by snapshot positions, and the current journal contains no
+snapshots. Until count/date-based trimming ships (a later, decoupled phase), **the event
+journal is append-only and grows unbounded**. This is acceptable for the pre-GA window;
+plan storage accordingly for high-volume aggregates.
 
 ## 8. Data caveat — `NONE`-visibility aggregates are a hard break
 
@@ -326,6 +326,13 @@ as a follow-up.
 the same `RecordStorage`-level SPI as before — this is a recompile against the new types,
 not a rewrite.
 
+Of the superseded pair, only the **proto messages remain** (marked `deprecated`, for wire
+compatibility). The storage-level classes — `AggregateEventStorage`,
+`AggregateEventRecordColumn`, `StorageFactory.createAggregateEventStorage` — and the
+snapshot-index `AggregateStorage.truncateOlderThan` trimming are **removed**: org-wide
+usage research found no production callers, and the trimming could only operate on
+pre-cutover journals.
+
 **Data caveat — pre-upgrade journals become invisible to reads.** Read this before
 upgrading a running system. `EntityEventRecord` is a **new record kind**: storage backends
 persist it separately from the legacy `AggregateEventRecord`s, so journal entries written
@@ -334,8 +341,7 @@ window and `historyBackward(depth)` **start empty right after the upgrade** and 
 new events are emitted. If the guard is your only deduplication safeguard, configure a
 delivery `deduplicationWindow` to cover the upgrade window (§5). As with the
 `NONE`-visibility break (§8), **no migration tooling is shipped** (Spine 2.x is pre-GA).
-The legacy records stay on disk; the current runtime reads them only for the deprecated
-`truncateOlderThan` cleanup.
+The legacy records stay on disk as inert data; the current runtime does not read them.
 
 ## Removed and deprecated API — quick reference
 
@@ -349,14 +355,15 @@ The legacy records stay on disk; the current runtime reads them only for the dep
   `UnsupportedImportEventException`,
   `AggregateRepository.setupImportRouting` / `eventImportRouting`,
   `AggregateClass.importableEvents()` / `importsEvents()`, `BlackBox.importsEvent` (§3)
+- `AggregateEventStorage`, `AggregateEventRecordColumn`,
+  `StorageFactory.createAggregateEventStorage` → the entity-level journal types (§9)
+- `AggregateStorage.truncateOlderThan(int)` / `(int, Timestamp)` — snapshot-index
+  trimming of legacy journals (§9)
 
 **Deprecated** (still compile; removed in v2.0.0):
 
 - `@Apply` and `@Apply#allowImport` — detection-only; a declared applier is a `ModelError`
 - `Aggregate.historyBackward()` / `historyContains(Predicate)` → the `depth` forms (§6)
-- `AggregateEventStorage`, `AggregateEventRecordColumn`,
-  `StorageFactory.createAggregateEventStorage` → the entity-level journal types (§9)
-- `AggregateStorage.truncateOlderThan(int)` / `(int, Timestamp)` — legacy journal only (§9)
 
 **Retained for wire compatibility** (do not use in new code): the `Snapshot`,
 `AggregateHistory`, `AggregateEventRecord`, and `AggregateEventRecordId` proto messages

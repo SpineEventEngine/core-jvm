@@ -219,3 +219,18 @@ Deliberate deltas from the sketch above, made while implementing:
   `TruncateOperation.newestFirst` (the old "chronological" name misstated the
   order); `EntityEventStorage.historyBackward` is `@JvmOverloads`;
   `delete`/`deleteAll` are covered by the new spec.
+- **Reversal (product owner, 2026-07-09, during the PR #1649 review): the
+  legacy storage machinery is removed, not deprecated.** The original
+  "retaining … the storage class for wire/SPI compatibility" decision is
+  overturned: `AggregateEventStorage`, `AggregateEventRecordColumn`,
+  `TruncateOperation`, `StorageFactory.createAggregateEventStorage`, and the
+  snapshot-index `AggregateStorage.truncateOlderThan`/`doTruncate` overloads
+  are deleted, along with the truncation test fixtures (incl. the fibonacci
+  aggregate, which existed only for them). Grounds: org-wide usage research
+  found zero production references (only the jdbc/gcloud truncation tests,
+  which subclass the deleted fixture and die on their scheduled core bump);
+  the tool was partial by design (never trims past the newest snapshot); and
+  keeping it made every `AggregateStorage` eagerly materialize an empty
+  legacy journal store per aggregate type. Only the proto messages remain —
+  marked `option deprecated = true` — so persisted legacy records stay
+  parseable.

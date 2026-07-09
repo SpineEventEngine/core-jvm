@@ -132,8 +132,10 @@ These are the sharp edges; both are behavioral changes, not refactors.
 - `StorageFactory` SPI shape: `createAggregateStorage`,
   `createAggregateEventStorage`, `createEntityRecordStorage` all remain
   (the journal is still written). Storage vendors recompile, not rewrite.
-  *(Phase D's journal cleanup — the opener of that phase — deprecates
-  `createAggregateEventStorage` in favor of `createEntityEventStorage`.)*
+  *(Phase D's journal cleanup — the opener of that phase — replaces
+  `createAggregateEventStorage` with `createEntityEventStorage`; the legacy
+  method and storage class are removed, not deprecated — reversal decided
+  2026-07-09 in the PR #1649 review.)*
 - Client query path (`QueryService` → `Stand` → `EntityQueryProcessor` →
   `AggregateRepository.findRecords` → `AggregateStorage.readStates`).
 - `BlackBox` / `EventSubject` / `CommandSubject` public testing APIs.
@@ -420,11 +422,16 @@ independent and may land in parallel or after.
 
 ### Phase opener: journal cleanup (`EntityEventHistory` / `EntityEventStorage`)
 
-> **Implemented on `de-event-sourcing-phase-D` (2026-07-09)** — see the
-> "Implementation notes" in the detailed task file for the deliberate deltas
-> (`ReadOperation`/`HistoryBackwardOperation` deleted in favor of journal-tail
-> reads; `writeSnapshot` removed; `UncommittedHistory.get()` returns a single
-> `EntityEventHistory`). Pending review and merge.
+> **Implemented on `de-event-sourcing-phase-D` (2026-07-09), PR #1649** — see
+> the "Implementation notes" in the detailed task file for the deliberate
+> deltas (`ReadOperation`/`HistoryBackwardOperation` deleted in favor of
+> journal-tail reads; `writeSnapshot` removed; `UncommittedHistory.get()`
+> returns a single `EntityEventHistory`). **Reversal (product owner,
+> 2026-07-09, in review):** the legacy storage machinery is REMOVED, not
+> deprecated — `AggregateEventStorage`, `AggregateEventRecordColumn`,
+> `createAggregateEventStorage`, `TruncateOperation`, and the snapshot-index
+> `truncateOlderThan` are gone; only the proto messages remain (marked
+> `deprecated`) for wire parseability. Pending review and merge.
 
 Naming locked 2026-07-08 (product owner): the journal types move to the
 **entity** level — events are emitted by entities, not by aggregates alone.
