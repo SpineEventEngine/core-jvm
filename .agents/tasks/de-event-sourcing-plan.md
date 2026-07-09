@@ -402,8 +402,9 @@ green-per-commit sequence.
 
 Decoupled; starts after Phase B is merged and stable. Delivery order within
 the phase (decided 2026-07-08): the journal cleanup (see the phase opener
-below) lands first as its own PR, so that D3 trimming is built against
-`EntityEventStorage` from the start; the state-history items (D1/D2) are
+below) lands first as its own PR, so that the journal trimming (item 3) is
+built against `EntityEventStorage` from the start; the state-history items
+(items 1 and 2) are
 independent and may land in parallel or after.
 
 1. New Kotlin storage contract `EntityStateHistoryStorage` (renamed from the
@@ -449,7 +450,8 @@ Naming locked 2026-07-08 (product owner): the journal types move to the
   `StorageFactory.createAggregateEventStorage` superseded by a new
   `createEntityEventStorage`. Initial rollout covers aggregates;
   `ProcessManager` journaling is planned for a near-future PR, so nothing in
-  the new types may be aggregate-specific (the same constraint as D4).
+  the new types may be aggregate-specific (the same constraint as item 4
+  above).
   Record level settled 2026-07-08: **clean replacement** — a new
   `EntityEventRecord` supersedes the deprecated `AggregateEventRecord`;
   pre-upgrade journal rows stay in the legacy record kind, invisible to the
@@ -457,10 +459,10 @@ Naming locked 2026-07-08 (product owner): the journal types move to the
 
 Detailed task:
 [`introduce-event-history-type.md`](introduce-event-history-type.md).
-Coordinate with the count/date journal trimming in D3 above: D3 is built
-against `EntityEventStorage`, while the deprecated snapshot-index truncation
-stays wired to the deprecated `AggregateEventStorage` (already inert on
-post-cutover journals, which contain no snapshot records).
+The count/date journal trimming (item 3 above) shipped together with this
+opener in PR #1649, built against `EntityEventStorage`; the snapshot-index
+truncation and the legacy `AggregateEventStorage` were removed outright
+(see the reversal note above).
 
 ## Phase E — Downstream rollout (dependency order)
 

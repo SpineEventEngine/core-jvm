@@ -121,7 +121,7 @@ history type. No change there.)*
    deprecated `truncateOlderThan` overloads) stays wired to the deprecated
    `AggregateEventStorage`: it is already inert on post-cutover journals — a
    journal without snapshot records never satisfies the snapshot-index
-   condition — while the D3 count/date trimming is designed against
+   condition — while the count/date trimming (Phase D, item 3) is designed against
    `EntityEventStorage`.
 6. **Migrate tests/fixtures** that reference the old types
    (`AggregateStorageTest`, `AggregateHistoryTruncationTest`,
@@ -158,11 +158,11 @@ in the migration notes the way the `NONE`-visibility caveat is stated.
 - ~~Naming of the Phase D state-history contract next to
   `EntityEventStorage`~~ **Settled 2026-07-08:** renamed to
   `EntityStateHistoryStorage` — "state history" vs. the event journal.
-- ~~Whether this rides with, or precedes, Phase D items D1–D3~~ **Settled
-  2026-07-08 (product owner): this task opens Phase D as its own PR.** D3
-  trimming is then built directly against `EntityEventStorage`; the
-  state-history items (D1/D2) are independent and may land in parallel or
-  after.
+- ~~Whether this rides with, or precedes, Phase D items 1–3~~ **Settled
+  2026-07-08 (product owner): this task opens Phase D as its own PR.** The
+  journal trimming (Phase D, item 3) is then built directly against
+  `EntityEventStorage`; the state-history items (Phase D, items 1 and 2) are
+  independent and may land in parallel or after.
 
 ## Verification
 
@@ -234,7 +234,8 @@ Deliberate deltas from the sketch above, made while implementing:
   legacy journal store per aggregate type. Only the proto messages remain —
   marked `option deprecated = true` — so persisted legacy records stay
   parseable.
-- **D3 pulled into this PR (product owner, 2026-07-09):** with the
+- **Journal trimming (Phase D, item 3) pulled into this PR (product owner,
+  2026-07-09):** with the
   snapshot-index truncation removed, the replacement count/date trimming
   ships immediately — `EntityEventStorage.truncate(keepMostRecent)` and
   `truncate(keepMostRecent, olderThan)` (delete only records older than the
