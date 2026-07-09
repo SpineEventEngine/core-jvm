@@ -29,11 +29,11 @@ package io.spine.server.entity.storage
 import com.google.protobuf.Timestamp
 import com.google.protobuf.util.Timestamps
 import io.spine.base.Identifier
+import io.spine.core.EventId
 import io.spine.core.Version
 import io.spine.query.RecordQuery
 import io.spine.server.ContextSpec
 import io.spine.server.entity.EntityEventRecord
-import io.spine.server.entity.EntityEventRecordId
 import io.spine.server.storage.MessageStorage
 import io.spine.server.storage.RecordSpec
 import io.spine.server.storage.StorageFactory
@@ -61,7 +61,7 @@ import io.spine.server.storage.StorageFactory
 public class EntityEventStorage(
     context: ContextSpec,
     factory: StorageFactory
-) : MessageStorage<EntityEventRecordId, EntityEventRecord>(
+) : MessageStorage<EventId, EntityEventRecord>(
     context,
     factory.createRecordStorage(context, spec)
 ) {
@@ -152,7 +152,7 @@ public class EntityEventStorage(
             .build()
         val records = readAll(newestFirst)
         val kept = mutableMapOf<Any, Int>()
-        val toDelete = mutableListOf<EntityEventRecordId>()
+        val toDelete = mutableListOf<EventId>()
         records.forEach { record ->
             val entityId = record.entityId
             val count = (kept[entityId] ?: 0) + 1
@@ -170,7 +170,7 @@ public class EntityEventStorage(
      * Overrides to expose the method as a part of the public API of this storage.
      */
     public override fun readAll(
-        query: RecordQuery<EntityEventRecordId, EntityEventRecord>
+        query: RecordQuery<EventId, EntityEventRecord>
     ): Iterator<EntityEventRecord> = super.readAll(query)
 
     /**
@@ -192,7 +192,7 @@ public class EntityEventStorage(
      *
      * @return `true` if the record was deleted, `false` if it was not found.
      */
-    public override fun delete(id: EntityEventRecordId): Boolean = super.delete(id)
+    public override fun delete(id: EventId): Boolean = super.delete(id)
 
     /**
      * Deletes the journal records with the given identifiers.
@@ -202,7 +202,7 @@ public class EntityEventStorage(
      *
      * Overrides to expose the method as a part of the public API of this storage.
      */
-    public override fun deleteAll(ids: Iterable<EntityEventRecordId>) {
+    public override fun deleteAll(ids: Iterable<EventId>) {
         super.deleteAll(ids)
     }
 }
@@ -210,8 +210,8 @@ public class EntityEventStorage(
 /**
  * A specification on how to store the event records of an entity.
  */
-private val spec: RecordSpec<EntityEventRecordId, EntityEventRecord> = RecordSpec(
-    EntityEventRecordId::class.java,
+private val spec: RecordSpec<EventId, EntityEventRecord> = RecordSpec(
+    EventId::class.java,
     EntityEventRecord::class.java,
     // The parameter is nullable only because the SAM inherits Guava's `Function`;
     // the framework never passes `null` records.

@@ -324,7 +324,7 @@ as a follow-up.
 |------------|-------------|
 | `AggregateHistory` | `spine.server.entity.EntityEventHistory` — events only, no snapshot |
 | `AggregateEventRecord` | `spine.server.entity.EntityEventRecord` |
-| `AggregateEventRecordId` | `spine.server.entity.EntityEventRecordId` |
+| `AggregateEventRecordId` | the `core.EventId` of the stored event — no dedicated id type |
 | `AggregateEventStorage` | `io.spine.server.entity.storage.EntityEventStorage` |
 | `AggregateEventRecordColumn` | `io.spine.server.entity.storage.EntityEventRecordColumn` |
 | `StorageFactory.createAggregateEventStorage(...)` | `StorageFactory.createEntityEventStorage(...)` |

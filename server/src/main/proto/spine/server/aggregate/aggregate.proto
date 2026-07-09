@@ -77,7 +77,9 @@ message Snapshot {
 // An identifier of an `AggregateEventRecord`.
 //
 // Retained for wire compatibility; no longer produced by the runtime.
-// Superseded by `spine.server.entity.EntityEventRecordId`.
+// The current journal records (`spine.server.entity.EntityEventRecord`) need
+// no dedicated identifier type: they are identified by the `spine.core.EventId`
+// of the stored event.
 //
 message AggregateEventRecordId {
     option deprecated = true;

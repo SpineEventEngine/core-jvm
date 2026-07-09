@@ -31,7 +31,6 @@ import io.spine.base.Identifier
 import io.spine.core.Event
 import io.spine.server.entity.EntityEventRecord
 import io.spine.server.entity.entityEventRecord
-import io.spine.server.entity.entityEventRecordId
 
 /**
  * A factory of [EntityEventRecord]s.
@@ -51,16 +50,14 @@ public object EntityEventRecords {
     public fun create(entityId: Any, event: Event): EntityEventRecord {
         require(event.hasContext()) { "Event context must be set." }
         require(event.hasMessage()) { "Event message must be set." }
-        val idValue = Identifier.toString(event.id)
-        require(idValue.isNotBlank()) { "Event ID must not be empty or blank." }
+        require(event.id.value.isNotBlank()) { "Event ID must not be empty or blank." }
         val time = checkValid(event.context().timestamp)
         val packedId = Identifier.pack(entityId)
-        val recordId = entityEventRecordId { value = idValue }
         // A local copy: inside the DSL block below, a bare `event` resolves to
         // the builder's own property, so the RHS must not use the parameter name.
         val emitted = event
         return entityEventRecord {
-            id = recordId
+            id = emitted.id
             this.entityId = packedId
             timestamp = time
             this.event = emitted

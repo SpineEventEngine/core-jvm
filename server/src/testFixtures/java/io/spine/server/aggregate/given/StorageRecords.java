@@ -32,7 +32,6 @@ import io.spine.base.Identifier;
 import io.spine.core.Event;
 import io.spine.core.EventId;
 import io.spine.server.entity.EntityEventRecord;
-import io.spine.server.entity.EntityEventRecordId;
 import io.spine.test.aggregate.ProjectId;
 import io.spine.test.aggregate.event.AggProjectCreated;
 import io.spine.testdata.Sample;
@@ -61,11 +60,8 @@ public class StorageRecords {
     /** Creates new builder for an entity event record and sets the passed timestamp. */
     private static <I> EntityEventRecord.Builder
     newRecordWith(EventId eventId, I entityId, Timestamp timestamp) {
-        var recordId = EntityEventRecordId.newBuilder()
-                .setValue(eventId.getValue())
-                .build();
         return EntityEventRecord.newBuilder()
-                .setId(recordId)
+                .setId(eventId)
                 .setEntityId(Identifier.pack(entityId))
                 .setTimestamp(timestamp);
     }
