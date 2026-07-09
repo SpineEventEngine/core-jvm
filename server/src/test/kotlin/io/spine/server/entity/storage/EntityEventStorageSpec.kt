@@ -186,7 +186,7 @@ internal class EntityEventStorageSpec {
         @Test
         fun `purging all the records older than the given time`() {
             val longAgo = subtract(currentTime(), Durations.fromDays(365))
-            val old = appendEvents(count = 2, at = longAgo)
+            appendEvents(count = 2, at = longAgo)
             val recent = appendEvents(count = 2)
             val cutoff = subtract(currentTime(), Durations.fromDays(30))
 
