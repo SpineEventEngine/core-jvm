@@ -30,6 +30,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.spine.base.Identifier
 import io.spine.core.Event
+import io.spine.core.EventId
 import io.spine.test.storage.event.StgProjectCreated
 import io.spine.testdata.Sample
 import io.spine.testing.server.TestEventFactory
@@ -48,7 +49,7 @@ internal class EntityEventRecordsSpec {
 
         val record = EntityEventRecords.create(entityId, event)
 
-        record.id.value shouldBe event.id.value
+        record.id shouldBe event.id
         record.entityId shouldBe Identifier.pack(entityId)
         record.timestamp shouldBe event.context().timestamp
         record.event shouldBe event
@@ -72,6 +73,15 @@ internal class EntityEventRecordsSpec {
         }
     }
 
+    @Test
+    fun `reject an event with a blank identifier`() {
+        val invalid = withBlankId()
+
+        shouldThrow<IllegalArgumentException> {
+            EntityEventRecords.create(entityId, invalid)
+        }
+    }
+
     private fun newEvent(): Event =
         eventFactory.createEvent(Sample.messageOfType(StgProjectCreated::class.java))
 
@@ -88,6 +98,13 @@ internal class EntityEventRecordsSpec {
         return Event.newBuilder()
             .setId(valid.id)
             .setContext(valid.context)
+            .buildPartial()
+    }
+
+    private fun withBlankId(): @NonValidated Event {
+        val valid = newEvent()
+        return valid.toBuilder()
+            .setId(EventId.getDefaultInstance())
             .buildPartial()
     }
 

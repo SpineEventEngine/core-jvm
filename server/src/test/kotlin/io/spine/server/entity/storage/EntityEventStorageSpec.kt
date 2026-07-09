@@ -79,6 +79,16 @@ internal class EntityEventStorageSpec {
         records.asSequence().toList().shouldBeEmpty()
     }
 
+    @Test
+    fun `reject a non-positive batch size`() {
+        shouldThrow<IllegalArgumentException> {
+            storage.historyBackward(entityId, batchSize = 0)
+        }
+        shouldThrow<IllegalArgumentException> {
+            storage.historyBackward(entityId, batchSize = -1)
+        }
+    }
+
     @Nested inner class
     `read the journaled events` {
 

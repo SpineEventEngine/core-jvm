@@ -242,3 +242,10 @@ Deliberate deltas from the sketch above, made while implementing:
   `AggregateStorage.truncate(...)` methods where the old truncation lived.
   Covered by the `EntityEventStorageSpec` truncation cases and a
   vendor-facing `TruncateJournal` group in `AggregateStorageTest`.
+- **`EntityEventRecordId` dropped (product owner, 2026-07-09, in review):**
+  the journal records are keyed by the `core.EventId` of the stored event —
+  matching `DefaultEventStore` (`MessageStorage<EventId, Event>`). The
+  dedicated id type was a leftover of the legacy design, where snapshot
+  records needed synthetic string identifiers; with events-only records the
+  event identity is the record identity. An emitted event has exactly one
+  producer, so `EventId` is a proper primary key.
