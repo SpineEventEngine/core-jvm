@@ -92,7 +92,5 @@ private val spec: HistorySpec<EventId, Event> = HistorySpec(
     EventId::class.java,
     Event::class.java,
     { event -> event.id },
-    EntityEventColumn.entityId,
-    EntityEventColumn.created,
-    EntityEventColumn.version
+    EntityEventColumn
 )

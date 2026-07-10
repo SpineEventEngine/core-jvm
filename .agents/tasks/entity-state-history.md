@@ -34,9 +34,11 @@ same storage to `ProcessManager`s without touching it.
   window reads, the per-entity `trim`, and the count/date `truncate`.
   The subclasses keep only their write validation and type-specific reads
   (`stateAt`). Constructed from a single **`HistorySpec`** (2026-07-11) —
-  the types, the id extraction, and the three history columns in one
+  the types, the id extraction, and the **`HistoryColumns`** trio in one
   object; the `RecordSpec` is derived inside it, so the column set can
-  never drift from the trio.
+  never drift from the trio. The column holders implement `HistoryColumns`
+  and are passed as the objects themselves (`@JvmField` dropped from their
+  constants — overrides cannot carry it; Java callers use getters).
 - **Record key** — new proto `EntityStateId {Any entity_id; int32 version}`
   in `server/src/main/proto/spine/server/entity/state_id.proto` (one message
   per file). The composite key makes re-writing the same version an

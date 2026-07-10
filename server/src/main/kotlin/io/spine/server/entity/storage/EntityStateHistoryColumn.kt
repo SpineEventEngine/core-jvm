@@ -42,13 +42,12 @@ import io.spine.server.entity.EntityRecord
  * convention used by the other record kinds.
  */
 @RecordColumns(ofType = EntityRecord::class)
-public object EntityStateHistoryColumn {
+public object EntityStateHistoryColumn : HistoryColumns<EntityRecord> {
 
     /**
      * Stores the identifier of the entity.
      */
-    @JvmField
-    public val entityId: RecordColumn<EntityRecord, Any> =
+    override val entityId: RecordColumn<EntityRecord, Any> =
         RecordColumn.create("entity_id", Any::class.java) { record ->
             record.entityId
         }
@@ -59,8 +58,7 @@ public object EntityStateHistoryColumn {
      * The value is the timestamp of the record [version], stamped when
      * the signal that produced this state was dispatched to the entity.
      */
-    @JvmField
-    public val created: RecordColumn<EntityRecord, Timestamp> =
+    override val created: RecordColumn<EntityRecord, Timestamp> =
         RecordColumn.create("created", Timestamp::class.java) { record ->
             record.version.timestamp
         }
@@ -68,8 +66,7 @@ public object EntityStateHistoryColumn {
     /**
      * Stores the number of the entity version this state belongs to.
      */
-    @JvmField
-    public val version: RecordColumn<EntityRecord, Int> =
+    override val version: RecordColumn<EntityRecord, Int> =
         RecordColumn.create("version", Int::class.javaObjectType) { record ->
             record.version.number
         }

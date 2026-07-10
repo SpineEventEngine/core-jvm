@@ -26,42 +26,35 @@
 
 package io.spine.server.entity.storage
 
+import com.google.protobuf.Any
 import com.google.protobuf.Message
-import io.spine.query.Columns
-import io.spine.server.storage.RecordSpec
+import com.google.protobuf.Timestamp
+import io.spine.query.RecordColumn
 
 /**
- * The specification of a per-entity history: how its items are stored, and
- * which of their columns carry the history semantics.
+ * The columns every per-entity history exposes.
  *
- * Combines the identification of the stored items — their types and the
- * identifier extraction — with the [HistoryColumns] every history exposes.
- * [HistoryStorage] manages and queries the history through these columns,
- * available directly on this specification.
+ * A [HistoryStorage] manages a history and queries it efficiently through
+ * these columns.
  *
- * @param I The type of the record identifiers.
  * @param M The type of the stored history items.
- * @param idType The class of the record identifiers.
- * @param itemType The class of the stored items.
- * @param extractId Obtains the record identifier of an item.
- * @property columns The columns of the history.
+ * @see EntityEventColumn
+ * @see EntityStateHistoryColumn
  */
-public class HistorySpec<I : Any, M : Message>(
-    idType: Class<I>,
-    itemType: Class<M>,
-    extractId: (M) -> I,
-    public val columns: HistoryColumns<M>
-) : HistoryColumns<M> by columns {
+public interface HistoryColumns<M : Message> {
 
     /**
-     * The specification of the record storage persisting the history items.
+     * The column with the packed identifier of the entity.
      */
-    internal val recordSpec: RecordSpec<I, M> = RecordSpec(
-        idType,
-        itemType,
-        // The parameter is nullable only because the SAM inherits Guava's `Function`;
-        // the framework never passes `null` items.
-        { item -> extractId(requireNotNull(item)) },
-        Columns.of(columns.entityId, columns.created, columns.version)
-    )
+    public val entityId: RecordColumn<M, Any>
+
+    /**
+     * The column with the time the item was created.
+     */
+    public val created: RecordColumn<M, Timestamp>
+
+    /**
+     * The column with the number of the entity version the item belongs to.
+     */
+    public val version: RecordColumn<M, Int>
 }

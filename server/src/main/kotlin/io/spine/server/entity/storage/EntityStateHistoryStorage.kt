@@ -156,9 +156,7 @@ private val spec: HistorySpec<EntityStateId, EntityRecord> = HistorySpec(
     EntityStateId::class.java,
     EntityRecord::class.java,
     { record -> record.stateId() },
-    EntityStateHistoryColumn.entityId,
-    EntityStateHistoryColumn.created,
-    EntityStateHistoryColumn.version
+    EntityStateHistoryColumn
 )
 
 /**
