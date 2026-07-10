@@ -26,13 +26,10 @@
 
 package io.spine.server.aggregate.model;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import io.spine.base.EventMessage;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.model.AbstractReceptor;
 import io.spine.server.model.ArgumentFilter;
-import io.spine.server.model.Attribute;
 import io.spine.server.model.ParameterSpec;
 import io.spine.server.model.VoidMethod;
 import io.spine.server.type.EmptyClass;
@@ -40,8 +37,6 @@ import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
 
 import java.lang.reflect.Method;
-import java.util.Set;
-import java.util.function.Function;
 
 /**
  * A wrapper for event applier method.
