@@ -87,6 +87,25 @@ import static java.util.Objects.requireNonNull;
 /**
  * The repository that manages instances of {@code Aggregate}s.
  *
+ * <p>The repository routes commands and events to its aggregates, stores the events they
+ * produce, and posts those events to the {@link io.spine.server.event.EventBus EventBus}.
+ *
+ * <p>Since the event-sourcing cutover, an aggregate is loaded from its latest persisted
+ * {@link io.spine.server.entity.EntityRecord EntityRecord} rather than by replaying its event
+ * journal. The journal is kept append-only for traceability and for the opt-in
+ * {@link IdempotencyGuard}.
+ *
+ * <p>Two per-repository settings tune this behavior:
+ * <ul>
+ *     <li>{@link #useIdempotencyGuard()} — enables the journal-backed {@link IdempotencyGuard},
+ *         which rejects a signal already seen among the last {@link #historyDepth()} dispatches
+ *         (however long ago). It is <b>off by default</b> for performance — when enabled, every
+ *         dispatch pays a bounded journal read. This is a mechanism distinct from the delivery
+ *         layer's time-windowed deduplication, not a replacement for it.
+ *     <li>{@linkplain #historyDepth() historyDepth} — how many recent journal events the guard
+ *         scans on each dispatch when enabled (default {@value #DEFAULT_HISTORY_DEPTH}).
+ * </ul>
+ *
  * @param <I>
  *         the type of the aggregate IDs
  * @param <A>
@@ -103,7 +122,7 @@ public abstract class AggregateRepository<I,
         implements CommandDispatcher, EventProducingRepository,
                    EventDispatcherDelegate, QueryableRepository<I, S> {
 
-    /** The default number of events to be stored before a new snapshot is made. */
+    /** The default {@link #historyDepth()} value. */
     static final int DEFAULT_HISTORY_DEPTH = 100;
 
     /** The routing schema for commands handled by the aggregates. */
@@ -120,7 +139,7 @@ public abstract class AggregateRepository<I,
 
     private @MonotonicNonNull RepositoryCache<I, A> cache;
 
-    /** The recent-history window (formerly the snapshot trigger). */
+    /** The window (in journal events) the opt-in {@link IdempotencyGuard} scans. */
     private int historyDepth = DEFAULT_HISTORY_DEPTH;
 
     /** Whether the opt-in {@link IdempotencyGuard} is enabled for this repository. */
@@ -430,9 +449,8 @@ public abstract class AggregateRepository<I,
     }
 
     /**
-     * Returns the number of the most recent journal events made available to the opt-in
-     * {@link IdempotencyGuard} and to the deprecated parameterless history accessors of
-     * {@link Aggregate}.
+     * Returns the number of the most recent journal events scanned by the opt-in
+     * {@link IdempotencyGuard} when it is enabled.
      *
      * @return a positive integer value; the default is {@value #DEFAULT_HISTORY_DEPTH}
      */
@@ -441,10 +459,10 @@ public abstract class AggregateRepository<I,
     }
 
     /**
-     * Sets the {@linkplain #historyDepth() recent-history window} to the passed value.
+     * Sets the {@linkplain #historyDepth() history depth} to the passed value.
      *
      * @param depth
-     *         a positive number of the most recent events to keep available
+     *         a positive number of recent journal events the idempotency guard scans
      */
     protected void setHistoryDepth(int depth) {
         checkArgument(depth > 0);
@@ -455,9 +473,10 @@ public abstract class AggregateRepository<I,
      * Enables the opt-in, journal-backed {@link IdempotencyGuard} for the aggregates of this
      * repository.
      *
-     * <p>The guard is <b>off by default</b> — deduplication is primarily the delivery layer's
-     * responsibility. Enable it as a durable backstop against duplicate dispatches; when enabled,
-     * each dispatch scans the last {@link #historyDepth()} journal events.
+     * <p>When enabled, each dispatch scans the last {@link #historyDepth()} journal events and
+     * rejects a signal already seen among them, however long ago it was dispatched — a mechanism
+     * distinct from the delivery layer's time-windowed deduplication. The guard is
+     * <b>off by default</b> for performance: it adds a bounded journal read to every dispatch.
      */
     protected void useIdempotencyGuard() {
         this.idempotencyGuardEnabled = true;

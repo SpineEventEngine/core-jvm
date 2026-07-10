@@ -133,9 +133,8 @@ public abstract class Aggregate<I,
         implements EventReactor, HasLifecycleColumns<I, S> {
 
     /**
-     * The number of the most recent journal events exposed by the deprecated parameterless
-     * {@linkplain #historyBackward() history accessors} and used as the window of the opt-in
-     * {@link IdempotencyGuard}.
+     * The fixed number of the most recent journal events read by the deprecated parameterless
+     * {@linkplain #historyBackward() history accessors}.
      *
      * <p>Equal to {@code AggregateRepository.DEFAULT_HISTORY_DEPTH}.
      */
@@ -387,7 +386,7 @@ public abstract class Aggregate<I,
     }
 
     /**
-     * Returns the uncommitted events and snapshots for this aggregate.
+     * Returns the uncommitted events of this aggregate.
      */
     UncommittedHistory uncommittedHistory() {
         return uncommittedHistory;
@@ -405,12 +404,14 @@ public abstract class Aggregate<I,
     }
 
     /**
-     * Instructs to modify the state of an aggregate only within an event applier method.
+     * Returns the message shown when an aggregate's state or lifecycle flags are modified outside
+     * a receptor's transaction.
      */
     @Override
     protected final String missingTxMessage() {
         return "Modification of aggregate state or its lifecycle flags is not available this way." +
-                " Make sure to modify those only from an event applier method.";
+                " Modify it from within a command handler (`@Assign`)" +
+                " or an event reactor (`@React`).";
     }
 
     /**

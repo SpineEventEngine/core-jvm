@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 syntax = "proto3";
 
 package spine.server.aggregate;
@@ -43,7 +44,13 @@ import "spine/core/version.proto";
 import "spine/server/entity/entity.proto";
 
 
-// The message for storing an aggregate snapshot.
+// A snapshot of an aggregate's state at a point in its history.
+//
+// Retained for wire compatibility with pre-cutover journal data. The runtime no
+// longer produces snapshots: event-sourced loading was removed, so an aggregate's
+// state is restored from its latest record rather than by replaying events from
+// a snapshot.
+//
 message Snapshot {
 
     // The state of the aggregate.
@@ -103,13 +110,16 @@ message AggregateEventRecord {
     google.protobuf.Any aggregate_id = 5;
 }
 
-// A history of an aggregate is a sequence of its events that is used by the aggregate
-// to restore its state.
+// The recorded history of an aggregate: the sequence of events it emitted.
 //
-// The history may start from a snapshot of the aggregate state. If so, the snapshot will be
-// used as the starting point before playing events that occurred after the snapshot.
+// Since the event-sourcing cutover, aggregate state is no longer restored by
+// replaying this history. It is kept as an append-only journal for
+// traceability and recent-history lookups.
 //
-// If no snapshot is available, events represent the full history of the aggregate.
+// The `snapshot` field is retained for wire compatibility with pre-cutover data
+// and is not populated by the current runtime. The field-level comments below
+// describe the historical (pre-cutover) snapshot-plus-tail semantics and no
+// longer reflect how the runtime uses this message.
 //
 message AggregateHistory {
 
@@ -123,38 +133,5 @@ message AggregateHistory {
     // Otherwise, it is the full history of the aggregate.
     //
     repeated core.Event event = 2;
-}
-
-
-// The state of an aggregate at some point in time stored as a distinct record.
-//
-// Being persisted separately from aggregate's history (i.e. event and snapshot records),
-// state records unlock the possibility to query the storage for aggregate instances.
-//
-// The records of this type are not used to replay the aggregate history, but rather serve as
-// an eventually-consistent "read-side" of the stored aggregate instance.
-//
-message AggregateStateRecord {
-
-    // The ID of the corresponding aggregate packed as Any.
-    google.protobuf.Any value = 1 [(required) = true, (validate) = true];
-
-    // The type URL of the aggregate ID.
-    string id_type = 2 [(required) = true];
-
-    // The state of the aggregate.
-    //
-    // This field is populated if the aggregate is visible for querying.
-    //
-    google.protobuf.Any state = 3;
-
-    // The version of the aggregate.
-    core.Version version = 4;
-
-    // The aggregate type URL.
-    string aggregate_type = 5 [(column) = true];
-
-    // The lifecycle flags of the aggregate.
-    spine.server.entity.LifecycleFlags lifecycle = 6;
 }
 

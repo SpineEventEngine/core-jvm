@@ -38,9 +38,10 @@ a side effect of playing events** — are called out inline; do not lose them.
    a new receptor annotation" — see ADR D1, revised)*. `ImportBus`, the import
    endpoint/routing, and `BlackBox.importsEvent` are removed in PR-B2;
    `InboxLabel.IMPORT_EVENT` and the `EventImported` system event are
-   deprecated for wire compatibility. External facts enter via
-   `(external) = true` reactions or context gateways.
-5. **State history (`EntityHistoryStorage`)** is in this plan as a later,
+   deprecated for wire compatibility. External facts enter via reactions to
+   `@External` events or context gateways.
+5. **State history (`EntityHistoryStorage`; renamed
+   `EntityStateHistoryStorage`, 2026-07-08)** is in this plan as a later,
    decoupled phase (Phase D). The cutover must not depend on it.
 6. **Plan scope:** deep detail for `core-jvm`; dependency-ordered rollout
    checklists for downstream repos; org-wide `@Apply` verification gate.
@@ -131,6 +132,8 @@ These are the sharp edges; both are behavioral changes, not refactors.
 - `StorageFactory` SPI shape: `createAggregateStorage`,
   `createAggregateEventStorage`, `createEntityRecordStorage` all remain
   (the journal is still written). Storage vendors recompile, not rewrite.
+  *(Phase D's journal cleanup — the opener of that phase — deprecates
+  `createAggregateEventStorage` in favor of `createEntityEventStorage`.)*
 - Client query path (`QueryService` → `Stand` → `EntityQueryProcessor` →
   `AggregateRepository.findRecords` → `AggregateStorage.readStates`).
 - `BlackBox` / `EventSubject` / `CommandSubject` public testing APIs.
@@ -364,7 +367,7 @@ green-per-commit sequence.
 17. Migration guide: `docs/` note covering the handler migration recipe,
     the preventive-validation recipe (`tryAlter` and `builder().validate()`,
     ADR D9), the removal of event import with its replacement idioms
-    (`(external) = true` reactions, gateways, storage-level seeding —
+    (`@External` event reactions, gateways, storage-level seeding —
     revised D1), removed snapshot config,
     the idempotency-window semantics change (A5),
     the history-window change (`historyBackward(depth)` explicit; the
@@ -393,11 +396,17 @@ green-per-commit sequence.
      both implementing `StorageFactory.createRecordStorage`. It is a storage
      vendor, not only a service.
 
-## Phase D — `EntityHistoryStorage` (state history to depth)
+## Phase D — entity history: journal cleanup & state history to depth
 
-Decoupled; starts after Phase B is merged and stable.
+Decoupled; starts after Phase B is merged and stable. Delivery order within
+the phase (decided 2026-07-08): the journal cleanup (see the phase opener
+below) lands first as its own PR, so that D3 trimming is built against
+`EntityEventStorage` from the start; the state-history items (D1/D2) are
+independent and may land in parallel or after.
 
-1. New Kotlin storage contract `EntityHistoryStorage` in
+1. New Kotlin storage contract `EntityStateHistoryStorage` (renamed from the
+   brief's `EntityHistoryStorage`, 2026-07-08 — "state history" stays
+   unambiguous next to the `EntityEventStorage` event journal below) in
    `server/src/main/kotlin/io/spine/server/entity/history/` storing recent
    `EntityRecord` versions per entity to a configured depth, over the
    standard `RecordStorage` SPI (works on all backends without vendor code).
@@ -409,14 +418,31 @@ Decoupled; starts after Phase B is merged and stable.
    must not be aggregate-specific; actual PM wiring is out of scope.
 5. Read API for debugging/analysis (state history alongside the journal).
 
-### Follow-up: journal type cleanup (`EventHistory`)
+### Phase opener: journal cleanup (`EntityEventHistory` / `EntityEventStorage`)
 
-Introduce a snapshot-free `EventHistory` type and deprecate `AggregateHistory` —
-its `snapshot` field is dead weight after the cutover, and the "history =
-snapshot + tail" semantics no longer hold. Detailed task:
-[`introduce-event-history-type.md`](introduce-event-history-type.md). Coordinate
-with the count/date journal trimming in D3 above, since both touch the journal
-representation.
+Naming locked 2026-07-08 (product owner): the journal types move to the
+**entity** level — events are emitted by entities, not by aggregates alone.
+
+- Introduce a snapshot-free **`EntityEventHistory`** message and deprecate
+  `AggregateHistory` — its `snapshot` field is dead weight after the cutover,
+  and the "history = snapshot + tail" semantics no longer hold.
+- Introduce **`EntityEventStorage`** — the journal of events emitted by an
+  entity — and deprecate `AggregateEventStorage`, with
+  `StorageFactory.createAggregateEventStorage` superseded by a new
+  `createEntityEventStorage`. Initial rollout covers aggregates;
+  `ProcessManager` journaling is planned for a near-future PR, so nothing in
+  the new types may be aggregate-specific (the same constraint as D4).
+  Record level settled 2026-07-08: **clean replacement** — a new
+  `EntityEventRecord` supersedes the deprecated `AggregateEventRecord`;
+  pre-upgrade journal rows stay in the legacy record kind, invisible to the
+  new reads (see the data caveat in the detailed task).
+
+Detailed task:
+[`introduce-event-history-type.md`](introduce-event-history-type.md).
+Coordinate with the count/date journal trimming in D3 above: D3 is built
+against `EntityEventStorage`, while the deprecated snapshot-index truncation
+stays wired to the deprecated `AggregateEventStorage` (already inert on
+post-cutover journals, which contain no snapshot records).
 
 ## Phase E — Downstream rollout (dependency order)
 
@@ -494,6 +520,8 @@ repos except the deprecated annotation type itself.**
 ## Out of scope
 
 - Data migration tooling (decision 2).
-- `ProcessManager` state history wiring (Phase D designs for it only).
+- `ProcessManager` wiring for both state history and event journaling
+  (Phase D designs for them only; PM journaling is planned for a
+  near-future PR).
 - Removing the deprecated `@Apply` annotation itself and the other
   deprecations — happens at v2.0.0 (final), tracked separately.

@@ -52,8 +52,8 @@ public @interface Apply {
     /**
      * Formerly enabled importing of events into the aggregate.
      *
-     * @deprecated Event import has been removed. External facts now enter via
-     *         {@code (external) = true} reactions or context gateways. This attribute is ignored.
+     * @deprecated Event import has been removed. External facts now enter via reactions to
+     *         {@code @External} events or context gateways. This attribute is ignored.
      */
     @Deprecated
     boolean allowImport() default false;
