@@ -481,7 +481,12 @@ truncation and the legacy `AggregateEventStorage` were removed outright
    number breaks same-instant ties). The answer is honest about retention:
    when `T` precedes the oldest *retained* record, the query returns empty —
    "not answerable from the retained window" — rather than guessing with the
-   oldest record; a `T` predating the entity is likewise empty. Baseline
+   oldest record; a `T` predating the entity is likewise empty. Empty is
+   reserved for those honest data answers: **querying a repository that has
+   state history disabled fails fast with a configuration error** (product
+   owner, 2026-07-10) — a disabled recorder must be distinguishable from an
+   exhausted retention window. The Phase F business-history API follows the
+   same rule for a disabled journal. Baseline
    implementation: read the per-entity window (bounded by the configured
    depth) and select in memory — portable over the `RecordStorage` SPI on
    all backends; a backend may push the `time <= T` comparison down once
@@ -551,7 +556,8 @@ Locked decisions (product owner, 2026-07-10):
    timestamp — the temporal axis of Phase E item 1 — is already stamped
    once per dispatch. The Phase E item 5 read API must answer for a PM with
    no PM-specific code; acceptance: the same "state at time T" query
-   against a PM repository, including the honest-empty cases.
+   against a PM repository, including the honest-empty cases and the
+   fail-fast on a repository with state history disabled (Phase E item 5).
 5. Journal trimming. `EntityEventStorage.truncate(keepMostRecent[,
    olderThan])` shipped entity-generic in #1649; expose the equivalent of
    the delegating `AggregateStorage.truncate(...)` maintenance methods for
