@@ -89,9 +89,7 @@ public class EntityStateHistoryStorage(
      *   of [entityId] is not supported by the framework.
      */
     public fun historyBackward(entityId: Any, batchSize: Int): Iterator<EntityRecord> {
-        require(batchSize > 0) {
-            "The batch size must be positive, got `$batchSize`."
-        }
+        requirePositiveBatchSize(batchSize)
         val packedId = Identifier.pack(entityId)
         val query = queryBuilder()
             .where(EntityStateHistoryColumn.entityId).isEqualTo(packedId)

@@ -94,9 +94,7 @@ public class EntityEventStorage(
         batchSize: Int,
         startingFrom: Version? = null
     ): Iterator<Event> {
-        require(batchSize > 0) {
-            "The batch size must be positive, got `$batchSize`."
-        }
+        requirePositiveBatchSize(batchSize)
         val packedId = Identifier.pack(entityId)
         val builder = queryBuilder()
             .where(EntityEventColumn.entityId).isEqualTo(packedId)
