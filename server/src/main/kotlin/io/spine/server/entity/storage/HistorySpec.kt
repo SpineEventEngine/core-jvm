@@ -36,8 +36,7 @@ import io.spine.server.storage.RecordSpec
  *
  * Combines the identification of the stored items — their types and the
  * identifier extraction — with the [HistoryColumns] every history exposes.
- * [HistoryStorage] manages and queries the history through these columns,
- * available directly on this specification.
+ * [HistoryStorage] manages and queries the history through these columns.
  *
  * @param I The type of the record identifiers.
  * @param M The type of the stored history items.
@@ -51,7 +50,7 @@ public class HistorySpec<I : Any, M : Message>(
     itemType: Class<M>,
     extractId: (M) -> I,
     public val columns: HistoryColumns<M>
-) : HistoryColumns<M> by columns {
+) {
 
     /**
      * The specification of the record storage persisting the history items.
