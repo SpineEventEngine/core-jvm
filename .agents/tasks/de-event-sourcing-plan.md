@@ -413,8 +413,17 @@ independent and may land in parallel or after.
    `server/src/main/kotlin/io/spine/server/entity/history/` storing recent
    `EntityRecord` versions per entity to a configured depth, over the
    standard `RecordStorage` SPI (works on all backends without vendor code).
+   **Requirement (product owner, 2026-07-10):** each stored record carries
+   the time its state became current — the timestamp of the record's
+   `Version`, stamped once per dispatch since A3 — as a queryable column
+   beside the entity id and the version number. This is the temporal axis
+   for the "state at time T" query (item 5).
 2. Repository-level config (depth, enable/disable); write hook in
-   `AggregateRepository.doStore()`.
+   `AggregateRepository.doStore()`. Note for the "state at time T" query:
+   count-based retention bounds how far back `T` can be answered — an entity
+   updated often forgets quickly. Consider an optional duration-based
+   retention ("keep states for the last N days") mirroring the count/date
+   shape of `EntityEventStorage.truncate`.
 3. Count/date-based journal trimming replacing the deprecated
    snapshot-index truncation (A7). **✅ Shipped with the phase opener in
    PR #1649** (pulled in when the snapshot-index truncation was removed
@@ -425,6 +434,19 @@ independent and may land in parallel or after.
 4. Design for future `ProcessManager` reuse (brief item 4) — the contract
    must not be aggregate-specific; actual PM wiring is out of scope.
 5. Read API for debugging/analysis (state history alongside the journal).
+   **Must support the query "state at time T" (product owner, 2026-07-10):**
+   given an entity id and a timestamp `T`, return the state the entity had
+   at `T` — the retained record with the highest version among those whose
+   effectiveness time (item 1) is not later than `T` (inclusive; the version
+   number breaks same-instant ties). The answer is honest about retention:
+   when `T` precedes the oldest *retained* record, the query returns empty —
+   "not answerable from the retained window" — rather than guessing with the
+   oldest record; a `T` predating the entity is likewise empty. Baseline
+   implementation: read the per-entity window (bounded by the configured
+   depth) and select in memory — portable over the `RecordStorage` SPI on
+   all backends; a backend may push the `time <= T` comparison down once
+   `Timestamp` columns are comparable in filters (cf. the orderable-types
+   work, issue #1217).
 
 ### Phase opener: journal cleanup (`EntityEventHistory` / `EntityEventStorage`)
 
