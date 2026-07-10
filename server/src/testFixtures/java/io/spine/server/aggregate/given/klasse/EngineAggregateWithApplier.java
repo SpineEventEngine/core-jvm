@@ -33,11 +33,12 @@ import io.spine.server.aggregate.given.klasse.event.EngineStarted;
 import io.spine.server.command.Assign;
 
 /**
- * A test-only aggregate that still declares an {@link Apply @Apply} event applier.
+ * A test-only aggregate that still declares an {@code @Apply} event applier.
  *
  * <p>Event sourcing has been removed, so appliers are no longer supported. Building the model
  * for this class fails fast with a {@link io.spine.server.model.ModelError ModelError}.
  */
+@SuppressWarnings("deprecation") // still need to use `@Apply`.
 public class EngineAggregateWithApplier extends Aggregate<EngineId, Engine, Engine.Builder> {
 
     @Assign
