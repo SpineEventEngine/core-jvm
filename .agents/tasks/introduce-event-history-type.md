@@ -263,3 +263,13 @@ Deliberate deltas from the sketch above, made while implementing:
   `Aggregate` lost its own loader field/branching; `historyBackward(depth)`
   delegates to `recentHistory().read(depth)`. New `RecentHistorySpec` covers
   both read paths.
+- **The in-memory recent-history copy is removed (product owner,
+  2026-07-10, in review):** `RecentHistory` always reads through the
+  installed loader — the durable journal is the only source. Rationale:
+  entities serve signals and leave memory; event caching, if any, belongs to
+  the storage side. `TransactionalEntity.appendToRecentHistory` /
+  `clearRecentHistory` and the deque-backed `RecentHistory` API
+  (`iterator()`, `stream()`, `isEmpty()`) are gone; `Aggregate.commitEvents()`
+  only clears the uncommitted events. An entity created outside a repository
+  has no journal, so its reads return no events (the documented contract,
+  covered by tests).

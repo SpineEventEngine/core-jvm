@@ -392,13 +392,9 @@ public abstract class Aggregate<I,
     }
 
     /**
-     * {@linkplain #appendToRecentHistory Remembers} the uncommitted events as
-     * the {@link io.spine.server.entity.RecentHistory RecentHistory} and clears them.
+     * Marks the uncommitted events of this aggregate as committed and clears them.
      */
     final void commitEvents() {
-        List<Event> recentEvents = uncommittedHistory.events()
-                                                     .list();
-        appendToRecentHistory(recentEvents);
         uncommittedHistory.commit();
     }
 
@@ -411,16 +407,6 @@ public abstract class Aggregate<I,
         return "Modification of aggregate state or its lifecycle flags is not available this way." +
                 " Modify it from within a command handler (`@Assign`)" +
                 " or an event reactor (`@React`).";
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>Opens the method for the repository.
-     */
-    @Override
-    protected final void clearRecentHistory() {
-        super.clearRecentHistory();
     }
 
     /**

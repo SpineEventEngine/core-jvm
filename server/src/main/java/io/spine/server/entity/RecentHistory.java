@@ -26,41 +26,28 @@
 
 package io.spine.server.entity;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterators;
 import io.spine.core.Event;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Deque;
+import java.util.Collections;
 import java.util.Iterator;
-import java.util.Objects;
-import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Queues.newArrayDeque;
 
 /**
  * The recent history of events of a {@link TransactionalEntity}.
  *
- * <p>The in-memory copy accumulates the events committed by this entity instance.
- * When a repository {@linkplain TransactionalEntity#setRecentHistoryLoader(RecentHistoryLoader)
- * installs a loader}, the {@linkplain #read(int) reads} are served from the durable journal
- * of the entity instead, so the recent history survives the instance lifecycle.
+ * <p>The history is read from the durable journal of the entity via the loader
+ * {@linkplain TransactionalEntity#setRecentHistoryLoader(RecentHistoryLoader) installed}
+ * by the repository managing the entity. The events are not cached on the entity side:
+ * an entity serves its signals and leaves the memory; caching, if any, belongs to
+ * the storage side.
  *
- * <p>Any modifications to this object will not affect the real history of the entity.
+ * <p>An entity created outside a repository has no journal, so the reads return
+ * no events.
  */
 public final class RecentHistory {
-
-    /**
-     * Holds the events recently committed by this entity instance.
-     *
-     * <p>Most recent event comes first.
-     *
-     * @see #iterator()
-     */
-    private final Deque<Event> history = newArrayDeque();
 
     /**
      * If set, serves the {@linkplain #read(int) reads} from the durable journal
@@ -86,9 +73,9 @@ public final class RecentHistory {
     /**
      * Reads up to {@code depth} most recent events, newest first.
      *
-     * <p>When a loader is {@linkplain #useLoader(RecentHistoryLoader) installed},
-     * the events come from the durable journal of the entity. Otherwise, the in-memory
-     * copy accumulated by this instance serves the read.
+     * <p>The events come from the durable journal of the entity. If no loader is
+     * {@linkplain #useLoader(RecentHistoryLoader) installed} — the entity was created
+     * outside a repository and thus has no journal — no events are returned.
      *
      * @param depth
      *         the maximum number of the most recent events to read
@@ -98,84 +85,9 @@ public final class RecentHistory {
      */
     public Iterator<Event> read(int depth) {
         checkArgument(depth > 0, "History depth must be positive. Got %s.", depth);
-        if (loader != null) {
-            return loader.load(depth);
+        if (loader == null) {
+            return Collections.emptyIterator();
         }
-        return Iterators.limit(iterator(), depth);
-    }
-
-    /**
-     * Returns {@code true} if there are no events in the recent history, {@code false} otherwise.
-     */
-    public boolean isEmpty() {
-        return history.isEmpty();
-    }
-
-    /**
-     * Removes all events from the recent history.
-     */
-    void clear() {
-        history.clear();
-    }
-
-    /**
-     * Creates a new iterator over the recent history items.
-     *
-     * <p>The iterator returns events in the reverse chronological order. Thus the most recent
-     * event will be returned first.
-     *
-     * @return an events iterator
-     */
-    public Iterator<Event> iterator() {
-        var events = ImmutableList.copyOf(history);
-        return events.iterator();
-    }
-
-    /**
-     * Creates a new {@link Stream} of the recent history items.
-     *
-     * <p>The produced stream is sequential and emits items in the reverse chronological order.
-     * Thus the most recent event will be returned first.
-     *
-     * @return a stream of the recent events
-     */
-    public Stream<Event> stream() {
-        var events = ImmutableList.copyOf(history);
-        return events.stream();
-    }
-
-    /**
-     * Adds events to the history.
-     *
-     * @param events events in the chronological order
-     */
-    void addAll(Iterable<Event> events) {
-        for (var event : events) {
-            history.addFirst(event);
-        }
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(history);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        var other = (RecentHistory) obj;
-        return Objects.equals(this.history, other.history);
-    }
-
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this)
-                          .add("size", history.size())
-                          .toString();
+        return loader.load(depth);
     }
 }

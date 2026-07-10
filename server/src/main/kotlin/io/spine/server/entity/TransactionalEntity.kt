@@ -87,20 +87,6 @@ public abstract class TransactionalEntity<I : Any, S : EntityState<I>, B : Valid
     protected open fun recentHistory(): RecentHistory = recentHistory
 
     /**
-     * Adds events to the [recent history][recentHistory].
-     */
-    protected open fun appendToRecentHistory(events: Iterable<Event>) {
-        recentHistory.addAll(events)
-    }
-
-    /**
-     * Clears [recent history][recentHistory].
-     */
-    protected open fun clearRecentHistory() {
-        recentHistory.clear()
-    }
-
-    /**
      * Installs the loader serving the [recent history][recentHistory] reads from
      * the durable journal of this entity.
      *

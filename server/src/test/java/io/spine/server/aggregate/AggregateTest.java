@@ -424,21 +424,6 @@ public class AggregateTest {
                                AggProjectStarted.class);
         }
 
-        @Test
-        @DisplayName("which are being committed")
-        void beingCommittedAfterDispatch() {
-            aggregate.dispatchCommands(command(createProject),
-                                       command(addTask),
-                                       command(startProject));
-            aggregate().commitEvents();
-            var historyBackward =
-                    ImmutableList.copyOf(aggregate().historyBackward(DEFAULT_HISTORY_DEPTH));
-            assertEventClasses(
-                    getEventClasses(historyBackward),
-                    AggProjectCreated.class, AggTaskAdded.class, AggProjectStarted.class
-            );
-        }
-
         private Collection<EventClass> getEventClasses(Collection<Event> events) {
             var result = events.stream()
                     .map(EventClass::of)

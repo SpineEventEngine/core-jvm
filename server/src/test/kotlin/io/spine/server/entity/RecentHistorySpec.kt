@@ -27,6 +27,7 @@
 package io.spine.server.entity
 
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.spine.core.Event
@@ -42,26 +43,6 @@ internal class RecentHistorySpec {
     private val history = RecentHistory()
 
     @Test
-    fun `read the in-memory copy, newest first, when no loader is installed`() {
-        val events = newEvents(count = 3)
-        history.addAll(events)
-
-        val read = history.read(Int.MAX_VALUE).asSequence().toList()
-
-        read shouldContainExactly events.reversed()
-    }
-
-    @Test
-    fun `limit the in-memory read to the requested depth`() {
-        val events = newEvents(count = 5)
-        history.addAll(events)
-
-        val read = history.read(2).asSequence().toList()
-
-        read shouldContainExactly listOf(events[4], events[3])
-    }
-
-    @Test
     fun `serve the reads through the installed loader`() {
         val fromJournal = newEvents(count = 2).reversed()
         var requestedDepth = 0
@@ -69,13 +50,19 @@ internal class RecentHistorySpec {
             requestedDepth = depth
             fromJournal.iterator()
         }
-        // Fill the in-memory copy to prove the loader takes precedence over it.
-        history.addAll(newEvents(count = 3))
 
         val read = history.read(7).asSequence().toList()
 
         read shouldContainExactly fromJournal
         requestedDepth shouldBe 7
+    }
+
+    @Test
+    fun `return no events when no loader is installed`() {
+        history.read(Int.MAX_VALUE)
+            .asSequence()
+            .toList()
+            .shouldBeEmpty()
     }
 
     @Test
