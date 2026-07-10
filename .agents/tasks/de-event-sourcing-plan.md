@@ -407,6 +407,46 @@ built against `EntityEventStorage` from the start; the state-history items
 (items 1 and 2) are
 independent and may land in parallel or after.
 
+### Phase opener: journal cleanup (`EntityEventHistory` / `EntityEventStorage`)
+
+> **Implemented on `de-event-sourcing-phase-D` (2026-07-09), PR #1649** — see
+> the "Implementation notes" in the detailed task file for the deliberate
+> deltas (`ReadOperation`/`HistoryBackwardOperation` deleted in favor of
+> journal-tail reads; `writeSnapshot` removed; `UncommittedHistory.get()`
+> returns a single `EntityEventHistory`). **Reversal (product owner,
+> 2026-07-09, in review):** the legacy storage machinery is REMOVED, not
+> deprecated — `AggregateEventStorage`, `AggregateEventRecordColumn`,
+> `createAggregateEventStorage`, `TruncateOperation`, and the snapshot-index
+> `truncateOlderThan` are gone; only the proto messages remain (marked
+> `deprecated`) for wire parseability. Pending review and merge.
+
+Naming locked 2026-07-08 (product owner): the journal types move to the
+**entity** level — events are emitted by entities, not by aggregates alone.
+
+- Introduce a snapshot-free **`EntityEventHistory`** message and deprecate
+  `AggregateHistory` — its `snapshot` field is dead weight after the cutover,
+  and the "history = snapshot + tail" semantics no longer hold.
+- Introduce **`EntityEventStorage`** — the journal of events emitted by an
+  entity — and deprecate `AggregateEventStorage`, with
+  `StorageFactory.createAggregateEventStorage` superseded by a new
+  `createEntityEventStorage`. Initial rollout covers aggregates;
+  `ProcessManager` journaling is planned for a near-future PR, so nothing in
+  the new types may be aggregate-specific (the same constraint as item 4
+  above).
+  Record level settled 2026-07-08: **clean replacement** — a new
+  `EntityEventRecord` supersedes the deprecated `AggregateEventRecord`;
+  pre-upgrade journal rows stay in the legacy record kind, invisible to the
+  new reads (see the data caveat in the detailed task).
+
+Detailed task:
+[`introduce-event-history-type.md`](introduce-event-history-type.md).
+The count/date journal trimming (item 3 above) shipped together with this
+opener in PR #1649, built against `EntityEventStorage`; the snapshot-index
+truncation and the legacy `AggregateEventStorage` were removed outright
+(see the reversal note above).
+          
+## Phase E — Entity state history for Aggregates
+
 1. New Kotlin storage contract `EntityStateHistoryStorage` (renamed from the
    brief's `EntityHistoryStorage`, 2026-07-08 — "state history" stays
    unambiguous next to the `EntityEventStorage` event journal below) in
@@ -448,45 +488,11 @@ independent and may land in parallel or after.
    `Timestamp` columns are comparable in filters (cf. the orderable-types
    work, issue #1217).
 
-### Phase opener: journal cleanup (`EntityEventHistory` / `EntityEventStorage`)
+## Phase F — entity event history and state history for Process Managers
 
-> **Implemented on `de-event-sourcing-phase-D` (2026-07-09), PR #1649** — see
-> the "Implementation notes" in the detailed task file for the deliberate
-> deltas (`ReadOperation`/`HistoryBackwardOperation` deleted in favor of
-> journal-tail reads; `writeSnapshot` removed; `UncommittedHistory.get()`
-> returns a single `EntityEventHistory`). **Reversal (product owner,
-> 2026-07-09, in review):** the legacy storage machinery is REMOVED, not
-> deprecated — `AggregateEventStorage`, `AggregateEventRecordColumn`,
-> `createAggregateEventStorage`, `TruncateOperation`, and the snapshot-index
-> `truncateOlderThan` are gone; only the proto messages remain (marked
-> `deprecated`) for wire parseability. Pending review and merge.
+TBD
 
-Naming locked 2026-07-08 (product owner): the journal types move to the
-**entity** level — events are emitted by entities, not by aggregates alone.
-
-- Introduce a snapshot-free **`EntityEventHistory`** message and deprecate
-  `AggregateHistory` — its `snapshot` field is dead weight after the cutover,
-  and the "history = snapshot + tail" semantics no longer hold.
-- Introduce **`EntityEventStorage`** — the journal of events emitted by an
-  entity — and deprecate `AggregateEventStorage`, with
-  `StorageFactory.createAggregateEventStorage` superseded by a new
-  `createEntityEventStorage`. Initial rollout covers aggregates;
-  `ProcessManager` journaling is planned for a near-future PR, so nothing in
-  the new types may be aggregate-specific (the same constraint as item 4
-  above).
-  Record level settled 2026-07-08: **clean replacement** — a new
-  `EntityEventRecord` supersedes the deprecated `AggregateEventRecord`;
-  pre-upgrade journal rows stay in the legacy record kind, invisible to the
-  new reads (see the data caveat in the detailed task).
-
-Detailed task:
-[`introduce-event-history-type.md`](introduce-event-history-type.md).
-The count/date journal trimming (item 3 above) shipped together with this
-opener in PR #1649, built against `EntityEventStorage`; the snapshot-index
-truncation and the legacy `AggregateEventStorage` were removed outright
-(see the reversal note above).
-
-## Phase E — Downstream rollout (dependency order)
+## Phase G — Downstream rollout (dependency order)
 
 Publish a `core-jvm` snapshot after Phase B; then migrate consumers in
 order. Per-repo checklist: bump core version → migrate any real aggregates
