@@ -308,7 +308,8 @@ public abstract class Aggregate<I,
      * <p>Called by the framework after a command or reaction has been dispatched and its
      * transaction committed. Rejection events are not journaled.
      *
-     * @param events the events emitted by the current command handler or reactor
+     * @param events
+     *         the events emitted by the current command handler or reactor
      */
     final void recordEvents(List<Event> events) {
         uncommittedHistory.record(events);

@@ -57,6 +57,10 @@ import io.spine.server.storage.StorageFactory
  * [AggregateEventRecord][io.spine.server.aggregate.AggregateEventRecord]s — are not
  * visible to the reads performed by this storage.
  *
+ * The class is deliberately final: storage vendors customize the persistence via
+ * the [RecordStorage][io.spine.server.storage.RecordStorage] delegate created by
+ * their [StorageFactory].
+ *
  * @param context Specification of the Bounded Context in scope of which the storage is used.
  * @param factory The storage factory to use when creating a record storage delegate.
  */
@@ -73,13 +77,14 @@ public class EntityEventStorage(
      * the given identifier, ordered from newer to older.
      *
      * The records are sorted by the version of the stored event and then by
-     * the record creation time, both in the descending order.
+     * the time the event was emitted, both in the descending order.
      *
      * @param entityId The identifier of the entity that emitted the journaled events.
      * @param batchSize The maximum number of the records to read.
      * @param startingFrom If set, only the events with versions lower than this one are read.
      * @return An iterator over the read records.
-     * @throws IllegalArgumentException If [batchSize] is not positive.
+     * @throws IllegalArgumentException If [batchSize] is not positive, or if the type
+     *   of [entityId] is not supported by the framework.
      */
     @JvmOverloads
     public fun historyBackward(
@@ -111,9 +116,10 @@ public class EntityEventStorage(
      * The entity which emitted the event is determined by the producer ID of
      * the event context; the record is stored under the identifier of the event.
      *
-     * Before storing, all enrichments are removed from the event. Removing them
-     * rebuilds the event, which also validates it: an incomplete instance — e.g.,
-     * missing its identifier, context, message, or producer — is rejected.
+     * Before storing, the enrichments are cleared from the event context and from
+     * its first-level origin (see `Event.clearEnrichments()`). Clearing rebuilds
+     * the event, which also validates it: an incomplete instance — e.g., missing
+     * its identifier, context, message, or producer — is rejected.
      *
      * @param event The event to journal.
      * @throws io.spine.validation.ValidationException If the event is incomplete.
@@ -145,8 +151,8 @@ public class EntityEventStorage(
      * for each entity.
      *
      * The most recent records are determined per entity, in the order of
-     * [historyBackward]: by the version of the stored event and then by the record
-     * creation time. Passing zero purges the whole journal.
+     * [historyBackward]: by the version of the stored event and then by the time
+     * the event was emitted. Passing zero purges the whole journal.
      *
      * The operation reads the whole journal, so it is intended for periodic
      * maintenance rather than for per-dispatch use.
@@ -162,15 +168,16 @@ public class EntityEventStorage(
      * Truncates the journal, deleting the records older than [olderThan],
      * but keeping at least [keepMostRecent] most recent records for each entity.
      *
-     * A record is deleted only if it is older than the given time *and* not
-     * among the [keepMostRecent] most recent records of its entity. To purge
-     * everything older than the given time, pass zero as [keepMostRecent].
+     * A record is deleted only if its event was emitted before the given time *and*
+     * the record is not among the [keepMostRecent] most recent records of its entity.
+     * To purge everything older than the given time, pass zero as [keepMostRecent].
      *
      * The operation reads the whole journal, so it is intended for periodic
      * maintenance rather than for per-dispatch use.
      *
      * @param keepMostRecent The number of the most recent records to keep for each entity.
-     * @param olderThan Only the records created strictly before this time are deleted.
+     * @param olderThan Only the records of the events emitted strictly before this time
+     *   are deleted.
      * @throws IllegalArgumentException If [keepMostRecent] is negative.
      */
     public fun truncate(keepMostRecent: Int, olderThan: Timestamp) {
@@ -188,12 +195,12 @@ public class EntityEventStorage(
             .sortDescendingBy(EntityEventRecordColumn.created)
             .build()
         val records = readAll(newestFirst)
-        val kept = mutableMapOf<Any, Int>()
+        val seen = mutableMapOf<Any, Int>()
         val toDelete = mutableListOf<EventId>()
         records.forEach { record ->
             val entityId = record.entityId
-            val count = (kept[entityId] ?: 0) + 1
-            kept[entityId] = count
+            val count = (seen[entityId] ?: 0) + 1
+            seen[entityId] = count
             if (count > keepMostRecent && deletionAllowed(record)) {
                 toDelete.add(record.id)
             }

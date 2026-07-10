@@ -73,7 +73,10 @@ message EntityEventRecord {
     // An identifier of the entity which emitted the event.
     google.protobuf.Any entity_id = 2 [(required) = true];
 
-    // A timestamp of the event in this record.
+    // The time when the event was emitted.
+    //
+    // Matches the timestamp of the context of the stored event.
+    //
     google.protobuf.Timestamp timestamp = 3;
 
     // The event stored in the record.

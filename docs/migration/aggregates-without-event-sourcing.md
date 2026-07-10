@@ -327,14 +327,14 @@ as a follow-up.
 | `AggregateEventRecordId` | the `core.EventId` of the stored event — no dedicated id type |
 | `AggregateEventStorage` | `io.spine.server.entity.storage.EntityEventStorage` |
 | `AggregateEventRecordColumn` | `io.spine.server.entity.storage.EntityEventRecordColumn` |
-| `StorageFactory.createAggregateEventStorage(...)` | `StorageFactory.createEntityEventStorage(...)` |
+| `StorageFactory.createAggregateEventStorage` | `StorageFactory.createEntityEventStorage` |
 
 `AggregateStorage` reads and writes the journal as `EntityEventRecord`s, and its
 `read`/`write` operations work in terms of `EntityEventHistory`. Storage vendors implement
 the same `RecordStorage`-level SPI as before — this is a recompile against the new types,
 not a rewrite.
 
-Of the superseded pair, only the **proto messages remain** (marked `deprecated`, for wire
+Of the superseded API, only the **proto messages remain** (marked `deprecated`, for wire
 compatibility). The storage-level classes — `AggregateEventStorage`,
 `AggregateEventRecordColumn`, `StorageFactory.createAggregateEventStorage` — and the
 snapshot-index `AggregateStorage.truncateOlderThan` trimming are **removed**: org-wide
