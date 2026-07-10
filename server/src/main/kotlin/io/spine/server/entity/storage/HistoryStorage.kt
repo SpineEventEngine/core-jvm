@@ -63,9 +63,9 @@ import io.spine.server.storage.StorageFactory
  * @param context Specification of the Bounded Context in scope of which the storage is used.
  * @param factory The storage factory to use when creating a record storage delegate.
  * @param spec The specification of how the items are stored.
- * @param entityIdColumn The column with the packed identifier of the entity.
- * @param createdColumn The column with the time the item was created.
- * @param versionColumn The column with the number of the entity version.
+ * @property entityIdColumn The column with the packed identifier of the entity.
+ * @property createdColumn The column with the time the item was created.
+ * @property versionColumn The column with the number of the entity version.
  * @see EntityEventStorage
  * @see EntityStateHistoryStorage
  */
