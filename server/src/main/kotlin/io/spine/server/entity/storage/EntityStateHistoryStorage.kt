@@ -32,7 +32,6 @@ import io.spine.server.ContextSpec
 import io.spine.server.entity.EntityRecord
 import io.spine.server.entity.EntityStateId
 import io.spine.server.entity.entityStateId
-import io.spine.server.storage.RecordSpec
 import io.spine.server.storage.StorageFactory
 
 /**
@@ -71,14 +70,7 @@ import io.spine.server.storage.StorageFactory
 public class EntityStateHistoryStorage(
     context: ContextSpec,
     factory: StorageFactory
-) : HistoryStorage<EntityStateId, EntityRecord>(
-    context,
-    factory,
-    spec,
-    EntityStateHistoryColumn.entityId,
-    EntityStateHistoryColumn.created,
-    EntityStateHistoryColumn.version
-) {
+) : HistoryStorage<EntityStateId, EntityRecord>(context, factory, spec) {
 
     /**
      * Returns the state record the entity had at the given time,
@@ -160,13 +152,13 @@ public class EntityStateHistoryStorage(
 /**
  * A specification on how to store the state records.
  */
-private val spec: RecordSpec<EntityStateId, EntityRecord> = RecordSpec(
+private val spec: HistorySpec<EntityStateId, EntityRecord> = HistorySpec(
     EntityStateId::class.java,
     EntityRecord::class.java,
-    // The parameter is nullable only because the SAM inherits Guava's `Function`;
-    // the framework never passes `null` records.
-    { record -> requireNotNull(record).stateId() },
-    EntityStateHistoryColumn.definitions()
+    { record -> record.stateId() },
+    EntityStateHistoryColumn.entityId,
+    EntityStateHistoryColumn.created,
+    EntityStateHistoryColumn.version
 )
 
 /**

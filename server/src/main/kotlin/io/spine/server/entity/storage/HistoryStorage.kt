@@ -31,11 +31,9 @@ import com.google.protobuf.Timestamp
 import com.google.protobuf.util.Timestamps
 import io.spine.base.Identifier
 import io.spine.core.Version
-import io.spine.query.RecordColumn
 import io.spine.query.RecordQuery
 import io.spine.server.ContextSpec
 import io.spine.server.storage.MessageStorage
-import io.spine.server.storage.RecordSpec
 import io.spine.server.storage.StorageFactory
 
 /**
@@ -43,12 +41,10 @@ import io.spine.server.storage.StorageFactory
  *
  * A history storage keeps items of the type [M] — e.g., the events emitted
  * by an entity, or the records of its past states — appended as the entity
- * handles its signals. Each stored item exposes three columns allowing to
- * manage the history and query it efficiently:
- *
- *  - the packed identifier of the entity;
- *  - the time the item was created;
- *  - the number of the entity version the item belongs to.
+ * handles its signals. Each stored item exposes the three columns of
+ * the [HistorySpec], allowing to manage the history and query it
+ * efficiently: the packed identifier of the entity, the time the item was
+ * created, and the number of the entity version the item belongs to.
  *
  * On top of them, the storage provides the [window reads][historyBackward]
  * ordered from newer to older, the per-entity [trim] for the write path,
@@ -62,21 +58,15 @@ import io.spine.server.storage.StorageFactory
  * @param M The type of the stored history items.
  * @param context Specification of the Bounded Context in scope of which the storage is used.
  * @param factory The storage factory to use when creating a record storage delegate.
- * @param spec The specification of how the items are stored.
- * @property entityIdColumn The column with the packed identifier of the entity.
- * @property createdColumn The column with the time the item was created.
- * @property versionColumn The column with the number of the entity version.
+ * @property spec The specification of the history.
  * @see EntityEventStorage
  * @see EntityStateHistoryStorage
  */
 public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
     context: ContextSpec,
     factory: StorageFactory,
-    spec: RecordSpec<I, M>,
-    private val entityIdColumn: RecordColumn<M, com.google.protobuf.Any>,
-    private val createdColumn: RecordColumn<M, Timestamp>,
-    private val versionColumn: RecordColumn<M, Int>
-) : MessageStorage<I, M>(context, factory.createRecordStorage(context, spec)) {
+    private val spec: HistorySpec<I, M>
+) : MessageStorage<I, M>(context, factory.createRecordStorage(context, spec.recordSpec)) {
 
     /**
      * Reads up to [batchSize] most recent history items of the entity with
@@ -101,14 +91,14 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
         requirePositiveBatchSize(batchSize)
         val packedId = Identifier.pack(entityId)
         val builder = queryBuilder()
-            .where(entityIdColumn).isEqualTo(packedId)
+            .where(spec.entityId).isEqualTo(packedId)
         if (startingFrom != null) {
-            builder.where(versionColumn)
+            builder.where(spec.version)
                 .isLessThan(startingFrom.number)
         }
         val query = builder
-            .sortDescendingBy(versionColumn)
-            .sortDescendingBy(createdColumn)
+            .sortDescendingBy(spec.version)
+            .sortDescendingBy(spec.created)
             .limit(batchSize)
             .build()
         return readAll(query)
@@ -131,9 +121,9 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
         requireNotNegative(keepMostRecent)
         val packedId = Identifier.pack(entityId)
         val newestFirst = queryBuilder()
-            .where(entityIdColumn).isEqualTo(packedId)
-            .sortDescendingBy(versionColumn)
-            .sortDescendingBy(createdColumn)
+            .where(spec.entityId).isEqualTo(packedId)
+            .sortDescendingBy(spec.version)
+            .sortDescendingBy(spec.created)
             .build()
         val items = readAll(newestFirst)
         val toDelete = items.asSequence()
@@ -180,7 +170,7 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
     public fun truncate(keepMostRecent: Int, olderThan: Timestamp) {
         truncate(keepMostRecent) { item ->
             // The column value comes from a complete stored item; never `null`.
-            val created = checkNotNull(createdColumn.valueIn(item))
+            val created = checkNotNull(spec.created.valueIn(item))
             Timestamps.compare(created, olderThan) < 0
         }
     }
@@ -188,15 +178,15 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
     private fun truncate(keepMostRecent: Int, deletionAllowed: (M) -> Boolean) {
         requireNotNegative(keepMostRecent)
         val newestFirst = queryBuilder()
-            .sortDescendingBy(versionColumn)
-            .sortDescendingBy(createdColumn)
+            .sortDescendingBy(spec.version)
+            .sortDescendingBy(spec.created)
             .build()
         val items = readAll(newestFirst)
         val seen = mutableMapOf<Any, Int>()
         val toDelete = mutableListOf<I>()
         items.forEach { item ->
             // The column value comes from a complete stored item; never `null`.
-            val entityId = checkNotNull(entityIdColumn.valueIn(item))
+            val entityId = checkNotNull(spec.entityId.valueIn(item))
             val count = (seen[entityId] ?: 0) + 1
             seen[entityId] = count
             if (count > keepMostRecent && deletionAllowed(item)) {

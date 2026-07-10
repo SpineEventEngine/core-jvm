@@ -29,7 +29,6 @@ package io.spine.server.entity.storage
 import com.google.protobuf.Any
 import com.google.protobuf.Timestamp
 import io.spine.core.Event
-import io.spine.query.Columns
 import io.spine.query.RecordColumn
 import io.spine.query.RecordColumns
 
@@ -68,10 +67,4 @@ public object EntityEventColumn {
         RecordColumn.create("version", Int::class.javaObjectType) { event ->
             event.context.version.number
         }
-
-    /**
-     * Returns all the column definitions.
-     */
-    @JvmStatic
-    public fun definitions(): Columns<Event> = Columns.of(entityId, created, version)
 }

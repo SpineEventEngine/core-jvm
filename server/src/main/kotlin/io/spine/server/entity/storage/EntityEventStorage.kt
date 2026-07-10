@@ -29,7 +29,6 @@ package io.spine.server.entity.storage
 import io.spine.core.Event
 import io.spine.core.EventId
 import io.spine.server.ContextSpec
-import io.spine.server.storage.RecordSpec
 import io.spine.server.storage.StorageFactory
 
 /**
@@ -65,14 +64,7 @@ import io.spine.server.storage.StorageFactory
 public class EntityEventStorage(
     context: ContextSpec,
     factory: StorageFactory
-) : HistoryStorage<EventId, Event>(
-    context,
-    factory,
-    spec,
-    EntityEventColumn.entityId,
-    EntityEventColumn.created,
-    EntityEventColumn.version
-) {
+) : HistoryStorage<EventId, Event>(context, factory, spec) {
 
     /**
      * Journals the given event.
@@ -96,11 +88,11 @@ public class EntityEventStorage(
 /**
  * A specification on how to store the journaled events.
  */
-private val spec: RecordSpec<EventId, Event> = RecordSpec(
+private val spec: HistorySpec<EventId, Event> = HistorySpec(
     EventId::class.java,
     Event::class.java,
-    // The parameter is nullable only because the SAM inherits Guava's `Function`;
-    // the framework never passes `null` records.
-    { event -> requireNotNull(event).id },
-    EntityEventColumn.definitions()
+    { event -> event.id },
+    EntityEventColumn.entityId,
+    EntityEventColumn.created,
+    EntityEventColumn.version
 )
