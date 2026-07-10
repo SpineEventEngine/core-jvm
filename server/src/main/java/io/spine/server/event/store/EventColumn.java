@@ -35,7 +35,7 @@ import io.spine.query.RecordColumns;
 import static io.spine.query.RecordColumn.create;
 
 /**
- * Columns stored along with {@link Event}.
+ * Columns stored along with {@link Event} in {@link io.spine.server.event.EventStore EventStore}.
  */
 @RecordColumns(ofType = Event.class)
 @SuppressWarnings("BadImport")    // `create` looks fine in this context.
