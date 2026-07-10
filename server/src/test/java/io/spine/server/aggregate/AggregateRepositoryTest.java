@@ -177,13 +177,13 @@ class AggregateRepositoryTest {
     // former snapshot trigger is superseded by the recent-history window, covered below.
 
     @Nested
-    @DisplayName("have a recent-history window")
-    class HaveHistoryDepth {
+    @DisplayName("have an event-history window")
+    class HaveEventHistoryDepth {
 
         @Test
         @DisplayName("set to the default value initially")
         void setToDefault() {
-            assertEquals(DEFAULT_HISTORY_DEPTH, repository().historyDepth());
+            assertEquals(DEFAULT_HISTORY_DEPTH, repository().eventHistoryDepth());
         }
 
         @Test
@@ -191,21 +191,23 @@ class AggregateRepositoryTest {
         void setToSpecifiedValue() {
             var newDepth = 1000;
 
-            repository().setHistoryDepth(newDepth);
+            repository().setEventHistoryDepth(newDepth);
 
-            assertEquals(newDepth, repository().historyDepth());
+            assertEquals(newDepth, repository().eventHistoryDepth());
         }
 
         @Test
         @DisplayName("never set to a negative value")
         void notSetToNegative() {
-            assertThrows(IllegalArgumentException.class, () -> repository().setHistoryDepth(-1));
+            assertThrows(IllegalArgumentException.class,
+                         () -> repository().setEventHistoryDepth(-1));
         }
 
         @Test
         @DisplayName("never set to a zero value")
         void notSetToZero() {
-            assertThrows(IllegalArgumentException.class, () -> repository().setHistoryDepth(0));
+            assertThrows(IllegalArgumentException.class,
+                         () -> repository().setEventHistoryDepth(0));
         }
     }
 

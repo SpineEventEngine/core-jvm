@@ -26,9 +26,10 @@
 
 package io.spine.server.aggregate.given.history
 
-import io.spine.server.aggregate.given.aggregate.TestAggregate
-import io.spine.server.aggregate.given.aggregate.TestAggregateRepository
+import io.spine.server.aggregate.given.aggregate.AbstractAggregateTestRepository
 import io.spine.server.entity.storage.EntityStateHistoryStorage
+import io.spine.test.aggregate.AggProject
+import io.spine.test.aggregate.ProjectId
 
 /**
  * A repository fixture opening the `protected` state history configuration
@@ -36,9 +37,11 @@ import io.spine.server.entity.storage.EntityStateHistoryStorage
  *
  * Java tests reach `protected` members by residing in the same package;
  * Kotlin has no package-private access, so this subclass widens exactly
- * what the spec needs.
+ * what the spec needs. Manages [HistoryReadingAggregate]s, which likewise
+ * widen the state history reads of `Aggregate`.
  */
-internal class StateHistoryTestRepository : TestAggregateRepository() {
+internal class StateHistoryTestRepository :
+    AbstractAggregateTestRepository<ProjectId, HistoryReadingAggregate, AggProject>() {
 
     /**
      * When set, skips the durable write-through, simulating the mid-batch
@@ -49,7 +52,7 @@ internal class StateHistoryTestRepository : TestAggregateRepository() {
     /**
      * Performs the write-through unless [deferWriteThrough] is set.
      */
-    override fun doStore(aggregate: TestAggregate) {
+    override fun doStore(aggregate: HistoryReadingAggregate) {
         if (!deferWriteThrough) {
             super.doStore(aggregate)
         }

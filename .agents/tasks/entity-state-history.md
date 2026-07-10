@@ -69,6 +69,14 @@ same storage to `ProcessManager`s without touching it.
   delivery records its intermediate versions too (moved out of `doStore()`
   after the PR #1650 Codex finding); the storage is closed in `close()`.
   `AggregatePart` repositories inherit everything.
+- **Aggregate read API** (added during the PR #1650 review — retrieval by
+  aggregates is the point of the feature): `Aggregate.stateAt(Timestamp):
+  Optional<S>` and `stateHistoryBackward(depth): Iterator<S>` over the new
+  `StateHistoryLoader` seam on `TransactionalEntity` (mirrors
+  `RecentHistoryLoader`, so Phase F wires only the PM repository side).
+  The repository installs a loader delegating to the fail-fast
+  `stateHistory()` accessor in `create(id)`; a bare instance outside
+  a repository reads empty.
 
 ## Verification
 

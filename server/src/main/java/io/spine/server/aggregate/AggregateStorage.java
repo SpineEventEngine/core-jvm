@@ -451,7 +451,7 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      * <p>Truncation bounds the {@linkplain Aggregate#historyBackward(int) recent history}
      * available to the business logic and to the opt-in {@link IdempotencyGuard}. When
      * the guard is {@linkplain AggregateRepository#useIdempotencyGuard() enabled}, keep
-     * at least the {@linkplain AggregateRepository#historyDepth() history depth} of
+     * at least the {@linkplain AggregateRepository#eventHistoryDepth() event history depth} of
      * the repository, so that the deduplication window stays intact.
      *
      * <p>The operation reads the whole journal, so it is intended for periodic

@@ -28,6 +28,7 @@ package io.spine.server.aggregate;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.Empty;
+import com.google.protobuf.Timestamp;
 import io.spine.annotation.Internal;
 import io.spine.annotation.VisibleForTesting;
 import io.spine.base.AggregateState;
@@ -40,6 +41,7 @@ import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.EntityRecord;
 import io.spine.server.entity.HasLifecycleColumns;
 import io.spine.server.entity.RecentHistory;
+import io.spine.server.entity.StateHistoryLoader;
 import io.spine.server.entity.Transaction;
 import io.spine.server.entity.TransactionalEntity;
 import io.spine.server.event.EventReactor;
@@ -50,13 +52,17 @@ import io.spine.validation.ValidatingBuilder;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterators.any;
+import static com.google.common.collect.Iterators.transform;
 import static io.spine.protobuf.AnyPacker.pack;
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.server.Ignored.ignored;
 import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
+import static java.util.Collections.emptyIterator;
 
 /**
  * Abstract base for aggregates.
@@ -473,6 +479,79 @@ public abstract class Aggregate<I,
     @Deprecated
     protected final boolean historyContains(Predicate<Event> predicate) {
         return historyContains(DEFAULT_HISTORY_DEPTH, predicate);
+    }
+
+    /**
+     * Obtains the state this aggregate had at the given point in time,
+     * if the recorded state history retains it.
+     *
+     * <p>The result is the recorded state with the highest version among those which
+     * became current not later than the given time. The answer is honest about
+     * retention: an empty result means the question cannot be answered from the
+     * retained window — the time either precedes the oldest retained record,
+     * or predates the aggregate itself.
+     *
+     * <p>The state history is an opt-in feature —
+     * see {@link AggregateRepository#recordStateHistory(int)}. Reading it while
+     * the repository of this aggregate does not record it is a configuration error.
+     * An aggregate created outside a repository has no recorded history and
+     * reads an empty result.
+     *
+     * @param time
+     *         the point in time to look at
+     * @return the state at the given time, or an empty {@code Optional} if the
+     *         recorded history does not retain it
+     * @throws IllegalStateException
+     *         if the repository of this aggregate does not record the state history
+     */
+    protected final Optional<S> stateAt(Timestamp time) {
+        var loader = stateHistoryLoader();
+        if (loader == null) {
+            return Optional.empty();
+        }
+        var record = loader.stateAt(time);
+        return Optional.ofNullable(record)
+                       .map(this::stateOf);
+    }
+
+    /**
+     * Creates an iterator over up to {@code depth} most recent recorded states of
+     * this aggregate, newest first.
+     *
+     * <p>Fewer states are returned if the recorded history retains fewer.
+     *
+     * <p>The state history is an opt-in feature —
+     * see {@link AggregateRepository#recordStateHistory(int)}. Reading it while
+     * the repository of this aggregate does not record it is a configuration error.
+     * An aggregate created outside a repository has no recorded history and
+     * reads an empty iterator.
+     *
+     * @param depth
+     *         the maximal number of the most recent states to return; must be positive
+     * @return new iterator instance
+     * @throws IllegalArgumentException
+     *         if the {@code depth} is not positive
+     * @throws IllegalStateException
+     *         if the repository of this aggregate does not record the state history
+     */
+    protected final Iterator<S> stateHistoryBackward(int depth) {
+        checkArgument(depth > 0, "The depth must be positive, got `%s`.", depth);
+        var loader = stateHistoryLoader();
+        if (loader == null) {
+            return emptyIterator();
+        }
+        var records = loader.load(depth);
+        return transform(records, this::stateOf);
+    }
+
+    /**
+     * Extracts the aggregate state from the given state history record.
+     */
+    private S stateOf(EntityRecord record) {
+        @SuppressWarnings("unchecked") /* The cast is safe since the record holds the state of
+            this aggregate, which is bound by the type <S>. */
+        var state = (S) unpack(record.getState());
+        return state;
     }
 
     /**

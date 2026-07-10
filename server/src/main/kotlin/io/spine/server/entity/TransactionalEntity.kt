@@ -55,6 +55,12 @@ public abstract class TransactionalEntity<I : Any, S : EntityState<I>, B : Valid
     private val recentHistory = RecentHistory()
 
     /**
+     * The loader of the recorded state history; `null` until installed by
+     * the repository recording the history.
+     */
+    private var stateHistoryLoader: StateHistoryLoader? = null
+
+    /**
      * The flag that becomes `true` if the state of the entity has been changed
      * since it has been [loaded or created][RecordBasedRepository.findOrCreate].
      */
@@ -98,6 +104,23 @@ public abstract class TransactionalEntity<I : Any, S : EntityState<I>, B : Valid
     public fun setRecentHistoryLoader(loader: RecentHistoryLoader) {
         recentHistory.useLoader(loader)
     }
+
+    /**
+     * Installs the loader serving the state history reads from the durable storage.
+     *
+     * Called by a repository recording the state history of its entities when
+     * an entity instance is created.
+     */
+    @Internal
+    public fun setStateHistoryLoader(loader: StateHistoryLoader) {
+        stateHistoryLoader = loader
+    }
+
+    /**
+     * Returns the installed state history loader, or `null` if the entity
+     * was created outside a repository.
+     */
+    protected fun stateHistoryLoader(): StateHistoryLoader? = stateHistoryLoader
 
     /**
      * A callback invoked before the transaction is committed.

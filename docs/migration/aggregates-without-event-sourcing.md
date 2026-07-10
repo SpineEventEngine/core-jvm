@@ -25,7 +25,7 @@ declares one now fails fast at model-building time.
 | Event import | `@Apply(allowImport = true)` + `ImportBus` | **removed** — use external reactions / gateways |
 | Dedup | always-on aggregate `IdempotencyGuard` | guard **opt-in, off** (performance); delivery has its own time-window dedup |
 | Recent history | `historyBackward()` (window = last snapshot) | `historyBackward(depth)` — explicit window |
-| Snapshots | `setSnapshotTrigger()`, `toSnapshot()` | **removed** — use `setHistoryDepth()` |
+| Snapshots | `setSnapshotTrigger()`, `toSnapshot()` | **removed** — use `setEventHistoryDepth()` |
 
 ## 1. Move applier bodies into handlers
 
@@ -235,9 +235,9 @@ Two independent deduplication mechanisms exist, and they are not interchangeable
   signal and the target entity (so one event fanned out to many aggregates is not falsely
   deduplicated — D5). Size its `deduplicationWindow` in production to your realistic
   redelivery/retry horizon.
-- The aggregate-level **`IdempotencyGuard`** deduplicates against the last `historyDepth()`
-  *signals* (default 100), however long ago they were dispatched — a count-based window, not
-  a time-based one.
+- The aggregate-level **`IdempotencyGuard`** deduplicates against the last
+  `eventHistoryDepth()` *signals* (default 100), however long ago they were dispatched —
+  a count-based window, not a time-based one.
 
 The guard is **opt-in, per repository, and off by default**, and the reason is performance:
 enabling it adds a bounded journal read to every dispatch. It is *not* off because the delivery
@@ -251,9 +251,9 @@ final class OrdersRepository extends AggregateRepository<OrderId, Order, OrderSt
 }
 ```
 
-When enabled, each dispatch scans the last `historyDepth()` journal events (default 100)
+When enabled, each dispatch scans the last `eventHistoryDepth()` journal events (default 100)
 rather than "everything since the last snapshot"; high-throughput aggregates that enable it
-should tune `historyDepth`. With the guard off (the default), a redelivery after a JVM restart
+should tune `eventHistoryDepth`. With the guard off (the default), a redelivery after a JVM restart
 or cache eviction outside the delivery `deduplicationWindow` could apply a state mutation
 twice, since state now changes directly in the handler — so size that window accordingly.
 
@@ -271,8 +271,8 @@ several events sharing one version. History is loaded lazily from the journal ta
 the request.
 
 The parameterless `historyBackward()` and `historyContains(Predicate)` are **deprecated but
-still work**, delegating with a fixed `depth` of 100 — regardless of any `setHistoryDepth(n)`
-you configure. Their effective window changes from "everything since the last snapshot" to
+still work**, delegating with a fixed `depth` of 100 — regardless of any
+`setEventHistoryDepth(n)` you configure. Their effective window changes from "everything since the last snapshot" to
 "the last 100 events." Move to the explicit forms and state the window your logic needs.
 
 ## 7. Snapshot configuration is removed
@@ -281,8 +281,8 @@ Snapshots no longer exist, so their configuration is gone (not merely deprecated
 
 | Removed | Replacement |
 |---------|-------------|
-| `AggregateRepository.setSnapshotTrigger(int)` | `AggregateRepository.setHistoryDepth(int)` |
-| `AggregateRepository.snapshotTrigger()` | `AggregateRepository.historyDepth()` |
+| `AggregateRepository.setSnapshotTrigger(int)` | `AggregateRepository.setEventHistoryDepth(int)` |
+| `AggregateRepository.snapshotTrigger()` | `AggregateRepository.eventHistoryDepth()` |
 | `Aggregate.toSnapshot()` | — (loading reads the state record) |
 
 The `Snapshot` and `AggregateHistory` proto messages are **retained** for journal wire
@@ -299,7 +299,7 @@ storage.truncate(keepMostRecent, olderThan); // drop events older than the time,
 
 The journal is append-only on the write path, so production systems run the truncation
 as periodic maintenance. When the opt-in `IdempotencyGuard` is enabled (§5), keep at
-least the repository's `historyDepth` events, so the deduplication window stays intact.
+least the repository's `eventHistoryDepth` events, so the deduplication window stays intact.
 
 ## 8. Data caveat — `NONE`-visibility aggregates are a hard break
 
@@ -362,8 +362,8 @@ The legacy records stay on disk as inert data; the current runtime does not read
 **Removed** (compile errors — migrate the call site):
 
 - `Aggregate` `@Apply` appliers → move bodies into `@Assign` / `@React` (§1)
-- `AggregateRepository.setSnapshotTrigger(int)` / `snapshotTrigger()` → `setHistoryDepth` /
-  `historyDepth` (§7)
+- `AggregateRepository.setSnapshotTrigger(int)` / `snapshotTrigger()` → `setEventHistoryDepth` /
+  `eventHistoryDepth` (§7)
 - `Aggregate.toSnapshot()` (§7)
 - `ImportBus`, `EventImportEndpoint`, `EventImportDispatcher`,
   `UnsupportedImportEventException`,

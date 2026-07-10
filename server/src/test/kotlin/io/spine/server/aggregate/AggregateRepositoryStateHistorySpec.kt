@@ -32,6 +32,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import io.spine.base.Identifier
 import io.spine.base.Time.currentTime
@@ -41,6 +42,7 @@ import io.spine.protobuf.AnyPacker
 import io.spine.server.BoundedContext
 import io.spine.server.BoundedContextBuilder
 import io.spine.server.aggregate.given.Given
+import io.spine.server.aggregate.given.history.HistoryReadingAggregate
 import io.spine.server.aggregate.given.history.StateHistoryTestRepository
 import io.spine.server.entity.EntityRecord
 import io.spine.test.aggregate.ProjectId
@@ -175,6 +177,58 @@ internal class AggregateRepositoryStateHistorySpec {
 
         val records = historyRecords()
         records.map { it.version.number } shouldContainExactly listOf(4, 3)
+    }
+
+    @Test
+    fun `let an aggregate read its state at a given time`() {
+        repository.enableStateHistory(depth = 10)
+        post(Given.ACommand.createProject(projectId))
+        post(Given.ACommand.addTask(projectId))
+        val aggregate = repository.loadAggregate(projectId)
+
+        val current = aggregate.readStateAt(currentTime())
+
+        current.get() shouldBe aggregate.state()
+        val oldest = historyRecords().last()
+        val beforeEntity = subtract(oldest.version.timestamp, Durations.fromSeconds(1))
+        aggregate.readStateAt(beforeEntity).isPresent shouldBe false
+    }
+
+    @Test
+    fun `let an aggregate read its recent states newest first`() {
+        repository.enableStateHistory(depth = 10)
+        post(Given.ACommand.createProject(projectId))
+        post(Given.ACommand.addTask(projectId))
+        val aggregate = repository.loadAggregate(projectId)
+
+        val states = aggregate.readStatesBackward(10)
+            .asSequence()
+            .toList()
+
+        states shouldHaveSize 2
+        states[0] shouldBe aggregate.state()
+        states[1] shouldNotBe states[0]
+    }
+
+    @Test
+    fun `fail fast when an aggregate reads the history which is not recorded`() {
+        post(Given.ACommand.createProject(projectId))
+        val aggregate = repository.loadAggregate(projectId)
+
+        shouldThrow<IllegalStateException> {
+            aggregate.readStateAt(currentTime())
+        }
+        shouldThrow<IllegalStateException> {
+            aggregate.readStatesBackward(10)
+        }
+    }
+
+    @Test
+    fun `serve an empty state history to an aggregate created outside a repository`() {
+        val bare = HistoryReadingAggregate(projectId)
+
+        bare.readStateAt(currentTime()).isPresent shouldBe false
+        bare.readStatesBackward(10).hasNext() shouldBe false
     }
 
     private fun historyRecords(): List<EntityRecord> =

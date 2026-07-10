@@ -42,10 +42,13 @@ import io.spine.server.storage.StorageFactory
  * The history of recent states of entities, retained to a bounded depth.
  *
  * The history stores the [EntityRecord] an entity had after each dispatch,
- * keyed by the entity identifier and the version number. It serves debugging
- * and analysis — e.g., answering the ["state at a time" query][stateAt] —
- * and is never used for loading: an entity loads from its latest record in
- * the corresponding [EntityRecordStorage].
+ * keyed by the entity identifier and the version number. Entities read their
+ * recorded states through a [StateHistoryLoader][io.spine.server.entity.StateHistoryLoader]
+ * installed by the repository — e.g., `Aggregate.stateAt(Timestamp)` — and
+ * the storage also serves debugging and analysis, answering
+ * the ["state at a time" query][stateAt]. The history is never used for
+ * loading: an entity loads from its latest record in the corresponding
+ * [EntityRecordStorage].
  *
  * Recording is opt-in per repository and is off by default; see
  * [recordStateHistory][io.spine.server.aggregate.AggregateRepository.recordStateHistory]

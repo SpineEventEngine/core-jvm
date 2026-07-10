@@ -79,8 +79,10 @@ aggregate `IdempotencyGuard` is an **opt-in, off-by-default** backstop. Recent
 history is loaded **lazily on demand** from the tail of the event journal,
 sized to the request: business calls state their own window via
 `historyBackward(depth)` / `historyContains(depth, …)` (ADR D10), while the
-new `historyDepth` repository setting (default 100) is the guard's window and
-the default of the deprecated parameterless forms.
+new `historyDepth` repository setting (default 100; renamed
+`eventHistoryDepth` on 2026-07-10 in PR #1650, once the Phase E state-history
+depth appeared beside it) is the guard's window and the default of the
+deprecated parameterless forms.
 
 ### Two load-critical invariants the cutover MUST establish
 
@@ -510,6 +512,14 @@ truncation and the legacy `AggregateEventStorage` were removed outright
    all backends; a backend may push the `time <= T` comparison down once
    `Timestamp` columns are comparable in filters (cf. the orderable-types
    work, issue #1217).
+   **Retrieval by Aggregates (product owner, 2026-07-10, PR #1650 review):**
+   the read API surfaces on the entity — `Aggregate.stateAt(Timestamp)` /
+   `stateHistoryBackward(depth)` over a `StateHistoryLoader` seam on
+   `TransactionalEntity` (mirrors the journal's `RecentHistoryLoader`) — so
+   business logic can consult prior states; the repository-level
+   `stateHistory()` accessor remains for diagnostics. The loader delegates
+   to the fail-fast accessor, so reads from a non-recording repository fail
+   fast at the entity too; a bare instance outside a repository reads empty.
 
 ## Phase F — entity event history and state history for Process Managers
 
@@ -566,7 +576,11 @@ Locked decisions (product owner, 2026-07-10):
    `doStore()` to the batch end, which would drop the intermediate
    versions). Same config surface (depth, enable/disable, optional
    duration-based retention): hoist a configuration shape shared with
-   `AggregateRepository` rather than duplicating it.
+   `AggregateRepository` rather than duplicating it. PM business reads
+   mirror `Aggregate.stateAt(Timestamp)` / `stateHistoryBackward(depth)`;
+   the `StateHistoryLoader` seam on `TransactionalEntity` is already in
+   place (PR #1650) — wire only the loader installation in the PM
+   repository.
 4. "State at time T" works for PMs — verify, don't build. PMs have advanced
    their version +1 per dispatch via `VersionIncrement.sequentially` all
    along (the semantics A3 adopted for aggregates), so the `Version`
