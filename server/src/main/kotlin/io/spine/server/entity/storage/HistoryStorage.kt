@@ -58,15 +58,20 @@ import io.spine.server.storage.StorageFactory
  * @param M The type of the stored history items.
  * @param context Specification of the Bounded Context in scope of which the storage is used.
  * @param factory The storage factory to use when creating a record storage delegate.
- * @property spec The specification of the history.
+ * @param spec The specification of the history.
  * @see EntityEventStorage
  * @see EntityStateHistoryStorage
  */
 public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
     context: ContextSpec,
     factory: StorageFactory,
-    private val spec: HistorySpec<I, M>
+    spec: HistorySpec<I, M>
 ) : MessageStorage<I, M>(context, factory.createRecordStorage(context, spec.recordSpec)) {
+
+    /**
+     * The columns to manage and query the history by.
+     */
+    private val columns: HistoryColumns<M> = spec.columns
 
     /**
      * Reads up to [batchSize] most recent history items of the entity with
@@ -91,14 +96,14 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
         requirePositiveBatchSize(batchSize)
         val packedId = Identifier.pack(entityId)
         val builder = queryBuilder()
-            .where(spec.entityId).isEqualTo(packedId)
+            .where(columns.entityId).isEqualTo(packedId)
         if (startingFrom != null) {
-            builder.where(spec.version)
+            builder.where(columns.version)
                 .isLessThan(startingFrom.number)
         }
         val query = builder
-            .sortDescendingBy(spec.version)
-            .sortDescendingBy(spec.created)
+            .sortDescendingBy(columns.version)
+            .sortDescendingBy(columns.created)
             .limit(batchSize)
             .build()
         return readAll(query)
@@ -121,9 +126,9 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
         requireNotNegative(keepMostRecent)
         val packedId = Identifier.pack(entityId)
         val newestFirst = queryBuilder()
-            .where(spec.entityId).isEqualTo(packedId)
-            .sortDescendingBy(spec.version)
-            .sortDescendingBy(spec.created)
+            .where(columns.entityId).isEqualTo(packedId)
+            .sortDescendingBy(columns.version)
+            .sortDescendingBy(columns.created)
             .build()
         val items = readAll(newestFirst)
         val toDelete = items.asSequence()
@@ -170,7 +175,7 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
     public fun truncate(keepMostRecent: Int, olderThan: Timestamp) {
         truncate(keepMostRecent) { item ->
             // The column value comes from a complete stored item; never `null`.
-            val created = checkNotNull(spec.created.valueIn(item))
+            val created = checkNotNull(columns.created.valueIn(item))
             Timestamps.compare(created, olderThan) < 0
         }
     }
@@ -178,15 +183,15 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
     private fun truncate(keepMostRecent: Int, deletionAllowed: (M) -> Boolean) {
         requireNotNegative(keepMostRecent)
         val newestFirst = queryBuilder()
-            .sortDescendingBy(spec.version)
-            .sortDescendingBy(spec.created)
+            .sortDescendingBy(columns.version)
+            .sortDescendingBy(columns.created)
             .build()
         val items = readAll(newestFirst)
         val seen = mutableMapOf<Any, Int>()
         val toDelete = mutableListOf<I>()
         items.forEach { item ->
             // The column value comes from a complete stored item; never `null`.
-            val entityId = checkNotNull(spec.entityId.valueIn(item))
+            val entityId = checkNotNull(columns.entityId.valueIn(item))
             val count = (seen[entityId] ?: 0) + 1
             seen[entityId] = count
             if (count > keepMostRecent && deletionAllowed(item)) {
