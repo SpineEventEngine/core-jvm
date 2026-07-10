@@ -300,7 +300,7 @@ public abstract class AggregateRepository<I,
     @Override
     public A create(I id) {
         var aggregate = aggregateClass().create(id);
-        aggregate.setRecentHistoryLoader(
+        aggregate.setEventHistoryLoader(
                 depth -> aggregateStorage().readHistoryBackward(id, depth)
                                            .iterator());
         aggregate.setStateHistoryLoader(stateHistoryLoaderFor(id));

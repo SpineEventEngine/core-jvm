@@ -40,8 +40,8 @@ import io.spine.server.command.AssigneeEntity;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.EntityRecord;
 import io.spine.server.entity.HasLifecycleColumns;
-import io.spine.server.entity.RecentHistory;
-import io.spine.server.entity.StateHistoryLoader;
+import io.spine.server.entity.RecentEventHistory;
+import io.spine.server.entity.RecentStateHistory;
 import io.spine.server.entity.Transaction;
 import io.spine.server.entity.TransactionalEntity;
 import io.spine.server.event.EventReactor;
@@ -55,14 +55,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterators.any;
-import static com.google.common.collect.Iterators.transform;
 import static io.spine.protobuf.AnyPacker.pack;
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.server.Ignored.ignored;
 import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
-import static java.util.Collections.emptyIterator;
 
 /**
  * Abstract base for aggregates.
@@ -423,8 +420,8 @@ public abstract class Aggregate<I,
      */
     @VisibleForTesting
     @Override
-    protected final RecentHistory recentHistory() {
-        return super.recentHistory();
+    protected final RecentEventHistory recentEventHistory() {
+        return super.recentEventHistory();
     }
 
     /**
@@ -441,7 +438,7 @@ public abstract class Aggregate<I,
      *         if the {@code depth} is not positive
      */
     protected final Iterator<Event> historyBackward(int depth) {
-        return recentHistory().read(depth);
+        return recentEventHistory().read(depth);
     }
 
     /**
@@ -505,13 +502,8 @@ public abstract class Aggregate<I,
      *         if the repository of this aggregate does not record the state history
      */
     protected final Optional<S> stateAt(Timestamp time) {
-        var loader = stateHistoryLoader();
-        if (loader == null) {
-            return Optional.empty();
-        }
-        var record = loader.stateAt(time);
-        return Optional.ofNullable(record)
-                       .map(this::stateOf);
+        var state = recentStateHistory().stateAt(time);
+        return Optional.ofNullable(state);
     }
 
     /**
@@ -535,23 +527,7 @@ public abstract class Aggregate<I,
      *         if the repository of this aggregate does not record the state history
      */
     protected final Iterator<S> stateHistoryBackward(int depth) {
-        checkArgument(depth > 0, "The depth must be positive, got `%s`.", depth);
-        var loader = stateHistoryLoader();
-        if (loader == null) {
-            return emptyIterator();
-        }
-        var records = loader.load(depth);
-        return transform(records, this::stateOf);
-    }
-
-    /**
-     * Extracts the aggregate state from the given state history record.
-     */
-    private S stateOf(EntityRecord record) {
-        @SuppressWarnings("unchecked") /* The cast is safe since the record holds the state of
-            this aggregate, which is bound by the type <S>. */
-        var state = (S) unpack(record.getState());
-        return state;
+        return recentStateHistory().read(depth);
     }
 
     /**

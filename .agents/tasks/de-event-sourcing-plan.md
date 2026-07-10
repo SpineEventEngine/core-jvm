@@ -514,8 +514,9 @@ truncation and the legacy `AggregateEventStorage` were removed outright
    work, issue #1217).
    **Retrieval by Aggregates (product owner, 2026-07-10, PR #1650 review):**
    the read API surfaces on the entity — `Aggregate.stateAt(Timestamp)` /
-   `stateHistoryBackward(depth)` over a `StateHistoryLoader` seam on
-   `TransactionalEntity` (mirrors the journal's `RecentHistoryLoader`) — so
+   `stateHistoryBackward(depth)` over the `RecentStateHistory<S>` of
+   `TransactionalEntity` (a sibling of `RecentEventHistory` under the
+   generic `RecentHistory<T>` base) fed by a `StateHistoryLoader` — so
    business logic can consult prior states; the repository-level
    `stateHistory()` accessor remains for diagnostics. The loader delegates
    to the fail-fast accessor, so reads from a non-recording repository fail
@@ -525,9 +526,11 @@ truncation and the legacy `AggregateEventStorage` were removed outright
 
 Wiring-only by design: `EntityEventStorage` (Phase D) and
 `EntityStateHistoryStorage` (Phase E) are entity-level contracts on purpose
-(Phase E item 4), and PR #1649 left the entity layer ready — `RecentHistory`
-reads lazily through `RecentHistoryLoader` (`io.spine.server.entity`),
-installed via `TransactionalEntity.setRecentHistoryLoader`, and
+(Phase E item 4), and PR #1649 left the entity layer ready —
+`RecentEventHistory` reads lazily through `EventHistoryLoader`
+(`io.spine.server.entity`; names as of the PR #1650 unification: a generic
+`RecentHistory<T>` base with `RecentEventHistory` and `RecentStateHistory<S>`),
+installed via `TransactionalEntity.setEventHistoryLoader`, and
 `EntityEventStorage.write(Event)` resolves the journaling entity from
 `context.producerId`. If a contract change turns out to be necessary here,
 that is a Phase D/E design defect: fix it there, do not fork PM-specific
@@ -561,7 +564,7 @@ Locked decisions (product owner, 2026-07-10):
    travel through `postEvents` (`PmEndpoint.postRejection`) and are not part
    of an entity's history — parity with aggregates, whose journal never
    contained rejections.
-2. Business history API (with item 1). Install the `RecentHistoryLoader` on
+2. Business history API (with item 1). Install the `EventHistoryLoader` on
    PM instances the way `AggregateRepository` does for aggregates; add
    `historyBackward` / `historyContains` to `ProcessManager` mirroring
    `Aggregate`'s (fail-fast per the locked decision above). Kotlin tests:

@@ -71,12 +71,15 @@ same storage to `ProcessManager`s without touching it.
   `AggregatePart` repositories inherit everything.
 - **Aggregate read API** (added during the PR #1650 review — retrieval by
   aggregates is the point of the feature): `Aggregate.stateAt(Timestamp):
-  Optional<S>` and `stateHistoryBackward(depth): Iterator<S>` over the new
-  `StateHistoryLoader` seam on `TransactionalEntity` (mirrors
-  `RecentHistoryLoader`, so Phase F wires only the PM repository side).
-  The repository installs a loader delegating to the fail-fast
-  `stateHistory()` accessor in `create(id)`; a bare instance outside
-  a repository reads empty.
+  Optional<S>` and `stateHistoryBackward(depth): Iterator<S>`, delegating
+  to the `RecentStateHistory<S>` of `TransactionalEntity`. The recent
+  histories are unified (product owner, 2026-07-10): a generic
+  `RecentHistory<T>` base with `RecentEventHistory` (the renamed event
+  view; loader renamed `EventHistoryLoader`) and `RecentStateHistory<S>`
+  (fed by `StateHistoryLoader`, unpacking records to the state type) —
+  so Phase F wires only the PM repository side. The repository installs
+  a loader delegating to the fail-fast `stateHistory()` accessor in
+  `create(id)`; a bare instance outside a repository reads empty.
 
 ## Verification
 

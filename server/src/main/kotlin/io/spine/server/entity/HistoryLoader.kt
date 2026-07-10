@@ -24,33 +24,32 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.server.entity;
+package io.spine.server.entity
 
-import io.spine.annotation.Internal;
-import io.spine.core.Event;
-
-import java.util.Iterator;
+import io.spine.annotation.Internal
 
 /**
- * Lazily loads up to a requested number of an entity's most recent journal events,
- * newest first.
+ * Lazily loads up to a requested number of the most recent items of
+ * an entity's durable history, newest first.
  *
- * <p>A repository installs a loader on each entity it creates or loads (via
- * {@link TransactionalEntity#setRecentHistoryLoader(RecentHistoryLoader)}), so that the
- * {@linkplain RecentHistory#read(int) recent history reads} are served from the durable
- * journal of the entity without eagerly reading it on every load. See
- * {@code io.spine.server.aggregate.AggregateRepository} for the wiring on the aggregate side.
+ * A repository installs a loader on each entity it creates or loads, so
+ * that the [recent history reads][RecentHistory.read] are served from
+ * the durable storage of the entity without eagerly reading it on every
+ * load.
+ *
+ * @param R The type of the loaded items.
+ * @see EventHistoryLoader
+ * @see StateHistoryLoader
  */
 @Internal
-@FunctionalInterface
-public interface RecentHistoryLoader {
+public interface HistoryLoader<R : Any> {
 
     /**
-     * Loads up to {@code depth} most recent events of the entity's journal, newest first.
+     * Loads up to [depth] most recent items of the entity's history,
+     * newest first.
      *
-     * @param depth
-     *         the maximum number of the most recent events to load; positive
-     * @return an iterator over the loaded events, newest first
+     * @param depth The maximum number of the most recent items to load; positive.
+     * @return An iterator over the loaded items, newest first.
      */
-    Iterator<Event> load(int depth);
+    public fun load(depth: Int): Iterator<R>
 }

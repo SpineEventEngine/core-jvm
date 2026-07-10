@@ -26,35 +26,21 @@
 
 package io.spine.server.entity
 
-import com.google.protobuf.Timestamp
-import io.spine.annotation.Internal
+import io.spine.core.Event
 
 /**
- * Loads the recorded state history of an entity from the durable storage.
+ * The recent history of events of a [TransactionalEntity].
  *
- * An instance is installed via [TransactionalEntity.setStateHistoryLoader]
- * by the repository owning the entity — see
- * `AggregateRepository.recordStateHistory(int)`. An entity created outside
- * a repository has no loader, and its state history reads come back empty.
+ * The events are read from the durable journal of the entity via the loader
+ * [installed][TransactionalEntity.setEventHistoryLoader] by the repository
+ * managing the entity.
  *
- * @see io.spine.server.entity.storage.EntityStateHistoryStorage
+ * An entity created outside a repository has no journal, so the reads
+ * return no events.
  */
-@Internal
-public interface StateHistoryLoader : HistoryLoader<EntityRecord> {
+public class RecentEventHistory internal constructor() :
+    RecentHistory<Event, EventHistoryLoader>() {
 
-    /**
-     * Loads up to [depth] most recent state records of the entity,
-     * ordered from newer to older.
-     *
-     * @param depth The maximum number of the records to load.
-     */
-    override fun load(depth: Int): Iterator<EntityRecord>
-
-    /**
-     * Loads the state record the entity had at the given time, or `null`
-     * if the recorded history does not retain it.
-     *
-     * @param at The point in time to look at.
-     */
-    public fun stateAt(at: Timestamp): EntityRecord?
+    override fun load(loader: EventHistoryLoader, depth: Int): Iterator<Event> =
+        loader.load(depth)
 }
