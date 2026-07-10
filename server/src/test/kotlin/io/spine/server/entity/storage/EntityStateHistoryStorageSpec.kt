@@ -153,6 +153,18 @@ internal class EntityStateHistoryStorageSpec {
             }
         }
 
+        @Test
+        fun `rejecting an identifier that does not match the record`() {
+            val written = record(number = 1)
+            val mismatching = entityStateId {
+                entityId = written.entityId
+                version = 42
+            }
+            shouldThrow<IllegalArgumentException> {
+                storage.write(mismatching, written)
+            }
+        }
+
         private fun versionWithoutTimestamp(): @NonValidated Version =
             Version.newBuilder()
                 .setNumber(1)
@@ -417,7 +429,7 @@ internal class EntityStateHistoryStorageSpec {
         at: Timestamp,
         entity: String = entityId
     ): EntityRecord {
-        val result = record(entity, number, at)
+        val result = record(entity = entity, number = number, at = at)
         storage.write(result)
         return result
     }
@@ -438,7 +450,7 @@ internal class EntityStateHistoryStorageSpec {
     ): List<EntityRecord> {
         val records = List(count) {
             lastVersion++
-            record(toEntity, lastVersion, at ?: currentTime())
+            record(entity = toEntity, number = lastVersion, at = at ?: currentTime())
         }
         records.forEach {
             storage.write(it)

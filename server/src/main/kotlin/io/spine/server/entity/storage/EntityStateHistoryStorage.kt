@@ -48,17 +48,17 @@ import io.spine.server.storage.StorageFactory
  * the corresponding [EntityRecordStorage].
  *
  * Recording is opt-in per repository and is off by default; see
- * [AggregateRepository.recordStateHistory][io.spine.server.aggregate.AggregateRepository.recordStateHistory].
- * The recording repository [trims][trim] the history to its configured depth
- * after each write, so how far back the history reaches depends on how often
- * the entity is updated.
+ * [recordStateHistory][io.spine.server.aggregate.AggregateRepository.recordStateHistory]
+ * in `AggregateRepository`. The recording repository [trims][trim] the history
+ * to its configured depth after each write, so how far back the history
+ * reaches depends on how often the entity is updated.
  *
  * The records are stored as-is; the entity, the time the state became
  * current, and the version number are exposed for querying as the
  * [columns][EntityStateHistoryColumn] derived from the record.
  *
- * Nothing in this storage is specific to a kind of entity: `Aggregate`s
- * record their state history first, with `ProcessManager`s planned next.
+ * Nothing in this storage is specific to a kind of entity; currently,
+ * `Aggregate`s are the only kind recording their state history.
  *
  * The class is deliberately final: storage vendors customize the persistence
  * via the [RecordStorage][io.spine.server.storage.RecordStorage] delegate
@@ -67,6 +67,7 @@ import io.spine.server.storage.StorageFactory
  * @param context Specification of the Bounded Context in scope of which the storage is used.
  * @param factory The storage factory to use when creating a record storage delegate.
  */
+@Suppress("TooManyFunctions") // A cohesive facade over reads, writes, and maintenance.
 public class EntityStateHistoryStorage(
     context: ContextSpec,
     factory: StorageFactory
@@ -142,16 +143,43 @@ public class EntityStateHistoryStorage(
      *   no version, or its version has no timestamp.
      */
     public override fun write(message: EntityRecord) {
-        require(message.hasEntityId()) {
+        validate(message)
+        super.write(message)
+    }
+
+    /**
+     * Stores the given state record under the given identifier.
+     *
+     * The record key of this storage is derived from the record content,
+     * so the passed identifier must match the entity and the version of
+     * the record; prefer the one-argument [write].
+     *
+     * @param id The identifier of the record.
+     * @param message The state record to store.
+     * @throws IllegalArgumentException If the record is incomplete (see the
+     *   one-argument [write]), or if the identifier does not match the record.
+     */
+    public override fun write(id: EntityStateId, message: EntityRecord) {
+        validate(message)
+        require(id == message.stateId()) {
+            "The passed identifier does not match the entity and the version of the record."
+        }
+        super.write(id, message)
+    }
+
+    /**
+     * Ensures the record carries the fields the history relies upon.
+     */
+    private fun validate(record: EntityRecord) {
+        require(record.hasEntityId()) {
             "The state record must have the entity identifier."
         }
-        require(message.hasVersion()) {
+        require(record.hasVersion()) {
             "The state record must have a version."
         }
-        require(message.version.hasTimestamp()) {
+        require(record.version.hasTimestamp()) {
             "The version of the state record must have a timestamp."
         }
-        super.write(message)
     }
 
     /**
@@ -168,9 +196,7 @@ public class EntityStateHistoryStorage(
      *   of [entityId] is not supported by the framework.
      */
     public fun trim(entityId: Any, keepMostRecent: Int) {
-        require(keepMostRecent >= 0) {
-            "The number of the records to keep must not be negative, got `$keepMostRecent`."
-        }
+        requireNotNegative(keepMostRecent)
         val packedId = Identifier.pack(entityId)
         val newestFirst = queryBuilder()
             .where(EntityStateHistoryColumn.entityId).isEqualTo(packedId)
@@ -216,7 +242,8 @@ public class EntityStateHistoryStorage(
      * maintenance rather than for per-dispatch use; see [trim] for the latter.
      *
      * @param keepMostRecent The number of the most recent records to keep for each entity.
-     * @param olderThan Only the records created strictly before this time are deleted.
+     * @param olderThan Only the records whose states became current strictly
+     *   before this time are deleted.
      * @throws IllegalArgumentException If [keepMostRecent] is negative.
      */
     public fun truncate(keepMostRecent: Int, olderThan: Timestamp) {
@@ -226,9 +253,7 @@ public class EntityStateHistoryStorage(
     }
 
     private fun truncate(keepMostRecent: Int, deletionAllowed: (EntityRecord) -> Boolean) {
-        require(keepMostRecent >= 0) {
-            "The number of the records to keep must not be negative, got `$keepMostRecent`."
-        }
+        requireNotNegative(keepMostRecent)
         val newestFirst = queryBuilder()
             .sortDescendingBy(EntityStateHistoryColumn.version)
             .build()
@@ -244,6 +269,15 @@ public class EntityStateHistoryStorage(
             }
         }
         deleteAll(toDelete)
+    }
+
+    /**
+     * Ensures the size of a window to keep is not negative.
+     */
+    private fun requireNotNegative(keepMostRecent: Int) {
+        require(keepMostRecent >= 0) {
+            "The number of the records to keep must not be negative, got `$keepMostRecent`."
+        }
     }
 
     /**

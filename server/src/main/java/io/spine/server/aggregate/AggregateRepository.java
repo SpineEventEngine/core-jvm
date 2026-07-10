@@ -123,7 +123,7 @@ public abstract class AggregateRepository<I,
         implements CommandDispatcher, EventProducingRepository,
                    EventDispatcherDelegate, QueryableRepository<I, S> {
 
-    /** The default {@link #historyDepth()} value. */
+    /** The default {@link #historyDepth()} and {@link #stateHistoryDepth()} value. */
     static final int DEFAULT_HISTORY_DEPTH = 100;
 
     /** The routing schema for commands handled by the aggregates. */
@@ -733,6 +733,16 @@ public abstract class AggregateRepository<I,
         if (inbox != null) {
             inbox.unregister();
         }
+        closeStateHistory();
+    }
+
+    /**
+     * Closes the state history storage if it was created.
+     *
+     * <p>Synchronized to pair with {@link #stateHistoryStorage()}: the storage may have been
+     * created by a dispatch worker, and the closing thread must observe that write.
+     */
+    private synchronized void closeStateHistory() {
         if (stateHistory != null && stateHistory.isOpen()) {
             stateHistory.close();
         }

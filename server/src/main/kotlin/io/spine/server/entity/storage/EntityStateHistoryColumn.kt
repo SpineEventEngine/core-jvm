@@ -37,7 +37,7 @@ import io.spine.server.entity.EntityRecord
  * Columns stored along with an [EntityRecord] kept by [EntityStateHistoryStorage].
  *
  * The column values are derived from the entity identifier and the [version]
- * of the stored record. The column set matches the one of [EntityEventColumn],
+ * of the stored record. The column set matches that of [EntityEventColumn],
  * so the state history and the event journal of an entity are queryable by
  * the same axes. The column names follow the storage-level `snake_case`
  * convention used by the other record kinds.
@@ -58,7 +58,7 @@ public object EntityStateHistoryColumn {
      * Stores the time when the recorded state became current.
      *
      * The value is the timestamp of the record [version], stamped when
-     * the entity was dispatched the signal that produced this state.
+     * the signal that produced this state was dispatched to the entity.
      */
     @JvmField
     public val created: RecordColumn<EntityRecord, Timestamp> =

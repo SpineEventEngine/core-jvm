@@ -139,6 +139,17 @@ internal class AggregateRepositoryStateHistorySpec {
     }
 
     @Test
+    fun `close the state history storage when the repository is closed`() {
+        repository.enableStateHistory(depth = 10)
+        post(Given.ACommand.createProject(projectId))
+        val history = repository.history()
+
+        repository.close()
+
+        history.isOpen shouldBe false
+    }
+
+    @Test
     fun `bound the history by the configured depth`() {
         repository.enableStateHistory(depth = 2)
 
