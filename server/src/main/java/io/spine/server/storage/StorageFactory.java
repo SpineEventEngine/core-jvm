@@ -52,7 +52,7 @@ import io.spine.server.migration.mirror.MirrorStorage;
  *
  * <p>In order to unify the structure of the stored information and the way of its further
  * retrieval, a {@link RecordStorage} type is made a common ground for all other storage
- * types. It is capable of storing and querying any Protobuf messages, and provides
+ * types. It is capable of storing and querying any Protobuf messages and provides
  * a configuration API for detailing on how each message is transformed into a stored record.
  *
  * <p>To achieve that, each of the storage classes starts its own initialization by creating
@@ -146,7 +146,7 @@ public interface StorageFactory extends Closeable {
      * @param <S>
      *         the type of the entity state
      * @param context
-     *         specification of the Bounded Context, in scope of which this storage will be used
+     *         specification of the Bounded Context, in the scope of which this storage will be used
      * @param entityClass
      *         the class of entities to be stored
      */
@@ -195,7 +195,7 @@ public interface StorageFactory extends Closeable {
      * {@linkplain io.spine.server.migration.mirror.MirrorMigration migrate mirrors} from Spine 1.x.
      *
      * @param context
-     *         specification of the Bounded Context, in scope of which this storage will be used
+     *         specification of the Bounded Context, in the scope of which this storage will be used
      */
     default MirrorStorage createMirrorStorage(ContextSpec context) {
         return new MirrorStorage(context, this);
