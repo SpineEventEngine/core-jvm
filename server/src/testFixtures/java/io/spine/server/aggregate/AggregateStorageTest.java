@@ -44,11 +44,9 @@ import io.spine.protobuf.AnyPacker;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.server.ContextSpec;
 import io.spine.server.ServerEnvironment;
-import io.spine.server.aggregate.given.StorageRecords;
 import io.spine.server.aggregate.given.repo.GivenAggregate;
 import io.spine.server.aggregate.given.repo.ProjectAggregateRepository;
 import io.spine.server.entity.EntityEventHistory;
-import io.spine.server.entity.EntityEventRecord;
 import io.spine.server.event.NoReaction;
 import io.spine.server.storage.AbstractStorageTest;
 import io.spine.test.aggregate.AggProject;
@@ -62,7 +60,6 @@ import io.spine.testing.core.given.GivenCommandContext;
 import io.spine.testing.server.TestEventFactory;
 import io.spine.testing.server.model.ModelTests;
 import io.spine.type.TypeUrl;
-import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -72,7 +69,6 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
@@ -90,7 +86,6 @@ import static io.spine.testing.TestValues.nullRef;
 import static io.spine.testing.core.given.GivenEnrichment.withOneAttribute;
 import static java.lang.Integer.MAX_VALUE;
 import static java.util.Collections.reverse;
-import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -111,8 +106,6 @@ public abstract class AggregateStorageTest
 
     private final ProjectId id = Sample.messageOfType(ProjectId.class);
 
-    private final TestEventFactory eventFactory =
-            TestEventFactory.newInstance(AggregateStorageTest.class);
     private AggregateStorage<ProjectId, AggProject> storage;
 
     private static EventId newEventId() {
@@ -143,20 +136,11 @@ public abstract class AggregateStorageTest
 
     @Override
     protected EntityEventHistory newStorageRecord(ProjectId id) {
-        var records = sequenceFor(id);
-        var expectedEvents = records.stream()
-                .map(AggregateStorageTest::toEvent)
-                .collect(toList());
+        var events = sequenceFor(id);
         var record = EntityEventHistory.newBuilder()
-                .addAllEvent(expectedEvents)
+                .addAllEvent(events)
                 .build();
         return record;
-    }
-
-    private static @Nullable Event toEvent(@Nullable EntityEventRecord record) {
-        return record != null
-               ? record.getEvent()
-               : null;
     }
 
     @Override
@@ -288,20 +272,6 @@ public abstract class AggregateStorageTest
         }
     }
 
-    @Test
-    @DisplayName("write and read one record")
-    void writeAndReadRecord() {
-        var expected = StorageRecords.create(id, currentTime());
-
-        storage.writeEventRecord(id, expected);
-
-        var iterator = historyBackward();
-        assertTrue(iterator.hasNext());
-        var actual = iterator.next();
-        assertEquals(expected, actual);
-        assertFalse(iterator.hasNext());
-    }
-
     /**
      *  This test is not applicable to the aggregate storage, as several records may be stored
      *  by the same aggregate ID. That's why it is disabled.
@@ -347,36 +317,36 @@ public abstract class AggregateStorageTest
         @Test
         @DisplayName("sorted by timestamp descending")
         void sortedByTimestamp() {
-            var records = sequenceFor(id);
+            var events = sequenceFor(id);
 
-            writeAll(id, records);
+            writeAll(id, events);
 
             var iterator = historyBackward();
-            List<EntityEventRecord> actual = newArrayList(iterator);
-            reverse(records); // expected records should be in a reverse order
-            assertEquals(records, actual);
+            List<Event> actual = newArrayList(iterator);
+            reverse(events); // expected events should be in a reverse order
+            assertEquals(events, actual);
         }
 
         @Test
         @DisplayName("sorted by version descending")
         void sortedByVersion() {
             var eventsNumber = 5;
-            List<EntityEventRecord> records = newLinkedList();
+            List<Event> events = newLinkedList();
             var timestamp = currentTime();
             var currentVersion = zero();
+            var factory = eventFactoryFor(id);
             for (var i = 0; i < eventsNumber; i++) {
                 var state = AggProject.getDefaultInstance();
-                var event = eventFactory.createEvent(event(state), currentVersion, timestamp);
-                var record = StorageRecords.create(id, timestamp, event);
-                records.add(record);
+                var event = factory.createEvent(event(state), currentVersion, timestamp);
+                events.add(event);
                 currentVersion = increment(currentVersion);
             }
-            writeAll(id, records);
+            writeAll(id, events);
 
             var iterator = historyBackward();
-            List<EntityEventRecord> actual = newArrayList(iterator);
-            reverse(records); // expected records should be in a reverse order
-            assertEquals(records, actual);
+            List<Event> actual = newArrayList(iterator);
+            reverse(events); // expected events should be in a reverse order
+            assertEquals(events, actual);
         }
 
         @Test
@@ -563,25 +533,22 @@ public abstract class AggregateStorageTest
     }
 
     void testWriteRecordsAndLoadHistory(Timestamp firstRecordTime) {
-        var records = sequenceFor(id, firstRecordTime);
+        var expectedEvents = sequenceFor(id, firstRecordTime);
 
-        writeAll(id, records);
+        writeAll(id, expectedEvents);
 
-        var events = readRecord(id);
-        var expectedEvents = records.stream()
-                .map(AggregateStorageTest::toEvent)
-                .collect(Collectors.toList());
-        var actualEvents = events.getEventList();
+        var history = readRecord(id);
+        var actualEvents = history.getEventList();
         assertEquals(expectedEvents, actualEvents);
     }
 
-    protected void writeAll(ProjectId id, Iterable<EntityEventRecord> records) {
-        for (var record : records) {
-            storage.writeEventRecord(id, record);
+    protected void writeAll(ProjectId id, Iterable<Event> events) {
+        for (var event : events) {
+            storage.writeEvent(id, event);
         }
     }
 
-    private Iterator<EntityEventRecord> historyBackward() {
+    private Iterator<Event> historyBackward() {
         return storage.historyBackward(id, MAX_VALUE);
     }
 

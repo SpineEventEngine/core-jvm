@@ -23,7 +23,7 @@ declares one now fails fast at model-building time.
 | `@Apply` | required for every state transition | **`ModelError` at model build** — deprecated, removed in v2.0.0 |
 | Version | advanced per emitted event (`v+1..v+N`) | **+1 per command**, like a `ProcessManager` |
 | Event import | `@Apply(allowImport = true)` + `ImportBus` | **removed** — use external reactions / gateways |
-| Dedup | always-on aggregate `IdempotencyGuard` | delivery layer owns it; guard is **opt-in, off** |
+| Dedup | always-on aggregate `IdempotencyGuard` | guard **opt-in, off** (performance); delivery has its own time-window dedup |
 | Recent history | `historyBackward()` (window = last snapshot) | `historyBackward(depth)` — explicit window |
 | Snapshots | `setSnapshotTrigger()`, `toSnapshot()` | **removed** — use `setHistoryDepth()` |
 
@@ -229,12 +229,19 @@ deterministic across reads, just not necessarily emission order.
 
 ## 5. Deduplication and the idempotency guard
 
-Deduplication is now primarily the **delivery layer's** job (keyed on the incoming signal
-and the target entity), which does not falsely deduplicate one event fanned out to many
-aggregates (D5).
+Two independent deduplication mechanisms exist, and they are not interchangeable:
 
-The aggregate-level `IdempotencyGuard` becomes an **opt-in, per-repository backstop, off
-by default**:
+- The **delivery layer** deduplicates within a short *time* window, keyed on the incoming
+  signal and the target entity (so one event fanned out to many aggregates is not falsely
+  deduplicated — D5). Size its `deduplicationWindow` in production to your realistic
+  redelivery/retry horizon.
+- The aggregate-level **`IdempotencyGuard`** deduplicates against the last `historyDepth()`
+  *signals* (default 100), however long ago they were dispatched — a count-based window, not
+  a time-based one.
+
+The guard is **opt-in, per repository, and off by default**, and the reason is performance:
+enabling it adds a bounded journal read to every dispatch. It is *not* off because the delivery
+layer makes it redundant — the two cover different windows (time vs. signal count).
 
 ```java
 final class OrdersRepository extends AggregateRepository<OrderId, Order, OrderState> {
@@ -244,14 +251,11 @@ final class OrdersRepository extends AggregateRepository<OrderId, Order, OrderSt
 }
 ```
 
-Semantics when enabled: each dispatch scans the last `historyDepth()` journal events
-(default 100) rather than "everything since the last snapshot." High-throughput aggregates
-that enable it should tune `historyDepth`.
-
-**In production with the guard off (the default), configure a delivery `deduplicationWindow`**
-sized to your realistic redelivery/retry horizon. Otherwise a redelivery after a JVM restart
-or cache eviction could apply a state mutation twice, since state now changes directly
-in the handler.
+When enabled, each dispatch scans the last `historyDepth()` journal events (default 100)
+rather than "everything since the last snapshot"; high-throughput aggregates that enable it
+should tune `historyDepth`. With the guard off (the default), a redelivery after a JVM restart
+or cache eviction outside the delivery `deduplicationWindow` could apply a state mutation
+twice, since state now changes directly in the handler — so size that window accordingly.
 
 ## 6. Recent-history access states its window
 
@@ -323,16 +327,17 @@ as a follow-up.
 | Superseded | Replacement |
 |------------|-------------|
 | `AggregateHistory` | `spine.server.entity.EntityEventHistory` — events only, no snapshot |
-| `AggregateEventRecord` | `spine.server.entity.EntityEventRecord` |
+| `AggregateEventRecord` | the `core.Event` itself — events are journaled as-is, no wrapper |
 | `AggregateEventRecordId` | the `core.EventId` of the stored event — no dedicated id type |
 | `AggregateEventStorage` | `io.spine.server.entity.storage.EntityEventStorage` |
-| `AggregateEventRecordColumn` | `io.spine.server.entity.storage.EntityEventRecordColumn` |
+| `AggregateEventRecordColumn` | `io.spine.server.entity.storage.EntityEventColumn` |
 | `StorageFactory.createAggregateEventStorage` | `StorageFactory.createEntityEventStorage` |
 
-`AggregateStorage` reads and writes the journal as `EntityEventRecord`s, and its
-`read`/`write` operations work in terms of `EntityEventHistory`. Storage vendors implement
-the same `RecordStorage`-level SPI as before — this is a recompile against the new types,
-not a rewrite.
+The journal stores plain `Event`s; the emitting entity, the event time, and the event
+version are exposed for querying as columns derived from the event context. The
+`read`/`write` operations of `AggregateStorage` work in terms of `EntityEventHistory`.
+Storage vendors implement the same `RecordStorage`-level SPI as before — this is a
+recompile against the new types, not a rewrite.
 
 Of the superseded API, only the **proto messages remain** (marked `deprecated`, for wire
 compatibility). The storage-level classes — `AggregateEventStorage`,
@@ -343,8 +348,8 @@ pre-cutover journals. The current journal is trimmed by the count/date-based
 `truncate(keepMostRecent[, olderThan])` instead (§7).
 
 **Data caveat — pre-upgrade journals become invisible to reads.** Read this before
-upgrading a running system. `EntityEventRecord` is a **new record kind**: storage backends
-persist it separately from the legacy `AggregateEventRecord`s, so journal entries written
+upgrading a running system. The journal now stores plain `Event`s — a **record kind
+distinct** from the legacy `AggregateEventRecord`s — so journal entries written
 before the upgrade are not visible to the new reads. In particular, the `IdempotencyGuard`
 window and `historyBackward(depth)` **start empty right after the upgrade** and refill as
 new events are emitted. If the guard is your only deduplication safeguard, configure a

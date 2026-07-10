@@ -39,7 +39,6 @@ import io.spine.core.Version;
 import io.spine.query.EntityQuery;
 import io.spine.server.ContextSpec;
 import io.spine.server.entity.EntityEventHistory;
-import io.spine.server.entity.EntityEventRecord;
 import io.spine.server.entity.EntityRecord;
 import io.spine.server.entity.storage.EntityEventStorage;
 import io.spine.server.entity.storage.EntityRecordStorage;
@@ -50,7 +49,6 @@ import io.spine.server.storage.RecordWithColumns;
 import io.spine.server.storage.StorageFactory;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -280,23 +278,6 @@ public class AggregateStorage<I, S extends AggregateState<I>>
     }
 
     /**
-     * Writes the passed pre-built record into the journal as-is.
-     *
-     * <p>The runtime write path does not route through this method: the framework journals
-     * the emitted events via {@link EntityEventStorage#write(io.spine.core.Event)}. This
-     * method exists primarily for the storage test fixtures. The placement of the record is
-     * governed by its own {@code entity_id} field; the passed identifier does not affect it.
-     *
-     * @param id
-     *         the aggregate ID
-     * @param record
-     *         the record to write
-     */
-    protected void writeEventRecord(I id, EntityEventRecord record) {
-        eventStorage.write(record);
-    }
-
-    /**
      * Queries the storage for the Aggregate states according to the passed filters and returns
      * the results in the specified response format.
      *
@@ -406,7 +387,7 @@ public class AggregateStorage<I, S extends AggregateState<I>>
     }
 
     /**
-     * Creates an iterator over the journal of the Aggregate, ordering the records
+     * Creates an iterator over the journal of the Aggregate, ordering the events
      * from newer to older.
      *
      * <p>The iterator is empty if there's no journaled history for the aggregate with passed ID.
@@ -414,10 +395,10 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      * @param id
      *         the identifier of the Aggregate
      * @param batchSize
-     *         the maximum number of the history records to read
+     *         the maximum number of the events to read
      * @return new iterator instance
      */
-    Iterator<EntityEventRecord> historyBackward(I id, int batchSize) {
+    Iterator<Event> historyBackward(I id, int batchSize) {
         return historyBackward(id, batchSize, null);
     }
 
@@ -438,13 +419,8 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      * @return the most recent events, newest first
      */
     List<Event> readHistoryBackward(I id, int depth) {
-        var records = historyBackward(id, depth);
-        List<Event> events = new ArrayList<>();
-        while (records.hasNext()) {
-            var record = records.next();
-            events.add(record.getEvent());
-        }
-        return events;
+        var events = historyBackward(id, depth);
+        return ImmutableList.copyOf(events);
     }
 
     /**
@@ -459,7 +435,7 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      *         an Aggregate version from which the historical events are read
      * @return a new instance of iterator over the results
      */
-    protected Iterator<EntityEventRecord>
+    protected Iterator<Event>
     historyBackward(I id, int batchSize, @Nullable Version startingFrom) {
         var original = eventStorage.historyBackward(id, batchSize, startingFrom);
         var copied = ImmutableList.copyOf(original);

@@ -58,27 +58,3 @@ message EntityEventHistory {
     repeated core.Event event = 1;
 }
 
-// A record with information about an event emitted by an entity.
-//
-// This message is used by storage implementations.
-//
-// This type supersedes `spine.server.aggregate.AggregateEventRecord`. Unlike
-// its predecessor, it never carries a snapshot: the journal stores events only.
-//
-message EntityEventRecord {
-
-    // The identifier of the stored event, which also identifies this record.
-    core.EventId id = 1 [(required) = true];
-
-    // An identifier of the entity which emitted the event.
-    google.protobuf.Any entity_id = 2 [(required) = true];
-
-    // The time when the event was emitted.
-    //
-    // Matches the timestamp of the context of the stored event.
-    //
-    google.protobuf.Timestamp timestamp = 3;
-
-    // The event stored in the record.
-    core.Event event = 4 [(required) = true];
-}

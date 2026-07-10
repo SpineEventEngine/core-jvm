@@ -28,46 +28,50 @@ package io.spine.server.entity.storage
 
 import com.google.protobuf.Any
 import com.google.protobuf.Timestamp
+import io.spine.core.Event
 import io.spine.query.Columns
 import io.spine.query.RecordColumn
 import io.spine.query.RecordColumns
-import io.spine.server.entity.EntityEventRecord
 
 /**
- * Columns stored along with an [EntityEventRecord].
+ * Columns stored along with an [Event] journaled by [EntityEventStorage].
  *
- * The column names follow the storage-level `snake_case` convention used
- * by the other record kinds.
+ * The column values are derived from the event context. The column names follow
+ * the storage-level `snake_case` convention used by the other record kinds.
  */
-@RecordColumns(ofType = EntityEventRecord::class)
-public object EntityEventRecordColumn {
+@RecordColumns(ofType = Event::class)
+public object EntityEventColumn {
 
     /**
      * Stores the identifier of the entity which emitted the event.
      */
     @JvmField
-    public val entityId: RecordColumn<EntityEventRecord, Any> =
-        RecordColumn.create("entity_id", Any::class.java, EntityEventRecord::getEntityId)
+    public val entityId: RecordColumn<Event, Any> =
+        RecordColumn.create("entity_id", Any::class.java) { event ->
+            event.context.producerId
+        }
 
     /**
-     * Stores the time when the event was created, as recorded in the event context.
+     * Stores the time when the event was created.
      */
     @JvmField
-    public val created: RecordColumn<EntityEventRecord, Timestamp> =
-        RecordColumn.create("created", Timestamp::class.java, EntityEventRecord::getTimestamp)
+    public val created: RecordColumn<Event, Timestamp> =
+        RecordColumn.create("created", Timestamp::class.java) { event ->
+            event.context.timestamp
+        }
 
     /**
-     * Stores the version of the stored event.
+     * Stores the version of the event.
      */
     @JvmField
-    public val version: RecordColumn<EntityEventRecord, Int> =
-        RecordColumn.create("version", Int::class.javaObjectType) { record ->
-            record.event.context.version.number
+    public val version: RecordColumn<Event, Int> =
+        RecordColumn.create("version", Int::class.javaObjectType) { event ->
+            event.context.version.number
         }
 
     /**
      * Returns all the column definitions.
      */
     @JvmStatic
-    public fun definitions(): Columns<EntityEventRecord> = Columns.of(entityId, created, version)
+    public fun definitions(): Columns<Event> = Columns.of(entityId, created, version)
 }

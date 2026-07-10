@@ -273,3 +273,9 @@ Deliberate deltas from the sketch above, made while implementing:
   only clears the uncommitted events. An entity created outside a repository
   has no journal, so its reads return no events (the documented contract,
   covered by tests).
+- **`EntityEventRecord` dropped (review by @armiol, 2026-07-10):** the
+  wrapper record was redundant. The journal stores plain `core.Event`s keyed
+  by `EventId`, with the emitting entity, the event time, and the event
+  version exposed as query columns derived from the event context
+  (`EntityEventColumn`) — the record-spec pattern of `DefaultEventStore` and
+  `InboxStorage`. `event_history.proto` now defines only `EntityEventHistory`.

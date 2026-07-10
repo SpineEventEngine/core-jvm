@@ -41,7 +41,6 @@ import io.spine.core.EventId
 import io.spine.core.Versions.increment
 import io.spine.core.Versions.zero
 import io.spine.server.ContextSpec
-import io.spine.server.entity.EntityEventRecord
 import io.spine.server.storage.memory.InMemoryStorageFactory
 import io.spine.test.storage.event.StgProjectCreated
 import io.spine.testdata.Sample
@@ -95,19 +94,16 @@ internal class EntityEventStorageSpec {
     }
 
     @Nested inner class
-    `transform a written event into the journal record` {
+    `journal a written event` {
 
         @Test
-        fun `carrying the event with its identifier, producer, and timestamp`() {
+        fun `storing the event as-is, keyed by its identifier and producer`() {
             val event = newEvent()
 
             storage.write(event)
 
-            val record = storage.historyBackward(entityId, batchSize = 1).next()
-            record.id shouldBe event.id
-            record.entityId shouldBe event.context().producerId
-            record.timestamp shouldBe event.context().timestamp
-            record.event shouldBe event
+            val read = storage.historyBackward(entityId, batchSize = 1).next()
+            read shouldBe event
         }
 
         @Test
@@ -329,9 +325,8 @@ internal class EntityEventStorageSpec {
         return events
     }
 
-    private fun Iterator<EntityEventRecord>.events(): List<Event> =
-        asSequence().map { it.event }
-            .toList()
+    private fun Iterator<Event>.events(): List<Event> =
+        asSequence().toList()
 
     private companion object {
 
