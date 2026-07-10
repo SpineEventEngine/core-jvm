@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -28,25 +28,33 @@ package io.spine.server.entity;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterators;
 import io.spine.core.Event;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Queues.newArrayDeque;
 
 /**
- * A copy of recent history of an {@linkplain TransactionalEntity
- * event-sourced entity}.
+ * The recent history of events of a {@link TransactionalEntity}.
+ *
+ * <p>The in-memory copy accumulates the events committed by this entity instance.
+ * When a repository {@linkplain TransactionalEntity#setRecentHistoryLoader(RecentHistoryLoader)
+ * installs a loader}, the {@linkplain #read(int) reads} are served from the durable journal
+ * of the entity instead, so the recent history survives the instance lifecycle.
  *
  * <p>Any modifications to this object will not affect the real history of the entity.
  */
 public final class RecentHistory {
 
     /**
-     * Holds the history of all events that happened to the aggregate since the last snapshot.
+     * Holds the events recently committed by this entity instance.
      *
      * <p>Most recent event comes first.
      *
@@ -55,10 +63,45 @@ public final class RecentHistory {
     private final Deque<Event> history = newArrayDeque();
 
     /**
+     * If set, serves the {@linkplain #read(int) reads} from the durable journal
+     * of the entity.
+     */
+    private @Nullable RecentHistoryLoader loader;
+
+    /**
      * Creates a new instance.
      */
     RecentHistory() {
         super();
+    }
+
+    /**
+     * Installs the loader serving the {@linkplain #read(int) reads} from the durable
+     * journal of the entity.
+     */
+    void useLoader(RecentHistoryLoader loader) {
+        this.loader = checkNotNull(loader);
+    }
+
+    /**
+     * Reads up to {@code depth} most recent events, newest first.
+     *
+     * <p>When a loader is {@linkplain #useLoader(RecentHistoryLoader) installed},
+     * the events come from the durable journal of the entity. Otherwise, the in-memory
+     * copy accumulated by this instance serves the read.
+     *
+     * @param depth
+     *         the maximum number of the most recent events to read
+     * @return an iterator over the events, newest first
+     * @throws IllegalArgumentException
+     *         if the {@code depth} is not positive
+     */
+    public Iterator<Event> read(int depth) {
+        checkArgument(depth > 0, "History depth must be positive. Got %s.", depth);
+        if (loader != null) {
+            return loader.load(depth);
+        }
+        return Iterators.limit(iterator(), depth);
     }
 
     /**

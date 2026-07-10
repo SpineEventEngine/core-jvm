@@ -101,6 +101,19 @@ public abstract class TransactionalEntity<I : Any, S : EntityState<I>, B : Valid
     }
 
     /**
+     * Installs the loader serving the [recent history][recentHistory] reads from
+     * the durable journal of this entity.
+     *
+     * Called by repositories when the entity is created or loaded, so that the recent
+     * history survives the instance lifecycle instead of being limited to the events
+     * committed by this very instance.
+     */
+    @Internal
+    public fun setRecentHistoryLoader(loader: RecentHistoryLoader) {
+        recentHistory.useLoader(loader)
+    }
+
+    /**
      * A callback invoked before the transaction is committed.
      *
      * The developers of descending types may wish to override this method to implement

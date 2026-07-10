@@ -47,15 +47,12 @@ import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
 import io.spine.validation.ValidatingBuilder;
-import org.jspecify.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterators.any;
-import static com.google.common.collect.Iterators.limit;
 import static io.spine.protobuf.AnyPacker.pack;
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.server.Ignored.ignored;
@@ -151,15 +148,6 @@ public abstract class Aggregate<I,
     private IdempotencyGuard idempotencyGuard;
 
     /**
-     * Lazily loads up to a requested number of the most recent journal events (newest first)
-     * when {@linkplain #historyBackward(int) recent history} is accessed.
-     *
-     * <p>Set by the repository when the aggregate is created or loaded. When absent, recent
-     * history falls back to the in-memory {@link #recentHistory() recentHistory}.
-     */
-    private @Nullable RecentHistoryLoader recentHistoryLoader;
-
-    /**
      * Creates a new instance.
      *
      * @apiNote Constructors of derived classes are likely to have package-private access
@@ -216,16 +204,6 @@ public abstract class Aggregate<I,
      */
     final void enableIdempotencyGuard(int historyDepth) {
         idempotencyGuard.enable(historyDepth);
-    }
-
-    /**
-     * Installs the loader that reads the most recent journal events on demand.
-     *
-     * <p>Called by the repository so that {@link #historyBackward(int)} and the opt-in
-     * {@link IdempotencyGuard} can inspect recent history after a state-only load.
-     */
-    final void setRecentHistoryLoader(RecentHistoryLoader loader) {
-        this.recentHistoryLoader = loader;
     }
 
     /**
@@ -466,13 +444,11 @@ public abstract class Aggregate<I,
      * @param depth
      *         the maximal number of the most recent events to return; must be positive
      * @return new iterator instance
+     * @throws IllegalArgumentException
+     *         if the {@code depth} is not positive
      */
     protected final Iterator<Event> historyBackward(int depth) {
-        checkArgument(depth > 0, "History depth must be positive. Got %s.", depth);
-        if (recentHistoryLoader != null) {
-            return recentHistoryLoader.load(depth);
-        }
-        return limit(recentHistory().iterator(), depth);
+        return recentHistory().read(depth);
     }
 
     /**

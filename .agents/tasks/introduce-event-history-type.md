@@ -253,3 +253,13 @@ Deliberate deltas from the sketch above, made while implementing:
 - **`AggregateRecords` dissolved (2026-07-09, in review):** its last remaining
   factory became the member `Aggregate.toRecord()` (package-private, beside
   its inverse `restore(EntityRecord)`); the utility class is deleted.
+- **Recent-history loading moved to the entity level (2026-07-10, in
+  review):** `RecentHistory` itself now works with the loader —
+  `read(depth)` serves from the installed `RecentHistoryLoader` (the durable
+  journal) or, when none is installed, from the in-memory copy. The loader
+  interface moved to `io.spine.server.entity` (public, `@Internal`), and
+  `TransactionalEntity.setRecentHistoryLoader(...)` is the wiring point —
+  so the future `ProcessManager` journaling only wires its repository side.
+  `Aggregate` lost its own loader field/branching; `historyBackward(depth)`
+  delegates to `recentHistory().read(depth)`. New `RecentHistorySpec` covers
+  both read paths.

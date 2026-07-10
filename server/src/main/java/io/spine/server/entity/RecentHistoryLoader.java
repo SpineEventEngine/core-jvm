@@ -24,26 +24,29 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.server.aggregate;
+package io.spine.server.entity;
 
+import io.spine.annotation.Internal;
 import io.spine.core.Event;
 
 import java.util.Iterator;
 
 /**
- * Lazily loads up to a requested number of an aggregate's most recent journal events,
+ * Lazily loads up to a requested number of an entity's most recent journal events,
  * newest first.
  *
- * <p>An {@link AggregateRepository} installs a loader on each aggregate it creates or loads
- * (via {@link Aggregate#setRecentHistoryLoader(RecentHistoryLoader)}), so the aggregate can
- * access its recent history — for the opt-in {@link IdempotencyGuard} and for business logic —
- * without eagerly reading the journal on every load.
+ * <p>A repository installs a loader on each entity it creates or loads (via
+ * {@link TransactionalEntity#setRecentHistoryLoader(RecentHistoryLoader)}), so that the
+ * {@linkplain RecentHistory#read(int) recent history reads} are served from the durable
+ * journal of the entity without eagerly reading it on every load. See
+ * {@code io.spine.server.aggregate.AggregateRepository} for the wiring on the aggregate side.
  */
+@Internal
 @FunctionalInterface
-interface RecentHistoryLoader {
+public interface RecentHistoryLoader {
 
     /**
-     * Loads up to {@code depth} most recent events of the aggregate's journal, newest first.
+     * Loads up to {@code depth} most recent events of the entity's journal, newest first.
      *
      * @param depth
      *         the maximum number of the most recent events to load; positive
