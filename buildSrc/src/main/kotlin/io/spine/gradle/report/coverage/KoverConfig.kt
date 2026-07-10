@@ -169,7 +169,10 @@ class KoverConfig private constructor(
     }
 
     private fun addAggregationDependency(sub: Project) {
-        rootProject.dependencies.add("kover", rootProject.project(sub.path))
+        // Pass the project path, not the `Project` instance: using a `Project`
+        // object as a dependency notation is deprecated since Gradle 9.
+        val dependencies = rootProject.dependencies
+        dependencies.add("kover", dependencies.project(sub.path))
     }
 
     /**
