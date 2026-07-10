@@ -111,7 +111,7 @@ import static io.spine.util.Preconditions2.checkPositive;
  * <h2>Legacy journal</h2>
  *
  * <p>Before the event-sourcing cutover, the journal was persisted as
- * {@link AggregateEventRecord}s — a record kind that could also hold {@link Snapshot}s.
+ * {@code AggregateEventRecord}s — a record kind that could also hold {@code Snapshot}s.
  * The current runtime neither writes nor reads records of that kind. They remain in the
  * underlying storage as inert data, and their proto definitions are retained so that
  * the persisted records stay parseable.
