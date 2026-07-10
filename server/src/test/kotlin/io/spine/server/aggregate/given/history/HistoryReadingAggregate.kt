@@ -31,11 +31,15 @@ import io.spine.server.aggregate.Aggregate
 import io.spine.server.command.Assign
 import io.spine.test.aggregate.AggProject
 import io.spine.test.aggregate.ProjectId
+import io.spine.test.aggregate.Status
 import io.spine.test.aggregate.command.AggAddTask
 import io.spine.test.aggregate.command.AggCreateProject
+import io.spine.test.aggregate.command.AggStartProject
 import io.spine.test.aggregate.event.AggProjectCreated
+import io.spine.test.aggregate.event.AggProjectStarted
 import io.spine.test.aggregate.event.AggTaskAdded
 import io.spine.test.aggregate.event.aggProjectCreated
+import io.spine.test.aggregate.event.aggProjectStarted
 import io.spine.test.aggregate.event.aggTaskAdded
 import java.util.Optional
 
@@ -70,6 +74,19 @@ internal class HistoryReadingAggregate(id: ProjectId) :
         }
     }
 
+    @Assign
+    fun handle(command: AggStartProject): AggProjectStarted {
+        statesSeenOnStart = stateHistoryBackward(10)
+            .asSequence()
+            .toList()
+        alter {
+            status = Status.STARTED
+        }
+        return aggProjectStarted {
+            projectId = command.projectId
+        }
+    }
+
     /**
      * Reads the state this aggregate had at the given time.
      */
@@ -79,4 +96,16 @@ internal class HistoryReadingAggregate(id: ProjectId) :
      * Reads up to [depth] most recent states of this aggregate, newest first.
      */
     fun readStatesBackward(depth: Int): Iterator<AggProject> = stateHistoryBackward(depth)
+
+    internal companion object {
+
+        /**
+         * The recorded states the [AggStartProject] receptor saw during
+         * the dispatch, newest first.
+         *
+         * Captured statically: the instance which handles the command is not
+         * the one a test can obtain from the repository afterwards.
+         */
+        var statesSeenOnStart: List<AggProject> = emptyList()
+    }
 }

@@ -67,6 +67,7 @@ internal class AggregateRepositoryStateHistorySpec {
         context.internalAccess()
             .register(repository)
         projectId = ProjectId.generate()
+        HistoryReadingAggregate.statesSeenOnStart = emptyList()
     }
 
     @AfterEach
@@ -224,11 +225,37 @@ internal class AggregateRepositoryStateHistorySpec {
     }
 
     @Test
+    fun `let a receptor consult the recorded states during a dispatch`() {
+        repository.enableStateHistory(depth = 10)
+        post(Given.ACommand.createProject(projectId))
+        post(Given.ACommand.addTask(projectId))
+        val beforeStart = repository.loadAggregate(projectId).state()
+
+        post(Given.ACommand.startProject(projectId))
+
+        val seen = HistoryReadingAggregate.statesSeenOnStart
+        seen shouldHaveSize 2
+        seen[0] shouldBe beforeStart
+    }
+
+    @Test
     fun `serve an empty state history to an aggregate created outside a repository`() {
         val bare = HistoryReadingAggregate(projectId)
 
         bare.readStateAt(currentTime()).isPresent shouldBe false
         bare.readStatesBackward(10).hasNext() shouldBe false
+    }
+
+    @Test
+    fun `reject a non-positive depth of an aggregate state history read`() {
+        val bare = HistoryReadingAggregate(projectId)
+
+        shouldThrow<IllegalArgumentException> {
+            bare.readStatesBackward(0)
+        }
+        shouldThrow<IllegalArgumentException> {
+            bare.readStatesBackward(-1)
+        }
     }
 
     private fun historyRecords(): List<EntityRecord> =
