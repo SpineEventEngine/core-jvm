@@ -69,7 +69,7 @@ import static io.spine.util.Preconditions2.checkPositive;
  *
  * <ol>
  *     <li>storing the latest state of each Aggregate along with its lifecycle flags and version —
- *     the source of truth for {@linkplain AggregateRepository#load(Object) loading} an Aggregate;
+ *     the source of truth for loading an Aggregate by its {@link AggregateRepository};
  *
  *     <li>journaling the events emitted by the Aggregates — for traceability and for
  *     the recent-history lookups such as {@link Aggregate#historyBackward(int)} and
@@ -280,7 +280,12 @@ public class AggregateStorage<I, S extends AggregateState<I>>
     }
 
     /**
-     * Writes the passed record into the storage.
+     * Writes the passed pre-built record into the journal as-is.
+     *
+     * <p>The runtime write path does not route through this method: the framework journals
+     * the emitted events via {@link EntityEventStorage#write(io.spine.core.Event)}. This
+     * method exists primarily for the storage test fixtures. The placement of the record is
+     * governed by its own {@code entity_id} field; the passed identifier does not affect it.
      *
      * @param id
      *         the aggregate ID
@@ -349,7 +354,7 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      * Reads the latest persisted state record of the aggregate with the passed ID.
      *
      * <p>Since the event-sourcing cutover this record is the source of truth for
-     * {@linkplain AggregateRepository#load(Object) loading} an aggregate. Unlike the
+     * loading an aggregate by its {@link AggregateRepository}. Unlike the
      * {@link #readStates(ResponseFormat) query reads}, this method is <em>not</em> gated by the
      * querying/visibility check — the state must be readable even for {@code NONE}-visibility
      * aggregates, which never expose their states for client querying.
@@ -489,9 +494,10 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      * Truncates the journal, deleting the events older than {@code olderThan}, but keeping
      * at least {@code keepMostRecent} most recent events for each Aggregate instance.
      *
-     * <p>An event record is deleted only if it is older than the given time <em>and</em>
-     * not among the {@code keepMostRecent} most recent events of its Aggregate. To purge
-     * everything older than the given time, pass zero as {@code keepMostRecent}.
+     * <p>An event record is deleted only if its event was emitted before the given time
+     * <em>and</em> it is not among the {@code keepMostRecent} most recent events of its
+     * Aggregate. To purge everything older than the given time, pass zero as
+     * {@code keepMostRecent}.
      *
      * <p>See {@link #truncate(int)} for the notes on the {@link IdempotencyGuard} window
      * and the performance expectations.
@@ -499,7 +505,7 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      * @param keepMostRecent
      *         the number of the most recent events to keep for each Aggregate
      * @param olderThan
-     *         only the events recorded strictly before this time are deleted
+     *         only the events emitted strictly before this time are deleted
      * @throws IllegalArgumentException
      *         if the {@code keepMostRecent} is negative
      */

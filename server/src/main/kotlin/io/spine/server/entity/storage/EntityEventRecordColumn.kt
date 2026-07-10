@@ -50,7 +50,7 @@ public object EntityEventRecordColumn {
         RecordColumn.create("entity_id", Any::class.java, EntityEventRecord::getEntityId)
 
     /**
-     * Stores the time when the event record was created.
+     * Stores the time when the event was created, as recorded in the event context.
      */
     @JvmField
     public val created: RecordColumn<EntityEventRecord, Timestamp> =

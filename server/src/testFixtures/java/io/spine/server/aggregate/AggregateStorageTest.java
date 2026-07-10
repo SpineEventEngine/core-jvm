@@ -272,7 +272,8 @@ public abstract class AggregateStorageTest
         }
 
         private <I> void writeAndReadEventTest(I id, AggregateStorage<I, ?> storage) {
-            var expectedEvent = eventFactoryFor(id).createEvent(event(AggProject.getDefaultInstance()));
+            var factory = eventFactoryFor(id);
+            var expectedEvent = factory.createEvent(event(AggProject.getDefaultInstance()));
 
             storage.writeEvent(id, expectedEvent);
 

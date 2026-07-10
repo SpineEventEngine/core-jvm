@@ -58,6 +58,7 @@ import org.junit.jupiter.api.Test
 internal class EntityEventStorageSpec {
 
     private val entityId = "journaled-entity"
+    private val anotherEntity = "another-entity"
     private lateinit var storage: EntityEventStorage
     private var version = zero()
 
@@ -71,7 +72,7 @@ internal class EntityEventStorageSpec {
 
     @AfterEach
     fun closeStorage() {
-        if (storage.isOpen) {
+        if (::storage.isInitialized && storage.isOpen) {
             storage.close()
         }
     }
@@ -197,7 +198,7 @@ internal class EntityEventStorageSpec {
         @Test
         fun `emitted only by the entity with the given identifier`() {
             val written = appendEvents(count = 2)
-            appendEvents(count = 3, toEntity = "another-entity")
+            appendEvents(count = 3, toEntity = anotherEntity)
 
             val read = storage.historyBackward(entityId, Int.MAX_VALUE)
 
@@ -242,13 +243,13 @@ internal class EntityEventStorageSpec {
         @Test
         fun `keeping the requested number of the most recent records per entity`() {
             val ours = appendEvents(count = 5)
-            val theirs = appendEvents(count = 3, toEntity = "another-entity")
+            val theirs = appendEvents(count = 3, toEntity = anotherEntity)
 
             storage.truncate(2)
 
             storage.historyBackward(entityId, Int.MAX_VALUE)
                 .events() shouldContainExactly listOf(ours[4], ours[3])
-            storage.historyBackward("another-entity", Int.MAX_VALUE)
+            storage.historyBackward(anotherEntity, Int.MAX_VALUE)
                 .events() shouldContainExactly listOf(theirs[2], theirs[1])
         }
 

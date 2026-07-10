@@ -66,7 +66,7 @@ message Snapshot {
     // (and timestamp of the corresponding event), and before the time of
     // the next event in the aggregate history.
     //
-    // This field is used when storing a snapshot in `AggregateEventRecord`.
+    // This field was used when storing a snapshot in `AggregateEventRecord`.
     //
     google.protobuf.Timestamp timestamp = 3;
 
@@ -76,7 +76,7 @@ message Snapshot {
 
 // An identifier of an `AggregateEventRecord`.
 //
-// Retained for wire compatibility; no longer produced by the runtime.
+// Retained for wire compatibility; no longer produced or read by the runtime.
 // The current journal records (`spine.server.entity.EntityEventRecord`) need
 // no dedicated identifier type: they are identified by the `spine.core.EventId`
 // of the stored event.
@@ -128,7 +128,7 @@ message AggregateEventRecord {
 
 // The recorded history of an aggregate: the sequence of events it emitted.
 //
-// Retained for wire compatibility; no longer produced by the runtime.
+// Retained for wire compatibility; no longer produced or read by the runtime.
 // Superseded by `spine.server.entity.EntityEventHistory`, which carries events
 // only: since the event-sourcing cutover, aggregate state is no longer restored
 // by replaying the history, so the "snapshot plus tail" semantics of this

@@ -52,7 +52,8 @@ final class UncommittedHistory {
      *
      * <p>Rejection events are not journaled and are ignored.
      *
-     * @param produced the events emitted by the current command handler or reactor
+     * @param produced
+     *         the events emitted by the current command handler or reactor
      */
     void record(Iterable<Event> produced) {
         for (var event : produced) {

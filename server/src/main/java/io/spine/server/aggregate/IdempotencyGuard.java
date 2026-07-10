@@ -127,17 +127,18 @@ final class IdempotencyGuard {
     }
 
     /**
-     * Checks if the event was already handled by the aggregate since last snapshot.
+     * Checks if the event was already handled by the aggregate recently.
      *
-     * <p>The check is performed by searching for an event caused by this event that was
-     * committed since last snapshot.
+     * <p>The check is performed by searching the {@code historyDepth} most recent journal
+     * events for an event caused by this event.
      *
      * <p>This functionality supports the ability to stop duplicate events from being dispatched
      * to the aggregate.
      *
      * @param event
      *         the event to check
-     * @return {@code true} if the event was handled since last snapshot, {@code false} otherwise
+     * @return {@code true} if the event was handled within the recent-history window,
+     *         {@code false} otherwise
      */
     private boolean didHandleRecently(EventEnvelope event) {
         var eventId = event.id();
@@ -155,17 +156,18 @@ final class IdempotencyGuard {
     }
 
     /**
-     * Checks if the command was already handled by the aggregate since last snapshot.
+     * Checks if the command was already handled by the aggregate recently.
      *
-     * <p>The check is performed by searching for an event caused by this command that was
-     * committed since last snapshot.
+     * <p>The check is performed by searching the {@code historyDepth} most recent journal
+     * events for an event caused by this command.
      *
      * <p>This functionality supports the ability to stop duplicate commands from being dispatched
      * to the aggregate.
      *
      * @param command
      *         the command to check
-     * @return {@code true} if the command was handled since last snapshot, {@code false} otherwise
+     * @return {@code true} if the command was handled within the recent-history window,
+     *         {@code false} otherwise
      */
     private boolean didHandleRecently(CommandEnvelope command) {
         var commandId = command.id();
