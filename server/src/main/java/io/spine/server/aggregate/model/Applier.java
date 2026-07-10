@@ -80,10 +80,6 @@ public final class Applier
         return EventClass.from(rawMessageClass());
     }
 
-    boolean allowsImport() {
-        return attributes().contains(AllowImportAttribute.ALLOW);
-    }
-
     @Override
     protected ArgumentFilter createFilter() {
         return ArgumentFilter.acceptingAll();
