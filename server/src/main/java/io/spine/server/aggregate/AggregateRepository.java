@@ -31,11 +31,8 @@ import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import io.spine.annotation.Internal;
 import io.spine.annotation.VisibleForTesting;
 import io.spine.base.AggregateState;
-import io.spine.base.EventMessage;
 import io.spine.client.ResponseFormat;
 import io.spine.client.TargetFilters;
-import io.spine.core.Event;
-import io.spine.core.EventContext;
 import io.spine.query.EntityQuery;
 import io.spine.server.BoundedContext;
 import io.spine.server.ServerEnvironment;
@@ -53,7 +50,6 @@ import io.spine.server.event.EventBus;
 import io.spine.server.event.EventDispatcherDelegate;
 import io.spine.server.route.CommandRouting;
 import io.spine.server.route.EventRouting;
-import io.spine.server.route.RouteFn;
 import io.spine.server.route.setup.CommandRoutingSetup;
 import io.spine.server.route.setup.EventRoutingSetup;
 import io.spine.server.type.CommandClass;
@@ -70,7 +66,6 @@ import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Suppliers.memoize;
 import static com.google.common.collect.Iterators.transform;
 import static io.spine.option.EntityOption.Kind.AGGREGATE;
@@ -80,7 +75,6 @@ import static io.spine.server.delivery.InboxLabel.REACT_UPON_EVENT;
 import static io.spine.server.dispatch.DispatchOutcomes.maybeSentToInbox;
 import static io.spine.server.dispatch.DispatchOutcomes.sentToInbox;
 import static io.spine.server.tenant.TenantAwareRunner.with;
-import static io.spine.type.Json.toJson;
 import static io.spine.util.Exceptions.newIllegalStateException;
 import static java.util.Objects.requireNonNull;
 
@@ -97,9 +91,11 @@ import static java.util.Objects.requireNonNull;
  *
  * <p>Two per-repository settings tune this behavior:
  * <ul>
- *     <li>{@link #useIdempotencyGuard()} — enables the journal-backed {@link IdempotencyGuard}, a
- *         backstop against duplicate dispatches. It is <b>off by default</b>: deduplication is
- *         primarily the responsibility of the delivery layer.
+ *     <li>{@link #useIdempotencyGuard()} — enables the journal-backed {@link IdempotencyGuard},
+ *         which rejects a signal already seen among the last {@link #historyDepth()} dispatches
+ *         (however long ago). It is <b>off by default</b> for performance — when enabled, every
+ *         dispatch pays a bounded journal read. This is a mechanism distinct from the delivery
+ *         layer's time-windowed deduplication, not a replacement for it.
  *     <li>{@linkplain #historyDepth() historyDepth} — how many recent journal events the guard
  *         scans on each dispatch when enabled (default {@value #DEFAULT_HISTORY_DEPTH}).
  * </ul>
@@ -471,9 +467,10 @@ public abstract class AggregateRepository<I,
      * Enables the opt-in, journal-backed {@link IdempotencyGuard} for the aggregates of this
      * repository.
      *
-     * <p>The guard is <b>off by default</b> — deduplication is primarily the delivery layer's
-     * responsibility. Enable it as a durable backstop against duplicate dispatches; when enabled,
-     * each dispatch scans the last {@link #historyDepth()} journal events.
+     * <p>When enabled, each dispatch scans the last {@link #historyDepth()} journal events and
+     * rejects a signal already seen among them, however long ago it was dispatched — a mechanism
+     * distinct from the delivery layer's time-windowed deduplication. The guard is
+     * <b>off by default</b> for performance: it adds a bounded journal read to every dispatch.
      */
     protected void useIdempotencyGuard() {
         this.idempotencyGuardEnabled = true;
