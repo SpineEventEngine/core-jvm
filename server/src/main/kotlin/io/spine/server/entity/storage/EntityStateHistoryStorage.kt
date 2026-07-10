@@ -132,6 +132,7 @@ public class EntityStateHistoryStorage(
      * @throws IllegalArgumentException If the record is incomplete (see the
      *   one-argument [write]), or if the identifier does not match the record.
      */
+    @Synchronized
     public override fun write(id: EntityStateId, message: EntityRecord) {
         validate(message)
         require(id == message.stateId()) {
