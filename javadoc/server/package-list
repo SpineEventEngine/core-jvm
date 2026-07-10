@@ -9,8 +9,6 @@ $dokka.location:io.spine.server.aggregate/AggregateHistory.Builder///PointingToD
 $dokka.location:io.spine.server.aggregate/AggregateHistoryKt.Dsl.EventProxy///PointingToDeclaration/io/spine/server/aggregate/AggregateHistoryKt.Dsl.EventProxy.html
 $dokka.location:io.spine.server.aggregate/AggregateHistoryKt.Dsl///PointingToDeclaration/io/spine/server/aggregate/AggregateHistoryKt.Dsl.html
 $dokka.location:io.spine.server.aggregate/AggregatePart.GenericParameter///PointingToDeclaration/io/spine/server/aggregate/AggregatePart.GenericParameter.html
-$dokka.location:io.spine.server.aggregate/AggregateStateRecord.Builder///PointingToDeclaration/io/spine/server/aggregate/AggregateStateRecord.Builder.html
-$dokka.location:io.spine.server.aggregate/AggregateStateRecordKt.Dsl///PointingToDeclaration/io/spine/server/aggregate/AggregateStateRecordKt.Dsl.html
 $dokka.location:io.spine.server.aggregate/Snapshot.Builder///PointingToDeclaration/io/spine/server/aggregate/Snapshot.Builder.html
 $dokka.location:io.spine.server.aggregate/SnapshotKt.Dsl///PointingToDeclaration/io/spine/server/aggregate/SnapshotKt.Dsl.html
 $dokka.location:io.spine.server.command/DoNothing.Builder///PointingToDeclaration/io/spine/server/command/DoNothing.Builder.html
