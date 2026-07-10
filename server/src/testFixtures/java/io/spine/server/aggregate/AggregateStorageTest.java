@@ -27,10 +27,11 @@
 package io.spine.server.aggregate;
 
 import com.google.common.collect.ImmutableList;
-import com.google.protobuf.Any;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Durations;
 import io.spine.base.AggregateState;
+import io.spine.base.Identifier;
 import io.spine.base.Time;
 import io.spine.core.ActorContext;
 import io.spine.core.Event;
@@ -38,13 +39,14 @@ import io.spine.core.EventContext;
 import io.spine.core.EventId;
 import io.spine.core.MessageId;
 import io.spine.core.Origin;
+import io.spine.core.Version;
 import io.spine.protobuf.AnyPacker;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.server.ContextSpec;
 import io.spine.server.ServerEnvironment;
-import io.spine.server.aggregate.given.StorageRecords;
 import io.spine.server.aggregate.given.repo.GivenAggregate;
 import io.spine.server.aggregate.given.repo.ProjectAggregateRepository;
+import io.spine.server.entity.EntityEventHistory;
 import io.spine.server.event.NoReaction;
 import io.spine.server.storage.AbstractStorageTest;
 import io.spine.test.aggregate.AggProject;
@@ -58,7 +60,6 @@ import io.spine.testing.core.given.GivenCommandContext;
 import io.spine.testing.server.TestEventFactory;
 import io.spine.testing.server.model.ModelTests;
 import io.spine.type.TypeUrl;
-import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -68,17 +69,16 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.protobuf.util.Timestamps.add;
+import static com.google.protobuf.util.Timestamps.subtract;
 import static io.spine.base.Identifier.newUuid;
 import static io.spine.base.Time.currentTime;
 import static io.spine.core.Versions.increment;
 import static io.spine.core.Versions.zero;
-import static io.spine.protobuf.Durations2.seconds;
 import static io.spine.protobuf.Messages.isDefault;
 import static io.spine.server.aggregate.given.StorageRecords.sequenceFor;
 import static io.spine.server.aggregate.given.aggregate.AggregateTestEnv.event;
@@ -86,7 +86,6 @@ import static io.spine.testing.TestValues.nullRef;
 import static io.spine.testing.core.given.GivenEnrichment.withOneAttribute;
 import static java.lang.Integer.MAX_VALUE;
 import static java.util.Collections.reverse;
-import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -102,26 +101,29 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public abstract class AggregateStorageTest
         extends AbstractStorageTest<ProjectId,
-                                    AggregateHistory,
+                                    EntityEventHistory,
                                     AggregateStorage<ProjectId, AggProject>> {
 
     private final ProjectId id = Sample.messageOfType(ProjectId.class);
 
-    private final TestEventFactory eventFactory =
-            TestEventFactory.newInstance(AggregateStorageTest.class);
     private AggregateStorage<ProjectId, AggProject> storage;
-
-    private static Snapshot newSnapshot(Timestamp time) {
-        return Snapshot.newBuilder()
-                       .setState(Any.getDefaultInstance())
-                       .setTimestamp(time)
-                       .build();
-    }
 
     private static EventId newEventId() {
         return EventId.newBuilder()
                       .setValue(newUuid())
                       .build();
+    }
+
+    /**
+     * Creates an event factory producing the events on behalf of the entity with
+     * the passed identifier.
+     *
+     * <p>The journal stores an event under its producer, so the tests writing events
+     * must emit them with the identifier they later read the history by.
+     */
+    private static TestEventFactory eventFactoryFor(Object producerId) {
+        return TestEventFactory.newInstance(Identifier.pack(producerId),
+                                            AggregateStorageTest.class);
     }
 
     @Override
@@ -133,21 +135,12 @@ public abstract class AggregateStorageTest
     }
 
     @Override
-    protected AggregateHistory newStorageRecord(ProjectId id) {
-        var records = sequenceFor(id);
-        var expectedEvents = records.stream()
-                .map(AggregateStorageTest::toEvent)
-                .collect(toList());
-        var record = AggregateHistory.newBuilder()
-                .addAllEvent(expectedEvents)
+    protected EntityEventHistory newStorageRecord(ProjectId id) {
+        var events = sequenceFor(id);
+        var record = EntityEventHistory.newBuilder()
+                .addAllEvent(events)
                 .build();
         return record;
-    }
-
-    private static @Nullable Event toEvent(@Nullable AggregateEventRecord record) {
-        return record != null
-               ? record.getEvent()
-               : null;
     }
 
     @Override
@@ -194,7 +187,7 @@ public abstract class AggregateStorageTest
         }
 
         @Test
-        @DisplayName("empty `AggregateHistory` on reading record")
+        @DisplayName("empty `Optional` on reading record")
         void absentRecord() {
             var record = storage.read(id);
 
@@ -225,20 +218,6 @@ public abstract class AggregateStorageTest
         void eventId() {
             assertThrows(NullPointerException.class,
                          () -> storage.writeEvent(nullRef(), Event.getDefaultInstance()));
-        }
-
-        @Test
-        @DisplayName("snapshot for writing")
-        void snapshot() {
-            assertThrows(NullPointerException.class,
-                         () -> storage.writeSnapshot(id, nullRef()));
-        }
-
-        @Test
-        @DisplayName("snapshot ID for writing")
-        void snapshotId() {
-            assertThrows(NullPointerException.class,
-                         () -> storage.writeSnapshot(nullRef(), Snapshot.getDefaultInstance()));
         }
     }
 
@@ -277,7 +256,8 @@ public abstract class AggregateStorageTest
         }
 
         private <I> void writeAndReadEventTest(I id, AggregateStorage<I, ?> storage) {
-            var expectedEvent = eventFactory.createEvent(event(AggProject.getDefaultInstance()));
+            var factory = eventFactoryFor(id);
+            var expectedEvent = factory.createEvent(event(AggProject.getDefaultInstance()));
 
             storage.writeEvent(id, expectedEvent);
 
@@ -290,20 +270,6 @@ public abstract class AggregateStorageTest
 
             close(storage);
         }
-    }
-
-    @Test
-    @DisplayName("write and read one record")
-    void writeAndReadRecord() {
-        var expected = StorageRecords.create(id, currentTime());
-
-        storage.writeEventRecord(id, expected);
-
-        var iterator = historyBackward();
-        assertTrue(iterator.hasNext());
-        var actual = iterator.next();
-        assertEquals(expected, actual);
-        assertFalse(iterator.hasNext());
     }
 
     /**
@@ -351,36 +317,36 @@ public abstract class AggregateStorageTest
         @Test
         @DisplayName("sorted by timestamp descending")
         void sortedByTimestamp() {
-            var records = sequenceFor(id);
+            var events = sequenceFor(id);
 
-            writeAll(id, records);
+            writeAll(id, events);
 
             var iterator = historyBackward();
-            List<AggregateEventRecord> actual = newArrayList(iterator);
-            reverse(records); // expected records should be in a reverse order
-            assertEquals(records, actual);
+            List<Event> actual = newArrayList(iterator);
+            reverse(events); // expected events should be in a reverse order
+            assertEquals(events, actual);
         }
 
         @Test
         @DisplayName("sorted by version descending")
         void sortedByVersion() {
             var eventsNumber = 5;
-            List<AggregateEventRecord> records = newLinkedList();
+            List<Event> events = newLinkedList();
             var timestamp = currentTime();
             var currentVersion = zero();
+            var factory = eventFactoryFor(id);
             for (var i = 0; i < eventsNumber; i++) {
                 var state = AggProject.getDefaultInstance();
-                var event = eventFactory.createEvent(event(state), currentVersion, timestamp);
-                var record = StorageRecords.create(id, timestamp, event);
-                records.add(record);
+                var event = factory.createEvent(event(state), currentVersion, timestamp);
+                events.add(event);
                 currentVersion = increment(currentVersion);
             }
-            writeAll(id, records);
+            writeAll(id, events);
 
             var iterator = historyBackward();
-            List<AggregateEventRecord> actual = newArrayList(iterator);
-            reverse(records); // expected records should be in a reverse order
-            assertEquals(records, actual);
+            List<Event> actual = newArrayList(iterator);
+            reverse(events); // expected events should be in a reverse order
+            assertEquals(events, actual);
         }
 
         @Test
@@ -393,8 +359,9 @@ public abstract class AggregateStorageTest
             var maxTimestamp = add(minTimestamp, Durations.fromHours(1));
 
             // The first event is an event, which is the oldest, i.e. with the minimal version.
-            var expectedFirst = eventFactory.createEvent(event(state), minVersion, maxTimestamp);
-            var expectedSecond = eventFactory.createEvent(event(state), maxVersion, minTimestamp);
+            var factory = eventFactoryFor(id);
+            var expectedFirst = factory.createEvent(event(state), minVersion, maxTimestamp);
+            var expectedSecond = factory.createEvent(event(state), maxVersion, minTimestamp);
 
             storage.writeEvent(id, expectedSecond);
             storage.writeEvent(id, expectedFirst);
@@ -405,68 +372,94 @@ public abstract class AggregateStorageTest
         }
     }
 
-    @Test
-    @DisplayName("write and read snapshot")
-    void writeAndReadSnapshot() {
-        var expected = newSnapshot(currentTime());
-
-        storage.writeSnapshot(id, expected);
-
-        var iterator = historyBackward();
-        assertTrue(iterator.hasNext());
-        var actual = iterator.next();
-        assertEquals(expected, actual.getSnapshot());
-        assertFalse(iterator.hasNext());
-    }
-
     @Nested
     @DisplayName("write records and load history")
     class WriteRecordsAndLoadHistory {
 
         @Test
-        @DisplayName("if there are no snapshots available")
-        void withNoSnapshots() {
+        @DisplayName("in the order of emission")
+        void inOrderOfEmission() {
             testWriteRecordsAndLoadHistory(currentTime());
         }
 
         @Test
-        @DisplayName("till last snapshot available")
-        void tillLastSnapshot() {
-            var delta = seconds(10);
-            var time1 = currentTime();
-            var time2 = add(time1, delta);
-            var time3 = add(time2, delta);
+        @DisplayName("limited to the requested number of the most recent events")
+        void limitedToMostRecent() {
+            var eventCount = 5;
+            var window = 3;
+            List<Event> written = new ArrayList<>(eventCount);
+            var currentVersion = zero();
+            var factory = eventFactoryFor(id);
+            for (var i = 0; i < eventCount; i++) {
+                currentVersion = increment(currentVersion);
+                var state = AggProject.getDefaultInstance();
+                var event = factory.createEvent(event(state), currentVersion);
+                written.add(event);
+                storage.writeEvent(id, event);
+            }
 
-            storage.writeEventRecord(id, StorageRecords.create(id, time1));
-            storage.writeSnapshot(id, newSnapshot(time2));
+            var optional = storage.read(id, window);
 
-            testWriteRecordsAndLoadHistory(time3);
+            assertTrue(optional.isPresent());
+            var history = optional.get();
+            var expected = written.subList(eventCount - window, eventCount);
+            assertEquals(expected, history.getEventList());
         }
     }
 
-    @Test
-    @DisplayName("continue reading history if snapshot was not found in first batch")
-    void continueReadHistoryIfSnapshotNotFound() {
-        var currentVersion = zero();
-        var snapshot = Snapshot.newBuilder()
-                                    .setVersion(currentVersion)
-                                    .build();
-        storage.writeSnapshot(id, snapshot);
+    @Nested
+    @DisplayName("truncate the journal")
+    class TruncateJournal {
 
-        var eventsAfterSnapshot = 10;
-        for (var i = 0; i < eventsAfterSnapshot; i++) {
-            currentVersion = increment(currentVersion);
-            var state = AggProject.getDefaultInstance();
-            var event = eventFactory.createEvent(event(state), currentVersion);
-            storage.writeEvent(id, event);
+        private Version currentVersion = zero();
+
+        @Test
+        @DisplayName("keeping the requested number of the most recent events per Aggregate")
+        void keepingMostRecent() {
+            var written = writeSequentialEvents(5, currentTime());
+            var keep = 2;
+
+            storage.truncate(keep);
+
+            var remaining = readRecord(id);
+            assertEquals(written.subList(3, 5), remaining.getEventList());
         }
 
-        var optionalStateRecord = storage.read(id, 1);
+        @Test
+        @DisplayName("deleting only the events older than the given time")
+        void olderThan() {
+            var longAgo = subtract(currentTime(), Durations.fromDays(365));
+            writeSequentialEvents(2, longAgo);
+            var recent = writeSequentialEvents(2, currentTime());
+            var cutoff = subtract(currentTime(), Durations.fromDays(30));
 
-        assertTrue(optionalStateRecord.isPresent());
-        var stateRecord = optionalStateRecord.get();
-        assertEquals(snapshot, stateRecord.getSnapshot());
-        assertEquals(eventsAfterSnapshot, stateRecord.getEventCount());
+            storage.truncate(0, cutoff);
+
+            var remaining = readRecord(id);
+            assertEquals(recent, remaining.getEventList());
+        }
+
+        @Test
+        @DisplayName("rejecting a negative count of the events to keep")
+        void rejectingNegativeCount() {
+            assertThrows(IllegalArgumentException.class, () -> storage.truncate(-1));
+            assertThrows(IllegalArgumentException.class,
+                         () -> storage.truncate(-1, currentTime()));
+        }
+
+        @CanIgnoreReturnValue
+        private List<Event> writeSequentialEvents(int count, Timestamp at) {
+            List<Event> events = new ArrayList<>(count);
+            var factory = eventFactoryFor(id);
+            for (var i = 0; i < count; i++) {
+                currentVersion = increment(currentVersion);
+                var state = AggProject.getDefaultInstance();
+                var event = factory.createEvent(event(state), currentVersion, at);
+                events.add(event);
+                storage.writeEvent(id, event);
+            }
+            return events;
+        }
     }
 
     @Nested
@@ -489,7 +482,7 @@ public abstract class AggregateStorageTest
             var enrichedContext = EventContext.newBuilder()
                     .setEnrichment(withOneAttribute())
                     .setTimestamp(Time.currentTime())
-                    .setProducerId(AnyPacker.pack(TestValues.newUuidValue()))
+                    .setProducerId(Identifier.pack(id))
                     .setPastMessage(origin)
                     .build();
             var event = Event.newBuilder()
@@ -517,7 +510,7 @@ public abstract class AggregateStorageTest
             var context = EventContext.newBuilder()
                     .setEventContext(origin)
                     .setTimestamp(Time.currentTime())
-                    .setProducerId(AnyPacker.pack(TestValues.newUuidValue()))
+                    .setProducerId(Identifier.pack(id))
                     .build();
             var event = Event.newBuilder()
                     .setId(newEventId())
@@ -533,32 +526,29 @@ public abstract class AggregateStorageTest
         }
     }
 
-    private AggregateHistory readRecord(ProjectId id) {
+    private EntityEventHistory readRecord(ProjectId id) {
         var optional = storage.read(id);
         assertTrue(optional.isPresent());
         return optional.get();
     }
 
     void testWriteRecordsAndLoadHistory(Timestamp firstRecordTime) {
-        var records = sequenceFor(id, firstRecordTime);
+        var expectedEvents = sequenceFor(id, firstRecordTime);
 
-        writeAll(id, records);
+        writeAll(id, expectedEvents);
 
-        var events = readRecord(id);
-        var expectedEvents = records.stream()
-                .map(AggregateStorageTest::toEvent)
-                .collect(Collectors.toList());
-        var actualEvents = events.getEventList();
+        var history = readRecord(id);
+        var actualEvents = history.getEventList();
         assertEquals(expectedEvents, actualEvents);
     }
 
-    protected void writeAll(ProjectId id, Iterable<AggregateEventRecord> records) {
-        for (var record : records) {
-            storage.writeEventRecord(id, record);
+    protected void writeAll(ProjectId id, Iterable<Event> events) {
+        for (var event : events) {
+            storage.writeEvent(id, event);
         }
     }
 
-    private Iterator<AggregateEventRecord> historyBackward() {
+    private Iterator<Event> historyBackward() {
         return storage.historyBackward(id, MAX_VALUE);
     }
 

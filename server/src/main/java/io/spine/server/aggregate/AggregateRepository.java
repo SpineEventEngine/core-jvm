@@ -31,11 +31,8 @@ import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import io.spine.annotation.Internal;
 import io.spine.annotation.VisibleForTesting;
 import io.spine.base.AggregateState;
-import io.spine.base.EventMessage;
 import io.spine.client.ResponseFormat;
 import io.spine.client.TargetFilters;
-import io.spine.core.Event;
-import io.spine.core.EventContext;
 import io.spine.query.EntityQuery;
 import io.spine.server.BoundedContext;
 import io.spine.server.ServerEnvironment;
@@ -53,7 +50,6 @@ import io.spine.server.event.EventBus;
 import io.spine.server.event.EventDispatcherDelegate;
 import io.spine.server.route.CommandRouting;
 import io.spine.server.route.EventRouting;
-import io.spine.server.route.RouteFn;
 import io.spine.server.route.setup.CommandRoutingSetup;
 import io.spine.server.route.setup.EventRoutingSetup;
 import io.spine.server.type.CommandClass;
@@ -70,7 +66,6 @@ import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Suppliers.memoize;
 import static com.google.common.collect.Iterators.transform;
 import static io.spine.option.EntityOption.Kind.AGGREGATE;
@@ -80,7 +75,6 @@ import static io.spine.server.delivery.InboxLabel.REACT_UPON_EVENT;
 import static io.spine.server.dispatch.DispatchOutcomes.maybeSentToInbox;
 import static io.spine.server.dispatch.DispatchOutcomes.sentToInbox;
 import static io.spine.server.tenant.TenantAwareRunner.with;
-import static io.spine.type.Json.toJson;
 import static io.spine.util.Exceptions.newIllegalStateException;
 import static java.util.Objects.requireNonNull;
 
@@ -114,7 +108,7 @@ import static java.util.Objects.requireNonNull;
  *         the type of the state of aggregates managed by this repository
  * @see Aggregate
  */
-@SuppressWarnings("ClassWithTooManyMethods")
+@SuppressWarnings({"ClassWithTooManyMethods", "OverlyCoupledClass"})
 public abstract class AggregateRepository<I,
                                           A extends Aggregate<I, S, ?>,
                                           S extends AggregateState<I>>

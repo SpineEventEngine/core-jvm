@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,24 +23,34 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-syntax = "proto3";
 
-package spine.test.aggregate;
+package io.spine.server.entity;
 
-import "spine/options.proto";
+import io.spine.annotation.Internal;
+import io.spine.core.Event;
 
-option (type_url_prefix) = "type.spine.io";
-option java_package="io.spine.server.aggregate.given.fibonacci.command";
-option java_multiple_files = true;
+import java.util.Iterator;
 
-import "spine/test/aggregate/fibonacci/fibonacci.proto";
+/**
+ * Lazily loads up to a requested number of an entity's most recent journal events,
+ * newest first.
+ *
+ * <p>A repository installs a loader on each entity it creates or loads (via
+ * {@link TransactionalEntity#setRecentHistoryLoader(RecentHistoryLoader)}), so that the
+ * {@linkplain RecentHistory#read(int) recent history reads} are served from the durable
+ * journal of the entity without eagerly reading it on every load. See
+ * {@code io.spine.server.aggregate.AggregateRepository} for the wiring on the aggregate side.
+ */
+@Internal
+@FunctionalInterface
+public interface RecentHistoryLoader {
 
-message SetStartingNumbers {
-    SequenceId id = 1;
-    int32 number_one = 2;
-    int32 number_two = 3;
-}
-
-message MoveSequence {
-    SequenceId id = 1;
+    /**
+     * Loads up to {@code depth} most recent events of the entity's journal, newest first.
+     *
+     * @param depth
+     *         the maximum number of the most recent events to load; positive
+     * @return an iterator over the loaded events, newest first
+     */
+    Iterator<Event> load(int depth);
 }

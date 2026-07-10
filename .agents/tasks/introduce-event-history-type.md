@@ -1,7 +1,9 @@
 # Introduce `EntityEventHistory` and `EntityEventStorage`
 
-**Status:** planned — opens Phase D as its own PR (decided 2026-07-08);
-follows PR-B2 (the event-sourcing cutover, merged in #1647).
+**Status:** implemented on `de-event-sourcing-phase-D` (2026-07-09) — opens
+Phase D as its own PR (decided 2026-07-08); follows PR-B2 (the event-sourcing
+cutover, merged in #1647). See "Implementation notes" at the bottom for the
+deliberate deltas from the sketch below.
 **Effort:** part of the "migrate Aggregates off event sourcing" line of work
 (see [`de-event-sourcing-plan.md`](de-event-sourcing-plan.md)).
 
@@ -119,7 +121,7 @@ history type. No change there.)*
    deprecated `truncateOlderThan` overloads) stays wired to the deprecated
    `AggregateEventStorage`: it is already inert on post-cutover journals — a
    journal without snapshot records never satisfies the snapshot-index
-   condition — while the D3 count/date trimming is designed against
+   condition — while the count/date trimming (Phase D, item 3) is designed against
    `EntityEventStorage`.
 6. **Migrate tests/fixtures** that reference the old types
    (`AggregateStorageTest`, `AggregateHistoryTruncationTest`,
@@ -156,11 +158,11 @@ in the migration notes the way the `NONE`-visibility caveat is stated.
 - ~~Naming of the Phase D state-history contract next to
   `EntityEventStorage`~~ **Settled 2026-07-08:** renamed to
   `EntityStateHistoryStorage` — "state history" vs. the event journal.
-- ~~Whether this rides with, or precedes, Phase D items D1–D3~~ **Settled
-  2026-07-08 (product owner): this task opens Phase D as its own PR.** D3
-  trimming is then built directly against `EntityEventStorage`; the
-  state-history items (D1/D2) are independent and may land in parallel or
-  after.
+- ~~Whether this rides with, or precedes, Phase D items 1–3~~ **Settled
+  2026-07-08 (product owner): this task opens Phase D as its own PR.** The
+  journal trimming (Phase D, item 3) is then built directly against
+  `EntityEventStorage`; the state-history items (Phase D, items 1 and 2) are
+  independent and may land in parallel or after.
 
 ## Verification
 
@@ -172,3 +174,108 @@ in the migration notes the way the `NONE`-visibility caveat is stated.
 - Storage vendors smoke-build against the new core snapshot (the Phase C
   list): the `AggregateStorage` type-parameter change and the new SPI method
   affect them.
+
+## Implementation notes (2026-07-09)
+
+Deliberate deltas from the sketch above, made while implementing:
+
+- **`ReadOperation` and `HistoryBackwardOperation` are deleted, not retyped.**
+  Both were package-private. The backward read folded into a public
+  `EntityEventStorage.historyBackward(entityId, batchSize, startingFrom)`;
+  `AggregateStorage.read(id, batchSize)` became a single journal-tail read
+  returning the most recent `batchSize` events in emission order — matching
+  its long-documented "maximum number of the events" contract. This also
+  retires a latent pagination hazard: the old batch loop advanced with a
+  strict `version < lastVersion` cursor, which loses events once several
+  events of one command share a version (the post-cutover A3 semantics).
+  Phase C item 1 ("simplify to journal-tail reads") sanctioned the direction.
+- **`AggregateStorage.writeSnapshot` and
+  `AggregateRecords.newEventRecord(...)` are removed** (all package-private).
+  The runtime never writes snapshots; the legacy-truncation tests write
+  `AggregateEventRecord`s directly into the legacy journal, reachable via the
+  package-private, deprecated `AggregateStorage.legacyJournal()` accessor.
+- **`UncommittedHistory.get()` returns a single `EntityEventHistory`** (the
+  sketch's plural segment list collapsed), and `writeAll(aggregate, history)`
+  takes it; the journal write is skipped when the history carries no events.
+- **`AggregateStorage` keeps a second, legacy journal storage** created via
+  the (deprecated) `createAggregateEventStorage` — only the deprecated
+  `truncateOlderThan` operates on it, per the settled wiring decision.
+- Proto deprecation is expressed as retention-status comments (no
+  `[deprecated]` options) — mirroring the PR-B3 wire-compat convention.
+- New suites: `EntityEventStorageSpec`, `EntityEventRecordsSpec` (Kotlin,
+  Kotest); `TestAggregateStorage` (unused since PR-B2), `ReadOperationTest`,
+  and `ReadOperationTestEnv` deleted; `AggregateStorageTest`,
+  `AggregateHistoryTruncationTest`, and `StorageRecords` migrated — the
+  truncation suite now simulates pre-cutover journals explicitly.
+- The migration guide gained §9 ("The journal moves to the entity level")
+  with the new-record-kind data caveat, stated the way the `NONE`-visibility
+  caveat is stated.
+- **Version bumped `.422 → .430`** — the `.422` on the branch belongs to the
+  preceding PR-B3 commits, and this change is breaking for storage vendors
+  (`AggregateStorage` type parameter, `writeAll`/`historyBackward` signatures,
+  published test-fixture APIs), so the increment rounds up to the next
+  multiple of ten per the version policy.
+- Post-review adjustments: the relocated sort helper is named
+  `TruncateOperation.newestFirst` (the old "chronological" name misstated the
+  order); `EntityEventStorage.historyBackward` is `@JvmOverloads`;
+  `delete`/`deleteAll` are covered by the new spec.
+- **Reversal (product owner, 2026-07-09, during the PR #1649 review): the
+  legacy storage machinery is removed, not deprecated.** The original
+  "retaining … the storage class for wire/SPI compatibility" decision is
+  overturned: `AggregateEventStorage`, `AggregateEventRecordColumn`,
+  `TruncateOperation`, `StorageFactory.createAggregateEventStorage`, and the
+  snapshot-index `AggregateStorage.truncateOlderThan`/`doTruncate` overloads
+  are deleted, along with the truncation test fixtures (incl. the fibonacci
+  aggregate, which existed only for them). Grounds: org-wide usage research
+  found zero production references (only the jdbc/gcloud truncation tests,
+  which subclass the deleted fixture and die on their scheduled core bump);
+  the tool was partial by design (never trims past the newest snapshot); and
+  keeping it made every `AggregateStorage` eagerly materialize an empty
+  legacy journal store per aggregate type. Only the proto messages remain —
+  marked `option deprecated = true` — so persisted legacy records stay
+  parseable.
+- **Journal trimming (Phase D, item 3) pulled into this PR (product owner,
+  2026-07-09):** with the
+  snapshot-index truncation removed, the replacement count/date trimming
+  ships immediately — `EntityEventStorage.truncate(keepMostRecent)` and
+  `truncate(keepMostRecent, olderThan)` (delete only records older than the
+  time, never cutting into the per-entity recent window), plus delegating
+  `AggregateStorage.truncate(...)` methods where the old truncation lived.
+  Covered by the `EntityEventStorageSpec` truncation cases and a
+  vendor-facing `TruncateJournal` group in `AggregateStorageTest`.
+- **`EntityEventRecordId` dropped (product owner, 2026-07-09, in review):**
+  the journal records are keyed by the `core.EventId` of the stored event —
+  matching `DefaultEventStore` (`MessageStorage<EventId, Event>`). The
+  dedicated id type was a leftover of the legacy design, where snapshot
+  records needed synthetic string identifiers; with events-only records the
+  event identity is the record identity. An emitted event has exactly one
+  producer, so `EventId` is a proper primary key.
+- **`AggregateRecords` dissolved (2026-07-09, in review):** its last remaining
+  factory became the member `Aggregate.toRecord()` (package-private, beside
+  its inverse `restore(EntityRecord)`); the utility class is deleted.
+- **Recent-history loading moved to the entity level (2026-07-10, in
+  review):** `RecentHistory` itself now works with the loader —
+  `read(depth)` serves from the installed `RecentHistoryLoader` (the durable
+  journal) or, when none is installed, from the in-memory copy. The loader
+  interface moved to `io.spine.server.entity` (public, `@Internal`), and
+  `TransactionalEntity.setRecentHistoryLoader(...)` is the wiring point —
+  so the future `ProcessManager` journaling only wires its repository side.
+  `Aggregate` lost its own loader field/branching; `historyBackward(depth)`
+  delegates to `recentHistory().read(depth)`. New `RecentHistorySpec` covers
+  both read paths.
+- **The in-memory recent-history copy is removed (product owner,
+  2026-07-10, in review):** `RecentHistory` always reads through the
+  installed loader — the durable journal is the only source. Rationale:
+  entities serve signals and leave memory; event caching, if any, belongs to
+  the storage side. `TransactionalEntity.appendToRecentHistory` /
+  `clearRecentHistory` and the deque-backed `RecentHistory` API
+  (`iterator()`, `stream()`, `isEmpty()`) are gone; `Aggregate.commitEvents()`
+  only clears the uncommitted events. An entity created outside a repository
+  has no journal, so its reads return no events (the documented contract,
+  covered by tests).
+- **`EntityEventRecord` dropped (review by @armiol, 2026-07-10):** the
+  wrapper record was redundant. The journal stores plain `core.Event`s keyed
+  by `EventId`, with the emitting entity, the event time, and the event
+  version exposed as query columns derived from the event context
+  (`EntityEventColumn`) — the record-spec pattern of `DefaultEventStore` and
+  `InboxStorage`. `event_history.proto` now defines only `EntityEventHistory`.

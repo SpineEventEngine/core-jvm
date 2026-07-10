@@ -76,7 +76,7 @@ enum InboxLabel {
     // were removed during the event-sourcing cutover, so nothing emits this
     // label anymore. The value is kept so that `InboxMessage` records written
     // by earlier versions still parse.
-    IMPORT_EVENT = 5;
+    IMPORT_EVENT = 5 [deprecated = true];
 
     // Pass an event message to the projection in scope of a catch-up process.
     CATCH_UP = 6;

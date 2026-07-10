@@ -1,0 +1,87 @@
+/*
+ * Copyright 2026, TeamDev. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Redistribution and use in source and/or binary forms, with or without
+ * modification, must retain the above copyright notice and the following
+ * disclaimer.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+package io.spine.server.entity
+
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.shouldBe
+import io.spine.core.Event
+import io.spine.test.storage.event.StgProjectCreated
+import io.spine.testdata.Sample
+import io.spine.testing.server.TestEventFactory
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
+
+@DisplayName("`RecentHistory` should")
+internal class RecentHistorySpec {
+
+    private val history = RecentHistory()
+
+    @Test
+    fun `serve the reads through the installed loader`() {
+        val fromJournal = newEvents(count = 2).reversed()
+        var requestedDepth = 0
+        history.useLoader { depth ->
+            requestedDepth = depth
+            fromJournal.iterator()
+        }
+
+        val read = history.read(7).asSequence().toList()
+
+        read shouldContainExactly fromJournal
+        requestedDepth shouldBe 7
+    }
+
+    @Test
+    fun `return no events when no loader is installed`() {
+        history.read(Int.MAX_VALUE)
+            .asSequence()
+            .toList()
+            .shouldBeEmpty()
+    }
+
+    @Test
+    fun `reject a non-positive depth`() {
+        shouldThrow<IllegalArgumentException> {
+            history.read(0)
+        }
+        shouldThrow<IllegalArgumentException> {
+            history.read(-1)
+        }
+    }
+
+    private fun newEvents(count: Int): List<Event> = List(count) {
+        eventFactory.createEvent(Sample.messageOfType(StgProjectCreated::class.java))
+    }
+
+    private companion object {
+
+        private val eventFactory =
+            TestEventFactory.newInstance(RecentHistorySpec::class.java)
+    }
+}

@@ -10,3 +10,4 @@ Each entry is a memory file with YAML frontmatter and a body. Types: `feedback`,
 - [KDoc tag descriptions: sentence case](feedback_kdoc_tag_descriptions_sentence_case.md) — `@param I The type...`; don't carry lowercase over from legacy Javadoc
 - [Document `internal` members](feedback_document_internal_members.md) — every Kotlin `internal` method gets KDoc; project convention
 - [New proto types: separate file](feedback_proto_one_message_per_file.md) — one message per file recommended; don't append new types to existing multi-message protos
+- [Kotlin over the storage SPI: two traps](kotlin-storage-spi-interop-traps.md) — `ExtractId` method refs fail under K2 (nullable Guava SAM → lambda + `requireNotNull`); proto-DSL receiver properties shadow outer params (bind a renamed local first)

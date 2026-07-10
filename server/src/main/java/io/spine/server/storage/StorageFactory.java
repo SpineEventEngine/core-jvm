@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,11 +32,11 @@ import io.spine.base.EntityState;
 import io.spine.server.Closeable;
 import io.spine.server.ContextSpec;
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.AggregateEventStorage;
 import io.spine.server.aggregate.AggregateStorage;
 import io.spine.server.delivery.CatchUpStorage;
 import io.spine.server.delivery.InboxStorage;
 import io.spine.server.entity.Entity;
+import io.spine.server.entity.storage.EntityEventStorage;
 import io.spine.server.entity.storage.EntityRecordStorage;
 import io.spine.server.event.EventStore;
 import io.spine.server.event.store.DefaultEventStore;
@@ -52,7 +52,7 @@ import io.spine.server.migration.mirror.MirrorStorage;
  *
  * <p>In order to unify the structure of the stored information and the way of its further
  * retrieval, a {@link RecordStorage} type is made a common ground for all other storage
- * types. It is capable of storing and querying any Protobuf messages, and provides
+ * types. It is capable of storing and querying any Protobuf messages and provides
  * a configuration API for detailing on how each message is transformed into a stored record.
  *
  * <p>To achieve that, each of the storage classes starts its own initialization by creating
@@ -119,14 +119,13 @@ public interface StorageFactory extends Closeable {
     }
 
     /**
-     * Creates a new {@link AggregateEventStorage}.
+     * Creates a new {@link EntityEventStorage}.
      *
      * @param context
      *         specification of the Bounded Context in scope of which the storage will be used
      */
-    default AggregateEventStorage
-    createAggregateEventStorage(ContextSpec context) {
-        return new AggregateEventStorage(context, this);
+    default EntityEventStorage createEntityEventStorage(ContextSpec context) {
+        return new EntityEventStorage(context, this);
     }
 
     /**
@@ -147,7 +146,7 @@ public interface StorageFactory extends Closeable {
      * @param <S>
      *         the type of the entity state
      * @param context
-     *         specification of the Bounded Context, in scope of which this storage will be used
+     *         specification of the Bounded Context, in the scope of which this storage will be used
      * @param entityClass
      *         the class of entities to be stored
      */
@@ -196,7 +195,7 @@ public interface StorageFactory extends Closeable {
      * {@linkplain io.spine.server.migration.mirror.MirrorMigration migrate mirrors} from Spine 1.x.
      *
      * @param context
-     *         specification of the Bounded Context, in scope of which this storage will be used
+     *         specification of the Bounded Context, in the scope of which this storage will be used
      */
     default MirrorStorage createMirrorStorage(ContextSpec context) {
         return new MirrorStorage(context, this);

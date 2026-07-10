@@ -31,6 +31,7 @@ import com.google.protobuf.Empty;
 import io.spine.annotation.Internal;
 import io.spine.annotation.VisibleForTesting;
 import io.spine.base.AggregateState;
+import io.spine.base.Identifier;
 import io.spine.core.Event;
 import io.spine.core.Version;
 import io.spine.server.aggregate.model.AggregateClass;
@@ -51,9 +52,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterators.any;
-import static com.google.common.collect.Iterators.limit;
+import static io.spine.protobuf.AnyPacker.pack;
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.server.Ignored.ignored;
 import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
@@ -148,15 +148,6 @@ public abstract class Aggregate<I,
     private IdempotencyGuard idempotencyGuard;
 
     /**
-     * Lazily loads up to a requested number of the most recent journal events (newest first)
-     * when {@linkplain #historyBackward(int) recent history} is accessed.
-     *
-     * <p>Set by the repository when the aggregate is created or loaded. When absent, recent
-     * history falls back to the in-memory {@link #recentHistory() recentHistory}.
-     */
-    private transient RecentHistoryLoader recentHistoryLoader;
-
-    /**
      * Creates a new instance.
      *
      * @apiNote Constructors of derived classes are likely to have package-private access
@@ -213,16 +204,6 @@ public abstract class Aggregate<I,
      */
     final void enableIdempotencyGuard(int historyDepth) {
         idempotencyGuard.enable(historyDepth);
-    }
-
-    /**
-     * Installs the loader that reads the most recent journal events on demand.
-     *
-     * <p>Called by the repository so that {@link #historyBackward(int)} and the opt-in
-     * {@link IdempotencyGuard} can inspect recent history after a state-only load.
-     */
-    final void setRecentHistoryLoader(RecentHistoryLoader loader) {
-        this.recentHistoryLoader = loader;
     }
 
     /**
@@ -310,11 +291,8 @@ public abstract class Aggregate<I,
             return outcome;
         }
         var method = thisClass().reactorOf(event);
-        if (method.isEmpty()) {
-            return ignored(thisClass(), event);
-        }
-        return method.get().invoke(this, event);
-
+        return method.map(reactorMethod -> reactorMethod.invoke(this, event))
+                     .orElseGet(() -> ignored(thisClass(), event));
     }
 
     @Override
@@ -330,7 +308,8 @@ public abstract class Aggregate<I,
      * <p>Called by the framework after a command or reaction has been dispatched and its
      * transaction committed. Rejection events are not journaled.
      *
-     * @param events the events emitted by the current command handler or reactor
+     * @param events
+     *         the events emitted by the current command handler or reactor
      */
     final void recordEvents(List<Event> events) {
         uncommittedHistory.record(events);
@@ -369,6 +348,27 @@ public abstract class Aggregate<I,
     }
 
     /**
+     * Creates a new record storing the latest state of this aggregate along with
+     * its version and lifecycle flags.
+     *
+     * <p>Since the event-sourcing cutover, the persisted {@link EntityRecord} is the source
+     * of truth for {@linkplain #restore(EntityRecord) loading} an aggregate, so the business
+     * {@linkplain #state() state} is <em>always</em> packed into the record — unconditionally
+     * of the aggregate's visibility. Visibility gates only the read-side query exposure,
+     * not the state write.
+     *
+     * @return a new record with the data of this aggregate
+     */
+    final EntityRecord toRecord() {
+        return EntityRecord.newBuilder()
+                .setEntityId(Identifier.pack(id()))
+                .setLifecycleFlags(lifecycleFlags())
+                .setVersion(version())
+                .setState(pack(state()))
+                .build();
+    }
+
+    /**
      * Returns all uncommitted events.
      *
      * @return immutable view of all uncommitted events
@@ -393,13 +393,9 @@ public abstract class Aggregate<I,
     }
 
     /**
-     * {@linkplain #appendToRecentHistory Remembers} the uncommitted events as
-     * the {@link io.spine.server.entity.RecentHistory RecentHistory} and clears them.
+     * Marks the uncommitted events of this aggregate as committed and clears them.
      */
     final void commitEvents() {
-        List<Event> recentEvents = uncommittedHistory.events()
-                                                     .list();
-        appendToRecentHistory(recentEvents);
         uncommittedHistory.commit();
     }
 
@@ -412,16 +408,6 @@ public abstract class Aggregate<I,
         return "Modification of aggregate state or its lifecycle flags is not available this way." +
                 " Modify it from within a command handler (`@Assign`)" +
                 " or an event reactor (`@React`).";
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>Opens the method for the repository.
-     */
-    @Override
-    protected final void clearRecentHistory() {
-        super.clearRecentHistory();
     }
 
     /**
@@ -445,13 +431,11 @@ public abstract class Aggregate<I,
      * @param depth
      *         the maximal number of the most recent events to return; must be positive
      * @return new iterator instance
+     * @throws IllegalArgumentException
+     *         if the {@code depth} is not positive
      */
     protected final Iterator<Event> historyBackward(int depth) {
-        checkArgument(depth > 0, "History depth must be positive. Got %s.", depth);
-        if (recentHistoryLoader != null) {
-            return recentHistoryLoader.load(depth);
-        }
-        return limit(recentHistory().iterator(), depth);
+        return recentHistory().read(depth);
     }
 
     /**

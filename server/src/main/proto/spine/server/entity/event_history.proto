@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,14 +24,37 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * Test environment classes for the {@code AggregateStorage}
- * {@link io.spine.server.aggregate.AggregateStorage#truncateOlderThan(int) truncation} test.
- */
-@CheckReturnValue
-@NullMarked
-package io.spine.server.aggregate.given.fibonacci;
+syntax = "proto3";
 
-import com.google.errorprone.annotations.CheckReturnValue;
+package spine.server.entity;
 
-import org.jspecify.annotations.NullMarked;
+import "spine/options.proto";
+
+option (type_url_prefix) = "type.spine.io";
+option (SPI_all) = true;
+option java_package = "io.spine.server.entity";
+option java_outer_classname = "EventHistoryProto";
+option java_multiple_files = true;
+
+import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
+
+import "spine/core/event.proto";
+
+// The recorded history of events emitted by an entity.
+//
+// The history is an append-only journal kept for traceability and
+// recent-history lookups. It is not used for restoring the entity state:
+// an entity loads from its latest state record.
+//
+// This type supersedes `spine.server.aggregate.AggregateHistory`, which
+// could carry a snapshot along with the events. Snapshots were removed along
+// with event-sourced loading, and events are emitted by entities in general —
+// not by aggregates alone — so the journal types now live at the entity level.
+//
+message EntityEventHistory {
+
+    // The events emitted by the entity, in the order of emission.
+    repeated core.Event event = 1;
+}
+

@@ -26,8 +26,8 @@
 
 package io.spine.server.aggregate;
 
-import com.google.common.collect.ImmutableList;
 import io.spine.core.Event;
+import io.spine.server.entity.EntityEventHistory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,8 +39,9 @@ import java.util.List;
  * state, so this class no longer segments the events by snapshots — it is a plain, ordered list
  * of the events emitted by the current command or reaction. The framework
  * {@linkplain Aggregate#recordEvents(List) records} the produced events here after a successful
- * dispatch, {@linkplain AggregateStorage#writeAll(Aggregate, ImmutableList) stores} them into the
- * append-only journal alongside the latest state record, and then {@link #commit() commits}.
+ * dispatch, {@linkplain AggregateStorage#writeAll(Aggregate, EntityEventHistory) stores} them
+ * into the append-only journal alongside the latest state record, and then
+ * {@link #commit() commits}.
  */
 final class UncommittedHistory {
 
@@ -51,7 +52,8 @@ final class UncommittedHistory {
      *
      * <p>Rejection events are not journaled and are ignored.
      *
-     * @param produced the events emitted by the current command handler or reactor
+     * @param produced
+     *         the events emitted by the current command handler or reactor
      */
     void record(Iterable<Event> produced) {
         for (var event : produced) {
@@ -62,19 +64,14 @@ final class UncommittedHistory {
     }
 
     /**
-     * Obtains the uncommitted events wrapped into a single {@link AggregateHistory} segment.
+     * Obtains the uncommitted events wrapped into an {@link EntityEventHistory}.
      *
-     * <p>Returns an empty list when there are no uncommitted events. The segment never carries a
-     * {@code Snapshot} — snapshots were removed with event-sourced loading.
+     * <p>The returned history carries no events when there are none uncommitted.
      */
-    ImmutableList<AggregateHistory> get() {
-        if (events.isEmpty()) {
-            return ImmutableList.of();
-        }
-        var history = AggregateHistory.newBuilder()
+    EntityEventHistory get() {
+        return EntityEventHistory.newBuilder()
                 .addAllEvent(events)
                 .build();
-        return ImmutableList.of(history);
     }
 
     /**

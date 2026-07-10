@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,15 +27,9 @@
 package io.spine.server.aggregate.given;
 
 import com.google.protobuf.Timestamp;
-import io.spine.base.EventMessage;
 import io.spine.base.Identifier;
 import io.spine.core.Event;
-import io.spine.core.EventId;
-import io.spine.server.aggregate.AggregateEventRecord;
-import io.spine.server.aggregate.AggregateEventRecordId;
 import io.spine.test.aggregate.ProjectId;
-import io.spine.test.aggregate.event.AggProjectCreated;
-import io.spine.testdata.Sample;
 import io.spine.testing.server.TestEventFactory;
 
 import java.util.List;
@@ -48,78 +42,43 @@ import static io.spine.server.aggregate.given.Given.EventMessage.projectCreated;
 import static io.spine.server.aggregate.given.Given.EventMessage.taskAdded;
 
 /**
- * Utilities for creating test instances and sequences of {@link AggregateEventRecord}.
+ * Utilities for creating sequences of test {@link Event}s for the journal of an aggregate.
  */
 public class StorageRecords {
-
-    private static final TestEventFactory eventFactory = TestEventFactory.newInstance(Given.class);
 
     /** Prevents instantiation of this utility class. */
     private StorageRecords() {
     }
 
-    /** Creates new builder for an aggregate event record and sets the passed timestamp. */
-    private static <I> AggregateEventRecord.Builder
-    newRecordWith(EventId eventId, I aggregateId, Timestamp timestamp) {
-        var recordId = AggregateEventRecordId.newBuilder()
-                .setValue(eventId.getValue())
-                .build();
-        return AggregateEventRecord.newBuilder()
-                .setId(recordId)
-                .setAggregateId(Identifier.pack(aggregateId))
-                .setTimestamp(timestamp);
-    }
-
     /**
-     * Creates a sample {@linkplain AggregateEventRecord record} with the passed timestamp.
+     * Returns several events sorted by timestamp ascending.
+     * First event's timestamp is the current time.
+     *
+     * <p>The events are emitted on behalf of the aggregate with the passed identifier.
      */
-    public static <I> AggregateEventRecord create(I aggregateId, Timestamp timestamp) {
-        EventMessage eventMessage = Sample.messageOfType(AggProjectCreated.class);
-        var event = eventFactory.createEvent(eventMessage);
-        return newRecordWith(event.getId(), aggregateId, timestamp)
-                .setEvent(event)
-                .build();
-    }
-
-    /**
-     * Creates a record with the passed event and timestamp.
-     */
-    public static <I> AggregateEventRecord create(I aggregateId, Timestamp timestamp, Event event) {
-        return newRecordWith(event.getId(), aggregateId, timestamp)
-                .setEvent(event)
-                .build();
-    }
-
-    /**
-     * Returns several records sorted by timestamp ascending.
-     * First record's timestamp is the current time.
-     */
-    public static List<AggregateEventRecord> sequenceFor(ProjectId id) {
+    public static List<Event> sequenceFor(ProjectId id) {
         return sequenceFor(id, currentTime());
     }
 
     /**
-     * Returns several records sorted by timestamp ascending.
+     * Returns several events sorted by timestamp ascending.
+     *
+     * <p>The events are emitted on behalf of the aggregate with the passed identifier.
      *
      * @param start
-     *         the timestamp of first record.
+     *         the timestamp of first event.
      */
-    public static List<AggregateEventRecord> sequenceFor(ProjectId id, Timestamp start) {
+    public static List<Event> sequenceFor(ProjectId id, Timestamp start) {
         var delta = seconds(10);
         var timestamp2 = add(start, delta);
         var timestamp3 = add(timestamp2, delta);
 
-        var factory = TestEventFactory.newInstance(Given.class);
+        var factory = TestEventFactory.newInstance(Identifier.pack(id), Given.class);
 
         var e1 = factory.createEvent(projectCreated(id, Given.projectName(id)), null, start);
-        var record1 = create(id, start, e1);
-
         var e2 = factory.createEvent(taskAdded(id), null, timestamp2);
-        var record2 = create(id, timestamp2, e2);
-
         var e3 = factory.createEvent(Given.EventMessage.projectStarted(id), null, timestamp3);
-        var record3 = create(id, timestamp3, e3);
 
-        return newArrayList(record1, record2, record3);
+        return newArrayList(e1, e2, e3);
     }
 }

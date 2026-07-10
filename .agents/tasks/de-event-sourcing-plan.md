@@ -132,8 +132,10 @@ These are the sharp edges; both are behavioral changes, not refactors.
 - `StorageFactory` SPI shape: `createAggregateStorage`,
   `createAggregateEventStorage`, `createEntityRecordStorage` all remain
   (the journal is still written). Storage vendors recompile, not rewrite.
-  *(Phase D's journal cleanup — the opener of that phase — deprecates
-  `createAggregateEventStorage` in favor of `createEntityEventStorage`.)*
+  *(Phase D's journal cleanup — the opener of that phase — replaces
+  `createAggregateEventStorage` with `createEntityEventStorage`; the legacy
+  method and storage class are removed, not deprecated — reversal decided
+  2026-07-09 in the PR #1649 review.)*
 - Client query path (`QueryService` → `Stand` → `EntityQueryProcessor` →
   `AggregateRepository.findRecords` → `AggregateStorage.readStates`).
 - `BlackBox` / `EventSubject` / `CommandSubject` public testing APIs.
@@ -400,8 +402,9 @@ green-per-commit sequence.
 
 Decoupled; starts after Phase B is merged and stable. Delivery order within
 the phase (decided 2026-07-08): the journal cleanup (see the phase opener
-below) lands first as its own PR, so that D3 trimming is built against
-`EntityEventStorage` from the start; the state-history items (D1/D2) are
+below) lands first as its own PR, so that the journal trimming (item 3) is
+built against `EntityEventStorage` from the start; the state-history items
+(items 1 and 2) are
 independent and may land in parallel or after.
 
 1. New Kotlin storage contract `EntityStateHistoryStorage` (renamed from the
@@ -410,15 +413,53 @@ independent and may land in parallel or after.
    `server/src/main/kotlin/io/spine/server/entity/history/` storing recent
    `EntityRecord` versions per entity to a configured depth, over the
    standard `RecordStorage` SPI (works on all backends without vendor code).
+   **Requirement (product owner, 2026-07-10):** each stored record carries
+   the time its state became current — the timestamp of the record's
+   `Version`, stamped once per dispatch since A3 — as a queryable column
+   beside the entity id and the version number. This is the temporal axis
+   for the "state at time T" query (item 5).
 2. Repository-level config (depth, enable/disable); write hook in
-   `AggregateRepository.doStore()`.
+   `AggregateRepository.doStore()`. Note for the "state at time T" query:
+   count-based retention bounds how far back `T` can be answered — an entity
+   updated often forgets quickly. Consider an optional duration-based
+   retention ("keep states for the last N days") mirroring the count/date
+   shape of `EntityEventStorage.truncate`.
 3. Count/date-based journal trimming replacing the deprecated
-   snapshot-index truncation (A7).
+   snapshot-index truncation (A7). **✅ Shipped with the phase opener in
+   PR #1649** (pulled in when the snapshot-index truncation was removed
+   rather than deprecated): `EntityEventStorage.truncate(keepMostRecent)` /
+   `truncate(keepMostRecent, olderThan)` — per-entity recent-window
+   protection — with delegating `AggregateStorage.truncate(...)` maintenance
+   methods.
 4. Design for future `ProcessManager` reuse (brief item 4) — the contract
    must not be aggregate-specific; actual PM wiring is out of scope.
 5. Read API for debugging/analysis (state history alongside the journal).
+   **Must support the query "state at time T" (product owner, 2026-07-10):**
+   given an entity id and a timestamp `T`, return the state the entity had
+   at `T` — the retained record with the highest version among those whose
+   effectiveness time (item 1) is not later than `T` (inclusive; the version
+   number breaks same-instant ties). The answer is honest about retention:
+   when `T` precedes the oldest *retained* record, the query returns empty —
+   "not answerable from the retained window" — rather than guessing with the
+   oldest record; a `T` predating the entity is likewise empty. Baseline
+   implementation: read the per-entity window (bounded by the configured
+   depth) and select in memory — portable over the `RecordStorage` SPI on
+   all backends; a backend may push the `time <= T` comparison down once
+   `Timestamp` columns are comparable in filters (cf. the orderable-types
+   work, issue #1217).
 
 ### Phase opener: journal cleanup (`EntityEventHistory` / `EntityEventStorage`)
+
+> **Implemented on `de-event-sourcing-phase-D` (2026-07-09), PR #1649** — see
+> the "Implementation notes" in the detailed task file for the deliberate
+> deltas (`ReadOperation`/`HistoryBackwardOperation` deleted in favor of
+> journal-tail reads; `writeSnapshot` removed; `UncommittedHistory.get()`
+> returns a single `EntityEventHistory`). **Reversal (product owner,
+> 2026-07-09, in review):** the legacy storage machinery is REMOVED, not
+> deprecated — `AggregateEventStorage`, `AggregateEventRecordColumn`,
+> `createAggregateEventStorage`, `TruncateOperation`, and the snapshot-index
+> `truncateOlderThan` are gone; only the proto messages remain (marked
+> `deprecated`) for wire parseability. Pending review and merge.
 
 Naming locked 2026-07-08 (product owner): the journal types move to the
 **entity** level — events are emitted by entities, not by aggregates alone.
@@ -431,7 +472,8 @@ Naming locked 2026-07-08 (product owner): the journal types move to the
   `StorageFactory.createAggregateEventStorage` superseded by a new
   `createEntityEventStorage`. Initial rollout covers aggregates;
   `ProcessManager` journaling is planned for a near-future PR, so nothing in
-  the new types may be aggregate-specific (the same constraint as D4).
+  the new types may be aggregate-specific (the same constraint as item 4
+  above).
   Record level settled 2026-07-08: **clean replacement** — a new
   `EntityEventRecord` supersedes the deprecated `AggregateEventRecord`;
   pre-upgrade journal rows stay in the legacy record kind, invisible to the
@@ -439,10 +481,10 @@ Naming locked 2026-07-08 (product owner): the journal types move to the
 
 Detailed task:
 [`introduce-event-history-type.md`](introduce-event-history-type.md).
-Coordinate with the count/date journal trimming in D3 above: D3 is built
-against `EntityEventStorage`, while the deprecated snapshot-index truncation
-stays wired to the deprecated `AggregateEventStorage` (already inert on
-post-cutover journals, which contain no snapshot records).
+The count/date journal trimming (item 3 above) shipped together with this
+opener in PR #1649, built against `EntityEventStorage`; the snapshot-index
+truncation and the legacy `AggregateEventStorage` were removed outright
+(see the reversal note above).
 
 ## Phase E — Downstream rollout (dependency order)
 
