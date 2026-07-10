@@ -157,7 +157,7 @@ public final class RecordSpec<I, R extends Message> {
     /**
      * Creates a new record specification.
      *
-     * <p>The specifications created implies that no columns are stored for the record.
+     * <p>The specification created implies that no columns are stored for the record.
      * To define the stored columns,
      * please use {@linkplain #RecordSpec(Class, Class, ExtractId, Iterable)
      * another ctor}.
