@@ -38,6 +38,7 @@ import io.spine.server.delivery.InboxStorage;
 import io.spine.server.entity.Entity;
 import io.spine.server.entity.storage.EntityEventStorage;
 import io.spine.server.entity.storage.EntityRecordStorage;
+import io.spine.server.entity.storage.EntityStateHistoryStorage;
 import io.spine.server.event.EventStore;
 import io.spine.server.event.store.DefaultEventStore;
 import io.spine.server.migration.mirror.MirrorStorage;
@@ -126,6 +127,16 @@ public interface StorageFactory extends Closeable {
      */
     default EntityEventStorage createEntityEventStorage(ContextSpec context) {
         return new EntityEventStorage(context, this);
+    }
+
+    /**
+     * Creates a new {@link EntityStateHistoryStorage}.
+     *
+     * @param context
+     *         specification of the Bounded Context in scope of which the storage will be used
+     */
+    default EntityStateHistoryStorage createEntityStateHistoryStorage(ContextSpec context) {
+        return new EntityStateHistoryStorage(context, this);
     }
 
     /**

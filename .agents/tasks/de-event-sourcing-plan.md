@@ -447,17 +447,31 @@ truncation and the legacy `AggregateEventStorage` were removed outright
           
 ## Phase E — Entity state history for Aggregates
 
+> **Implemented on `entity-state-history` (2026-07-10)** — items 1, 2, and 5,
+> honoring the item 4 constraint (nothing aggregate-specific in the new
+> types); item 3 had shipped earlier with PR #1649. Detailed task:
+> [`entity-state-history.md`](entity-state-history.md). Settled while
+> implementing: records are keyed by the new `EntityStateId`
+> (entity + version), so a same-version re-write is an idempotent overwrite;
+> recording is opt-in via `AggregateRepository.recordStateHistory(depth)`,
+> off by default, read through the fail-fast `stateHistory()` accessor.
+
 1. New Kotlin storage contract `EntityStateHistoryStorage` (renamed from the
    brief's `EntityHistoryStorage`, 2026-07-08 — "state history" stays
    unambiguous next to the `EntityEventStorage` event journal below) in
-   `server/src/main/kotlin/io/spine/server/entity/history/` storing recent
-   `EntityRecord` versions per entity to a configured depth, over the
-   standard `RecordStorage` SPI (works on all backends without vendor code).
+   `server/src/main/kotlin/io/spine/server/entity/storage/` *(package
+   settled 2026-07-10: `entity.storage`, beside the sibling
+   `EntityEventStorage` — supersedes the `entity/history/` path planned
+   before Phase D landed)*, storing recent `EntityRecord` versions per
+   entity to a configured depth, over the standard `RecordStorage` SPI
+   (works on all backends without vendor code).
    **Requirement (product owner, 2026-07-10):** each stored record carries
    the time its state became current — the timestamp of the record's
    `Version`, stamped once per dispatch since A3 — as a queryable column
-   beside the entity id and the version number. This is the temporal axis
-   for the "state at time T" query (item 5).
+   beside the entity id and the version number (column set settled
+   2026-07-10: `entity_id` / `created` / `version`, identical to
+   `EntityEventColumn`). This is the temporal axis for the
+   "state at time T" query (item 5).
 2. Repository-level config (depth, enable/disable); write hook in
    `AggregateRepository.doStore()`. Note for the "state at time T" query:
    count-based retention bounds how far back `T` can be answered — an entity

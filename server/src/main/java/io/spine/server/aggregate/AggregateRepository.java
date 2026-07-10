@@ -46,6 +46,7 @@ import io.spine.server.entity.EventProducingRepository;
 import io.spine.server.entity.QueryableRepository;
 import io.spine.server.entity.Repository;
 import io.spine.server.entity.RepositoryCache;
+import io.spine.server.entity.storage.EntityStateHistoryStorage;
 import io.spine.server.event.EventBus;
 import io.spine.server.event.EventDispatcherDelegate;
 import io.spine.server.route.CommandRouting;
@@ -89,7 +90,7 @@ import static java.util.Objects.requireNonNull;
  * journal. The journal is kept append-only for traceability and for the opt-in
  * {@link IdempotencyGuard}.
  *
- * <p>Two per-repository settings tune this behavior:
+ * <p>Three per-repository settings tune this behavior:
  * <ul>
  *     <li>{@link #useIdempotencyGuard()} — enables the journal-backed {@link IdempotencyGuard},
  *         which rejects a signal already seen among the last {@link #historyDepth()} dispatches
@@ -98,6 +99,12 @@ import static java.util.Objects.requireNonNull;
  *         layer's time-windowed deduplication, not a replacement for it.
  *     <li>{@linkplain #historyDepth() historyDepth} — how many recent journal events the guard
  *         scans on each dispatch when enabled (default {@value #DEFAULT_HISTORY_DEPTH}).
+ *     <li>{@link #recordStateHistory(int)} — enables keeping the given number of the most
+ *         recent state records per aggregate in an {@link EntityStateHistoryStorage} — e.g.,
+ *         for answering the "state at a time" query. It is <b>off by default</b>: recording
+ *         adds a write and a bounded trim to every dispatch. Reading the
+ *         {@linkplain #stateHistory() state history} of a repository that does not record
+ *         it fails fast.
  * </ul>
  *
  * @param <I>
@@ -138,6 +145,15 @@ public abstract class AggregateRepository<I,
 
     /** Whether the opt-in {@link IdempotencyGuard} is enabled for this repository. */
     private boolean idempotencyGuardEnabled = false;
+
+    /** The number of recent state records kept per aggregate when the state history is enabled. */
+    private int stateHistoryDepth = DEFAULT_HISTORY_DEPTH;
+
+    /** Whether the opt-in state history recording is enabled for this repository. */
+    private boolean stateHistoryEnabled = false;
+
+    /** The storage of recent state records; created lazily once the history is first needed. */
+    private @MonotonicNonNull EntityStateHistoryStorage stateHistory;
 
     /** Creates a new instance. */
     protected AggregateRepository() {
@@ -319,6 +335,22 @@ public abstract class AggregateRepository<I,
         var history = aggregate.uncommittedHistory();
         aggregateStorage().writeAll(aggregate, history.get());
         aggregate.commitEvents();
+        if (stateHistoryEnabled) {
+            appendStateHistory(aggregate);
+        }
+    }
+
+    /**
+     * Appends the current state record of the aggregate to the state history,
+     * trimming the history to the configured {@linkplain #stateHistoryDepth() depth}.
+     *
+     * <p>A failure to record the history fails the dispatch, even though the aggregate
+     * state itself is already stored at this point.
+     */
+    private void appendStateHistory(A aggregate) {
+        var history = stateHistory();
+        history.write(aggregate.toRecord());
+        history.trim(aggregate.id(), stateHistoryDepth);
     }
 
     /**
@@ -486,6 +518,53 @@ public abstract class AggregateRepository<I,
     }
 
     /**
+     * Enables recording the state history for the aggregates of this repository.
+     *
+     * <p>When enabled, each successful dispatch appends the resulting
+     * {@link EntityRecord} to an {@link EntityStateHistoryStorage}, keeping up to
+     * {@code depth} most recent records per aggregate — e.g., for answering
+     * {@linkplain EntityStateHistoryStorage#stateAt(Object, com.google.protobuf.Timestamp)
+     * the "state at a time" query}. The history is <b>off by default</b>: recording adds
+     * a write and a bounded trim to every dispatch.
+     *
+     * <p>The count-based retention bounds how far back the history reaches:
+     * an aggregate updated often forgets quickly.
+     *
+     * <p>A failure to record the history fails the dispatch, even though the aggregate
+     * state itself is already stored at that point.
+     *
+     * @param depth
+     *         a positive number of the most recent state records to keep per aggregate
+     * @see #stateHistory()
+     */
+    protected void recordStateHistory(int depth) {
+        checkArgument(depth > 0);
+        this.stateHistoryDepth = depth;
+        this.stateHistoryEnabled = true;
+    }
+
+    /**
+     * Tells whether the opt-in state history recording is enabled for this repository.
+     *
+     * @return {@code false} by default
+     * @see #recordStateHistory(int)
+     */
+    protected boolean stateHistoryEnabled() {
+        return stateHistoryEnabled;
+    }
+
+    /**
+     * Returns the number of the most recent state records kept per aggregate
+     * when the state history recording is enabled.
+     *
+     * @return a positive integer value; the default is {@value #DEFAULT_HISTORY_DEPTH}
+     * @see #recordStateHistory(int)
+     */
+    protected int stateHistoryDepth() {
+        return stateHistoryDepth;
+    }
+
+    /**
      * Checks if the aggregate should be mirrored, and configures
      * the underlying storage accordingly.
      */
@@ -520,6 +599,43 @@ public abstract class AggregateRepository<I,
         @SuppressWarnings("unchecked") // We check the type on initialization.
         var result = (AggregateStorage<I, S>) storage();
         return result;
+    }
+
+    /**
+     * Returns the storage of the recent state history of the aggregates of this repository.
+     *
+     * <p>The state history is an opt-in feature. Reading it while disabled is
+     * a configuration error, so this method fails fast rather than acting as if
+     * an empty history existed.
+     *
+     * @return the state history storage
+     * @throws IllegalStateException
+     *         if the state history is not {@linkplain #recordStateHistory(int) recorded}
+     *         by this repository
+     */
+    protected final EntityStateHistoryStorage stateHistory() {
+        if (!stateHistoryEnabled) {
+            throw newIllegalStateException(
+                    "The state history is not recorded for the repository `%s`. " +
+                            "Enable it by calling `recordStateHistory(depth)`, " +
+                            "e.g. from the repository constructor.", this);
+        }
+        return stateHistoryStorage();
+    }
+
+    /**
+     * Lazily creates the state history storage.
+     *
+     * <p>Synchronized: unlike the main {@linkplain #storage() storage}, which is first
+     * accessed during the single-threaded registration of the repository, this storage
+     * is first touched when a signal is dispatched, possibly by concurrent workers.
+     */
+    private synchronized EntityStateHistoryStorage stateHistoryStorage() {
+        if (stateHistory == null) {
+            var factory = defaultStorageFactory();
+            stateHistory = factory.createEntityStateHistoryStorage(context().spec());
+        }
+        return stateHistory;
     }
 
     /**
@@ -616,6 +732,9 @@ public abstract class AggregateRepository<I,
         super.close();
         if (inbox != null) {
             inbox.unregister();
+        }
+        if (stateHistory != null && stateHistory.isOpen()) {
+            stateHistory.close();
         }
     }
 
