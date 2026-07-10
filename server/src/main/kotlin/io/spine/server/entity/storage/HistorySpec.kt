@@ -27,7 +27,6 @@
 package io.spine.server.entity.storage
 
 import com.google.protobuf.Message
-import io.spine.query.Columns
 import io.spine.server.storage.RecordSpec
 
 /**
@@ -61,6 +60,6 @@ public class HistorySpec<I : Any, M : Message>(
         // The parameter is nullable only because the SAM inherits Guava's `Function`;
         // the framework never passes `null` items.
         { item -> extractId(requireNotNull(item)) },
-        Columns.of(columns.entityId, columns.created, columns.version)
+        columns.definitions()
     )
 }

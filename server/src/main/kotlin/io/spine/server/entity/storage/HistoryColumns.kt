@@ -29,6 +29,7 @@ package io.spine.server.entity.storage
 import com.google.protobuf.Any
 import com.google.protobuf.Message
 import com.google.protobuf.Timestamp
+import io.spine.query.Columns
 import io.spine.query.RecordColumn
 
 /**
@@ -57,4 +58,9 @@ public interface HistoryColumns<M : Message> {
      * The column with the number of the entity version the item belongs to.
      */
     public val version: RecordColumn<M, Int>
+
+    /**
+     * Returns all the column definitions.
+     */
+    public fun definitions(): Columns<M> = Columns.of(entityId, created, version)
 }
