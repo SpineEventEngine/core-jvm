@@ -67,14 +67,6 @@ public final class Applier
         super(checkNotFiltered(method, "applier"), signature);
     }
 
-    /**
-     * Adds {@link AllowImportAttribute} to the set of method attributes.
-     */
-    @Override
-    protected Set<Function<Method, Attribute<?>>> attributeSuppliers() {
-        return Sets.union(super.attributeSuppliers(), ImmutableSet.of(AllowImportAttribute::of));
-    }
-
     @Override
     public EventClass messageClass() {
         return EventClass.from(rawMessageClass());
