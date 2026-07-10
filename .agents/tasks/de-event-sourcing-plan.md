@@ -457,6 +457,11 @@ truncation and the legacy `AggregateEventStorage` were removed outright
 > (entity + version), so a same-version re-write is an idempotent overwrite;
 > recording is opt-in via `AggregateRepository.recordStateHistory(depth)`,
 > off by default, read through the fail-fast `stateHistory()` accessor.
+> Both history storages extend the abstract **`HistoryStorage`** base
+> (settled 2026-07-10 in review): the shared `entity_id`/`created`/`version`
+> column contract, `historyBackward` window reads, per-entity `trim`, and
+> count/date `truncate` live there; the subclasses keep only their write
+> validation and type-specific reads.
 
 1. New Kotlin storage contract `EntityStateHistoryStorage` (renamed from the
    brief's `EntityHistoryStorage`, 2026-07-08 — "state history" stays

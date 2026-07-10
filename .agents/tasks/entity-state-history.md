@@ -28,6 +28,12 @@ same storage to `ProcessManager`s without touching it.
 
 ## Design
 
+- **`HistoryStorage<I, M>`** (2026-07-10, review) — the abstract base of
+  both `EntityEventStorage` and `EntityStateHistoryStorage`: owns the
+  `entity_id`/`created`/`version` column contract, the `historyBackward`
+  window reads, the per-entity `trim`, and the count/date `truncate`.
+  The subclasses keep only their write validation and type-specific reads
+  (`stateAt`).
 - **Record key** — new proto `EntityStateId {Any entity_id; int32 version}`
   in `server/src/main/proto/spine/server/entity/state_id.proto` (one message
   per file). The composite key makes re-writing the same version an

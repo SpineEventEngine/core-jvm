@@ -28,22 +28,20 @@ package io.spine.server.entity.storage
 
 import com.google.protobuf.Timestamp
 import com.google.protobuf.util.Timestamps
-import io.spine.base.Identifier
-import io.spine.query.RecordQuery
 import io.spine.server.ContextSpec
 import io.spine.server.entity.EntityRecord
 import io.spine.server.entity.EntityStateId
 import io.spine.server.entity.entityStateId
-import io.spine.server.storage.MessageStorage
 import io.spine.server.storage.RecordSpec
 import io.spine.server.storage.StorageFactory
 
 /**
  * The history of recent states of entities, retained to a bounded depth.
  *
- * The history stores the [EntityRecord] an entity had after each dispatch,
- * keyed by the entity identifier and the version number. Entities read their
- * recorded states through a [StateHistoryLoader][io.spine.server.entity.StateHistoryLoader]
+ * This [HistoryStorage] stores the [EntityRecord] an entity had after each
+ * dispatch, keyed by the entity identifier and the version number. Entities
+ * read their recorded states through a
+ * [StateHistoryLoader][io.spine.server.entity.StateHistoryLoader]
  * installed by the repository — e.g., `Aggregate.stateAt(Timestamp)` — and
  * the storage also serves debugging and analysis, answering
  * the ["state at a time" query][stateAt]. The history is never used for
@@ -70,37 +68,17 @@ import io.spine.server.storage.StorageFactory
  * @param context Specification of the Bounded Context in scope of which the storage is used.
  * @param factory The storage factory to use when creating a record storage delegate.
  */
-@Suppress("TooManyFunctions") // A cohesive facade over reads, writes, and maintenance.
 public class EntityStateHistoryStorage(
     context: ContextSpec,
     factory: StorageFactory
-) : MessageStorage<EntityStateId, EntityRecord>(
+) : HistoryStorage<EntityStateId, EntityRecord>(
     context,
-    factory.createRecordStorage(context, spec)
+    factory,
+    spec,
+    EntityStateHistoryColumn.entityId,
+    EntityStateHistoryColumn.created,
+    EntityStateHistoryColumn.version
 ) {
-
-    /**
-     * Reads up to [batchSize] most recent state records of the entity with
-     * the given identifier, ordered from newer to older.
-     *
-     * The records are sorted by their versions in the descending order.
-     *
-     * @param entityId The identifier of the entity.
-     * @param batchSize The maximum number of the records to read.
-     * @return An iterator over the read records.
-     * @throws IllegalArgumentException If [batchSize] is not positive, or if the type
-     *   of [entityId] is not supported by the framework.
-     */
-    public fun historyBackward(entityId: Any, batchSize: Int): Iterator<EntityRecord> {
-        requirePositiveBatchSize(batchSize)
-        val packedId = Identifier.pack(entityId)
-        val query = queryBuilder()
-            .where(EntityStateHistoryColumn.entityId).isEqualTo(packedId)
-            .sortDescendingBy(EntityStateHistoryColumn.version)
-            .limit(batchSize)
-            .build()
-        return readAll(query)
-    }
 
     /**
      * Returns the state record the entity had at the given time,
@@ -121,16 +99,10 @@ public class EntityStateHistoryStorage(
      * @throws IllegalArgumentException If the type of [entityId] is not supported
      *   by the framework.
      */
-    public fun stateAt(entityId: Any, at: Timestamp): EntityRecord? {
-        val packedId = Identifier.pack(entityId)
-        val newestFirst = queryBuilder()
-            .where(EntityStateHistoryColumn.entityId).isEqualTo(packedId)
-            .sortDescendingBy(EntityStateHistoryColumn.version)
-            .build()
-        val records = readAll(newestFirst)
-        return records.asSequence()
+    public fun stateAt(entityId: Any, at: Timestamp): EntityRecord? =
+        historyBackward(entityId, Int.MAX_VALUE)
+            .asSequence()
             .firstOrNull { Timestamps.compare(it.version.timestamp, at) <= 0 }
-    }
 
     /**
      * Stores the given state record in the history.
@@ -181,137 +153,6 @@ public class EntityStateHistoryStorage(
         require(record.version.hasTimestamp()) {
             "The version of the state record must have a timestamp."
         }
-    }
-
-    /**
-     * Trims the history of the entity with the given identifier, keeping up
-     * to [keepMostRecent] most recent records.
-     *
-     * Unlike [truncate], the operation reads only the records of the given
-     * entity, so the recording repositories use it after each write.
-     * Passing zero purges the history of the entity.
-     *
-     * @param entityId The identifier of the entity.
-     * @param keepMostRecent The number of the most recent records to keep.
-     * @throws IllegalArgumentException If [keepMostRecent] is negative, or if the type
-     *   of [entityId] is not supported by the framework.
-     */
-    public fun trim(entityId: Any, keepMostRecent: Int) {
-        requireNotNegative(keepMostRecent)
-        val packedId = Identifier.pack(entityId)
-        val newestFirst = queryBuilder()
-            .where(EntityStateHistoryColumn.entityId).isEqualTo(packedId)
-            .sortDescendingBy(EntityStateHistoryColumn.version)
-            .build()
-        val records = readAll(newestFirst)
-        val toDelete = records.asSequence()
-            .drop(keepMostRecent)
-            .map { it.stateId() }
-            .toList()
-        if (toDelete.isNotEmpty()) {
-            deleteAll(toDelete)
-        }
-    }
-
-    /**
-     * Truncates the history, keeping up to [keepMostRecent] most recent
-     * records for each entity.
-     *
-     * The most recent records are determined per entity, by the version
-     * number. Passing zero purges the whole history.
-     *
-     * The operation reads the whole history, so it is intended for periodic
-     * maintenance rather than for per-dispatch use; see [trim] for the latter.
-     *
-     * @param keepMostRecent The number of the most recent records to keep for each entity.
-     * @throws IllegalArgumentException If [keepMostRecent] is negative.
-     */
-    public fun truncate(keepMostRecent: Int) {
-        truncate(keepMostRecent) { true }
-    }
-
-    /**
-     * Truncates the history, deleting the records whose states became current
-     * before [olderThan], but keeping at least [keepMostRecent] most recent
-     * records for each entity.
-     *
-     * A record is deleted only if it is older than the given time *and* it is
-     * not among the [keepMostRecent] most recent records of its entity.
-     * To purge everything older than the given time, pass zero as [keepMostRecent].
-     *
-     * The operation reads the whole history, so it is intended for periodic
-     * maintenance rather than for per-dispatch use; see [trim] for the latter.
-     *
-     * @param keepMostRecent The number of the most recent records to keep for each entity.
-     * @param olderThan Only the records whose states became current strictly
-     *   before this time are deleted.
-     * @throws IllegalArgumentException If [keepMostRecent] is negative.
-     */
-    public fun truncate(keepMostRecent: Int, olderThan: Timestamp) {
-        truncate(keepMostRecent) { record ->
-            Timestamps.compare(record.version.timestamp, olderThan) < 0
-        }
-    }
-
-    private fun truncate(keepMostRecent: Int, deletionAllowed: (EntityRecord) -> Boolean) {
-        requireNotNegative(keepMostRecent)
-        val newestFirst = queryBuilder()
-            .sortDescendingBy(EntityStateHistoryColumn.version)
-            .build()
-        val records = readAll(newestFirst)
-        val seen = mutableMapOf<Any, Int>()
-        val toDelete = mutableListOf<EntityStateId>()
-        records.forEach { record ->
-            val entityId = record.entityId
-            val count = (seen[entityId] ?: 0) + 1
-            seen[entityId] = count
-            if (count > keepMostRecent && deletionAllowed(record)) {
-                toDelete.add(record.stateId())
-            }
-        }
-        deleteAll(toDelete)
-    }
-
-    /**
-     * Ensures the size of a window to keep is not negative.
-     */
-    private fun requireNotNegative(keepMostRecent: Int) {
-        require(keepMostRecent >= 0) {
-            "The number of the records to keep must not be negative, got `$keepMostRecent`."
-        }
-    }
-
-    /**
-     * Reads all the history records matching the given query.
-     *
-     * Overrides to expose the method as a part of the public API of this storage.
-     */
-    public override fun readAll(
-        query: RecordQuery<EntityStateId, EntityRecord>
-    ): Iterator<EntityRecord> = super.readAll(query)
-
-    /**
-     * Deletes the history record with the given identifier.
-     *
-     * The history is maintained by the framework write path; this method
-     * exists for the maintenance operations, such as the [truncate] trimming.
-     *
-     * Overrides to expose the method as a part of the public API of this storage.
-     *
-     * @return `true` if the record was deleted, `false` if it was not found.
-     */
-    public override fun delete(id: EntityStateId): Boolean = super.delete(id)
-
-    /**
-     * Deletes the history records with the given identifiers.
-     *
-     * The history is maintained by the framework write path; this method
-     * exists for the maintenance operations, such as the [truncate] trimming.
-     *
-     * Overrides to expose the method as a part of the public API of this storage.
-     */
-    public override fun deleteAll(ids: Iterable<EntityStateId>) {
-        super.deleteAll(ids)
     }
 }
 

@@ -29,8 +29,7 @@ package io.spine.server.entity.storage
 /**
  * Ensures the given size of a read batch is positive.
  *
- * Shared by the history-reading storages of this package, such as
- * [EntityEventStorage] and [EntityStateHistoryStorage].
+ * Shared by the history storages of this package; see [HistoryStorage].
  *
  * @param batchSize The value to check.
  * @throws IllegalArgumentException If [batchSize] is not positive.

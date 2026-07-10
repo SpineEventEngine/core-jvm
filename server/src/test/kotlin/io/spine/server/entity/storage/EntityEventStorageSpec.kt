@@ -231,6 +231,19 @@ internal class EntityEventStorageSpec {
                 .events()
                 .shouldBeEmpty()
         }
+
+        @Test
+        fun `trimming the journal of one entity`() {
+            val ours = appendEvents(count = 5)
+            val theirs = appendEvents(count = 3, toEntity = anotherEntity)
+
+            storage.trim(entityId, keepMostRecent = 2)
+
+            storage.historyBackward(entityId, Int.MAX_VALUE)
+                .events() shouldContainExactly listOf(ours[4], ours[3])
+            storage.historyBackward(anotherEntity, Int.MAX_VALUE)
+                .events() shouldContainExactly theirs.reversed()
+        }
     }
 
     @Nested inner class

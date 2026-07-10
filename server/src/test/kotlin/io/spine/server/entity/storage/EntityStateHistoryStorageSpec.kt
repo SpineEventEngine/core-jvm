@@ -201,6 +201,20 @@ internal class EntityStateHistoryStorageSpec {
 
             read.records() shouldContainExactly written.reversed()
         }
+
+        @Test
+        fun `only below the given starting version`() {
+            val written = appendRecords(count = 5)
+            val versionOfThird = written[2].version
+
+            val read = storage.historyBackward(
+                entityId,
+                batchSize = Int.MAX_VALUE,
+                startingFrom = versionOfThird
+            )
+
+            read.records() shouldContainExactly listOf(written[1], written[0])
+        }
     }
 
     @Nested inner class
