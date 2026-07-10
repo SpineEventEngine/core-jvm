@@ -123,6 +123,21 @@ internal class AggregateRepositoryStateHistorySpec {
     }
 
     @Test
+    fun `append a record per dispatch even when the state write-through is deferred`() {
+        // Under a batched delivery, `RepositoryCache` defers `doStore()`
+        // to the batch end; the history append must not wait for it,
+        // or the intermediate versions of the batch would never be recorded.
+        repository.enableStateHistory(depth = 10)
+        repository.deferWriteThrough = true
+
+        post(Given.ACommand.createProject(projectId))
+
+        val records = historyRecords()
+        records shouldHaveSize 1
+        records[0].version.number shouldBe 1
+    }
+
+    @Test
     fun `answer the state at a time from the recorded history`() {
         repository.enableStateHistory(depth = 10)
 

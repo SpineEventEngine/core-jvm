@@ -473,7 +473,11 @@ truncation and the legacy `AggregateEventStorage` were removed outright
    `EntityEventColumn`). This is the temporal axis for the
    "state at time T" query (item 5).
 2. Repository-level config (depth, enable/disable); write hook in
-   `AggregateRepository.doStore()`. Note for the "state at time T" query:
+   `AggregateRepository.store()` *(moved from `doStore()` during the
+   PR #1650 review — under a batched delivery the cache defers `doStore()`
+   to the batch end, which would drop the intermediate versions; the
+   per-dispatch `store()` records each version)*. Note for the
+   "state at time T" query:
    count-based retention bounds how far back `T` can be answered — an entity
    updated often forgets quickly. Consider an optional duration-based
    retention ("keep states for the last N days") mirroring the count/date
@@ -554,16 +558,15 @@ Locked decisions (product owner, 2026-07-10):
    depth window honored, journal-off fail-fast, bare-instance behavior
    unchanged.
 3. State history (needs Phase E). Write hook in
-   `ProcessManagerRepository.doStore()`
-   (`server/.../procman/ProcessManagerRepository.java:438`; currently
-   `private` — widen as needed) mirroring the `AggregateRepository.doStore()`
-   hook of Phase E item 2. Same config surface (depth, enable/disable,
-   optional duration-based retention): hoist a configuration shape shared
-   with `AggregateRepository` rather than duplicating it. Cache note: both
-   repositories store through `RepositoryCache`, so the state history
-   records write-through states — while delivery batches over a cached
-   entity, intermediate states are not individually recorded (same
-   semantics as the aggregate hook).
+   `ProcessManagerRepository.store(P)`
+   (`server/.../procman/ProcessManagerRepository.java:434-436`) — per
+   dispatch, NOT in the cache-flushed `doStore()` — mirroring the
+   `AggregateRepository.store()` hook of Phase E item 2 (moved there during
+   the PR #1650 review: under a batched delivery `RepositoryCache` defers
+   `doStore()` to the batch end, which would drop the intermediate
+   versions). Same config surface (depth, enable/disable, optional
+   duration-based retention): hoist a configuration shape shared with
+   `AggregateRepository` rather than duplicating it.
 4. "State at time T" works for PMs — verify, don't build. PMs have advanced
    their version +1 per dispatch via `VersionIncrement.sequentially` all
    along (the semantics A3 adopted for aggregates), so the `Version`

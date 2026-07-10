@@ -26,6 +26,7 @@
 
 package io.spine.server.aggregate.given.history
 
+import io.spine.server.aggregate.given.aggregate.TestAggregate
 import io.spine.server.aggregate.given.aggregate.TestAggregateRepository
 import io.spine.server.entity.storage.EntityStateHistoryStorage
 
@@ -38,6 +39,21 @@ import io.spine.server.entity.storage.EntityStateHistoryStorage
  * what the spec needs.
  */
 internal class StateHistoryTestRepository : TestAggregateRepository() {
+
+    /**
+     * When set, skips the durable write-through, simulating the mid-batch
+     * state of `RepositoryCache`, which defers `doStore()` to the batch end.
+     */
+    var deferWriteThrough: Boolean = false
+
+    /**
+     * Performs the write-through unless [deferWriteThrough] is set.
+     */
+    override fun doStore(aggregate: TestAggregate) {
+        if (!deferWriteThrough) {
+            super.doStore(aggregate)
+        }
+    }
 
     /**
      * Enables recording the state history with the given depth.

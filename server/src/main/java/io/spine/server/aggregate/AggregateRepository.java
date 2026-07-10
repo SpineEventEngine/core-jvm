@@ -317,10 +317,19 @@ public abstract class AggregateRepository<I,
 
     /**
      * Stores the passed aggregate and commits its uncommitted events.
+     *
+     * <p>When the state history is {@linkplain #recordStateHistory(int) recorded}, appends
+     * the current state record on each call — that is, once per successful dispatch. The
+     * append happens here and not in {@link #doStore}, because under a batched delivery
+     * the cache defers {@code doStore()} to the end of the batch — the history still
+     * captures every intermediate version of the batch.
      */
     @Override
     protected final void store(A aggregate) {
         cache.store(aggregate);
+        if (stateHistoryEnabled) {
+            appendStateHistory(aggregate);
+        }
     }
 
     @VisibleForTesting
@@ -335,17 +344,15 @@ public abstract class AggregateRepository<I,
         var history = aggregate.uncommittedHistory();
         aggregateStorage().writeAll(aggregate, history.get());
         aggregate.commitEvents();
-        if (stateHistoryEnabled) {
-            appendStateHistory(aggregate);
-        }
     }
 
     /**
      * Appends the current state record of the aggregate to the state history,
      * trimming the history to the configured {@linkplain #stateHistoryDepth() depth}.
      *
-     * <p>A failure to record the history fails the dispatch, even though the aggregate
-     * state itself is already stored at this point.
+     * <p>A failure to record the history fails the dispatch. Under a batched delivery,
+     * the durable state write may happen later, at the batch flush, so a history record
+     * may briefly precede the state it captures.
      */
     private void appendStateHistory(A aggregate) {
         var history = stateHistory();
@@ -526,6 +533,9 @@ public abstract class AggregateRepository<I,
      * {@linkplain EntityStateHistoryStorage#stateAt(Object, com.google.protobuf.Timestamp)
      * the "state at a time" query}. The history is <b>off by default</b>: recording adds
      * a write and a bounded trim to every dispatch.
+     *
+     * <p>Records are appended per dispatch even when the delivery batches the state
+     * write-through, so the intermediate versions of a batch are retained.
      *
      * <p>The count-based retention bounds how far back the history reaches:
      * an aggregate updated often forgets quickly.

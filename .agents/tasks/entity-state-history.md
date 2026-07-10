@@ -64,9 +64,11 @@ same storage to `ProcessManager`s without touching it.
   `stateHistoryDepth()` (the `useIdempotencyGuard()`/`historyDepth`
   precedent); `stateHistory()` accessor **fails fast** with
   `IllegalStateException` while disabled; `private synchronized` lazy
-  creation (first touch is on concurrent dispatch); write + trim at the end
-  of `doStore(A)`; the storage is closed in `close()`. `AggregatePart`
-  repositories inherit everything.
+  creation (first touch is on concurrent dispatch); write + trim in
+  `store(A)` — per dispatch, ahead of the cache write-through, so a batched
+  delivery records its intermediate versions too (moved out of `doStore()`
+  after the PR #1650 Codex finding); the storage is closed in `close()`.
+  `AggregatePart` repositories inherit everything.
 
 ## Verification
 
