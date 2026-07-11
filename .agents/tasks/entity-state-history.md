@@ -36,15 +36,7 @@ same storage to `ProcessManager`s without touching it.
   (`stateAt`). Constructed from a single **`HistorySpec`** (2026-07-11) —
   the types, the id extraction, and the **`HistoryColumns`** trio in one
   object; the `RecordSpec` is derived inside it, so the column set can
-  never drift from the trio. **Storage identity fix (2026-07-11, ultra
-  review):** `HistorySpec` carries a `sourceType` (defaults to the item
-  type), and the state history passes the **entity state class** through
-  `createEntityStateHistoryStorage(context, stateType)` — vendors allocate
-  physical storage by `RecordSpec.sourceType`, so without it all recording
-  repositories of a context shared one table and `(entity_id, version)`
-  keys collided across entity types (silent overwrite; invisible to the
-  per-instance in-memory factory). The journal keeps the default — its
-  `EventId` keys are globally unique. The column holders implement `HistoryColumns`
+  never drift from the trio. The column holders implement `HistoryColumns`
   and are passed as the objects themselves (`@JvmField` dropped from their
   constants — overrides cannot carry it; Java callers use getters).
 - **Record key** — new proto `EntityStateId {Any entity_id; int32 version}`

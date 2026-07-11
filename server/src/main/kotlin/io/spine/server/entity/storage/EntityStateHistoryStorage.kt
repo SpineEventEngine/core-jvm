@@ -28,7 +28,6 @@ package io.spine.server.entity.storage
 
 import com.google.protobuf.Timestamp
 import com.google.protobuf.util.Timestamps
-import io.spine.base.EntityState
 import io.spine.server.ContextSpec
 import io.spine.server.entity.EntityRecord
 import io.spine.server.entity.EntityStateId
@@ -61,23 +60,17 @@ import io.spine.server.storage.StorageFactory
  * Nothing in this storage is specific to a kind of entity; currently,
  * `Aggregate`s are the only kind recording their state history.
  *
- * The storage is identified by the class of the entity state: vendors
- * allocate the physical storage by it, so the histories of different entity
- * types stay apart even when their identifier values coincide.
- *
  * The class is deliberately final: storage vendors customize the persistence
  * via the [RecordStorage][io.spine.server.storage.RecordStorage] delegate
  * created by their [StorageFactory].
  *
  * @param context Specification of the Bounded Context in scope of which the storage is used.
  * @param factory The storage factory to use when creating a record storage delegate.
- * @param stateClass The class of the entity state, identifying the physical storage.
  */
 public class EntityStateHistoryStorage(
     context: ContextSpec,
-    factory: StorageFactory,
-    stateClass: Class<out EntityState<*>>
-) : HistoryStorage<EntityStateId, EntityRecord>(context, factory, specFor(stateClass)) {
+    factory: StorageFactory
+) : HistoryStorage<EntityStateId, EntityRecord>(context, factory, spec) {
 
     /**
      * Returns the state record the entity had at the given time,
@@ -157,20 +150,12 @@ public class EntityStateHistoryStorage(
 }
 
 /**
- * Composes a specification on how to store the state records of the entities
- * with the given state class.
- *
- * The state class becomes the source type of the record specification —
- * the identity by which storage vendors allocate the physical storage —
- * keeping the histories of different entity types apart.
+ * A specification on how to store the state records.
  */
-private fun specFor(
-    stateClass: Class<out EntityState<*>>
-): HistorySpec<EntityStateId, EntityRecord> = HistorySpec(
+private val spec: HistorySpec<EntityStateId, EntityRecord> = HistorySpec(
     EntityStateId::class.java,
     EntityRecord::class.java,
-    EntityStateHistoryColumns,
-    stateClass
+    EntityStateHistoryColumns
 ) { record -> record.stateId() }
 
 /**
