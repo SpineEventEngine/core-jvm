@@ -71,7 +71,7 @@ import static io.spine.util.Preconditions2.checkPositive;
  *     the source of truth for loading an Aggregate by its {@link AggregateRepository};
  *
  *     <li>journaling the events emitted by the Aggregates — for traceability and for
- *     the recent-history lookups such as {@link Aggregate#historyBackward(int)} and
+ *     the recent-history lookups such as {@link Aggregate#eventHistoryBackward(int)} and
  *     the opt-in {@link IdempotencyGuard}.
  * </ol>
  *
@@ -407,7 +407,7 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      * Reads up to {@code depth} most recent events of the aggregate's journal, newest first.
      *
      * <p>Used to lazily load recent history for the opt-in {@link IdempotencyGuard} and for
-     * business access via {@link Aggregate#historyBackward(int)}.
+     * business access via {@link Aggregate#eventHistoryBackward(int)}.
      *
      * <p>Only the events journaled by Spine 2.0 and later are read; the journal records
      * persisted by the earlier, event-sourced versions of the framework are a separate legacy
@@ -449,7 +449,7 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      *
      * <p>Passing zero purges the whole journal of the served Aggregates.
      *
-     * <p>Truncation bounds the {@linkplain Aggregate#historyBackward(int) recent history}
+     * <p>Truncation bounds the {@linkplain Aggregate#eventHistoryBackward(int) recent history}
      * available to the business logic and to the opt-in {@link IdempotencyGuard}. When
      * the guard is {@linkplain AggregateRepository#useIdempotencyGuard() enabled}, keep
      * at least the {@linkplain AggregateRepository#eventHistoryDepth() event history depth} of

@@ -437,7 +437,7 @@ public abstract class Aggregate<I,
      * @throws IllegalArgumentException
      *         if the {@code depth} is not positive
      */
-    protected final Iterator<Event> historyBackward(int depth) {
+    protected final Iterator<Event> eventHistoryBackward(int depth) {
         return recentEventHistory().read(depth);
     }
 
@@ -450,32 +450,32 @@ public abstract class Aggregate<I,
      * @param predicate
      *         the predicate to test the events against
      */
-    protected final boolean historyContains(int depth, Predicate<Event> predicate) {
-        var iterator = historyBackward(depth);
+    protected final boolean eventHistoryContains(int depth, Predicate<Event> predicate) {
+        var iterator = eventHistoryBackward(depth);
         return any(iterator, predicate::test);
     }
 
     /**
      * Creates an iterator of the aggregate event history with reverse traversal.
      *
-     * @deprecated Please use {@link #historyBackward(int)} and state the history window
+     * @deprecated Please use {@link #eventHistoryBackward(int)} and state the history window
      *         explicitly. This form reads the last {@value #DEFAULT_HISTORY_DEPTH} events.
      */
     @Deprecated
     protected final Iterator<Event> historyBackward() {
-        return historyBackward(DEFAULT_HISTORY_DEPTH);
+        return eventHistoryBackward(DEFAULT_HISTORY_DEPTH);
     }
 
     /**
      * Verifies if the aggregate history contains an event that satisfies the passed predicate.
      *
-     * @deprecated Please use {@link #historyContains(int, Predicate)} and state the history
+     * @deprecated Please use {@link #eventHistoryContains(int, Predicate)} and state the history
      *         window explicitly. This form inspects the last {@value #DEFAULT_HISTORY_DEPTH}
      *         events.
      */
     @Deprecated
     protected final boolean historyContains(Predicate<Event> predicate) {
-        return historyContains(DEFAULT_HISTORY_DEPTH, predicate);
+        return eventHistoryContains(DEFAULT_HISTORY_DEPTH, predicate);
     }
 
     /**
