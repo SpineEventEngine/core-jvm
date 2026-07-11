@@ -691,7 +691,8 @@ public abstract class AggregateRepository<I,
     private synchronized EntityStateHistoryStorage stateHistoryStorage() {
         if (stateHistory == null) {
             var factory = defaultStorageFactory();
-            stateHistory = factory.createEntityStateHistoryStorage(context().spec());
+            stateHistory = factory.createEntityStateHistoryStorage(
+                    context().spec(), aggregateClass().stateClass());
         }
         return stateHistory;
     }

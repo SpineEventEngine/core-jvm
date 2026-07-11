@@ -41,15 +41,33 @@ import io.spine.server.storage.RecordSpec
  * @param M The type of the stored history items.
  * @param idType The class of the record identifiers.
  * @param itemType The class of the stored items.
+ * @param sourceType The type of the origin message described by the stored items.
+ *   Storage vendors allocate the physical storage — a table, a kind — by this
+ *   type, so it is the identity of the history, keeping the histories of
+ *   different origins apart. A history whose identity comes from another type —
+ *   e.g., the state history identified by the class of the entity state —
+ *   passes that type here.
  * @property columns The columns of the history.
  * @param extractId Obtains the record identifier of an item.
  */
-public class HistorySpec<I : Any, M : Message>(
+public class HistorySpec<I : Any, M : Message> internal constructor(
     idType: Class<I>,
     itemType: Class<M>,
+    sourceType: Class<out Message>,
     public val columns: HistoryColumns<M>,
     extractId: (M) -> I
 ) {
+
+    /**
+     * Creates a specification for a history identified by the type of
+     * its own items.
+     */
+    public constructor(
+        idType: Class<I>,
+        itemType: Class<M>,
+        columns: HistoryColumns<M>,
+        extractId: (M) -> I
+    ) : this(idType, itemType, itemType, columns, extractId)
 
     /**
      * The specification of the record storage persisting the history items.
@@ -57,6 +75,7 @@ public class HistorySpec<I : Any, M : Message>(
     internal val recordSpec: RecordSpec<I, M> = RecordSpec(
         idType,
         itemType,
+        sourceType,
         // The parameter is nullable only because the SAM inherits Guava's `Function`;
         // the framework never passes `null` items.
         { item -> extractId(requireNotNull(item)) },

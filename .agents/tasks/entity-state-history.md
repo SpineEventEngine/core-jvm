@@ -68,8 +68,15 @@ same storage to `ProcessManager`s without touching it.
   - `truncate(keepMostRecent[, olderThan])` — global maintenance, mirroring
     `EntityEventStorage.truncate`.
   - Public `readAll`/`delete`/`deleteAll` overrides (maintenance parity).
-- **SPI** — `StorageFactory.createEntityStateHistoryStorage(ContextSpec)`
-  default method; vendors customize via `createRecordStorage` as usual.
+- **SPI** — `StorageFactory.createEntityStateHistoryStorage(ContextSpec,
+  Class<? extends EntityState<?>>)` default method; vendors customize via
+  `createRecordStorage` as usual. **Storage identity (2026-07-11, ultra
+  review):** the entity state class flows into the `RecordSpec.sourceType`
+  via an `internal` `HistorySpec` constructor (the public constructor keeps
+  the item type as the identity, as the journal uses) — vendors allocate
+  physical storage by `sourceType` (JDBC table, Datastore kind), so without
+  it all recording repositories of a context would share one table and
+  `(entity_id, version)` keys could collide across ID-sharing entity types.
 - **Repository wiring** (`AggregateRepository`, Java):
   `recordStateHistory(int depth)` opt-in + `stateHistoryEnabled()` +
   `stateHistoryDepth()` (the `useIdempotencyGuard()`/`historyDepth`
