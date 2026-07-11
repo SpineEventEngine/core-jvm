@@ -29,7 +29,6 @@ package io.spine.server.storage;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.Immutable;
 import com.google.protobuf.Message;
 import io.spine.annotation.Internal;
@@ -289,14 +288,5 @@ public final class RecordSpec<I, R extends Message> {
     @Immutable
     @FunctionalInterface
     public interface ExtractId<R extends Message, I> extends Function<R, I> {
-
-        /**
-         * {@inheritDoc}
-         *
-         * This method differs from its parent by the fact it never returns {@code null}.
-         */
-        @Override
-        @CanIgnoreReturnValue
-        I apply(@Nullable R input);
     }
 }
