@@ -91,7 +91,12 @@ same storage to `ProcessManager`s without touching it.
   retained records stay and re-enabling resumes over them; purging is the
   explicit `stateHistory().truncate(0)` *before* stopping — an automatic
   purge could exceed the repository scope on backends mapping equal record
-  specs to one per-context table); `stateHistory()` accessor **fails fast** with
+  specs to one per-context table). Runtime-toggle safety (ultra review
+  item 2, 2026-07-11): the flags are `volatile`, and the recording
+  decision is made ONCE per dispatch in `store(A)` — the write path
+  obtains the storage directly instead of re-checking through the
+  fail-fast accessor, so a concurrent stop cannot fail a dispatch whose
+  state is already persisted (at most one trailing record lands); `stateHistory()` accessor **fails fast** with
   `IllegalStateException` while disabled; `private synchronized` lazy
   creation (first touch is on concurrent dispatch); write + trim in
   `store(A)` — per dispatch, ahead of the cache write-through, so a batched

@@ -150,11 +150,22 @@ public abstract class AggregateRepository<I,
     /** Whether the opt-in {@link IdempotencyGuard} is enabled for this repository. */
     private boolean idempotencyGuardEnabled = false;
 
-    /** The number of recent state records kept per aggregate when the state history is enabled. */
-    private int stateHistoryDepth = DEFAULT_HISTORY_DEPTH;
+    /**
+     * The number of recent state records kept per aggregate when the state history is enabled.
+     *
+     * <p>Volatile: read by dispatch workers, while {@link #recordStateHistory(int)} may
+     * reconfigure it at runtime.
+     */
+    private volatile int stateHistoryDepth = DEFAULT_HISTORY_DEPTH;
 
-    /** Whether the opt-in state history recording is enabled for this repository. */
-    private boolean stateHistoryEnabled = false;
+    /**
+     * Whether the opt-in state history recording is enabled for this repository.
+     *
+     * <p>Volatile: read by dispatch workers, while the recording may be
+     * {@linkplain #recordStateHistory(int) enabled} and
+     * {@linkplain #stopRecordingStateHistory() stopped} at runtime.
+     */
+    private volatile boolean stateHistoryEnabled = false;
 
     /** The storage of recent state records; created lazily once the history is first needed. */
     private @MonotonicNonNull EntityStateHistoryStorage stateHistory;
@@ -333,7 +344,7 @@ public abstract class AggregateRepository<I,
     protected final void store(A aggregate) {
         cache.store(aggregate);
         if (stateHistoryEnabled) {
-            appendStateHistory(aggregate);
+            appendStateHistory(aggregate, stateHistoryDepth);
         }
     }
 
@@ -353,16 +364,21 @@ public abstract class AggregateRepository<I,
 
     /**
      * Appends the current state record of the aggregate to the state history,
-     * trimming the history to the configured {@linkplain #stateHistoryDepth() depth}.
+     * trimming the history to the given depth.
+     *
+     * <p>Obtains the storage directly, bypassing the fail-fast {@link #stateHistory()}
+     * accessor: the decision to record is made by the single flag check in
+     * {@link #store(Aggregate)}, so a concurrent {@link #stopRecordingStateHistory()}
+     * cannot fail a dispatch which has already persisted its state.
      *
      * <p>A failure to record the history fails the dispatch. Under a batched delivery,
      * the durable state write may happen later, at the batch flush, so a history record
      * may briefly precede the state it captures.
      */
-    private void appendStateHistory(A aggregate) {
-        var history = stateHistory();
+    private void appendStateHistory(A aggregate, int depth) {
+        var history = stateHistoryStorage();
         history.write(aggregate.toRecord());
-        history.trim(aggregate.id(), stateHistoryDepth);
+        history.trim(aggregate.id(), depth);
     }
 
     /**
@@ -612,6 +628,10 @@ public abstract class AggregateRepository<I,
      * reading the {@linkplain #stateHistory() state history} fails fast the usual way;
      * {@linkplain #recordStateHistory(int) re-enabling} the recording resumes over the
      * retained records, with a gap for the dispatches served while it was off.
+     *
+     * <p>The switch may be flipped at runtime: dispatch workers observe it on their
+     * next dispatch. A dispatch already past its recording check may append one more
+     * record after this call returns.
      *
      * <p>To also purge the retained records, truncate the history <em>before</em>
      * stopping: {@code stateHistory().truncate(0)}.
