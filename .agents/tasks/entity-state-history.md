@@ -124,6 +124,12 @@ same storage to `ProcessManager`s without touching it.
   so Phase F wires only the PM repository side. The repository installs
   a loader delegating to the fail-fast `stateHistory()` accessor in
   `create(id)`; a bare instance outside a repository reads empty.
+  **Both loaders are lazy (product owner, 2026-07-11, ultra review
+  item 7):** the parity finding was resolved toward laziness — the
+  event path dropped its double `ImmutableList.copyOf` (in
+  `AggregateStorage.historyBackward(id, batchSize, startingFrom)` and
+  the since-removed `readHistoryBackward`), so both loaders now hand
+  the storage iterator through unchanged.
 
 ## Verification
 

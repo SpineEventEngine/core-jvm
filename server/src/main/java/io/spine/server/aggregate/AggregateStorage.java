@@ -26,7 +26,6 @@
 
 package io.spine.server.aggregate;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.protobuf.Timestamp;
 import io.spine.annotation.SPI;
@@ -50,7 +49,6 @@ import io.spine.server.storage.StorageFactory;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -391,7 +389,15 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      * Creates an iterator over the journal of the Aggregate, ordering the events
      * from newer to older.
      *
+     * <p>The iterator is lazy, reading from the journal as it advances. It serves
+     * the recent-history reads of the opt-in {@link IdempotencyGuard} and the
+     * business access via {@link Aggregate#eventHistoryBackward(int)}.
+     *
      * <p>The iterator is empty if there's no journaled history for the aggregate with passed ID.
+     *
+     * <p>Only the events journaled by Spine 2.0 and later are read; the journal records
+     * persisted by the earlier, event-sourced versions of the framework are a separate legacy
+     * record kind, not visible to this method.
      *
      * @param id
      *         the identifier of the Aggregate
@@ -401,27 +407,6 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      */
     Iterator<Event> historyBackward(I id, int batchSize) {
         return historyBackward(id, batchSize, null);
-    }
-
-    /**
-     * Reads up to {@code depth} most recent events of the aggregate's journal, newest first.
-     *
-     * <p>Used to lazily load recent history for the opt-in {@link IdempotencyGuard} and for
-     * business access via {@link Aggregate#eventHistoryBackward(int)}.
-     *
-     * <p>Only the events journaled by Spine 2.0 and later are read; the journal records
-     * persisted by the earlier, event-sourced versions of the framework are a separate legacy
-     * record kind, not visible to this method.
-     *
-     * @param id
-     *         the identifier of the aggregate
-     * @param depth
-     *         the maximum number of the most recent events to read
-     * @return the most recent events, newest first
-     */
-    List<Event> readHistoryBackward(I id, int depth) {
-        var events = historyBackward(id, depth);
-        return ImmutableList.copyOf(events);
     }
 
     /**
@@ -438,9 +423,7 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      */
     protected Iterator<Event>
     historyBackward(I id, int batchSize, @Nullable Version startingFrom) {
-        var original = eventStorage.historyBackward(id, batchSize, startingFrom);
-        var copied = ImmutableList.copyOf(original);
-        return copied.iterator();
+        return eventStorage.historyBackward(id, batchSize, startingFrom);
     }
 
     /**

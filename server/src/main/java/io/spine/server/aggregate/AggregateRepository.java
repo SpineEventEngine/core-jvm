@@ -305,8 +305,7 @@ public abstract class AggregateRepository<I,
     public A create(I id) {
         var aggregate = aggregateClass().create(id);
         aggregate.setEventHistoryLoader(
-                depth -> aggregateStorage().readHistoryBackward(id, depth)
-                                           .iterator());
+                depth -> aggregateStorage().historyBackward(id, depth));
         aggregate.setStateHistoryLoader(stateHistoryLoaderFor(id));
         if (idempotencyGuardEnabled) {
             aggregate.enableIdempotencyGuard(eventHistoryDepth);
