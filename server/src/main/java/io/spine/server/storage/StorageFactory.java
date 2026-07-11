@@ -134,9 +134,14 @@ public interface StorageFactory extends Closeable {
      *
      * @param context
      *         specification of the Bounded Context in scope of which the storage will be used
+     * @param stateType
+     *         the class of the entity state, by which the physical storage is allocated,
+     *         keeping the state histories of different entity types apart
      */
-    default EntityStateHistoryStorage createEntityStateHistoryStorage(ContextSpec context) {
-        return new EntityStateHistoryStorage(context, this);
+    default EntityStateHistoryStorage
+    createEntityStateHistoryStorage(ContextSpec context,
+                                    Class<? extends EntityState<?>> stateType) {
+        return new EntityStateHistoryStorage(context, this, stateType);
     }
 
     /**

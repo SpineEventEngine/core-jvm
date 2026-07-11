@@ -65,7 +65,7 @@ internal class EntityStateHistoryStorageSpec {
     fun createStorage() {
         val factory = InMemoryStorageFactory.newInstance()
         val context = ContextSpec.singleTenant("`EntityStateHistoryStorage` tests")
-        storage = factory.createEntityStateHistoryStorage(context)
+        storage = factory.createEntityStateHistoryStorage(context, StgProject::class.java)
         lastVersion = 0
     }
 
