@@ -59,9 +59,9 @@ internal class StateHistoryTestRepository :
     }
 
     /**
-     * Enables recording the state history with the given depth.
+     * Enables recording the state history.
      */
-    fun enableStateHistory(depth: Int) = recordStateHistory(depth)
+    fun enableStateHistory() = recordStateHistory()
 
     /**
      * Stops recording the state history.

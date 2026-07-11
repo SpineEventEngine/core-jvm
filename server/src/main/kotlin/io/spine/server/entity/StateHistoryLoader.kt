@@ -34,7 +34,7 @@ import io.spine.annotation.Internal
  *
  * An instance is installed via [TransactionalEntity.setStateHistoryLoader]
  * by the repository owning the entity — see
- * `AggregateRepository.recordStateHistory(int)`. An entity created outside
+ * `AggregateRepository.recordStateHistory()`. An entity created outside
  * a repository has no loader, and its state history reads come back empty.
  *
  * @see io.spine.server.entity.storage.EntityStateHistoryStorage

@@ -51,9 +51,9 @@ import io.spine.server.storage.StorageFactory
  *
  * Recording is opt-in per repository and is off by default; see
  * [recordStateHistory][io.spine.server.aggregate.AggregateRepository.recordStateHistory]
- * in `AggregateRepository`. The recording repository [trims][trim] the history
- * to its configured depth after each write, so how far back the history
- * reaches depends on how often the entity is updated.
+ * in `AggregateRepository`. The history is not trimmed automatically:
+ * retention is the duty of the application, served by the [trim] and
+ * [truncate] maintenance operations.
  *
  * The records are stored as-is; the entity, the time the state became
  * current, and the version number are exposed for querying as the
@@ -147,9 +147,8 @@ public class EntityStateHistoryStorage(
      *
      * Overrides the generic implementation with an identifier-only read:
      * the [record keys][EntityStateKey] of this storage carry the version,
-     * so ranking the records needs no record payloads. The per-dispatch
-     * trim on the write path thus reads a window of small identifiers
-     * instead of full records with packed states.
+     * so ranking the records needs no record payloads. Trimming thus
+     * reads small identifiers instead of full records with packed states.
      */
     override fun trim(entityId: Any, keepMostRecent: Int) {
         requireNotNegative(keepMostRecent)

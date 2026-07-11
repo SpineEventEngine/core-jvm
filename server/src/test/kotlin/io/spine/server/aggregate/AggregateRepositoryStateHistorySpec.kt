@@ -97,18 +97,8 @@ internal class AggregateRepositoryStateHistorySpec {
     }
 
     @Test
-    fun `reject a non-positive history depth`() {
-        shouldThrow<IllegalArgumentException> {
-            repository.enableStateHistory(depth = 0)
-        }
-        shouldThrow<IllegalArgumentException> {
-            repository.enableStateHistory(depth = -1)
-        }
-    }
-
-    @Test
     fun `append a record per successful dispatch when enabled`() {
-        repository.enableStateHistory(depth = 10)
+        repository.enableStateHistory()
 
         post(Given.ACommand.createProject(projectId))
         post(Given.ACommand.addTask(projectId))
@@ -130,7 +120,7 @@ internal class AggregateRepositoryStateHistorySpec {
         // Under a batched delivery, `RepositoryCache` defers `doStore()`
         // to the batch end; the history append must not wait for it,
         // or the intermediate versions of the batch would never be recorded.
-        repository.enableStateHistory(depth = 10)
+        repository.enableStateHistory()
         repository.deferWriteThrough = true
 
         post(Given.ACommand.createProject(projectId))
@@ -142,7 +132,7 @@ internal class AggregateRepositoryStateHistorySpec {
 
     @Test
     fun `answer the state at a time from the recorded history`() {
-        repository.enableStateHistory(depth = 10)
+        repository.enableStateHistory()
 
         post(Given.ACommand.createProject(projectId))
         post(Given.ACommand.addTask(projectId))
@@ -158,7 +148,7 @@ internal class AggregateRepositoryStateHistorySpec {
 
     @Test
     fun `close the state history storage when the repository is closed`() {
-        repository.enableStateHistory(depth = 10)
+        repository.enableStateHistory()
         post(Given.ACommand.createProject(projectId))
         val history = repository.history()
 
@@ -168,21 +158,23 @@ internal class AggregateRepositoryStateHistorySpec {
     }
 
     @Test
-    fun `bound the history by the configured depth`() {
-        repository.enableStateHistory(depth = 2)
+    fun `retain every recorded state, leaving the maintenance to the application`() {
+        repository.enableStateHistory()
 
         post(Given.ACommand.createProject(projectId))
         repeat(3) {
             post(Given.ACommand.addTask(projectId))
         }
 
+        // Nothing on the dispatch path trims the history: retention is
+        // the duty of the application, served by `truncate` and `trim`.
         val records = historyRecords()
-        records.map { it.version.number } shouldContainExactly listOf(4, 3)
+        records.map { it.version.number } shouldContainExactly listOf(4, 3, 2, 1)
     }
 
     @Test
     fun `stop recording the state history, keeping the retained records`() {
-        repository.enableStateHistory(depth = 10)
+        repository.enableStateHistory()
         post(Given.ACommand.createProject(projectId))
 
         repository.disableStateHistory()
@@ -194,7 +186,7 @@ internal class AggregateRepositoryStateHistorySpec {
 
         // Re-enabling resumes over the retained records: the dispatch served
         // while the recording was off left no record.
-        repository.enableStateHistory(depth = 10)
+        repository.enableStateHistory()
         val records = historyRecords()
         records shouldHaveSize 1
         records[0].version.number shouldBe 1
@@ -202,7 +194,7 @@ internal class AggregateRepositoryStateHistorySpec {
 
     @Test
     fun `let an aggregate read its state at a given time`() {
-        repository.enableStateHistory(depth = 10)
+        repository.enableStateHistory()
         post(Given.ACommand.createProject(projectId))
         post(Given.ACommand.addTask(projectId))
         val aggregate = repository.loadAggregate(projectId)
@@ -217,7 +209,7 @@ internal class AggregateRepositoryStateHistorySpec {
 
     @Test
     fun `let an aggregate read its recent states newest first`() {
-        repository.enableStateHistory(depth = 10)
+        repository.enableStateHistory()
         post(Given.ACommand.createProject(projectId))
         post(Given.ACommand.addTask(projectId))
         val aggregate = repository.loadAggregate(projectId)
@@ -246,7 +238,7 @@ internal class AggregateRepositoryStateHistorySpec {
 
     @Test
     fun `let a receptor consult the recorded states during a dispatch`() {
-        repository.enableStateHistory(depth = 10)
+        repository.enableStateHistory()
         post(Given.ACommand.createProject(projectId))
         post(Given.ACommand.addTask(projectId))
         val beforeStart = repository.loadAggregate(projectId).state()
