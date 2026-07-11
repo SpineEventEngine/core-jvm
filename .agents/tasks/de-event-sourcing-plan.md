@@ -78,7 +78,9 @@ snapshot, no replay. Deduplication is primarily the delivery layer's job; the
 aggregate `IdempotencyGuard` is an **opt-in, off-by-default** backstop. Recent
 history is loaded **lazily on demand** from the tail of the event journal,
 sized to the request: business calls state their own window via
-`historyBackward(depth)` / `historyContains(depth, …)` (ADR D10), while the
+`eventHistoryBackward(depth)` / `eventHistoryContains(depth, …)` (ADR D10;
+the `event` qualifier arrived on 2026-07-11 in PR #1650, telling the journal
+reads apart from the Phase E state history reads), while the
 new `historyDepth` repository setting (default 100; renamed
 `eventHistoryDepth` on 2026-07-10 in PR #1650, once the Phase E state-history
 depth appeared beside it) is the guard's window and the default of the
@@ -552,9 +554,10 @@ Locked decisions (product owner, 2026-07-10):
   history are deliberate diagnostics/history indexes, and flipping the
   default later stays a non-breaking, pre-GA option.
 - **Full business-API parity with `Aggregate`**: `ProcessManager` gains
-  `historyBackward(int depth)` / `historyContains(int depth, Predicate)` —
-  the ADR D10 depth-explicit forms only; there are no parameterless legacy
-  forms to deprecate on PMs. Because journaling is opt-in, the API must not
+  `eventHistoryBackward(int depth)` / `eventHistoryContains(int depth,
+  Predicate)` — the ADR D10 depth-explicit forms only (under the qualified
+  names of 2026-07-11); there are no parameterless legacy forms to
+  deprecate on PMs. Because journaling is opt-in, the API must not
   silently see an empty history: called on an instance managed by a
   repository with journaling disabled, it fails fast with a configuration
   error (e.g., the repository installs a throwing loader instead of none;
@@ -573,8 +576,8 @@ Locked decisions (product owner, 2026-07-10):
    contained rejections.
 2. Business history API (with item 1). Install the `EventHistoryLoader` on
    PM instances the way `AggregateRepository` does for aggregates; add
-   `historyBackward` / `historyContains` to `ProcessManager` mirroring
-   `Aggregate`'s (fail-fast per the locked decision above). Kotlin tests:
+   `eventHistoryBackward` / `eventHistoryContains` to `ProcessManager`
+   mirroring `Aggregate`'s (fail-fast per the locked decision above). Kotlin tests:
    depth window honored, journal-off fail-fast, bare-instance behavior
    unchanged.
 3. State history (needs Phase E). Write hook in

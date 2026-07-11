@@ -24,7 +24,7 @@ declares one now fails fast at model-building time.
 | Version | advanced per emitted event (`v+1..v+N`) | **+1 per command**, like a `ProcessManager` |
 | Event import | `@Apply(allowImport = true)` + `ImportBus` | **removed** — use external reactions / gateways |
 | Dedup | always-on aggregate `IdempotencyGuard` | guard **opt-in, off** (performance); delivery has its own time-window dedup |
-| Recent history | `historyBackward()` (window = last snapshot) | `historyBackward(depth)` — explicit window |
+| Recent history | `historyBackward()` (window = last snapshot) | `eventHistoryBackward(depth)` — explicit window |
 | Snapshots | `setSnapshotTrigger()`, `toSnapshot()` | **removed** — use `setEventHistoryDepth()` |
 
 ## 1. Move applier bodies into handlers
@@ -262,9 +262,13 @@ twice, since state now changes directly in the handler — so size that window a
 Business logic that reads recent history now states how far back it looks, in events (D10):
 
 ```java
-protected final Iterator<Event> historyBackward(int depth);
-protected final boolean historyContains(int depth, Predicate<Event> predicate);
+protected final Iterator<Event> eventHistoryBackward(int depth);
+protected final boolean eventHistoryContains(int depth, Predicate<Event> predicate);
 ```
+
+The `event` qualifier tells the journal reads apart from the state history reads
+(`stateAt(Timestamp)`, `stateHistoryBackward(depth)`) available when the repository
+records the state history.
 
 The count is **events**, not commands — after the version change above, one command may emit
 several events sharing one version. History is loaded lazily from the journal tail, sized to
@@ -351,7 +355,7 @@ pre-cutover journals. The current journal is trimmed by the count/date-based
 upgrading a running system. The journal now stores plain `Event`s — a **record kind
 distinct** from the legacy `AggregateEventRecord`s — so journal entries written
 before the upgrade are not visible to the new reads. In particular, the `IdempotencyGuard`
-window and `historyBackward(depth)` **start empty right after the upgrade** and refill as
+window and `eventHistoryBackward(depth)` **start empty right after the upgrade** and refill as
 new events are emitted. If the guard is your only deduplication safeguard, configure a
 delivery `deduplicationWindow` to cover the upgrade window (§5). As with the
 `NONE`-visibility break (§8), **no migration tooling is shipped** (Spine 2.x is pre-GA).
@@ -377,7 +381,8 @@ The legacy records stay on disk as inert data; the current runtime does not read
 **Deprecated** (still compile; removed in v2.0.0):
 
 - `@Apply` and `@Apply#allowImport` — detection-only; a declared applier is a `ModelError`
-- `Aggregate.historyBackward()` / `historyContains(Predicate)` → the `depth` forms (§6)
+- `Aggregate.historyBackward()` / `historyContains(Predicate)` →
+  `eventHistoryBackward(depth)` / `eventHistoryContains(depth, predicate)` (§6)
 
 **Retained for wire compatibility** (do not use in new code): the `Snapshot`,
 `AggregateHistory`, `AggregateEventRecord`, and `AggregateEventRecordId` proto messages

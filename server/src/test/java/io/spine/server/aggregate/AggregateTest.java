@@ -449,7 +449,7 @@ public class AggregateTest {
         @DisplayName("which are being committed")
         void beingCommittedByDefault() {
             aggregate().commitEvents();
-            assertFalse(aggregate.historyBackward(DEFAULT_HISTORY_DEPTH)
+            assertFalse(aggregate.eventHistoryBackward(DEFAULT_HISTORY_DEPTH)
                                  .hasNext());
         }
     }
@@ -623,7 +623,7 @@ public class AggregateTest {
             // replayed eagerly at load. Reading it therefore requires the tenant context (the read
             // is eager, so the returned iterator is safe to consume outside the context).
             history = with(tenantId).evaluate(
-                    () -> aggregate.historyBackward(DEFAULT_HISTORY_DEPTH));
+                    () -> aggregate.eventHistoryBackward(DEFAULT_HISTORY_DEPTH));
 
             assertNextCommandId().isEqualTo(startCommand.id());
             assertNextCommandId().isEqualTo(addTaskCommand2.id());
