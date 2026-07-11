@@ -113,7 +113,7 @@ public class EntityStateHistoryStorage(
      *
      * @param message The state record to store.
      * @throws IllegalArgumentException If the record has no entity identifier,
-     *   no version, or its version has no timestamp.
+     *   no state, no version, or its version has no timestamp.
      */
     public override fun write(message: EntityRecord) {
         validate(message)
@@ -172,6 +172,9 @@ public class EntityStateHistoryStorage(
     private fun validate(record: EntityRecord) {
         require(record.hasEntityId()) {
             "The state record must have the entity identifier."
+        }
+        require(record.hasState()) {
+            "The state record must have the entity state."
         }
         require(record.hasVersion()) {
             "The state record must have a version."

@@ -48,7 +48,7 @@ same storage to `ProcessManager`s without touching it.
 - **`EntityStateHistoryStorage`** —
   `MessageStorage<EntityStateKey, EntityRecord>` over
   `factory.createRecordStorage(context, spec)`; final. API:
-  - `write(EntityRecord)` — requires entity id, version, and version
+  - `write(EntityRecord)` — requires entity id, state, version, and version
     timestamp present (no proto validation options on `EntityRecord`).
   - `historyBackward(entityId, batchSize): Iterator<EntityRecord>` — newest
     first; sorts by `version` DESC only (unique per entity — no time

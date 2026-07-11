@@ -132,6 +132,17 @@ internal class EntityStateHistoryStorageSpec {
         }
 
         @Test
+        fun `rejecting a record without the entity state`() {
+            val stateless = entityRecord {
+                entityId = Identifier.pack(this@EntityStateHistoryStorageSpec.entityId)
+                version = Versions.newVersion(1, currentTime())
+            }
+            shouldThrow<IllegalArgumentException> {
+                storage.write(stateless)
+            }
+        }
+
+        @Test
         fun `rejecting a record without a version`() {
             val noVersion = entityRecord {
                 entityId = Identifier.pack(this@EntityStateHistoryStorageSpec.entityId)
