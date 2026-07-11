@@ -91,6 +91,5 @@ public class EntityEventStorage(
 private val spec: HistorySpec<EventId, Event> = HistorySpec(
     EventId::class.java,
     Event::class.java,
-    { event -> event.id },
     EntityEventColumns
-)
+) { event -> event.id }

@@ -41,14 +41,14 @@ import io.spine.server.storage.RecordSpec
  * @param M The type of the stored history items.
  * @param idType The class of the record identifiers.
  * @param itemType The class of the stored items.
- * @param extractId Obtains the record identifier of an item.
  * @property columns The columns of the history.
+ * @param extractId Obtains the record identifier of an item.
  */
 public class HistorySpec<I : Any, M : Message>(
     idType: Class<I>,
     itemType: Class<M>,
-    extractId: (M) -> I,
-    public val columns: HistoryColumns<M>
+    public val columns: HistoryColumns<M>,
+    extractId: (M) -> I
 ) {
 
     /**

@@ -155,9 +155,8 @@ public class EntityStateHistoryStorage(
 private val spec: HistorySpec<EntityStateId, EntityRecord> = HistorySpec(
     EntityStateId::class.java,
     EntityRecord::class.java,
-    { record -> record.stateId() },
     EntityStateHistoryColumns
-)
+) { record -> record.stateId() }
 
 /**
  * Composes the history record key of this state record.
