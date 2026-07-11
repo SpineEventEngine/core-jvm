@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -81,7 +81,16 @@ public final class RecordSpec<I, R extends Message> {
      * <p>If this {@code RecordSpec} describes a storage configuration
      * of {@code EntityRecord}, this field is a type of corresponding Entity state.
      *
-     * <p>In all other cases so far, this value equals to {@code recordType}.
+     * <p>The specifications of the per-entity histories also set this field to
+     * the class of the corresponding entity state — the event journal pairs it
+     * with {@code recordType} of {@code Event}. Such specifications do not reach
+     * {@link StorageFactory#createRecordStorage(io.spine.server.ContextSpec, RecordSpec)
+     * createRecordStorage} directly: they arrive wrapped into a
+     * {@link io.spine.server.entity.storage.HistorySpec HistorySpec} via
+     * {@code createHistoryStorage}, where the physical storage is identified
+     * by the source type and the history name together.
+     *
+     * <p>In all other cases, this value equals to {@code recordType}.
      */
     private final Class<? extends Message> sourceType;
 
@@ -114,8 +123,11 @@ public final class RecordSpec<I, R extends Message> {
      *         a method object to extract the value of an identifier given an instance of a record
      * @param columns
      *         the definitions of the columns to store along with the record
-     * @apiNote This ctor is internal to framework, and used to create a record
-     *         specification for Entity states stored as {@code EntityRecord}s.
+     * @apiNote This ctor is internal to framework, and used to create the record
+     *         specifications whose source type differs from the record type:
+     *         the Entity states stored as {@code EntityRecord}s, and the per-entity
+     *         histories (see {@link io.spine.server.entity.storage.HistorySpec
+     *         HistorySpec}).
      */
     @Internal
     public RecordSpec(Class<I> idType,
@@ -185,6 +197,11 @@ public final class RecordSpec<I, R extends Message> {
      *
      * <p>In case if {@code recordType()} is {@code EntityRecord},
      * this method returns the type of Entity state.
+     *
+     * <p>For the specifications composed by the per-entity histories, returns
+     * the type identifying the origin of the history — e.g., the class of the
+     * entity state for both the event journal and the state history of an entity
+     * (see {@link io.spine.server.entity.storage.HistorySpec HistorySpec}).
      */
     public Class<? extends Message> sourceType() {
         return sourceType;

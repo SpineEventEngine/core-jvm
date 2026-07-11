@@ -73,21 +73,39 @@ same storage to `ProcessManager`s without touching it.
     `EntityEventStorage.truncate`.
   - Public `readAll`/`delete`/`deleteAll` overrides (maintenance parity).
 - **SPI** — `StorageFactory.createEntityStateHistoryStorage(ContextSpec,
-  Class<? extends EntityState<?>>)` default method; vendors customize via
-  `createRecordStorage` as usual. **Storage identity (2026-07-11, ultra
-  review):** the entity state class flows into the `RecordSpec.sourceType`
-  via an `internal` `HistorySpec` constructor (the public constructor keeps
-  the item type as the identity) — vendors allocate physical storage by
-  `sourceType` (JDBC table, Datastore kind), so without it all recording
-  repositories of a context would share one table and `(entity_id,
-  version)` keys could collide across ID-sharing entity types. **The event
-  journal is identified the same way** (`createEntityEventStorage(context,
-  entityStateClass)`; `AggregateStorage` derives the class via
-  `EntityClass.stateClassOf`): `EventId` keys prevented overwrites, but a
-  shared table still bled `historyBackward`/guard reads across ID-sharing
-  types and made one repository's `truncate` trim every type's journal.
-  Journal rows written by the `.430` shared-identity layout become
-  invisible to per-type reads — the accepted #1649-style pre-GA caveat.
+  Class<? extends EntityState<?>>)` default method. **Storage identity
+  (2026-07-11, ultra review):** the entity state class flows into the
+  `RecordSpec.sourceType` via an `internal` `HistorySpec` constructor
+  (a secondary constructor defaults the source type to the item type) —
+  without it all recording repositories of a context would share one
+  table and `(entity_id, version)` keys could collide across ID-sharing
+  entity types. **The event journal is identified the same way**
+  (`createEntityEventStorage(context, entityStateClass)`;
+  `AggregateStorage` derives the class via `EntityClass.stateClassOf`):
+  `EventId` keys prevented overwrites, but a shared table still bled
+  `historyBackward`/guard reads across ID-sharing types and made one
+  repository's `truncate` trim every type's journal. Journal rows written
+  by the `.430` shared-identity layout become invisible to per-type
+  reads — the accepted #1649-style pre-GA caveat.
+  **Seam split (2026-07-12, re-review, product owner):** `sourceType`
+  alone could not tell the state history from the latest-state storage of
+  the same entity type — both hand vendors `(recordType = EntityRecord,
+  sourceType = stateClass)` — and the shipped vendors key allocation by
+  `sourceType` only (JDBC `TableSpecs` cache/table names, Datastore
+  `FlatLayout` kinds). Histories now reach vendors through a dedicated
+  seam, `StorageFactory.createHistoryStorage(context, HistorySpec)`,
+  where the physical identity is the **`(sourceType, name)` pair**:
+  names `event_history` / `state_history`, to be reused by the Phase F
+  PM histories with their own state classes. `HistorySpec` exposes
+  `sourceType`, `name`, `columns`, and `recordSpec` for the vendors.
+  The default implementation delegates to `createRecordStorage` and fits
+  only per-instance-isolated factories (in-memory); JDBC and Datastore
+  must override — a Phase G obligation. `createRecordStorage` regains its
+  historical invariant (each arriving spec has a unique `sourceType`);
+  the `RecordSpec.sourceType` docs now describe both cases. Pinned by
+  `HistoryStorageIdentitySpec`: the two histories of one entity type are
+  pairwise distinct, and the latest-state spec never crosses the history
+  seam.
 - **Repository wiring** (`AggregateRepository`, Java):
   `recordStateHistory()` opt-in + `stateHistoryEnabled()` (the
   `useIdempotencyGuard()` precedent) + `stopRecordingStateHistory()`

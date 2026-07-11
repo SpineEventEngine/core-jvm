@@ -54,7 +54,8 @@ import io.spine.server.storage.StorageFactory
  * new kinds of histories cannot be defined outside the framework:
  * the constructor is `internal`. Storage vendors customize the persistence
  * via the [RecordStorage][io.spine.server.storage.RecordStorage] delegate
- * created by their [StorageFactory].
+ * their [StorageFactory] creates in
+ * [createHistoryStorage][io.spine.server.storage.StorageFactory.createHistoryStorage].
  *
  * @param I The type of the record identifiers.
  * @param M The type of the stored history items.
@@ -68,7 +69,7 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
     context: ContextSpec,
     factory: StorageFactory,
     spec: HistorySpec<I, M>
-) : MessageStorage<I, M>(context, factory.createRecordStorage(context, spec.recordSpec)) {
+) : MessageStorage<I, M>(context, factory.createHistoryStorage(context, spec)) {
 
     /**
      * The columns to manage and query the history by.

@@ -48,9 +48,13 @@ import io.spine.server.storage.StorageFactory
  * This storage supersedes the `AggregateEventStorage`, removed along with the other
  * event-sourcing machinery.
  *
- * The journal is identified by the class of the entity state: vendors
- * allocate the physical storage by it, so the journals of different entity
- * types stay apart even when their identifier values coincide.
+ * The journal is identified by the class of the entity state paired with
+ * the history name `event_history`: vendors allocate the physical storage
+ * by this pair (see
+ * [createHistoryStorage][io.spine.server.storage.StorageFactory.createHistoryStorage]),
+ * so a journal stays apart from the journals of other entity types — even
+ * when their identifier values coincide — and from the other storages of
+ * its own entity type.
  *
  * The class is deliberately final: storage vendors customize the persistence via
  * the [RecordStorage][io.spine.server.storage.RecordStorage] delegate created by
@@ -114,9 +118,9 @@ public class EntityEventStorage(
  * Composes a specification on how to store the events emitted by the entities
  * with the given state class.
  *
- * The state class becomes the source type of the record specification —
- * the identity by which storage vendors allocate the physical storage —
- * keeping the journals of different entity types apart.
+ * The state class becomes the source type of the specification; paired with
+ * the history name, it is the identity by which storage vendors allocate
+ * the physical storage.
  */
 private fun specFor(
     entityStateClass: Class<out EntityState<*>>
@@ -124,5 +128,6 @@ private fun specFor(
     idType = EventId::class.java,
     itemType = Event::class.java,
     sourceType = entityStateClass,
+    name = "event_history",
     columns = EntityEventColumns
 ) { event -> event.id }

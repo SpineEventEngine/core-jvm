@@ -39,6 +39,7 @@ import io.spine.server.entity.Entity;
 import io.spine.server.entity.storage.EntityEventStorage;
 import io.spine.server.entity.storage.EntityRecordStorage;
 import io.spine.server.entity.storage.EntityStateHistoryStorage;
+import io.spine.server.entity.storage.HistorySpec;
 import io.spine.server.event.EventStore;
 import io.spine.server.event.store.DefaultEventStore;
 import io.spine.server.migration.mirror.MirrorStorage;
@@ -103,6 +104,35 @@ public interface StorageFactory extends Closeable {
     createRecordStorage(ContextSpec context, RecordSpec<I, R> recordSpec);
 
     /**
+     * Creates a new {@link RecordStorage} serving a per-entity history.
+     *
+     * <p>A history is allocated apart from the storages created via
+     * {@link #createRecordStorage(ContextSpec, RecordSpec) createRecordStorage},
+     * and apart from the other histories: the physical storage — a table, a kind —
+     * is identified by the source type and the name of the passed specification,
+     * together. See {@link HistorySpec}.
+     *
+     * <p>The default implementation delegates to {@code createRecordStorage},
+     * which only suits the factories isolating each created storage, such as
+     * the in-memory one. A factory mapping equal record specifications to one
+     * physical storage must override this method.
+     *
+     * @param context
+     *         specification of the Bounded Context in scope of which the storage will be used
+     * @param spec
+     *         the specification of the history
+     * @param <I>
+     *         the type of the record identifiers
+     * @param <M>
+     *         the type of the stored history items
+     * @see io.spine.server.entity.storage.HistoryStorage
+     */
+    default <I, M extends Message> RecordStorage<I, M>
+    createHistoryStorage(ContextSpec context, HistorySpec<I, M> spec) {
+        return createRecordStorage(context, spec.getRecordSpec());
+    }
+
+    /**
      * Creates a new {@link AggregateStorage}.
      *
      * @param <I>
@@ -125,8 +155,9 @@ public interface StorageFactory extends Closeable {
      * @param context
      *         specification of the Bounded Context in scope of which the storage will be used
      * @param entityStateClass
-     *         the class of the entity state, by which the physical storage is allocated,
-     *         keeping the event journals of different entity types apart
+     *         the class of the entity state; paired with the history name, it identifies
+     *         the physical storage, keeping the event journals of different entity types
+     *         apart (see {@link HistorySpec})
      */
     default EntityEventStorage
     createEntityEventStorage(ContextSpec context,
@@ -168,8 +199,9 @@ public interface StorageFactory extends Closeable {
      * @param context
      *         specification of the Bounded Context in scope of which the storage will be used
      * @param entityStateClass
-     *         the class of the entity state, by which the physical storage is allocated,
-     *         keeping the state histories of different entity types apart
+     *         the class of the entity state; paired with the history name, it identifies
+     *         the physical storage, keeping the state histories of different entity types
+     *         apart (see {@link HistorySpec})
      */
     default EntityStateHistoryStorage
     createEntityStateHistoryStorage(ContextSpec context,

@@ -28,6 +28,7 @@ package io.spine.server.entity.storage
 
 import com.google.protobuf.Message
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldHaveSize
 import io.spine.core.Event
 import io.spine.server.ContextSpec
 import io.spine.server.aggregate.given.aggregate.TestAggregate
@@ -45,13 +46,17 @@ import org.junit.jupiter.api.Test
 /**
  * Verifies the physical identity of the per-entity history storages.
  *
- * Storage vendors allocate the physical storage — a table, a kind — by
- * the [source type][RecordSpec.sourceType] of the record specification
- * they receive, so the histories of two entity types must reach the
- * vendor with two different source types. In-memory storages are isolated
- * per instance and cannot observe a shared table, hence the assertions
- * capture the specifications at the vendor seam,
- * [StorageFactory.createRecordStorage].
+ * The histories reach a storage vendor at a dedicated seam,
+ * [StorageFactory.createHistoryStorage], where the vendor allocates
+ * the physical storage — a table, a kind — by the
+ * ([sourceType][HistorySpec.sourceType], [name][HistorySpec.name]) pair
+ * of the [HistorySpec] it receives. The pair must thus differ between
+ * the histories of two entity types, and between the two histories of
+ * one entity type; the latest-state records of the entity arrive at the
+ * general-purpose [StorageFactory.createRecordStorage] seam and never at
+ * the history one. In-memory storages are isolated per instance and cannot
+ * observe a shared table, hence the assertions capture the specifications
+ * at the vendor seams.
  */
 @DisplayName("Per-entity history storages should")
 internal class HistoryStorageIdentitySpec {
@@ -65,7 +70,7 @@ internal class HistoryStorageIdentitySpec {
         factory.createAggregateStorage(context, TestAggregate::class.java)
         factory.createAggregateStorage(context, CalcAggregate::class.java)
 
-        factory.sourcesOf(Event::class.java) shouldContainExactly
+        factory.historySourcesOf(Event::class.java) shouldContainExactly
                 listOf(AggProject::class.java, Calc::class.java)
     }
 
@@ -76,34 +81,79 @@ internal class HistoryStorageIdentitySpec {
         factory.createEntityStateHistoryStorage(context, AggProject::class.java)
         factory.createEntityStateHistoryStorage(context, Calc::class.java)
 
-        factory.sourcesOf(EntityRecord::class.java) shouldContainExactly
+        factory.historySourcesOf(EntityRecord::class.java) shouldContainExactly
                 listOf(AggProject::class.java, Calc::class.java)
     }
 
+    @Test
+    fun `keep the histories of one entity type apart from each other and from its latest state`() {
+        val factory = SpecRecordingFactory()
+
+        factory.createAggregateStorage(context, TestAggregate::class.java)
+        factory.createEntityStateHistoryStorage(context, AggProject::class.java)
+
+        // The two histories arrive at the history seam with distinct identities.
+        factory.historyIdentities() shouldContainExactly listOf(
+            AggProject::class.java to "event_history",
+            AggProject::class.java to "state_history"
+        )
+        // The latest-state records of the same entity type arrive at the
+        // general-purpose seam only, never at the history one.
+        factory.latestStateSpecs() shouldHaveSize 1
+    }
+
     /**
-     * A [StorageFactory] capturing the record specifications handed to
-     * the vendor seam, delegating the actual storage to the in-memory factory.
+     * A [StorageFactory] capturing the specifications handed to the two
+     * vendor seams, delegating the actual storage to the in-memory factory.
      */
     private class SpecRecordingFactory : StorageFactory {
 
         private val delegate = InMemoryStorageFactory.newInstance()
-        private val specs = mutableListOf<RecordSpec<*, *>>()
+        private val recordSpecs = mutableListOf<RecordSpec<*, *>>()
+        private val historySpecs = mutableListOf<HistorySpec<*, *>>()
 
         override fun <I : Any, R : Message> createRecordStorage(
             context: ContextSpec,
             recordSpec: RecordSpec<I, R>
         ): RecordStorage<I, R> {
-            specs.add(recordSpec)
+            recordSpecs.add(recordSpec)
             return delegate.createRecordStorage(context, recordSpec)
         }
 
+        override fun <I : Any, M : Message> createHistoryStorage(
+            context: ContextSpec,
+            spec: HistorySpec<I, M>
+        ): RecordStorage<I, M> {
+            historySpecs.add(spec)
+            return super.createHistoryStorage(context, spec)
+        }
+
         /**
-         * Returns the captured source types of the specifications storing
-         * records of the given type, in the order of storage creation.
+         * Returns the captured source types of the histories storing
+         * items of the given type, in the order of storage creation.
          */
-        fun sourcesOf(recordType: Class<out Message>): List<Class<*>> =
-            specs.filter { it.recordType() == recordType }
-                .map { it.sourceType() }
+        fun historySourcesOf(itemType: Class<out Message>): List<Class<*>> =
+            historySpecs.filter { it.recordSpec.recordType() == itemType }
+                .map { it.sourceType }
+
+        /**
+         * Returns the identities — the `(sourceType, name)` pairs — of
+         * the captured histories, in the order of storage creation.
+         */
+        fun historyIdentities(): List<Pair<Class<*>, String>> =
+            historySpecs.map { it.sourceType to it.name }
+
+        /**
+         * Returns the captured latest-state specifications: the `EntityRecord`
+         * specs which arrived at the general-purpose seam directly, not through
+         * the history one.
+         */
+        fun latestStateSpecs(): List<RecordSpec<*, *>> {
+            val historyRecordSpecs = historySpecs.map { it.recordSpec }
+            return recordSpecs.filter {
+                it.recordType() == EntityRecord::class.java && it !in historyRecordSpecs
+            }
+        }
 
         override fun isOpen(): Boolean = delegate.isOpen
 

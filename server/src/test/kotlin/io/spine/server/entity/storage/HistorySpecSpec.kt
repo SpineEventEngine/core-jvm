@@ -37,14 +37,17 @@ import org.junit.jupiter.api.Test
 internal class HistorySpecSpec {
 
     @Test
-    fun `identify the physical storage by the given source type`() {
+    fun `identify the physical storage by the given source type and name`() {
         val spec = HistorySpec(
             EntityStateKey::class.java,
             EntityRecord::class.java,
             StgProject::class.java,
+            "test_history",
             EntityStateHistoryColumns
         ) { EntityStateKey.getDefaultInstance() }
 
+        spec.sourceType shouldBe StgProject::class.java
+        spec.name shouldBe "test_history"
         spec.recordSpec.sourceType() shouldBe StgProject::class.java
     }
 
@@ -53,9 +56,11 @@ internal class HistorySpecSpec {
         val spec = HistorySpec(
             EntityStateKey::class.java,
             EntityRecord::class.java,
+            "test_history",
             EntityStateHistoryColumns
         ) { EntityStateKey.getDefaultInstance() }
 
+        spec.sourceType shouldBe EntityRecord::class.java
         spec.recordSpec.sourceType() shouldBe EntityRecord::class.java
     }
 }
