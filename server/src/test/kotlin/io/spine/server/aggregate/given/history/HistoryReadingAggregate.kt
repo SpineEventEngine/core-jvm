@@ -76,6 +76,9 @@ internal class HistoryReadingAggregate(id: ProjectId) :
 
     @Assign
     fun handle(command: AggStartProject): AggProjectStarted {
+        check(state().status != Status.STARTED) {
+            "The project is already started."
+        }
         statesSeenOnStart = stateHistoryBackward(10)
             .asSequence()
             .toList()

@@ -29,14 +29,18 @@ package io.spine.server.aggregate
 import com.google.protobuf.util.Durations
 import com.google.protobuf.util.Timestamps.subtract
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
+import io.spine.base.CommandMessage
 import io.spine.base.Identifier
 import io.spine.base.Time.currentTime
 import io.spine.core.Command
+import io.spine.core.TenantId
+import io.spine.core.tenantId
 import io.spine.grpc.StreamObservers.noOpObserver
 import io.spine.protobuf.AnyPacker
 import io.spine.server.BoundedContext
@@ -45,7 +49,9 @@ import io.spine.server.aggregate.given.Given
 import io.spine.server.aggregate.given.history.HistoryReadingAggregate
 import io.spine.server.aggregate.given.history.StateHistoryTestRepository
 import io.spine.server.entity.EntityRecord
+import io.spine.server.tenant.TenantAwareRunner
 import io.spine.test.aggregate.ProjectId
+import io.spine.testing.client.TestActorRequestFactory
 import io.spine.testing.server.model.ModelTests
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -155,6 +161,55 @@ internal class AggregateRepositoryStateHistorySpec {
         repository.close()
 
         history.isOpen shouldBe false
+    }
+
+    @Test
+    fun `append nothing for a failed dispatch`() {
+        repository.enableStateHistory()
+        post(Given.ACommand.createProject(projectId))
+        post(Given.ACommand.startProject(projectId))
+
+        // The second start fails in the receptor: the project is already started.
+        post(Given.ACommand.startProject(projectId))
+
+        val records = historyRecords()
+        records.map { it.version.number } shouldContainExactly listOf(2, 1)
+    }
+
+    @Test
+    fun `record the histories of tenants separately`() {
+        val mtContext = BoundedContextBuilder.assumingTests(true).build()
+        val mtRepository = StateHistoryTestRepository()
+        mtContext.internalAccess()
+            .register(mtRepository)
+        mtRepository.enableStateHistory()
+        val alice = tenantId { value = "Alice" }
+        val bob = tenantId { value = "Bob" }
+        try {
+            postAs(mtContext, alice, Given.CommandMessage.createProject(projectId))
+            postAs(mtContext, bob, Given.CommandMessage.createProject(projectId))
+            postAs(mtContext, alice, Given.CommandMessage.addTask(projectId))
+
+            historyOf(mtRepository, alice) shouldHaveSize 2
+            historyOf(mtRepository, bob) shouldHaveSize 1
+        } finally {
+            mtRepository.close()
+            mtContext.close()
+        }
+    }
+
+    @Test
+    fun `purge the retained records when truncated before stopping`() {
+        repository.enableStateHistory()
+        post(Given.ACommand.createProject(projectId))
+        post(Given.ACommand.addTask(projectId))
+
+        // The documented purge recipe: truncate *before* stopping.
+        repository.history().truncate(0)
+        repository.disableStateHistory()
+
+        repository.enableStateHistory()
+        historyRecords().shouldBeEmpty()
     }
 
     @Test
@@ -276,8 +331,32 @@ internal class AggregateRepositoryStateHistorySpec {
             .asSequence()
             .toList()
 
+    /**
+     * Reads the recorded history of [projectId] under the given tenant.
+     */
+    private fun historyOf(
+        repository: StateHistoryTestRepository,
+        tenant: TenantId
+    ): List<EntityRecord> =
+        TenantAwareRunner.with(tenant).evaluate {
+            repository.history()
+                .historyBackward(projectId, Int.MAX_VALUE)
+                .asSequence()
+                .toList()
+        }
+
     private fun post(command: Command) {
         context.commandBus()
             .post(command, noOpObserver())
+    }
+
+    /**
+     * Posts the given command message to the given context on behalf
+     * of the given tenant.
+     */
+    private fun postAs(context: BoundedContext, tenant: TenantId, command: CommandMessage) {
+        val factory = TestActorRequestFactory(javaClass, tenant)
+        context.commandBus()
+            .post(factory.createCommand(command), noOpObserver())
     }
 }
