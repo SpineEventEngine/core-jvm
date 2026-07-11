@@ -26,6 +26,7 @@
 
 package io.spine.server.entity.storage
 
+import io.spine.base.EntityState
 import io.spine.core.Event
 import io.spine.core.EventId
 import io.spine.server.ContextSpec
@@ -54,6 +55,10 @@ import io.spine.server.storage.StorageFactory
  * [AggregateEventRecord][io.spine.server.aggregate.AggregateEventRecord]s — are
  * a separate record kind, not visible to the reads performed by this storage.
  *
+ * The journal is identified by the class of the entity state: vendors
+ * allocate the physical storage by it, so the journals of different entity
+ * types stay apart even when their identifier values coincide.
+ *
  * The class is deliberately final: storage vendors customize the persistence via
  * the [RecordStorage][io.spine.server.storage.RecordStorage] delegate created by
  * their [StorageFactory].
@@ -61,11 +66,13 @@ import io.spine.server.storage.StorageFactory
  * @param context The specification of the Bounded Context in the scope of which
  *                the storage is used.
  * @param factory The storage factory to use when creating a record storage delegate.
+ * @param entityStateClass The class of the entity state, identifying the physical storage.
  */
 public class EntityEventStorage(
     context: ContextSpec,
-    factory: StorageFactory
-) : HistoryStorage<EventId, Event>(context, factory, spec) {
+    factory: StorageFactory,
+    entityStateClass: Class<out EntityState<*>>
+) : HistoryStorage<EventId, Event>(context, factory, specFor(entityStateClass)) {
 
     /**
      * Journals the given event.
@@ -87,10 +94,18 @@ public class EntityEventStorage(
 }
 
 /**
- * A specification on how to store the journaled events.
+ * Composes a specification on how to store the events emitted by the entities
+ * with the given state class.
+ *
+ * The state class becomes the source type of the record specification —
+ * the identity by which storage vendors allocate the physical storage —
+ * keeping the journals of different entity types apart.
  */
-private val spec: HistorySpec<EventId, Event> = HistorySpec(
+private fun specFor(
+    entityStateClass: Class<out EntityState<*>>
+): HistorySpec<EventId, Event> = HistorySpec(
     idType = EventId::class.java,
     itemType = Event::class.java,
+    sourceType = entityStateClass,
     columns = EntityEventColumns
 ) { event -> event.id }
