@@ -50,9 +50,11 @@ import io.spine.server.storage.StorageFactory
  * ordered from newer to older, and the maintenance operations:
  * the per-entity [trim] and the count/date-based [truncate].
  *
- * The class is internal to the framework: storage vendors customize the
- * persistence via the [RecordStorage][io.spine.server.storage.RecordStorage]
- * delegate created by their [StorageFactory].
+ * While the reads and the maintenance operations are open to applications,
+ * new kinds of histories cannot be defined outside the framework:
+ * the constructor is `internal`. Storage vendors customize the persistence
+ * via the [RecordStorage][io.spine.server.storage.RecordStorage] delegate
+ * created by their [StorageFactory].
  *
  * @param I The type of the record identifiers.
  * @param M The type of the stored history items.

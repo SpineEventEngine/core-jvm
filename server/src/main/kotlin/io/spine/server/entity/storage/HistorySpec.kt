@@ -37,6 +37,10 @@ import io.spine.server.storage.RecordSpec
  * identifier extraction — with the [HistoryColumns] every history exposes.
  * [HistoryStorage] manages and queries the history through these columns.
  *
+ * Instances are composed by the histories themselves — see
+ * [EntityEventStorage] and [EntityStateHistoryStorage] — so
+ * the constructors are `internal`.
+ *
  * @param I The type of the record identifiers.
  * @param M The type of the stored history items.
  * @param idType The class of the record identifiers.
@@ -62,7 +66,7 @@ public class HistorySpec<I : Any, M : Message> internal constructor(
      * Creates a specification for a history identified by the type of
      * its own items.
      */
-    public constructor(
+    internal constructor(
         idType: Class<I>,
         itemType: Class<M>,
         columns: HistoryColumns<M>,
