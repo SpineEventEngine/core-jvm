@@ -155,7 +155,7 @@ public class EntityStateHistoryStorage(
         requireNotNegative(keepMostRecent)
         val packedId = Identifier.pack(entityId)
         val selection = queryBuilder()
-            .where(EntityStateHistoryColumns.entityId).isEqualTo(packedId)
+            .where(EntityStateHistoryColumns.entity_id).isEqualTo(packedId)
             .build()
         val ids = index(selection)
         val toDelete = ids.asSequence()

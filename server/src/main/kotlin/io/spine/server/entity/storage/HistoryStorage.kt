@@ -96,7 +96,7 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
         requirePositiveBatchSize(batchSize)
         val packedId = Identifier.pack(entityId)
         val builder = queryBuilder()
-            .where(columns.entityId).isEqualTo(packedId)
+            .where(columns.entity_id).isEqualTo(packedId)
         if (startingFrom != null) {
             builder.where(columns.version)
                 .isLessThan(startingFrom.number)
@@ -129,7 +129,7 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
         requireNotNegative(keepMostRecent)
         val packedId = Identifier.pack(entityId)
         val newestFirst = queryBuilder()
-            .where(columns.entityId).isEqualTo(packedId)
+            .where(columns.entity_id).isEqualTo(packedId)
             .sortDescendingBy(columns.version)
             .sortDescendingBy(columns.created)
             .build()
@@ -194,7 +194,7 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
         val toDelete = mutableListOf<I>()
         items.forEach { item ->
             // The column value comes from a complete stored item; never `null`.
-            val entityId = checkNotNull(columns.entityId.valueIn(item))
+            val entityId = checkNotNull(columns.entity_id.valueIn(item))
             val count = (seen[entityId] ?: 0) + 1
             seen[entityId] = count
             if (count > keepMostRecent && deletionAllowed(item)) {

@@ -211,6 +211,57 @@ class AggregateRepositoryTest {
         }
     }
 
+    @Nested
+    @DisplayName("have a state-history window")
+    class HaveStateHistoryDepth {
+
+        @Test
+        @DisplayName("set to the default value initially")
+        void setToDefault() {
+            assertEquals(DEFAULT_HISTORY_DEPTH, repository().stateHistoryDepth());
+        }
+
+        @Test
+        @DisplayName("set to the value passed to `recordStateHistory`")
+        void setToSpecifiedValue() {
+            var newDepth = 1000;
+
+            repository().recordStateHistory(newDepth);
+
+            assertEquals(newDepth, repository().stateHistoryDepth());
+        }
+
+        @Test
+        @DisplayName("kept after the recording stops")
+        void keptAfterStop() {
+            var newDepth = 42;
+            repository().recordStateHistory(newDepth);
+
+            repository().stopRecordingStateHistory();
+
+            assertEquals(newDepth, repository().stateHistoryDepth());
+        }
+    }
+
+    @Nested
+    @DisplayName("have the idempotency guard")
+    class HaveIdempotencyGuard {
+
+        @Test
+        @DisplayName("turned off by default")
+        void turnedOffByDefault() {
+            assertFalse(repository().idempotencyGuardEnabled());
+        }
+
+        @Test
+        @DisplayName("turned on by `useIdempotencyGuard`")
+        void turnedOn() {
+            repository().useIdempotencyGuard();
+
+            assertTrue(repository().idempotencyGuardEnabled());
+        }
+    }
+
     // The former "pass (snapshot trigger + 1) to `AggregateReadRequest`" cases are obsolete: since
     // the cutover an aggregate loads from a single latest-state record (`readState`) rather than by
     // reading a snapshot-trigger-sized batch of the journal, so no batch size is passed on load.

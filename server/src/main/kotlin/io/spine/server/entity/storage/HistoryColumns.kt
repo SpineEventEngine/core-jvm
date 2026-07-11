@@ -47,7 +47,8 @@ public interface HistoryColumns<M : Message> {
     /**
      * The column with the packed identifier of the entity.
      */
-    public val entityId: RecordColumn<M, Any>
+    @Suppress("VariableNaming") // Named after the column, per the `RecordColumns` contract.
+    public val entity_id: RecordColumn<M, Any>
 
     /**
      * The column with the time the item was created.
@@ -62,5 +63,5 @@ public interface HistoryColumns<M : Message> {
     /**
      * Returns all the column definitions.
      */
-    public fun definitions(): Columns<M> = Columns.of(entityId, created, version)
+    public fun definitions(): Columns<M> = Columns.of(entity_id, created, version)
 }
