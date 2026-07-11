@@ -89,7 +89,7 @@ public class EntityEventStorage(
  * A specification on how to store the journaled events.
  */
 private val spec: HistorySpec<EventId, Event> = HistorySpec(
-    EventId::class.java,
-    Event::class.java,
-    EntityEventColumns
+    idType = EventId::class.java,
+    itemType = Event::class.java,
+    columns = EntityEventColumns
 ) { event -> event.id }
