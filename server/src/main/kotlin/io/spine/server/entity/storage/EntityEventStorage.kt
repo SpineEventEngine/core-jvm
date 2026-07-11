@@ -84,6 +84,30 @@ public class EntityEventStorage(
     public override fun write(message: Event) {
         super.write(message.clearEnrichments())
     }
+
+    /**
+     * Journals the given event under the given identifier.
+     *
+     * The record key of this journal is the event identifier, so the passed
+     * identifier must match the [id][Event.getId] of the event; prefer the
+     * one-argument [write].
+     *
+     * The enrichments are cleared from the event the same way as by
+     * the one-argument [write].
+     *
+     * @param id The identifier of the record.
+     * @param message The event to journal.
+     * @throws IllegalArgumentException If the identifier does not match
+     *   the identifier of the event.
+     * @throws io.spine.validation.ValidationException If the event is incomplete.
+     */
+    @Synchronized
+    public override fun write(id: EventId, message: Event) {
+        require(id == message.id) {
+            "The passed identifier does not match the identifier of the event."
+        }
+        super.write(id, message.clearEnrichments())
+    }
 }
 
 /**
