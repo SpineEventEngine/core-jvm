@@ -39,13 +39,14 @@ same storage to `ProcessManager`s without touching it.
   never drift from the trio. The column holders implement `HistoryColumns`
   and are passed as the objects themselves (`@JvmField` dropped from their
   constants — overrides cannot carry it; Java callers use getters).
-- **Record key** — new proto `EntityStateId {Any entity_id; int32 version}`
-  in `server/src/main/proto/spine/server/entity/state_id.proto` (one message
+- **Record key** — new proto `EntityStateKey {Any entity_id; int32 version}`
+  in `server/src/main/proto/spine/server/entity/state_key.proto` (one message
   per file). The composite key makes re-writing the same version an
   idempotent overwrite. Records are stored **as-is** (`EntityRecord`, no
-  wrapper) — the #1649 pattern.
+  wrapper) — the #1649 pattern. *(Renamed from `EntityStateId` on
+  2026-07-11: that name read like the `I` type parameter of `EntityState`.)*
 - **`EntityStateHistoryStorage`** —
-  `MessageStorage<EntityStateId, EntityRecord>` over
+  `MessageStorage<EntityStateKey, EntityRecord>` over
   `factory.createRecordStorage(context, spec)`; final. API:
   - `write(EntityRecord)` — requires entity id, version, and version
     timestamp present (no proto validation options on `EntityRecord`).

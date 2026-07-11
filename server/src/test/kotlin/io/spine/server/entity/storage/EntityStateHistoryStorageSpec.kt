@@ -41,9 +41,9 @@ import io.spine.core.Versions
 import io.spine.protobuf.AnyPacker
 import io.spine.server.ContextSpec
 import io.spine.server.entity.EntityRecord
-import io.spine.server.entity.EntityStateId
+import io.spine.server.entity.EntityStateKey
 import io.spine.server.entity.entityRecord
-import io.spine.server.entity.entityStateId
+import io.spine.server.entity.entityStateKey
 import io.spine.server.storage.memory.InMemoryStorageFactory
 import io.spine.test.storage.StgProject
 import io.spine.testdata.Sample
@@ -157,7 +157,7 @@ internal class EntityStateHistoryStorageSpec {
         @Test
         fun `rejecting an identifier that does not match the record`() {
             val written = record(number = 1)
-            val mismatching = entityStateId {
+            val mismatching = entityStateKey {
                 entityId = written.entityId
                 version = 42
             }
@@ -404,7 +404,7 @@ internal class EntityStateHistoryStorageSpec {
         @Test
         fun `deleting a record by its identifier`() {
             val written = appendRecords(count = 2)
-            val newestId = entityStateId {
+            val newestId = entityStateKey {
                 entityId = Identifier.pack(this@EntityStateHistoryStorageSpec.entityId)
                 version = written[1].version.number
             }
@@ -421,7 +421,7 @@ internal class EntityStateHistoryStorageSpec {
             val written = appendRecords(count = 3)
             val packedId = Identifier.pack(entityId)
             val ids = written.map {
-                entityStateId {
+                entityStateKey {
                     entityId = packedId
                     version = it.version.number
                 }
@@ -493,7 +493,7 @@ internal class EntityStateHistoryStorageSpec {
     /**
      * Composes the history record key of the given record.
      */
-    private fun idOf(record: EntityRecord): EntityStateId = entityStateId {
+    private fun idOf(record: EntityRecord): EntityStateKey = entityStateKey {
         entityId = record.entityId
         version = record.version.number
     }

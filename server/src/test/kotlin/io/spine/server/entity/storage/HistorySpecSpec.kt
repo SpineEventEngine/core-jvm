@@ -28,7 +28,7 @@ package io.spine.server.entity.storage
 
 import io.kotest.matchers.shouldBe
 import io.spine.server.entity.EntityRecord
-import io.spine.server.entity.EntityStateId
+import io.spine.server.entity.EntityStateKey
 import io.spine.test.storage.StgProject
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -39,11 +39,11 @@ internal class HistorySpecSpec {
     @Test
     fun `identify the physical storage by the given source type`() {
         val spec = HistorySpec(
-            EntityStateId::class.java,
+            EntityStateKey::class.java,
             EntityRecord::class.java,
             StgProject::class.java,
             EntityStateHistoryColumns
-        ) { EntityStateId.getDefaultInstance() }
+        ) { EntityStateKey.getDefaultInstance() }
 
         spec.recordSpec.sourceType() shouldBe StgProject::class.java
     }
@@ -51,10 +51,10 @@ internal class HistorySpecSpec {
     @Test
     fun `identify the physical storage by the item type unless told otherwise`() {
         val spec = HistorySpec(
-            EntityStateId::class.java,
+            EntityStateKey::class.java,
             EntityRecord::class.java,
             EntityStateHistoryColumns
-        ) { EntityStateId.getDefaultInstance() }
+        ) { EntityStateKey.getDefaultInstance() }
 
         spec.recordSpec.sourceType() shouldBe EntityRecord::class.java
     }

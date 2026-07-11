@@ -453,7 +453,7 @@ truncation and the legacy `AggregateEventStorage` were removed outright
 > honoring the item 4 constraint (nothing aggregate-specific in the new
 > types); item 3 had shipped earlier with PR #1649. Detailed task:
 > [`entity-state-history.md`](entity-state-history.md). Settled while
-> implementing: records are keyed by the new `EntityStateId`
+> implementing: records are keyed by the new `EntityStateKey`
 > (entity + version), so a same-version re-write is an idempotent overwrite;
 > recording is opt-in via `AggregateRepository.recordStateHistory(depth)`,
 > off by default, read through the fail-fast `stateHistory()` accessor.

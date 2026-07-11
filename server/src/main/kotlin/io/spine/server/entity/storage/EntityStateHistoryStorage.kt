@@ -32,8 +32,8 @@ import io.spine.base.EntityState
 import io.spine.base.Identifier
 import io.spine.server.ContextSpec
 import io.spine.server.entity.EntityRecord
-import io.spine.server.entity.EntityStateId
-import io.spine.server.entity.entityStateId
+import io.spine.server.entity.EntityStateKey
+import io.spine.server.entity.entityStateKey
 import io.spine.server.storage.StorageFactory
 
 /**
@@ -78,7 +78,7 @@ public class EntityStateHistoryStorage(
     context: ContextSpec,
     factory: StorageFactory,
     entityStateClass: Class<out EntityState<*>>
-) : HistoryStorage<EntityStateId, EntityRecord>(context, factory, specFor(entityStateClass)) {
+) : HistoryStorage<EntityStateKey, EntityRecord>(context, factory, specFor(entityStateClass)) {
 
     /**
      * Returns the state record the entity had at the given time,
@@ -133,9 +133,9 @@ public class EntityStateHistoryStorage(
      *   one-argument [write]), or if the identifier does not match the record.
      */
     @Synchronized
-    public override fun write(id: EntityStateId, message: EntityRecord) {
+    public override fun write(id: EntityStateKey, message: EntityRecord) {
         validate(message)
-        require(id == message.stateId()) {
+        require(id == message.stateKey()) {
             "The passed identifier does not match the entity and the version of the record."
         }
         super.write(id, message)
@@ -146,7 +146,7 @@ public class EntityStateHistoryStorage(
      * to [keepMostRecent] most recent records.
      *
      * Overrides the generic implementation with an identifier-only read:
-     * the [record keys][EntityStateId] of this storage carry the version,
+     * the [record keys][EntityStateKey] of this storage carry the version,
      * so ranking the records needs no record payloads. The per-dispatch
      * trim on the write path thus reads a window of small identifiers
      * instead of full records with packed states.
@@ -193,17 +193,17 @@ public class EntityStateHistoryStorage(
  */
 private fun specFor(
     entityStateClass: Class<out EntityState<*>>
-): HistorySpec<EntityStateId, EntityRecord> = HistorySpec(
-    idType = EntityStateId::class.java,
+): HistorySpec<EntityStateKey, EntityRecord> = HistorySpec(
+    idType = EntityStateKey::class.java,
     itemType = EntityRecord::class.java,
     sourceType = entityStateClass,
     columns = EntityStateHistoryColumns
-) { record -> record.stateId() }
+) { record -> record.stateKey() }
 
 /**
  * Composes the history record key of this state record.
  */
-private fun EntityRecord.stateId(): EntityStateId = entityStateId {
-    entityId = this@stateId.entityId
-    version = this@stateId.version.number
+private fun EntityRecord.stateKey(): EntityStateKey = entityStateKey {
+    entityId = this@stateKey.entityId
+    version = this@stateKey.version.number
 }

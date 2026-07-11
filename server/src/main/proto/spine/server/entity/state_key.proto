@@ -33,7 +33,7 @@ import "spine/options.proto";
 option (type_url_prefix) = "type.spine.io";
 option (SPI_all) = true;
 option java_package = "io.spine.server.entity";
-option java_outer_classname = "StateIdProto";
+option java_outer_classname = "StateKeyProto";
 option java_multiple_files = true;
 
 import "google/protobuf/any.proto";
@@ -45,7 +45,7 @@ import "google/protobuf/any.proto";
 // of the same entity at the same version again overwrites one record instead
 // of creating a duplicate.
 //
-message EntityStateId {
+message EntityStateKey {
 
     // The packed identifier of the entity.
     google.protobuf.Any entity_id = 1;
