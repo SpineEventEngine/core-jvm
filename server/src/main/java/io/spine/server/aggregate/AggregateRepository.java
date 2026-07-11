@@ -102,13 +102,14 @@ import static java.util.Objects.requireNonNull;
  *         the delivery layer's time-windowed deduplication, not a replacement for it.
  *     <li>{@linkplain #eventHistoryDepth() eventHistoryDepth} — how many recent journal events
  *         the guard scans on each dispatch when enabled (default {@value #DEFAULT_HISTORY_DEPTH}).
- *     <li>{@link #recordStateHistory(int)} — enables keeping the given number of the most
- *         recent state records per aggregate in an {@link EntityStateHistoryStorage}.
+ *     <li>{@link #recordStateHistory()} — enables appending the state record of an
+ *         aggregate to an {@link EntityStateHistoryStorage} on each dispatch.
  *         The aggregates read the recorded history via {@code stateAt(Timestamp)} and
  *         {@code stateHistoryBackward(int)} — e.g., for answering the "state at a time"
- *         query. It is <b>off by default</b>: recording adds a write and a bounded trim
- *         to every dispatch. Reading the {@linkplain #stateHistory() state history} of
- *         a repository that does not record it fails fast.
+ *         query. It is <b>off by default</b>: recording adds a write to every dispatch,
+ *         and the history grows until the application maintains it. Reading the
+ *         {@linkplain #stateHistory() state history} of a repository that does not
+ *         record it fails fast.
  * </ul>
  *
  * @param <I>
@@ -127,7 +128,7 @@ public abstract class AggregateRepository<I,
         implements CommandDispatcher, EventProducingRepository,
                    EventDispatcherDelegate, QueryableRepository<I, S> {
 
-    /** The default {@link #eventHistoryDepth()} and {@link #stateHistoryDepth()} value. */
+    /** The default {@link #eventHistoryDepth()} value. */
     static final int DEFAULT_HISTORY_DEPTH = 100;
 
     /** The routing schema for commands handled by the aggregates. */
@@ -151,18 +152,10 @@ public abstract class AggregateRepository<I,
     private boolean idempotencyGuardEnabled = false;
 
     /**
-     * The number of recent state records kept per aggregate when the state history is enabled.
-     *
-     * <p>Volatile: read by dispatch workers, while {@link #recordStateHistory(int)} may
-     * reconfigure it at runtime.
-     */
-    private volatile int stateHistoryDepth = DEFAULT_HISTORY_DEPTH;
-
-    /**
      * Whether the opt-in state history recording is enabled for this repository.
      *
      * <p>Volatile: read by dispatch workers, while the recording may be
-     * {@linkplain #recordStateHistory(int) enabled} and
+     * {@linkplain #recordStateHistory() enabled} and
      * {@linkplain #stopRecordingStateHistory() stopped} at runtime.
      */
     private volatile boolean stateHistoryEnabled = false;
@@ -334,7 +327,7 @@ public abstract class AggregateRepository<I,
     /**
      * Stores the passed aggregate and commits its uncommitted events.
      *
-     * <p>When the state history is {@linkplain #recordStateHistory(int) recorded}, appends
+     * <p>When the state history is {@linkplain #recordStateHistory() recorded}, appends
      * the current state record on each call — that is, once per successful dispatch. The
      * append happens here and not in {@link #doStore}, because under a batched delivery
      * the cache defers {@code doStore()} to the end of the batch — the history still
@@ -344,7 +337,7 @@ public abstract class AggregateRepository<I,
     protected final void store(A aggregate) {
         cache.store(aggregate);
         if (stateHistoryEnabled) {
-            appendStateHistory(aggregate, stateHistoryDepth);
+            appendStateHistory(aggregate);
         }
     }
 
@@ -363,8 +356,7 @@ public abstract class AggregateRepository<I,
     }
 
     /**
-     * Appends the current state record of the aggregate to the state history,
-     * trimming the history to the given depth.
+     * Appends the current state record of the aggregate to the state history.
      *
      * <p>Obtains the storage directly, bypassing the fail-fast {@link #stateHistory()}
      * accessor: the decision to record is made by the single flag check in
@@ -375,10 +367,9 @@ public abstract class AggregateRepository<I,
      * the durable state write may happen later, at the batch flush, so a history record
      * may briefly precede the state it captures.
      */
-    private void appendStateHistory(A aggregate, int depth) {
+    private void appendStateHistory(A aggregate) {
         var history = stateHistoryStorage();
         history.write(aggregate.toRecord());
-        history.trim(aggregate.id(), depth);
     }
 
     /**
@@ -571,11 +562,10 @@ public abstract class AggregateRepository<I,
      * Enables recording the state history for the aggregates of this repository.
      *
      * <p>When enabled, each successful dispatch appends the resulting
-     * {@link EntityRecord} to an {@link EntityStateHistoryStorage}, keeping up to
-     * {@code depth} most recent records per aggregate — e.g., for answering
+     * {@link EntityRecord} to an {@link EntityStateHistoryStorage} — e.g., for answering
      * {@linkplain EntityStateHistoryStorage#stateAt(Object, com.google.protobuf.Timestamp)
      * the "state at a time" query}. The history is <b>off by default</b>: recording adds
-     * a write and a bounded trim to every dispatch.
+     * a write to every dispatch.
      *
      * <p>The aggregates of this repository read the recorded history via
      * {@link Aggregate#stateAt(Timestamp)} and {@link Aggregate#stateHistoryBackward(int)}.
@@ -583,20 +573,23 @@ public abstract class AggregateRepository<I,
      * <p>Records are appended per dispatch even when the delivery batches the state
      * write-through, so the intermediate versions of a batch are retained.
      *
-     * <p>The count-based retention bounds how far back the history reaches:
-     * an aggregate updated often forgets quickly.
+     * <p><b>The history is not trimmed automatically.</b> The framework does not spend
+     * a maintenance query on the dispatch path, so the storage grows with every dispatch
+     * until the application removes the records it no longer needs. Schedule the
+     * maintenance suiting your domain — e.g., periodically invoke
+     * {@link EntityStateHistoryStorage#truncate(int) truncate(keepMostRecent)} or
+     * {@link EntityStateHistoryStorage#truncate(int, Timestamp) truncate(keepMostRecent,
+     * olderThan)} on the {@linkplain #stateHistory() state history}, or bound the history
+     * of a single aggregate with {@link EntityStateHistoryStorage#trim(Object, int)
+     * trim(entityId, keepMostRecent)}.
      *
      * <p>A failure to record the history fails the dispatch, even though the aggregate
      * state itself is already stored at that point.
      *
-     * @param depth
-     *         a positive number of the most recent state records to keep per aggregate
      * @see #stateHistory()
      * @see #stopRecordingStateHistory()
      */
-    protected void recordStateHistory(int depth) {
-        checkArgument(depth > 0);
-        this.stateHistoryDepth = depth;
+    protected void recordStateHistory() {
         this.stateHistoryEnabled = true;
     }
 
@@ -604,21 +597,10 @@ public abstract class AggregateRepository<I,
      * Tells whether the opt-in state history recording is enabled for this repository.
      *
      * @return {@code false} by default
-     * @see #recordStateHistory(int)
+     * @see #recordStateHistory()
      */
     protected boolean stateHistoryEnabled() {
         return stateHistoryEnabled;
-    }
-
-    /**
-     * Returns the number of the most recent state records kept per aggregate
-     * when the state history recording is enabled.
-     *
-     * @return a positive integer value; the default is {@value #DEFAULT_HISTORY_DEPTH}
-     * @see #recordStateHistory(int)
-     */
-    protected int stateHistoryDepth() {
-        return stateHistoryDepth;
     }
 
     /**
@@ -626,7 +608,7 @@ public abstract class AggregateRepository<I,
      *
      * <p>The records already stored remain in the storage. While the recording is off,
      * reading the {@linkplain #stateHistory() state history} fails fast the usual way;
-     * {@linkplain #recordStateHistory(int) re-enabling} the recording resumes over the
+     * {@linkplain #recordStateHistory() re-enabling} the recording resumes over the
      * retained records, with a gap for the dispatches served while it was off.
      *
      * <p>The switch may be flipped at runtime: dispatch workers observe it on their
@@ -636,7 +618,7 @@ public abstract class AggregateRepository<I,
      * <p>To also purge the retained records, truncate the history <em>before</em>
      * stopping: {@code stateHistory().truncate(0)}.
      *
-     * @see #recordStateHistory(int)
+     * @see #recordStateHistory()
      */
     protected void stopRecordingStateHistory() {
         this.stateHistoryEnabled = false;
@@ -688,14 +670,14 @@ public abstract class AggregateRepository<I,
      *
      * @return the state history storage
      * @throws IllegalStateException
-     *         if the state history is not {@linkplain #recordStateHistory(int) recorded}
+     *         if the state history is not {@linkplain #recordStateHistory() recorded}
      *         by this repository
      */
     protected final EntityStateHistoryStorage stateHistory() {
         if (!stateHistoryEnabled) {
             throw newIllegalStateException(
                     "The state history is not recorded for the repository `%s`. " +
-                            "Enable it by calling `recordStateHistory(depth)`, " +
+                            "Enable it by calling `recordStateHistory()`, " +
                             "e.g. from the repository constructor.", this);
         }
         return stateHistoryStorage();

@@ -455,8 +455,10 @@ truncation and the legacy `AggregateEventStorage` were removed outright
 > [`entity-state-history.md`](entity-state-history.md). Settled while
 > implementing: records are keyed by the new `EntityStateKey`
 > (entity + version), so a same-version re-write is an idempotent overwrite;
-> recording is opt-in via `AggregateRepository.recordStateHistory(depth)`,
-> off by default, read through the fail-fast `stateHistory()` accessor.
+> recording is opt-in via `AggregateRepository.recordStateHistory()`,
+> off by default, read through the fail-fast `stateHistory()` accessor;
+> retention is the duty of the application — no automatic trimming on
+> the dispatch path (product owner, 2026-07-11).
 > Both history storages extend the abstract **`HistoryStorage`** base
 > (settled 2026-07-10 in review): the shared `entity_id`/`created`/`version`
 > column contract, `historyBackward` window reads, per-entity `trim`, and

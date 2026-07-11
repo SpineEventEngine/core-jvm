@@ -59,13 +59,13 @@ same storage to `ProcessManager`s without touching it.
     "T precedes the retained window" and "T predates the entity".
     Time comparison via `Timestamps.compare` in memory, not a storage-level
     Timestamp filter (portability posture of the journal).
-  - `trim(entityId, keepMostRecent)` — per-entity window enforcement for
-    the write hook, skip-based (version arithmetic breaks on retention
-    gaps). **Identifier-only since the ultra review, item 3
-    (2026-07-11):** the record keys carry the version, so the override
-    ranks `index()`-read ids in memory and deletes — no record payloads
-    on the per-dispatch path. The generic base `trim` (used by the
-    journal, whose `EventId` keys carry no order) stays record-based.
+  - `trim(entityId, keepMostRecent)` — per-entity retention maintenance,
+    skip-based (version arithmetic breaks on retention gaps).
+    **Identifier-only since the ultra review, item 3 (2026-07-11):**
+    the record keys carry the version, so the override ranks
+    `index()`-read ids in memory and deletes — no record payloads read.
+    The generic base `trim` (used by the journal, whose `EventId` keys
+    carry no order) stays record-based.
     *(A `FieldMask`-narrowed read was tried and dropped even earlier:
     for `EntityRecord` payloads the storage masking applies to the packed
     `state` — see `FieldMaskApplier` — not to the record fields.)*
@@ -89,20 +89,26 @@ same storage to `ProcessManager`s without touching it.
   Journal rows written by the `.430` shared-identity layout become
   invisible to per-type reads — the accepted #1649-style pre-GA caveat.
 - **Repository wiring** (`AggregateRepository`, Java):
-  `recordStateHistory(int depth)` opt-in + `stateHistoryEnabled()` +
-  `stateHistoryDepth()` (the `useIdempotencyGuard()`/`historyDepth`
-  precedent) + `stopRecordingStateHistory()` (2026-07-11, stop-only:
-  retained records stay and re-enabling resumes over them; purging is the
-  explicit `stateHistory().truncate(0)` *before* stopping — an automatic
-  purge could exceed the repository scope on backends mapping equal record
-  specs to one per-context table). Runtime-toggle safety (ultra review
-  item 2, 2026-07-11): the flags are `volatile`, and the recording
+  `recordStateHistory()` opt-in + `stateHistoryEnabled()` (the
+  `useIdempotencyGuard()` precedent) + `stopRecordingStateHistory()`
+  (2026-07-11, stop-only: retained records stay and re-enabling resumes
+  over them; purging is the explicit `stateHistory().truncate(0)` *before*
+  stopping — an automatic purge could exceed the repository scope on
+  backends mapping equal record specs to one per-context table).
+  **No automatic trimming (product owner, 2026-07-11):** the original
+  `recordStateHistory(int depth)` trimmed after every write, but even the
+  identifier-only trim is a query per dispatch — too costly for the hot
+  path. Retention is delegated to the application; the `depth` knob and
+  the flag `stateHistoryDepth` are gone, and the `recordStateHistory()`
+  Javadoc points at `truncate(keepMostRecent[, olderThan])` / `trim` as
+  the scheduled-maintenance recipe. Runtime-toggle safety (ultra review
+  item 2, 2026-07-11): the flag is `volatile`, and the recording
   decision is made ONCE per dispatch in `store(A)` — the write path
   obtains the storage directly instead of re-checking through the
   fail-fast accessor, so a concurrent stop cannot fail a dispatch whose
   state is already persisted (at most one trailing record lands); `stateHistory()` accessor **fails fast** with
   `IllegalStateException` while disabled; `private synchronized` lazy
-  creation (first touch is on concurrent dispatch); write + trim in
+  creation (first touch is on concurrent dispatch); the write happens in
   `store(A)` — per dispatch, ahead of the cache write-through, so a batched
   delivery records its intermediate versions too (moved out of `doStore()`
   after the PR #1650 Codex finding); the storage is closed in `close()`.
@@ -125,8 +131,8 @@ same storage to `ProcessManager`s without touching it.
 - New Kotlin suites: `EntityStateHistoryStorageSpec` (storage semantics:
   window, `stateAt` incl. honest-empty and same-instant tie-break, trim,
   truncate) and `AggregateRepositoryStateHistorySpec` (off by default,
-  fail-fast accessor, one record per successful dispatch, depth honored),
-  plus the `StateHistoryTestRepository` widening fixture.
+  fail-fast accessor, one record per successful dispatch, unbounded
+  retention), plus the `StateHistoryTestRepository` widening fixture.
 - `pre-pr`: version gate (`.430 → .431`, committed), `kotlin-engineer`,
   `spine-code-review`, `review-docs`.
 

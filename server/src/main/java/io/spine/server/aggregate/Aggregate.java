@@ -489,7 +489,7 @@ public abstract class Aggregate<I,
      * or predates the aggregate itself.
      *
      * <p>The state history is an opt-in feature —
-     * see {@link AggregateRepository#recordStateHistory(int)}. Reading it while
+     * see {@link AggregateRepository#recordStateHistory()}. Reading it while
      * the repository of this aggregate does not record it is a configuration error.
      * An aggregate created outside a repository has no recorded history and
      * reads an empty result.
@@ -513,7 +513,7 @@ public abstract class Aggregate<I,
      * <p>Fewer states are returned if the recorded history retains fewer.
      *
      * <p>The state history is an opt-in feature —
-     * see {@link AggregateRepository#recordStateHistory(int)}. Reading it while
+     * see {@link AggregateRepository#recordStateHistory()}. Reading it while
      * the repository of this aggregate does not record it is a configuration error.
      * An aggregate created outside a repository has no recorded history and
      * reads an empty iterator.

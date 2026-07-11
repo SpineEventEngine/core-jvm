@@ -47,8 +47,8 @@ import io.spine.server.storage.StorageFactory
  * created, and the number of the entity version the item belongs to.
  *
  * On top of them, the storage provides the [window reads][historyBackward]
- * ordered from newer to older, the per-entity [trim] for the write path,
- * and the count/date-based [truncate] maintenance.
+ * ordered from newer to older, and the maintenance operations:
+ * the per-entity [trim] and the count/date-based [truncate].
  *
  * The class is internal to the framework: storage vendors customize the
  * persistence via the [RecordStorage][io.spine.server.storage.RecordStorage]
@@ -114,7 +114,7 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
      * to [keepMostRecent] most recent items.
      *
      * Unlike [truncate], the operation reads only the items of the given
-     * entity, so it suits the per-dispatch use on the write path.
+     * entity, so it is the cheaper way to bound the history of one entity.
      * Passing zero purges the history of the entity.
      *
      * A storage whose record identifiers carry the ranking of the items may
@@ -150,8 +150,8 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
      * The most recent items are determined per entity, in the order of
      * [historyBackward]. Passing zero purges the whole history.
      *
-     * The operation reads the whole history, so it is intended for periodic
-     * maintenance rather than for per-dispatch use; see [trim] for the latter.
+     * The operation reads the whole history; to bound the history of
+     * a single entity, prefer [trim].
      *
      * @param keepMostRecent The number of the most recent items to keep for each entity.
      * @throws IllegalArgumentException If [keepMostRecent] is negative.
@@ -168,8 +168,8 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
      * it is not among the [keepMostRecent] most recent items of its entity.
      * To purge everything older than the given time, pass zero as [keepMostRecent].
      *
-     * The operation reads the whole history, so it is intended for periodic
-     * maintenance rather than for per-dispatch use; see [trim] for the latter.
+     * The operation reads the whole history; to bound the history of
+     * a single entity, prefer [trim].
      *
      * @param keepMostRecent The number of the most recent items to keep for each entity.
      * @param olderThan Only the items created strictly before this time are deleted.

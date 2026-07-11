@@ -212,38 +212,6 @@ class AggregateRepositoryTest {
     }
 
     @Nested
-    @DisplayName("have a state-history window")
-    class HaveStateHistoryDepth {
-
-        @Test
-        @DisplayName("set to the default value initially")
-        void setToDefault() {
-            assertEquals(DEFAULT_HISTORY_DEPTH, repository().stateHistoryDepth());
-        }
-
-        @Test
-        @DisplayName("set to the value passed to `recordStateHistory`")
-        void setToSpecifiedValue() {
-            var newDepth = 1000;
-
-            repository().recordStateHistory(newDepth);
-
-            assertEquals(newDepth, repository().stateHistoryDepth());
-        }
-
-        @Test
-        @DisplayName("kept after the recording stops")
-        void keptAfterStop() {
-            var newDepth = 42;
-            repository().recordStateHistory(newDepth);
-
-            repository().stopRecordingStateHistory();
-
-            assertEquals(newDepth, repository().stateHistoryDepth());
-        }
-    }
-
-    @Nested
     @DisplayName("have the idempotency guard")
     class HaveIdempotencyGuard {
 
