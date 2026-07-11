@@ -28,46 +28,40 @@ package io.spine.server.entity.storage
 
 import com.google.protobuf.Any
 import com.google.protobuf.Timestamp
+import io.spine.core.Event
 import io.spine.query.RecordColumn
 import io.spine.query.RecordColumns
-import io.spine.server.entity.EntityRecord
 
 /**
- * Columns stored along with an [EntityRecord] kept by [EntityStateHistoryStorage].
+ * Columns stored along with an [Event] journaled by [EntityEventStorage].
  *
- * The column values are derived from the entity identifier and the [version]
- * of the stored record. The column set matches that of [EntityEventColumn],
- * so the state history and the event journal of an entity are queryable by
- * the same axes. The column names follow the storage-level `snake_case`
- * convention used by the other record kinds.
+ * The column values are derived from the event context. The column names follow
+ * the storage-level `snake_case` convention used by the other record kinds.
  */
-@RecordColumns(ofType = EntityRecord::class)
-public object EntityStateHistoryColumn : HistoryColumns<EntityRecord> {
+@RecordColumns(ofType = Event::class)
+public object EntityEventColumns : HistoryColumns<Event> {
 
     /**
-     * Stores the identifier of the entity.
+     * Stores the identifier of the entity which emitted the event.
      */
-    override val entityId: RecordColumn<EntityRecord, Any> =
-        RecordColumn.create("entity_id", Any::class.java) { record ->
-            record.entityId
+    override val entityId: RecordColumn<Event, Any> =
+        RecordColumn.create("entity_id", Any::class.java) { event ->
+            event.context.producerId
         }
 
     /**
-     * Stores the time when the recorded state became current.
-     *
-     * The value is the timestamp of the record [version], stamped when
-     * the signal that produced this state was dispatched to the entity.
+     * Stores the time when the event was created.
      */
-    override val created: RecordColumn<EntityRecord, Timestamp> =
-        RecordColumn.create("created", Timestamp::class.java) { record ->
-            record.version.timestamp
+    override val created: RecordColumn<Event, Timestamp> =
+        RecordColumn.create("created", Timestamp::class.java) { event ->
+            event.context.timestamp
         }
 
     /**
-     * Stores the number of the entity version this state belongs to.
+     * Stores the version of the event.
      */
-    override val version: RecordColumn<EntityRecord, Int> =
-        RecordColumn.create("version", Int::class.javaObjectType) { record ->
-            record.version.number
+    override val version: RecordColumn<Event, Int> =
+        RecordColumn.create("version", Int::class.javaObjectType) { event ->
+            event.context.version.number
         }
 }

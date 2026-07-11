@@ -477,7 +477,7 @@ truncation and the legacy `AggregateEventStorage` were removed outright
    `Version`, stamped once per dispatch since A3 — as a queryable column
    beside the entity id and the version number (column set settled
    2026-07-10: `entity_id` / `created` / `version`, identical to
-   `EntityEventColumn`). This is the temporal axis for the
+   `EntityEventColumns`). This is the temporal axis for the
    "state at time T" query (item 5).
 2. Repository-level config (depth, enable/disable); write hook in
    `AggregateRepository.store()` *(moved from `doStore()` during the

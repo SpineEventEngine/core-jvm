@@ -55,7 +55,7 @@ import io.spine.server.storage.StorageFactory
  *
  * The records are stored as-is; the entity, the time the state became
  * current, and the version number are exposed for querying as the
- * [columns][EntityStateHistoryColumn] derived from the record.
+ * [columns][EntityStateHistoryColumns] derived from the record.
  *
  * Nothing in this storage is specific to a kind of entity; currently,
  * `Aggregate`s are the only kind recording their state history.
@@ -156,7 +156,7 @@ private val spec: HistorySpec<EntityStateId, EntityRecord> = HistorySpec(
     EntityStateId::class.java,
     EntityRecord::class.java,
     { record -> record.stateId() },
-    EntityStateHistoryColumn
+    EntityStateHistoryColumns
 )
 
 /**

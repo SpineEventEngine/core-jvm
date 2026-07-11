@@ -41,7 +41,7 @@ import io.spine.server.storage.StorageFactory
  *
  * The events are stored as-is, keyed by their identifiers; the entity which
  * emitted an event, the event time, and the event version are exposed for
- * querying as the [columns][EntityEventColumn] derived from the event
+ * querying as the [columns][EntityEventColumns] derived from the event
  * context.
  *
  * Currently, the framework journals the events emitted by
@@ -92,5 +92,5 @@ private val spec: HistorySpec<EventId, Event> = HistorySpec(
     EventId::class.java,
     Event::class.java,
     { event -> event.id },
-    EntityEventColumn
+    EntityEventColumns
 )

@@ -11,7 +11,7 @@ honored throughout).
 > sibling `EntityEventStorage` (amends the plan's original
 > `entity/history/` path, which predates the Phase D landing spot);
 > the columns are **`entity_id` / `created` / `version`** — the identical
-> column set as `EntityEventColumn`, with `created` sourced from the
+> column set as `EntityEventColumns`, with `created` sourced from the
 > record's `Version.timestamp`; state history is **opt-in per repository,
 > off by default**, and reading it while disabled **fails fast** (never
 > silently empty).

@@ -39,8 +39,8 @@ import io.spine.query.RecordColumn
  * these columns.
  *
  * @param M The type of the stored history items.
- * @see EntityEventColumn
- * @see EntityStateHistoryColumn
+ * @see EntityEventColumns
+ * @see EntityStateHistoryColumns
  */
 public interface HistoryColumns<M : Message> {
 

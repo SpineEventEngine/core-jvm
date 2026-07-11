@@ -330,7 +330,7 @@ as a follow-up.
 | `AggregateEventRecord` | the `core.Event` itself — events are journaled as-is, no wrapper |
 | `AggregateEventRecordId` | the `core.EventId` of the stored event — no dedicated id type |
 | `AggregateEventStorage` | `io.spine.server.entity.storage.EntityEventStorage` |
-| `AggregateEventRecordColumn` | `io.spine.server.entity.storage.EntityEventColumn` |
+| `AggregateEventRecordColumn` | `io.spine.server.entity.storage.EntityEventColumns` |
 | `StorageFactory.createAggregateEventStorage` | `StorageFactory.createEntityEventStorage` |
 
 The journal stores plain `Event`s; the emitting entity, the event time, and the event
