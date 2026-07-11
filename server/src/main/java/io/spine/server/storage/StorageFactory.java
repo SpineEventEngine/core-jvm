@@ -130,21 +130,6 @@ public interface StorageFactory extends Closeable {
     }
 
     /**
-     * Creates a new {@link EntityStateHistoryStorage}.
-     *
-     * @param context
-     *         specification of the Bounded Context in scope of which the storage will be used
-     * @param stateType
-     *         the class of the entity state, by which the physical storage is allocated,
-     *         keeping the state histories of different entity types apart
-     */
-    default EntityStateHistoryStorage
-    createEntityStateHistoryStorage(ContextSpec context,
-                                    Class<? extends EntityState<?>> stateType) {
-        return new EntityStateHistoryStorage(context, this, stateType);
-    }
-
-    /**
      * Creates a new {@link EventStore}.
      *
      * @param context
@@ -170,6 +155,21 @@ public interface StorageFactory extends Closeable {
     createEntityRecordStorage(ContextSpec context, Class<? extends Entity<I, S>> entityClass) {
         var result = new EntityRecordStorage<>(context, this, entityClass);
         return result;
+    }
+
+    /**
+     * Creates a new {@link EntityStateHistoryStorage}.
+     *
+     * @param context
+     *         specification of the Bounded Context in scope of which the storage will be used
+     * @param stateType
+     *         the class of the entity state, by which the physical storage is allocated,
+     *         keeping the state histories of different entity types apart
+     */
+    default EntityStateHistoryStorage
+    createEntityStateHistoryStorage(ContextSpec context,
+                                    Class<? extends EntityState<?>> stateType) {
+        return new EntityStateHistoryStorage(context, this, stateType);
     }
 
     /**
