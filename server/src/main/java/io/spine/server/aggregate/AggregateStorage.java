@@ -160,13 +160,6 @@ public class AggregateStorage<I, S extends AggregateState<I>>
         stateStorage = factory.createEntityRecordStorage(context, aggregateClass);
     }
 
-    protected AggregateStorage(AggregateStorage<I, S> delegate) {
-        super(delegate.isMultitenant());
-        this.eventStorage = delegate.eventStorage;
-        this.stateStorage = delegate.stateStorage;
-        this.queryingEnabled = delegate.queryingEnabled;
-    }
-
     /**
      * Enables the querying of the latest Aggregate states persisted by this storage.
      */
