@@ -26,6 +26,7 @@
 
 package io.spine.server.aggregate;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.protobuf.Timestamp;
 import io.spine.annotation.SPI;
@@ -217,7 +218,7 @@ public class AggregateStorage<I, S extends AggregateState<I>>
     public Optional<EntityEventHistory> read(I id, int batchSize) {
         checkNotClosedAndArguments(id, batchSize);
         checkPositive(batchSize);
-        var events = readHistoryBackward(id, batchSize);
+        var events = ImmutableList.copyOf(historyBackward(id, batchSize));
         if (events.isEmpty()) {
             return Optional.empty();
         }
