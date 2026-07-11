@@ -58,7 +58,8 @@ import io.spine.server.storage.StorageFactory
  * the [RecordStorage][io.spine.server.storage.RecordStorage] delegate created by
  * their [StorageFactory].
  *
- * @param context Specification of the Bounded Context in scope of which the storage is used.
+ * @param context The specification of the Bounded Context in the scope of which
+ *                the storage is used.
  * @param factory The storage factory to use when creating a record storage delegate.
  */
 public class EntityEventStorage(
