@@ -131,7 +131,7 @@ public class AggregateStorage<I, S extends AggregateState<I>>
     private final EntityEventStorage eventStorage;
 
     /**
-     * If enabled, stores the latest states of Aggregates.
+     * Stores the latest states of Aggregates.
      */
     private final EntityRecordStorage<I, S> stateStorage;
 
