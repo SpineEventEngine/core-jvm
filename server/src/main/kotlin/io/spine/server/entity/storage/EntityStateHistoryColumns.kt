@@ -47,7 +47,7 @@ public object EntityStateHistoryColumns : HistoryColumns<EntityRecord> {
     /**
      * Stores the identifier of the entity.
      */
-    override val entityId: RecordColumn<EntityRecord, Any> =
+    override val entity_id: RecordColumn<EntityRecord, Any> =
         RecordColumn.create("entity_id", Any::class.java) { record ->
             record.entityId
         }

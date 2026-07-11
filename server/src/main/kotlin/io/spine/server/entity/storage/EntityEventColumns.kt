@@ -44,7 +44,7 @@ public object EntityEventColumns : HistoryColumns<Event> {
     /**
      * Stores the identifier of the entity which emitted the event.
      */
-    override val entityId: RecordColumn<Event, Any> =
+    override val entity_id: RecordColumn<Event, Any> =
         RecordColumn.create("entity_id", Any::class.java) { event ->
             event.context.producerId
         }
