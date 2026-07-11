@@ -64,6 +64,11 @@ internal class StateHistoryTestRepository :
     fun enableStateHistory(depth: Int) = recordStateHistory(depth)
 
     /**
+     * Stops recording the state history.
+     */
+    fun disableStateHistory() = stopRecordingStateHistory()
+
+    /**
      * Tells whether the state history recording is enabled.
      */
     fun historyEnabled(): Boolean = stateHistoryEnabled()

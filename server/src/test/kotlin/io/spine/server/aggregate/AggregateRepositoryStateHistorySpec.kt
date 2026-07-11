@@ -181,6 +181,26 @@ internal class AggregateRepositoryStateHistorySpec {
     }
 
     @Test
+    fun `stop recording the state history, keeping the retained records`() {
+        repository.enableStateHistory(depth = 10)
+        post(Given.ACommand.createProject(projectId))
+
+        repository.disableStateHistory()
+        post(Given.ACommand.addTask(projectId))
+
+        shouldThrow<IllegalStateException> {
+            repository.history()
+        }
+
+        // Re-enabling resumes over the retained records: the dispatch served
+        // while the recording was off left no record.
+        repository.enableStateHistory(depth = 10)
+        val records = historyRecords()
+        records shouldHaveSize 1
+        records[0].version.number shouldBe 1
+    }
+
+    @Test
     fun `let an aggregate read its state at a given time`() {
         repository.enableStateHistory(depth = 10)
         post(Given.ACommand.createProject(projectId))

@@ -576,6 +576,7 @@ public abstract class AggregateRepository<I,
      * @param depth
      *         a positive number of the most recent state records to keep per aggregate
      * @see #stateHistory()
+     * @see #stopRecordingStateHistory()
      */
     protected void recordStateHistory(int depth) {
         checkArgument(depth > 0);
@@ -602,6 +603,23 @@ public abstract class AggregateRepository<I,
      */
     protected int stateHistoryDepth() {
         return stateHistoryDepth;
+    }
+
+    /**
+     * Stops recording the state history for the aggregates of this repository.
+     *
+     * <p>The records already stored remain in the storage. While the recording is off,
+     * reading the {@linkplain #stateHistory() state history} fails fast the usual way;
+     * {@linkplain #recordStateHistory(int) re-enabling} the recording resumes over the
+     * retained records, with a gap for the dispatches served while it was off.
+     *
+     * <p>To also purge the retained records, truncate the history <em>before</em>
+     * stopping: {@code stateHistory().truncate(0)}.
+     *
+     * @see #recordStateHistory(int)
+     */
+    protected void stopRecordingStateHistory() {
+        this.stateHistoryEnabled = false;
     }
 
     /**

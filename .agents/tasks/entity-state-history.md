@@ -73,7 +73,11 @@ same storage to `ProcessManager`s without touching it.
 - **Repository wiring** (`AggregateRepository`, Java):
   `recordStateHistory(int depth)` opt-in + `stateHistoryEnabled()` +
   `stateHistoryDepth()` (the `useIdempotencyGuard()`/`historyDepth`
-  precedent); `stateHistory()` accessor **fails fast** with
+  precedent) + `stopRecordingStateHistory()` (2026-07-11, stop-only:
+  retained records stay and re-enabling resumes over them; purging is the
+  explicit `stateHistory().truncate(0)` *before* stopping — an automatic
+  purge could exceed the repository scope on backends mapping equal record
+  specs to one per-context table); `stateHistory()` accessor **fails fast** with
   `IllegalStateException` while disabled; `private synchronized` lazy
   creation (first touch is on concurrent dispatch); write + trim in
   `store(A)` — per dispatch, ahead of the cache write-through, so a batched
