@@ -41,6 +41,7 @@ import io.spine.core.Versions
 import io.spine.protobuf.AnyPacker
 import io.spine.server.ContextSpec
 import io.spine.server.entity.EntityRecord
+import io.spine.server.entity.EntityStateId
 import io.spine.server.entity.entityRecord
 import io.spine.server.entity.entityStateId
 import io.spine.server.storage.memory.InMemoryStorageFactory
@@ -303,6 +304,20 @@ internal class EntityStateHistoryStorageSpec {
         }
 
         @Test
+        fun `counting the retained records, not the version distance`() {
+            val written = appendRecords(count = 6)
+            storage.delete(idOf(written[3]))
+            storage.delete(idOf(written[4]))
+
+            // Retained: v1, v2, v3, v6. The three most recent of them
+            // are v6, v3, v2 — regardless of the version gap.
+            storage.trim(entityId, keepMostRecent = 3)
+
+            storage.historyBackward(entityId, Int.MAX_VALUE)
+                .records() shouldContainExactly listOf(written[5], written[2], written[1])
+        }
+
+        @Test
         fun `purging the whole history of the entity when keeping zero`() {
             appendRecords(count = 3)
 
@@ -474,6 +489,14 @@ internal class EntityStateHistoryStorageSpec {
 
     private fun Iterator<EntityRecord>.records(): List<EntityRecord> =
         asSequence().toList()
+
+    /**
+     * Composes the history record key of the given record.
+     */
+    private fun idOf(record: EntityRecord): EntityStateId = entityStateId {
+        entityId = record.entityId
+        version = record.version.number
+    }
 
     private companion object {
 

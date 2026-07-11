@@ -29,6 +29,7 @@ package io.spine.server.entity.storage
 import com.google.protobuf.Timestamp
 import com.google.protobuf.util.Timestamps
 import io.spine.base.EntityState
+import io.spine.base.Identifier
 import io.spine.server.ContextSpec
 import io.spine.server.entity.EntityRecord
 import io.spine.server.entity.EntityStateId
@@ -138,6 +139,32 @@ public class EntityStateHistoryStorage(
             "The passed identifier does not match the entity and the version of the record."
         }
         super.write(id, message)
+    }
+
+    /**
+     * Trims the history of the entity with the given identifier, keeping up
+     * to [keepMostRecent] most recent records.
+     *
+     * Overrides the generic implementation with an identifier-only read:
+     * the [record keys][EntityStateId] of this storage carry the version,
+     * so ranking the records needs no record payloads. The per-dispatch
+     * trim on the write path thus reads a window of small identifiers
+     * instead of full records with packed states.
+     */
+    override fun trim(entityId: Any, keepMostRecent: Int) {
+        requireNotNegative(keepMostRecent)
+        val packedId = Identifier.pack(entityId)
+        val selection = queryBuilder()
+            .where(EntityStateHistoryColumns.entityId).isEqualTo(packedId)
+            .build()
+        val ids = index(selection)
+        val toDelete = ids.asSequence()
+            .sortedByDescending { it.version }
+            .drop(keepMostRecent)
+            .toList()
+        if (toDelete.isNotEmpty()) {
+            deleteAll(toDelete)
+        }
     }
 
     /**

@@ -59,12 +59,15 @@ same storage to `ProcessManager`s without touching it.
     Time comparison via `Timestamps.compare` in memory, not a storage-level
     Timestamp filter (portability posture of the journal).
   - `trim(entityId, keepMostRecent)` — per-entity window enforcement for
-    the write hook: `readAll` of the entity's records newest-first,
-    skip-based counting (version arithmetic breaks on retention gaps),
-    `deleteAll`. *(A `FieldMask`-narrowed read was tried and dropped:
+    the write hook, skip-based (version arithmetic breaks on retention
+    gaps). **Identifier-only since the ultra review, item 3
+    (2026-07-11):** the record keys carry the version, so the override
+    ranks `index()`-read ids in memory and deletes — no record payloads
+    on the per-dispatch path. The generic base `trim` (used by the
+    journal, whose `EventId` keys carry no order) stays record-based.
+    *(A `FieldMask`-narrowed read was tried and dropped even earlier:
     for `EntityRecord` payloads the storage masking applies to the packed
-    `state` — see `FieldMaskApplier` — not to the record fields, so the
-    mask only mangled the state copies and saved nothing.)*
+    `state` — see `FieldMaskApplier` — not to the record fields.)*
   - `truncate(keepMostRecent[, olderThan])` — global maintenance, mirroring
     `EntityEventStorage.truncate`.
   - Public `readAll`/`delete`/`deleteAll` overrides (maintenance parity).

@@ -117,12 +117,15 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
      * entity, so it suits the per-dispatch use on the write path.
      * Passing zero purges the history of the entity.
      *
+     * A storage whose record identifiers carry the ranking of the items may
+     * override this implementation with an identifier-only read.
+     *
      * @param entityId The identifier of the entity.
      * @param keepMostRecent The number of the most recent items to keep.
      * @throws IllegalArgumentException If [keepMostRecent] is negative, or if the type
      *   of [entityId] is not supported by the framework.
      */
-    public fun trim(entityId: Any, keepMostRecent: Int) {
+    public open fun trim(entityId: Any, keepMostRecent: Int) {
         requireNotNegative(keepMostRecent)
         val packedId = Identifier.pack(entityId)
         val newestFirst = queryBuilder()
@@ -204,7 +207,7 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
     /**
      * Ensures the size of a window to keep is not negative.
      */
-    private fun requireNotNegative(keepMostRecent: Int) {
+    protected fun requireNotNegative(keepMostRecent: Int) {
         require(keepMostRecent >= 0) {
             "The number of the items to keep must not be negative, got `$keepMostRecent`."
         }
