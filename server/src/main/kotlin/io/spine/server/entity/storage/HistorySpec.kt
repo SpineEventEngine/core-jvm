@@ -76,9 +76,7 @@ public class HistorySpec<I : Any, M : Message> internal constructor(
         idType,
         itemType,
         sourceType,
-        // The parameter is nullable only because the SAM inherits Guava's `Function`;
-        // the framework never passes `null` items.
-        { item -> extractId(requireNotNull(item)) },
+        { item -> extractId(item) },
         columns.definitions()
     )
 }
