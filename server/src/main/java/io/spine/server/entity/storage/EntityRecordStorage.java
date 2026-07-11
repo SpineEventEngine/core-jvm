@@ -101,7 +101,7 @@ public class EntityRecordStorage<I, S extends EntityState<I>>
     }
 
     /**
-     * Returns the type of the state for the entities, whose records are stored.
+     * Returns the type of the state for the entities whose records are stored.
      */
     public final Class<S> stateClass() {
         return stateClass;
