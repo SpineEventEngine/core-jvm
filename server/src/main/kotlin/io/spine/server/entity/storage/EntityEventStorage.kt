@@ -45,15 +45,8 @@ import io.spine.server.storage.StorageFactory
  * querying as the [columns][EntityEventColumns] derived from the event
  * context.
  *
- * Currently, the framework journals the events emitted by
- * [Aggregate][io.spine.server.aggregate.Aggregate]s; see
- * [AggregateStorage][io.spine.server.aggregate.AggregateStorage].
- *
  * This storage supersedes the `AggregateEventStorage`, removed along with the other
- * event-sourcing machinery. The journal entries written by pre-cutover versions of
- * the framework — the retained
- * [AggregateEventRecord][io.spine.server.aggregate.AggregateEventRecord]s — are
- * a separate record kind, not visible to the reads performed by this storage.
+ * event-sourcing machinery.
  *
  * The journal is identified by the class of the entity state: vendors
  * allocate the physical storage by it, so the journals of different entity
