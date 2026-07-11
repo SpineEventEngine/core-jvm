@@ -40,12 +40,15 @@ import java.util.Collections
  * An entity created outside a repository has no loader installed, so its
  * reads return no items.
  *
+ * The kinds of recent histories are fixed by the framework:
+ * the constructor is `internal`.
+ *
  * @param T The type of the history items.
  * @param L The type of the loader serving the reads.
  * @see RecentEventHistory
  * @see RecentStateHistory
  */
-public abstract class RecentHistory<T : Any, L : HistoryLoader<*>> {
+public abstract class RecentHistory<T : Any, L : HistoryLoader<*>> internal constructor() {
 
     /**
      * If set, serves the reads from the durable storage of the entity.

@@ -33,6 +33,7 @@ import com.google.protobuf.util.Timestamps.subtract
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.spine.base.Identifier
 import io.spine.base.Time.currentTime
@@ -193,6 +194,19 @@ internal class EntityStateHistoryStorageSpec {
             val read = storage.historyBackward(entityId, Int.MAX_VALUE)
 
             read.records() shouldContainExactly written.reversed()
+        }
+
+        @Test
+        fun `ordered by the version even when the timestamps disagree`() {
+            val now = currentTime()
+            // A lower version stamped *later* than a higher one: the sort
+            // must rank by the version, not by the time.
+            val first = writeRecord(number = 1, at = add(now, Durations.fromSeconds(100)))
+            val second = writeRecord(number = 2, at = now)
+
+            val read = storage.historyBackward(entityId, Int.MAX_VALUE)
+
+            read.records() shouldContainExactly listOf(second, first)
         }
 
         @Test
@@ -396,6 +410,19 @@ internal class EntityStateHistoryStorageSpec {
 
             storage.historyBackward(entityId, Int.MAX_VALUE)
                 .records() shouldContainExactly listOf(written[3], written[2])
+        }
+
+        @Test
+        fun `handling a history far larger than the kept window`() {
+            appendRecords(count = 200)
+            appendRecords(count = 200, toEntity = anotherEntity)
+
+            storage.truncate(2)
+
+            storage.historyBackward(entityId, Int.MAX_VALUE)
+                .records() shouldHaveSize 2
+            storage.historyBackward(anotherEntity, Int.MAX_VALUE)
+                .records() shouldHaveSize 2
         }
 
         @Test

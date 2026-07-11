@@ -582,8 +582,9 @@ public abstract class AggregateRepository<I,
      * of a single aggregate with {@link EntityStateHistoryStorage#trim(Object, int)
      * trim(entityId, keepMostRecent)}.
      *
-     * <p>A failure to record the history fails the dispatch, even though the aggregate
-     * state itself is already stored at that point.
+     * <p>A failure to record the history fails the dispatch. Note that under a batched
+     * delivery the durable write of the aggregate state itself may follow at the batch
+     * flush, so a history record may briefly precede the state it captures.
      *
      * @see #stateHistory()
      * @see #stopRecordingStateHistory()
