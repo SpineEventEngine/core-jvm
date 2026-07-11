@@ -2,6 +2,11 @@
 
 **Status:** implemented and verified on `claude/guava-function-nullability-474d2d`
 (2026-07-10); `./gradlew build dokkaGenerate` passes (3m 45s, all tests green).
+PR [#1651](https://github.com/SpineEventEngine/core-jvm/pull/1651) OPEN.
+Version `2.0.0-SNAPSHOT.431` (2026-07-11, corrected from an initial `.440`:
+owner judged the `ExtractId` supertype swap isolated/non-breaking rather than
+worth the round-up-to-10 treatment; a separate branch — PR #1650, currently
+also on `.431` — will rebase onto this PR and renumber past it).
 **Goal:** remove the nullability noise forced on every `RecordSpec` call site
 by Guava's `com.google.common.base.Function`.
 
@@ -55,4 +60,6 @@ Out of scope: Guava `Supplier`/`Predicate` usages (mostly
 `ExtractId` no longer `instanceof` Guava `Function`. Lambda / method-ref
 call sites (all known ones) are unaffected; only code assigning an
 `ExtractId` to a Guava `Function`-typed variable would break, and none
-exists in this repo or is known downstream.
+exists in this repo or is known downstream. This is why the version was
+corrected to a plain snapshot bump (`.431`) rather than the breaking
+round-up (`.440`) initially applied.
