@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -41,6 +41,7 @@ import io.spine.query.RecordColumn;
 import io.spine.server.entity.EntityRecord;
 import io.spine.server.entity.LifecycleFlags;
 import io.spine.server.entity.storage.EntityRecordColumn;
+import io.spine.server.entity.storage.given.TaskViewProjection;
 import io.spine.server.storage.given.GivenStorageProject.StgProjectColumns;
 import io.spine.test.entity.TaskView;
 import io.spine.test.storage.StgProject;
@@ -74,6 +75,24 @@ class RecordSpecTest {
     void passNullToleranceCheck() {
         new NullPointerTester()
                 .testAllPublicInstanceMethods(messageSpec());
+    }
+
+    @Test
+    @DisplayName("serve no entity class when created via the public constructors")
+    void serveNoEntityClass() {
+        var spec = messageSpec();
+
+        assertThat(spec.entityClass()).isEmpty();
+        assertThat(spec.sourceType()).isEqualTo(spec.recordType());
+    }
+
+    @Test
+    @DisplayName("expose the entity class it serves")
+    void exposeServedEntityClass() {
+        var spec = taskViewSpec();
+
+        assertThat(spec.entityClass()).hasValue(TaskViewProjection.class);
+        assertThat(spec.sourceType()).isEqualTo(TaskView.class);
     }
 
     @Nested
