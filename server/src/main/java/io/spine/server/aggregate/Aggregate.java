@@ -448,6 +448,8 @@ public abstract class Aggregate<I,
      * Verifies if up to {@code depth} most recent events of this aggregate's journal contain an
      * event that satisfies the passed predicate.
      *
+     * <p>The visibility caveats of {@link #eventHistoryBackward(int)} apply to this check.
+     *
      * @param depth
      *         the maximal number of the most recent events to inspect; must be positive
      * @param predicate
@@ -497,6 +499,10 @@ public abstract class Aggregate<I,
      * An aggregate created outside a repository has no recorded history and
      * reads an empty result.
      *
+     * <p>The state produced by the current, not-yet-stored dispatch is not
+     * recorded yet: a receptor reading the history observes the states
+     * persisted by the previous dispatches.
+     *
      * @param time
      *         the point in time to look at
      * @return the state at the given time, or an empty {@code Optional} if the
@@ -514,6 +520,9 @@ public abstract class Aggregate<I,
      * this aggregate, newest first.
      *
      * <p>Fewer states are returned if the recorded history retains fewer.
+     * The state produced by the current, not-yet-stored dispatch is not
+     * recorded yet: a receptor reading the history observes the states
+     * persisted by the previous dispatches.
      *
      * <p>The state history is an opt-in feature —
      * see {@link AggregateRepository#recordStateHistory()}. Reading it while
