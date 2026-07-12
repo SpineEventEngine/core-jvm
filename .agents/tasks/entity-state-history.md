@@ -158,7 +158,11 @@ same storage to `ProcessManager`s without touching it.
   `store(A)` — per dispatch, ahead of the cache write-through, so a batched
   delivery records its intermediate versions too (moved out of `doStore()`
   after the PR #1650 Codex finding); the storage is closed in `close()`.
-  `AggregatePart` repositories inherit everything.
+  `AggregatePart` repositories inherit everything — including the loader
+  wiring, extracted into `setUpHistoryReading(A, I)` and called from both
+  `create(id)` overrides (re-review item 2, fixed 2026-07-12: the part
+  repository's `create` bypassed the wiring, so parts read a silently
+  empty history instead of failing fast).
 - **Aggregate read API** (added during the PR #1650 review — retrieval by
   aggregates is the point of the feature): `Aggregate.stateAt(Timestamp):
   Optional<S>` and `stateHistoryBackward(depth): Iterator<S>`, delegating

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -54,6 +54,7 @@ import java.util.Collection;
 
 import static com.google.common.testing.NullPointerTester.Visibility.PACKAGE;
 import static com.google.common.truth.Truth.assertThat;
+import static io.spine.base.Time.currentTime;
 import static io.spine.grpc.StreamObservers.memoizingObserver;
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.server.aggregate.given.aggregate.AggregatePartTestEnv.ASSIGNEE;
@@ -62,6 +63,7 @@ import static io.spine.server.aggregate.given.aggregate.AggregatePartTestEnv.com
 import static io.spine.server.aggregate.given.aggregate.AggregatePartTestEnv.createTask;
 import static io.spine.testing.DisplayNames.NOT_ACCEPT_NULLS;
 import static java.util.stream.Collectors.toList;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DisplayName("`AggregatePart` should")
 @SuppressWarnings("deprecation") // Tests the deprecated aggregate parts API.
@@ -120,6 +122,17 @@ class AggregatePartTest {
         var task = taskCommentsPart.partState(AggTask.class);
         assertThat(task.getAssignee())
                 .isEqualTo(ASSIGNEE);
+    }
+
+    @Test
+    @DisplayName("read its state history through the loader installed by the repository")
+    void readStateHistoryViaRepository() {
+        var part = taskRepository.create(ID);
+
+        // The recording is not enabled for the repository: the installed
+        // loader must fail fast, proving the part reads the repository
+        // history rather than a silently empty one.
+        assertThrows(IllegalStateException.class, () -> part.stateAt(currentTime()));
     }
 
     private void assertEntityCount(Class<? extends EntityState<?>> stateType, int expectedCount) {

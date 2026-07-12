@@ -304,13 +304,31 @@ public abstract class AggregateRepository<I,
     @Override
     public A create(I id) {
         var aggregate = aggregateClass().create(id);
+        setUpHistoryReading(aggregate, id);
+        return aggregate;
+    }
+
+    /**
+     * Installs the history loaders and, when enabled, the idempotency guard
+     * on a newly created aggregate.
+     *
+     * <p>Both {@linkplain #create(Object) creation paths} must call this
+     * method: the one of this repository, and the one of
+     * {@link AggregatePartRepository}, which overrides the creation entirely,
+     * building a part around its root.
+     *
+     * @param aggregate
+     *         the newly created aggregate
+     * @param id
+     *         the identifier of the aggregate
+     */
+    final void setUpHistoryReading(A aggregate, I id) {
         aggregate.setEventHistoryLoader(
                 depth -> aggregateStorage().historyBackward(id, depth));
         aggregate.setStateHistoryLoader(stateHistoryLoaderFor(id));
         if (idempotencyGuardEnabled) {
             aggregate.enableIdempotencyGuard(eventHistoryDepth);
         }
-        return aggregate;
     }
 
     /** Obtains class information of aggregates managed by this repository. */
