@@ -82,10 +82,9 @@ public class HistorySpec<I : Any, M : Message> internal constructor(
      * [createHistoryStorage][io.spine.server.storage.StorageFactory.createHistoryStorage].
      */
     public val recordSpec: RecordSpec<I, M> = RecordSpec(
+        EntityClass.stateClassOf(entityClass),
         idType,
         itemType,
-        EntityClass.stateClassOf(entityClass),
-        { item -> extractId(item) },
         columns.definitions()
-    )
+    ) { item -> extractId(item) }
 }

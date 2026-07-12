@@ -137,11 +137,11 @@ public final class SpecScanner {
         accumulator.add(EntityRecordColumn.version);
 
         var result = new RecordSpec<>(
+                stateClass,
                 idClass,
                 EntityRecord.class,
-                stateClass,
-                idFromRecord(),
-                ImmutableSet.copyOf(accumulator)
+                ImmutableSet.copyOf(accumulator),
+                idFromRecord()
         );
         return result;
     }

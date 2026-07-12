@@ -70,11 +70,6 @@ import static io.spine.util.Exceptions.newIllegalArgumentException;
 public final class RecordSpec<I, R extends Message> {
 
     /**
-     * Type of stored record.
-     */
-    private final Class<R> recordType;
-
-    /**
      * Type of origin Proto message, which served as a source
      * prior to potential transforming to a record of {@code recordType}.
      *
@@ -100,6 +95,11 @@ public final class RecordSpec<I, R extends Message> {
     private final Class<I> idType;
 
     /**
+     * Type of stored record.
+     */
+    private final Class<R> recordType;
+
+    /**
      * A method object to extract the record identifier, once such a record is passed.
      */
     private final ExtractId<R, I> extractId;
@@ -112,17 +112,17 @@ public final class RecordSpec<I, R extends Message> {
     /**
      * Creates a new record specification listing the columns to store along with the record.
      *
+     * @param sourceType
+     *         the type of origin Proto message, which served as a source
+     *         prior to potential transforming to a record of {@code recordType}
      * @param idType
      *         the type of the record identifier
      * @param recordType
      *         the type of the record
-     * @param sourceType
-     *         the type of origin Proto message, which served as a source
-     *         prior to potential transforming to a record of {@code recordType}
-     * @param extractId
-     *         a method object to extract the value of an identifier given an instance of a record
      * @param columns
      *         the definitions of the columns to store along with the record
+     * @param extractId
+     *         a method object to extract the value of an identifier given an instance of a record
      * @apiNote This ctor is internal to framework, and used to create the record
      *         specifications whose source type differs from the record type:
      *         the Entity states stored as {@code EntityRecord}s, and the per-entity
@@ -130,11 +130,11 @@ public final class RecordSpec<I, R extends Message> {
      *         HistorySpec}).
      */
     @Internal
-    public RecordSpec(Class<I> idType,
+    public RecordSpec(Class<? extends Message> sourceType,
+                      Class<I> idType,
                       Class<R> recordType,
-                      Class<? extends Message> sourceType,
-                      ExtractId<R, I> extractId,
-                      Iterable<RecordColumn<R, ?>> columns) {
+                      Iterable<RecordColumn<R, ?>> columns,
+                      ExtractId<R, I> extractId) {
         this.idType = checkNotNull(idType);
         this.recordType = checkNotNull(recordType);
         this.sourceType = checkNotNull(sourceType);
@@ -162,7 +162,7 @@ public final class RecordSpec<I, R extends Message> {
                       Class<R> recordType,
                       ExtractId<R, I> extractId,
                       Iterable<RecordColumn<R, ?>> columns) {
-        this(idType, recordType, recordType, extractId, columns);
+        this(recordType, idType, recordType, columns, extractId);
     }
 
     /**
