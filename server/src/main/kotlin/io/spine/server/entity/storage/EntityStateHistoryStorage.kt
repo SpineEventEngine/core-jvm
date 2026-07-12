@@ -29,6 +29,7 @@ package io.spine.server.entity.storage
 import com.google.protobuf.Timestamp
 import com.google.protobuf.util.Timestamps
 import io.spine.base.Identifier
+import io.spine.core.Version
 import io.spine.server.ContextSpec
 import io.spine.server.entity.Entity
 import io.spine.server.entity.EntityRecord
@@ -98,6 +99,10 @@ public class EntityStateHistoryStorage(
      * be answered from the retained window — the time either precedes the
      * oldest retained record, or predates the entity itself.
      *
+     * The history is read in batches, newest first, stopping at the first
+     * qualifying record: the cost of the query is bounded by the position
+     * of the answer, not by the length of the retained history.
+     *
      * @param entityId The identifier of the entity.
      * @param at The point in time to look at.
      * @return The record effective at the given time, or `null` if the history
@@ -105,10 +110,24 @@ public class EntityStateHistoryStorage(
      * @throws IllegalArgumentException If the type of [entityId] is not supported
      *   by the framework.
      */
-    public fun stateAt(entityId: Any, at: Timestamp): EntityRecord? =
-        historyBackward(entityId, Int.MAX_VALUE)
-            .asSequence()
-            .firstOrNull { Timestamps.compare(it.version.timestamp, at) <= 0 }
+    public fun stateAt(entityId: Any, at: Timestamp): EntityRecord? {
+        var startingFrom: Version? = null
+        while (true) {
+            val batch = historyBackward(entityId, STATE_AT_BATCH, startingFrom)
+                .asSequence()
+                .toList()
+            val match = batch.firstOrNull {
+                Timestamps.compare(it.version.timestamp, at) <= 0
+            }
+            if (match != null) {
+                return match
+            }
+            if (batch.size < STATE_AT_BATCH) {
+                return null
+            }
+            startingFrom = batch.last().version
+        }
+    }
 
     /**
      * Stores the given state record in the history.
@@ -190,6 +209,12 @@ public class EntityStateHistoryStorage(
         }
     }
 }
+
+/**
+ * The number of the records [stateAt][EntityStateHistoryStorage.stateAt]
+ * reads per batch while scanning the history backward.
+ */
+private const val STATE_AT_BATCH = 100
 
 /**
  * Composes a specification on how to store the state records of the entities

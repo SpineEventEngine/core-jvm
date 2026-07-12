@@ -287,6 +287,17 @@ internal class EntityStateHistoryStorageSpec {
         }
 
         @Test
+        fun `from beyond the first read batch`() {
+            // `stateAt` scans the history in batches of one hundred records;
+            // the answer here lies in the second batch.
+            val written = (1..120).map { n ->
+                writeRecord(number = n, at = at(n.toLong()))
+            }
+
+            storage.stateAt(entityId, at(3)) shouldBe written[2]
+        }
+
+        @Test
         fun `with null when the time precedes the oldest retained record`() {
             // The records of the earlier versions are not retained,
             // as if trimmed away by the depth enforcement.
