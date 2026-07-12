@@ -38,8 +38,6 @@ import io.spine.server.storage.RecordSpec
 import io.spine.server.storage.RecordStorage
 import io.spine.server.storage.StorageFactory
 import io.spine.server.storage.memory.InMemoryStorageFactory
-import io.spine.test.aggregate.AggProject
-import io.spine.test.delivery.Calc
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
@@ -49,10 +47,10 @@ import org.junit.jupiter.api.Test
  * The histories reach a storage vendor at a dedicated seam,
  * [StorageFactory.createHistoryStorage], where the vendor allocates
  * the physical storage — a table, a kind — by the
- * ([sourceType][HistorySpec.sourceType], [itemType][HistorySpec.itemType])
+ * ([entityClass][HistorySpec.entityClass], [itemType][HistorySpec.itemType])
  * pair of the [HistorySpec] it receives, naming it at its discretion.
- * The pair must thus differ between the histories of two entity types,
- * and between the two histories of one entity type; the latest-state
+ * The pair must thus differ between the histories of two entity classes,
+ * and between the two histories of one entity class; the latest-state
  * records of the entity arrive at the general-purpose
  * [StorageFactory.createRecordStorage] seam and never at the history one.
  * In-memory storages are isolated per instance and cannot observe a shared
@@ -70,34 +68,34 @@ internal class HistoryStorageIdentitySpec {
         factory.createAggregateStorage(context, TestAggregate::class.java)
         factory.createAggregateStorage(context, CalcAggregate::class.java)
 
-        factory.historySourcesOf(Event::class.java) shouldContainExactly
-                listOf(AggProject::class.java, Calc::class.java)
+        factory.historyEntitiesOf(Event::class.java) shouldContainExactly
+                listOf(TestAggregate::class.java, CalcAggregate::class.java)
     }
 
     @Test
-    fun `give two entity state classes two separate state histories`() {
+    fun `give two entity classes two separate state histories`() {
         val factory = SpecRecordingFactory()
 
-        factory.createEntityStateHistoryStorage(context, AggProject::class.java)
-        factory.createEntityStateHistoryStorage(context, Calc::class.java)
+        factory.createEntityStateHistoryStorage(context, TestAggregate::class.java)
+        factory.createEntityStateHistoryStorage(context, CalcAggregate::class.java)
 
-        factory.historySourcesOf(EntityRecord::class.java) shouldContainExactly
-                listOf(AggProject::class.java, Calc::class.java)
+        factory.historyEntitiesOf(EntityRecord::class.java) shouldContainExactly
+                listOf(TestAggregate::class.java, CalcAggregate::class.java)
     }
 
     @Test
-    fun `keep the histories of one entity type apart from each other and from its latest state`() {
+    fun `keep the histories of one entity class apart from each other and from its latest state`() {
         val factory = SpecRecordingFactory()
 
         factory.createAggregateStorage(context, TestAggregate::class.java)
-        factory.createEntityStateHistoryStorage(context, AggProject::class.java)
+        factory.createEntityStateHistoryStorage(context, TestAggregate::class.java)
 
         // The two histories arrive at the history seam with distinct identities.
         factory.historyIdentities() shouldContainExactly listOf(
-            AggProject::class.java to Event::class.java,
-            AggProject::class.java to EntityRecord::class.java
+            TestAggregate::class.java to Event::class.java,
+            TestAggregate::class.java to EntityRecord::class.java
         )
-        // The latest-state records of the same entity type arrive at the
+        // The latest-state records of the same entity class arrive at the
         // general-purpose seam only, never at the history one.
         factory.latestStateSpecs() shouldHaveSize 1
     }
@@ -129,19 +127,19 @@ internal class HistoryStorageIdentitySpec {
         }
 
         /**
-         * Returns the captured source types of the histories storing
+         * Returns the captured entity classes of the histories storing
          * items of the given type, in the order of storage creation.
          */
-        fun historySourcesOf(itemType: Class<out Message>): List<Class<*>> =
+        fun historyEntitiesOf(itemType: Class<out Message>): List<Class<*>> =
             historySpecs.filter { it.itemType == itemType }
-                .map { it.sourceType }
+                .map { it.entityClass }
 
         /**
-         * Returns the identities — the `(sourceType, itemType)` pairs — of
+         * Returns the identities — the `(entityClass, itemType)` pairs — of
          * the captured histories, in the order of storage creation.
          */
         fun historyIdentities(): List<Pair<Class<*>, Class<*>>> =
-            historySpecs.map { it.sourceType to it.itemType }
+            historySpecs.map { it.entityClass to it.itemType }
 
         /**
          * Returns the captured latest-state specifications: the `EntityRecord`

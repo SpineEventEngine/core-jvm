@@ -45,6 +45,7 @@ import io.spine.server.entity.EntityRecord
 import io.spine.server.entity.EntityStateKey
 import io.spine.server.entity.entityRecord
 import io.spine.server.entity.entityStateKey
+import io.spine.server.storage.given.EntityRecordStorageTestEnv.TestCounterEntity
 import io.spine.server.storage.memory.InMemoryStorageFactory
 import io.spine.test.storage.StgProject
 import io.spine.testdata.Sample
@@ -67,7 +68,7 @@ internal class EntityStateHistoryStorageSpec {
     fun createStorage() {
         val factory = InMemoryStorageFactory.newInstance()
         val context = ContextSpec.singleTenant("`EntityStateHistoryStorage` tests")
-        storage = factory.createEntityStateHistoryStorage(context, StgProject::class.java)
+        storage = factory.createEntityStateHistoryStorage(context, TestCounterEntity::class.java)
         lastVersion = 0
     }
 

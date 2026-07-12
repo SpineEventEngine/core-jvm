@@ -73,7 +73,15 @@ same storage to `ProcessManager`s without touching it.
     `EntityEventStorage.truncate`.
   - Public `readAll`/`delete`/`deleteAll` overrides (maintenance parity).
 - **SPI** — `StorageFactory.createEntityStateHistoryStorage(ContextSpec,
-  Class<? extends EntityState<?>>)` default method. **Storage identity
+  Class<? extends Entity<?, ?>>)` default method. **Entity-class symmetry
+  (2026-07-12, owner):** both history factory methods and `HistorySpec`
+  accept the **entity class**, not the entity state class — a storage is
+  created for a repository, and a repository serves an entity class (the
+  DDD framing; symmetric with `createEntityRecordStorage` and
+  `createAggregateStorage`). The state class is derived internally via
+  `EntityClass.stateClassOf` into `recordSpec.sourceType`, per the
+  framework-checked 1:1 convention; entity-class identity is also strictly
+  more precise than its state-class projection. **Storage identity
   (2026-07-11, ultra review):** the entity state class flows into the
   `RecordSpec.sourceType` via an `internal` `HistorySpec` constructor
   (the once-public secondary constructor defaulting the source type to
@@ -96,16 +104,18 @@ same storage to `ProcessManager`s without touching it.
   `sourceType` only (JDBC `TableSpecs` cache/table names, Datastore
   `FlatLayout` kinds). Histories now reach vendors through a dedicated
   seam, `StorageFactory.createHistoryStorage(context, HistorySpec)`,
-  where the physical identity is the **`(sourceType, itemType)` pair** —
-  journal = `(stateClass, Event)`, state history =
-  `(stateClass, EntityRecord)`; Phase F PM histories reuse the item types
-  with their own state classes. Physical *naming* is entirely the
+  where the physical identity is the **`(entityClass, itemType)` pair** —
+  journal = `(entityClass, Event)`, state history =
+  `(entityClass, EntityRecord)`; Phase F PM histories reuse the item
+  types with their own entity classes. Physical *naming* is entirely the
   vendor's (2026-07-12, owner: the briefly-prescribed
   `event_history`/`state_history` name strings were removed — spelling is
   the vendor's domain, and a framework-owned name would freeze into a
   storage-format constant; consequently the framework must never ship two
-  histories sharing a pair). `HistorySpec` exposes `sourceType`,
-  `itemType`, `columns`, and `recordSpec` for the vendors.
+  histories sharing a pair). `HistorySpec` exposes `entityClass`,
+  `itemType`, `columns`, and `recordSpec` for the vendors; the derived
+  state class stays available via `recordSpec.sourceType()` — under the
+  1:1 convention, keying on it remains an equivalent partition.
   The default implementation delegates to `createRecordStorage` and fits
   only per-instance-isolated factories (in-memory); JDBC and Datastore
   must override — a Phase G obligation. `createRecordStorage` regains its

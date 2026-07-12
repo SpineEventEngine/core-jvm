@@ -27,25 +27,28 @@
 package io.spine.server.entity.storage
 
 import com.google.protobuf.Message
+import io.spine.server.entity.Entity
+import io.spine.server.entity.model.EntityClass
 import io.spine.server.storage.RecordSpec
 
 /**
- * The specification of a per-entity history: how its items are stored, and
- * which of their columns carry the history semantics.
+ * The specification of a per-entity history: which entity class the history
+ * serves, how its items are stored, and which of their columns carry
+ * the history semantics.
  *
  * Combines the identification of the stored items — their types and the
  * identifier extraction — with the [HistoryColumns] every history exposes.
  * [HistoryStorage] manages and queries the history through these columns.
  *
- * The pair of the [sourceType] and the [itemType] identifies the physical
+ * The pair of the [entityClass] and the [itemType] identifies the physical
  * storage: storage vendors allocate a distinct table, a kind, and the like
  * per pair in their
  * [createHistoryStorage][io.spine.server.storage.StorageFactory.createHistoryStorage],
  * naming it at their discretion. The pair keeps a history apart from
- * the histories of other origins, from the history of the same origin
- * storing another kind of items, and — the seam itself being dedicated to
- * histories — from the non-history storages, such as the storage of the
- * latest entity states.
+ * the histories of other entity classes, from the history of the same
+ * class storing another kind of items, and — the seam itself being
+ * dedicated to histories — from the non-history storages, such as the
+ * storage of the latest entity states.
  *
  * Instances are composed by the histories themselves — see
  * [EntityEventStorage] and [EntityStateHistoryStorage] — so
@@ -55,15 +58,14 @@ import io.spine.server.storage.RecordSpec
  * @param M The type of the stored history items.
  * @param idType The class of the record identifiers.
  * @property itemType The class of the stored items.
- * @property sourceType The type of the origin message described by the stored
- *   items — e.g., the class of the entity state for the histories of an entity.
+ * @property entityClass The class of the entities the history serves.
  * @property columns The columns of the history.
  * @param extractId Obtains the record identifier of an item.
  */
 public class HistorySpec<I : Any, M : Message> internal constructor(
     idType: Class<I>,
     public val itemType: Class<M>,
-    public val sourceType: Class<out Message>,
+    public val entityClass: Class<out Entity<*, *>>,
     public val columns: HistoryColumns<M>,
     extractId: (M) -> I
 ) {
@@ -71,14 +73,18 @@ public class HistorySpec<I : Any, M : Message> internal constructor(
     /**
      * The specification of the record storage persisting the history items.
      *
-     * Storage vendors use it to create the
+     * The source type of this specification is the state class of the served
+     * [entityClass], derived per the one-to-one convention between the entity
+     * classes and their states.
+     *
+     * Storage vendors use this value to create the
      * [RecordStorage][io.spine.server.storage.RecordStorage] delegate in their
      * [createHistoryStorage][io.spine.server.storage.StorageFactory.createHistoryStorage].
      */
     public val recordSpec: RecordSpec<I, M> = RecordSpec(
         idType,
         itemType,
-        sourceType,
+        EntityClass.stateClassOf(entityClass),
         { item -> extractId(item) },
         columns.definitions()
     )

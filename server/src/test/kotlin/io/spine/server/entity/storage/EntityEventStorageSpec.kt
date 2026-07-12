@@ -42,6 +42,7 @@ import io.spine.core.EventId
 import io.spine.core.Versions.increment
 import io.spine.core.Versions.zero
 import io.spine.server.ContextSpec
+import io.spine.server.storage.given.EntityRecordStorageTestEnv.TestCounterEntity
 import io.spine.server.storage.memory.InMemoryStorageFactory
 import io.spine.test.storage.StgProject
 import io.spine.test.storage.event.StgProjectCreated
@@ -67,7 +68,7 @@ internal class EntityEventStorageSpec {
     fun createStorage() {
         val factory = InMemoryStorageFactory.newInstance()
         val context = ContextSpec.singleTenant("`EntityEventStorage` tests")
-        storage = factory.createEntityEventStorage(context, StgProject::class.java)
+        storage = factory.createEntityEventStorage(context, TestCounterEntity::class.java)
         version = zero()
     }
 

@@ -26,10 +26,10 @@
 
 package io.spine.server.entity.storage
 
-import io.spine.base.EntityState
 import io.spine.core.Event
 import io.spine.core.EventId
 import io.spine.server.ContextSpec
+import io.spine.server.entity.Entity
 import io.spine.server.storage.StorageFactory
 
 /**
@@ -48,13 +48,13 @@ import io.spine.server.storage.StorageFactory
  * This storage supersedes the `AggregateEventStorage`, removed along with the other
  * event-sourcing machinery.
  *
- * The journal is identified by the class of the entity state paired with
- * the type of the stored items, [Event]: vendors allocate the physical
+ * The journal is identified by the served entity class paired with the
+ * type of the stored items, [Event]: vendors allocate the physical
  * storage by this pair (see
  * [createHistoryStorage][io.spine.server.storage.StorageFactory.createHistoryStorage]),
- * so a journal stays apart from the journals of other entity types — even
+ * so a journal stays apart from the journals of other entity classes — even
  * when their identifier values coincide — and from the other storages of
- * its own entity type.
+ * its own entity class.
  *
  * The class is deliberately final: storage vendors customize the persistence via
  * the [RecordStorage][io.spine.server.storage.RecordStorage] delegate created by
@@ -63,13 +63,13 @@ import io.spine.server.storage.StorageFactory
  * @param context The specification of the Bounded Context in the scope of which
  *                the storage is used.
  * @param factory The storage factory to use when creating a record storage delegate.
- * @param entityStateClass The class of the entity state, identifying the physical storage.
+ * @param entityClass The class of the entities whose events are journaled.
  */
 public class EntityEventStorage(
     context: ContextSpec,
     factory: StorageFactory,
-    entityStateClass: Class<out EntityState<*>>
-) : HistoryStorage<EventId, Event>(context, factory, specFor(entityStateClass)) {
+    entityClass: Class<out Entity<*, *>>
+) : HistoryStorage<EventId, Event>(context, factory, specFor(entityClass)) {
 
     /**
      * Journals the given event.
@@ -116,17 +116,16 @@ public class EntityEventStorage(
 
 /**
  * Composes a specification on how to store the events emitted by the entities
- * with the given state class.
+ * of the given class.
  *
- * The state class becomes the source type of the specification; paired with
- * the item type, it is the identity by which storage vendors allocate
- * the physical storage.
+ * The entity class, paired with the item type, is the identity by which
+ * storage vendors allocate the physical storage.
  */
 private fun specFor(
-    entityStateClass: Class<out EntityState<*>>
+    entityClass: Class<out Entity<*, *>>
 ): HistorySpec<EventId, Event> = HistorySpec(
     idType = EventId::class.java,
     itemType = Event::class.java,
-    sourceType = entityStateClass,
+    entityClass = entityClass,
     columns = EntityEventColumns
 ) { event -> event.id }

@@ -55,7 +55,6 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.server.aggregate.AggregateRepository.DEFAULT_HISTORY_DEPTH;
-import static io.spine.server.entity.model.EntityClass.stateClassOf;
 import static io.spine.server.storage.QueryConverter.convert;
 import static io.spine.util.Exceptions.newIllegalStateException;
 import static io.spine.util.Preconditions2.checkPositive;
@@ -156,7 +155,7 @@ public class AggregateStorage<I, S extends AggregateState<I>>
                             Class<? extends Aggregate<I, S, ?>> aggregateClass,
                             StorageFactory factory) {
         super(context.isMultitenant());
-        eventStorage = factory.createEntityEventStorage(context, stateClassOf(aggregateClass));
+        eventStorage = factory.createEntityEventStorage(context, aggregateClass);
         stateStorage = factory.createEntityRecordStorage(context, aggregateClass);
     }
 

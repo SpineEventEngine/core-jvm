@@ -28,9 +28,9 @@ package io.spine.server.entity.storage
 
 import com.google.protobuf.Timestamp
 import com.google.protobuf.util.Timestamps
-import io.spine.base.EntityState
 import io.spine.base.Identifier
 import io.spine.server.ContextSpec
+import io.spine.server.entity.Entity
 import io.spine.server.entity.EntityRecord
 import io.spine.server.entity.EntityStateKey
 import io.spine.server.entity.entityStateKey
@@ -62,13 +62,14 @@ import io.spine.server.storage.StorageFactory
  * Nothing in this storage is specific to a kind of entity; currently,
  * `Aggregate`s are the only kind recording their state history.
  *
- * The storage is identified by the class of the entity state paired with
- * the type of the stored items, [EntityRecord]: vendors allocate the
+ * The storage is identified by the served entity class paired with the
+ * type of the stored items, [EntityRecord]: vendors allocate the
  * physical storage by this pair (see
  * [createHistoryStorage][io.spine.server.storage.StorageFactory.createHistoryStorage]),
- * so a state history stays apart from the histories of other entity types —
- * even when their identifier values coincide — and from the latest-state
- * records of its own entity type, which never arrive at the history seam.
+ * so a state history stays apart from the histories of other entity
+ * classes — even when their identifier values coincide — and from the
+ * latest-state records of its own entity class, which never arrive at
+ * the history seam.
  *
  * The class is deliberately final: storage vendors customize the persistence
  * via the [RecordStorage][io.spine.server.storage.RecordStorage] delegate
@@ -76,13 +77,13 @@ import io.spine.server.storage.StorageFactory
  *
  * @param context Specification of the Bounded Context in scope of which the storage is used.
  * @param factory The storage factory to use when creating a record storage delegate.
- * @param entityStateClass The class of the entity state, identifying the physical storage.
+ * @param entityClass The class of the entities whose states are recorded.
  */
 public class EntityStateHistoryStorage(
     context: ContextSpec,
     factory: StorageFactory,
-    entityStateClass: Class<out EntityState<*>>
-) : HistoryStorage<EntityStateKey, EntityRecord>(context, factory, specFor(entityStateClass)) {
+    entityClass: Class<out Entity<*, *>>
+) : HistoryStorage<EntityStateKey, EntityRecord>(context, factory, specFor(entityClass)) {
 
     /**
      * Returns the state record the entity had at the given time,
@@ -191,18 +192,17 @@ public class EntityStateHistoryStorage(
 
 /**
  * Composes a specification on how to store the state records of the entities
- * with the given state class.
+ * of the given class.
  *
- * The state class becomes the source type of the specification; paired with
- * the item type, it is the identity by which storage vendors allocate
- * the physical storage.
+ * The entity class, paired with the item type, is the identity by which
+ * storage vendors allocate the physical storage.
  */
 private fun specFor(
-    entityStateClass: Class<out EntityState<*>>
+    entityClass: Class<out Entity<*, *>>
 ): HistorySpec<EntityStateKey, EntityRecord> = HistorySpec(
     idType = EntityStateKey::class.java,
     itemType = EntityRecord::class.java,
-    sourceType = entityStateClass,
+    entityClass = entityClass,
     columns = EntityStateHistoryColumns
 ) { record -> record.stateKey() }
 

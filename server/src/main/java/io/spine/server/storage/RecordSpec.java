@@ -82,13 +82,13 @@ public final class RecordSpec<I, R extends Message> {
      * of {@code EntityRecord}, this field is a type of corresponding Entity state.
      *
      * <p>The specifications of the per-entity histories also set this field to
-     * the class of the corresponding entity state — the event journal pairs it
-     * with {@code recordType} of {@code Event}. Such specifications do not reach
-     * {@link StorageFactory#createRecordStorage(io.spine.server.ContextSpec, RecordSpec)
+     * the state class of the entity class they serve — the event journal pairs
+     * it with {@code recordType} of {@code Event}. Such specifications do not
+     * reach {@link StorageFactory#createRecordStorage(io.spine.server.ContextSpec, RecordSpec)
      * createRecordStorage} directly: they arrive wrapped into a
      * {@link io.spine.server.entity.storage.HistorySpec HistorySpec} via
      * {@code createHistoryStorage}, where the physical storage is identified
-     * by the source type and the item type together.
+     * by the entity class and the item type together.
      *
      * <p>In all other cases, this value equals to {@code recordType}.
      */
