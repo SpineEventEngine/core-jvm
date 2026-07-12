@@ -37,14 +37,15 @@ import io.spine.server.storage.RecordSpec
  * identifier extraction — with the [HistoryColumns] every history exposes.
  * [HistoryStorage] manages and queries the history through these columns.
  *
- * The pair of the [sourceType] and the [name] identifies the physical
- * storage: storage vendors allocate a table, a kind, and the like by this
- * pair in their
+ * The pair of the [sourceType] and the [itemType] identifies the physical
+ * storage: storage vendors allocate a distinct table, a kind, and the like
+ * per pair in their
  * [createHistoryStorage][io.spine.server.storage.StorageFactory.createHistoryStorage],
- * keeping a history apart from the histories of other origins, from
- * the histories of the same origin serving other purposes, and from
- * the non-history storages of the same origin, such as the storage of
- * the latest entity states.
+ * naming it at their discretion. The pair keeps a history apart from
+ * the histories of other origins, from the history of the same origin
+ * storing another kind of items, and — the seam itself being dedicated to
+ * histories — from the non-history storages, such as the storage of the
+ * latest entity states.
  *
  * Instances are composed by the histories themselves — see
  * [EntityEventStorage] and [EntityStateHistoryStorage] — so
@@ -53,18 +54,16 @@ import io.spine.server.storage.RecordSpec
  * @param I The type of the record identifiers.
  * @param M The type of the stored history items.
  * @param idType The class of the record identifiers.
- * @param itemType The class of the stored items.
+ * @property itemType The class of the stored items.
  * @property sourceType The type of the origin message described by the stored
  *   items — e.g., the class of the entity state for the histories of an entity.
- * @property name The name of the history — e.g., `event_history`.
  * @property columns The columns of the history.
  * @param extractId Obtains the record identifier of an item.
  */
 public class HistorySpec<I : Any, M : Message> internal constructor(
     idType: Class<I>,
-    itemType: Class<M>,
+    public val itemType: Class<M>,
     public val sourceType: Class<out Message>,
-    public val name: String,
     public val columns: HistoryColumns<M>,
     extractId: (M) -> I
 ) {
@@ -76,10 +75,9 @@ public class HistorySpec<I : Any, M : Message> internal constructor(
     internal constructor(
         idType: Class<I>,
         itemType: Class<M>,
-        name: String,
         columns: HistoryColumns<M>,
         extractId: (M) -> I
-    ) : this(idType, itemType, itemType, name, columns, extractId)
+    ) : this(idType, itemType, itemType, columns, extractId)
 
     /**
      * The specification of the record storage persisting the history items.

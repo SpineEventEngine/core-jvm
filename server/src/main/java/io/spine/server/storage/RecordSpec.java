@@ -88,7 +88,7 @@ public final class RecordSpec<I, R extends Message> {
      * createRecordStorage} directly: they arrive wrapped into a
      * {@link io.spine.server.entity.storage.HistorySpec HistorySpec} via
      * {@code createHistoryStorage}, where the physical storage is identified
-     * by the source type and the history name together.
+     * by the source type and the item type together.
      *
      * <p>In all other cases, this value equals to {@code recordType}.
      */

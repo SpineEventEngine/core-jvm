@@ -49,8 +49,8 @@ import io.spine.server.storage.StorageFactory
  * event-sourcing machinery.
  *
  * The journal is identified by the class of the entity state paired with
- * the history name `event_history`: vendors allocate the physical storage
- * by this pair (see
+ * the type of the stored items, [Event]: vendors allocate the physical
+ * storage by this pair (see
  * [createHistoryStorage][io.spine.server.storage.StorageFactory.createHistoryStorage]),
  * so a journal stays apart from the journals of other entity types — even
  * when their identifier values coincide — and from the other storages of
@@ -119,7 +119,7 @@ public class EntityEventStorage(
  * with the given state class.
  *
  * The state class becomes the source type of the specification; paired with
- * the history name, it is the identity by which storage vendors allocate
+ * the item type, it is the identity by which storage vendors allocate
  * the physical storage.
  */
 private fun specFor(
@@ -128,6 +128,5 @@ private fun specFor(
     idType = EventId::class.java,
     itemType = Event::class.java,
     sourceType = entityStateClass,
-    name = "event_history",
     columns = EntityEventColumns
 ) { event -> event.id }

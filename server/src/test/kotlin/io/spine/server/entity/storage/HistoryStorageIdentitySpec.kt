@@ -49,14 +49,14 @@ import org.junit.jupiter.api.Test
  * The histories reach a storage vendor at a dedicated seam,
  * [StorageFactory.createHistoryStorage], where the vendor allocates
  * the physical storage — a table, a kind — by the
- * ([sourceType][HistorySpec.sourceType], [name][HistorySpec.name]) pair
- * of the [HistorySpec] it receives. The pair must thus differ between
- * the histories of two entity types, and between the two histories of
- * one entity type; the latest-state records of the entity arrive at the
- * general-purpose [StorageFactory.createRecordStorage] seam and never at
- * the history one. In-memory storages are isolated per instance and cannot
- * observe a shared table, hence the assertions capture the specifications
- * at the vendor seams.
+ * ([sourceType][HistorySpec.sourceType], [itemType][HistorySpec.itemType])
+ * pair of the [HistorySpec] it receives, naming it at its discretion.
+ * The pair must thus differ between the histories of two entity types,
+ * and between the two histories of one entity type; the latest-state
+ * records of the entity arrive at the general-purpose
+ * [StorageFactory.createRecordStorage] seam and never at the history one.
+ * In-memory storages are isolated per instance and cannot observe a shared
+ * table, hence the assertions capture the specifications at the vendor seams.
  */
 @DisplayName("Per-entity history storages should")
 internal class HistoryStorageIdentitySpec {
@@ -94,8 +94,8 @@ internal class HistoryStorageIdentitySpec {
 
         // The two histories arrive at the history seam with distinct identities.
         factory.historyIdentities() shouldContainExactly listOf(
-            AggProject::class.java to "event_history",
-            AggProject::class.java to "state_history"
+            AggProject::class.java to Event::class.java,
+            AggProject::class.java to EntityRecord::class.java
         )
         // The latest-state records of the same entity type arrive at the
         // general-purpose seam only, never at the history one.
@@ -133,15 +133,15 @@ internal class HistoryStorageIdentitySpec {
          * items of the given type, in the order of storage creation.
          */
         fun historySourcesOf(itemType: Class<out Message>): List<Class<*>> =
-            historySpecs.filter { it.recordSpec.recordType() == itemType }
+            historySpecs.filter { it.itemType == itemType }
                 .map { it.sourceType }
 
         /**
-         * Returns the identities — the `(sourceType, name)` pairs — of
+         * Returns the identities — the `(sourceType, itemType)` pairs — of
          * the captured histories, in the order of storage creation.
          */
-        fun historyIdentities(): List<Pair<Class<*>, String>> =
-            historySpecs.map { it.sourceType to it.name }
+        fun historyIdentities(): List<Pair<Class<*>, Class<*>>> =
+            historySpecs.map { it.sourceType to it.itemType }
 
         /**
          * Returns the captured latest-state specifications: the `EntityRecord`

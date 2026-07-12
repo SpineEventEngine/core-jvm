@@ -63,12 +63,12 @@ import io.spine.server.storage.StorageFactory
  * `Aggregate`s are the only kind recording their state history.
  *
  * The storage is identified by the class of the entity state paired with
- * the history name `state_history`: vendors allocate the physical storage
- * by this pair (see
+ * the type of the stored items, [EntityRecord]: vendors allocate the
+ * physical storage by this pair (see
  * [createHistoryStorage][io.spine.server.storage.StorageFactory.createHistoryStorage]),
  * so a state history stays apart from the histories of other entity types —
  * even when their identifier values coincide — and from the latest-state
- * records of its own entity type.
+ * records of its own entity type, which never arrive at the history seam.
  *
  * The class is deliberately final: storage vendors customize the persistence
  * via the [RecordStorage][io.spine.server.storage.RecordStorage] delegate
@@ -194,7 +194,7 @@ public class EntityStateHistoryStorage(
  * with the given state class.
  *
  * The state class becomes the source type of the specification; paired with
- * the history name, it is the identity by which storage vendors allocate
+ * the item type, it is the identity by which storage vendors allocate
  * the physical storage.
  */
 private fun specFor(
@@ -203,7 +203,6 @@ private fun specFor(
     idType = EntityStateKey::class.java,
     itemType = EntityRecord::class.java,
     sourceType = entityStateClass,
-    name = "state_history",
     columns = EntityStateHistoryColumns
 ) { record -> record.stateKey() }
 

@@ -109,8 +109,9 @@ public interface StorageFactory extends Closeable {
      * <p>A history is allocated apart from the storages created via
      * {@link #createRecordStorage(ContextSpec, RecordSpec) createRecordStorage},
      * and apart from the other histories: the physical storage — a table, a kind —
-     * is identified by the source type and the name of the passed specification,
-     * together. See {@link HistorySpec}.
+     * is identified by the source type and the item type of the passed
+     * specification, together; its name is at the discretion of the factory.
+     * See {@link HistorySpec}.
      *
      * <p>The default implementation delegates to {@code createRecordStorage},
      * which only suits the factories isolating each created storage, such as
@@ -155,7 +156,7 @@ public interface StorageFactory extends Closeable {
      * @param context
      *         specification of the Bounded Context in scope of which the storage will be used
      * @param entityStateClass
-     *         the class of the entity state; paired with the history name, it identifies
+     *         the class of the entity state; paired with the stored item type, it identifies
      *         the physical storage, keeping the event journals of different entity types
      *         apart (see {@link HistorySpec})
      */
@@ -199,7 +200,7 @@ public interface StorageFactory extends Closeable {
      * @param context
      *         specification of the Bounded Context in scope of which the storage will be used
      * @param entityStateClass
-     *         the class of the entity state; paired with the history name, it identifies
+     *         the class of the entity state; paired with the stored item type, it identifies
      *         the physical storage, keeping the state histories of different entity types
      *         apart (see {@link HistorySpec})
      */

@@ -94,10 +94,16 @@ same storage to `ProcessManager`s without touching it.
   `sourceType` only (JDBC `TableSpecs` cache/table names, Datastore
   `FlatLayout` kinds). Histories now reach vendors through a dedicated
   seam, `StorageFactory.createHistoryStorage(context, HistorySpec)`,
-  where the physical identity is the **`(sourceType, name)` pair**:
-  names `event_history` / `state_history`, to be reused by the Phase F
-  PM histories with their own state classes. `HistorySpec` exposes
-  `sourceType`, `name`, `columns`, and `recordSpec` for the vendors.
+  where the physical identity is the **`(sourceType, itemType)` pair** —
+  journal = `(stateClass, Event)`, state history =
+  `(stateClass, EntityRecord)`; Phase F PM histories reuse the item types
+  with their own state classes. Physical *naming* is entirely the
+  vendor's (2026-07-12, owner: the briefly-prescribed
+  `event_history`/`state_history` name strings were removed — spelling is
+  the vendor's domain, and a framework-owned name would freeze into a
+  storage-format constant; consequently the framework must never ship two
+  histories sharing a pair). `HistorySpec` exposes `sourceType`,
+  `itemType`, `columns`, and `recordSpec` for the vendors.
   The default implementation delegates to `createRecordStorage` and fits
   only per-instance-isolated factories (in-memory); JDBC and Datastore
   must override — a Phase G obligation. `createRecordStorage` regains its
