@@ -474,8 +474,11 @@ truncation and the legacy `AggregateEventStorage` were removed outright
    settled 2026-07-10: `entity.storage`, beside the sibling
    `EntityEventStorage` — supersedes the `entity/history/` path planned
    before Phase D landed)*, storing recent `EntityRecord` versions per
-   entity to a configured depth, over the standard `RecordStorage` SPI
-   (works on all backends without vendor code).
+   entity *(originally "to a configured depth" — the depth knob and the
+   automatic trimming were removed on 2026-07-11: retention is the
+   application's duty via the `truncate`/`trim` maintenance)*, over the
+   `RecordStorage` SPI *(since 2026-07-12 through the dedicated
+   `createHistoryStorage` seam; shared-table vendors must override it)*.
    **Requirement (product owner, 2026-07-10):** each stored record carries
    the time its state became current — the timestamp of the record's
    `Version`, stamped once per dispatch since A3 — as a queryable column
@@ -483,16 +486,17 @@ truncation and the legacy `AggregateEventStorage` were removed outright
    2026-07-10: `entity_id` / `created` / `version`, identical to
    `EntityEventColumns`). This is the temporal axis for the
    "state at time T" query (item 5).
-2. Repository-level config (depth, enable/disable); write hook in
+2. Repository-level config *(settled 2026-07-11: enable/disable only —
+   `recordStateHistory()` / `stopRecordingStateHistory()`; the planned
+   `depth` knob was removed with the retention delegation)*; write hook in
    `AggregateRepository.store()` *(moved from `doStore()` during the
    PR #1650 review — under a batched delivery the cache defers `doStore()`
    to the batch end, which would drop the intermediate versions; the
    per-dispatch `store()` records each version)*. Note for the
-   "state at time T" query:
-   count-based retention bounds how far back `T` can be answered — an entity
-   updated often forgets quickly. Consider an optional duration-based
-   retention ("keep states for the last N days") mirroring the count/date
-   shape of `EntityEventStorage.truncate`.
+   "state at time T" query: the application-run retention maintenance
+   bounds how far back `T` can be answered. The count/date shapes of
+   `truncate` (and the per-entity `trim`) are the maintenance recipes,
+   documented on `recordStateHistory()`.
 3. Count/date-based journal trimming replacing the deprecated
    snapshot-index truncation (A7). **✅ Shipped with the phase opener in
    PR #1649** (pulled in when the snapshot-index truncation was removed
@@ -587,8 +591,11 @@ Locked decisions (product owner, 2026-07-10):
    `AggregateRepository.store()` hook of Phase E item 2 (moved there during
    the PR #1650 review: under a batched delivery `RepositoryCache` defers
    `doStore()` to the batch end, which would drop the intermediate
-   versions). Same config surface (depth, enable/disable, optional
-   duration-based retention): hoist a configuration shape shared with
+   versions). Same config surface as `AggregateRepository` *(2026-07-11:
+   enable/disable only — mirror `recordStateHistory()` /
+   `stopRecordingStateHistory()`; there is NO depth knob and NO automatic
+   retention — the maintenance is the application's duty via
+   `truncate`/`trim`)*: hoist a configuration shape shared with
    `AggregateRepository` rather than duplicating it. PM business reads
    mirror `Aggregate.stateAt(Timestamp)` / `stateHistoryBackward(depth)`;
    the `StateHistoryLoader` seam on `TransactionalEntity` is already in
