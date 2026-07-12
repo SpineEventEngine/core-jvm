@@ -37,7 +37,8 @@ import io.spine.server.entity.entityStateKey
 import io.spine.server.storage.StorageFactory
 
 /**
- * The history of recent states of entities, retained to a bounded depth.
+ * The history of recent states of entities, retained until the application
+ * trims it.
  *
  * This [HistoryStorage] stores the [EntityRecord] an entity had after each
  * dispatch, keyed by the entity identifier and the version number. Entities
