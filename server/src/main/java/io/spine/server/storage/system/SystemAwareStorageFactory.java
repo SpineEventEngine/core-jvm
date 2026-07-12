@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.AggregateStorage;
 import io.spine.server.delivery.CatchUpStorage;
 import io.spine.server.delivery.InboxStorage;
+import io.spine.server.entity.storage.HistorySpec;
 import io.spine.server.event.EventStore;
 import io.spine.server.event.store.EmptyEventStore;
 import io.spine.server.storage.RecordSpec;
@@ -118,6 +119,22 @@ public final class SystemAwareStorageFactory implements StorageFactory {
     public <I, M extends Message> RecordStorage<I, M>
     createRecordStorage(ContextSpec context, RecordSpec<I, M> recordSpec) {
         return delegate.createRecordStorage(context, recordSpec);
+    }
+
+    /**
+     * Creates a new record storage serving a per-entity history.
+     *
+     * <p>Delegates to the wrapped factory, so that a vendor override of
+     * {@code createHistoryStorage} takes effect: the framework always
+     * interacts with this wrapper, and without the explicit forwarding
+     * the default implementation inherited by the wrapper would funnel
+     * the history into {@link #createRecordStorage}, bypassing the vendor
+     * seam entirely.
+     */
+    @Override
+    public <I, M extends Message> RecordStorage<I, M>
+    createHistoryStorage(ContextSpec context, HistorySpec<I, M> spec) {
+        return delegate.createHistoryStorage(context, spec);
     }
 
     @Override

@@ -38,6 +38,7 @@ import io.spine.server.storage.RecordSpec
 import io.spine.server.storage.RecordStorage
 import io.spine.server.storage.StorageFactory
 import io.spine.server.storage.memory.InMemoryStorageFactory
+import io.spine.server.storage.system.SystemAwareStorageFactory
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
@@ -81,6 +82,20 @@ internal class HistoryStorageIdentitySpec {
 
         factory.historyEntitiesOf(EntityRecord::class.java) shouldContainExactly
                 listOf(TestAggregate::class.java, CalcAggregate::class.java)
+    }
+
+    @Test
+    fun `reach the vendor seam through the system-aware wrapper of the framework`() {
+        val vendor = SpecRecordingFactory()
+        val wrapped = SystemAwareStorageFactory.wrap(vendor)
+
+        wrapped.createEntityStateHistoryStorage(context, TestAggregate::class.java)
+
+        // The framework always interacts with the wrapper; the vendor
+        // override of `createHistoryStorage` must still take effect.
+        vendor.historyIdentities() shouldContainExactly listOf(
+            TestAggregate::class.java to EntityRecord::class.java
+        )
     }
 
     @Test
