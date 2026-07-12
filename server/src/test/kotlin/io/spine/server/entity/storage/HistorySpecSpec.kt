@@ -49,16 +49,4 @@ internal class HistorySpecSpec {
         spec.itemType shouldBe EntityRecord::class.java
         spec.recordSpec.sourceType() shouldBe StgProject::class.java
     }
-
-    @Test
-    fun `use the item type as the source type unless told otherwise`() {
-        val spec = HistorySpec(
-            EntityStateKey::class.java,
-            EntityRecord::class.java,
-            EntityStateHistoryColumns
-        ) { EntityStateKey.getDefaultInstance() }
-
-        spec.sourceType shouldBe EntityRecord::class.java
-        spec.recordSpec.sourceType() shouldBe EntityRecord::class.java
-    }
 }

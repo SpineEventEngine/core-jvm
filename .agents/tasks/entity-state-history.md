@@ -76,7 +76,9 @@ same storage to `ProcessManager`s without touching it.
   Class<? extends EntityState<?>>)` default method. **Storage identity
   (2026-07-11, ultra review):** the entity state class flows into the
   `RecordSpec.sourceType` via an `internal` `HistorySpec` constructor
-  (a secondary constructor defaults the source type to the item type) —
+  (the once-public secondary constructor defaulting the source type to
+  the item type was removed on 2026-07-12 as a test-only leftover whose
+  default re-created the shared-identity bug) —
   without it all recording repositories of a context would share one
   table and `(entity_id, version)` keys could collide across ID-sharing
   entity types. **The event journal is identified the same way**
