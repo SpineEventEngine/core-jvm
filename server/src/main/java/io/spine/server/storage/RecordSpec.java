@@ -57,12 +57,17 @@ import static io.spine.util.Exceptions.newIllegalArgumentException;
  * the message record for further querying. Each column defines a way to calculate the stored value
  * basing on the passed message.
  *
- * <p>In case an instance of {@code EntityRecord} is described by this spec,
- * a special set of accessors for ID and Entity state columns is set.
- * This is done via {@link io.spine.server.entity.storage.SpecScanner SpecScanner}
- * that perform analysis of Entity state, and creates getters for properties,
- * considering that an instance of {@code Any} (being {@code EntityRecord.state} field)
- * must be unpacked first.
+ * <p>For the storages of the latest entity states, the specifications
+ * of {@code EntityRecord}s are produced by
+ * {@link io.spine.server.entity.storage.SpecScanner SpecScanner}, which analyzes
+ * the Entity state and creates a special set of accessors for ID and Entity state
+ * columns, considering that an instance of {@code Any} (being
+ * {@code EntityRecord.state} field) must be unpacked first.
+ *
+ * <p>The per-entity histories compose their specifications differently — see
+ * {@link io.spine.server.entity.storage.HistorySpec HistorySpec}. In particular,
+ * the entity state history also stores {@code EntityRecord}s, yet exposes
+ * the history columns rather than the scanned state columns.
  *
  * @param <I>
  *         the type of the record identifier
