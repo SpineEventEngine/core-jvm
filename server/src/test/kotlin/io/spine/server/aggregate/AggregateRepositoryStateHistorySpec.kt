@@ -168,14 +168,15 @@ internal class AggregateRepositoryStateHistorySpec {
     @Test
     fun `append nothing for a failed dispatch`() {
         repository.enableStateHistory()
-        post(Given.ACommand.createProject(projectId))
-        post(Given.ACommand.startProject(projectId))
 
-        // The second start fails in the receptor: the project is already started.
-        post(Given.ACommand.startProject(projectId))
+        // The receptor always fails, and the aggregate is fresh: a regressed
+        // write path would have to append a first record — observable, unlike
+        // a same-key overwrite over an already retained version.
+        val pause = TestActorRequestFactory(javaClass)
+            .createCommand(Given.CommandMessage.pauseProject(projectId))
+        post(pause)
 
-        val records = historyRecords()
-        records.map { it.version.number } shouldContainExactly listOf(2, 1)
+        historyRecords().shouldBeEmpty()
     }
 
     @Test

@@ -36,9 +36,11 @@ import io.spine.test.aggregate.ProjectId
 import io.spine.test.aggregate.Status
 import io.spine.test.aggregate.command.AggAddTask
 import io.spine.test.aggregate.command.AggCreateProject
+import io.spine.test.aggregate.command.AggPauseProject
 import io.spine.test.aggregate.command.AggStartProject
 import io.spine.test.aggregate.event.AggProjectArchived
 import io.spine.test.aggregate.event.AggProjectCreated
+import io.spine.test.aggregate.event.AggProjectPaused
 import io.spine.test.aggregate.event.AggProjectStarted
 import io.spine.test.aggregate.event.AggTaskAdded
 import io.spine.test.aggregate.event.aggProjectCreated
@@ -75,6 +77,14 @@ internal class HistoryReadingAggregate(id: ProjectId) :
             projectId = command.projectId
             task = command.task
         }
+    }
+
+    /**
+     * Always fails, serving the failed-dispatch cases of the specs.
+     */
+    @Assign
+    fun handle(command: AggPauseProject): AggProjectPaused {
+        error("Pausing the project `${command.projectId.uuid}` always fails.")
     }
 
     /**
