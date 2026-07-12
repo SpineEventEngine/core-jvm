@@ -123,6 +123,16 @@ internal class EntityStateHistoryStorageSpec {
         }
 
         @Test
+        fun `under its explicitly given key`() {
+            val written = record(number = 1)
+
+            storage.write(idOf(written), written)
+
+            val read = storage.historyBackward(entityId, batchSize = 1).next()
+            read shouldBe written
+        }
+
+        @Test
         fun `rejecting a record without the entity identifier`() {
             val noEntityId = entityRecord {
                 state = packedState()
