@@ -110,8 +110,10 @@ public abstract class TransactionalEntity<I : Any, S : EntityState<I>, B : Valid
      * Installs the loader serving the [recent state history][recentStateHistory]
      * reads from the durable storage.
      *
-     * Called by a repository recording the state history of its entities when
-     * an entity instance is created.
+     * Called by the repository unconditionally when an entity instance is
+     * created. Whether the repository records the state history gates only
+     * the behavior of the installed loader: while the recording is off,
+     * reading through it fails fast rather than serving an empty history.
      */
     @Internal
     public fun setStateHistoryLoader(loader: StateHistoryLoader) {

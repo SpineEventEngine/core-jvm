@@ -34,12 +34,14 @@ import io.spine.protobuf.AnyPacker
  * The recent history of states of a [TransactionalEntity].
  *
  * The states are read from the durable state history via the loader
- * [installed][TransactionalEntity.setStateHistoryLoader] by a repository
- * which records the state history of its entities. The stored records are
- * unpacked into the entity state type.
+ * [installed][TransactionalEntity.setStateHistoryLoader] by the repository
+ * of the entity. The stored records are unpacked into the entity state type.
  *
- * An entity created outside a repository has no recorded history, so the
- * reads return no states and [stateAt] answers `null`.
+ * The repository installs the loader unconditionally; whether it records
+ * the state history gates only the loader behavior — while the recording
+ * is off, reading through the loader fails fast. An entity created outside
+ * a repository has no loader at all, so the reads return no states and
+ * [stateAt] answers `null`.
  *
  * @param S The type of the entity state.
  */
