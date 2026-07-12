@@ -33,7 +33,6 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import io.spine.base.CommandMessage
 import io.spine.base.Identifier
@@ -190,8 +189,13 @@ internal class AggregateRepositoryStateHistorySpec {
             postAs(mtContext, bob, Given.CommandMessage.createProject(projectId))
             postAs(mtContext, alice, Given.CommandMessage.addTask(projectId))
 
-            historyOf(mtRepository, alice) shouldHaveSize 2
-            historyOf(mtRepository, bob) shouldHaveSize 1
+            val aliceRecords = historyOf(mtRepository, alice)
+            aliceRecords.map { it.version.number } shouldContainExactly listOf(2, 1)
+            aliceRecords.forEach {
+                it.entityId shouldBe Identifier.pack(projectId)
+            }
+            val bobRecords = historyOf(mtRepository, bob)
+            bobRecords.map { it.version.number } shouldContainExactly listOf(1)
         } finally {
             mtRepository.close()
             mtContext.close()
@@ -266,6 +270,7 @@ internal class AggregateRepositoryStateHistorySpec {
     fun `let an aggregate read its recent states newest first`() {
         repository.enableStateHistory()
         post(Given.ACommand.createProject(projectId))
+        val afterCreation = repository.loadAggregate(projectId).state()
         post(Given.ACommand.addTask(projectId))
         val aggregate = repository.loadAggregate(projectId)
 
@@ -275,7 +280,7 @@ internal class AggregateRepositoryStateHistorySpec {
 
         states shouldHaveSize 2
         states[0] shouldBe aggregate.state()
-        states[1] shouldNotBe states[0]
+        states[1] shouldBe afterCreation
     }
 
     @Test
