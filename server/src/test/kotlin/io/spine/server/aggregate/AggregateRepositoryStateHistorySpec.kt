@@ -39,18 +39,24 @@ import io.spine.base.EventMessage
 import io.spine.base.Identifier
 import io.spine.base.Time.currentTime
 import io.spine.core.Command
+import io.spine.core.Subscribe
 import io.spine.core.TenantId
 import io.spine.core.tenantId
 import io.spine.grpc.StreamObservers.noOpObserver
 import io.spine.protobuf.AnyPacker
+import io.spine.environment.Tests
 import io.spine.server.BoundedContext
 import io.spine.server.BoundedContextBuilder
+import io.spine.server.ServerEnvironment
 import io.spine.server.aggregate.given.Given
+import io.spine.server.aggregate.given.history.FailingHistoryFactory
 import io.spine.server.aggregate.given.history.HistoryReadingAggregate
 import io.spine.server.aggregate.given.history.StateHistoryTestRepository
+import io.spine.server.event.AbstractEventSubscriber
 import io.spine.server.entity.EntityRecord
 import io.spine.server.tenant.TenantAwareRunner
 import io.spine.test.aggregate.ProjectId
+import io.spine.test.aggregate.event.AggProjectCreated
 import io.spine.test.aggregate.event.aggProjectArchived
 import io.spine.testing.client.TestActorRequestFactory
 import io.spine.testing.server.TestEventFactory
@@ -241,6 +247,38 @@ internal class AggregateRepositoryStateHistorySpec {
     }
 
     @Test
+    fun `fail the dispatch when the history append fails`() {
+        ServerEnvironment.`when`(Tests::class.java)
+            .use(FailingHistoryFactory())
+        val failingContext = BoundedContextBuilder.assumingTests().build()
+        val failingRepository = StateHistoryTestRepository()
+        failingContext.internalAccess()
+            .register(failingRepository)
+        val observer = CreatedProjectsObserver()
+        failingContext.internalAccess()
+            .registerEventDispatcher(observer)
+        failingRepository.enableStateHistory()
+        try {
+            failingContext.commandBus()
+                .post(Given.ACommand.createProject(projectId), noOpObserver())
+
+            // The durable state write precedes the failing append...
+            failingRepository.loadAggregate(projectId)
+                .version()
+                .number shouldBe 1
+            // ...but the documented contract holds: the failure to record
+            // the history fails the dispatch, and the produced event is
+            // never posted. A write path swallowing the failure would have
+            // published it.
+            observer.seen shouldBe 0
+        } finally {
+            failingRepository.close()
+            failingContext.close()
+            ServerEnvironment.instance().reset()
+        }
+    }
+
+    @Test
     fun `retain every recorded state, leaving the maintenance to the application`() {
         repository.enableStateHistory()
 
@@ -397,5 +435,20 @@ internal class AggregateRepositoryStateHistorySpec {
         val factory = TestActorRequestFactory(javaClass, tenant)
         context.commandBus()
             .post(factory.createCommand(command), noOpObserver())
+    }
+}
+
+/**
+ * Counts the [AggProjectCreated][io.spine.test.aggregate.event.AggProjectCreated]
+ * events reaching the event bus.
+ */
+private class CreatedProjectsObserver : AbstractEventSubscriber() {
+
+    var seen: Int = 0
+        private set
+
+    @Subscribe
+    fun on(@Suppress("UNUSED_PARAMETER") event: AggProjectCreated) {
+        seen++
     }
 }
