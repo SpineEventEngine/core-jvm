@@ -429,7 +429,10 @@ public abstract class Aggregate<I,
      * journal, newest first.
      *
      * <p>Fewer events are returned if the journal holds fewer. The events emitted by the
-     * current, not-yet-committed dispatch are excluded.
+     * current, not-yet-committed dispatch are excluded. Under a batched delivery, the
+     * durable writes are deferred to the end of the batch, so the events of the earlier
+     * dispatches of the same batch may not have reached the journal yet, and are then
+     * excluded too.
      *
      * @param depth
      *         the maximal number of the most recent events to return; must be positive
