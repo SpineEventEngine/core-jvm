@@ -181,6 +181,30 @@ same storage to `ProcessManager`s without touching it.
   the since-removed `readHistoryBackward`), so both loaders now hand
   the storage iterator through unchanged.
 
+## Split-verdict resolutions (product owner, 2026-07-12)
+
+The four judgment calls left open by the third review pass:
+
+1. **Closed repository reuse — declared unsupported.** `Repository.close()`
+   and `registerWith()` now document that a closed repository is not meant
+   to be registered again (a new instance is the way); the state history
+   remaining closed after `close()` is consistent with that contract, not
+   an outlier to fix.
+2. **`createHistoryStorage` threading — documented on the seam.** The
+   method may run at first dispatch, on concurrent delivery workers;
+   the Javadoc now states the expectation (implementations tolerate
+   concurrent invocation; do not defer backend validation to first use).
+3. **`stateAt` read cost — chunked lazy scan.** The point query now pages
+   newest-first via the existing `startingFrom` pagination, stopping at
+   the first match: cost is bounded by the position of the answer, not
+   the length of the (unboundedly retained) history. The in-memory
+   time comparison — the portability posture — is unchanged.
+4. **Loader-installation docs — wording fixed.** The loader is installed
+   unconditionally at instance creation; recording gates only the
+   fail-fast inside it. Installing conditionally was rejected: instances
+   created before a runtime `recordStateHistory()` flip would read
+   silently empty, violating the locked fail-fast decision.
+
 ## Verification
 
 - `./gradlew clean build` (new proto) + `dokkaGenerate`.
