@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,9 +52,7 @@ public class StgProjectStorage extends RecordStorageUnderTest<StgProjectId, StgP
     }
 
     private static RecordSpec<StgProjectId, StgProject> spec() {
-        @SuppressWarnings("ConstantConditions")     // Proto getters return non-{@code null} values.
-        var spec = new RecordSpec<>(StgProjectId.class, StgProject.class, StgProject::getId,
-                                           StgProjectColumns.definitions());
-        return spec;
+        return new RecordSpec<>(StgProjectId.class, StgProject.class, StgProject::getId,
+                                StgProjectColumns.definitions());
     }
 }

@@ -41,7 +41,6 @@ import io.spine.server.entity.EntityRecord;
 import io.spine.server.entity.model.EntityClass;
 import io.spine.server.storage.RecordSpec;
 import io.spine.server.storage.RecordSpec.ExtractId;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
@@ -190,15 +189,9 @@ public final class SpecScanner {
         };
     }
 
-    @NonNull
+    @SuppressWarnings("unchecked")
     private static <I> ExtractId<EntityRecord, I> idFromRecord() {
-        return new ExtractId<>() {
-            @SuppressWarnings("unchecked")
-            @Override
-            public I apply(EntityRecord input) {
-                return (I) Identifier.unpack(input.getEntityId());
-            }
-        };
+        return input -> (I) Identifier.unpack(input.getEntityId());
     }
 
     /**
