@@ -126,7 +126,9 @@ public final class RecordSpec<I, R extends Message> {
      * the {@code entityClass}.
      *
      * @param entityClass
-     *         the class of the entities served by the records
+     *         the class of the entities served by the records, or {@code null}
+     *         if the records serve no entity class — then the
+     *         {@linkplain #sourceType() source type} is the record type itself
      * @param idType
      *         the type of the record identifier
      * @param recordType
@@ -143,17 +145,27 @@ public final class RecordSpec<I, R extends Message> {
      *         {@link io.spine.server.entity.storage.HistorySpec HistorySpec}).
      */
     @Internal
-    public RecordSpec(Class<? extends Entity<?, ?>> entityClass,
+    public RecordSpec(@Nullable Class<? extends Entity<?, ?>> entityClass,
                       Class<I> idType,
                       Class<R> recordType,
                       Iterable<RecordColumn<R, ?>> columns,
                       ExtractId<R, I> extractId) {
-        this(checkNotNull(entityClass), stateClassOf(entityClass),
-             idType, recordType, columns, extractId);
+        this.entityClass = entityClass;
+        this.recordType = checkNotNull(recordType);
+        this.sourceType = entityClass == null ? recordType : stateClassOf(entityClass);
+        this.idType = checkNotNull(idType);
+        this.extractId = checkNotNull(extractId);
+        checkNotNull(columns);
+        this.columns =
+                stream(columns).collect(
+                        toImmutableMap(RecordColumn::name, (c) -> c)
+                );
     }
 
     /**
      * Creates a new record specification listing the columns to store along with the record.
+     *
+     * <p>The created specification serves no entity class.
      *
      * @param idType
      *         the type of the record identifier
@@ -168,25 +180,7 @@ public final class RecordSpec<I, R extends Message> {
                       Class<R> recordType,
                       ExtractId<R, I> extractId,
                       Iterable<RecordColumn<R, ?>> columns) {
-        this(null, recordType, idType, recordType, columns, extractId);
-    }
-
-    private RecordSpec(@Nullable Class<? extends Entity<?, ?>> entityClass,
-                       Class<? extends Message> sourceType,
-                       Class<I> idType,
-                       Class<R> recordType,
-                       Iterable<RecordColumn<R, ?>> columns,
-                       ExtractId<R, I> extractId) {
-        this.entityClass = entityClass;
-        this.sourceType = checkNotNull(sourceType);
-        this.idType = checkNotNull(idType);
-        this.recordType = checkNotNull(recordType);
-        this.extractId = checkNotNull(extractId);
-        checkNotNull(columns);
-        this.columns =
-                stream(columns).collect(
-                        toImmutableMap(RecordColumn::name, (c) -> c)
-                );
+        this(null, idType, recordType, columns, extractId);
     }
 
     /**
