@@ -29,12 +29,15 @@ package io.spine.server.aggregate.given.history
 import com.google.protobuf.Timestamp
 import io.spine.server.aggregate.Aggregate
 import io.spine.server.command.Assign
+import io.spine.server.event.NoReaction
+import io.spine.server.event.React
 import io.spine.test.aggregate.AggProject
 import io.spine.test.aggregate.ProjectId
 import io.spine.test.aggregate.Status
 import io.spine.test.aggregate.command.AggAddTask
 import io.spine.test.aggregate.command.AggCreateProject
 import io.spine.test.aggregate.command.AggStartProject
+import io.spine.test.aggregate.event.AggProjectArchived
 import io.spine.test.aggregate.event.AggProjectCreated
 import io.spine.test.aggregate.event.AggProjectStarted
 import io.spine.test.aggregate.event.AggTaskAdded
@@ -72,6 +75,16 @@ internal class HistoryReadingAggregate(id: ProjectId) :
             projectId = command.projectId
             task = command.task
         }
+    }
+
+    /**
+     * Archives the project without emitting events or touching the state:
+     * a lifecycle-only dispatch, which must still advance the version.
+     */
+    @React
+    fun on(@Suppress("UNUSED_PARAMETER") event: AggProjectArchived): NoReaction {
+        setArchived(true)
+        return noReaction()
     }
 
     @Assign

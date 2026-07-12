@@ -214,6 +214,11 @@ Route external facts through standard idioms instead:
 An aggregate's version now advances **by one per command (or reaction) dispatch**,
 regardless of how many events the handler emits — the same rule a `ProcessManager` already
 uses (D3). Every event of one dispatch carries the aggregate's **pre-dispatch** version.
+A dispatch that changes only the lifecycle flags — e.g. a reaction archiving the
+aggregate without emitting events — advances the version too: the persisted record
+changes, and consumers keyed by the version (such as the entity state history) must
+never observe two distinct records under one version. Only a dispatch that changes
+nothing at all leaves the version as is.
 
 **Observable change.** Previously, the events of one command bore distinct versions
 `v+1..v+N` and the aggregate ended at `v+N`. Now those events share one version and the

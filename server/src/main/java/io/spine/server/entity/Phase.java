@@ -82,12 +82,20 @@ public abstract class Phase<I> {
         }
         var producedEvents = success.getProducedEvents()
                                     .getEventCount() > 0;
-        if (!producedEvents && !transaction.stateChangedInPhase()) {
-            // A pure no-op dispatch — neither events nor a state change (e.g. an `@React`
-            // reaction that withheld itself). Do not validate or advance the version, so the
-            // entity is not forced into existence with an unmodified (possibly invalid) state.
-            // This applies to every transactional entity (aggregates and process managers alike):
-            // a receptor that changes nothing is deliberately a no-op and leaves the version as is.
+        if (!producedEvents
+                && !transaction.stateChangedInPhase()
+                && !transaction.lifecycleFlagsChanged()) {
+            // A pure no-op dispatch — no events, no state change, and no lifecycle change
+            // (e.g. an `@React` reaction that withheld itself). Do not validate or advance
+            // the version, so the entity is not forced into existence with an unmodified
+            // (possibly invalid) state. This applies to every transactional entity
+            // (aggregates and process managers alike): a receptor that changes nothing is
+            // deliberately a no-op and leaves the version as is.
+            //
+            // A receptor that only flips the lifecycle flags — e.g. a reaction archiving
+            // the entity — DOES advance the version: the persisted record changes, and the
+            // consumers keyed by the version, such as the entity state history, must never
+            // observe two distinct records under one version.
             return;
         }
         transaction.incrementStateAndVersion(versionIncrement);

@@ -35,6 +35,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.spine.base.CommandMessage
+import io.spine.base.EventMessage
 import io.spine.base.Identifier
 import io.spine.base.Time.currentTime
 import io.spine.core.Command
@@ -50,7 +51,9 @@ import io.spine.server.aggregate.given.history.StateHistoryTestRepository
 import io.spine.server.entity.EntityRecord
 import io.spine.server.tenant.TenantAwareRunner
 import io.spine.test.aggregate.ProjectId
+import io.spine.test.aggregate.event.aggProjectArchived
 import io.spine.testing.client.TestActorRequestFactory
+import io.spine.testing.server.TestEventFactory
 import io.spine.testing.server.model.ModelTests
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -217,6 +220,26 @@ internal class AggregateRepositoryStateHistorySpec {
     }
 
     @Test
+    fun `advance the version and append a record for a lifecycle-only dispatch`() {
+        repository.enableStateHistory()
+        post(Given.ACommand.createProject(projectId))
+        post(Given.ACommand.addTask(projectId))
+
+        // The reaction sets the `archived` flag, emits no events, and leaves
+        // the state untouched. It must still advance the version, so that the
+        // pre-archival record of the previous version survives, and the
+        // archival itself lands as a new, dated record.
+        postEvent(aggProjectArchived {
+            projectId = this@AggregateRepositoryStateHistorySpec.projectId
+        })
+
+        val records = historyRecords()
+        records.map { it.version.number } shouldContainExactly listOf(3, 2, 1)
+        records[0].lifecycleFlags.archived shouldBe true
+        records[1].lifecycleFlags.archived shouldBe false
+    }
+
+    @Test
     fun `retain every recorded state, leaving the maintenance to the application`() {
         repository.enableStateHistory()
 
@@ -353,6 +376,16 @@ internal class AggregateRepositoryStateHistorySpec {
     private fun post(command: Command) {
         context.commandBus()
             .post(command, noOpObserver())
+    }
+
+    /**
+     * Posts the given event to the context on behalf of the aggregate
+     * under test.
+     */
+    private fun postEvent(message: EventMessage) {
+        val factory = TestEventFactory.newInstance(Identifier.pack(projectId), javaClass)
+        context.eventBus()
+            .post(factory.createEvent(message))
     }
 
     /**
