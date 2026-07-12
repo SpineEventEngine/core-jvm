@@ -40,9 +40,9 @@ internal class HistorySpecSpec {
     @Test
     fun `identify the physical storage by the entity class and the item type`() {
         val spec = HistorySpec(
+            TestCounterEntity::class.java,
             EntityStateKey::class.java,
             EntityRecord::class.java,
-            TestCounterEntity::class.java,
             EntityStateHistoryColumns
         ) { EntityStateKey.getDefaultInstance() }
 
@@ -51,14 +51,15 @@ internal class HistorySpecSpec {
     }
 
     @Test
-    fun `derive the source type of the record specification from the entity class`() {
+    fun `serve the entity class with a record specification deriving its state class`() {
         val spec = HistorySpec(
+            TestCounterEntity::class.java,
             EntityStateKey::class.java,
             EntityRecord::class.java,
-            TestCounterEntity::class.java,
             EntityStateHistoryColumns
         ) { EntityStateKey.getDefaultInstance() }
 
+        spec.recordSpec.entityClass().get() shouldBe TestCounterEntity::class.java
         spec.recordSpec.sourceType() shouldBe StgProject::class.java
     }
 }

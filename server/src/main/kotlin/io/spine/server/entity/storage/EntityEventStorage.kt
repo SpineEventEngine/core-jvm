@@ -124,8 +124,8 @@ public class EntityEventStorage(
 private fun specFor(
     entityClass: Class<out Entity<*, *>>
 ): HistorySpec<EventId, Event> = HistorySpec(
+    entityClass = entityClass,
     idType = EventId::class.java,
     itemType = Event::class.java,
-    entityClass = entityClass,
     columns = EntityEventColumns
 ) { event -> event.id }

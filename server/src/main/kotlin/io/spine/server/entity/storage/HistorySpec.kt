@@ -28,7 +28,6 @@ package io.spine.server.entity.storage
 
 import com.google.protobuf.Message
 import io.spine.server.entity.Entity
-import io.spine.server.entity.model.EntityClass
 import io.spine.server.storage.RecordSpec
 
 /**
@@ -56,16 +55,16 @@ import io.spine.server.storage.RecordSpec
  *
  * @param I The type of the record identifiers.
  * @param M The type of the stored history items.
+ * @property entityClass The class of the entities the history serves.
  * @param idType The class of the record identifiers.
  * @property itemType The class of the stored items.
- * @property entityClass The class of the entities the history serves.
  * @property columns The columns of the history.
  * @param extractId Obtains the record identifier of an item.
  */
 public class HistorySpec<I : Any, M : Message> internal constructor(
+    public val entityClass: Class<out Entity<*, *>>,
     idType: Class<I>,
     public val itemType: Class<M>,
-    public val entityClass: Class<out Entity<*, *>>,
     public val columns: HistoryColumns<M>,
     extractId: (M) -> I
 ) {
@@ -73,16 +72,12 @@ public class HistorySpec<I : Any, M : Message> internal constructor(
     /**
      * The specification of the record storage persisting the history items.
      *
-     * The source type of this specification is the state class of the served
-     * [entityClass], derived per the one-to-one convention between the entity
-     * classes and their states.
-     *
      * Storage vendors use this value to create the
      * [RecordStorage][io.spine.server.storage.RecordStorage] delegate in their
      * [createHistoryStorage][io.spine.server.storage.StorageFactory.createHistoryStorage].
      */
     public val recordSpec: RecordSpec<I, M> = RecordSpec(
-        EntityClass.stateClassOf(entityClass),
+        entityClass,
         idType,
         itemType,
         columns.definitions()

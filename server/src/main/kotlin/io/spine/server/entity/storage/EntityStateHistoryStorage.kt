@@ -200,9 +200,9 @@ public class EntityStateHistoryStorage(
 private fun specFor(
     entityClass: Class<out Entity<*, *>>
 ): HistorySpec<EntityStateKey, EntityRecord> = HistorySpec(
+    entityClass = entityClass,
     idType = EntityStateKey::class.java,
     itemType = EntityRecord::class.java,
-    entityClass = entityClass,
     columns = EntityStateHistoryColumns
 ) { record -> record.stateKey() }
 
