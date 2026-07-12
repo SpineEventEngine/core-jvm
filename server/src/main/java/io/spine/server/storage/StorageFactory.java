@@ -118,6 +118,13 @@ public interface StorageFactory extends Closeable {
      * the in-memory one. A factory mapping equal record specifications to one
      * physical storage must override this method.
      *
+     * <p>Unlike most storages, created during the single-threaded registration
+     * of a repository, a history storage may be created lazily — upon the first
+     * dispatch to a recording repository, on a delivery worker thread, and
+     * concurrently with the storage creation of other repositories using this
+     * factory. Implementations must tolerate the concurrent invocation and
+     * should not defer the validation of their backend to the first use.
+     *
      * @param context
      *         specification of the Bounded Context in scope of which the storage will be used
      * @param spec
@@ -200,6 +207,10 @@ public interface StorageFactory extends Closeable {
      *
      * @param context
      *         specification of the Bounded Context in scope of which the storage will be used
+     * <p>May be invoked at dispatch time, on concurrent worker threads — see
+     * {@link #createHistoryStorage(ContextSpec, HistorySpec) createHistoryStorage}
+     * for the threading expectations.
+     *
      * @param entityClass
      *         the class of the entities served by the repository for which the storage
      *         is created; paired with the stored item type, it identifies the physical
