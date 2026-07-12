@@ -27,7 +27,6 @@
 package io.spine.server.entity.storage;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.protobuf.Any;
 import io.spine.annotation.Internal;
 import io.spine.base.EntityState;
@@ -195,10 +194,8 @@ public final class SpecScanner {
     private static <I> ExtractId<EntityRecord, I> idFromRecord() {
         return new ExtractId<>() {
             @SuppressWarnings("unchecked")
-            @CanIgnoreReturnValue
             @Override
-            public I apply(@Nullable EntityRecord input) {
-                requireNonNull(input);
+            public I apply(EntityRecord input) {
                 return (I) Identifier.unpack(input.getEntityId());
             }
         };
