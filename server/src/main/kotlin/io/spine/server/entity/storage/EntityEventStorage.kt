@@ -231,8 +231,6 @@ public class EntityEventStorage(
 private val spec: RecordSpec<EventId, Event> = RecordSpec(
     EventId::class.java,
     Event::class.java,
-    // The parameter is nullable only because the SAM inherits Guava's `Function`;
-    // the framework never passes `null` records.
-    { event -> requireNotNull(event).id },
+    { event -> event.id },
     EntityEventColumn.definitions()
 )
