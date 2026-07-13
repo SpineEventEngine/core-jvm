@@ -29,9 +29,9 @@ package io.spine.server.storage;
 import org.junit.jupiter.api.DisplayName;
 
 /**
- * Runs the {@link RecordStorageDelegateTest} contract against the default in-memory
+ * Runs the {@link DelegatingRecordStorageTest} contract against the default in-memory
  * {@code StorageFactory} configured for tests.
  */
-@DisplayName("In-memory `RecordStorageDelegate` should")
-class InMemoryRecordStorageDelegateTest extends RecordStorageDelegateTest {
+@DisplayName("In-memory `DelegatingRecordStorage` should")
+class InMemoryDelegatingRecordStorageTest extends DelegatingRecordStorageTest {
 }

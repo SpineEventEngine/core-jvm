@@ -32,7 +32,7 @@ import io.spine.server.entity.EntityRecord
 import io.spine.server.storage.RecordSpec
 import io.spine.server.storage.StorageGroup
 import io.spine.server.storage.RecordStorage
-import io.spine.server.storage.RecordStorageDelegate
+import io.spine.server.storage.DelegatingRecordStorage
 import io.spine.server.storage.RecordWithColumns
 import io.spine.server.storage.StorageFactory
 import io.spine.server.storage.memory.InMemoryStorageFactory
@@ -76,7 +76,7 @@ internal class FailingHistoryFactory : StorageFactory {
 private class FailingWrites<I : Any, R : Message>(
     context: ContextSpec,
     delegate: RecordStorage<I, R>
-) : RecordStorageDelegate<I, R>(context, delegate) {
+) : DelegatingRecordStorage<I, R>(context, delegate) {
 
     override fun write(record: RecordWithColumns<I, R>): Unit =
         error("The history storage always fails to write.")

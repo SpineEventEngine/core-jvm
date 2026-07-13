@@ -34,7 +34,7 @@ import io.spine.query.RecordQuery;
 import io.spine.query.RecordQueryBuilder;
 import io.spine.server.ContextSpec;
 import io.spine.server.ServerEnvironment;
-import io.spine.server.storage.given.RecordStorageDelegateTestEnv;
+import io.spine.server.storage.given.DelegatingRecordStorageTestEnv;
 import io.spine.server.storage.given.StgProjectStorage;
 import io.spine.test.storage.StgProject;
 import io.spine.test.storage.StgProjectId;
@@ -56,22 +56,22 @@ import static io.spine.base.Time.currentTime;
 import static io.spine.server.storage.given.GivenStorageProject.StgProjectColumns.due_date;
 import static io.spine.server.storage.given.GivenStorageProject.StgProjectColumns.status;
 import static io.spine.server.storage.given.GivenStorageProject.newState;
-import static io.spine.server.storage.given.RecordStorageDelegateTestEnv.assertOnlyIdAndDueDate;
-import static io.spine.server.storage.given.RecordStorageDelegateTestEnv.coupleOfDone;
-import static io.spine.server.storage.given.RecordStorageDelegateTestEnv.dozenOfRecords;
-import static io.spine.server.storage.given.RecordStorageDelegateTestEnv.idAndDueDate;
-import static io.spine.server.storage.given.RecordStorageDelegateTestEnv.toIds;
+import static io.spine.server.storage.given.DelegatingRecordStorageTestEnv.assertOnlyIdAndDueDate;
+import static io.spine.server.storage.given.DelegatingRecordStorageTestEnv.coupleOfDone;
+import static io.spine.server.storage.given.DelegatingRecordStorageTestEnv.dozenOfRecords;
+import static io.spine.server.storage.given.DelegatingRecordStorageTestEnv.idAndDueDate;
+import static io.spine.server.storage.given.DelegatingRecordStorageTestEnv.toIds;
 import static io.spine.test.storage.StgProject.Status.CREATED;
 import static io.spine.test.storage.StgProject.Status.DONE;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * Tests of the API provided by {@link RecordStorageDelegate} to the descendant classes.
+ * Tests of the API provided by {@link DelegatingRecordStorage} to the descendant classes.
  *
  * <p>Sample storage implementation used in the test is {@link StgProjectStorage}.
  *
  * <p>The aim of this test is to ensure that any storage implementations built on top of
- * the {@code RecordStorageDelegate} is able to utilize the API with the expected results.
+ * the {@code DelegatingRecordStorage} is able to utilize the API with the expected results.
  *
  * <p>This type is made {@code public}, so that it could be re-used in testing of
  * Spine libraries sitting on top of real-world storage engines, such as Google Datastore.
@@ -90,8 +90,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * Therefore, all tests will run against the desired storage engine.
  */
 @SuppressWarnings("resource")
-@DisplayName("A `RecordStorageDelegate` descendant should")
-public abstract class RecordStorageDelegateTest
+@DisplayName("A `DelegatingRecordStorage` descendant should")
+public abstract class DelegatingRecordStorageTest
         extends AbstractStorageTest<StgProjectId, StgProject, StgProjectStorage> {
 
     @Override
@@ -109,7 +109,7 @@ public abstract class RecordStorageDelegateTest
 
     @Override
     protected StgProjectId newId() {
-        return RecordStorageDelegateTestEnv.generateId();
+        return DelegatingRecordStorageTestEnv.generateId();
     }
 
     @Nested
@@ -135,10 +135,10 @@ public abstract class RecordStorageDelegateTest
             storage().writeBatch(recordMap.values());
 
             var ids = recordMap.keySet();
-            var partOfIds = RecordStorageDelegateTestEnv.halfDozenOf(ids);
+            var partOfIds = DelegatingRecordStorageTestEnv.halfDozenOf(ids);
             var actualIterator = storage().readAll(partOfIds);
             var actualRecords = ImmutableList.copyOf(actualIterator);
-            RecordStorageDelegateTestEnv.assertHaveIds(actualRecords, partOfIds);
+            DelegatingRecordStorageTestEnv.assertHaveIds(actualRecords, partOfIds);
         }
     }
 
@@ -328,7 +328,7 @@ public abstract class RecordStorageDelegateTest
 
             var iterator = storage().readAll(doneAndDueBeforeNow);
             var actual = ImmutableList.copyOf(iterator);
-            RecordStorageDelegateTestEnv.assertHaveIds(actual, toIds(doneDueYesterday));
+            DelegatingRecordStorageTestEnv.assertHaveIds(actual, toIds(doneDueYesterday));
 
             for (var readResult : actual) {
                 assertOnlyIdAndDueDate(readResult);
@@ -361,11 +361,11 @@ public abstract class RecordStorageDelegateTest
             storage().writeBatch(recordMap.values());
 
             var ids = recordMap.keySet();
-            var partOfIds = RecordStorageDelegateTestEnv.halfDozenOf(ids);
+            var partOfIds = DelegatingRecordStorageTestEnv.halfDozenOf(ids);
             var actualIterator = storage().readAll(partOfIds);
             var actualRecords = ImmutableList.copyOf(actualIterator);
 
-            RecordStorageDelegateTestEnv.assertHaveIds(actualRecords, partOfIds);
+            DelegatingRecordStorageTestEnv.assertHaveIds(actualRecords, partOfIds);
 
             storage().deleteAll(partOfIds);
             var afterDeletion = storage().readAll(partOfIds);
@@ -375,7 +375,7 @@ public abstract class RecordStorageDelegateTest
             var remainder = ImmutableList.copyOf(iterator);
             var expectedRemainedIds =
                     Sets.symmetricDifference(ids, ImmutableSet.copyOf(partOfIds));
-            RecordStorageDelegateTestEnv.assertHaveIds(remainder, expectedRemainedIds);
+            DelegatingRecordStorageTestEnv.assertHaveIds(remainder, expectedRemainedIds);
         }
 
         @Test
@@ -485,7 +485,7 @@ public abstract class RecordStorageDelegateTest
     }
 
     private StgProject randomRecord() {
-        return newStorageRecord(RecordStorageDelegateTestEnv.generateId());
+        return newStorageRecord(DelegatingRecordStorageTestEnv.generateId());
     }
 
     private static RecordQueryBuilder<StgProjectId, StgProject> queryBuilder() {

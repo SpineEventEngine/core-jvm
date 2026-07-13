@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -52,7 +52,7 @@ import static java.util.stream.Collectors.toList;
  *         for the persisted {@code Message}s
  * @see io.spine.server.entity.storage.EntityRecordStorage EntityRecordStorage
  */
-public abstract class MessageStorage<I, M extends Message> extends RecordStorageDelegate<I, M> {
+public abstract class MessageStorage<I, M extends Message> extends DelegatingRecordStorage<I, M> {
 
     /**
      * Creates a new instance.

@@ -61,7 +61,7 @@ import java.util.Optional;
  * @param <R>
  *         the type of the message records
  */
-public abstract class RecordStorageDelegate<I, R extends Message> extends RecordStorage<I, R> {
+public abstract class DelegatingRecordStorage<I, R extends Message> extends RecordStorage<I, R> {
 
     private final RecordStorage<I, R> delegate;
 
@@ -73,7 +73,7 @@ public abstract class RecordStorageDelegate<I, R extends Message> extends Record
      * @param delegate
      *         storage instance to delegate all operations to
      */
-    protected RecordStorageDelegate(ContextSpec context, RecordStorage<I, R> delegate) {
+    protected DelegatingRecordStorage(ContextSpec context, RecordStorage<I, R> delegate) {
         super(context, delegate.recordSpec());
         this.delegate = delegate;
     }

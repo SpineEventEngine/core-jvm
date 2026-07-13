@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,10 +47,10 @@ import static io.spine.test.storage.StgProject.Column.dueDate;
 import static io.spine.test.storage.StgProject.Status.DONE;
 import static java.util.stream.Collectors.toList;
 
-public final class RecordStorageDelegateTestEnv {
+public final class DelegatingRecordStorageTestEnv {
 
     /** Prevents instantiation of this utility class. */
-    private RecordStorageDelegateTestEnv() {
+    private DelegatingRecordStorageTestEnv() {
     }
 
     public static StgProjectId generateId() {
