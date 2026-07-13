@@ -29,8 +29,6 @@ package io.spine.server.entity.storage
 import io.spine.core.Event
 import io.spine.core.EventId
 import io.spine.server.ContextSpec
-import io.spine.server.entity.Entity
-import io.spine.server.entity.model.EntityClass
 import io.spine.server.storage.RecordSpec
 import io.spine.server.storage.StorageFactory
 
@@ -65,16 +63,13 @@ import io.spine.server.storage.StorageFactory
  * @param context The specification of the Bounded Context in the scope of which
  *                the storage is used.
  * @param factory The storage factory to use when creating a record storage delegate.
- * @param entityClass The class of the entities whose events are journaled.
  */
 public class EntityEventStorage(
     context: ContextSpec,
-    factory: StorageFactory,
-    entityClass: Class<out Entity<*, *>>
+    factory: StorageFactory
 ) : HistoryStorage<EventId, Event>(
-    context, factory, recordSpecFor(entityClass), EntityEventColumns
+    context, factory, recordSpec, EntityEventColumns
 ) {
-
     /**
      * Journals the given event.
      *
@@ -126,10 +121,8 @@ public class EntityEventStorage(
  * paired with the record type, [Event], it is the identity by which storage
  * vendors allocate the physical storage.
  */
-private fun recordSpecFor(
-    entityClass: Class<out Entity<*, *>>
-): RecordSpec<EventId, Event> = RecordSpec(
-    EntityClass.stateClassOf(entityClass),
+private val recordSpec: RecordSpec<EventId, Event> = RecordSpec(
+    Event::class.java,
     EventId::class.java,
     Event::class.java,
     EntityEventColumns.definitions()
