@@ -28,7 +28,6 @@ package io.spine.server.entity.storage
 
 import com.google.protobuf.Message
 import com.google.protobuf.Timestamp
-import com.google.protobuf.util.Timestamps
 import io.spine.base.Identifier
 import io.spine.core.Version
 import io.spine.query.RecordQuery
@@ -155,22 +154,18 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
      * given time. To purge the whole history, pass the current time — or any
      * moment after the newest item.
      *
-     * The operation reads the whole history; to bound the history of
-     * a single entity, prefer [trim].
+     * The items are removed by a query on the [created][HistoryColumns.created]
+     * column rather than by reading the history into memory, so the operation
+     * scales to large histories. To bound the history of a single entity,
+     * prefer [trim].
      *
      * @param olderThan Only the items created strictly before this time are deleted.
      */
     public fun truncate(olderThan: Timestamp) {
-        val items = readAll(queryBuilder().build())
-        val toDelete = items.asSequence()
-            .filter { item ->
-                // The column value comes from a complete stored item; never `null`.
-                val created = checkNotNull(columns.created.valueIn(item))
-                Timestamps.compare(created, olderThan) < 0
-            }
-            .map { idOf(it) }
-            .toList()
-        deleteAll(toDelete)
+        val query = queryBuilder()
+            .where(columns.created).isLessThan(olderThan)
+            .build()
+        deleteMatching(query)
     }
 
     /**

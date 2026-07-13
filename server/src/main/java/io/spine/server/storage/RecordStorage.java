@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -26,6 +26,7 @@
 
 package io.spine.server.storage;
 
+import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.protobuf.FieldMask;
 import com.google.protobuf.Message;
@@ -231,6 +232,33 @@ public abstract class RecordStorage<I, R extends Message> extends AbstractStorag
         for (var id : ids) {
             delete(id);
         }
+    }
+
+    /**
+     * Physically deletes all the message records selected by the passed query.
+     *
+     * <p>This is the query-based counterpart of {@link #deleteAll(Iterable)}: rather than
+     * naming the records by their identifiers, it removes every record the query matches.
+     * It is the scalable way to prune a storage by a column predicate — e.g., all the records
+     * created before some time — because the records need not be read into memory to be deleted.
+     *
+     * <p>The default implementation resolves the matching identifiers via
+     * {@link #index(RecordQuery)} — a keys-only read that evaluates the query on the storage —
+     * and removes them through {@link #deleteAll(Iterable)}. Storage implementations backed by
+     * a query-capable engine should override this method to push the deletion down to the backend
+     * (e.g., a keys-only query with batched deletes, or a single {@code DELETE ... WHERE}
+     * statement), so that neither the records nor all of their identifiers are held in memory
+     * at once.
+     *
+     * @param query
+     *         the query selecting the records to delete
+     * @throws IllegalStateException
+     *         if the storage was closed before
+     */
+    protected void deleteMatching(RecordQuery<I, R> query) {
+        checkNotClosed();
+        var ids = ImmutableList.copyOf(index(query));
+        deleteAll(ids);
     }
 
     /**

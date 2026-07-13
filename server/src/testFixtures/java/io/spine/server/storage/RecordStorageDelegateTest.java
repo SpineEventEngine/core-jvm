@@ -89,6 +89,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * {@linkplain ServerEnvironment#storageFactory() current} {@code StorageFactory}.
  * Therefore all tests will run against the desired storage engine.
  */
+@SuppressWarnings("resource")
 @DisplayName("A `RecordStorageDelegate` descendant should")
 public abstract class RecordStorageDelegateTest
         extends AbstractStorageTest<StgProjectId, StgProject, StgProjectStorage> {
@@ -153,7 +154,6 @@ public abstract class RecordStorageDelegateTest
 
             var result = storage().read(record.getId(), idAndDueDate());
             assertThat(result).isPresent();
-            @SuppressWarnings("OptionalGetWithoutIsPresent") // checked on the prev. line.
             var actual = result.get();
             assertOnlyIdAndDueDate(actual);
         }
@@ -247,7 +247,7 @@ public abstract class RecordStorageDelegateTest
             assertThat(actualProjects).containsExactlyElementsIn(doneDueYesterday);
         }
 
-        private RecordQueryBuilder<StgProjectId, StgProject> queryDoneProjects() {
+        private static RecordQueryBuilder<StgProjectId, StgProject> queryDoneProjects() {
             return queryBuilder().where(status).is(DONE.name());
         }
 
@@ -377,6 +377,25 @@ public abstract class RecordStorageDelegateTest
                     Sets.symmetricDifference(ids, ImmutableSet.copyOf(partOfIds));
             RecordStorageDelegateTestEnv.assertHaveIds(remainder, expectedRemainedIds);
         }
+
+        @Test
+        @DisplayName("all records matching a query, keeping the rest")
+        void manyRecordsByQuery() {
+            var now = currentTime();
+            var doneLongAgo = coupleOfDone(subtract(now, fromDays(10)));
+            storage().writeBatch(doneLongAgo);
+            var doneRecently = coupleOfDone(now);
+            storage().writeBatch(doneRecently);
+
+            var cutoff = subtract(now, fromDays(1));
+            var query = queryBuilder().where(due_date)
+                                      .isLessThan(cutoff)
+                                      .build();
+            storage().deleteMatching(query);
+
+            var remainder = ImmutableList.copyOf(storage().readAll());
+            assertThat(remainder).containsExactlyElementsIn(doneRecently);
+        }
     }
 
     @Nested
@@ -390,7 +409,7 @@ public abstract class RecordStorageDelegateTest
             storage().close();
         }
 
-        private void assertISE(Executable executable) {
+        private static void assertISE(Executable executable) {
             assertThrows(IllegalStateException.class, executable);
         }
 
@@ -455,6 +474,13 @@ public abstract class RecordStorageDelegateTest
         @DisplayName("`deleteAll(IDs)` method")
         void deleteAll() {
             assertISE(() -> storage().deleteAll(ImmutableList.of(newId(), newId())));
+        }
+
+        @Test
+        @DisplayName("`deleteMatching(RecordQuery)` method")
+        void deleteMatching() {
+            var query = queryBuilder().build();
+            assertISE(() -> storage().deleteMatching(query));
         }
     }
 
