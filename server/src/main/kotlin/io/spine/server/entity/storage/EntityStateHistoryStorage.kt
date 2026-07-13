@@ -103,8 +103,8 @@ public class EntityStateHistoryStorage<I : Any>(
      * if the history retains it.
      *
      * The result is the retained record with the most recent timestamp not
-     * later than [at]. When several retained records share the very instant
-     * [at], the one with the highest version wins.
+     * later than [at]. When several retained records share that instant, the
+     * one with the highest version wins.
      *
      * The answer is honest about retention: `null` means the question cannot
      * be answered from the retained window — the time either precedes the

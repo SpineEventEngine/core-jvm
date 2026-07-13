@@ -432,8 +432,9 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      * old enough to retain the {@linkplain AggregateRepository#eventHistoryDepth() event history
      * depth} of the repository, so that the deduplication window stays intact.
      *
-     * <p>The operation reads the whole journal, so it is intended for periodic
-     * maintenance rather than for per-dispatch use.
+     * <p>The events are removed by a query on their creation time rather than by reading
+     * the journal into memory, so the operation scales to large journals; it remains bulk
+     * maintenance rather than a per-dispatch call.
      *
      * @param olderThan
      *         only the events emitted strictly before this time are deleted
