@@ -37,7 +37,6 @@ import io.spine.annotation.VisibleForTesting;
 import io.spine.query.Column;
 import io.spine.query.ColumnName;
 import io.spine.query.RecordColumn;
-import io.spine.server.entity.Entity;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
@@ -48,7 +47,6 @@ import java.util.function.Function;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.common.collect.Streams.stream;
-import static io.spine.server.entity.model.EntityClass.stateClassOf;
 import static io.spine.util.Exceptions.newIllegalArgumentException;
 
 /**
@@ -78,29 +76,18 @@ import static io.spine.util.Exceptions.newIllegalArgumentException;
 public final class RecordSpec<I, R extends Message> {
 
     /**
-     * The class of the entities served by the records of this specification.
-     *
-     * <p>In the terms of the domain, such a specification reads: the records
-     * of the {@link #recordType} serve the entities of this class. Two kinds
-     * of specifications serve an entity class: those of the latest entity
-     * states stored as {@code EntityRecord}s (see
-     * {@link io.spine.server.entity.storage.SpecScanner SpecScanner}), and
-     * those of the per-entity histories (see
-     * {@link io.spine.server.entity.storage.HistorySpec HistorySpec}).
-     *
-     * <p>The value is {@code null} for the specifications serving no entity
-     * class — e.g., those of the system records, such as inbox messages.
-     */
-    private final @Nullable Class<? extends Entity<?, ?>> entityClass;
-
-    /**
      * Type of origin Proto message, which served as a source
      * prior to potential transforming to a record of {@code recordType}.
      *
-     * <p>Derived: for a specification {@linkplain #entityClass serving
-     * an entity class}, this is the class of the entity state, per the
-     * one-to-one convention between the entity classes and their states.
-     * In all other cases, this value equals to {@code recordType}.
+     * <p>If this {@code RecordSpec} describes a storage configuration
+     * of {@code EntityRecord}, this field is a type of corresponding Entity state.
+     *
+     * <p>The specifications of the per-entity histories also set this field to
+     * the state class of the entity they serve — the event journal pairs it
+     * with {@code recordType} of {@code Event} (see
+     * {@link io.spine.server.entity.storage.HistorySpec HistorySpec}).
+     *
+     * <p>In all other cases, this value equals to {@code recordType}.
      */
     private final Class<? extends Message> sourceType;
 
@@ -125,14 +112,11 @@ public final class RecordSpec<I, R extends Message> {
     private final ImmutableMap<ColumnName, RecordColumn<R, ?>> columns;
 
     /**
-     * Creates a new record specification for the records serving an entity class.
+     * Creates a new record specification listing the columns to store along with the record.
      *
-     * <p>In the terms of the domain, the created specification reads:
-     * the records of the {@code recordType} serve the entities of
-     * the {@code entityClass}.
-     *
-     * @param entityClass
-     *         the class of the entities served by the records
+     * @param sourceType
+     *         the type of origin Proto message, which served as a source
+     *         prior to potential transforming to a record of {@code recordType}
      * @param idType
      *         the type of the record identifier
      * @param recordType
@@ -142,28 +126,31 @@ public final class RecordSpec<I, R extends Message> {
      * @param extractId
      *         a method object to extract the value of an identifier given an instance of a record
      * @apiNote This ctor is internal to framework, and used to create the record
-     *         specifications serving an entity class: those of the latest entity states
-     *         stored as {@code EntityRecord}s (see
-     *         {@link io.spine.server.entity.storage.SpecScanner SpecScanner}), and those
-     *         of the per-entity histories (see
+     *         specifications whose source type differs from the record type:
+     *         the Entity states stored as {@code EntityRecord}s (see
+     *         {@link io.spine.server.entity.storage.SpecScanner SpecScanner}), and the
+     *         per-entity histories (see
      *         {@link io.spine.server.entity.storage.HistorySpec HistorySpec}).
-     *         The specifications serving no entity class are created via
-     *         the other public constructors.
      */
     @Internal
-    public RecordSpec(Class<? extends Entity<?, ?>> entityClass,
+    public RecordSpec(Class<? extends Message> sourceType,
                       Class<I> idType,
                       Class<R> recordType,
                       Iterable<RecordColumn<R, ?>> columns,
                       ExtractId<R, I> extractId) {
-        this(checkNotNull(entityClass), stateClassOf(entityClass),
-             idType, recordType, columns, extractId);
+        this.sourceType = checkNotNull(sourceType);
+        this.idType = checkNotNull(idType);
+        this.recordType = checkNotNull(recordType);
+        this.extractId = checkNotNull(extractId);
+        checkNotNull(columns);
+        this.columns =
+                stream(columns).collect(
+                        toImmutableMap(RecordColumn::name, (c) -> c)
+                );
     }
 
     /**
      * Creates a new record specification listing the columns to store along with the record.
-     *
-     * <p>The created specification serves no entity class.
      *
      * @param idType
      *         the type of the record identifier
@@ -178,25 +165,7 @@ public final class RecordSpec<I, R extends Message> {
                       Class<R> recordType,
                       ExtractId<R, I> extractId,
                       Iterable<RecordColumn<R, ?>> columns) {
-        this(null, recordType, idType, recordType, columns, extractId);
-    }
-
-    private RecordSpec(@Nullable Class<? extends Entity<?, ?>> entityClass,
-                       Class<? extends Message> sourceType,
-                       Class<I> idType,
-                       Class<R> recordType,
-                       Iterable<RecordColumn<R, ?>> columns,
-                       ExtractId<R, I> extractId) {
-        this.entityClass = entityClass;
-        this.sourceType = checkNotNull(sourceType);
-        this.idType = checkNotNull(idType);
-        this.recordType = checkNotNull(recordType);
-        this.extractId = checkNotNull(extractId);
-        checkNotNull(columns);
-        this.columns =
-                stream(columns).collect(
-                        toImmutableMap(RecordColumn::name, (c) -> c)
-                );
+        this(recordType, idType, recordType, columns, extractId);
     }
 
     /**
@@ -226,25 +195,16 @@ public final class RecordSpec<I, R extends Message> {
     }
 
     /**
-     * Returns the class of the entities served by the records of this
-     * specification, if the records serve one.
-     *
-     * <p>The specifications created for the storages serving no particular
-     * entity class — e.g., those of the system records, such as inbox
-     * messages — return {@code Optional.empty()}.
-     */
-    public Optional<Class<? extends Entity<?, ?>>> entityClass() {
-        return Optional.ofNullable(entityClass);
-    }
-
-    /**
      * Returns the type of origin Proto message, which served as a source
      * prior to potential transforming to a record of {@linkplain #recordType() record type}.
      *
-     * <p>For a specification {@linkplain #entityClass() serving an entity class},
-     * returns the class of the entity state, per the one-to-one convention
-     * between the entity classes and their states. Otherwise, the returned
-     * value equals to the {@linkplain #recordType() record type}.
+     * <p>In case if {@code recordType()} is {@code EntityRecord},
+     * this method returns the type of Entity state.
+     *
+     * <p>For the specifications composed by the per-entity histories, returns
+     * the type identifying the origin of the history — the class of the
+     * entity state (see {@link io.spine.server.entity.storage.HistorySpec
+     * HistorySpec}).
      */
     public Class<? extends Message> sourceType() {
         return sourceType;

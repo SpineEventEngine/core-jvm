@@ -28,6 +28,7 @@ package io.spine.server.entity.storage
 
 import com.google.protobuf.Message
 import io.spine.server.entity.Entity
+import io.spine.server.entity.model.EntityClass
 import io.spine.server.storage.RecordSpec
 
 /**
@@ -72,12 +73,16 @@ public class HistorySpec<I : Any, M : Message> internal constructor(
     /**
      * The specification of the record storage persisting the history items.
      *
+     * The source type of this specification is the state class of the served
+     * [entityClass], derived per the one-to-one convention between the entity
+     * classes and their states.
+     *
      * Storage vendors use this value to create the
      * [RecordStorage][io.spine.server.storage.RecordStorage] delegate in their
      * [createHistoryStorage][io.spine.server.storage.StorageFactory.createHistoryStorage].
      */
     public val recordSpec: RecordSpec<I, M> = RecordSpec(
-        entityClass,
+        EntityClass.stateClassOf(entityClass),
         idType,
         itemType,
         columns.definitions()

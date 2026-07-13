@@ -81,17 +81,19 @@ same storage to `ProcessManager`s without touching it.
   `createAggregateStorage`). The state class is derived internally via
   `EntityClass.stateClassOf` into `recordSpec.sourceType`, per the
   framework-checked 1:1 convention; entity-class identity is also strictly
-  more precise than its state-class projection. **Pushed down into
-  `RecordSpec` (2026-07-12, owner):** the `@Internal` 5-arg constructor
-  takes the entity class as its 1st parameter ("this record serves this
-  entity class with such and such record"); `sourceType` became a value
-  derived in the constructor (state class of the served entity class, or
-  `recordType` for the entity-less system specs built by the public
-  ctors); new accessor `entityClass(): Optional<Class<? extends
-  Entity<?,?>>>`. `HistorySpec` mirrors the order (entity class 1st) and
-  no longer derives anything itself. `SpecScanner.scan(idClass,
-  stateClass)` was removed — the class-based `scan(cls)` is the worker
-  (the one test-fixture caller now scans `TestCounterEntity`). **Storage identity
+  more precise than its state-class projection. **`RecordSpec` stays
+  `sourceType`-based (reverted 2026-07-13, owner + reviewer armiol):** a
+  brief attempt to push the entity class into `RecordSpec` itself (nullable
+  `entityClass` param + derived `sourceType` + `entityClass()` accessor)
+  was reverted — armiol: "let's not dismantle this type's API". `RecordSpec`
+  keeps its `@Internal` `(sourceType, idType, recordType, columns,
+  extractId)` constructor; **`HistorySpec` derives the state class**
+  (`EntityClass.stateClassOf(entityClass)`) and passes it as `sourceType`.
+  `SpecScanner.scan(cls)` passes the scanned `stateClass`. The entity-class
+  API lives only at the higher level (`HistorySpec`, the factory methods),
+  never in `RecordSpec`. The `scan(idClass, stateClass)` overload stays
+  removed — the class-based `scan(cls)` is the worker (fixtures scan
+  `TestCounterEntity`). **Storage identity
   (2026-07-11, ultra review):** the entity state class flows into the
   `RecordSpec.sourceType` via an `internal` `HistorySpec` constructor
   (the once-public secondary constructor defaulting the source type to

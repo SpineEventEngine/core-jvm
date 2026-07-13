@@ -51,7 +51,7 @@ internal class HistorySpecSpec {
     }
 
     @Test
-    fun `serve the entity class with a record specification deriving its state class`() {
+    fun `derive the source type of the record specification from the entity state class`() {
         val spec = HistorySpec(
             TestCounterEntity::class.java,
             EntityStateKey::class.java,
@@ -59,7 +59,6 @@ internal class HistorySpecSpec {
             EntityStateHistoryColumns
         ) { EntityStateKey.getDefaultInstance() }
 
-        spec.recordSpec.entityClass().get() shouldBe TestCounterEntity::class.java
         spec.recordSpec.sourceType() shouldBe StgProject::class.java
     }
 }

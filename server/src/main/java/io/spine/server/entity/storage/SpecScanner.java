@@ -157,7 +157,7 @@ public final class SpecScanner {
         accumulator.add(EntityRecordColumn.version);
 
         var result = new RecordSpec<I, EntityRecord>(
-                cls,
+                stateClass,
                 idClass,
                 EntityRecord.class,
                 ImmutableSet.copyOf(accumulator),
