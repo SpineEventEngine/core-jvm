@@ -82,7 +82,7 @@ public interface QueryableRepository<I, S extends EntityState<I>> {
      * Unpacks the {@code Entity} state stored in the provided {@link EntityRecord} into
      * a message of type {@code S}.
      *
-     * <p>It is a responsibility of a caller to submit the {@code EntityRecord}s that
+     * <p>It is the responsibility of a caller to submit the {@code EntityRecord}s that
      * store the states of a compatible type.
      *
      * @param record

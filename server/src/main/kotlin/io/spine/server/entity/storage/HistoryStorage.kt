@@ -50,7 +50,7 @@ import io.spine.server.storage.StorageGroup
  *
  * On top of them, the storage provides the [window reads][historyBackward]
  * ordered from newer to older, and the maintenance operations:
- * the per-entity [trim] and the count/date-based [truncate].
+ * the per-entity [trim] and the time-based [truncate].
  *
  * While the reads and the maintenance operations are open to applications,
  * new kinds of histories cannot be defined outside the framework:
@@ -149,63 +149,27 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
     }
 
     /**
-     * Truncates the history, keeping up to [keepMostRecent] most recent
-     * items for each entity.
+     * Truncates the history, deleting the items created before [olderThan].
      *
-     * The most recent items are determined per entity, in the order of
-     * [historyBackward]. Passing zero purges the whole history.
-     *
-     * The operation reads the whole history; to bound the history of
-     * a single entity, prefer [trim].
-     *
-     * @param keepMostRecent The number of the most recent items to keep for each entity.
-     * @throws IllegalArgumentException If [keepMostRecent] is negative.
-     */
-    public fun truncate(keepMostRecent: Int) {
-        truncate(keepMostRecent) { true }
-    }
-
-    /**
-     * Truncates the history, deleting the items created before [olderThan],
-     * but keeping at least [keepMostRecent] most recent items for each entity.
-     *
-     * An item is deleted only if it was created before the given time *and*
-     * it is not among the [keepMostRecent] most recent items of its entity.
-     * To purge everything older than the given time, pass zero as [keepMostRecent].
+     * An item is deleted if and only if it was created strictly before the
+     * given time. To purge the whole history, pass the current time — or any
+     * moment after the newest item.
      *
      * The operation reads the whole history; to bound the history of
      * a single entity, prefer [trim].
      *
-     * @param keepMostRecent The number of the most recent items to keep for each entity.
      * @param olderThan Only the items created strictly before this time are deleted.
-     * @throws IllegalArgumentException If [keepMostRecent] is negative.
      */
-    public fun truncate(keepMostRecent: Int, olderThan: Timestamp) {
-        truncate(keepMostRecent) { item ->
-            // The column value comes from a complete stored item; never `null`.
-            val created = checkNotNull(columns.created.valueIn(item))
-            Timestamps.compare(created, olderThan) < 0
-        }
-    }
-
-    private fun truncate(keepMostRecent: Int, deletionAllowed: (M) -> Boolean) {
-        requireNotNegative(keepMostRecent)
-        val newestFirst = queryBuilder()
-            .sortDescendingBy(columns.version)
-            .sortDescendingBy(columns.created)
-            .build()
-        val items = readAll(newestFirst)
-        val seen = mutableMapOf<Any, Int>()
-        val toDelete = mutableListOf<I>()
-        items.forEach { item ->
-            // The column value comes from a complete stored item; never `null`.
-            val entityId = checkNotNull(columns.entity_id.valueIn(item))
-            val count = (seen[entityId] ?: 0) + 1
-            seen[entityId] = count
-            if (count > keepMostRecent && deletionAllowed(item)) {
-                toDelete.add(idOf(item))
+    public fun truncate(olderThan: Timestamp) {
+        val items = readAll(queryBuilder().build())
+        val toDelete = items.asSequence()
+            .filter { item ->
+                // The column value comes from a complete stored item; never `null`.
+                val created = checkNotNull(columns.created.valueIn(item))
+                Timestamps.compare(created, olderThan) < 0
             }
-        }
+            .map { idOf(it) }
+            .toList()
         deleteAll(toDelete)
     }
 
