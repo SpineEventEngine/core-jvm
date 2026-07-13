@@ -76,5 +76,5 @@ internal class StateHistoryTestRepository :
     /**
      * Returns the state history storage of this repository.
      */
-    fun history(): EntityStateHistoryStorage = stateHistory()
+    fun history(): EntityStateHistoryStorage<ProjectId> = stateHistory()
 }

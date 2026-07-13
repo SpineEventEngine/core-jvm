@@ -203,10 +203,10 @@ public interface StorageFactory extends Closeable {
      *         the class of the entities served by the repository for which the storage
      *         is created, telling the state histories of different entity classes apart
      */
-    default EntityStateHistoryStorage
+    default <I> EntityStateHistoryStorage<I>
     createEntityStateHistoryStorage(ContextSpec context,
-                                    Class<? extends Entity<?, ?>> entityClass) {
-        return new EntityStateHistoryStorage(context, this, entityClass);
+                                    Class<? extends Entity<I, ?>> entityClass) {
+        return new EntityStateHistoryStorage<>(context, this, entityClass);
     }
 
     /**

@@ -83,10 +83,10 @@ import io.spine.server.storage.StorageGroup
  * @param factory The storage factory to use when creating a record storage delegate.
  * @param entityClass The class of the entities whose states are recorded.
  */
-public class EntityStateHistoryStorage(
+public class EntityStateHistoryStorage<I : Any>(
     context: ContextSpec,
     factory: StorageFactory,
-    entityClass: Class<out Entity<*, *>>
+    entityClass: Class<out Entity<I, *>>
 ) : HistoryStorage<EntityStateKey, EntityRecord>(
     context,
     HistoryStorageSpec(
@@ -121,7 +121,7 @@ public class EntityStateHistoryStorage(
      * @throws IllegalArgumentException If the type of [entityId] is not supported
      *   by the framework.
      */
-    public fun stateAt(entityId: Any, at: Timestamp): EntityRecord? {
+    public fun stateAt(entityId: I, at: Timestamp): EntityRecord? {
         val packedId = Identifier.pack(entityId)
         val query = with(EntityStateHistoryColumns) {
             queryBuilder()
@@ -190,7 +190,7 @@ public class EntityStateHistoryStorage(
      * @throws IllegalArgumentException If [keepMostRecent] is negative, or if the type
      *   of [entityId] is not supported by the framework.
      */
-    public fun trim(entityId: Any, keepMostRecent: Int) {
+    public fun trim(entityId: I, keepMostRecent: Int) {
         require(keepMostRecent >= 0) {
             "The number of the records to keep must not be negative, got $keepMostRecent."
         }

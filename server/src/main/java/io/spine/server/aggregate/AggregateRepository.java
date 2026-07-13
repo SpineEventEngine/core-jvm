@@ -161,7 +161,7 @@ public abstract class AggregateRepository<I,
     private volatile boolean stateHistoryEnabled = false;
 
     /** The storage of recent state records; created lazily once the history is first needed. */
-    private @MonotonicNonNull EntityStateHistoryStorage stateHistory;
+    private @MonotonicNonNull EntityStateHistoryStorage<I> stateHistory;
 
     /** Creates a new instance. */
     protected AggregateRepository() {
@@ -687,7 +687,7 @@ public abstract class AggregateRepository<I,
      *         if the state history is not {@linkplain #recordStateHistory() recorded}
      *         by this repository
      */
-    protected final EntityStateHistoryStorage stateHistory() {
+    protected final EntityStateHistoryStorage<I> stateHistory() {
         if (!stateHistoryEnabled) {
             throw newIllegalStateException(
                     "The state history is not recorded for the repository `%s`. " +
@@ -704,7 +704,7 @@ public abstract class AggregateRepository<I,
      * accessed during the single-threaded registration of the repository, this storage
      * is first touched when a signal is dispatched, possibly by concurrent workers.
      */
-    private synchronized EntityStateHistoryStorage stateHistoryStorage() {
+    private synchronized EntityStateHistoryStorage<I> stateHistoryStorage() {
         if (stateHistory == null) {
             var factory = defaultStorageFactory();
             stateHistory = factory.createEntityStateHistoryStorage(context().spec(), entityClass());

@@ -47,6 +47,7 @@ import io.spine.server.entity.entityStateKey
 import io.spine.server.storage.given.EntityRecordStorageTestEnv.TestCounterEntity
 import io.spine.server.storage.memory.InMemoryStorageFactory
 import io.spine.test.storage.StgProject
+import io.spine.test.storage.StgProjectId
 import io.spine.testdata.Sample
 import io.spine.validation.NonValidated
 import org.junit.jupiter.api.AfterEach
@@ -58,9 +59,11 @@ import org.junit.jupiter.api.Test
 @DisplayName("`EntityStateHistoryStorage` should")
 internal class EntityStateHistoryStorageSpec {
 
-    private val entityId = "state-tracked-entity"
-    private val anotherEntity = "another-entity"
-    private lateinit var storage: EntityStateHistoryStorage
+    private val entityId: StgProjectId =
+        StgProjectId.newBuilder().setId("state-tracked-entity").build()
+    private val anotherEntity: StgProjectId =
+        StgProjectId.newBuilder().setId("another-entity").build()
+    private lateinit var storage: EntityStateHistoryStorage<StgProjectId>
     private var lastVersion = 0
 
     @BeforeEach
@@ -469,7 +472,7 @@ internal class EntityStateHistoryStorageSpec {
      * The state is a randomly populated [StgProject].
      */
     private fun record(
-        entity: String = entityId,
+        entity: StgProjectId = entityId,
         number: Int,
         at: Timestamp = currentTime()
     ): EntityRecord = entityRecord {
@@ -484,7 +487,7 @@ internal class EntityStateHistoryStorageSpec {
     private fun writeRecord(
         number: Int,
         at: Timestamp,
-        entity: String = entityId
+        entity: StgProjectId = entityId
     ): EntityRecord {
         val result = record(entity = entity, number = number, at = at)
         storage.write(result)
@@ -502,7 +505,7 @@ internal class EntityStateHistoryStorageSpec {
      */
     private fun appendRecords(
         count: Int,
-        toEntity: String = entityId,
+        toEntity: StgProjectId = entityId,
         at: Timestamp? = null
     ): List<EntityRecord> {
         val records = List(count) {
