@@ -166,7 +166,7 @@ public class EntityRecordStorage<I, S extends EntityState<I>>
     }
 
     /**
-     * Finds all records which match the given query.
+     * Finds all records that match the given query.
      *
      * <p>Only the records of active entities are returned.
      */
