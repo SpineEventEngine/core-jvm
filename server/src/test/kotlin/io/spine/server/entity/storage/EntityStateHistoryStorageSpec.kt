@@ -48,6 +48,7 @@ import io.spine.server.storage.given.EntityRecordStorageTestEnv.TestCounterEntit
 import io.spine.server.storage.memory.InMemoryStorageFactory
 import io.spine.test.storage.StgProject
 import io.spine.test.storage.StgProjectId
+import io.spine.test.storage.stgProjectId
 import io.spine.testdata.Sample
 import io.spine.validation.NonValidated
 import org.junit.jupiter.api.AfterEach
@@ -59,10 +60,8 @@ import org.junit.jupiter.api.Test
 @DisplayName("`EntityStateHistoryStorage` should")
 internal class EntityStateHistoryStorageSpec {
 
-    private val entityId: StgProjectId =
-        StgProjectId.newBuilder().setId("state-tracked-entity").build()
-    private val anotherEntity: StgProjectId =
-        StgProjectId.newBuilder().setId("another-entity").build()
+    private val entityId = stgProjectId { id = "state-tracked-entity" }
+    private val anotherEntity = stgProjectId { id = "another-entity" }
     private lateinit var storage: EntityStateHistoryStorage<StgProjectId>
     private var lastVersion = 0
 
