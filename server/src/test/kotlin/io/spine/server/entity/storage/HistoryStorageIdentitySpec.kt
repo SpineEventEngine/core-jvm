@@ -49,7 +49,7 @@ import org.junit.jupiter.api.Test
  * Verifies the physical identity of the per-entity history storages.
  *
  * The histories reach a storage vendor at a dedicated seam,
- * [StorageFactory.createHistoryStorage], where the vendor allocates
+ * [StorageFactory.createRecordStorage], where the vendor allocates
  * the physical storage — a table, a kind — by the
  * ([sourceType][RecordSpec.sourceType], [recordType][RecordSpec.recordType])
  * pair of the [RecordSpec] it receives, naming it at its discretion. The
