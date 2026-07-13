@@ -118,8 +118,6 @@ public class EntityStateHistoryStorage<I : Any>(
      * @param at The point in time to look at.
      * @return The record effective at the given time, or `null` if the history
      *   does not retain it.
-     * @throws IllegalArgumentException If the type of [entityId] is not supported
-     *   by the framework.
      */
     public fun stateAt(entityId: I, at: Timestamp): EntityRecord? {
         val packedId = Identifier.pack(entityId)
@@ -187,8 +185,7 @@ public class EntityStateHistoryStorage<I : Any>(
      *
      * @param entityId The identifier of the entity.
      * @param keepMostRecent The number of the most recent records to keep.
-     * @throws IllegalArgumentException If [keepMostRecent] is negative, or if the type
-     *   of [entityId] is not supported by the framework.
+     * @throws IllegalArgumentException If [keepMostRecent] is negative.
      */
     public fun trim(entityId: I, keepMostRecent: Int) {
         require(keepMostRecent >= 0) {
