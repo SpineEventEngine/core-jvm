@@ -36,30 +36,29 @@ import io.spine.server.delivery.given.CalcAggregate
 import io.spine.server.entity.EntityRecord
 import io.spine.server.storage.RecordSpec
 import io.spine.server.storage.RecordStorage
-import io.spine.server.storage.StorageGroup
 import io.spine.server.storage.StorageFactory
+import io.spine.server.storage.StorageGroup
 import io.spine.server.storage.memory.InMemoryStorageFactory
 import io.spine.server.storage.system.SystemAwareStorageFactory
 import io.spine.test.aggregate.AggProject
 import io.spine.test.delivery.Calc
+import io.spine.type.TypeName
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
 /**
  * Verifies the physical identity of the per-entity history storages.
  *
- * The histories reach a storage vendor at a dedicated seam,
- * [StorageFactory.createRecordStorage], where the vendor allocates
- * the physical storage — a table, a kind — by the
- * ([sourceType][RecordSpec.sourceType], [recordType][RecordSpec.recordType])
- * pair of the [RecordSpec] it receives, naming it at its discretion. The
- * source type is the class of the entity state, so histories of different
- * entity types stay apart, and the two histories of one entity stay apart
- * by their record type. The latest-state records of the entity share the
- * pair but arrive at the general-purpose [StorageFactory.createRecordStorage]
- * seam, never at the history one. In-memory storages are isolated per
- * instance and cannot observe a shared table, hence the assertions capture
- * the specifications at the vendor seams.
+ * The histories reach a storage vendor at the
+ * [StorageFactory.createRecordStorage] seam, where the vendor allocates
+ * the physical storage — a table, a kind — by the ([group][StorageGroup],
+ * [recordType][RecordSpec.recordType]) pair it receives, naming it at its
+ * discretion. The group is named after the entity state, so histories of
+ * different entity types stay apart, and the two histories of one entity
+ * stay apart by their record type. The latest-state records of the entity
+ * arrive at the same seam belonging to no group. In-memory storages are
+ * isolated per instance and cannot observe a shared table, hence the
+ * assertions capture the groups and specifications at the vendor seam.
  */
 @DisplayName("Per-entity history storages should")
 internal class HistoryStorageIdentitySpec {
@@ -73,8 +72,8 @@ internal class HistoryStorageIdentitySpec {
         factory.createAggregateStorage(context, TestAggregate::class.java)
         factory.createAggregateStorage(context, CalcAggregate::class.java)
 
-        factory.historySourcesOf(Event::class.java) shouldContainExactly
-                listOf(AggProject::class.java, Calc::class.java)
+        factory.historyGroupsOf(Event::class.java) shouldContainExactly
+                listOf(groupOf(AggProject::class.java), groupOf(Calc::class.java))
     }
 
     @Test
@@ -84,8 +83,8 @@ internal class HistoryStorageIdentitySpec {
         factory.createEntityStateHistoryStorage(context, TestAggregate::class.java)
         factory.createEntityStateHistoryStorage(context, CalcAggregate::class.java)
 
-        factory.historySourcesOf(EntityRecord::class.java) shouldContainExactly
-                listOf(AggProject::class.java, Calc::class.java)
+        factory.historyGroupsOf(EntityRecord::class.java) shouldContainExactly
+                listOf(groupOf(AggProject::class.java), groupOf(Calc::class.java))
     }
 
     @Test
@@ -95,10 +94,10 @@ internal class HistoryStorageIdentitySpec {
 
         wrapped.createEntityStateHistoryStorage(context, TestAggregate::class.java)
 
-        // The framework always interacts with the wrapper; the vendor
-        // override of `createHistoryStorage` must still take effect.
+        // The framework always interacts with the wrapper; the group of
+        // the history must reach the wrapped vendor factory intact.
         vendor.historyIdentities() shouldContainExactly listOf(
-            AggProject::class.java to EntityRecord::class.java
+            groupOf(AggProject::class.java) to EntityRecord::class.java
         )
     }
 
@@ -109,62 +108,67 @@ internal class HistoryStorageIdentitySpec {
         factory.createAggregateStorage(context, TestAggregate::class.java)
         factory.createEntityStateHistoryStorage(context, TestAggregate::class.java)
 
-        // The two histories arrive at the history seam with distinct identities.
+        // The two histories arrive at the vendor seam with distinct identities.
         factory.historyIdentities() shouldContainExactly listOf(
-            AggProject::class.java to Event::class.java,
-            AggProject::class.java to EntityRecord::class.java
+            groupOf(AggProject::class.java) to Event::class.java,
+            groupOf(AggProject::class.java) to EntityRecord::class.java
         )
         // The latest-state records of the same entity class arrive at the
-        // general-purpose seam only, never at the history one.
+        // same seam, but belong to no group.
         factory.latestStateSpecs() shouldHaveSize 1
     }
 
     /**
-     * A [StorageFactory] capturing the specifications handed to the two
-     * vendor seams, delegating the actual storage to the in-memory factory.
+     * The group expected for the histories of the entities with the given
+     * state class: named after the qualified Protobuf type of the state.
+     */
+    private fun groupOf(stateClass: Class<out Message>): StorageGroup =
+        StorageGroup(TypeName.of(stateClass).value())
+
+    /**
+     * A [StorageFactory] capturing the groups and the record specifications
+     * handed to the vendor seam, delegating the actual storage to
+     * the in-memory factory.
      */
     private class SpecRecordingFactory : StorageFactory {
 
         private val delegate = InMemoryStorageFactory.newInstance()
-        private val recordSpecs = mutableListOf<RecordSpec<*, *>>()
-        private val historySpecs = mutableListOf<RecordSpec<*, *>>()
+        private val creations = mutableListOf<Pair<StorageGroup?, RecordSpec<*, *>>>()
 
         override fun <I : Any, R : Message> createRecordStorage(
             context: ContextSpec,
             recordSpec: RecordSpec<I, R>,
             group: StorageGroup?
         ): RecordStorage<I, R> {
-            recordSpecs.add(recordSpec)
-            if (group != null) {
-                historySpecs.add(recordSpec)
-            }
+            creations.add(group to recordSpec)
             return delegate.createRecordStorage(context, recordSpec, group)
         }
 
         /**
-         * Returns the captured source types of the histories storing
-         * items of the given type, in the order of storage creation.
+         * Returns the captured groups of the histories storing items of
+         * the given type, in the order of storage creation.
          */
-        fun historySourcesOf(itemType: Class<out Message>): List<Class<*>> =
-            historySpecs.filter { it.recordType() == itemType }
-                .map { it.sourceType() }
+        fun historyGroupsOf(itemType: Class<out Message>): List<StorageGroup> =
+            creations.filter { (_, spec) -> spec.recordType() == itemType }
+                .mapNotNull { (group, _) -> group }
 
         /**
-         * Returns the identities — the `(sourceType, recordType)` pairs — of
+         * Returns the identities — the `(group, recordType)` pairs — of
          * the captured histories, in the order of storage creation.
          */
-        fun historyIdentities(): List<Pair<Class<*>, Class<*>>> =
-            historySpecs.map { it.sourceType() to it.recordType() }
+        fun historyIdentities(): List<Pair<StorageGroup, Class<*>>> =
+            creations.mapNotNull { (group, spec) ->
+                group?.let { it to spec.recordType() }
+            }
 
         /**
          * Returns the captured latest-state specifications: the `EntityRecord`
-         * specs which arrived at the general-purpose seam directly, not through
-         * the history one.
+         * specs which arrived at the vendor seam belonging to no group.
          */
         fun latestStateSpecs(): List<RecordSpec<*, *>> =
-            recordSpecs.filter {
-                it.recordType() == EntityRecord::class.java && it !in historySpecs
-            }
+            creations.filter { (group, spec) ->
+                group == null && spec.recordType() == EntityRecord::class.java
+            }.map { (_, spec) -> spec }
 
         override fun isOpen(): Boolean = delegate.isOpen
 
