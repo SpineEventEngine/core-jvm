@@ -26,6 +26,11 @@
 
 package io.spine.server.storage
 
+import io.spine.base.EntityState
+import io.spine.server.entity.Entity
+import io.spine.server.entity.model.EntityClass
+import io.spine.type.TypeName
+
 /**
  * A named group differentiating the record storages that hold records of
  * the same type.
@@ -38,9 +43,26 @@ package io.spine.server.storage
  * allocated its own physical storage — a table, a kind, and the like.
  *
  * The [name] is assigned by the repository creating the storage — typically
- * after the entity class or the entity state name. Choosing the value is
- * the repository's decision; this type only carries it.
+ * after the entity state, via [of]. Choosing the value is the repository's
+ * decision; this type only carries it.
  *
  * @property name The name of the storage group.
  */
-public data class StorageGroup(public val name: String)
+public data class StorageGroup(public val name: String) {
+
+    public companion object {
+
+        /**
+         * Creates a group for the entities of the given class, named after
+         * the qualified Protobuf name of their state.
+         *
+         * @param entityClass The class of the entities served by the storage.
+         */
+        @JvmStatic
+        public fun of(entityClass: Class<out Entity<*, *>>): StorageGroup {
+            val stateClass = EntityClass.stateClassOf<EntityState<*>>(entityClass)
+            val name = TypeName.of(stateClass).value()
+            return StorageGroup(name)
+        }
+    }
+}

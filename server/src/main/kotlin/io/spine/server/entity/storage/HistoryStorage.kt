@@ -36,6 +36,7 @@ import io.spine.server.ContextSpec
 import io.spine.server.storage.MessageStorage
 import io.spine.server.storage.RecordSpec
 import io.spine.server.storage.StorageFactory
+import io.spine.server.storage.StorageGroup
 
 /**
  * An abstract base for the storages of a per-entity history.
@@ -64,6 +65,8 @@ import io.spine.server.storage.StorageFactory
  * @param factory The storage factory to use when creating a record storage delegate.
  * @param recordSpec The specification of the records persisting the history items.
  * @property columns The columns to manage and query the history by.
+ * @param storageGroup The group the record storage of this history belongs to,
+ *   telling it apart from the latest-state storage of the same entity.
  * @see EntityEventStorage
  * @see EntityStateHistoryStorage
  */
@@ -71,8 +74,9 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
     context: ContextSpec,
     factory: StorageFactory,
     recordSpec: RecordSpec<I, M>,
-    private val columns: HistoryColumns<M>
-) : MessageStorage<I, M>(context, factory.createRecordStorage(context, recordSpec)) {
+    private val columns: HistoryColumns<M>,
+    storageGroup: StorageGroup
+) : MessageStorage<I, M>(context, factory.createRecordStorage(context, storageGroup, recordSpec)) {
 
     /**
      * Reads up to [batchSize] most recent history items of the entity with

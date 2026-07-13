@@ -157,7 +157,7 @@ public interface StorageFactory extends Closeable {
     default EntityEventStorage
     createEntityEventStorage(ContextSpec context,
                              Class<? extends Entity<?, ?>> entityClass) {
-        return new EntityEventStorage(context, this);
+        return new EntityEventStorage(context, this, entityClass);
     }
 
     /**

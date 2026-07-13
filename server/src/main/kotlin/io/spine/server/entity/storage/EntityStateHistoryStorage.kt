@@ -38,6 +38,7 @@ import io.spine.server.entity.entityStateKey
 import io.spine.server.entity.model.EntityClass
 import io.spine.server.storage.RecordSpec
 import io.spine.server.storage.StorageFactory
+import io.spine.server.storage.StorageGroup
 
 /**
  * The history of recent states of entities, retained until the application
@@ -88,11 +89,12 @@ public class EntityStateHistoryStorage(
     factory: StorageFactory,
     entityClass: Class<out Entity<*, *>>
 ) : HistoryStorage<EntityStateKey, EntityRecord>(
-    context, factory, recordSpecFor(entityClass), EntityStateHistoryColumns
+    context, factory, recordSpecFor(entityClass), EntityStateHistoryColumns,
+    StorageGroup.of(entityClass)
 ) {
 
     /**
-     * Returns the state record the entity had at the given time,
+     * Returns the state record the entity had at the given time
      * if the history retains it.
      *
      * The result is the retained record with the highest version among those
@@ -224,9 +226,8 @@ private const val STATE_AT_BATCH = 100
  * Composes a specification on how to store the state records of the entities
  * of the given class.
  *
- * The state class of the entity becomes the source type of the specification;
- * paired with the record type, [EntityRecord], it is the identity by which
- * storage vendors allocate the physical storage.
+ * The stored items are [EntityRecord]s wrapping the packed entity state, so
+ * the source type of the specification is the class of that state.
  */
 private fun recordSpecFor(
     entityClass: Class<out Entity<*, *>>
