@@ -81,6 +81,7 @@ public abstract class AggregatePartRepository<I,
     public A create(I id) {
         var root = createAggregateRoot(id);
         var result = createAggregatePart(root);
+        setUpHistoryReading(result, id);
         return result;
     }
 

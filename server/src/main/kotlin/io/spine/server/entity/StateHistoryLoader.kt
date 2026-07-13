@@ -24,7 +24,37 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+package io.spine.server.entity
+
+import com.google.protobuf.Timestamp
+import io.spine.annotation.Internal
+
 /**
- * The version of this library.
+ * Loads the recorded state history of an entity from the durable storage.
+ *
+ * An instance is installed via [TransactionalEntity.setStateHistoryLoader]
+ * by the repository owning the entity — see
+ * `AggregateRepository.recordStateHistory()`. An entity created outside
+ * a repository has no loader, and its state history reads come back empty.
+ *
+ * @see io.spine.server.entity.storage.EntityStateHistoryStorage
  */
-extra.set("versionToPublish", "2.0.0-SNAPSHOT.440")
+@Internal
+public interface StateHistoryLoader : HistoryLoader<EntityRecord> {
+
+    /**
+     * Loads up to [depth] most recent state records of the entity,
+     * ordered from newer to older.
+     *
+     * @param depth The maximum number of the records to load.
+     */
+    override fun load(depth: Int): Iterator<EntityRecord>
+
+    /**
+     * Loads the state record the entity had at the given time, or `null`
+     * if the recorded history does not retain it.
+     *
+     * @param at The point in time to look at.
+     */
+    public fun stateAt(at: Timestamp): EntityRecord?
+}

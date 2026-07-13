@@ -36,12 +36,15 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.spine.base.Identifier
 import io.spine.base.Time.currentTime
+import io.spine.core.Enrichment
 import io.spine.core.Event
 import io.spine.core.EventId
 import io.spine.core.Versions.increment
 import io.spine.core.Versions.zero
 import io.spine.server.ContextSpec
+import io.spine.server.storage.given.EntityRecordStorageTestEnv.TestCounterEntity
 import io.spine.server.storage.memory.InMemoryStorageFactory
+import io.spine.test.storage.StgProject
 import io.spine.test.storage.event.StgProjectCreated
 import io.spine.testdata.Sample
 import io.spine.testing.server.TestEventFactory
@@ -65,7 +68,7 @@ internal class EntityEventStorageSpec {
     fun createStorage() {
         val factory = InMemoryStorageFactory.newInstance()
         val context = ContextSpec.singleTenant("`EntityEventStorage` tests")
-        storage = factory.createEntityEventStorage(context)
+        storage = factory.createEntityEventStorage(context, TestCounterEntity::class.java)
         version = zero()
     }
 
@@ -104,6 +107,36 @@ internal class EntityEventStorageSpec {
 
             val read = storage.historyBackward(entityId, batchSize = 1).next()
             read shouldBe event
+        }
+
+        @Test
+        fun `clearing the enrichments before storing`() {
+            val enriched = withEnrichment()
+
+            storage.write(enriched)
+
+            val read = storage.historyBackward(entityId, batchSize = 1).next()
+            read shouldBe enriched.clearEnrichments()
+        }
+
+        @Test
+        fun `clearing the enrichments also when stored under an explicit identifier`() {
+            val enriched = withEnrichment()
+
+            storage.write(enriched.id, enriched)
+
+            val read = storage.historyBackward(entityId, batchSize = 1).next()
+            read shouldBe enriched.clearEnrichments()
+        }
+
+        @Test
+        fun `rejecting an explicit identifier which does not match the event`() {
+            val event = newEvent()
+            val anotherId = newEvent().id
+
+            shouldThrow<IllegalArgumentException> {
+                storage.write(anotherId, event)
+            }
         }
 
         @Test
@@ -148,6 +181,17 @@ internal class EntityEventStorageSpec {
             return valid.toBuilder()
                 .setId(EventId.getDefaultInstance())
                 .buildPartial()
+        }
+
+        private fun withEnrichment(): Event {
+            val valid = newEvent()
+            val enrichment = Enrichment.newBuilder()
+                .setDoNotEnrich(true)
+                .build()
+            return valid.toBuilder()
+                .setContext(valid.context.toBuilder()
+                    .setEnrichment(enrichment))
+                .build()
         }
 
         private fun newEvent(): Event =
@@ -230,6 +274,19 @@ internal class EntityEventStorageSpec {
             storage.historyBackward(entityId, Int.MAX_VALUE)
                 .events()
                 .shouldBeEmpty()
+        }
+
+        @Test
+        fun `trimming the journal of one entity`() {
+            val ours = appendEvents(count = 5)
+            val theirs = appendEvents(count = 3, toEntity = anotherEntity)
+
+            storage.trim(entityId, keepMostRecent = 2)
+
+            storage.historyBackward(entityId, Int.MAX_VALUE)
+                .events() shouldContainExactly listOf(ours[4], ours[3])
+            storage.historyBackward(anotherEntity, Int.MAX_VALUE)
+                .events() shouldContainExactly theirs.reversed()
         }
     }
 

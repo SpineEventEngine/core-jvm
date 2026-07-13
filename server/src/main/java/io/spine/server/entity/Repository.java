@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -203,6 +203,9 @@ public abstract class Repository<I, E extends Entity<I, ?>>
      *
      * <p>If the repository is not {@linkplain #isOpen() opened} prior to this call, it is opened.
      *
+     * <p>A repository which has been {@linkplain #close() closed} is not meant to be
+     * registered again: create a new repository instance instead.
+     *
      * @throws IllegalStateException
      *          if the repository has a context value already assigned, and the passed value is
      *          not equal to the assigned one
@@ -356,6 +359,10 @@ public abstract class Repository<I, E extends Entity<I, ?>>
      * Closes the repository by closing the underlying storage.
      *
      * <p>The reference to the storage becomes null after this call.
+     *
+     * <p>A closed repository is not meant to be {@linkplain #registerWith(BoundedContext)
+     * registered} again: not every resource it owns is re-created on a repeated
+     * registration. Create a new repository instance instead.
      */
     @Override
     @OverridingMethodsMustInvokeSuper

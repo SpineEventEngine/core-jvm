@@ -134,6 +134,15 @@ public abstract class Transaction<I : Any,
         private set
 
     /**
+     * The lifecycle flags of the entity as of the start of this transaction.
+     *
+     * Serves as the base of the [lifecycleFlagsChanged] comparison: while the
+     * transaction is active, the entity itself reads its flags through the
+     * transaction, so the committed value must be captured up front.
+     */
+    private val initialLifecycleFlags: LifecycleFlags
+
+    /**
      * The flag, which becomes `true`, if the state of the entity [has been changed][commit] since
      * it has been [loaded or created][RecordBasedRepository.findOrCreate].
      */
@@ -174,6 +183,7 @@ public abstract class Transaction<I : Any,
         builder = toBuilder(entity)
         version = entity.version()
         lifecycleFlags = entity.lifecycleFlags()
+        initialLifecycleFlags = lifecycleFlags
         isActive = true
         injectTo()
         entityBeforeTransaction = entityRecord()
@@ -298,6 +308,21 @@ public abstract class Transaction<I : Any,
     @JvmName("stateChangedInPhase")
     internal fun stateChangedInPhase(): Boolean =
         builder.buildPartial() != toBuilder(entity).buildPartial()
+
+    /**
+     * Tells whether the lifecycle flags of the entity have changed in scope
+     * of this transaction.
+     *
+     * The phase consults this alongside [stateChangedInPhase]: a receptor
+     * that emits no events and leaves the state as-is may still archive or
+     * delete the entity. Such a change alters the persisted record and must
+     * advance the version, so that the consumers keyed by the version —
+     * e.g. the entity state history — never observe two distinct records
+     * under one version.
+     */
+    @JvmName("lifecycleFlagsChanged")
+    internal fun lifecycleFlagsChanged(): Boolean =
+        lifecycleFlags != initialLifecycleFlags
 
     /**
      * Commits this transaction if it is still active.

@@ -28,6 +28,7 @@ package io.spine.server.aggregate;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.Empty;
+import com.google.protobuf.Timestamp;
 import io.spine.annotation.Internal;
 import io.spine.annotation.VisibleForTesting;
 import io.spine.base.AggregateState;
@@ -39,7 +40,8 @@ import io.spine.server.command.AssigneeEntity;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.EntityRecord;
 import io.spine.server.entity.HasLifecycleColumns;
-import io.spine.server.entity.RecentHistory;
+import io.spine.server.entity.RecentEventHistory;
+import io.spine.server.entity.RecentStateHistory;
 import io.spine.server.entity.Transaction;
 import io.spine.server.entity.TransactionalEntity;
 import io.spine.server.event.EventReactor;
@@ -50,6 +52,7 @@ import io.spine.validation.ValidatingBuilder;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 import static com.google.common.collect.Iterators.any;
@@ -417,8 +420,8 @@ public abstract class Aggregate<I,
      */
     @VisibleForTesting
     @Override
-    protected final RecentHistory recentHistory() {
-        return super.recentHistory();
+    protected final RecentEventHistory recentEventHistory() {
+        return super.recentEventHistory();
     }
 
     /**
@@ -426,7 +429,10 @@ public abstract class Aggregate<I,
      * journal, newest first.
      *
      * <p>Fewer events are returned if the journal holds fewer. The events emitted by the
-     * current, not-yet-committed dispatch are excluded.
+     * current, not-yet-committed dispatch are excluded. Under a batched delivery, the
+     * durable writes are deferred to the end of the batch, so the events of the earlier
+     * dispatches of the same batch may not have reached the journal yet, and are then
+     * excluded too.
      *
      * @param depth
      *         the maximal number of the most recent events to return; must be positive
@@ -434,45 +440,106 @@ public abstract class Aggregate<I,
      * @throws IllegalArgumentException
      *         if the {@code depth} is not positive
      */
-    protected final Iterator<Event> historyBackward(int depth) {
-        return recentHistory().read(depth);
+    protected final Iterator<Event> eventHistoryBackward(int depth) {
+        return recentEventHistory().read(depth);
     }
 
     /**
      * Verifies if up to {@code depth} most recent events of this aggregate's journal contain an
      * event that satisfies the passed predicate.
      *
+     * <p>The visibility caveats of {@link #eventHistoryBackward(int)} apply to this check.
+     *
      * @param depth
      *         the maximal number of the most recent events to inspect; must be positive
      * @param predicate
      *         the predicate to test the events against
      */
-    protected final boolean historyContains(int depth, Predicate<Event> predicate) {
-        var iterator = historyBackward(depth);
+    protected final boolean eventHistoryContains(int depth, Predicate<Event> predicate) {
+        var iterator = eventHistoryBackward(depth);
         return any(iterator, predicate::test);
     }
 
     /**
      * Creates an iterator of the aggregate event history with reverse traversal.
      *
-     * @deprecated Please use {@link #historyBackward(int)} and state the history window
+     * @deprecated Please use {@link #eventHistoryBackward(int)} and state the history window
      *         explicitly. This form reads the last {@value #DEFAULT_HISTORY_DEPTH} events.
      */
     @Deprecated
     protected final Iterator<Event> historyBackward() {
-        return historyBackward(DEFAULT_HISTORY_DEPTH);
+        return eventHistoryBackward(DEFAULT_HISTORY_DEPTH);
     }
 
     /**
      * Verifies if the aggregate history contains an event that satisfies the passed predicate.
      *
-     * @deprecated Please use {@link #historyContains(int, Predicate)} and state the history
+     * @deprecated Please use {@link #eventHistoryContains(int, Predicate)} and state the history
      *         window explicitly. This form inspects the last {@value #DEFAULT_HISTORY_DEPTH}
      *         events.
      */
     @Deprecated
     protected final boolean historyContains(Predicate<Event> predicate) {
-        return historyContains(DEFAULT_HISTORY_DEPTH, predicate);
+        return eventHistoryContains(DEFAULT_HISTORY_DEPTH, predicate);
+    }
+
+    /**
+     * Obtains the state this aggregate had at the given point in time,
+     * if the recorded state history retains it.
+     *
+     * <p>The result is the recorded state with the highest version among those which
+     * became current not later than the given time. The answer is honest about
+     * retention: an empty result means the question cannot be answered from the
+     * retained window — the time either precedes the oldest retained record,
+     * or predates the aggregate itself.
+     *
+     * <p>The state history is an opt-in feature —
+     * see {@link AggregateRepository#recordStateHistory()}. Reading it while
+     * the repository of this aggregate does not record it is a configuration error.
+     * An aggregate created outside a repository has no recorded history and
+     * reads an empty result.
+     *
+     * <p>The state produced by the current, not-yet-stored dispatch is not
+     * recorded yet: a receptor reading the history observes the states
+     * persisted by the previous dispatches.
+     *
+     * @param time
+     *         the point in time to look at
+     * @return the state at the given time, or an empty {@code Optional} if the
+     *         recorded history does not retain it
+     * @throws IllegalStateException
+     *         if the repository of this aggregate does not record the state history
+     */
+    protected final Optional<S> stateAt(Timestamp time) {
+        var state = recentStateHistory().stateAt(time);
+        return Optional.ofNullable(state);
+    }
+
+    /**
+     * Creates an iterator over up to {@code depth} most recent recorded states of
+     * this aggregate, newest first.
+     *
+     * <p>Fewer states are returned if the recorded history retains fewer.
+     * The state produced by the current, not-yet-stored dispatch is not
+     * recorded yet: a receptor reading the history observes the states
+     * persisted by the previous dispatches.
+     *
+     * <p>The state history is an opt-in feature —
+     * see {@link AggregateRepository#recordStateHistory()}. Reading it while
+     * the repository of this aggregate does not record it is a configuration error.
+     * An aggregate created outside a repository has no recorded history and
+     * reads an empty iterator.
+     *
+     * @param depth
+     *         the maximal number of the most recent states to return; must be positive
+     * @return new iterator instance
+     * @throws IllegalArgumentException
+     *         if the {@code depth} is not positive
+     * @throws IllegalStateException
+     *         if the repository of this aggregate does not record the state history
+     */
+    protected final Iterator<S> stateHistoryBackward(int depth) {
+        return recentStateHistory().read(depth);
     }
 
     /**

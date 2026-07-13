@@ -112,7 +112,7 @@ class IdempotencyGuardTest {
         @Test
         @DisplayName("not throw exception when the command is older than the recent-history window")
         void notThrowForCommandOutsideWindow() {
-            repository.setHistoryDepth(1);
+            repository.setEventHistoryDepth(1);
             var createCommand = command(createProject(projectId));
             post(createCommand);
             // Push the create command's event out of the depth-1 window with a newer command.
@@ -158,7 +158,7 @@ class IdempotencyGuardTest {
         }
 
         private Optional<Error> check(IdempotencyGuard guard, Command command) {
-            guard.enable(repository.historyDepth());
+            guard.enable(repository.eventHistoryDepth());
             var envelope = CommandEnvelope.of(command);
             return guard.check(envelope);
         }
@@ -191,7 +191,7 @@ class IdempotencyGuardTest {
         @Test
         @DisplayName("not throw exception when the event is older than the recent-history window")
         void notThrowForEventOutsideWindow() {
-            repository.setHistoryDepth(1);
+            repository.setEventHistoryDepth(1);
 
             var event = event(taskStarted(projectId));
             post(event);
@@ -237,7 +237,7 @@ class IdempotencyGuardTest {
         }
 
         private Optional<Error> check(IdempotencyGuard guard, Event event) {
-            guard.enable(repository.historyDepth());
+            guard.enable(repository.eventHistoryDepth());
             var envelope = EventEnvelope.of(event);
             return guard.check(envelope);
         }

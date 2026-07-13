@@ -57,4 +57,3 @@ message EntityEventHistory {
     // The events emitted by the entity, in the order of emission.
     repeated core.Event event = 1;
 }
-

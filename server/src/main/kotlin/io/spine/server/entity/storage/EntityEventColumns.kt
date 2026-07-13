@@ -29,7 +29,6 @@ package io.spine.server.entity.storage
 import com.google.protobuf.Any
 import com.google.protobuf.Timestamp
 import io.spine.core.Event
-import io.spine.query.Columns
 import io.spine.query.RecordColumn
 import io.spine.query.RecordColumns
 
@@ -40,13 +39,12 @@ import io.spine.query.RecordColumns
  * the storage-level `snake_case` convention used by the other record kinds.
  */
 @RecordColumns(ofType = Event::class)
-public object EntityEventColumn {
+public object EntityEventColumns : HistoryColumns<Event> {
 
     /**
      * Stores the identifier of the entity which emitted the event.
      */
-    @JvmField
-    public val entityId: RecordColumn<Event, Any> =
+    override val entity_id: RecordColumn<Event, Any> =
         RecordColumn.create("entity_id", Any::class.java) { event ->
             event.context.producerId
         }
@@ -54,8 +52,7 @@ public object EntityEventColumn {
     /**
      * Stores the time when the event was created.
      */
-    @JvmField
-    public val created: RecordColumn<Event, Timestamp> =
+    override val created: RecordColumn<Event, Timestamp> =
         RecordColumn.create("created", Timestamp::class.java) { event ->
             event.context.timestamp
         }
@@ -63,15 +60,8 @@ public object EntityEventColumn {
     /**
      * Stores the version of the event.
      */
-    @JvmField
-    public val version: RecordColumn<Event, Int> =
+    override val version: RecordColumn<Event, Int> =
         RecordColumn.create("version", Int::class.javaObjectType) { event ->
             event.context.version.number
         }
-
-    /**
-     * Returns all the column definitions.
-     */
-    @JvmStatic
-    public fun definitions(): Columns<Event> = Columns.of(entityId, created, version)
 }

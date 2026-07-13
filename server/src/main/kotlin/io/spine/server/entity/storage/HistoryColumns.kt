@@ -24,7 +24,44 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+package io.spine.server.entity.storage
+
+import com.google.protobuf.Any
+import com.google.protobuf.Message
+import com.google.protobuf.Timestamp
+import io.spine.query.Columns
+import io.spine.query.RecordColumn
+
 /**
- * The version of this library.
+ * The columns every per-entity history exposes.
+ *
+ * A [HistoryStorage] manages a history and queries it efficiently through
+ * these columns.
+ *
+ * @param M The type of the stored history items.
+ * @see EntityEventColumns
+ * @see EntityStateHistoryColumns
  */
-extra.set("versionToPublish", "2.0.0-SNAPSHOT.440")
+public interface HistoryColumns<M : Message> {
+
+    /**
+     * The column with the packed identifier of the entity.
+     */
+    @Suppress("VariableNaming") // Named after the column, per the `RecordColumns` contract.
+    public val entity_id: RecordColumn<M, Any>
+
+    /**
+     * The column with the time the item was created.
+     */
+    public val created: RecordColumn<M, Timestamp>
+
+    /**
+     * The column with the number of the entity version the item belongs to.
+     */
+    public val version: RecordColumn<M, Int>
+
+    /**
+     * Returns all the column definitions.
+     */
+    public fun definitions(): Columns<M> = Columns.of(entity_id, created, version)
+}

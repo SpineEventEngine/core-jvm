@@ -151,7 +151,8 @@ final class IdempotencyGuard {
                                                   .messageId()
                                                   .asEventId()
                                                   .equals(eventId);
-        var found = aggregate.historyContains(historyDepth, causedByEvent.and(originHasGivenId));
+        var found = aggregate.eventHistoryContains(
+                historyDepth, causedByEvent.and(originHasGivenId));
         return found;
     }
 
@@ -180,7 +181,8 @@ final class IdempotencyGuard {
                                                   .messageId()
                                                   .asCommandId()
                                                   .equals(commandId);
-        var found = aggregate.historyContains(historyDepth, causedByCommand.and(originHasGivenId));
+        var found = aggregate.eventHistoryContains(
+                historyDepth, causedByCommand.and(originHasGivenId));
         return found;
     }
 }

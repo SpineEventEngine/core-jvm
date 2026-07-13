@@ -24,7 +24,32 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+package io.spine.server.entity
+
+import io.spine.annotation.Internal
+
 /**
- * The version of this library.
+ * Lazily loads up to a requested number of the most recent items of
+ * an entity's durable history, newest first.
+ *
+ * A repository installs a loader on each entity it creates or loads, so
+ * that the [recent history reads][RecentHistory.read] are served from
+ * the durable storage of the entity without eagerly reading it on every
+ * load.
+ *
+ * @param R The type of the loaded items.
+ * @see EventHistoryLoader
+ * @see StateHistoryLoader
  */
-extra.set("versionToPublish", "2.0.0-SNAPSHOT.440")
+@Internal
+public interface HistoryLoader<R : Any> {
+
+    /**
+     * Loads up to [depth] most recent items of the entity's history,
+     * newest first.
+     *
+     * @param depth The maximum number of the most recent items to load; positive.
+     * @return An iterator over the loaded items, newest first.
+     */
+    public fun load(depth: Int): Iterator<R>
+}

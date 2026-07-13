@@ -24,7 +24,23 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+package io.spine.server.entity
+
+import io.spine.core.Event
+
 /**
- * The version of this library.
+ * The recent history of events of a [TransactionalEntity].
+ *
+ * The events are read from the durable journal of the entity via the loader
+ * [installed][TransactionalEntity.setEventHistoryLoader] by the repository
+ * managing the entity.
+ *
+ * An entity created outside a repository has no journal, so the reads
+ * return no events.
  */
-extra.set("versionToPublish", "2.0.0-SNAPSHOT.440")
+public class RecentEventHistory internal constructor() :
+    RecentHistory<Event, EventHistoryLoader>() {
+
+    override fun load(loader: EventHistoryLoader, depth: Int): Iterator<Event> =
+        loader.load(depth)
+}

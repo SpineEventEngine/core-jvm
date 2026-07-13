@@ -27,7 +27,6 @@
 package io.spine.server.aggregate;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.google.protobuf.Timestamp;
 import io.spine.annotation.SPI;
 import io.spine.base.AggregateState;
@@ -50,7 +49,6 @@ import io.spine.server.storage.StorageFactory;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -70,7 +68,7 @@ import static io.spine.util.Preconditions2.checkPositive;
  *     the source of truth for loading an Aggregate by its {@link AggregateRepository};
  *
  *     <li>journaling the events emitted by the Aggregates — for traceability and for
- *     the recent-history lookups such as {@link Aggregate#historyBackward(int)} and
+ *     the recent-history lookups such as {@link Aggregate#eventHistoryBackward(int)} and
  *     the opt-in {@link IdempotencyGuard}.
  * </ol>
  *
@@ -131,7 +129,7 @@ public class AggregateStorage<I, S extends AggregateState<I>>
     private final EntityEventStorage eventStorage;
 
     /**
-     * If enabled, stores the latest states of Aggregates.
+     * Stores the latest states of Aggregates.
      */
     private final EntityRecordStorage<I, S> stateStorage;
 
@@ -156,15 +154,8 @@ public class AggregateStorage<I, S extends AggregateState<I>>
                             Class<? extends Aggregate<I, S, ?>> aggregateClass,
                             StorageFactory factory) {
         super(context.isMultitenant());
-        eventStorage = factory.createEntityEventStorage(context);
+        eventStorage = factory.createEntityEventStorage(context, aggregateClass);
         stateStorage = factory.createEntityRecordStorage(context, aggregateClass);
-    }
-
-    protected AggregateStorage(AggregateStorage<I, S> delegate) {
-        super(delegate.isMultitenant());
-        this.eventStorage = delegate.eventStorage;
-        this.stateStorage = delegate.stateStorage;
-        this.queryingEnabled = delegate.queryingEnabled;
     }
 
     /**
@@ -218,12 +209,13 @@ public class AggregateStorage<I, S extends AggregateState<I>>
     public Optional<EntityEventHistory> read(I id, int batchSize) {
         checkNotClosedAndArguments(id, batchSize);
         checkPositive(batchSize);
-        var events = readHistoryBackward(id, batchSize);
+        // Materializes the lazy iterator; the events arrive newest-first.
+        var events = ImmutableList.copyOf(historyBackward(id, batchSize));
         if (events.isEmpty()) {
             return Optional.empty();
         }
         var history = EntityEventHistory.newBuilder()
-                .addAllEvent(Lists.reverse(events))
+                .addAllEvent(events.reverse())
                 .build();
         return Optional.of(history);
     }
@@ -390,7 +382,15 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      * Creates an iterator over the journal of the Aggregate, ordering the events
      * from newer to older.
      *
+     * <p>The iterator is lazy, reading from the journal as it advances. It serves
+     * the recent-history reads of the opt-in {@link IdempotencyGuard} and the
+     * business access via {@link Aggregate#eventHistoryBackward(int)}.
+     *
      * <p>The iterator is empty if there's no journaled history for the aggregate with passed ID.
+     *
+     * <p>Only the events journaled by Spine 2.0 and later are read; the journal records
+     * persisted by the earlier, event-sourced versions of the framework are a separate legacy
+     * record kind, not visible to this method.
      *
      * @param id
      *         the identifier of the Aggregate
@@ -400,27 +400,6 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      */
     Iterator<Event> historyBackward(I id, int batchSize) {
         return historyBackward(id, batchSize, null);
-    }
-
-    /**
-     * Reads up to {@code depth} most recent events of the aggregate's journal, newest first.
-     *
-     * <p>Used to lazily load recent history for the opt-in {@link IdempotencyGuard} and for
-     * business access via {@link Aggregate#historyBackward(int)}.
-     *
-     * <p>Only the events journaled by Spine 2.0 and later are read; the journal records
-     * persisted by the earlier, event-sourced versions of the framework are a separate legacy
-     * record kind, not visible to this method.
-     *
-     * @param id
-     *         the identifier of the aggregate
-     * @param depth
-     *         the maximum number of the most recent events to read
-     * @return the most recent events, newest first
-     */
-    List<Event> readHistoryBackward(I id, int depth) {
-        var events = historyBackward(id, depth);
-        return ImmutableList.copyOf(events);
     }
 
     /**
@@ -437,9 +416,7 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      */
     protected Iterator<Event>
     historyBackward(I id, int batchSize, @Nullable Version startingFrom) {
-        var original = eventStorage.historyBackward(id, batchSize, startingFrom);
-        var copied = ImmutableList.copyOf(original);
-        return copied.iterator();
+        return eventStorage.historyBackward(id, batchSize, startingFrom);
     }
 
     /**
@@ -448,10 +425,10 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      *
      * <p>Passing zero purges the whole journal of the served Aggregates.
      *
-     * <p>Truncation bounds the {@linkplain Aggregate#historyBackward(int) recent history}
+     * <p>Truncation bounds the {@linkplain Aggregate#eventHistoryBackward(int) recent history}
      * available to the business logic and to the opt-in {@link IdempotencyGuard}. When
      * the guard is {@linkplain AggregateRepository#useIdempotencyGuard() enabled}, keep
-     * at least the {@linkplain AggregateRepository#historyDepth() history depth} of
+     * at least the {@linkplain AggregateRepository#eventHistoryDepth() event history depth} of
      * the repository, so that the deduplication window stays intact.
      *
      * <p>The operation reads the whole journal, so it is intended for periodic

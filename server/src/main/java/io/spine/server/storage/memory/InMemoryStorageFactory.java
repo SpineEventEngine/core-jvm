@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -30,6 +30,8 @@ import com.google.protobuf.Message;
 import io.spine.server.ContextSpec;
 import io.spine.server.storage.RecordSpec;
 import io.spine.server.storage.StorageFactory;
+import io.spine.server.storage.StorageGroup;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A factory for in-memory storages.
@@ -52,7 +54,11 @@ public final class InMemoryStorageFactory implements StorageFactory {
 
     @Override
     public <I, M extends Message> InMemoryRecordStorage<I, M>
-    createRecordStorage(ContextSpec context, RecordSpec<I, M> spec) {
+    createRecordStorage(ContextSpec context,
+                        RecordSpec<I, M> spec, @Nullable StorageGroup group) {
+        // Each in-memory storage is isolated per instance, so the group,
+        // which only tells apart the storages sharing a physical backend,
+        // makes no difference here.
         return new InMemoryRecordStorage<>(context, spec);
     }
 

@@ -24,7 +24,30 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+package io.spine.server.entity
+
+import io.spine.annotation.Internal
+import io.spine.core.Event
+
 /**
- * The version of this library.
+ * Lazily loads up to a requested number of an entity's most recent journal
+ * events, newest first.
+ *
+ * A repository installs a loader on each entity it creates or loads — via
+ * [TransactionalEntity.setEventHistoryLoader] — so that the
+ * [recent event history reads][RecentEventHistory.read] are served from the
+ * durable journal of the entity. See
+ * `io.spine.server.aggregate.AggregateRepository` for the wiring on
+ * the aggregate side.
  */
-extra.set("versionToPublish", "2.0.0-SNAPSHOT.440")
+@Internal
+public fun interface EventHistoryLoader : HistoryLoader<Event> {
+
+    /**
+     * Loads up to [depth] most recent events of the entity's journal, newest first.
+     *
+     * @param depth The maximum number of the most recent events to load; positive.
+     * @return An iterator over the loaded events, newest first.
+     */
+    override fun load(depth: Int): Iterator<Event>
+}

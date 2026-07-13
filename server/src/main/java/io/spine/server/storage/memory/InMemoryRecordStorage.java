@@ -84,7 +84,7 @@ public class InMemoryRecordStorage<I, R extends Message> extends RecordStorage<I
 
     @Override
     protected void writeAllRecords(Iterable<? extends RecordWithColumns<I, R>> records) {
-        for (RecordWithColumns<I, R> record : records) {
+        for (var record : records) {
             records().put(record.id(), record);
         }
     }

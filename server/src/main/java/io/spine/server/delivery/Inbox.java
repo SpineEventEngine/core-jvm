@@ -38,7 +38,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.server.delivery.InboxLabel.CATCH_UP;
 import static io.spine.server.delivery.InboxLabel.HANDLE_COMMAND;
-import static io.spine.server.delivery.InboxLabel.IMPORT_EVENT;
 import static io.spine.server.delivery.InboxLabel.REACT_UPON_EVENT;
 import static io.spine.server.delivery.InboxLabel.UPDATE_SUBSCRIBER;
 
@@ -240,13 +239,6 @@ public final class Inbox<I> {
          */
         public void toReactor(I entityId) {
             eventPart.store(event, entityId, REACT_UPON_EVENT);
-        }
-
-        /**
-         * Sends to the event-importing receptor of the entity with the specified ID.
-         */
-        public void toImporter(I entityId) {
-            eventPart.store(event, entityId, IMPORT_EVENT);
         }
 
         /**

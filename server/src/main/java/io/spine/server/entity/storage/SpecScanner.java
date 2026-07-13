@@ -29,7 +29,6 @@ package io.spine.server.entity.storage;
 import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.Any;
 import io.spine.annotation.Internal;
-import io.spine.annotation.VisibleForTesting;
 import io.spine.base.EntityState;
 import io.spine.base.Identifier;
 import io.spine.client.ArchivedColumn;
@@ -98,54 +97,6 @@ public final class SpecScanner {
 
     /**
      * Determines the specification of the passed entity
-     * by the types of its ID and state.
-     *
-     * <p>The resulting specification is composed in relation
-     * to storing Entity as {@code EntityRecord}, along with some columns.
-     *
-     * @param idClass
-     *         type of Entity identifiers
-     * @param stateClass
-     *         type of Entity state
-     * @param <I>
-     *         type of Entity identifiers, as bounding generic parameter
-     * @param <S>
-     *         type of Entity state, bounded with {@code I}
-     *         as a type of its identifier
-     * @return a new record specification
-     */
-    @Internal
-    @VisibleForTesting
-    public static <I, S extends EntityState<I>> RecordSpec<I, EntityRecord>
-    scan(Class<I> idClass, Class<S> stateClass) {
-        Set<RecordColumn<EntityRecord, ?>> accumulator = new HashSet<>();
-
-        var unpacker = new MemoizingUnpacker<>(stateClass);
-        var stateColumns = stateColumns(stateClass);
-        for (var stateCol : stateColumns) {
-            var columnName = stateCol.name();
-            var columnType = castObject(stateCol);
-            var recordColumn = new RecordColumn<>(columnName, columnType,
-                                                  getter(stateCol, unpacker));
-            accumulator.add(recordColumn);
-        }
-
-        accumulator.add(EntityRecordColumn.archived);
-        accumulator.add(EntityRecordColumn.deleted);
-        accumulator.add(EntityRecordColumn.version);
-
-        var result = new RecordSpec<>(
-                idClass,
-                EntityRecord.class,
-                stateClass,
-                idFromRecord(),
-                ImmutableSet.copyOf(accumulator)
-        );
-        return result;
-    }
-
-    /**
-     * Determines the specification of the passed entity
      * by the Entity instance.
      *
      * <p>The resulting specification is composed in relation
@@ -189,7 +140,30 @@ public final class SpecScanner {
         checkNotNull(cls);
         var idClass = EntityClass.<I>idClass(cls);
         var stateClass = EntityClass.<S>stateClassOf(cls);
-        return scan(idClass, stateClass);
+        Set<RecordColumn<EntityRecord, ?>> accumulator = new HashSet<>();
+
+        var unpacker = new MemoizingUnpacker<>(stateClass);
+        var stateColumns = stateColumns(stateClass);
+        for (var stateCol : stateColumns) {
+            var columnName = stateCol.name();
+            var columnType = castObject(stateCol);
+            var recordColumn = new RecordColumn<>(columnName, columnType,
+                                                  getter(stateCol, unpacker));
+            accumulator.add(recordColumn);
+        }
+
+        accumulator.add(EntityRecordColumn.archived);
+        accumulator.add(EntityRecordColumn.deleted);
+        accumulator.add(EntityRecordColumn.version);
+
+        var result = new RecordSpec<I, EntityRecord>(
+                stateClass,
+                idClass,
+                EntityRecord.class,
+                ImmutableSet.copyOf(accumulator),
+                idFromRecord()
+        );
+        return result;
     }
 
     @SuppressWarnings("unchecked")

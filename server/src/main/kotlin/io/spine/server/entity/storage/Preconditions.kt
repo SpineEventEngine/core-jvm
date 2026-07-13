@@ -24,7 +24,18 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+package io.spine.server.entity.storage
+
 /**
- * The version of this library.
+ * Ensures the given size of a read batch is positive.
+ *
+ * Shared by the history storages of this package; see [HistoryStorage].
+ *
+ * @param batchSize The value to check.
+ * @throws IllegalArgumentException If [batchSize] is not positive.
  */
-extra.set("versionToPublish", "2.0.0-SNAPSHOT.440")
+internal fun requirePositiveBatchSize(batchSize: Int) {
+    require(batchSize > 0) {
+        "The batch size must be positive, got $batchSize."
+    }
+}

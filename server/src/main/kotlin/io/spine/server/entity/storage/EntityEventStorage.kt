@@ -26,92 +26,54 @@
 
 package io.spine.server.entity.storage
 
-import com.google.protobuf.Timestamp
-import com.google.protobuf.util.Timestamps
-import io.spine.base.Identifier
 import io.spine.core.Event
 import io.spine.core.EventId
-import io.spine.core.Version
-import io.spine.query.RecordQuery
 import io.spine.server.ContextSpec
-import io.spine.server.storage.MessageStorage
+import io.spine.server.entity.Entity
 import io.spine.server.storage.RecordSpec
 import io.spine.server.storage.StorageFactory
+import io.spine.server.storage.StorageGroup
 
 /**
  * The journal of events emitted by an entity.
  *
- * The journal is an append-only storage of [Event]s kept for traceability and
- * recent-history lookups. It is not used for restoring entity states: an entity
- * loads from its latest record in the corresponding [EntityRecordStorage].
+ * The journal is an append-only [HistoryStorage] of [Event]s kept for
+ * traceability and recent-history lookups. It is not used for restoring
+ * entity states: an entity loads from its latest record in the
+ * corresponding [EntityRecordStorage].
  *
- * The events are stored as-is, keyed by their identifiers; the entity which emitted
- * an event, the event time, and the event version are exposed for querying as
- * the [columns][EntityEventColumn] derived from the event context.
- *
- * Currently, the framework journals the events emitted by
- * [Aggregate][io.spine.server.aggregate.Aggregate]s; see
- * [AggregateStorage][io.spine.server.aggregate.AggregateStorage].
+ * The events are stored as-is, keyed by their identifiers; the entity which
+ * emitted an event, the event time, and the event version are exposed for
+ * querying as the [columns][EntityEventColumns] derived from the event
+ * context.
  *
  * This storage supersedes the `AggregateEventStorage`, removed along with the other
- * event-sourcing machinery. The journal entries written by pre-cutover versions of
- * the framework — the retained
- * [AggregateEventRecord][io.spine.server.aggregate.AggregateEventRecord]s — are
- * a separate record kind, not visible to the reads performed by this storage.
+ * event-sourcing machinery.
+ *
+ * The journal is identified by the served entity class paired with the
+ * type of the stored items, [Event]: vendors allocate the physical
+ * storage by this pair (see
+ * [createRecordStorage][io.spine.server.storage.StorageFactory.createRecordStorage]),
+ * so a journal stays apart from the journals of other entity classes — even
+ * when their identifier values coincide — and from the other storages of
+ * its own entity class.
  *
  * The class is deliberately final: storage vendors customize the persistence via
  * the [RecordStorage][io.spine.server.storage.RecordStorage] delegate created by
  * their [StorageFactory].
  *
- * @param context Specification of the Bounded Context in scope of which the storage is used.
+ * @param context The specification of the Bounded Context in the scope of which
+ *                the storage is used.
  * @param factory The storage factory to use when creating a record storage delegate.
+ * @param entityClass The class of the entities whose events are journaled.
  */
 public class EntityEventStorage(
     context: ContextSpec,
-    factory: StorageFactory
-) : MessageStorage<EventId, Event>(
-    context,
-    factory.createRecordStorage(context, spec)
+    factory: StorageFactory,
+    entityClass: Class<out Entity<*, *>>
+) : HistoryStorage<EventId, Event>(
+    context, recordSpec, EntityEventColumns, StorageGroup.of(entityClass), factory
 ) {
-
-    /**
-     * Reads up to [batchSize] most recent journal events of the entity with
-     * the given identifier, ordered from newer to older.
-     *
-     * The events are sorted by their versions and then by the time they were
-     * created, both in the descending order.
-     *
-     * @param entityId The identifier of the entity that emitted the journaled events.
-     * @param batchSize The maximum number of the events to read.
-     * @param startingFrom If set, only the events with versions lower than this one are read.
-     * @return An iterator over the read events.
-     * @throws IllegalArgumentException If [batchSize] is not positive, or if the type
-     *   of [entityId] is not supported by the framework.
-     */
-    @JvmOverloads
-    public fun historyBackward(
-        entityId: Any,
-        batchSize: Int,
-        startingFrom: Version? = null
-    ): Iterator<Event> {
-        require(batchSize > 0) {
-            "The batch size must be positive, got `$batchSize`."
-        }
-        val packedId = Identifier.pack(entityId)
-        val builder = queryBuilder()
-            .where(EntityEventColumn.entityId).isEqualTo(packedId)
-        if (startingFrom != null) {
-            builder.where(EntityEventColumn.version)
-                .isLessThan(startingFrom.number)
-        }
-        val query = builder
-            .sortDescendingBy(EntityEventColumn.version)
-            .sortDescendingBy(EntityEventColumn.created)
-            .limit(batchSize)
-            .build()
-        return readAll(query)
-    }
-
     /**
      * Journals the given event.
      *
@@ -131,106 +93,41 @@ public class EntityEventStorage(
     }
 
     /**
-     * Truncates the journal, keeping up to [keepMostRecent] most recent events
-     * for each entity.
+     * Journals the given event under the given identifier.
      *
-     * The most recent events are determined per entity, in the order of
-     * [historyBackward]: by the event version and then by the time the event was
-     * created. Passing zero purges the whole journal.
+     * The record key of this journal is the event identifier, so the passed
+     * identifier must match the [id][Event.getId] of the event; prefer the
+     * one-argument [write].
      *
-     * The operation reads the whole journal, so it is intended for periodic
-     * maintenance rather than for per-dispatch use.
+     * The enrichments are cleared from the event the same way as by
+     * the one-argument [write].
      *
-     * @param keepMostRecent The number of the most recent events to keep for each entity.
-     * @throws IllegalArgumentException If [keepMostRecent] is negative.
+     * @param id The identifier of the record.
+     * @param message The event to journal.
+     * @throws IllegalArgumentException If the identifier does not match
+     *   the identifier of the event.
+     * @throws io.spine.validation.ValidationException If the event is incomplete.
      */
-    public fun truncate(keepMostRecent: Int) {
-        truncate(keepMostRecent) { true }
-    }
-
-    /**
-     * Truncates the journal, deleting the events older than [olderThan],
-     * but keeping at least [keepMostRecent] most recent events for each entity.
-     *
-     * An event is deleted only if it was created before the given time *and*
-     * it is not among the [keepMostRecent] most recent events of its entity.
-     * To purge everything older than the given time, pass zero as [keepMostRecent].
-     *
-     * The operation reads the whole journal, so it is intended for periodic
-     * maintenance rather than for per-dispatch use.
-     *
-     * @param keepMostRecent The number of the most recent events to keep for each entity.
-     * @param olderThan Only the events created strictly before this time are deleted.
-     * @throws IllegalArgumentException If [keepMostRecent] is negative.
-     */
-    public fun truncate(keepMostRecent: Int, olderThan: Timestamp) {
-        truncate(keepMostRecent) { event ->
-            Timestamps.compare(event.context().timestamp, olderThan) < 0
+    @Synchronized
+    public override fun write(id: EventId, message: Event) {
+        require(id == message.id) {
+            "The passed identifier does not match the identifier of the event."
         }
-    }
-
-    private fun truncate(keepMostRecent: Int, deletionAllowed: (Event) -> Boolean) {
-        require(keepMostRecent >= 0) {
-            "The number of the events to keep must not be negative, got `$keepMostRecent`."
-        }
-        val newestFirst = queryBuilder()
-            .sortDescendingBy(EntityEventColumn.version)
-            .sortDescendingBy(EntityEventColumn.created)
-            .build()
-        val events = readAll(newestFirst)
-        val seen = mutableMapOf<Any, Int>()
-        val toDelete = mutableListOf<EventId>()
-        events.forEach { event ->
-            val entityId = event.context().producerId
-            val count = (seen[entityId] ?: 0) + 1
-            seen[entityId] = count
-            if (count > keepMostRecent && deletionAllowed(event)) {
-                toDelete.add(event.id)
-            }
-        }
-        deleteAll(toDelete)
-    }
-
-    /**
-     * Reads all the journal events matching the given query.
-     *
-     * Overrides to expose the method as a part of the public API of this storage.
-     */
-    public override fun readAll(
-        query: RecordQuery<EventId, Event>
-    ): Iterator<Event> = super.readAll(query)
-
-    /**
-     * Deletes the journal record of the event with the given identifier.
-     *
-     * The journal is append-only for the framework write path; this method exists
-     * for the maintenance operations, such as the [truncate] trimming.
-     *
-     * Overrides to expose the method as a part of the public API of this storage.
-     *
-     * @return `true` if the record was deleted, `false` if it was not found.
-     */
-    public override fun delete(id: EventId): Boolean = super.delete(id)
-
-    /**
-     * Deletes the journal records of the events with the given identifiers.
-     *
-     * The journal is append-only for the framework write path; this method exists
-     * for the maintenance operations, such as the [truncate] trimming.
-     *
-     * Overrides to expose the method as a part of the public API of this storage.
-     */
-    public override fun deleteAll(ids: Iterable<EventId>) {
-        super.deleteAll(ids)
+        super.write(id, message.clearEnrichments())
     }
 }
 
 /**
- * A specification on how to store the journaled events.
+ * Composes a specification on how to store the events emitted by the entities
+ * of the given class.
+ *
+ * The state class of the entity becomes the source type of the specification;
+ * paired with the record type, [Event], it is the identity by which storage
+ * vendors allocate the physical storage.
  */
-private val spec: RecordSpec<EventId, Event> = RecordSpec(
+private val recordSpec: RecordSpec<EventId, Event> = RecordSpec(
+    Event::class.java,
     EventId::class.java,
     Event::class.java,
-    { event -> event.id },
-    EntityEventColumn.definitions()
-)
+    EntityEventColumns.definitions()
+) { event -> event.id }

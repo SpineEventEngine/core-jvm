@@ -38,9 +38,11 @@ import io.spine.server.delivery.InboxStorage;
 import io.spine.server.entity.Entity;
 import io.spine.server.entity.storage.EntityEventStorage;
 import io.spine.server.entity.storage.EntityRecordStorage;
+import io.spine.server.entity.storage.EntityStateHistoryStorage;
 import io.spine.server.event.EventStore;
 import io.spine.server.event.store.DefaultEventStore;
 import io.spine.server.migration.mirror.MirrorStorage;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A factory for creating storages used by repositories, {@link EventStore EventStore}
@@ -86,20 +88,45 @@ public interface StorageFactory extends Closeable {
     /**
      * Creates a new {@link RecordStorage}.
      *
+     * @param <I>
+     *         the type of the record identifiers
+     * @param <R>
+     *         the type of the stored records
      * @param context
-     *         specification of the Bounded Context in scope of which the storage will be used
+     *         specification of the Bounded Context in the scope of which the storage will be used
+     * @param recordSpec
+     *         the specification of the record format in which the items are stored
+     * @param group
+     *         the group telling this storage apart from the other storages holding
+     *         records of the same type, or {@code null} if the storage belongs to
+     *         no particular group; see {@link StorageGroup}
+     * @apiNote All other storage types delegate all their operations to
+     *         a {@code RecordStorage} and therefore use this method during their initialization
+     *         to create a private instance of a record storage.
+     */
+    <I, R extends Message> RecordStorage<I, R>
+    createRecordStorage(ContextSpec context,
+                        RecordSpec<I, R> recordSpec,
+                        @Nullable StorageGroup group);
+
+    /**
+     * Creates a new {@link RecordStorage} belonging to no particular
+     * {@linkplain StorageGroup storage group}.
+     *
+     * @param context
+     *         specification of the Bounded Context in the scope of which the storage will be used
      * @param recordSpec
      *         the specification of the record format in which the items are stored
      * @param <I>
      *         the type of the record identifiers
      * @param <R>
      *         the type of the stored records
-     * @apiNote All other storage types delegate all their operations to
-     *         a {@code RecordStorage} and therefore use this method during their initialization
-     *         to create a private instance of a record storage.
+     * @see #createRecordStorage(ContextSpec, RecordSpec, StorageGroup)
      */
-    <I, R extends Message> RecordStorage<I, R>
-    createRecordStorage(ContextSpec context, RecordSpec<I, R> recordSpec);
+    default <I, R extends Message> RecordStorage<I, R>
+    createRecordStorage(ContextSpec context, RecordSpec<I, R> recordSpec) {
+        return createRecordStorage(context, recordSpec, null);
+    }
 
     /**
      * Creates a new {@link AggregateStorage}.
@@ -122,10 +149,15 @@ public interface StorageFactory extends Closeable {
      * Creates a new {@link EntityEventStorage}.
      *
      * @param context
-     *         specification of the Bounded Context in scope of which the storage will be used
+     *         specification of the Bounded Context in the scope of which the storage will be used
+     * @param entityClass
+     *         the class of the entities served by the repository for which the storage
+     *         is created, telling the event journals of different entity classes apart
      */
-    default EntityEventStorage createEntityEventStorage(ContextSpec context) {
-        return new EntityEventStorage(context, this);
+    default EntityEventStorage
+    createEntityEventStorage(ContextSpec context,
+                             Class<? extends Entity<?, ?>> entityClass) {
+        return new EntityEventStorage(context, this, entityClass);
     }
 
     /**
@@ -154,6 +186,27 @@ public interface StorageFactory extends Closeable {
     createEntityRecordStorage(ContextSpec context, Class<? extends Entity<I, S>> entityClass) {
         var result = new EntityRecordStorage<>(context, this, entityClass);
         return result;
+    }
+
+    /**
+     * Creates a new {@link EntityStateHistoryStorage}.
+     *
+     * <p>Unlike most storages, created during the single-threaded registration of
+     * a repository, the state history may be created lazily — upon the first dispatch
+     * to a recording repository, on a delivery worker thread, and concurrently with
+     * the storage creation of other repositories. The implementing factory must
+     * tolerate the concurrent invocation.
+     *
+     * @param context
+     *         specification of the Bounded Context in scope of which the storage will be used
+     * @param entityClass
+     *         the class of the entities served by the repository for which the storage
+     *         is created, telling the state histories of different entity classes apart
+     */
+    default EntityStateHistoryStorage
+    createEntityStateHistoryStorage(ContextSpec context,
+                                    Class<? extends Entity<?, ?>> entityClass) {
+        return new EntityStateHistoryStorage(context, this, entityClass);
     }
 
     /**

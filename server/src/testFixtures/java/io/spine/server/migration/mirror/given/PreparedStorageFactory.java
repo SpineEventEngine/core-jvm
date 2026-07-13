@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,9 +32,11 @@ import io.spine.server.ContextSpec;
 import io.spine.server.entity.Entity;
 import io.spine.server.entity.storage.EntityRecordStorage;
 import io.spine.server.storage.RecordSpec;
+import io.spine.server.storage.StorageGroup;
 import io.spine.server.storage.RecordStorage;
 import io.spine.server.storage.StorageFactory;
 import io.spine.server.storage.memory.InMemoryStorageFactory;
+import org.jspecify.annotations.Nullable;
 
 /**
  * In-memory {@code StorageFactory} that substitutes individual storages with the custom ones.
@@ -67,9 +69,9 @@ public final class PreparedStorageFactory {
 
         @Override
         public <I, R extends Message> RecordStorage<I, R> createRecordStorage(
-                ContextSpec context, RecordSpec<I, R> recordSpec) {
+                ContextSpec context, RecordSpec<I, R> recordSpec, @Nullable StorageGroup group) {
             return InMemoryStorageFactory.newInstance()
-                                         .createRecordStorage(context, recordSpec);
+                                         .createRecordStorage(context, recordSpec, group);
         }
 
         @Override

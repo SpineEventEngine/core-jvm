@@ -24,33 +24,32 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.server.entity;
+syntax = "proto3";
 
-import io.spine.annotation.Internal;
-import io.spine.core.Event;
+package spine.server.entity;
 
-import java.util.Iterator;
+import "spine/options.proto";
 
-/**
- * Lazily loads up to a requested number of an entity's most recent journal events,
- * newest first.
- *
- * <p>A repository installs a loader on each entity it creates or loads (via
- * {@link TransactionalEntity#setRecentHistoryLoader(RecentHistoryLoader)}), so that the
- * {@linkplain RecentHistory#read(int) recent history reads} are served from the durable
- * journal of the entity without eagerly reading it on every load. See
- * {@code io.spine.server.aggregate.AggregateRepository} for the wiring on the aggregate side.
- */
-@Internal
-@FunctionalInterface
-public interface RecentHistoryLoader {
+option (type_url_prefix) = "type.spine.io";
+option (SPI_all) = true;
+option java_package = "io.spine.server.entity";
+option java_outer_classname = "StateKeyProto";
+option java_multiple_files = true;
 
-    /**
-     * Loads up to {@code depth} most recent events of the entity's journal, newest first.
-     *
-     * @param depth
-     *         the maximum number of the most recent events to load; positive
-     * @return an iterator over the loaded events, newest first
-     */
-    Iterator<Event> load(int depth);
+import "google/protobuf/any.proto";
+
+// Identifies a stored state of an entity: the entity and the version
+// at which the state became current.
+//
+// Serves as the record key of the entity state history, so writing the state
+// of the same entity at the same version again overwrites one record instead
+// of creating a duplicate.
+//
+message EntityStateKey {
+
+    // The packed identifier of the entity.
+    google.protobuf.Any entity_id = 1;
+
+    // The number of the entity version this state belongs to.
+    int32 version = 2;
 }

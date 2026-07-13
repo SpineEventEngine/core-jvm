@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -32,6 +32,8 @@ import io.spine.server.delivery.InboxMessage;
 import io.spine.server.storage.RecordSpec;
 import io.spine.server.storage.RecordStorage;
 import io.spine.server.storage.StorageFactory;
+import io.spine.server.storage.StorageGroup;
+import org.jspecify.annotations.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -51,9 +53,9 @@ public final class ModelTestStorageFactory implements StorageFactory {
     @Override
     public <I, R extends Message> RecordStorage<I, R> createRecordStorage(
             ContextSpec context,
-            RecordSpec<I, R> recordSpec
+            RecordSpec<I, R> recordSpec, @Nullable StorageGroup group
     ) {
-        var storage = delegate.createRecordStorage(context, recordSpec);
+        var storage = delegate.createRecordStorage(context, recordSpec, group);
         if (recordSpec.recordType().equals(InboxMessage.class)) {
             return new NeverForgettingStorage<>(context, storage);
         }

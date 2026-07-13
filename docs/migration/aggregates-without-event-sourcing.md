@@ -24,8 +24,8 @@ declares one now fails fast at model-building time.
 | Version | advanced per emitted event (`v+1..v+N`) | **+1 per command**, like a `ProcessManager` |
 | Event import | `@Apply(allowImport = true)` + `ImportBus` | **removed** — use external reactions / gateways |
 | Dedup | always-on aggregate `IdempotencyGuard` | guard **opt-in, off** (performance); delivery has its own time-window dedup |
-| Recent history | `historyBackward()` (window = last snapshot) | `historyBackward(depth)` — explicit window |
-| Snapshots | `setSnapshotTrigger()`, `toSnapshot()` | **removed** — use `setHistoryDepth()` |
+| Recent history | `historyBackward()` (window = last snapshot) | `eventHistoryBackward(depth)` — explicit window |
+| Snapshots | `setSnapshotTrigger()`, `toSnapshot()` | **removed** — use `setEventHistoryDepth()` |
 
 ## 1. Move applier bodies into handlers
 
@@ -214,6 +214,11 @@ Route external facts through standard idioms instead:
 An aggregate's version now advances **by one per command (or reaction) dispatch**,
 regardless of how many events the handler emits — the same rule a `ProcessManager` already
 uses (D3). Every event of one dispatch carries the aggregate's **pre-dispatch** version.
+A dispatch that changes only the lifecycle flags — e.g. a reaction archiving the
+aggregate without emitting events — advances the version too: the persisted record
+changes, and consumers keyed by the version (such as the entity state history) must
+never observe two distinct records under one version. Only a dispatch that changes
+nothing at all leaves the version as is.
 
 **Observable change.** Previously, the events of one command bore distinct versions
 `v+1..v+N` and the aggregate ended at `v+N`. Now those events share one version and the
@@ -235,9 +240,9 @@ Two independent deduplication mechanisms exist, and they are not interchangeable
   signal and the target entity (so one event fanned out to many aggregates is not falsely
   deduplicated — D5). Size its `deduplicationWindow` in production to your realistic
   redelivery/retry horizon.
-- The aggregate-level **`IdempotencyGuard`** deduplicates against the last `historyDepth()`
-  *signals* (default 100), however long ago they were dispatched — a count-based window, not
-  a time-based one.
+- The aggregate-level **`IdempotencyGuard`** deduplicates against the last
+  `eventHistoryDepth()` *signals* (default 100), however long ago they were dispatched —
+  a count-based window, not a time-based one.
 
 The guard is **opt-in, per repository, and off by default**, and the reason is performance:
 enabling it adds a bounded journal read to every dispatch. It is *not* off because the delivery
@@ -251,9 +256,9 @@ final class OrdersRepository extends AggregateRepository<OrderId, Order, OrderSt
 }
 ```
 
-When enabled, each dispatch scans the last `historyDepth()` journal events (default 100)
+When enabled, each dispatch scans the last `eventHistoryDepth()` journal events (default 100)
 rather than "everything since the last snapshot"; high-throughput aggregates that enable it
-should tune `historyDepth`. With the guard off (the default), a redelivery after a JVM restart
+should tune `eventHistoryDepth`. With the guard off (the default), a redelivery after a JVM restart
 or cache eviction outside the delivery `deduplicationWindow` could apply a state mutation
 twice, since state now changes directly in the handler — so size that window accordingly.
 
@@ -262,17 +267,21 @@ twice, since state now changes directly in the handler — so size that window a
 Business logic that reads recent history now states how far back it looks, in events (D10):
 
 ```java
-protected final Iterator<Event> historyBackward(int depth);
-protected final boolean historyContains(int depth, Predicate<Event> predicate);
+protected final Iterator<Event> eventHistoryBackward(int depth);
+protected final boolean eventHistoryContains(int depth, Predicate<Event> predicate);
 ```
+
+The `event` qualifier tells the journal reads apart from the state history reads
+(`stateAt(Timestamp)`, `stateHistoryBackward(depth)`) available when the repository
+records the state history.
 
 The count is **events**, not commands — after the version change above, one command may emit
 several events sharing one version. History is loaded lazily from the journal tail, sized to
 the request.
 
 The parameterless `historyBackward()` and `historyContains(Predicate)` are **deprecated but
-still work**, delegating with a fixed `depth` of 100 — regardless of any `setHistoryDepth(n)`
-you configure. Their effective window changes from "everything since the last snapshot" to
+still work**, delegating with a fixed `depth` of 100 — regardless of any
+`setEventHistoryDepth(n)` you configure. Their effective window changes from "everything since the last snapshot" to
 "the last 100 events." Move to the explicit forms and state the window your logic needs.
 
 ## 7. Snapshot configuration is removed
@@ -281,8 +290,8 @@ Snapshots no longer exist, so their configuration is gone (not merely deprecated
 
 | Removed | Replacement |
 |---------|-------------|
-| `AggregateRepository.setSnapshotTrigger(int)` | `AggregateRepository.setHistoryDepth(int)` |
-| `AggregateRepository.snapshotTrigger()` | `AggregateRepository.historyDepth()` |
+| `AggregateRepository.setSnapshotTrigger(int)` | `AggregateRepository.setEventHistoryDepth(int)` |
+| `AggregateRepository.snapshotTrigger()` | `AggregateRepository.eventHistoryDepth()` |
 | `Aggregate.toSnapshot()` | — (loading reads the state record) |
 
 The `Snapshot` and `AggregateHistory` proto messages are **retained** for journal wire
@@ -299,7 +308,7 @@ storage.truncate(keepMostRecent, olderThan); // drop events older than the time,
 
 The journal is append-only on the write path, so production systems run the truncation
 as periodic maintenance. When the opt-in `IdempotencyGuard` is enabled (§5), keep at
-least the repository's `historyDepth` events, so the deduplication window stays intact.
+least the repository's `eventHistoryDepth` events, so the deduplication window stays intact.
 
 ## 8. Data caveat — `NONE`-visibility aggregates are a hard break
 
@@ -330,7 +339,7 @@ as a follow-up.
 | `AggregateEventRecord` | the `core.Event` itself — events are journaled as-is, no wrapper |
 | `AggregateEventRecordId` | the `core.EventId` of the stored event — no dedicated id type |
 | `AggregateEventStorage` | `io.spine.server.entity.storage.EntityEventStorage` |
-| `AggregateEventRecordColumn` | `io.spine.server.entity.storage.EntityEventColumn` |
+| `AggregateEventRecordColumn` | `io.spine.server.entity.storage.EntityEventColumns` |
 | `StorageFactory.createAggregateEventStorage` | `StorageFactory.createEntityEventStorage` |
 
 The journal stores plain `Event`s; the emitting entity, the event time, and the event
@@ -351,7 +360,7 @@ pre-cutover journals. The current journal is trimmed by the count/date-based
 upgrading a running system. The journal now stores plain `Event`s — a **record kind
 distinct** from the legacy `AggregateEventRecord`s — so journal entries written
 before the upgrade are not visible to the new reads. In particular, the `IdempotencyGuard`
-window and `historyBackward(depth)` **start empty right after the upgrade** and refill as
+window and `eventHistoryBackward(depth)` **start empty right after the upgrade** and refill as
 new events are emitted. If the guard is your only deduplication safeguard, configure a
 delivery `deduplicationWindow` to cover the upgrade window (§5). As with the
 `NONE`-visibility break (§8), **no migration tooling is shipped** (Spine 2.x is pre-GA).
@@ -362,8 +371,8 @@ The legacy records stay on disk as inert data; the current runtime does not read
 **Removed** (compile errors — migrate the call site):
 
 - `Aggregate` `@Apply` appliers → move bodies into `@Assign` / `@React` (§1)
-- `AggregateRepository.setSnapshotTrigger(int)` / `snapshotTrigger()` → `setHistoryDepth` /
-  `historyDepth` (§7)
+- `AggregateRepository.setSnapshotTrigger(int)` / `snapshotTrigger()` → `setEventHistoryDepth` /
+  `eventHistoryDepth` (§7)
 - `Aggregate.toSnapshot()` (§7)
 - `ImportBus`, `EventImportEndpoint`, `EventImportDispatcher`,
   `UnsupportedImportEventException`,
@@ -377,7 +386,8 @@ The legacy records stay on disk as inert data; the current runtime does not read
 **Deprecated** (still compile; removed in v2.0.0):
 
 - `@Apply` and `@Apply#allowImport` — detection-only; a declared applier is a `ModelError`
-- `Aggregate.historyBackward()` / `historyContains(Predicate)` → the `depth` forms (§6)
+- `Aggregate.historyBackward()` / `historyContains(Predicate)` →
+  `eventHistoryBackward(depth)` / `eventHistoryContains(depth, predicate)` (§6)
 
 **Retained for wire compatibility** (do not use in new code): the `Snapshot`,
 `AggregateHistory`, `AggregateEventRecord`, and `AggregateEventRecordId` proto messages

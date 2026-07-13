@@ -60,7 +60,7 @@ public final class GivenStorageProject {
                              StgProjectColumns.definitions());
 
     private static final RecordSpec<StgProjectId, EntityRecord> entityRecordSpec =
-            SpecScanner.scan(StgProjectId.class, StgProject.class);
+            SpecScanner.scan(EntityRecordStorageTestEnv.TestCounterEntity.class);
 
     /**
      * Prevents this utility from instantiation.

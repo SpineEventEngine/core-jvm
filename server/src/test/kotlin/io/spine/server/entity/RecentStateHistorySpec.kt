@@ -26,43 +26,66 @@
 
 package io.spine.server.entity
 
+import com.google.protobuf.Timestamp
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
-import io.spine.core.Event
-import io.spine.test.storage.event.StgProjectCreated
+import io.spine.base.Identifier
+import io.spine.base.Time.currentTime
+import io.spine.core.Versions
+import io.spine.protobuf.AnyPacker
+import io.spine.test.storage.StgProject
 import io.spine.testdata.Sample
-import io.spine.testing.server.TestEventFactory
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
-@DisplayName("`RecentHistory` should")
-internal class RecentHistorySpec {
+@DisplayName("`RecentStateHistory` should")
+internal class RecentStateHistorySpec {
 
-    private val history = RecentHistory()
+    private val history = RecentStateHistory<StgProject>()
 
     @Test
-    fun `serve the reads through the installed loader`() {
-        val fromJournal = newEvents(count = 2).reversed()
+    fun `serve the reads through the installed loader, unpacking the states`() {
+        val states = List(2) { newState() }
+        val records = states.mapIndexed { index, state -> record(state, index + 1) }
         var requestedDepth = 0
-        history.useLoader { depth ->
-            requestedDepth = depth
-            fromJournal.iterator()
-        }
+        history.useLoader(object : StateHistoryLoader {
+            override fun load(depth: Int): Iterator<EntityRecord> {
+                requestedDepth = depth
+                return records.reversed().iterator()
+            }
+
+            override fun stateAt(at: Timestamp): EntityRecord? = null
+        })
 
         val read = history.read(7).asSequence().toList()
 
-        read shouldContainExactly fromJournal
+        read shouldContainExactly states.reversed()
         requestedDepth shouldBe 7
     }
 
     @Test
-    fun `return no events when no loader is installed`() {
+    fun `answer the state at a time through the installed loader`() {
+        val state = newState()
+        val retained = record(state, number = 1)
+        history.useLoader(object : StateHistoryLoader {
+            override fun load(depth: Int): Iterator<EntityRecord> =
+                emptyList<EntityRecord>().iterator()
+
+            override fun stateAt(at: Timestamp): EntityRecord? = retained
+        })
+
+        history.stateAt(currentTime()) shouldBe state
+    }
+
+    @Test
+    fun `return no states when no loader is installed`() {
         history.read(Int.MAX_VALUE)
             .asSequence()
             .toList()
             .shouldBeEmpty()
+        history.stateAt(currentTime()) shouldBe null
     }
 
     @Test
@@ -75,13 +98,11 @@ internal class RecentHistorySpec {
         }
     }
 
-    private fun newEvents(count: Int): List<Event> = List(count) {
-        eventFactory.createEvent(Sample.messageOfType(StgProjectCreated::class.java))
-    }
+    private fun newState(): StgProject = Sample.messageOfType(StgProject::class.java)
 
-    private companion object {
-
-        private val eventFactory =
-            TestEventFactory.newInstance(RecentHistorySpec::class.java)
+    private fun record(of: StgProject, number: Int): EntityRecord = entityRecord {
+        entityId = Identifier.pack(of.id)
+        state = AnyPacker.pack(of)
+        version = Versions.newVersion(number, currentTime())
     }
 }
