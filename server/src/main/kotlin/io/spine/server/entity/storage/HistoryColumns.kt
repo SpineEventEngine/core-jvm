@@ -47,7 +47,8 @@ public interface HistoryColumns<M : Message> {
     /**
      * The column with the packed identifier of the entity.
      */
-    @Suppress("PropertyName") // Named after the column, per the `RecordColumns` contract.
+    @Suppress("VariableNaming", "PropertyName")
+        // Named after the column, per the `RecordColumns` contract.
     public val entity_id: RecordColumn<M, Any>
 
     /**
