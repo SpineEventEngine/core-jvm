@@ -87,7 +87,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * {@code StgProjectStorage} used in these tests delegates all of its actions to the underlying
  * {@code RecordStorage}, which in turn is produced by the pre-configured
  * {@linkplain ServerEnvironment#storageFactory() current} {@code StorageFactory}.
- * Therefore all tests will run against the desired storage engine.
+ * Therefore, all tests will run against the desired storage engine.
  */
 @SuppressWarnings("resource")
 @DisplayName("A `RecordStorageDelegate` descendant should")
