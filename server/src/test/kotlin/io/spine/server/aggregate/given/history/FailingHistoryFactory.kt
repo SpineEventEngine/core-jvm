@@ -51,10 +51,10 @@ internal class FailingHistoryFactory : StorageFactory {
 
     override fun <I : Any, R : Message> createRecordStorage(
         context: ContextSpec,
-        group: StorageGroup?,
-        recordSpec: RecordSpec<I, R>
+        recordSpec: RecordSpec<I, R>,
+        group: StorageGroup?
     ): RecordStorage<I, R> {
-        val actual = delegate.createRecordStorage(context, group, recordSpec)
+        val actual = delegate.createRecordStorage(context, recordSpec, group)
         // Fail only the state-history writes: a grouped storage of `EntityRecord`s.
         // The event journal (of `Event`s) and the latest-state storage (belonging
         // to no group) keep working, so a dispatch proceeds until the append.

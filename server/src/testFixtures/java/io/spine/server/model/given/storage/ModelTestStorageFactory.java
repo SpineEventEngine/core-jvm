@@ -53,10 +53,9 @@ public final class ModelTestStorageFactory implements StorageFactory {
     @Override
     public <I, R extends Message> RecordStorage<I, R> createRecordStorage(
             ContextSpec context,
-            @Nullable StorageGroup group,
-            RecordSpec<I, R> recordSpec
+            RecordSpec<I, R> recordSpec, @Nullable StorageGroup group
     ) {
-        var storage = delegate.createRecordStorage(context, group, recordSpec);
+        var storage = delegate.createRecordStorage(context, recordSpec, group);
         if (recordSpec.recordType().equals(InboxMessage.class)) {
             return new NeverForgettingStorage<>(context, storage);
         }

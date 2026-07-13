@@ -119,9 +119,9 @@ public final class SystemAwareStorageFactory implements StorageFactory {
     @Override
     public <I, M extends Message> RecordStorage<I, M>
     createRecordStorage(ContextSpec context,
-                        @Nullable StorageGroup group,
-                        RecordSpec<I, M> recordSpec) {
-        return delegate.createRecordStorage(context, group, recordSpec);
+                        RecordSpec<I, M> recordSpec,
+                        @Nullable StorageGroup group) {
+        return delegate.createRecordStorage(context, recordSpec, group);
     }
 
     @Override

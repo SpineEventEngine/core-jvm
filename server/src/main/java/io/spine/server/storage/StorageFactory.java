@@ -88,26 +88,26 @@ public interface StorageFactory extends Closeable {
     /**
      * Creates a new {@link RecordStorage}.
      *
-     * @param context
-     *         specification of the Bounded Context in the scope of which the storage will be used
-     * @param group
-     *         the group telling this storage apart from the other storages holding
-     *         records of the same type, or {@code null} if the storage belongs to
-     *         no particular group; see {@link StorageGroup}
-     * @param recordSpec
-     *         the specification of the record format in which the items are stored
      * @param <I>
      *         the type of the record identifiers
      * @param <R>
      *         the type of the stored records
+     * @param context
+     *         specification of the Bounded Context in the scope of which the storage will be used
+     * @param recordSpec
+     *         the specification of the record format in which the items are stored
+     * @param group
+     *         the group telling this storage apart from the other storages holding
+     *         records of the same type, or {@code null} if the storage belongs to
+     *         no particular group; see {@link StorageGroup}
      * @apiNote All other storage types delegate all their operations to
      *         a {@code RecordStorage} and therefore use this method during their initialization
      *         to create a private instance of a record storage.
      */
     <I, R extends Message> RecordStorage<I, R>
     createRecordStorage(ContextSpec context,
-                        @Nullable StorageGroup group,
-                        RecordSpec<I, R> recordSpec);
+                        RecordSpec<I, R> recordSpec,
+                        @Nullable StorageGroup group);
 
     /**
      * Creates a new {@link RecordStorage} belonging to no particular
@@ -121,11 +121,11 @@ public interface StorageFactory extends Closeable {
      *         the type of the record identifiers
      * @param <R>
      *         the type of the stored records
-     * @see #createRecordStorage(ContextSpec, StorageGroup, RecordSpec)
+     * @see #createRecordStorage(ContextSpec, RecordSpec, StorageGroup)
      */
     default <I, R extends Message> RecordStorage<I, R>
     createRecordStorage(ContextSpec context, RecordSpec<I, R> recordSpec) {
-        return createRecordStorage(context, null, recordSpec);
+        return createRecordStorage(context, recordSpec, null);
     }
 
     /**

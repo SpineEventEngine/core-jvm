@@ -89,8 +89,8 @@ public class EntityStateHistoryStorage(
     factory: StorageFactory,
     entityClass: Class<out Entity<*, *>>
 ) : HistoryStorage<EntityStateKey, EntityRecord>(
-    context, factory, recordSpecFor(entityClass), EntityStateHistoryColumns,
-    StorageGroup.of(entityClass)
+    context, recordSpecFor(entityClass), EntityStateHistoryColumns, StorageGroup.of(entityClass),
+    factory
 ) {
 
     /**

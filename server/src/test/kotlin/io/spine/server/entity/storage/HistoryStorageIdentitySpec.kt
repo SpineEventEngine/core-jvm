@@ -131,14 +131,14 @@ internal class HistoryStorageIdentitySpec {
 
         override fun <I : Any, R : Message> createRecordStorage(
             context: ContextSpec,
-            group: StorageGroup?,
-            recordSpec: RecordSpec<I, R>
+            recordSpec: RecordSpec<I, R>,
+            group: StorageGroup?
         ): RecordStorage<I, R> {
             recordSpecs.add(recordSpec)
             if (group != null) {
                 historySpecs.add(recordSpec)
             }
-            return delegate.createRecordStorage(context, group, recordSpec)
+            return delegate.createRecordStorage(context, recordSpec, group)
         }
 
         /**

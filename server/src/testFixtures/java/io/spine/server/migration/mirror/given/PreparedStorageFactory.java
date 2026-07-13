@@ -69,9 +69,9 @@ public final class PreparedStorageFactory {
 
         @Override
         public <I, R extends Message> RecordStorage<I, R> createRecordStorage(
-                ContextSpec context, @Nullable StorageGroup group, RecordSpec<I, R> recordSpec) {
+                ContextSpec context, RecordSpec<I, R> recordSpec, @Nullable StorageGroup group) {
             return InMemoryStorageFactory.newInstance()
-                                         .createRecordStorage(context, group, recordSpec);
+                                         .createRecordStorage(context, recordSpec, group);
         }
 
         @Override

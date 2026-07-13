@@ -72,11 +72,11 @@ import io.spine.server.storage.StorageGroup
  */
 public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
     context: ContextSpec,
-    factory: StorageFactory,
     recordSpec: RecordSpec<I, M>,
     private val columns: HistoryColumns<M>,
-    storageGroup: StorageGroup
-) : MessageStorage<I, M>(context, factory.createRecordStorage(context, storageGroup, recordSpec)) {
+    storageGroup: StorageGroup,
+    factory: StorageFactory
+) : MessageStorage<I, M>(context, factory.createRecordStorage(context, recordSpec, storageGroup)) {
 
     /**
      * Reads up to [batchSize] most recent history items of the entity with

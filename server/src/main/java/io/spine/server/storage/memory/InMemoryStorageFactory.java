@@ -55,8 +55,7 @@ public final class InMemoryStorageFactory implements StorageFactory {
     @Override
     public <I, M extends Message> InMemoryRecordStorage<I, M>
     createRecordStorage(ContextSpec context,
-                        @Nullable StorageGroup group,
-                        RecordSpec<I, M> spec) {
+                        RecordSpec<I, M> spec, @Nullable StorageGroup group) {
         // Each in-memory storage is isolated per instance, so the group,
         // which only tells apart the storages sharing a physical backend,
         // makes no difference here.
