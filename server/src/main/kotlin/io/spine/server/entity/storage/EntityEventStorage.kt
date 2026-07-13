@@ -30,6 +30,8 @@ import io.spine.core.Event
 import io.spine.core.EventId
 import io.spine.server.ContextSpec
 import io.spine.server.entity.Entity
+import io.spine.server.entity.model.EntityClass
+import io.spine.server.storage.RecordSpec
 import io.spine.server.storage.StorageFactory
 
 /**
@@ -69,7 +71,9 @@ public class EntityEventStorage(
     context: ContextSpec,
     factory: StorageFactory,
     entityClass: Class<out Entity<*, *>>
-) : HistoryStorage<EventId, Event>(context, factory, specFor(entityClass)) {
+) : HistoryStorage<EventId, Event>(
+    context, factory, recordSpecFor(entityClass), EntityEventColumns
+) {
 
     /**
      * Journals the given event.
@@ -118,14 +122,15 @@ public class EntityEventStorage(
  * Composes a specification on how to store the events emitted by the entities
  * of the given class.
  *
- * The entity class, paired with the item type, is the identity by which
- * storage vendors allocate the physical storage.
+ * The state class of the entity becomes the source type of the specification;
+ * paired with the record type, [Event], it is the identity by which storage
+ * vendors allocate the physical storage.
  */
-private fun specFor(
+private fun recordSpecFor(
     entityClass: Class<out Entity<*, *>>
-): HistorySpec<EventId, Event> = HistorySpec(
-    entityClass = entityClass,
-    idType = EventId::class.java,
-    itemType = Event::class.java,
-    columns = EntityEventColumns
+): RecordSpec<EventId, Event> = RecordSpec(
+    EntityClass.stateClassOf(entityClass),
+    EventId::class.java,
+    Event::class.java,
+    EntityEventColumns.definitions()
 ) { event -> event.id }

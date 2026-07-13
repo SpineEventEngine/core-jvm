@@ -35,6 +35,8 @@ import io.spine.server.entity.Entity
 import io.spine.server.entity.EntityRecord
 import io.spine.server.entity.EntityStateKey
 import io.spine.server.entity.entityStateKey
+import io.spine.server.entity.model.EntityClass
+import io.spine.server.storage.RecordSpec
 import io.spine.server.storage.StorageFactory
 
 /**
@@ -85,7 +87,9 @@ public class EntityStateHistoryStorage(
     context: ContextSpec,
     factory: StorageFactory,
     entityClass: Class<out Entity<*, *>>
-) : HistoryStorage<EntityStateKey, EntityRecord>(context, factory, specFor(entityClass)) {
+) : HistoryStorage<EntityStateKey, EntityRecord>(
+    context, factory, recordSpecFor(entityClass), EntityStateHistoryColumns
+) {
 
     /**
      * Returns the state record the entity had at the given time,
@@ -220,16 +224,17 @@ private const val STATE_AT_BATCH = 100
  * Composes a specification on how to store the state records of the entities
  * of the given class.
  *
- * The entity class, paired with the item type, is the identity by which
+ * The state class of the entity becomes the source type of the specification;
+ * paired with the record type, [EntityRecord], it is the identity by which
  * storage vendors allocate the physical storage.
  */
-private fun specFor(
+private fun recordSpecFor(
     entityClass: Class<out Entity<*, *>>
-): HistorySpec<EntityStateKey, EntityRecord> = HistorySpec(
-    entityClass = entityClass,
-    idType = EntityStateKey::class.java,
-    itemType = EntityRecord::class.java,
-    columns = EntityStateHistoryColumns
+): RecordSpec<EntityStateKey, EntityRecord> = RecordSpec(
+    EntityClass.stateClassOf(entityClass),
+    EntityStateKey::class.java,
+    EntityRecord::class.java,
+    EntityStateHistoryColumns.definitions()
 ) { record -> record.stateKey() }
 
 /**

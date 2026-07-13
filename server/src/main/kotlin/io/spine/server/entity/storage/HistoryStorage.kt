@@ -34,6 +34,7 @@ import io.spine.core.Version
 import io.spine.query.RecordQuery
 import io.spine.server.ContextSpec
 import io.spine.server.storage.MessageStorage
+import io.spine.server.storage.RecordSpec
 import io.spine.server.storage.StorageFactory
 
 /**
@@ -41,8 +42,8 @@ import io.spine.server.storage.StorageFactory
  *
  * A history storage keeps items of the type [M] — e.g., the events emitted
  * by an entity, or the records of its past states — appended as the entity
- * handles its signals. Each stored item exposes the three columns of
- * the [HistorySpec], allowing to manage the history and query it
+ * handles its signals. Each stored item exposes the three
+ * [columns][HistoryColumns], allowing to manage the history and query it
  * efficiently: the packed identifier of the entity, the time the item was
  * created, and the number of the entity version the item belongs to.
  *
@@ -61,20 +62,17 @@ import io.spine.server.storage.StorageFactory
  * @param M The type of the stored history items.
  * @param context Specification of the Bounded Context in scope of which the storage is used.
  * @param factory The storage factory to use when creating a record storage delegate.
- * @param spec The specification of the history.
+ * @param recordSpec The specification of the records persisting the history items.
+ * @property columns The columns to manage and query the history by.
  * @see EntityEventStorage
  * @see EntityStateHistoryStorage
  */
 public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
     context: ContextSpec,
     factory: StorageFactory,
-    spec: HistorySpec<I, M>
-) : MessageStorage<I, M>(context, factory.createHistoryStorage(context, spec)) {
-
-    /**
-     * The columns to manage and query the history by.
-     */
-    private val columns: HistoryColumns<M> = spec.columns
+    recordSpec: RecordSpec<I, M>,
+    private val columns: HistoryColumns<M>
+) : MessageStorage<I, M>(context, factory.createHistoryStorage(context, recordSpec)) {
 
     /**
      * Reads up to [batchSize] most recent history items of the entity with

@@ -64,9 +64,9 @@ import static io.spine.util.Exceptions.newIllegalArgumentException;
  * {@code EntityRecord.state} field) must be unpacked first.
  *
  * <p>The per-entity histories compose their specifications differently — see
- * {@link io.spine.server.entity.storage.HistorySpec HistorySpec}. In particular,
- * the entity state history also stores {@code EntityRecord}s, yet exposes
- * the history columns rather than the scanned state columns.
+ * {@link io.spine.server.entity.storage.HistoryStorage HistoryStorage}. In
+ * particular, the entity state history also stores {@code EntityRecord}s, yet
+ * exposes the history columns rather than the scanned state columns.
  *
  * @param <I>
  *         the type of the record identifier
@@ -85,7 +85,7 @@ public final class RecordSpec<I, R extends Message> {
      * <p>The specifications of the per-entity histories also set this field to
      * the state class of the entity they serve — the event journal pairs it
      * with {@code recordType} of {@code Event} (see
-     * {@link io.spine.server.entity.storage.HistorySpec HistorySpec}).
+     * {@link io.spine.server.entity.storage.HistoryStorage HistoryStorage}).
      *
      * <p>In all other cases, this value equals to {@code recordType}.
      */
@@ -130,7 +130,7 @@ public final class RecordSpec<I, R extends Message> {
      *         the Entity states stored as {@code EntityRecord}s (see
      *         {@link io.spine.server.entity.storage.SpecScanner SpecScanner}), and the
      *         per-entity histories (see
-     *         {@link io.spine.server.entity.storage.HistorySpec HistorySpec}).
+     *         {@link io.spine.server.entity.storage.HistoryStorage HistoryStorage}).
      */
     @Internal
     public RecordSpec(Class<? extends Message> sourceType,
@@ -203,8 +203,8 @@ public final class RecordSpec<I, R extends Message> {
      *
      * <p>For the specifications composed by the per-entity histories, returns
      * the type identifying the origin of the history — the class of the
-     * entity state (see {@link io.spine.server.entity.storage.HistorySpec
-     * HistorySpec}).
+     * entity state (see {@link io.spine.server.entity.storage.HistoryStorage
+     * HistoryStorage}).
      */
     public Class<? extends Message> sourceType() {
         return sourceType;

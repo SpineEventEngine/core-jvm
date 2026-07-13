@@ -29,7 +29,6 @@ package io.spine.server.aggregate.given.history
 import com.google.protobuf.Message
 import io.spine.server.ContextSpec
 import io.spine.server.entity.EntityRecord
-import io.spine.server.entity.storage.HistorySpec
 import io.spine.server.storage.RecordSpec
 import io.spine.server.storage.RecordStorage
 import io.spine.server.storage.RecordStorageDelegate
@@ -56,10 +55,10 @@ internal class FailingHistoryFactory : StorageFactory {
 
     override fun <I : Any, M : Message> createHistoryStorage(
         context: ContextSpec,
-        spec: HistorySpec<I, M>
+        recordSpec: RecordSpec<I, M>
     ): RecordStorage<I, M> {
-        val actual = delegate.createRecordStorage(context, spec.recordSpec)
-        return if (spec.itemType == EntityRecord::class.java) {
+        val actual = delegate.createRecordStorage(context, recordSpec)
+        return if (recordSpec.recordType() == EntityRecord::class.java) {
             FailingWrites(context, actual)
         } else {
             actual

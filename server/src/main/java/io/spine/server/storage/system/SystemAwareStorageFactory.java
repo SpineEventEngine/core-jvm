@@ -35,7 +35,6 @@ import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.AggregateStorage;
 import io.spine.server.delivery.CatchUpStorage;
 import io.spine.server.delivery.InboxStorage;
-import io.spine.server.entity.storage.HistorySpec;
 import io.spine.server.event.EventStore;
 import io.spine.server.event.store.EmptyEventStore;
 import io.spine.server.storage.RecordSpec;
@@ -133,8 +132,8 @@ public final class SystemAwareStorageFactory implements StorageFactory {
      */
     @Override
     public <I, M extends Message> RecordStorage<I, M>
-    createHistoryStorage(ContextSpec context, HistorySpec<I, M> spec) {
-        return delegate.createHistoryStorage(context, spec);
+    createHistoryStorage(ContextSpec context, RecordSpec<I, M> recordSpec) {
+        return delegate.createHistoryStorage(context, recordSpec);
     }
 
     @Override
