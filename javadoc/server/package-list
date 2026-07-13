@@ -100,6 +100,8 @@ $dokka.location:io.spine.server.entity/EntityRecord.Builder///PointingToDeclarat
 $dokka.location:io.spine.server.entity/EntityRecordChange.Builder///PointingToDeclaration/io/spine/server/entity/EntityRecordChange.Builder.html
 $dokka.location:io.spine.server.entity/EntityRecordChangeKt.Dsl///PointingToDeclaration/io/spine/server/entity/EntityRecordChangeKt.Dsl.html
 $dokka.location:io.spine.server.entity/EntityRecordKt.Dsl///PointingToDeclaration/io/spine/server/entity/EntityRecordKt.Dsl.html
+$dokka.location:io.spine.server.entity/EntityStateKey.Builder///PointingToDeclaration/io/spine/server/entity/EntityStateKey.Builder.html
+$dokka.location:io.spine.server.entity/EntityStateKeyKt.Dsl///PointingToDeclaration/io/spine/server/entity/EntityStateKeyKt.Dsl.html
 $dokka.location:io.spine.server.entity/EventFieldFilter.Builder///PointingToDeclaration/io/spine/server/entity/EventFieldFilter.Builder.html
 $dokka.location:io.spine.server.entity/LifecycleFlags.Builder///PointingToDeclaration/io/spine/server/entity/LifecycleFlags.Builder.html
 $dokka.location:io.spine.server.entity/LifecycleFlagsKt.Dsl///PointingToDeclaration/io/spine/server/entity/LifecycleFlagsKt.Dsl.html
