@@ -53,18 +53,6 @@ internal class FailingHistoryFactory : StorageFactory {
         recordSpec: RecordSpec<I, R>
     ): RecordStorage<I, R> = delegate.createRecordStorage(context, recordSpec)
 
-    override fun <I : Any, M : Message> createHistoryStorage(
-        context: ContextSpec,
-        recordSpec: RecordSpec<I, M>
-    ): RecordStorage<I, M> {
-        val actual = delegate.createRecordStorage(context, recordSpec)
-        return if (recordSpec.recordType() == EntityRecord::class.java) {
-            FailingWrites(context, actual)
-        } else {
-            actual
-        }
-    }
-
     override fun isOpen(): Boolean = delegate.isOpen
 
     override fun close() = delegate.close()

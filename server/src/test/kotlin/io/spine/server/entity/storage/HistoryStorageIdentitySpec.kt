@@ -136,14 +136,6 @@ internal class HistoryStorageIdentitySpec {
             return delegate.createRecordStorage(context, recordSpec)
         }
 
-        override fun <I : Any, M : Message> createHistoryStorage(
-            context: ContextSpec,
-            recordSpec: RecordSpec<I, M>
-        ): RecordStorage<I, M> {
-            historySpecs.add(recordSpec)
-            return super.createHistoryStorage(context, recordSpec)
-        }
-
         /**
          * Returns the captured source types of the histories storing
          * items of the given type, in the order of storage creation.

@@ -103,49 +103,6 @@ public interface StorageFactory extends Closeable {
     createRecordStorage(ContextSpec context, RecordSpec<I, R> recordSpec);
 
     /**
-     * Creates a new {@link RecordStorage} serving a per-entity history.
-     *
-     * <p>A history is allocated apart from the storages created via
-     * {@link #createRecordStorage(ContextSpec, RecordSpec) createRecordStorage},
-     * and apart from the other histories: the physical storage — a table, a kind —
-     * is identified by the {@linkplain RecordSpec#sourceType() source type} and the
-     * {@linkplain RecordSpec#recordType() record type} of the passed specification,
-     * together; its name is at the discretion of the factory. The source type is the
-     * class of the entity state, so histories of different entity types stay apart,
-     * and the two histories of one entity — the event journal and the state history —
-     * stay apart by their record type ({@code Event} vs {@code EntityRecord}).
-     *
-     * <p>The default implementation delegates to {@code createRecordStorage},
-     * which only suits the factories isolating each created storage, such as
-     * the in-memory one. A factory mapping equal record specifications to one
-     * physical storage must override this method — otherwise a history would
-     * collide with the latest-state storage of the same entity type, which
-     * shares its {@code (sourceType, recordType)} pair but arrives at
-     * {@code createRecordStorage}.
-     *
-     * <p>Unlike most storages, created during the single-threaded registration
-     * of a repository, a history storage may be created lazily — upon the first
-     * dispatch to a recording repository, on a delivery worker thread, and
-     * concurrently with the storage creation of other repositories using this
-     * factory. Implementations must tolerate the concurrent invocation and
-     * should not defer the validation of their backend to the first use.
-     *
-     * @param context
-     *         specification of the Bounded Context in scope of which the storage will be used
-     * @param recordSpec
-     *         the specification of the records persisting the history items
-     * @param <I>
-     *         the type of the record identifiers
-     * @param <M>
-     *         the type of the stored history items
-     * @see io.spine.server.entity.storage.HistoryStorage
-     */
-    default <I, M extends Message> RecordStorage<I, M>
-    createHistoryStorage(ContextSpec context, RecordSpec<I, M> recordSpec) {
-        return createRecordStorage(context, recordSpec);
-    }
-
-    /**
      * Creates a new {@link AggregateStorage}.
      *
      * @param <I>
@@ -169,9 +126,7 @@ public interface StorageFactory extends Closeable {
      *         specification of the Bounded Context in scope of which the storage will be used
      * @param entityClass
      *         the class of the entities served by the repository for which the storage
-     *         is created; its state class and the stored item type identify the physical
-     *         storage, keeping the event journals of different entity classes apart
-     *         (see {@link #createHistoryStorage(ContextSpec, RecordSpec) createHistoryStorage})
+     *         is created, telling the event journals of different entity classes apart
      */
     default EntityEventStorage
     createEntityEventStorage(ContextSpec context,
@@ -210,17 +165,17 @@ public interface StorageFactory extends Closeable {
     /**
      * Creates a new {@link EntityStateHistoryStorage}.
      *
-     * <p>May be invoked at dispatch time, on concurrent worker threads — see
-     * {@link #createHistoryStorage(ContextSpec, RecordSpec) createHistoryStorage}
-     * for the threading expectations.
+     * <p>Unlike most storages, created during the single-threaded registration of
+     * a repository, the state history may be created lazily — upon the first dispatch
+     * to a recording repository, on a delivery worker thread, and concurrently with
+     * the storage creation of other repositories. The implementing factory must
+     * tolerate the concurrent invocation.
      *
      * @param context
      *         specification of the Bounded Context in scope of which the storage will be used
      * @param entityClass
      *         the class of the entities served by the repository for which the storage
-     *         is created; its state class and the stored item type identify the physical
-     *         storage, keeping the state histories of different entity classes apart
-     *         (see {@link #createHistoryStorage(ContextSpec, RecordSpec) createHistoryStorage})
+     *         is created, telling the state histories of different entity classes apart
      */
     default EntityStateHistoryStorage
     createEntityStateHistoryStorage(ContextSpec context,

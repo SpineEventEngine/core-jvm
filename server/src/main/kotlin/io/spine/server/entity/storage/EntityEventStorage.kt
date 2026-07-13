@@ -51,7 +51,7 @@ import io.spine.server.storage.StorageFactory
  * The journal is identified by the served entity class paired with the
  * type of the stored items, [Event]: vendors allocate the physical
  * storage by this pair (see
- * [createHistoryStorage][io.spine.server.storage.StorageFactory.createHistoryStorage]),
+ * [createRecordStorage][io.spine.server.storage.StorageFactory.createRecordStorage]),
  * so a journal stays apart from the journals of other entity classes — even
  * when their identifier values coincide — and from the other storages of
  * its own entity class.

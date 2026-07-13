@@ -120,22 +120,6 @@ public final class SystemAwareStorageFactory implements StorageFactory {
         return delegate.createRecordStorage(context, recordSpec);
     }
 
-    /**
-     * Creates a new record storage serving a per-entity history.
-     *
-     * <p>Delegates to the wrapped factory, so that a vendor override of
-     * {@code createHistoryStorage} takes effect: the framework always
-     * interacts with this wrapper, and without the explicit forwarding
-     * the default implementation inherited by the wrapper would funnel
-     * the history into {@link #createRecordStorage}, bypassing the vendor
-     * seam entirely.
-     */
-    @Override
-    public <I, M extends Message> RecordStorage<I, M>
-    createHistoryStorage(ContextSpec context, RecordSpec<I, M> recordSpec) {
-        return delegate.createHistoryStorage(context, recordSpec);
-    }
-
     @Override
     public boolean isOpen() {
         return delegate.isOpen();

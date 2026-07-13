@@ -56,7 +56,7 @@ import io.spine.server.storage.StorageFactory
  * the constructor is `internal`. Storage vendors customize the persistence
  * via the [RecordStorage][io.spine.server.storage.RecordStorage] delegate
  * their [StorageFactory] creates in
- * [createHistoryStorage][io.spine.server.storage.StorageFactory.createHistoryStorage].
+ * [createRecordStorage][io.spine.server.storage.StorageFactory.createRecordStorage].
  *
  * @param I The type of the record identifiers.
  * @param M The type of the stored history items.
@@ -72,7 +72,7 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
     factory: StorageFactory,
     recordSpec: RecordSpec<I, M>,
     private val columns: HistoryColumns<M>
-) : MessageStorage<I, M>(context, factory.createHistoryStorage(context, recordSpec)) {
+) : MessageStorage<I, M>(context, factory.createRecordStorage(context, recordSpec)) {
 
     /**
      * Reads up to [batchSize] most recent history items of the entity with

@@ -69,7 +69,7 @@ import io.spine.server.storage.StorageFactory
  * The storage is identified by the served entity class paired with the
  * type of the stored items, [EntityRecord]: vendors allocate the
  * physical storage by this pair (see
- * [createHistoryStorage][io.spine.server.storage.StorageFactory.createHistoryStorage]),
+ * [createRecordStorage][io.spine.server.storage.StorageFactory.createRecordStorage]),
  * so a state history stays apart from the histories of other entity
  * classes — even when their identifier values coincide — and from the
  * latest-state records of its own entity class, which never arrive at
