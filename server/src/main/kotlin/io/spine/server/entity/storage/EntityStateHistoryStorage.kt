@@ -174,15 +174,22 @@ public class EntityStateHistoryStorage(
 
     /**
      * Trims the history of the entity with the given identifier, keeping up
-     * to [keepMostRecent] most recent records.
+     * to [keepMostRecent] most recent records. Passing zero purges the
+     * history of the entity.
      *
-     * Overrides the generic implementation with an identifier-only read:
-     * the [record keys][EntityStateKey] of this storage carry the version,
-     * so ranking the records needs no record payloads. Trimming thus
-     * reads small identifiers instead of full records with packed states.
+     * Ranks the records by an identifier-only read: the [record keys][EntityStateKey]
+     * of this storage carry the version, so ranking needs no record payloads —
+     * trimming reads small identifiers instead of full records with packed states.
+     *
+     * @param entityId The identifier of the entity.
+     * @param keepMostRecent The number of the most recent records to keep.
+     * @throws IllegalArgumentException If [keepMostRecent] is negative, or if the type
+     *   of [entityId] is not supported by the framework.
      */
-    override fun trim(entityId: Any, keepMostRecent: Int) {
-        requireNotNegative(keepMostRecent)
+    public fun trim(entityId: Any, keepMostRecent: Int) {
+        require(keepMostRecent >= 0) {
+            "The number of the records to keep must not be negative, got `$keepMostRecent`."
+        }
         val packedId = Identifier.pack(entityId)
         val selection = queryBuilder()
             .where(EntityStateHistoryColumns.entity_id).isEqualTo(packedId)

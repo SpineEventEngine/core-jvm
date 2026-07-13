@@ -48,8 +48,7 @@ import io.spine.server.storage.StorageGroup
  * created, and the number of the entity version the item belongs to.
  *
  * On top of them, the storage provides the [window reads][historyBackward]
- * ordered from newer to older, and the maintenance operations:
- * the per-entity [trim] and the time-based [truncate].
+ * ordered from newer to older, and the time-based [truncate] maintenance operation.
  *
  * While the reads and the maintenance operations are open to applications,
  * new kinds of histories cannot be defined outside the framework:
@@ -114,40 +113,6 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
     }
 
     /**
-     * Trims the history of the entity with the given identifier, keeping up
-     * to [keepMostRecent] most recent items.
-     *
-     * Unlike [truncate], the operation reads only the items of the given
-     * entity, so it is the cheaper way to bound the history of one entity.
-     * Passing zero purges the history of the entity.
-     *
-     * A storage whose record identifiers carry the ranking of the items may
-     * override this implementation with an identifier-only read.
-     *
-     * @param entityId The identifier of the entity.
-     * @param keepMostRecent The number of the most recent items to keep.
-     * @throws IllegalArgumentException If [keepMostRecent] is negative, or if the type
-     *   of [entityId] is not supported by the framework.
-     */
-    public open fun trim(entityId: Any, keepMostRecent: Int) {
-        requireNotNegative(keepMostRecent)
-        val packedId = Identifier.pack(entityId)
-        val newestFirst = queryBuilder()
-            .where(columns.entity_id).isEqualTo(packedId)
-            .sortDescendingBy(columns.version)
-            .sortDescendingBy(columns.created)
-            .build()
-        val items = readAll(newestFirst)
-        val toDelete = items.asSequence()
-            .drop(keepMostRecent)
-            .map { idOf(it) }
-            .toList()
-        if (toDelete.isNotEmpty()) {
-            deleteAll(toDelete)
-        }
-    }
-
-    /**
      * Truncates the history, deleting the items created before [olderThan].
      *
      * An item is deleted if and only if it was created strictly before the
@@ -156,8 +121,7 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
      *
      * The items are removed by a query on the [created][HistoryColumns.created]
      * column rather than by reading the history into memory, so the operation
-     * scales to large histories. To bound the history of a single entity,
-     * prefer [trim].
+     * scales to large histories.
      *
      * @param olderThan Only the items created strictly before this time are deleted.
      */
@@ -167,20 +131,6 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
             .build()
         deleteMatching(query)
     }
-
-    /**
-     * Ensures the size of a window to keep is not negative.
-     */
-    protected fun requireNotNegative(keepMostRecent: Int) {
-        require(keepMostRecent >= 0) {
-            "The number of the items to keep must not be negative, got `$keepMostRecent`."
-        }
-    }
-
-    /**
-     * Obtains the record identifier of the given history item.
-     */
-    private fun idOf(item: M): I = recordSpec().idValueIn(item)
 
     /**
      * Reads all the history items matching the given query.
