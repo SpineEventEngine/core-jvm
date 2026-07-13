@@ -27,7 +27,6 @@
 package io.spine.server.aggregate;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.google.protobuf.Timestamp;
 import io.spine.annotation.SPI;
 import io.spine.base.AggregateState;
@@ -210,12 +209,13 @@ public class AggregateStorage<I, S extends AggregateState<I>>
     public Optional<EntityEventHistory> read(I id, int batchSize) {
         checkNotClosedAndArguments(id, batchSize);
         checkPositive(batchSize);
+        // Materializes the lazy iterator; the events arrive newest-first.
         var events = ImmutableList.copyOf(historyBackward(id, batchSize));
         if (events.isEmpty()) {
             return Optional.empty();
         }
         var history = EntityEventHistory.newBuilder()
-                .addAllEvent(Lists.reverse(events))
+                .addAllEvent(events.reverse())
                 .build();
         return Optional.of(history);
     }
