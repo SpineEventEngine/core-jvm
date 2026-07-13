@@ -96,7 +96,9 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
         batchSize: Int,
         startingFrom: Version? = null
     ): Iterator<M> {
-        requirePositiveBatchSize(batchSize)
+        require(batchSize > 0) {
+            "The batch size must be positive, got $batchSize."
+        }
         val packedId = Identifier.pack(entityId)
         val builder = queryBuilder()
             .where(columns.entity_id).isEqualTo(packedId)
