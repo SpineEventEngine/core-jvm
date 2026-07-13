@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>EntityStateHistoryStorage</title>
+    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
+        <script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+      if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      } else {
+        const savedDarkMode = JSON.parse(storage)
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      }
+    </script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../../ui-kit/ui-kit.min.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/safe-local-storage_blocking.js"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../ui-kit/ui-kit.min.js" defer="defer"></script>
+<link href="../../../images/logo-icon.svg">
+<link href="../../../styles/custom-styles.css" rel="Stylesheet">
+</head>
+<body>
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+            <a class="library-name--link" href="../../../index.html" tabindex="1">
+                    server
+            </a>
+        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle"
+                type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">
+2.0.0-SNAPSHOT.440        </div>
+        <div class="navigation-controls">
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector jvm-like" data-active="" aria-pressed="true"
+                        data-filter=":server/main">jvm</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
+                        data-role="dropdown-toggle"
+                        aria-controls="platform-tags-listbox"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-label="Toggle source sets"
+                ></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option jvm-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":server/main"
+                                       data-filter=":server/main"/>
+                                <span class="checkbox--icon"></span>
+                                jvm
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </ul>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
+                    type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
+        </div>
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config='{"defaultSize": 280, "minSize": 200, "maxSize": 400}'>
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list"
+                    data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
+                            <span>
+                                    server
+                            </span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
+<div class="main-content" data-page-type="classlike" id="content" pageIds="server::io.spine.server.entity.storage/EntityStateHistoryStorage///PointingToDeclaration//332232451">
+  <div class="breadcrumbs"><a href="../../../index.html">server</a><span class="delimiter">/</span><a href="../index.html">io.spine.server.entity.storage</a><span class="delimiter">/</span><span class="current">EntityStateHistoryStorage</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>Entity</span><wbr></wbr><span>State</span><wbr></wbr><span>History</span><wbr></wbr><span><span>Storage</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="index.html">EntityStateHistoryStorage</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">context<span class="token operator">: </span><a href="../../io.spine.server/-context-spec/index.html">ContextSpec</a><span class="token punctuation">, </span></span><span class="parameter ">factory<span class="token operator">: </span><a href="../../io.spine.server.storage/-storage-factory/index.html">StorageFactory</a><span class="token punctuation">, </span></span><span class="parameter ">entityClass<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html">Class</a><span class="token operator">&lt;</span><span class="token keyword">out </span><a href="../../io.spine.server.entity/-entity/index.html">Entity</a><span class="token operator">&lt;</span><span class="token operator">*</span><span class="token punctuation">, </span><span class="token operator">*</span><span class="token operator">&gt;</span><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span> : <a href="../-history-storage/index.html">HistoryStorage</a><span class="token operator">&lt;</span><a href="../../io.spine.server.entity/-entity-state-key/index.html">EntityStateKey</a><span class="token punctuation">, </span><a href="../../io.spine.server.entity/-entity-record/index.html">EntityRecord</a><span class="token operator">&gt; </span><span class="source-link-wrapper"><span class="source-link" data-element-type="source-link">(<a href="https://github.com/SpineEventEngine/core-jvm/tree/master/server/src/main/kotlin/io/spine/server/entity/storage/EntityStateHistoryStorage.kt#L87">source</a>)</span></span></div><p class="paragraph">The history of recent states of entities, retained until the application trims it.</p><p class="paragraph">This <a href="../-history-storage/index.html">HistoryStorage</a> stores the <a href="../../io.spine.server.entity/-entity-record/index.html">EntityRecord</a> an entity had after each dispatch, keyed by the entity identifier and the version number. Entities read their recorded states through a <span data-unresolved-link="io.spine.server.entity/StateHistoryLoader///PointingToDeclaration/">StateHistoryLoader</span> installed by the repository — e.g., <code class="lang-kotlin">Aggregate.stateAt(Timestamp)</code> — and the storage also serves debugging and analysis, answering the <a href="state-at.html">&quot;state at a time&quot; query</a>. The history is never used for loading: an entity loads from its latest record in the corresponding <a href="../-entity-record-storage/index.html">EntityRecordStorage</a>.</p><p class="paragraph">Recording is opt-in per repository and is off by default; see <a href="../../io.spine.server.aggregate/-aggregate-repository/record-state-history.html">recordStateHistory</a> in <code class="lang-kotlin">AggregateRepository</code>. The history is not trimmed automatically: retention is the duty of the application, served by the <a href="trim.html">trim</a> and <a href="../-history-storage/truncate.html">truncate</a> maintenance operations.</p><p class="paragraph">The records are stored as-is; the entity, the time the state became current, and the version number are exposed for querying as the <a href="../-entity-state-history-columns/index.html">columns</a> derived from the record.</p><p class="paragraph">Nothing in this storage is specific to a kind of entity; currently, <code class="lang-kotlin">Aggregate</code>s are the only kind recording their state history.</p><p class="paragraph">The storage is identified by the served entity class paired with the type of the stored items, <a href="../../io.spine.server.entity/-entity-record/index.html">EntityRecord</a>: vendors allocate the physical storage by this pair (see <span data-unresolved-link="io.spine.server.storage/StorageFactory/createRecordStorage/#io.spine.server.ContextSpec#io.spine.server.storage.RecordSpec[TypeParam(bounds=[kotlin.Any]),TypeParam(bounds=[com.google.protobuf.Message])]#io.spine.server.storage.StorageGroup?/PointingToDeclaration/">createRecordStorage</span>), so a state history stays apart from the histories of other entity classes — even when their identifier values coincide — and from the latest-state records of its own entity class, which never arrive at the history seam.</p><p class="paragraph">The class is deliberately final: storage vendors customize the persistence via the <a href="../../io.spine.server.storage/-record-storage/index.html">RecordStorage</a> delegate created by their <a href="../../io.spine.server.storage/-storage-factory/index.html">StorageFactory</a>.</p><h4 class="tableheader">Parameters</h4><div class="table"><div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span><span>context</span></span></u></div></span></div><div><div class="title"><p class="paragraph">Specification of the Bounded Context in scope of which the storage is used.</p></div></div></div></div><div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span><span>factory</span></span></u></div></span></div><div><div class="title"><p class="paragraph">The storage factory to use when creating a record storage delegate.</p></div></div></div></div><div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span>entity</span><wbr></wbr><span><span>Class</span></span></u></div></span></div><div><div class="title"><p class="paragraph">The class of the entities whose states are recorded.</p></div></div></div></div></div></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="CONSTRUCTOR">
+        <h2 class="tableheader">Constructors</h2>
+        <div class="table"><a data-name="1951107381%2FConstructors%2F332232451" anchor-label="EntityStateHistoryStorage" id="1951107381%2FConstructors%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-togglable="CONSTRUCTOR" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-entity-state-history-storage.html"><span>Entity</span><wbr></wbr><span>State</span><wbr></wbr><span>History</span><wbr></wbr><span><span>Storage</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1951107381%2FConstructors%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">context<span class="token operator">: </span><a href="../../io.spine.server/-context-spec/index.html">ContextSpec</a><span class="token punctuation">, </span></span><span class="parameter ">factory<span class="token operator">: </span><a href="../../io.spine.server.storage/-storage-factory/index.html">StorageFactory</a><span class="token punctuation">, </span></span><span class="parameter ">entityClass<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html">Class</a><span class="token operator">&lt;</span><span class="token keyword">out </span><a href="../../io.spine.server.entity/-entity/index.html">Entity</a><span class="token operator">&lt;</span><span class="token operator">*</span><span class="token punctuation">, </span><span class="token operator">*</span><span class="token operator">&gt;</span><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="FUNCTION">
+        <h2 class="tableheader">Functions</h2>
+        <div class="table"><a data-name="-163225725%2FFunctions%2F332232451" anchor-label="stateAt" id="-163225725%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="state-at.html"><span>state</span><wbr></wbr><span><span>At</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-163225725%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">fun </span><a href="state-at.html"><span class="token function">stateAt</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">entityId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token punctuation">, </span></span><span class="parameter ">at<span class="token operator">: </span><span data-unresolved-link="com.google.protobuf/Timestamp///PointingToDeclaration/">Timestamp</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../io.spine.server.entity/-entity-record/index.html">EntityRecord</a><span class="token operator">?</span></div><div class="brief "><p class="paragraph">Returns the state record the entity had at the given time if the history retains it.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-2015621854%2FFunctions%2F332232451" anchor-label="trim" id="-2015621854%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="trim.html"><span><span>trim</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2015621854%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="trim.html"><span class="token function">trim</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">entityId<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token punctuation">, </span></span><span class="parameter ">keepMostRecent<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Trims the history of the entity with the given identifier, keeping up to <a href="trim.html">keepMostRecent</a> most recent records.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-575659989%2FFunctions%2F332232451" anchor-label="write" id="-575659989%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="write.html"><span><span>write</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-575659989%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="write.html"><span class="token function">write</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">message<span class="token operator">: </span><a href="../../io.spine.server.entity/-entity-record/index.html">EntityRecord</a></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Stores the given state record in the history.</p></div><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.jvm/-synchronized/index.html"><span class="token annotation builtin">Synchronized</span></a></div></div><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="write.html"><span class="token function">write</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">id<span class="token operator">: </span><a href="../../io.spine.server.entity/-entity-state-key/index.html">EntityStateKey</a><span class="token punctuation">, </span></span><span class="parameter ">message<span class="token operator">: </span><a href="../../io.spine.server.entity/-entity-record/index.html">EntityRecord</a></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Stores the given state record under the given identifier.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    <div class="footer">
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>Copyright 2026, TeamDev</div>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
