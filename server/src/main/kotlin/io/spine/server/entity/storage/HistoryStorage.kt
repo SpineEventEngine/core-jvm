@@ -62,11 +62,11 @@ import io.spine.server.storage.StorageGroup
  * @param I The type of the record identifiers.
  * @param M The type of the stored history items.
  * @param context Specification of the Bounded Context in scope of which the storage is used.
- * @param factory The storage factory to use when creating a record storage delegate.
  * @param recordSpec The specification of the records persisting the history items.
  * @property columns The columns to manage and query the history by.
  * @param storageGroup The group the record storage of this history belongs to,
  *   telling it apart from the latest-state storage of the same entity.
+ * @param factory The storage factory to use when creating a record storage delegate.
  * @see EntityEventStorage
  * @see EntityStateHistoryStorage
  */
