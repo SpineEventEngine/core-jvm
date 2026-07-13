@@ -219,8 +219,8 @@ public abstract class RecordStorage<I, R extends Message> extends AbstractStorag
     /**
      * Deletes the batch of message records by their identifiers.
      *
-     * <p>If for some provided identifiers there is no records in the storage, such identifiers
-     * are silently skipped.
+     * <p>If for some provided identifiers there are no records in the storage,
+     * such identifiers are silently skipped.
      *
      * @param ids
      *         identifiers of the records to delete
