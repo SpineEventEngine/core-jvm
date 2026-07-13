@@ -38,8 +38,10 @@ import io.spine.server.delivery.InboxStorage;
 import io.spine.server.event.EventStore;
 import io.spine.server.event.store.EmptyEventStore;
 import io.spine.server.storage.RecordSpec;
+import io.spine.server.storage.StorageGroup;
 import io.spine.server.storage.RecordStorage;
 import io.spine.server.storage.StorageFactory;
+import org.jspecify.annotations.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -116,8 +118,10 @@ public final class SystemAwareStorageFactory implements StorageFactory {
 
     @Override
     public <I, M extends Message> RecordStorage<I, M>
-    createRecordStorage(ContextSpec context, RecordSpec<I, M> recordSpec) {
-        return delegate.createRecordStorage(context, recordSpec);
+    createRecordStorage(ContextSpec context,
+                        @Nullable StorageGroup group,
+                        RecordSpec<I, M> recordSpec) {
+        return delegate.createRecordStorage(context, group, recordSpec);
     }
 
     @Override

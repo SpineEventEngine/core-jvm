@@ -36,6 +36,7 @@ import io.spine.server.delivery.given.CalcAggregate
 import io.spine.server.entity.EntityRecord
 import io.spine.server.storage.RecordSpec
 import io.spine.server.storage.RecordStorage
+import io.spine.server.storage.StorageGroup
 import io.spine.server.storage.StorageFactory
 import io.spine.server.storage.memory.InMemoryStorageFactory
 import io.spine.server.storage.system.SystemAwareStorageFactory
@@ -130,10 +131,14 @@ internal class HistoryStorageIdentitySpec {
 
         override fun <I : Any, R : Message> createRecordStorage(
             context: ContextSpec,
+            group: StorageGroup?,
             recordSpec: RecordSpec<I, R>
         ): RecordStorage<I, R> {
             recordSpecs.add(recordSpec)
-            return delegate.createRecordStorage(context, recordSpec)
+            if (group != null) {
+                historySpecs.add(recordSpec)
+            }
+            return delegate.createRecordStorage(context, group, recordSpec)
         }
 
         /**

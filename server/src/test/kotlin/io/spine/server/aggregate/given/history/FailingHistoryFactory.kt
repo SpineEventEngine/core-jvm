@@ -30,6 +30,7 @@ import com.google.protobuf.Message
 import io.spine.server.ContextSpec
 import io.spine.server.entity.EntityRecord
 import io.spine.server.storage.RecordSpec
+import io.spine.server.storage.StorageGroup
 import io.spine.server.storage.RecordStorage
 import io.spine.server.storage.RecordStorageDelegate
 import io.spine.server.storage.RecordWithColumns
@@ -50,8 +51,19 @@ internal class FailingHistoryFactory : StorageFactory {
 
     override fun <I : Any, R : Message> createRecordStorage(
         context: ContextSpec,
+        group: StorageGroup?,
         recordSpec: RecordSpec<I, R>
-    ): RecordStorage<I, R> = delegate.createRecordStorage(context, recordSpec)
+    ): RecordStorage<I, R> {
+        val actual = delegate.createRecordStorage(context, group, recordSpec)
+        // Fail only the state-history writes: a grouped storage of `EntityRecord`s.
+        // The event journal (of `Event`s) and the latest-state storage (belonging
+        // to no group) keep working, so a dispatch proceeds until the append.
+        return if (group != null && recordSpec.recordType() == EntityRecord::class.java) {
+            FailingWrites(context, actual)
+        } else {
+            actual
+        }
+    }
 
     override fun isOpen(): Boolean = delegate.isOpen
 
