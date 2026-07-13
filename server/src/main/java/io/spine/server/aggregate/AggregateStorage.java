@@ -126,7 +126,7 @@ public class AggregateStorage<I, S extends AggregateState<I>>
     /**
      * Stores the events emitted by the served Aggregates.
      */
-    private final EntityEventStorage eventStorage;
+    private final EntityEventStorage<I> eventStorage;
 
     /**
      * Stores the latest states of Aggregates.

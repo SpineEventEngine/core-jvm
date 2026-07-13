@@ -79,6 +79,7 @@ import io.spine.server.storage.StorageGroup
  * via the [RecordStorage][io.spine.server.storage.RecordStorage] delegate
  * created by their [StorageFactory].
  *
+ * @param I The type of the identifiers of the entities whose states are recorded.
  * @param context Specification of the Bounded Context in scope of which the storage is used.
  * @param factory The storage factory to use when creating a record storage delegate.
  * @param entityClass The class of the entities whose states are recorded.
@@ -87,7 +88,7 @@ public class EntityStateHistoryStorage<I : Any>(
     context: ContextSpec,
     factory: StorageFactory,
     entityClass: Class<out Entity<I, *>>
-) : HistoryStorage<EntityStateKey, EntityRecord>(
+) : HistoryStorage<I, EntityStateKey, EntityRecord>(
     context,
     HistoryStorageSpec(
         recordSpecFor(entityClass),

@@ -42,14 +42,14 @@ import io.spine.server.storage.StorageGroup
  * The [recordSpec] must list the [historyColumns] among its columns — build it
  * with [HistoryColumns.definitions] — so that the history can be queried by them.
  *
- * @param I The type of the record identifiers.
- * @param M The type of the stored history items.
+ * @param K The type of the record identifiers.
+ * @param V The type of the stored history items.
  * @property recordSpec The specification of the records persisting the history items.
  * @property historyColumns The columns to manage and query the history by.
  * @property storageGroup The group the record storage of this history belongs to.
  */
-internal data class HistoryStorageSpec<I : Any, M : Message>(
-    val recordSpec: RecordSpec<I, M>,
-    val historyColumns: HistoryColumns<M>,
+internal data class HistoryStorageSpec<K : Any, V : Message>(
+    val recordSpec: RecordSpec<K, V>,
+    val historyColumns: HistoryColumns<V>,
     val storageGroup: StorageGroup,
 )

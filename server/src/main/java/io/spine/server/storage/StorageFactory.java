@@ -148,16 +148,18 @@ public interface StorageFactory extends Closeable {
     /**
      * Creates a new {@link EntityEventStorage}.
      *
+     * @param <I>
+     *         the type of the entity identifiers
      * @param context
      *         specification of the Bounded Context in the scope of which the storage will be used
      * @param entityClass
      *         the class of the entities served by the repository for which the storage
      *         is created, telling the event journals of different entity classes apart
      */
-    default EntityEventStorage
+    default <I> EntityEventStorage<I>
     createEntityEventStorage(ContextSpec context,
-                             Class<? extends Entity<?, ?>> entityClass) {
-        return new EntityEventStorage(context, this, entityClass);
+                             Class<? extends Entity<I, ?>> entityClass) {
+        return new EntityEventStorage<>(context, this, entityClass);
     }
 
     /**
@@ -197,6 +199,8 @@ public interface StorageFactory extends Closeable {
      * the storage creation of other repositories. The implementing factory must
      * tolerate the concurrent invocation.
      *
+     * @param <I>
+     *         the type of the entity identifiers
      * @param context
      *         specification of the Bounded Context in scope of which the storage will be used
      * @param entityClass

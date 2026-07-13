@@ -62,16 +62,17 @@ import io.spine.server.storage.StorageGroup
  * the [RecordStorage][io.spine.server.storage.RecordStorage] delegate created by
  * their [StorageFactory].
  *
+ * @param I The type of the identifiers of the entities whose events are journaled.
  * @param context The specification of the Bounded Context in the scope of which
  *                the storage is used.
  * @param factory The storage factory to use when creating a record storage delegate.
  * @param entityClass The class of the entities whose events are journaled.
  */
-public class EntityEventStorage(
+public class EntityEventStorage<I : Any>(
     context: ContextSpec,
     factory: StorageFactory,
-    entityClass: Class<out Entity<*, *>>
-) : HistoryStorage<EventId, Event>(
+    entityClass: Class<out Entity<I, *>>
+) : HistoryStorage<I, EventId, Event>(
     context,
     HistoryStorageSpec(recordSpec, EntityEventColumns, StorageGroup.of(entityClass)),
     factory

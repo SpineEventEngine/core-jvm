@@ -45,7 +45,9 @@ import io.spine.server.ContextSpec
 import io.spine.server.storage.given.EntityRecordStorageTestEnv.TestCounterEntity
 import io.spine.server.storage.memory.InMemoryStorageFactory
 import io.spine.test.storage.StgProject
+import io.spine.test.storage.StgProjectId
 import io.spine.test.storage.event.StgProjectCreated
+import io.spine.test.storage.stgProjectId
 import io.spine.testdata.Sample
 import io.spine.testing.server.TestEventFactory
 import io.spine.validation.NonValidated
@@ -59,9 +61,9 @@ import org.junit.jupiter.api.Test
 @DisplayName("`EntityEventStorage` should")
 internal class EntityEventStorageSpec {
 
-    private val entityId = "journaled-entity"
-    private val anotherEntity = "another-entity"
-    private lateinit var storage: EntityEventStorage
+    private val entityId = stgProjectId { id = "journaled-entity" }
+    private val anotherEntity = stgProjectId { id = "another-entity" }
+    private lateinit var storage: EntityEventStorage<StgProjectId>
     private var version = zero()
 
     @BeforeEach
@@ -331,7 +333,7 @@ internal class EntityEventStorageSpec {
      */
     private fun appendEvents(
         count: Int,
-        toEntity: String = entityId,
+        toEntity: StgProjectId = entityId,
         at: Timestamp? = null
     ): List<Event> {
         val factory = eventFactoryFor(toEntity)
@@ -362,7 +364,7 @@ internal class EntityEventStorageSpec {
          * The journal stores an event under its producer, so the tests emit
          * the events with the identifier they later read the history by.
          */
-        private fun eventFactoryFor(entityId: String): TestEventFactory =
+        private fun eventFactoryFor(entityId: StgProjectId): TestEventFactory =
             TestEventFactory.newInstance(
                 Identifier.pack(entityId),
                 EntityEventStorageSpec::class.java

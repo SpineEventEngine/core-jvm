@@ -38,7 +38,7 @@ import io.spine.server.storage.StorageFactory
 /**
  * An abstract base for the storages of a per-entity history.
  *
- * A history storage keeps items of the type [M] — e.g., the events emitted
+ * A history storage keeps items of the type [V] — e.g., the events emitted
  * by an entity, or the records of its past states — appended as the entity
  * handles its signals. Each stored item exposes the three
  * [columns][HistoryColumns], allowing to manage the history and query it
@@ -55,8 +55,9 @@ import io.spine.server.storage.StorageFactory
  * their [StorageFactory] creates in
  * [createRecordStorage][io.spine.server.storage.StorageFactory.createRecordStorage].
  *
- * @param I The type of the record identifiers.
- * @param M The type of the stored history items.
+ * @param I The type of the entity identifiers.
+ * @param K The type of the history item identifiers.
+ * @param V The type of the stored history items.
  * @param context Specification of the Bounded Context in the scope of which the storage is used.
  * @param spec The specification of the history storage: the record spec persisting
  *   the items (which must list the history columns), the columns to query the history by, and
@@ -65,11 +66,11 @@ import io.spine.server.storage.StorageFactory
  * @see EntityEventStorage
  * @see EntityStateHistoryStorage
  */
-public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
+public abstract class HistoryStorage<I : Any, K : Any, V : Message> internal constructor(
     context: ContextSpec,
-    spec: HistoryStorageSpec<I, M>,
+    spec: HistoryStorageSpec<K, V>,
     factory: StorageFactory
-) : MessageStorage<I, M>(
+) : MessageStorage<K, V>(
     context,
     factory.createRecordStorage(context, spec.recordSpec, spec.storageGroup)
 ) {
@@ -77,7 +78,7 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
     /**
      * The columns to manage and query the history by.
      */
-    private val column: HistoryColumns<M> = spec.historyColumns
+    private val column: HistoryColumns<V> = spec.historyColumns
 
     /**
      * Reads up to [batchSize] most recent history items of the entity with
@@ -95,10 +96,10 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
      */
     @JvmOverloads
     public fun historyBackward(
-        entityId: Any,
+        entityId: I,
         batchSize: Int,
         startingFrom: Version? = null
-    ): Iterator<M> {
+    ): Iterator<V> {
         require(batchSize > 0) {
             "The batch size must be positive, got $batchSize."
         }
@@ -142,7 +143,7 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
      *
      * Overrides to expose the method as a part of the public API of this storage.
      */
-    public override fun readAll(query: RecordQuery<I, M>): Iterator<M> = super.readAll(query)
+    public override fun readAll(query: RecordQuery<K, V>): Iterator<V> = super.readAll(query)
 
     /**
      * Deletes the history item with the given identifier.
@@ -154,7 +155,7 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
      *
      * @return `true` if the item was deleted, `false` if it was not found.
      */
-    public override fun delete(id: I): Boolean = super.delete(id)
+    public override fun delete(id: K): Boolean = super.delete(id)
 
     /**
      * Deletes the history items with the given identifiers.
@@ -164,7 +165,7 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
      *
      * Overrides to expose the method as a part of the public API of this storage.
      */
-    public override fun deleteAll(ids: Iterable<I>) {
+    public override fun deleteAll(ids: Iterable<K>) {
         super.deleteAll(ids)
     }
 }
