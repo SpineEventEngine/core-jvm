@@ -28,9 +28,7 @@ package io.spine.server.entity.storage
 
 import com.google.protobuf.Any as ProtoAny
 import com.google.protobuf.Timestamp
-import com.google.protobuf.util.Timestamps
 import io.spine.base.Identifier
-import io.spine.core.Version
 import io.spine.server.ContextSpec
 import io.spine.server.entity.Entity
 import io.spine.server.entity.EntityRecord
@@ -103,17 +101,18 @@ public class EntityStateHistoryStorage(
      * Returns the state record the entity had at the given time
      * if the history retains it.
      *
-     * The result is the retained record with the highest version among those
-     * whose state became current not later than [at]. When several retained
-     * records share the very instant [at], the one with the highest version wins.
+     * The result is the retained record with the most recent timestamp not
+     * later than [at]. When several retained records share the very instant
+     * [at], the one with the highest version wins.
      *
      * The answer is honest about retention: `null` means the question cannot
      * be answered from the retained window — the time either precedes the
      * oldest retained record, or predates the entity itself.
      *
-     * The history is read in batches, newest first, stopping at the first
-     * qualifying record: the cost of the query is bounded by the position
-     * of the answer, not by the length of the retained history.
+     * The record is selected by a single query on the
+     * [created][EntityStateHistoryColumns.created] column — the newest record
+     * of the entity at or before [at] — so the backend returns the answer
+     * directly, without reading the history into memory.
      *
      * @param entityId The identifier of the entity.
      * @param at The point in time to look at.
@@ -123,22 +122,17 @@ public class EntityStateHistoryStorage(
      *   by the framework.
      */
     public fun stateAt(entityId: Any, at: Timestamp): EntityRecord? {
-        var startingFrom: Version? = null
-        while (true) {
-            val batch = historyBackward(entityId, STATE_AT_BATCH, startingFrom)
-                .asSequence()
-                .toList()
-            val match = batch.firstOrNull {
-                Timestamps.compare(it.version.timestamp, at) <= 0
-            }
-            if (match != null) {
-                return match
-            }
-            if (batch.size < STATE_AT_BATCH) {
-                return null
-            }
-            startingFrom = batch.last().version
+        val packedId = Identifier.pack(entityId)
+        val query = with(EntityStateHistoryColumns) {
+            queryBuilder()
+                .where(entity_id).isEqualTo(packedId)
+                .where(created).isLessOrEqualTo(at)
+                .sortDescendingBy(created)
+                .sortDescendingBy(version)
+                .limit(1)
+                .build()
         }
+        return readAll(query).asSequence().firstOrNull()
     }
 
     /**
@@ -232,12 +226,6 @@ public class EntityStateHistoryStorage(
         }
     }
 }
-
-/**
- * The number of the records [stateAt][EntityStateHistoryStorage.stateAt]
- * reads per batch while scanning the history backward.
- */
-private const val STATE_AT_BATCH = 100
 
 /**
  * Composes a specification on how to store the state records of the entities

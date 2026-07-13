@@ -286,9 +286,7 @@ internal class EntityStateHistoryStorageSpec {
         }
 
         @Test
-        fun `from beyond the first read batch`() {
-            // `stateAt` scans the history in batches of one hundred records;
-            // the answer here lies in the second batch.
+        fun `from a large history`() {
             val written = (1..120).map { n ->
                 writeRecord(number = n, at = at(n.toLong()))
             }
