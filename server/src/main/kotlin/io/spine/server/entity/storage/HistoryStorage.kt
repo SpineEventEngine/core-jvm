@@ -33,9 +33,7 @@ import io.spine.core.Version
 import io.spine.query.RecordQuery
 import io.spine.server.ContextSpec
 import io.spine.server.storage.MessageStorage
-import io.spine.server.storage.RecordSpec
 import io.spine.server.storage.StorageFactory
-import io.spine.server.storage.StorageGroup
 
 /**
  * An abstract base for the storages of a per-entity history.
@@ -59,22 +57,27 @@ import io.spine.server.storage.StorageGroup
  *
  * @param I The type of the record identifiers.
  * @param M The type of the stored history items.
- * @param context Specification of the Bounded Context in scope of which the storage is used.
- * @param recordSpec The specification of the records persisting the history items.
- * @property columns The columns to manage and query the history by.
- * @param storageGroup The group the record storage of this history belongs to,
- *   telling it apart from the latest-state storage of the same entity.
+ * @param context Specification of the Bounded Context in the scope of which the storage is used.
+ * @param spec The specification of the history storage: the record spec persisting
+ *   the items (which must list the history columns), the columns to query the history by, and
+ *   the storage group telling this history apart from the latest-state storage of the same entity.
  * @param factory The storage factory to use when creating a record storage delegate.
  * @see EntityEventStorage
  * @see EntityStateHistoryStorage
  */
 public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
     context: ContextSpec,
-    recordSpec: RecordSpec<I, M>,
-    private val columns: HistoryColumns<M>,
-    storageGroup: StorageGroup,
+    spec: HistoryStorageSpec<I, M>,
     factory: StorageFactory
-) : MessageStorage<I, M>(context, factory.createRecordStorage(context, recordSpec, storageGroup)) {
+) : MessageStorage<I, M>(
+    context,
+    factory.createRecordStorage(context, spec.recordSpec, spec.storageGroup)
+) {
+
+    /**
+     * The columns to manage and query the history by.
+     */
+    private val column: HistoryColumns<M> = spec.historyColumns
 
     /**
      * Reads up to [batchSize] most recent history items of the entity with
@@ -101,14 +104,14 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
         }
         val packedId = Identifier.pack(entityId)
         val builder = queryBuilder()
-            .where(columns.entity_id).isEqualTo(packedId)
+            .where(column.entity_id).isEqualTo(packedId)
         if (startingFrom != null) {
-            builder.where(columns.version)
+            builder.where(column.version)
                 .isLessThan(startingFrom.number)
         }
         val query = builder
-            .sortDescendingBy(columns.version)
-            .sortDescendingBy(columns.created)
+            .sortDescendingBy(column.version)
+            .sortDescendingBy(column.created)
             .limit(batchSize)
             .build()
         return readAll(query)
@@ -129,7 +132,7 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
      */
     public fun truncate(olderThan: Timestamp) {
         val query = queryBuilder()
-            .where(columns.created).isLessThan(olderThan)
+            .where(column.created).isLessThan(olderThan)
             .build()
         deleteMatching(query)
     }

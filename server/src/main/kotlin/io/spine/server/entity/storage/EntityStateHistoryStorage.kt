@@ -26,6 +26,7 @@
 
 package io.spine.server.entity.storage
 
+import com.google.protobuf.Any as ProtoAny
 import com.google.protobuf.Timestamp
 import com.google.protobuf.util.Timestamps
 import io.spine.base.Identifier
@@ -89,7 +90,12 @@ public class EntityStateHistoryStorage(
     factory: StorageFactory,
     entityClass: Class<out Entity<*, *>>
 ) : HistoryStorage<EntityStateKey, EntityRecord>(
-    context, recordSpecFor(entityClass), EntityStateHistoryColumns, StorageGroup.of(entityClass),
+    context,
+    HistoryStorageSpec(
+        recordSpecFor(entityClass),
+        EntityStateHistoryColumns,
+        StorageGroup.of(entityClass)
+    ),
     factory
 ) {
 
@@ -166,8 +172,12 @@ public class EntityStateHistoryStorage(
     @Synchronized
     public override fun write(id: EntityStateKey, message: EntityRecord) {
         validate(message)
-        require(id == message.stateKey()) {
-            "The passed identifier does not match the entity and the version of the record."
+        require(id.entityId == message.entityId && id.version == message.version.number) {
+            val expectedEntity = message.entityId.asIdString()
+            val gotEntity = id.entityId.asIdString()
+            "The passed identifier does not match the record. " +
+                "Expected entity `$expectedEntity` at version ${message.version.number}, " +
+                "but got entity `$gotEntity` at version ${id.version}."
         }
         super.write(id, message)
     }
@@ -188,7 +198,7 @@ public class EntityStateHistoryStorage(
      */
     public fun trim(entityId: Any, keepMostRecent: Int) {
         require(keepMostRecent >= 0) {
-            "The number of the records to keep must not be negative, got `$keepMostRecent`."
+            "The number of the records to keep must not be negative, got $keepMostRecent."
         }
         val packedId = Identifier.pack(entityId)
         val selection = queryBuilder()
@@ -252,3 +262,8 @@ private fun EntityRecord.stateKey(): EntityStateKey = entityStateKey {
     entityId = this@stateKey.entityId
     version = this@stateKey.version.number
 }
+
+/**
+ * Renders this packed entity identifier as a human-readable string.
+ */
+private fun ProtoAny.asIdString(): String = Identifier.toString(Identifier.unpack(this))

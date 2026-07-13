@@ -72,7 +72,9 @@ public class EntityEventStorage(
     factory: StorageFactory,
     entityClass: Class<out Entity<*, *>>
 ) : HistoryStorage<EventId, Event>(
-    context, recordSpec, EntityEventColumns, StorageGroup.of(entityClass), factory
+    context,
+    HistoryStorageSpec(recordSpec, EntityEventColumns, StorageGroup.of(entityClass)),
+    factory
 ) {
     /**
      * Journals the given event.
