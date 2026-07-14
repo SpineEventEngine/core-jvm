@@ -295,7 +295,7 @@ Snapshots no longer exist, so their configuration is gone (not merely deprecated
 | `Aggregate.toSnapshot()` | — (loading reads the state record) |
 
 The `Snapshot` and `AggregateHistory` proto messages are **retained** for journal wire
-compatibility (`AggregateHistory` is superseded by `EntityEventHistory` — §9).
+compatibility (`AggregateHistory` is superseded by the plain `core.Event` journal — §9).
 Snapshot-index journal trimming (`AggregateStorage.truncateOlderThan`) is **removed**:
 it could only ever trim by snapshot positions, and the current journal contains no
 snapshots. Its replacement is **count/date-based truncation**:
@@ -335,7 +335,7 @@ as a follow-up.
 
 | Superseded | Replacement |
 |------------|-------------|
-| `AggregateHistory` | `spine.server.entity.EntityEventHistory` — events only, no snapshot |
+| `AggregateHistory` | the plain `core.Event` journal — no wrapper type; reads return `List<Event>` |
 | `AggregateEventRecord` | the `core.Event` itself — events are journaled as-is, no wrapper |
 | `AggregateEventRecordId` | the `core.EventId` of the stored event — no dedicated id type |
 | `AggregateEventStorage` | `io.spine.server.entity.storage.EntityEventStorage` |
@@ -343,10 +343,11 @@ as a follow-up.
 | `StorageFactory.createAggregateEventStorage` | `StorageFactory.createEntityEventStorage` |
 
 The journal stores plain `Event`s; the emitting entity, the event time, and the event
-version are exposed for querying as columns derived from the event context. The
-`read`/`write` operations of `AggregateStorage` work in terms of `EntityEventHistory`.
-Storage vendors implement the same `RecordStorage`-level SPI as before — this is a
-recompile against the new types, not a rewrite.
+version are exposed for querying as columns derived from the event context.
+`AggregateStorage` now extends `EntityRecordStorage`, so its `read`/`write` operate on the
+latest state record, while the recent events are read via `readEvents(...)` returning a
+`List<Event>`. Storage vendors implement the same `RecordStorage`-level SPI as before — this
+is a recompile against the new types, not a rewrite.
 
 Of the superseded API, only the **proto messages remain** (marked `deprecated`, for wire
 compatibility). The storage-level classes — `AggregateEventStorage`,

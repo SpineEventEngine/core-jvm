@@ -30,28 +30,24 @@ import com.google.common.collect.ImmutableList;
 import com.google.protobuf.Timestamp;
 import io.spine.annotation.SPI;
 import io.spine.base.AggregateState;
-import io.spine.base.EntityState;
 import io.spine.client.ResponseFormat;
 import io.spine.client.TargetFilters;
 import io.spine.core.Event;
 import io.spine.core.Version;
 import io.spine.query.EntityQuery;
 import io.spine.server.ContextSpec;
-import io.spine.server.entity.EntityEventHistory;
 import io.spine.server.entity.EntityRecord;
 import io.spine.server.entity.storage.EntityEventStorage;
 import io.spine.server.entity.storage.EntityRecordStorage;
 import io.spine.server.entity.storage.ToEntityRecordQuery;
-import io.spine.server.storage.AbstractStorage;
 import io.spine.server.storage.QueryConverter;
 import io.spine.server.storage.RecordWithColumns;
 import io.spine.server.storage.StorageFactory;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Iterator;
-import java.util.Optional;
+import java.util.List;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.server.aggregate.AggregateRepository.DEFAULT_HISTORY_DEPTH;
 import static io.spine.server.storage.QueryConverter.convert;
@@ -76,9 +72,9 @@ import static io.spine.util.Preconditions2.checkPositive;
  *
  * <p>The state of an Aggregate is persisted on each update, regardless of the
  * {@linkplain io.spine.server.entity.EntityVisibility visibility} of the Aggregate state type.
- * Similar to storages of other Entity types, the states are persisted as {@link EntityRecord}s
- * in an intermediate {@link EntityRecordStorage}, to which all state-related operations
- * are delegated.
+ * This storage {@code extends} {@link EntityRecordStorage}, so the latest states are persisted
+ * as {@link EntityRecord}s and all state-related operations are served by the inherited
+ * record storage.
  *
  * <p>End-users of the framework are able to set the visibility level for each Aggregate state
  * by using an {@linkplain io.spine.server.entity.EntityVisibility (entity).visibility} option
@@ -88,7 +84,7 @@ import static io.spine.util.Preconditions2.checkPositive;
  * {@linkplain #readStates(TargetFilters, ResponseFormat) querying}. To some extent, it makes this
  * storage a part of an application's read-side. Visibility gates only this query exposure —
  * never the state {@linkplain #writeState(Aggregate) writes} or the
- * {@linkplain #readState(Object) load-path reads}.
+ * {@linkplain #read(Object) load-path reads}.
  *
  * <p>{@code AggregateStorage} supports querying the Aggregate states by the values of their
  * declared entity columns. See {@code io.spine.query} package docs for more details on
@@ -121,17 +117,12 @@ import static io.spine.util.Preconditions2.checkPositive;
  */
 @SPI
 public class AggregateStorage<I, S extends AggregateState<I>>
-        extends AbstractStorage<I, EntityEventHistory> {
+        extends EntityRecordStorage<I, S> {
 
     /**
      * Stores the events emitted by the served Aggregates.
      */
     private final EntityEventStorage<I> eventStorage;
-
-    /**
-     * Stores the latest states of Aggregates.
-     */
-    private final EntityRecordStorage<I, S> stateStorage;
 
     /**
      * Tells whether the latest aggregate states should be stored and exposed for querying.
@@ -147,15 +138,13 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      * @param aggregateClass
      *         the class of stored aggregates
      * @param factory
-     *         a storage factory to create the underlying storages for the event journal
-     *         and aggregate states
+     *         a storage factory to create the underlying storage for the event journal
      */
     public AggregateStorage(ContextSpec context,
                             Class<? extends Aggregate<I, S, ?>> aggregateClass,
                             StorageFactory factory) {
-        super(context.isMultitenant());
+        super(context, factory, aggregateClass);
         eventStorage = factory.createEntityEventStorage(context, aggregateClass);
-        stateStorage = factory.createEntityRecordStorage(context, aggregateClass);
     }
 
     /**
@@ -166,90 +155,39 @@ public class AggregateStorage<I, S extends AggregateState<I>>
     }
 
     /**
-     * Returns an iterator over identifiers of Aggregates served by this storage.
-     *
-     * <p>The results include IDs corresponding only to those Aggregate instances whose state
-     * was {@linkplain #writeState(Aggregate) written} to this storage. Starting with Spine 2.0,
-     * the framework writes the essential bits of every Aggregate — its identifier, lifecycle
-     * flags, and version — to this storage on each update, regardless of the
-     * {@linkplain io.spine.option.EntityOption.Visibility visibility} of the Aggregate state.
-     * Therefore, for the data produced by the current framework version, this index returns all
-     * the Aggregates of the served type.
-     *
-     * <p>The identifiers found only in the persisted events are <em>not</em> taken into account,
-     * as obtaining them would require scanning and de-duplicating too many event records.
-     * As a consequence, an Aggregate persisted by an older framework version is not returned
-     * until its state is written to this storage. For an Aggregate that still has a record in
-     * the now-deprecated {@link io.spine.system.server.Mirror Mirror} projection, run the
-     * {@link io.spine.server.migration.mirror.MirrorMigration Mirror migration}, which writes
-     * the migrated states into this storage. An Aggregate that exists only as events — with
-     * neither a state record nor a {@code Mirror} record — is picked up once its state is next
-     * {@linkplain #writeState(Aggregate) written}, for example, on its next update.
-     */
-    @Override
-    public Iterator<I> index() {
-        return stateStorage.index();
-    }
-
-    /**
-     * Reads the most recent events emitted by the aggregate with the passed ID and returns
-     * them as an {@link EntityEventHistory}, listing the events in the order of emission.
+     * Reads the most recent events emitted by the aggregate with the passed ID,
+     * listing them in the order of emission.
      *
      * @param id
-     *         the identifier of the aggregate for which to return the recent history
+     *         the identifier of the aggregate for which to return the recent events
      * @param batchSize
      *         the maximum number of the events to read
-     * @return the recent history, or {@code Optional.empty()} if the journal has no events
-     *         emitted by the aggregate
+     * @return the recent events in the order of emission, or an empty list if the journal
+     *         has no events emitted by the aggregate
      * @throws IllegalStateException
-     *         if the storage was closed before
+     *         if the storage is closed
      * @throws IllegalArgumentException
      *         if the {@code batchSize} is not positive
      */
-    public Optional<EntityEventHistory> read(I id, int batchSize) {
+    public List<Event> readEvents(I id, int batchSize) {
         checkNotClosedAndArguments(id, batchSize);
         checkPositive(batchSize);
-        // Materializes the lazy iterator; the events arrive newest-first.
-        var events = ImmutableList.copyOf(historyBackward(id, batchSize));
-        if (events.isEmpty()) {
-            return Optional.empty();
-        }
-        var history = EntityEventHistory.newBuilder()
-                .addAllEvent(events.reverse())
-                .build();
-        return Optional.of(history);
-    }
-
-    @Override
-    public Optional<EntityEventHistory> read(I id) {
-        return read(id, DEFAULT_HISTORY_DEPTH);
+        // `eventHistoryBackward` yields the events newest-first; reverse them into
+        // the order of emission.
+        return ImmutableList.copyOf(eventHistoryBackward(id, batchSize)).reverse();
     }
 
     /**
-     * Writes events into the storage.
-     *
-     * <p><b>NOTE</b>: This method does not rewrite any events, just appends them. Many events
-     * can be associated with a single aggregate ID.
-     *
-     * <p>Each event is journaled under its producer — the aggregate which emitted it.
-     * For the events emitted by the aggregate with the passed identifier, the producer
-     * and the identifier match.
+     * Reads the most recent events emitted by the aggregate with the passed ID, using the
+     * default history depth, and lists them in the order of emission.
      *
      * @param id
-     *         the ID of the aggregate which emitted the events
-     * @param events
-     *         non-empty piece of the event history to store
+     *         the identifier of the aggregate for which to return the recent events
+     * @return the recent events in the order of emission, or an empty list if the journal
+     *         has no events emitted by the aggregate
      */
-    @Override
-    public void write(I id, EntityEventHistory events) {
-        checkNotClosedAndArguments(id, events);
-
-        var eventList = events.getEventList();
-        checkArgument(!eventList.isEmpty(), "Event list must not be empty.");
-
-        for (var event : eventList) {
-            eventStorage.write(event);
-        }
+    public List<Event> readEvents(I id) {
+        return readEvents(id, DEFAULT_HISTORY_DEPTH);
     }
 
     /**
@@ -260,7 +198,7 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      * the aggregate which emitted it.
      *
      * @param id
-     *         the ID of the aggregate which emitted the event
+     *         the ID of the aggregate that emitted the event
      * @param event
      *         the event to write
      */
@@ -287,8 +225,8 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      */
     protected Iterator<EntityRecord> readStates(TargetFilters filters, ResponseFormat format) {
         ensureStatesQueryable();
-        var query = convert(filters, format, stateStorage.recordSpec());
-        var result = stateStorage.readAll(query);
+        var query = convert(filters, format, recordSpec());
+        var result = readAll(query);
         return result;
     }
 
@@ -304,8 +242,8 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      */
     protected Iterator<EntityRecord> readStates(ResponseFormat format) {
         ensureStatesQueryable();
-        var query = QueryConverter.newQuery(stateStorage.recordSpec(), format);
-        var result = stateStorage.readAll(query);
+        var query = QueryConverter.newQuery(recordSpec(), format);
+        var result = readAll(query);
         return result;
     }
 
@@ -319,26 +257,8 @@ public class AggregateStorage<I, S extends AggregateState<I>>
     protected Iterator<EntityRecord> readStates(EntityQuery<I, S, ?> query) {
         ensureStatesQueryable();
         var recordQuery = ToEntityRecordQuery.transform(query);
-        var result = stateStorage.readAll(recordQuery);
+        var result = readAll(recordQuery);
         return result;
-    }
-
-    /**
-     * Reads the latest persisted state record of the aggregate with the passed ID.
-     *
-     * <p>Since the event-sourcing cutover this record is the source of truth for
-     * loading an aggregate by its {@link AggregateRepository}. Unlike the
-     * {@link #readStates(ResponseFormat) query reads}, this method is <em>not</em> gated by the
-     * querying/visibility check — the state must be readable even for {@code NONE}-visibility
-     * aggregates, which never expose their states for client querying.
-     *
-     * @param id
-     *         the identifier of the aggregate
-     * @return the latest state record, or {@code Optional.empty()} if the aggregate has never
-     *         been stored
-     */
-    Optional<EntityRecord> readState(I id) {
-        return stateStorage.read(id);
     }
 
     private void ensureStatesQueryable() {
@@ -351,14 +271,10 @@ public class AggregateStorage<I, S extends AggregateState<I>>
         }
     }
 
-    private Class<? extends EntityState<?>> stateClass() {
-        return stateStorage.stateClass();
-    }
-
     protected void writeState(Aggregate<I, ?, ?> aggregate) {
         var record = aggregate.toRecord();
-        var result = RecordWithColumns.create(record, stateStorage.recordSpec());
-        stateStorage.write(result);
+        var result = RecordWithColumns.create(record, recordSpec());
+        write(result);
     }
 
     /**
@@ -367,13 +283,14 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      *
      * @param aggregate
      *         the aggregate to store
-     * @param history
+     * @param events
      *         the events emitted by the aggregate since it was stored last time;
      *         may be empty if the state was modified without emitting events
      */
-    protected void writeAll(Aggregate<I, ?, ?> aggregate, EntityEventHistory history) {
-        if (!history.getEventList().isEmpty()) {
-            write(aggregate.id(), history);
+    protected void writeAll(Aggregate<I, ?, ?> aggregate, List<Event> events) {
+        checkNotClosedAndArguments(aggregate.id(), events);
+        for (var event : events) {
+            eventStorage.write(event);
         }
         writeState(aggregate);
     }
@@ -398,13 +315,14 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      *         the maximum number of the events to read
      * @return new iterator instance
      */
-    Iterator<Event> historyBackward(I id, int batchSize) {
-        return historyBackward(id, batchSize, null);
+    Iterator<Event> eventHistoryBackward(I id, int batchSize) {
+        return eventHistoryBackward(id, batchSize, null);
     }
 
     /**
-     * Acts similar to {@link #historyBackward(Object, int) historyBackward(id, batchSize)},
-     * but also allows to set the Aggregate version to start the reading from.
+     * Acts similar to
+     * {@link #eventHistoryBackward(Object, int) eventHistoryBackward(id, batchSize)}, but also
+     * allows setting the Aggregate version to start the reading from.
      *
      * @param id
      *         identifier of the Aggregate
@@ -415,7 +333,7 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      * @return a new instance of iterator over the results
      */
     protected Iterator<Event>
-    historyBackward(I id, int batchSize, @Nullable Version startingFrom) {
+    eventHistoryBackward(I id, int batchSize, @Nullable Version startingFrom) {
         return eventStorage.historyBackward(id, batchSize, startingFrom);
     }
 
@@ -442,6 +360,34 @@ public class AggregateStorage<I, S extends AggregateState<I>>
     public void truncate(Timestamp olderThan) {
         checkNotNull(olderThan);
         eventStorage.truncate(olderThan);
+    }
+
+    /**
+     * Closes this storage, releasing the inherited record storage and the event journal.
+     *
+     * <p>Unlike a plain {@link EntityRecordStorage}, this storage owns an additional
+     * {@link EntityEventStorage journal}, so closing it must also close the journal.
+     *
+     * @throws IllegalStateException
+     *         if the storage was already closed
+     */
+    @Override
+    public void close() {
+        checkNotClosed();
+        try {
+            eventStorage.close();
+        } catch (RuntimeException e) {
+            // Still release the inherited record storage, but keep the journal's failure as the
+            // primary exception; a failure while closing the state storage is added as suppressed
+            // so neither is lost.
+            try {
+                super.close();
+            } catch (RuntimeException secondary) {
+                e.addSuppressed(secondary);
+            }
+            throw e;
+        }
+        super.close();
     }
 
     private void checkNotClosedAndArguments(I id, Object argument) {

@@ -70,6 +70,23 @@ public final class PreparedStorageFactory {
         @Override
         public <I, R extends Message> RecordStorage<I, R> createRecordStorage(
                 ContextSpec context, RecordSpec<I, R> recordSpec, @Nullable StorageGroup group) {
+            // `AggregateStorage` extends `EntityRecordStorage`, so it obtains its latest-state
+            // record delegate through `createRecordStorage()` rather than
+            // `createEntityRecordStorage()`. Serve the substituted storage here too, but ONLY for
+            // that delegate: match the full record spec (record, source, and id types) and require
+            // `group == null`. The event journal shares the same `sourceType` but stores `Event`
+            // records under a non-null `StorageGroup`, and a state-history storage stores
+            // `EntityRecord`s under a non-null group — both must keep their own storages, or the
+            // journal would receive an `EntityRecord` delegate and fail with a `ClassCastException`.
+            var preparedSpec = entityRecordStorage.recordSpec();
+            if (group == null
+                    && recordSpec.recordType().equals(preparedSpec.recordType())
+                    && recordSpec.sourceType().equals(preparedSpec.sourceType())
+                    && recordSpec.idType().equals(preparedSpec.idType())) {
+                @SuppressWarnings("unchecked")
+                var delegate = (RecordStorage<I, R>) entityRecordStorage;
+                return delegate;
+            }
             return InMemoryStorageFactory.newInstance()
                                          .createRecordStorage(context, recordSpec, group);
         }
