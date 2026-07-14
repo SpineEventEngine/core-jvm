@@ -42,7 +42,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * @param <E>
  *         the type of entities
  */
-class EntityIterator<I, E extends Entity<I, ?>> implements Iterator<E> {
+final class EntityIterator<I, E extends Entity<I, ?>> implements Iterator<E> {
 
     private final Repository<I, E> repository;
     private final Iterator<I> index;
