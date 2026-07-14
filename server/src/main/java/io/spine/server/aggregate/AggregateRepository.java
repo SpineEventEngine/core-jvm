@@ -567,8 +567,8 @@ public abstract class AggregateRepository<I,
     }
 
     /**
-     * Enables the opt-in, journal-backed {@link IdempotencyGuard} for the aggregates of this
-     * repository.
+     * Enables the opt-in, journal-backed {@link IdempotencyGuard} for the aggregates of
+     * this repository.
      *
      * <p>When enabled, each dispatch scans the last {@link #eventHistoryDepth()} journal events and
      * rejects a signal already seen among them, however long ago it was dispatched — a mechanism
@@ -595,7 +595,7 @@ public abstract class AggregateRepository<I,
      * {@link EntityRecord} to an {@link EntityStateHistoryStorage} — e.g., for answering
      * {@linkplain EntityStateHistoryStorage#stateAt(Object, com.google.protobuf.Timestamp)
      * the "state at a time" query}. The history is <b>off by default</b>: recording adds
-     * a write to every dispatch.
+     * a write operation to every dispatch.
      *
      * <p>The aggregates of this repository read the recorded history via
      * {@link Aggregate#stateAt(Timestamp)} and {@link Aggregate#stateHistoryBackward(int)}.
