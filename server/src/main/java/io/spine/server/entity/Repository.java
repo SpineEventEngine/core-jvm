@@ -375,6 +375,33 @@ public abstract class Repository<I, E extends Entity<I, ?>>
     }
 
     /**
+     * Runs one close step for a {@link #close()} override that releases several resources,
+     * folding any exception the step throws into the accumulated failure.
+     *
+     * <p>Threading each close through this method attempts them all and keeps the first failure
+     * as the primary exception; a later failure is attached to it as
+     * {@linkplain Throwable#addSuppressed(Throwable) suppressed}, so no failure is lost.
+     *
+     * @param failure
+     *         the failure accumulated so far, or {@code null} if every prior step succeeded
+     * @param step
+     *         the close step to run
+     * @return the accumulated failure after running the step
+     */
+    protected static @Nullable RuntimeException
+    attemptClose(@Nullable RuntimeException failure, Runnable step) {
+        try {
+            step.run();
+        } catch (RuntimeException e) {
+            if (failure == null) {
+                return e;
+            }
+            failure.addSuppressed(e);
+        }
+        return failure;
+    }
+
+    /**
      * Verifies if the repository is open.
      */
     @Override

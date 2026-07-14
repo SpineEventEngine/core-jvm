@@ -906,32 +906,6 @@ public abstract class AggregateRepository<I,
     }
 
     /**
-     * Runs a close step, folding any exception it throws into the accumulated failure.
-     *
-     * <p>The first failure across the steps is returned as the primary exception; a later
-     * failure is attached to it as {@linkplain Throwable#addSuppressed(Throwable) suppressed},
-     * so no failure is lost and every step is still attempted.
-     *
-     * @param failure
-     *         the failure accumulated so far, or {@code null} if every prior step succeeded
-     * @param step
-     *         the close step to run
-     * @return the accumulated failure after running the step
-     */
-    private static @Nullable RuntimeException
-    attemptClose(@Nullable RuntimeException failure, Runnable step) {
-        try {
-            step.run();
-        } catch (RuntimeException e) {
-            if (failure == null) {
-                return e;
-            }
-            failure.addSuppressed(e);
-        }
-        return failure;
-    }
-
-    /**
      * Closes the event journal if it was created.
      *
      * <p>Synchronized to pair with {@link #eventStorage()}: the journal may have been
