@@ -93,9 +93,6 @@ $dokka.location:io.spine.server.entity.rejection/StandardRejections.EntityAlread
 $dokka.location:io.spine.server.entity.rejection/StandardRejections.EntityAlreadyDeletedOrBuilder///PointingToDeclaration/io/spine/server/entity/rejection/StandardRejections.EntityAlreadyDeletedOrBuilder.html
 $dokka.location:io.spine.server.entity/CompositeEventFilter.Builder///PointingToDeclaration/io/spine/server/entity/CompositeEventFilter.Builder.html
 $dokka.location:io.spine.server.entity/Entity.GenericParameter///PointingToDeclaration/io/spine/server/entity/Entity.GenericParameter.html
-$dokka.location:io.spine.server.entity/EntityEventHistory.Builder///PointingToDeclaration/io/spine/server/entity/EntityEventHistory.Builder.html
-$dokka.location:io.spine.server.entity/EntityEventHistoryKt.Dsl.EventProxy///PointingToDeclaration/io/spine/server/entity/EntityEventHistoryKt.Dsl.EventProxy.html
-$dokka.location:io.spine.server.entity/EntityEventHistoryKt.Dsl///PointingToDeclaration/io/spine/server/entity/EntityEventHistoryKt.Dsl.html
 $dokka.location:io.spine.server.entity/EntityRecord.Builder///PointingToDeclaration/io/spine/server/entity/EntityRecord.Builder.html
 $dokka.location:io.spine.server.entity/EntityRecordChange.Builder///PointingToDeclaration/io/spine/server/entity/EntityRecordChange.Builder.html
 $dokka.location:io.spine.server.entity/EntityRecordChangeKt.Dsl///PointingToDeclaration/io/spine/server/entity/EntityRecordChangeKt.Dsl.html
