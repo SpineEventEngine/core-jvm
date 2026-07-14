@@ -358,7 +358,9 @@ public abstract class Repository<I, E extends Entity<I, ?>>
     /**
      * Closes the repository by closing the underlying storage.
      *
-     * <p>The reference to the storage becomes null after this call.
+     * <p>The reference to the storage becomes null after this call. If closing the storage
+     * fails, the storage and context references are still cleared before the failure is
+     * re-thrown, so a failed close does not leave the repository half-open.
      *
      * <p>A closed repository is not meant to be {@linkplain #registerWith(BoundedContext)
      * registered} again: not every resource it owns is re-created on a repeated
@@ -367,11 +369,15 @@ public abstract class Repository<I, E extends Entity<I, ?>>
     @Override
     @OverridingMethodsMustInvokeSuper
     public void close() {
+        @Nullable RuntimeException failure = null;
         if (isOpen()) {
-            storage().close();
+            failure = attemptClose(failure, storage()::close);
             this.storage = null;
         }
         this.context = null;
+        if (failure != null) {
+            throw failure;
+        }
     }
 
     /**
