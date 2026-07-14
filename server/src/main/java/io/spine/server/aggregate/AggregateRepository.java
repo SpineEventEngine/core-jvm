@@ -125,7 +125,7 @@ import static java.util.Objects.requireNonNull;
  */
 @SuppressWarnings({
         "ClassWithTooManyMethods", "OverlyComplexClass" /* Acknowledged complexity. */,
-        "resource" /* Accessing `AutoClosable` properties. */
+        "resource" /* Accessing `Closeable` properties. */
 })
 public abstract class AggregateRepository<I,
                                           A extends Aggregate<I, S, ?>,
