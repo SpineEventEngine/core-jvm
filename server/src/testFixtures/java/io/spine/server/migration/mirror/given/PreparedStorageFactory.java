@@ -70,6 +70,15 @@ public final class PreparedStorageFactory {
         @Override
         public <I, R extends Message> RecordStorage<I, R> createRecordStorage(
                 ContextSpec context, RecordSpec<I, R> recordSpec, @Nullable StorageGroup group) {
+            // `AggregateStorage` extends `EntityRecordStorage`, so it obtains its state-record
+            // delegate through `createRecordStorage()` rather than `createEntityRecordStorage()`.
+            // Serve the substituted storage here too — matched by the state (source) type — so the
+            // aggregate reads the prepared records.
+            if (recordSpec.sourceType().equals(entityRecordStorage.recordSpec().sourceType())) {
+                @SuppressWarnings("unchecked")
+                var delegate = (RecordStorage<I, R>) entityRecordStorage;
+                return delegate;
+            }
             return InMemoryStorageFactory.newInstance()
                                          .createRecordStorage(context, recordSpec, group);
         }

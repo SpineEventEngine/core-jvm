@@ -26,8 +26,8 @@
 
 package io.spine.server.aggregate;
 
+import com.google.common.collect.ImmutableList;
 import io.spine.core.Event;
-import io.spine.server.entity.EntityEventHistory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +39,7 @@ import java.util.List;
  * state, so this class no longer segments the events by snapshots — it is a plain, ordered list
  * of the events emitted by the current command or reaction. The framework
  * {@linkplain Aggregate#recordEvents(List) records} the produced events here after a successful
- * dispatch, {@linkplain AggregateStorage#writeAll(Aggregate, EntityEventHistory) stores} them
+ * dispatch, {@linkplain AggregateStorage#writeAll(Aggregate, List) stores} them
  * into the append-only journal alongside the latest state record, and then
  * {@link #commit() commits}.
  */
@@ -64,14 +64,12 @@ final class UncommittedHistory {
     }
 
     /**
-     * Obtains the uncommitted events wrapped into an {@link EntityEventHistory}.
+     * Obtains the uncommitted events as an immutable list.
      *
-     * <p>The returned history carries no events when there are none uncommitted.
+     * <p>The returned list is empty when there are no uncommitted events.
      */
-    EntityEventHistory get() {
-        return EntityEventHistory.newBuilder()
-                .addAllEvent(events)
-                .build();
+    List<Event> get() {
+        return ImmutableList.copyOf(events);
     }
 
     /**

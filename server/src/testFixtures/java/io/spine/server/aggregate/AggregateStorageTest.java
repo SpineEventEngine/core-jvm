@@ -46,7 +46,7 @@ import io.spine.server.ContextSpec;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.aggregate.given.repo.GivenAggregate;
 import io.spine.server.aggregate.given.repo.ProjectAggregateRepository;
-import io.spine.server.entity.EntityEventHistory;
+import io.spine.server.entity.EntityRecord;
 import io.spine.server.event.NoReaction;
 import io.spine.server.storage.AbstractStorageTest;
 import io.spine.test.aggregate.AggProject;
@@ -61,7 +61,6 @@ import io.spine.testing.server.TestEventFactory;
 import io.spine.testing.server.model.ModelTests;
 import io.spine.type.TypeUrl;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -101,7 +100,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public abstract class AggregateStorageTest
         extends AbstractStorageTest<ProjectId,
-                                    EntityEventHistory,
+                                    EntityRecord,
                                     AggregateStorage<ProjectId, AggProject>> {
 
     private final ProjectId id = Sample.messageOfType(ProjectId.class);
@@ -135,12 +134,15 @@ public abstract class AggregateStorageTest
     }
 
     @Override
-    protected EntityEventHistory newStorageRecord(ProjectId id) {
-        var events = sequenceFor(id);
-        var record = EntityEventHistory.newBuilder()
-                .addAllEvent(events)
+    protected EntityRecord newStorageRecord(ProjectId id) {
+        var state = AggProject.newBuilder()
+                .setId(id)
                 .build();
-        return record;
+        return EntityRecord.newBuilder()
+                .setEntityId(Identifier.pack(id))
+                .setState(AnyPacker.pack(state))
+                .setVersion(zero())
+                .build();
     }
 
     @Override
@@ -181,17 +183,23 @@ public abstract class AggregateStorageTest
         @Test
         @DisplayName("iterator over empty collection on reading history")
         void emptyHistory() {
-            var iterator = historyBackward();
+            var iterator = eventHistoryBackward();
 
             assertFalse(iterator.hasNext());
         }
 
         @Test
-        @DisplayName("empty `Optional` on reading record")
+        @DisplayName("empty `Optional` on reading an absent state")
         void absentRecord() {
             var record = storage.read(id);
 
             assertFalse(record.isPresent());
+        }
+
+        @Test
+        @DisplayName("empty list on reading events")
+        void emptyEvents() {
+            assertThat(storage.readEvents(id)).isEmpty();
         }
     }
 
@@ -203,7 +211,7 @@ public abstract class AggregateStorageTest
         @DisplayName("request ID when reading history")
         void idForReadHistory() {
             assertThrows(NullPointerException.class,
-                         () -> storage.historyBackward(nullRef(), 10));
+                         () -> storage.eventHistoryBackward(nullRef(), 10));
         }
 
         @Test
@@ -261,27 +269,13 @@ public abstract class AggregateStorageTest
 
             storage.writeEvent(id, expectedEvent);
 
-            var optional = storage.read(id, MAX_VALUE);
-            assertTrue(optional.isPresent());
-            var events = optional.get();
-            assertEquals(1, events.getEventCount());
-            var actualEvent = events.getEvent(0);
+            var events = storage.readEvents(id, MAX_VALUE);
+            assertEquals(1, events.size());
+            var actualEvent = events.get(0);
             assertEquals(expectedEvent, actualEvent);
 
             close(storage);
         }
-    }
-
-    /**
-     *  This test is not applicable to the aggregate storage, as several records may be stored
-     *  by the same aggregate ID. That's why it is disabled.
-     */
-    @SuppressWarnings("RefusedBequest")
-    @Override
-    @Test
-    @Disabled
-    @DisplayName("re-write record if writing by the same ID")
-    protected void rewriteRecord() {
     }
 
     @Test
@@ -310,6 +304,14 @@ public abstract class AggregateStorageTest
         assertThat(actualIds).containsExactlyElementsIn(expectedIds);
     }
 
+    @Test
+    @DisplayName("throw `IllegalStateException` on reading events after being closed")
+    void throwOnReadEventsWhenClosed() {
+        var closed = newStorage(TestAggregate.class);
+        closed.close();
+        assertThrows(IllegalStateException.class, () -> closed.readEvents(id));
+    }
+
     @Nested
     @DisplayName("write records and return them")
     class WriteRecordsAndReturn {
@@ -321,7 +323,7 @@ public abstract class AggregateStorageTest
 
             writeAll(id, events);
 
-            var iterator = historyBackward();
+            var iterator = eventHistoryBackward();
             List<Event> actual = newArrayList(iterator);
             reverse(events); // expected events should be in a reverse order
             assertEquals(events, actual);
@@ -343,7 +345,7 @@ public abstract class AggregateStorageTest
             }
             writeAll(id, events);
 
-            var iterator = historyBackward();
+            var iterator = eventHistoryBackward();
             List<Event> actual = newArrayList(iterator);
             reverse(events); // expected events should be in a reverse order
             assertEquals(events, actual);
@@ -366,8 +368,7 @@ public abstract class AggregateStorageTest
             storage.writeEvent(id, expectedSecond);
             storage.writeEvent(id, expectedFirst);
 
-            var record = readRecord(id);
-            var events = record.getEventList();
+            var events = storedEvents(id);
             assertTrue(events.indexOf(expectedFirst) < events.indexOf(expectedSecond));
         }
     }
@@ -398,12 +399,10 @@ public abstract class AggregateStorageTest
                 storage.writeEvent(id, event);
             }
 
-            var optional = storage.read(id, window);
+            var events = storage.readEvents(id, window);
 
-            assertTrue(optional.isPresent());
-            var history = optional.get();
             var expected = written.subList(eventCount - window, eventCount);
-            assertEquals(expected, history.getEventList());
+            assertEquals(expected, events);
         }
     }
 
@@ -423,8 +422,8 @@ public abstract class AggregateStorageTest
 
             storage.truncate(cutoff);
 
-            var remaining = readRecord(id);
-            assertEquals(recent, remaining.getEventList());
+            var remaining = storedEvents(id);
+            assertEquals(recent, remaining);
         }
 
         @CanIgnoreReturnValue
@@ -472,8 +471,8 @@ public abstract class AggregateStorageTest
                     .build();
             storage.writeEvent(id, event);
 
-            var record = readRecord(id);
-            var loadedContext = record.getEvent(0).context();
+            var events = storedEvents(id);
+            var loadedContext = events.get(0).context();
             assertTrue(isDefault(loadedContext.getEnrichment()));
         }
 
@@ -498,18 +497,16 @@ public abstract class AggregateStorageTest
                     .setMessage(AnyPacker.pack(TestValues.newUuidValue()))
                     .build();
             storage.writeEvent(id, event);
-            var record = readRecord(id);
-            var loadedOrigin = record.getEvent(0)
+            var events = storedEvents(id);
+            var loadedOrigin = events.get(0)
                                      .context()
                                      .getEventContext();
             assertTrue(isDefault(loadedOrigin.getEnrichment()));
         }
     }
 
-    private EntityEventHistory readRecord(ProjectId id) {
-        var optional = storage.read(id);
-        assertTrue(optional.isPresent());
-        return optional.get();
+    private List<Event> storedEvents(ProjectId id) {
+        return storage.readEvents(id);
     }
 
     void testWriteRecordsAndLoadHistory(Timestamp firstRecordTime) {
@@ -517,8 +514,7 @@ public abstract class AggregateStorageTest
 
         writeAll(id, expectedEvents);
 
-        var history = readRecord(id);
-        var actualEvents = history.getEventList();
+        var actualEvents = storedEvents(id);
         assertEquals(expectedEvents, actualEvents);
     }
 
@@ -528,8 +524,8 @@ public abstract class AggregateStorageTest
         }
     }
 
-    private Iterator<Event> historyBackward() {
-        return storage.historyBackward(id, MAX_VALUE);
+    private Iterator<Event> eventHistoryBackward() {
+        return storage.eventHistoryBackward(id, MAX_VALUE);
     }
 
     public static class TestAggregate extends Aggregate<ProjectId, AggProject, AggProject.Builder> {

@@ -128,10 +128,10 @@ message AggregateEventRecord {
 // The recorded history of an aggregate: the sequence of events it emitted.
 //
 // Retained for wire compatibility; no longer produced or read by the runtime.
-// Superseded by `spine.server.entity.EntityEventHistory`, which carries events
-// only: since the event-sourcing cutover, aggregate state is no longer restored
-// by replaying the history, so the "snapshot plus tail" semantics of this
-// message no longer hold. The field-level comments below describe the
+// Since the event-sourcing cutover, aggregate state is no longer restored by
+// replaying the history, so the "snapshot plus tail" semantics of this message
+// no longer hold. The journal now stores plain `spine.core.Event`s directly,
+// with no dedicated wrapper type. The field-level comments below describe the
 // historical (pre-cutover) semantics.
 //
 message AggregateHistory {

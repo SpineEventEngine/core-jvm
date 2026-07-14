@@ -321,7 +321,7 @@ public abstract class AggregateRepository<I,
      */
     final void setUpHistoryReading(A aggregate, I id) {
         aggregate.setEventHistoryLoader(
-                depth -> aggregateStorage().historyBackward(id, depth));
+                depth -> aggregateStorage().eventHistoryBackward(id, depth));
         aggregate.setStateHistoryLoader(stateHistoryLoaderFor(id));
         if (idempotencyGuardEnabled) {
             aggregate.enableIdempotencyGuard(eventHistoryDepth);
@@ -750,7 +750,7 @@ public abstract class AggregateRepository<I,
      *         with the ID
      */
     private Optional<A> load(I id) {
-        var found = aggregateStorage().readState(id);
+        var found = aggregateStorage().read(id);
         var result = found.map(record -> restore(id, record));
         return result;
     }
