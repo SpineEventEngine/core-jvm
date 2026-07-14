@@ -115,6 +115,15 @@ public class EntityStateHistoryStorage<I : Any>(
      * of the entity at or before [at] — so the backend returns the answer
      * directly, without reading the history into memory.
      *
+     * The records are ordered by [created][EntityStateHistoryColumns.created]
+     * before [version][EntityStateHistoryColumns.version]: a backend such as
+     * Datastore requires the property under an inequality filter to lead the
+     * sort. So the answer is the newest record by creation time — the highest
+     * version as long as an entity records its states in the version order,
+     * the case for the live per-entity dispatch feeding this history. Should a
+     * higher version ever be recorded with an earlier timestamp, the result
+     * follows the timestamp rather than the version.
+     *
      * @param entityId The identifier of the entity.
      * @param at The point in time to look at.
      * @return The record effective at the given time, or `null` if the history
