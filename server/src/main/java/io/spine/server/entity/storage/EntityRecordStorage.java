@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -40,7 +40,7 @@ import io.spine.server.ContextSpec;
 import io.spine.server.entity.Entity;
 import io.spine.server.entity.EntityRecord;
 import io.spine.server.storage.RecordSpec;
-import io.spine.server.storage.RecordStorageDelegate;
+import io.spine.server.storage.DelegatingRecordStorage;
 import io.spine.server.storage.RecordWithColumns;
 import io.spine.server.storage.StorageFactory;
 
@@ -68,7 +68,7 @@ import static io.spine.server.entity.storage.ToEntityRecordQuery.transform;
  *         the type of {@code Entity} state
  */
 public class EntityRecordStorage<I, S extends EntityState<I>>
-        extends RecordStorageDelegate<I, EntityRecord> {
+        extends DelegatingRecordStorage<I, EntityRecord> {
 
     /**
      * The query that aims to find only the records, whose entity origins are neither archived
@@ -166,7 +166,7 @@ public class EntityRecordStorage<I, S extends EntityState<I>>
     }
 
     /**
-     * Finds all records which match the given query.
+     * Finds all records that match the given query.
      *
      * <p>Only the records of active entities are returned.
      */

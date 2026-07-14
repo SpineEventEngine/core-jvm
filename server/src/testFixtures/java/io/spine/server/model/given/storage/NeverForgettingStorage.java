@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -30,13 +30,13 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.protobuf.Message;
 import io.spine.server.ContextSpec;
 import io.spine.server.storage.RecordStorage;
-import io.spine.server.storage.RecordStorageDelegate;
+import io.spine.server.storage.DelegatingRecordStorage;
 
 /**
  * A storage that does not delete anything ever.
  */
 final class NeverForgettingStorage<I, R extends Message>
-        extends RecordStorageDelegate<I, R> {
+        extends DelegatingRecordStorage<I, R> {
 
     NeverForgettingStorage(ContextSpec context, RecordStorage<I, R> delegate) {
         super(context, delegate);

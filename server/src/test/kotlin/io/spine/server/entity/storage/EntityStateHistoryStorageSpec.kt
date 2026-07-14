@@ -33,7 +33,6 @@ import com.google.protobuf.util.Timestamps.subtract
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.spine.base.Identifier
 import io.spine.base.Time.currentTime
@@ -48,6 +47,8 @@ import io.spine.server.entity.entityStateKey
 import io.spine.server.storage.given.EntityRecordStorageTestEnv.TestCounterEntity
 import io.spine.server.storage.memory.InMemoryStorageFactory
 import io.spine.test.storage.StgProject
+import io.spine.test.storage.StgProjectId
+import io.spine.test.storage.stgProjectId
 import io.spine.testdata.Sample
 import io.spine.validation.NonValidated
 import org.junit.jupiter.api.AfterEach
@@ -59,9 +60,9 @@ import org.junit.jupiter.api.Test
 @DisplayName("`EntityStateHistoryStorage` should")
 internal class EntityStateHistoryStorageSpec {
 
-    private val entityId = "state-tracked-entity"
-    private val anotherEntity = "another-entity"
-    private lateinit var storage: EntityStateHistoryStorage
+    private val entityId = stgProjectId { id = "state-tracked-entity" }
+    private val anotherEntity = stgProjectId { id = "another-entity" }
+    private lateinit var storage: EntityStateHistoryStorage<StgProjectId>
     private var lastVersion = 0
 
     @BeforeEach
@@ -287,9 +288,7 @@ internal class EntityStateHistoryStorageSpec {
         }
 
         @Test
-        fun `from beyond the first read batch`() {
-            // `stateAt` scans the history in batches of one hundred records;
-            // the answer here lies in the second batch.
+        fun `from a large history`() {
             val written = (1..120).map { n ->
                 writeRecord(number = n, at = at(n.toLong()))
             }
@@ -387,74 +386,45 @@ internal class EntityStateHistoryStorageSpec {
     `truncate the history` {
 
         @Test
-        fun `keeping the requested number of the most recent records per entity`() {
-            val ours = appendRecords(count = 5)
-            val theirs = appendRecords(count = 3, toEntity = anotherEntity)
+        fun `deleting the records older than the given time across all entities`() {
+            val longAgo = subtract(currentTime(), Durations.fromDays(365))
+            appendRecords(count = 2, at = longAgo)
+            appendRecords(count = 2, at = longAgo, toEntity = anotherEntity)
+            val ours = appendRecords(count = 2)
+            val theirs = appendRecords(count = 2, toEntity = anotherEntity)
+            val cutoff = subtract(currentTime(), Durations.fromDays(30))
 
-            storage.truncate(2)
+            storage.truncate(cutoff)
 
             storage.historyBackward(entityId, Int.MAX_VALUE)
-                .records() shouldContainExactly listOf(ours[4], ours[3])
+                .records() shouldContainExactly ours.reversed()
             storage.historyBackward(anotherEntity, Int.MAX_VALUE)
-                .records() shouldContainExactly listOf(theirs[2], theirs[1])
+                .records() shouldContainExactly theirs.reversed()
         }
 
         @Test
-        fun `doing nothing when the history is within the kept window`() {
-            val written = appendRecords(count = 3)
+        fun `purging the whole history, however large, when the cutoff is in the future`() {
+            appendRecords(count = 200)
+            appendRecords(count = 200, toEntity = anotherEntity)
+            val futureCutoff = add(currentTime(), Durations.fromDays(1))
 
-            storage.truncate(10)
+            storage.truncate(futureCutoff)
+
+            storage.historyBackward(entityId, Int.MAX_VALUE)
+                .records().shouldBeEmpty()
+            storage.historyBackward(anotherEntity, Int.MAX_VALUE)
+                .records().shouldBeEmpty()
+        }
+
+        @Test
+        fun `keeping the whole history when every record is newer than the cutoff`() {
+            val written = appendRecords(count = 3)
+            val pastCutoff = subtract(currentTime(), Durations.fromDays(365))
+
+            storage.truncate(pastCutoff)
 
             storage.historyBackward(entityId, Int.MAX_VALUE)
                 .records() shouldContainExactly written.reversed()
-        }
-
-        @Test
-        fun `purging all the records older than the given time`() {
-            val longAgo = subtract(currentTime(), Durations.fromDays(365))
-            appendRecords(count = 2, at = longAgo)
-            val recent = appendRecords(count = 2)
-            val cutoff = subtract(currentTime(), Durations.fromDays(30))
-
-            storage.truncate(0, cutoff)
-
-            storage.historyBackward(entityId, Int.MAX_VALUE)
-                .records() shouldContainExactly recent.reversed()
-        }
-
-        @Test
-        fun `keeping the recent window even when its records are older than the given time`() {
-            val longAgo = subtract(currentTime(), Durations.fromDays(365))
-            val written = appendRecords(count = 4, at = longAgo)
-            val futureCutoff = add(currentTime(), Durations.fromDays(1))
-
-            storage.truncate(2, futureCutoff)
-
-            storage.historyBackward(entityId, Int.MAX_VALUE)
-                .records() shouldContainExactly listOf(written[3], written[2])
-        }
-
-        @Test
-        fun `handling a history far larger than the kept window`() {
-            appendRecords(count = 200)
-            appendRecords(count = 200, toEntity = anotherEntity)
-
-            storage.truncate(2)
-
-            storage.historyBackward(entityId, Int.MAX_VALUE)
-                .records() shouldHaveSize 2
-            storage.historyBackward(anotherEntity, Int.MAX_VALUE)
-                .records() shouldHaveSize 2
-        }
-
-        @Test
-        fun `rejecting a negative window`() {
-            shouldThrow<IllegalArgumentException> {
-                storage.truncate(-1)
-            }
-            shouldThrow<IllegalArgumentException> {
-                storage.truncate(-1, currentTime())
-            }
         }
     }
 
@@ -501,7 +471,7 @@ internal class EntityStateHistoryStorageSpec {
      * The state is a randomly populated [StgProject].
      */
     private fun record(
-        entity: String = entityId,
+        entity: StgProjectId = entityId,
         number: Int,
         at: Timestamp = currentTime()
     ): EntityRecord = entityRecord {
@@ -516,7 +486,7 @@ internal class EntityStateHistoryStorageSpec {
     private fun writeRecord(
         number: Int,
         at: Timestamp,
-        entity: String = entityId
+        entity: StgProjectId = entityId
     ): EntityRecord {
         val result = record(entity = entity, number = number, at = at)
         storage.write(result)
@@ -534,7 +504,7 @@ internal class EntityStateHistoryStorageSpec {
      */
     private fun appendRecords(
         count: Int,
-        toEntity: String = entityId,
+        toEntity: StgProjectId = entityId,
         at: Timestamp? = null
     ): List<EntityRecord> {
         val records = List(count) {

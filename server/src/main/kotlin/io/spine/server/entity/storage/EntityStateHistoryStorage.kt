@@ -26,10 +26,9 @@
 
 package io.spine.server.entity.storage
 
+import com.google.protobuf.Any as ProtoAny
 import com.google.protobuf.Timestamp
-import com.google.protobuf.util.Timestamps
 import io.spine.base.Identifier
-import io.spine.core.Version
 import io.spine.server.ContextSpec
 import io.spine.server.entity.Entity
 import io.spine.server.entity.EntityRecord
@@ -80,16 +79,22 @@ import io.spine.server.storage.StorageGroup
  * via the [RecordStorage][io.spine.server.storage.RecordStorage] delegate
  * created by their [StorageFactory].
  *
+ * @param I The type of the identifiers of the entities whose states are recorded.
  * @param context Specification of the Bounded Context in scope of which the storage is used.
  * @param factory The storage factory to use when creating a record storage delegate.
  * @param entityClass The class of the entities whose states are recorded.
  */
-public class EntityStateHistoryStorage(
+public class EntityStateHistoryStorage<I : Any>(
     context: ContextSpec,
     factory: StorageFactory,
-    entityClass: Class<out Entity<*, *>>
-) : HistoryStorage<EntityStateKey, EntityRecord>(
-    context, recordSpecFor(entityClass), EntityStateHistoryColumns, StorageGroup.of(entityClass),
+    entityClass: Class<out Entity<I, *>>
+) : HistoryStorage<I, EntityStateKey, EntityRecord>(
+    context,
+    HistoryStorageSpec(
+        recordSpecFor(entityClass),
+        EntityStateHistoryColumns,
+        StorageGroup.of(entityClass)
+    ),
     factory
 ) {
 
@@ -97,42 +102,45 @@ public class EntityStateHistoryStorage(
      * Returns the state record the entity had at the given time
      * if the history retains it.
      *
-     * The result is the retained record with the highest version among those
-     * whose state became current not later than [at]. When several retained
-     * records share the very instant [at], the one with the highest version wins.
+     * The result is the retained record with the most recent timestamp not
+     * later than [at]. When several retained records share that instant, the
+     * one with the highest version wins.
      *
      * The answer is honest about retention: `null` means the question cannot
      * be answered from the retained window — the time either precedes the
      * oldest retained record, or predates the entity itself.
      *
-     * The history is read in batches, newest first, stopping at the first
-     * qualifying record: the cost of the query is bounded by the position
-     * of the answer, not by the length of the retained history.
+     * The record is selected by a single query on the
+     * [created][EntityStateHistoryColumns.created] column — the newest record
+     * of the entity at or before [at] — so the backend returns the answer
+     * directly, without reading the history into memory.
+     *
+     * The records are ordered by [created][EntityStateHistoryColumns.created]
+     * before [version][EntityStateHistoryColumns.version]: a backend such as
+     * Datastore requires the property under an inequality filter to lead the
+     * sort. So the answer is the newest record by creation time — the highest
+     * version as long as an entity records its states in the version order,
+     * the case for the live per-entity dispatch feeding this history. Should a
+     * higher version ever be recorded with an earlier timestamp, the result
+     * follows the timestamp rather than the version.
      *
      * @param entityId The identifier of the entity.
      * @param at The point in time to look at.
      * @return The record effective at the given time, or `null` if the history
      *   does not retain it.
-     * @throws IllegalArgumentException If the type of [entityId] is not supported
-     *   by the framework.
      */
-    public fun stateAt(entityId: Any, at: Timestamp): EntityRecord? {
-        var startingFrom: Version? = null
-        while (true) {
-            val batch = historyBackward(entityId, STATE_AT_BATCH, startingFrom)
-                .asSequence()
-                .toList()
-            val match = batch.firstOrNull {
-                Timestamps.compare(it.version.timestamp, at) <= 0
-            }
-            if (match != null) {
-                return match
-            }
-            if (batch.size < STATE_AT_BATCH) {
-                return null
-            }
-            startingFrom = batch.last().version
+    public fun stateAt(entityId: I, at: Timestamp): EntityRecord? {
+        val packedId = Identifier.pack(entityId)
+        val query = with(EntityStateHistoryColumns) {
+            queryBuilder()
+                .where(entity_id).isEqualTo(packedId)
+                .where(created).isLessOrEqualTo(at)
+                .sortDescendingBy(created)
+                .sortDescendingBy(version)
+                .limit(1)
+                .build()
         }
+        return readAll(query).asSequence().firstOrNull()
     }
 
     /**
@@ -166,23 +174,33 @@ public class EntityStateHistoryStorage(
     @Synchronized
     public override fun write(id: EntityStateKey, message: EntityRecord) {
         validate(message)
-        require(id == message.stateKey()) {
-            "The passed identifier does not match the entity and the version of the record."
+        require(id.entityId == message.entityId && id.version == message.version.number) {
+            val expectedEntity = message.entityId.asIdString()
+            val gotEntity = id.entityId.asIdString()
+            "The passed identifier does not match the record. " +
+                "Expected entity `$expectedEntity` at version ${message.version.number}, " +
+                "but got entity `$gotEntity` at version ${id.version}."
         }
         super.write(id, message)
     }
 
     /**
      * Trims the history of the entity with the given identifier, keeping up
-     * to [keepMostRecent] most recent records.
+     * to [keepMostRecent] most recent records. Passing zero purges the
+     * history of the entity.
      *
-     * Overrides the generic implementation with an identifier-only read:
-     * the [record keys][EntityStateKey] of this storage carry the version,
-     * so ranking the records needs no record payloads. Trimming thus
-     * reads small identifiers instead of full records with packed states.
+     * Ranks the records by an identifier-only read: the [record keys][EntityStateKey]
+     * of this storage carry the version, so ranking needs no record payloads —
+     * trimming reads small identifiers instead of full records with packed states.
+     *
+     * @param entityId The identifier of the entity.
+     * @param keepMostRecent The number of the most recent records to keep.
+     * @throws IllegalArgumentException If [keepMostRecent] is negative.
      */
-    override fun trim(entityId: Any, keepMostRecent: Int) {
-        requireNotNegative(keepMostRecent)
+    public fun trim(entityId: I, keepMostRecent: Int) {
+        require(keepMostRecent >= 0) {
+            "The number of the records to keep must not be negative, got $keepMostRecent."
+        }
         val packedId = Identifier.pack(entityId)
         val selection = queryBuilder()
             .where(EntityStateHistoryColumns.entity_id).isEqualTo(packedId)
@@ -217,12 +235,6 @@ public class EntityStateHistoryStorage(
 }
 
 /**
- * The number of the records [stateAt][EntityStateHistoryStorage.stateAt]
- * reads per batch while scanning the history backward.
- */
-private const val STATE_AT_BATCH = 100
-
-/**
  * Composes a specification on how to store the state records of the entities
  * of the given class.
  *
@@ -245,3 +257,8 @@ private fun EntityRecord.stateKey(): EntityStateKey = entityStateKey {
     entityId = this@stateKey.entityId
     version = this@stateKey.version.number
 }
+
+/**
+ * Renders this packed entity identifier as a human-readable string.
+ */
+private fun ProtoAny.asIdString(): String = Identifier.toString(Identifier.unpack(this))

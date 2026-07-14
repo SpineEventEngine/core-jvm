@@ -42,7 +42,7 @@ import io.spine.test.storage.StgProjectId;
  *
  * <p>This storage defines several {@linkplain StgProjectColumns custom columns} to use in tests.
  *
- * @see RecordStorageDelegateTest
+ * @see DelegatingRecordStorageTest
  * @see StgProjectColumns
  */
 public class StgProjectStorage extends RecordStorageUnderTest<StgProjectId, StgProject> {

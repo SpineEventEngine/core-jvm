@@ -414,18 +414,6 @@ public abstract class AggregateStorageTest
         private Version currentVersion = zero();
 
         @Test
-        @DisplayName("keeping the requested number of the most recent events per Aggregate")
-        void keepingMostRecent() {
-            var written = writeSequentialEvents(5, currentTime());
-            var keep = 2;
-
-            storage.truncate(keep);
-
-            var remaining = readRecord(id);
-            assertEquals(written.subList(3, 5), remaining.getEventList());
-        }
-
-        @Test
         @DisplayName("deleting only the events older than the given time")
         void olderThan() {
             var longAgo = subtract(currentTime(), Durations.fromDays(365));
@@ -433,18 +421,10 @@ public abstract class AggregateStorageTest
             var recent = writeSequentialEvents(2, currentTime());
             var cutoff = subtract(currentTime(), Durations.fromDays(30));
 
-            storage.truncate(0, cutoff);
+            storage.truncate(cutoff);
 
             var remaining = readRecord(id);
             assertEquals(recent, remaining.getEventList());
-        }
-
-        @Test
-        @DisplayName("rejecting a negative count of the events to keep")
-        void rejectingNegativeCount() {
-            assertThrows(IllegalArgumentException.class, () -> storage.truncate(-1));
-            assertThrows(IllegalArgumentException.class,
-                         () -> storage.truncate(-1, currentTime()));
         }
 
         @CanIgnoreReturnValue

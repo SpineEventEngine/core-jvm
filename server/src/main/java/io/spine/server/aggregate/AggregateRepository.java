@@ -120,7 +120,7 @@ import static java.util.Objects.requireNonNull;
  *         the type of the state of aggregates managed by this repository
  * @see Aggregate
  */
-@SuppressWarnings("ClassWithTooManyMethods")
+@SuppressWarnings({"ClassWithTooManyMethods", "resource"})
 public abstract class AggregateRepository<I,
                                           A extends Aggregate<I, S, ?>,
                                           S extends AggregateState<I>>
@@ -161,7 +161,7 @@ public abstract class AggregateRepository<I,
     private volatile boolean stateHistoryEnabled = false;
 
     /** The storage of recent state records; created lazily once the history is first needed. */
-    private @MonotonicNonNull EntityStateHistoryStorage stateHistory;
+    private @MonotonicNonNull EntityStateHistoryStorage<I> stateHistory;
 
     /** Creates a new instance. */
     protected AggregateRepository() {
@@ -312,10 +312,7 @@ public abstract class AggregateRepository<I,
      * Installs the history loaders and, when enabled, the idempotency guard
      * on a newly created aggregate.
      *
-     * <p>Both {@linkplain #create(Object) creation paths} must call this
-     * method: the one of this repository, and the one of
-     * {@link AggregatePartRepository}, which overrides the creation entirely,
-     * building a part around its root.
+     * <p>{@linkplain #create(Object) creation paths} must call this method.
      *
      * @param aggregate
      *         the newly created aggregate
@@ -594,10 +591,9 @@ public abstract class AggregateRepository<I,
      * a maintenance query on the dispatch path, so the storage grows with every dispatch
      * until the application removes the records it no longer needs. Schedule the
      * maintenance suiting your domain — e.g., periodically invoke
-     * {@link EntityStateHistoryStorage#truncate(int) truncate(keepMostRecent)} or
-     * {@link EntityStateHistoryStorage#truncate(int, Timestamp) truncate(keepMostRecent,
-     * olderThan)} on the {@linkplain #stateHistory() state history}, or bound the history
-     * of a single aggregate with {@link EntityStateHistoryStorage#trim(Object, int)
+     * {@link EntityStateHistoryStorage#truncate(Timestamp) truncate(olderThan)} on the
+     * {@linkplain #stateHistory() state history}, or bound the history of a single
+     * aggregate with {@link EntityStateHistoryStorage#trim(Object, int)
      * trim(entityId, keepMostRecent)}.
      *
      * <p>A failure to record the history fails the dispatch. Note that under a batched
@@ -633,8 +629,8 @@ public abstract class AggregateRepository<I,
      * next dispatch. A dispatch already past its recording check may append one more
      * record after this call returns.
      *
-     * <p>To also purge the retained records, truncate the history <em>before</em>
-     * stopping: {@code stateHistory().truncate(0)}.
+     * <p>To also purge the retained records, truncate the history up to the present
+     * <em>before</em> stopping: {@code stateHistory().truncate(currentTime())}.
      *
      * @see #recordStateHistory()
      */
@@ -643,7 +639,7 @@ public abstract class AggregateRepository<I,
     }
 
     /**
-     * Checks if the aggregate should be mirrored, and configures
+     * Checks if the aggregate should be mirrored and configures
      * the underlying storage accordingly.
      */
     private void configureQuerying() {
@@ -691,7 +687,7 @@ public abstract class AggregateRepository<I,
      *         if the state history is not {@linkplain #recordStateHistory() recorded}
      *         by this repository
      */
-    protected final EntityStateHistoryStorage stateHistory() {
+    protected final EntityStateHistoryStorage<I> stateHistory() {
         if (!stateHistoryEnabled) {
             throw newIllegalStateException(
                     "The state history is not recorded for the repository `%s`. " +
@@ -708,7 +704,7 @@ public abstract class AggregateRepository<I,
      * accessed during the single-threaded registration of the repository, this storage
      * is first touched when a signal is dispatched, possibly by concurrent workers.
      */
-    private synchronized EntityStateHistoryStorage stateHistoryStorage() {
+    private synchronized EntityStateHistoryStorage<I> stateHistoryStorage() {
         if (stateHistory == null) {
             var factory = defaultStorageFactory();
             stateHistory = factory.createEntityStateHistoryStorage(context().spec(), entityClass());

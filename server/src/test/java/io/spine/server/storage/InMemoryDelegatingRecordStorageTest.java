@@ -24,18 +24,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.server.entity.storage
+package io.spine.server.storage;
+
+import org.junit.jupiter.api.DisplayName;
 
 /**
- * Ensures the given size of a read batch is positive.
- *
- * Shared by the history storages of this package; see [HistoryStorage].
- *
- * @param batchSize The value to check.
- * @throws IllegalArgumentException If [batchSize] is not positive.
+ * Runs the {@link DelegatingRecordStorageTest} contract against the default in-memory
+ * {@code StorageFactory} configured for tests.
  */
-internal fun requirePositiveBatchSize(batchSize: Int) {
-    require(batchSize > 0) {
-        "The batch size must be positive, got $batchSize."
-    }
+@DisplayName("In-memory `DelegatingRecordStorage` should")
+class InMemoryDelegatingRecordStorageTest extends DelegatingRecordStorageTest {
 }

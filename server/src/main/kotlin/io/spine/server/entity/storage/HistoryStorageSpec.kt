@@ -24,14 +24,32 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.server.storage;
+package io.spine.server.entity.storage
 
-import org.junit.jupiter.api.DisplayName;
+import com.google.protobuf.Message
+import io.spine.server.storage.RecordSpec
+import io.spine.server.storage.StorageGroup
 
 /**
- * Runs the {@link RecordStorageDelegateTest} contract against the default in-memory
- * {@code StorageFactory} configured for tests.
+ * The specification of a [HistoryStorage].
+ *
+ * Folds into one value the inputs a history storage needs beyond its bounded
+ * context and storage factory: the [recordSpec] persisting the history items,
+ * the [historyColumns] to manage and query the history by, and the
+ * [storageGroup] telling the history apart from the latest-state storage of
+ * the same entity.
+ *
+ * The [recordSpec] must list the [historyColumns] among its columns — build it
+ * with [HistoryColumns.definitions] — so that the history can be queried by them.
+ *
+ * @param K The type of the record identifiers.
+ * @param V The type of the stored history items.
+ * @property recordSpec The specification of the records persisting the history items.
+ * @property historyColumns The columns to manage and query the history by.
+ * @property storageGroup The group the record storage of this history belongs to.
  */
-@DisplayName("In-memory `RecordStorageDelegate` should")
-class InMemoryRecordStorageDelegateTest extends RecordStorageDelegateTest {
-}
+internal data class HistoryStorageSpec<K : Any, V : Message>(
+    val recordSpec: RecordSpec<K, V>,
+    val historyColumns: HistoryColumns<V>,
+    val storageGroup: StorageGroup,
+)

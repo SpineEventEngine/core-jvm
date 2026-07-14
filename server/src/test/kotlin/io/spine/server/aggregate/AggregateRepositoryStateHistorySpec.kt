@@ -218,8 +218,8 @@ internal class AggregateRepositoryStateHistorySpec {
         post(Given.ACommand.createProject(projectId))
         post(Given.ACommand.addTask(projectId))
 
-        // The documented purge recipe: truncate *before* stopping.
-        repository.history().truncate(0)
+        // The documented purge recipe: truncate up to the present, *before* stopping.
+        repository.history().truncate(currentTime())
         repository.disableStateHistory()
 
         repository.enableStateHistory()

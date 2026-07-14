@@ -45,7 +45,9 @@ import io.spine.server.ContextSpec
 import io.spine.server.storage.given.EntityRecordStorageTestEnv.TestCounterEntity
 import io.spine.server.storage.memory.InMemoryStorageFactory
 import io.spine.test.storage.StgProject
+import io.spine.test.storage.StgProjectId
 import io.spine.test.storage.event.StgProjectCreated
+import io.spine.test.storage.stgProjectId
 import io.spine.testdata.Sample
 import io.spine.testing.server.TestEventFactory
 import io.spine.validation.NonValidated
@@ -59,9 +61,9 @@ import org.junit.jupiter.api.Test
 @DisplayName("`EntityEventStorage` should")
 internal class EntityEventStorageSpec {
 
-    private val entityId = "journaled-entity"
-    private val anotherEntity = "another-entity"
-    private lateinit var storage: EntityEventStorage
+    private val entityId = stgProjectId { id = "journaled-entity" }
+    private val anotherEntity = stgProjectId { id = "another-entity" }
+    private lateinit var storage: EntityEventStorage<StgProjectId>
     private var version = zero()
 
     @BeforeEach
@@ -275,80 +277,48 @@ internal class EntityEventStorageSpec {
                 .events()
                 .shouldBeEmpty()
         }
-
-        @Test
-        fun `trimming the journal of one entity`() {
-            val ours = appendEvents(count = 5)
-            val theirs = appendEvents(count = 3, toEntity = anotherEntity)
-
-            storage.trim(entityId, keepMostRecent = 2)
-
-            storage.historyBackward(entityId, Int.MAX_VALUE)
-                .events() shouldContainExactly listOf(ours[4], ours[3])
-            storage.historyBackward(anotherEntity, Int.MAX_VALUE)
-                .events() shouldContainExactly theirs.reversed()
-        }
     }
 
     @Nested inner class
     `truncate the journal` {
 
         @Test
-        fun `keeping the requested number of the most recent records per entity`() {
-            val ours = appendEvents(count = 5)
-            val theirs = appendEvents(count = 3, toEntity = anotherEntity)
+        fun `deleting the records older than the given time across all entities`() {
+            val longAgo = subtract(currentTime(), Durations.fromDays(365))
+            appendEvents(count = 2, at = longAgo)
+            appendEvents(count = 2, at = longAgo, toEntity = anotherEntity)
+            val ours = appendEvents(count = 2)
+            val theirs = appendEvents(count = 2, toEntity = anotherEntity)
+            val cutoff = subtract(currentTime(), Durations.fromDays(30))
 
-            storage.truncate(2)
+            storage.truncate(cutoff)
 
             storage.historyBackward(entityId, Int.MAX_VALUE)
-                .events() shouldContainExactly listOf(ours[4], ours[3])
+                .events() shouldContainExactly ours.reversed()
             storage.historyBackward(anotherEntity, Int.MAX_VALUE)
-                .events() shouldContainExactly listOf(theirs[2], theirs[1])
+                .events() shouldContainExactly theirs.reversed()
         }
 
         @Test
-        fun `doing nothing when the journal is within the kept window`() {
-            val written = appendEvents(count = 3)
+        fun `purging the whole journal when the cutoff is in the future`() {
+            appendEvents(count = 4)
+            val futureCutoff = add(currentTime(), Durations.fromDays(1))
 
-            storage.truncate(10)
+            storage.truncate(futureCutoff)
+
+            storage.historyBackward(entityId, Int.MAX_VALUE)
+                .events().shouldBeEmpty()
+        }
+
+        @Test
+        fun `keeping the whole journal when every record is newer than the cutoff`() {
+            val written = appendEvents(count = 3)
+            val pastCutoff = subtract(currentTime(), Durations.fromDays(365))
+
+            storage.truncate(pastCutoff)
 
             storage.historyBackward(entityId, Int.MAX_VALUE)
                 .events() shouldContainExactly written.reversed()
-        }
-
-        @Test
-        fun `purging all the records older than the given time`() {
-            val longAgo = subtract(currentTime(), Durations.fromDays(365))
-            appendEvents(count = 2, at = longAgo)
-            val recent = appendEvents(count = 2)
-            val cutoff = subtract(currentTime(), Durations.fromDays(30))
-
-            storage.truncate(0, cutoff)
-
-            storage.historyBackward(entityId, Int.MAX_VALUE)
-                .events() shouldContainExactly recent.reversed()
-        }
-
-        @Test
-        fun `keeping the recent window even when its records are older than the given time`() {
-            val longAgo = subtract(currentTime(), Durations.fromDays(365))
-            val written = appendEvents(count = 4, at = longAgo)
-            val futureCutoff = add(currentTime(), Durations.fromDays(1))
-
-            storage.truncate(2, futureCutoff)
-
-            storage.historyBackward(entityId, Int.MAX_VALUE)
-                .events() shouldContainExactly listOf(written[3], written[2])
-        }
-
-        @Test
-        fun `rejecting a negative window`() {
-            shouldThrow<IllegalArgumentException> {
-                storage.truncate(-1)
-            }
-            shouldThrow<IllegalArgumentException> {
-                storage.truncate(-1, currentTime())
-            }
         }
     }
 
@@ -363,7 +333,7 @@ internal class EntityEventStorageSpec {
      */
     private fun appendEvents(
         count: Int,
-        toEntity: String = entityId,
+        toEntity: StgProjectId = entityId,
         at: Timestamp? = null
     ): List<Event> {
         val factory = eventFactoryFor(toEntity)
@@ -394,7 +364,7 @@ internal class EntityEventStorageSpec {
          * The journal stores an event under its producer, so the tests emit
          * the events with the identifier they later read the history by.
          */
-        private fun eventFactoryFor(entityId: String): TestEventFactory =
+        private fun eventFactoryFor(entityId: StgProjectId): TestEventFactory =
             TestEventFactory.newInstance(
                 Identifier.pack(entityId),
                 EntityEventStorageSpec::class.java

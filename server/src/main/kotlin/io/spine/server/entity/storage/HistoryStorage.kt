@@ -28,20 +28,17 @@ package io.spine.server.entity.storage
 
 import com.google.protobuf.Message
 import com.google.protobuf.Timestamp
-import com.google.protobuf.util.Timestamps
 import io.spine.base.Identifier
 import io.spine.core.Version
 import io.spine.query.RecordQuery
 import io.spine.server.ContextSpec
 import io.spine.server.storage.MessageStorage
-import io.spine.server.storage.RecordSpec
 import io.spine.server.storage.StorageFactory
-import io.spine.server.storage.StorageGroup
 
 /**
  * An abstract base for the storages of a per-entity history.
  *
- * A history storage keeps items of the type [M] — e.g., the events emitted
+ * A history storage keeps items of the type [V] — e.g., the events emitted
  * by an entity, or the records of its past states — appended as the entity
  * handles its signals. Each stored item exposes the three
  * [columns][HistoryColumns], allowing to manage the history and query it
@@ -49,8 +46,7 @@ import io.spine.server.storage.StorageGroup
  * created, and the number of the entity version the item belongs to.
  *
  * On top of them, the storage provides the [window reads][historyBackward]
- * ordered from newer to older, and the maintenance operations:
- * the per-entity [trim] and the count/date-based [truncate].
+ * ordered from newer to older, and the time-based [truncate] maintenance operation.
  *
  * While the reads and the maintenance operations are open to applications,
  * new kinds of histories cannot be defined outside the framework:
@@ -59,24 +55,30 @@ import io.spine.server.storage.StorageGroup
  * their [StorageFactory] creates in
  * [createRecordStorage][io.spine.server.storage.StorageFactory.createRecordStorage].
  *
- * @param I The type of the record identifiers.
- * @param M The type of the stored history items.
- * @param context Specification of the Bounded Context in scope of which the storage is used.
- * @param recordSpec The specification of the records persisting the history items.
- * @property columns The columns to manage and query the history by.
- * @param storageGroup The group the record storage of this history belongs to,
- *   telling it apart from the latest-state storage of the same entity.
+ * @param I The type of the entity identifiers.
+ * @param K The type of the history item identifiers.
+ * @param V The type of the stored history items.
+ * @param context Specification of the Bounded Context in the scope of which the storage is used.
+ * @param spec The specification of the history storage: the record spec persisting
+ *   the items (which must list the history columns), the columns to query the history by, and
+ *   the storage group telling this history apart from the latest-state storage of the same entity.
  * @param factory The storage factory to use when creating a record storage delegate.
  * @see EntityEventStorage
  * @see EntityStateHistoryStorage
  */
-public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
+public abstract class HistoryStorage<I : Any, K : Any, V : Message> internal constructor(
     context: ContextSpec,
-    recordSpec: RecordSpec<I, M>,
-    private val columns: HistoryColumns<M>,
-    storageGroup: StorageGroup,
+    spec: HistoryStorageSpec<K, V>,
     factory: StorageFactory
-) : MessageStorage<I, M>(context, factory.createRecordStorage(context, recordSpec, storageGroup)) {
+) : MessageStorage<K, V>(
+    context,
+    factory.createRecordStorage(context, spec.recordSpec, spec.storageGroup)
+) {
+
+    /**
+     * The columns to manage and query the history by.
+     */
+    private val column: HistoryColumns<V> = spec.historyColumns
 
     /**
      * Reads up to [batchSize] most recent history items of the entity with
@@ -94,141 +96,54 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
      */
     @JvmOverloads
     public fun historyBackward(
-        entityId: Any,
+        entityId: I,
         batchSize: Int,
         startingFrom: Version? = null
-    ): Iterator<M> {
-        requirePositiveBatchSize(batchSize)
+    ): Iterator<V> {
+        require(batchSize > 0) {
+            "The batch size must be positive, got $batchSize."
+        }
         val packedId = Identifier.pack(entityId)
         val builder = queryBuilder()
-            .where(columns.entity_id).isEqualTo(packedId)
+            .where(column.entity_id).isEqualTo(packedId)
         if (startingFrom != null) {
-            builder.where(columns.version)
+            builder.where(column.version)
                 .isLessThan(startingFrom.number)
         }
         val query = builder
-            .sortDescendingBy(columns.version)
-            .sortDescendingBy(columns.created)
+            .sortDescendingBy(column.version)
+            .sortDescendingBy(column.created)
             .limit(batchSize)
             .build()
         return readAll(query)
     }
 
     /**
-     * Trims the history of the entity with the given identifier, keeping up
-     * to [keepMostRecent] most recent items.
+     * Truncates the history, deleting the items created before [olderThan].
      *
-     * Unlike [truncate], the operation reads only the items of the given
-     * entity, so it is the cheaper way to bound the history of one entity.
-     * Passing zero purges the history of the entity.
+     * An item is deleted if and only if it was created strictly before the
+     * given time. To purge the whole history, pass the current time — or any
+     * moment after the newest item.
      *
-     * A storage whose record identifiers carry the ranking of the items may
-     * override this implementation with an identifier-only read.
+     * The items are removed by a query on the [created][HistoryColumns.created]
+     * column rather than by reading the history into memory, so the operation
+     * scales to large histories.
      *
-     * @param entityId The identifier of the entity.
-     * @param keepMostRecent The number of the most recent items to keep.
-     * @throws IllegalArgumentException If [keepMostRecent] is negative, or if the type
-     *   of [entityId] is not supported by the framework.
-     */
-    public open fun trim(entityId: Any, keepMostRecent: Int) {
-        requireNotNegative(keepMostRecent)
-        val packedId = Identifier.pack(entityId)
-        val newestFirst = queryBuilder()
-            .where(columns.entity_id).isEqualTo(packedId)
-            .sortDescendingBy(columns.version)
-            .sortDescendingBy(columns.created)
-            .build()
-        val items = readAll(newestFirst)
-        val toDelete = items.asSequence()
-            .drop(keepMostRecent)
-            .map { idOf(it) }
-            .toList()
-        if (toDelete.isNotEmpty()) {
-            deleteAll(toDelete)
-        }
-    }
-
-    /**
-     * Truncates the history, keeping up to [keepMostRecent] most recent
-     * items for each entity.
-     *
-     * The most recent items are determined per entity, in the order of
-     * [historyBackward]. Passing zero purges the whole history.
-     *
-     * The operation reads the whole history; to bound the history of
-     * a single entity, prefer [trim].
-     *
-     * @param keepMostRecent The number of the most recent items to keep for each entity.
-     * @throws IllegalArgumentException If [keepMostRecent] is negative.
-     */
-    public fun truncate(keepMostRecent: Int) {
-        truncate(keepMostRecent) { true }
-    }
-
-    /**
-     * Truncates the history, deleting the items created before [olderThan],
-     * but keeping at least [keepMostRecent] most recent items for each entity.
-     *
-     * An item is deleted only if it was created before the given time *and*
-     * it is not among the [keepMostRecent] most recent items of its entity.
-     * To purge everything older than the given time, pass zero as [keepMostRecent].
-     *
-     * The operation reads the whole history; to bound the history of
-     * a single entity, prefer [trim].
-     *
-     * @param keepMostRecent The number of the most recent items to keep for each entity.
      * @param olderThan Only the items created strictly before this time are deleted.
-     * @throws IllegalArgumentException If [keepMostRecent] is negative.
      */
-    public fun truncate(keepMostRecent: Int, olderThan: Timestamp) {
-        truncate(keepMostRecent) { item ->
-            // The column value comes from a complete stored item; never `null`.
-            val created = checkNotNull(columns.created.valueIn(item))
-            Timestamps.compare(created, olderThan) < 0
-        }
-    }
-
-    private fun truncate(keepMostRecent: Int, deletionAllowed: (M) -> Boolean) {
-        requireNotNegative(keepMostRecent)
-        val newestFirst = queryBuilder()
-            .sortDescendingBy(columns.version)
-            .sortDescendingBy(columns.created)
+    public fun truncate(olderThan: Timestamp) {
+        val query = queryBuilder()
+            .where(column.created).isLessThan(olderThan)
             .build()
-        val items = readAll(newestFirst)
-        val seen = mutableMapOf<Any, Int>()
-        val toDelete = mutableListOf<I>()
-        items.forEach { item ->
-            // The column value comes from a complete stored item; never `null`.
-            val entityId = checkNotNull(columns.entity_id.valueIn(item))
-            val count = (seen[entityId] ?: 0) + 1
-            seen[entityId] = count
-            if (count > keepMostRecent && deletionAllowed(item)) {
-                toDelete.add(idOf(item))
-            }
-        }
-        deleteAll(toDelete)
+        deleteMatching(query)
     }
-
-    /**
-     * Ensures the size of a window to keep is not negative.
-     */
-    protected fun requireNotNegative(keepMostRecent: Int) {
-        require(keepMostRecent >= 0) {
-            "The number of the items to keep must not be negative, got `$keepMostRecent`."
-        }
-    }
-
-    /**
-     * Obtains the record identifier of the given history item.
-     */
-    private fun idOf(item: M): I = recordSpec().idValueIn(item)
 
     /**
      * Reads all the history items matching the given query.
      *
      * Overrides to expose the method as a part of the public API of this storage.
      */
-    public override fun readAll(query: RecordQuery<I, M>): Iterator<M> = super.readAll(query)
+    public override fun readAll(query: RecordQuery<K, V>): Iterator<V> = super.readAll(query)
 
     /**
      * Deletes the history item with the given identifier.
@@ -240,7 +155,7 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
      *
      * @return `true` if the item was deleted, `false` if it was not found.
      */
-    public override fun delete(id: I): Boolean = super.delete(id)
+    public override fun delete(id: K): Boolean = super.delete(id)
 
     /**
      * Deletes the history items with the given identifiers.
@@ -250,7 +165,7 @@ public abstract class HistoryStorage<I : Any, M : Message> internal constructor(
      *
      * Overrides to expose the method as a part of the public API of this storage.
      */
-    public override fun deleteAll(ids: Iterable<I>) {
+    public override fun deleteAll(ids: Iterable<K>) {
         super.deleteAll(ids)
     }
 }
