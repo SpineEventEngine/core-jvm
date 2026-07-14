@@ -729,12 +729,29 @@ public abstract class AggregateRepository<I,
     }
 
     /**
+     * Creates the journal of the events emitted by the aggregates of this repository.
+     *
+     * <p>Mirrors {@link #createStorage()}: the default implementation uses the
+     * {@linkplain #defaultStorageFactory() default storage factory} — the same one the default
+     * {@code createStorage()} uses for the aggregate state. A repository that overrides
+     * {@code createStorage()} to serve the aggregate state from a custom
+     * {@link io.spine.server.storage.StorageFactory} or backend should override this method as
+     * well, so the journal — feeding the {@link IdempotencyGuard} and the
+     * {@linkplain Aggregate#eventHistoryBackward(int) recent-history} reads — is served by the
+     * same backend as the state, rather than silently falling back to the default one.
+     *
+     * @return a new event journal
+     */
+    protected EntityEventStorage<I> createEventStorage() {
+        return defaultStorageFactory().createEntityEventStorage(context().spec(), entityClass());
+    }
+
+    /**
      * Returns the journal of the events emitted by the aggregates of this repository,
-     * creating it lazily on the first access.
+     * creating it lazily via {@link #createEventStorage()} on the first access.
      *
      * <p>Unlike the opt-in {@linkplain #stateHistory() state history}, the journal is always
-     * maintained, so this accessor has no fail-fast gate: it both creates the journal and
-     * exposes it — e.g., for the
+     * maintained, so this accessor has no fail-fast gate: it exposes the journal — e.g., for the
      * {@linkplain EntityEventStorage#truncate(com.google.protobuf.Timestamp) time-based
      * truncation} that bounds the journal growth as a periodic maintenance operation.
      *
@@ -746,8 +763,7 @@ public abstract class AggregateRepository<I,
      */
     protected final synchronized EntityEventStorage<I> eventStorage() {
         if (eventStorage == null) {
-            var factory = defaultStorageFactory();
-            eventStorage = factory.createEntityEventStorage(context().spec(), entityClass());
+            eventStorage = createEventStorage();
         }
         return eventStorage;
     }
