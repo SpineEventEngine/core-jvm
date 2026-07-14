@@ -33,7 +33,7 @@ import io.spine.dependency.DependencyWithBom
 @Suppress("unused")
 object Jackson : DependencyWithBom() {
     override val group = "com.fasterxml.jackson"
-    override val version = "2.22.0"
+    override val version = "2.22.1"
 
     // https://github.com/FasterXML/jackson-annotations?tab=readme-ov-file#release-notes
     const val annotationsVersion = "2.22"
