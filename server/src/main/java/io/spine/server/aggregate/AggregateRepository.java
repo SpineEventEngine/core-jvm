@@ -354,10 +354,10 @@ public abstract class AggregateRepository<I,
      * Stores the passed aggregate and commits its uncommitted events.
      *
      * <p>When the state history is {@linkplain #recordStateHistory() recorded}, appends
-     * the current state record on each call — that is, once per successful dispatch. The
-     * append happens here and not in {@link #doStore}, because under a batched delivery
-     * the cache defers {@code doStore()} to the end of the batch — the history still
-     * captures every intermediate version of the batch.
+     * the current state record on each call — that is, once per successful dispatch.
+     * The append operation happens here and not in {@link #doStore}, because under
+     * a batched delivery the cache defers {@code doStore()} to the end of the batch —
+     * the history still captures every intermediate version of the batch.
      */
     @Override
     protected final void store(A aggregate) {
