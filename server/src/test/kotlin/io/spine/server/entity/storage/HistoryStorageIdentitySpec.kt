@@ -69,8 +69,8 @@ internal class HistoryStorageIdentitySpec {
     fun `give two aggregate classes two separate event journals`() {
         val factory = SpecRecordingFactory()
 
-        factory.createAggregateStorage(context, TestAggregate::class.java)
-        factory.createAggregateStorage(context, CalcAggregate::class.java)
+        factory.createEntityEventStorage(context, TestAggregate::class.java)
+        factory.createEntityEventStorage(context, CalcAggregate::class.java)
 
         factory.historyGroupsOf(Event::class.java) shouldContainExactly
                 listOf(groupOf(AggProject::class.java), groupOf(Calc::class.java))
@@ -105,8 +105,9 @@ internal class HistoryStorageIdentitySpec {
     fun `keep the histories of one entity class apart from each other and from its latest state`() {
         val factory = SpecRecordingFactory()
 
-        factory.createAggregateStorage(context, TestAggregate::class.java)
+        factory.createEntityEventStorage(context, TestAggregate::class.java)
         factory.createEntityStateHistoryStorage(context, TestAggregate::class.java)
+        factory.createAggregateStorage(context, TestAggregate::class.java)
 
         // The two histories arrive at the vendor seam with distinct identities.
         factory.historyIdentities() shouldContainExactly listOf(

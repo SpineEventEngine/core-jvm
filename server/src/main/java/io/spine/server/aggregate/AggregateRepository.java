@@ -48,6 +48,7 @@ import io.spine.server.entity.QueryableRepository;
 import io.spine.server.entity.Repository;
 import io.spine.server.entity.RepositoryCache;
 import io.spine.server.entity.StateHistoryLoader;
+import io.spine.server.entity.storage.EntityEventStorage;
 import io.spine.server.entity.storage.EntityStateHistoryStorage;
 import io.spine.server.event.EventBus;
 import io.spine.server.event.EventDispatcherDelegate;
@@ -90,7 +91,9 @@ import static java.util.Objects.requireNonNull;
  *
  * <p>Since the event-sourcing cutover, an aggregate is loaded from its latest persisted
  * {@link io.spine.server.entity.EntityRecord EntityRecord} rather than by replaying its event
- * journal. The journal is kept append-only for traceability and for the opt-in
+ * journal. The repository keeps that latest state in an {@link AggregateStorage} and appends
+ * the emitted events to a separate {@linkplain #eventStorage() event journal}
+ * (an {@link EntityEventStorage}), kept append-only for traceability and for the opt-in
  * {@link IdempotencyGuard}.
  *
  * <p>Three per-repository settings tune this behavior:
@@ -120,7 +123,10 @@ import static java.util.Objects.requireNonNull;
  *         the type of the state of aggregates managed by this repository
  * @see Aggregate
  */
-@SuppressWarnings({"ClassWithTooManyMethods", "resource"})
+@SuppressWarnings({
+        "ClassWithTooManyMethods", "OverlyComplexClass" /* Acknowledged complexity. */,
+        "resource" /* Accessing `AutoClosable` properties. */
+})
 public abstract class AggregateRepository<I,
                                           A extends Aggregate<I, S, ?>,
                                           S extends AggregateState<I>>
@@ -162,6 +168,12 @@ public abstract class AggregateRepository<I,
 
     /** The storage of recent state records; created lazily once the history is first needed. */
     private @MonotonicNonNull EntityStateHistoryStorage<I> stateHistory;
+
+    /**
+     * The journal of the events emitted by the aggregates of this repository; created lazily
+     * once the journal is first needed.
+     */
+    private @MonotonicNonNull EntityEventStorage<I> eventStorage;
 
     /** Creates a new instance. */
     protected AggregateRepository() {
@@ -321,7 +333,7 @@ public abstract class AggregateRepository<I,
      */
     final void setUpHistoryReading(A aggregate, I id) {
         aggregate.setEventHistoryLoader(
-                depth -> aggregateStorage().eventHistoryBackward(id, depth));
+                depth -> eventStorage().historyBackward(id, depth));
         aggregate.setStateHistoryLoader(stateHistoryLoaderFor(id));
         if (idempotencyGuardEnabled) {
             aggregate.enableIdempotencyGuard(eventHistoryDepth);
@@ -364,8 +376,12 @@ public abstract class AggregateRepository<I,
         if (!aggregate.changed() && !aggregate.hasUncommittedEvents()) {
             return;
         }
-        var history = aggregate.uncommittedHistory();
-        aggregateStorage().writeAll(aggregate, history.get());
+        // Journal the emitted events, then store the latest state. Under a batched delivery the
+        // aggregate accumulates its events until `commitEvents()`, so the journal drops none.
+        var events = aggregate.uncommittedHistory().get();
+        var journal = eventStorage();
+        events.forEach(journal::write);
+        aggregateStorage().writeState(aggregate);
         aggregate.commitEvents();
     }
 
@@ -713,6 +729,30 @@ public abstract class AggregateRepository<I,
     }
 
     /**
+     * Returns the journal of the events emitted by the aggregates of this repository,
+     * creating it lazily on the first access.
+     *
+     * <p>Unlike the opt-in {@linkplain #stateHistory() state history}, the journal is always
+     * maintained, so this accessor has no fail-fast gate: it both creates the journal and
+     * exposes it — e.g., for the
+     * {@linkplain EntityEventStorage#truncate(com.google.protobuf.Timestamp) time-based
+     * truncation} that bounds the journal growth as a periodic maintenance operation.
+     *
+     * <p>Synchronized for the same reason as {@link #stateHistoryStorage()}: unlike the main
+     * {@linkplain #storage() storage}, the journal is first touched when a signal is dispatched,
+     * possibly by concurrent workers.
+     *
+     * @return the event journal of this repository
+     */
+    protected final synchronized EntityEventStorage<I> eventStorage() {
+        if (eventStorage == null) {
+            var factory = defaultStorageFactory();
+            eventStorage = factory.createEntityEventStorage(context().spec(), entityClass());
+        }
+        return eventStorage;
+    }
+
+    /**
      * Loads or creates an aggregate by the passed ID.
      *
      * @param id
@@ -803,11 +843,62 @@ public abstract class AggregateRepository<I,
     @OverridingMethodsMustInvokeSuper
     @Override
     public void close() {
-        super.close();
-        if (inbox != null) {
-            inbox.unregister();
+        // Release every owned resource even if one close fails: the first failure is kept as
+        // the primary exception and the later ones are attached to it as suppressed, so none of
+        // them is lost. `super.close()` is called directly (not via the helper) so that the
+        // `@OverridingMethodsMustInvokeSuper` check recognizes the super-call.
+        @Nullable RuntimeException failure = null;
+        try {
+            super.close();
+        } catch (RuntimeException e) {
+            failure = e;
         }
-        closeStateHistory();
+        if (inbox != null) {
+            failure = attemptClose(failure, inbox::unregister);
+        }
+        failure = attemptClose(failure, this::closeEventStorage);
+        failure = attemptClose(failure, this::closeStateHistory);
+        if (failure != null) {
+            throw failure;
+        }
+    }
+
+    /**
+     * Runs a close step, folding any exception it throws into the accumulated failure.
+     *
+     * <p>The first failure across the steps is returned as the primary exception; a later
+     * failure is attached to it as {@linkplain Throwable#addSuppressed(Throwable) suppressed},
+     * so no failure is lost and every step is still attempted.
+     *
+     * @param failure
+     *         the failure accumulated so far, or {@code null} if every prior step succeeded
+     * @param step
+     *         the close step to run
+     * @return the accumulated failure after running the step
+     */
+    private static @Nullable RuntimeException
+    attemptClose(@Nullable RuntimeException failure, Runnable step) {
+        try {
+            step.run();
+        } catch (RuntimeException e) {
+            if (failure == null) {
+                return e;
+            }
+            failure.addSuppressed(e);
+        }
+        return failure;
+    }
+
+    /**
+     * Closes the event journal if it was created.
+     *
+     * <p>Synchronized to pair with {@link #eventStorage()}: the journal may have been
+     * created by a dispatch worker, and the closing thread must observe that write.
+     */
+    private synchronized void closeEventStorage() {
+        if (eventStorage != null && eventStorage.isOpen()) {
+            eventStorage.close();
+        }
     }
 
     /**
