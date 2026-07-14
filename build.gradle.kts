@@ -47,6 +47,7 @@ buildscript {
                 val rs = this@resolutionStrategy
                 jackson.forceArtifacts(project, cfg, rs)
                 io.spine.dependency.lib.Jackson.DataType.forceArtifacts(project, cfg, rs)
+                io.spine.dependency.lib.Jackson.DataFormat.forceArtifacts(project, cfg, rs)
 
                 val logging = io.spine.dependency.local.Logging
                 force(
