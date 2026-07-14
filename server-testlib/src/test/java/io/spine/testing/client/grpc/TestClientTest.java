@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,13 +39,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.Optional;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.extensions.proto.ProtoTruth.assertThat;
-import static io.spine.client.Client.DEFAULT_CLIENT_SERVICE_PORT;
 import static io.spine.core.Responses.statusOk;
-import static io.spine.testing.TestValues.random;
 import static io.spine.testing.client.grpc.TableSide.LEFT;
 import static io.spine.testing.client.grpc.TableSide.RIGHT;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -67,8 +66,10 @@ class TestClientTest {
     void setUpAll() throws IOException {
         var context = BoundedContext.singleTenant("Tennis")
                 .add(new GameRepository());
-        // Select a port randomly to avoid the intermittent hanging port under Windows.
-        var port = random(DEFAULT_CLIENT_SERVICE_PORT, DEFAULT_CLIENT_SERVICE_PORT + 1000);
+        // Bind to a free ephemeral port chosen by the OS, rather than a fixed or randomly
+        // guessed one, so the test does not intermittently fail to bind an already-used
+        // port (notably under Windows).
+        var port = freePort();
         server = Server
                 .atPort(port)
                 .add(context)
@@ -86,6 +87,20 @@ class TestClientTest {
             client.shutdown();
         }
         server.shutdownAndWait();
+    }
+
+    /**
+     * Obtains a currently free port from the operating system's ephemeral range.
+     *
+     * <p>Opening a {@link ServerSocket} on port {@code 0} lets the OS assign a port that is free
+     * at that moment; the socket is closed immediately, so the port is available for the gRPC
+     * server to bind. Unlike a fixed or randomly guessed port, this never selects a port already
+     * in use — the cause of the intermittent bind failures on CI.
+     */
+    private static int freePort() throws IOException {
+        try (var socket = new ServerSocket(0)) {
+            return socket.getLocalPort();
+        }
     }
 
     @Test
