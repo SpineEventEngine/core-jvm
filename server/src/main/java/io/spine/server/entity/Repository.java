@@ -73,7 +73,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  */
 @SuppressWarnings({
         "ClassWithTooManyMethods" /* OK for this core class. */,
-        "resource" /* Accessing `AutoCloseable` properties */
+        "resource" /* Accessing `Closeable` properties */
 })
 public abstract class Repository<I, E extends Entity<I, ?>>
         implements ContextAware, Closeable, WithLogging {
