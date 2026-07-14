@@ -231,12 +231,12 @@ public class AggregateStorage<I, S extends AggregateState<I>>
      * <p><b>NOTE</b>: This method does not rewrite any events, just appends them. Many events
      * can be associated with a single aggregate ID.
      *
-     * <p>Each event is journaled under its producer — the aggregate which emitted it.
+     * <p>Each event is journaled under its producer — the aggregate that emitted it.
      * For the events emitted by the aggregate with the passed identifier, the producer
      * and the identifier match.
      *
      * @param id
-     *         the ID of the aggregate which emitted the events
+     *         the ID of the aggregate that emitted the events
      * @param events
      *         non-empty piece of the event history to store
      */
