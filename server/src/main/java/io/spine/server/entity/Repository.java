@@ -31,7 +31,6 @@ import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import io.spine.annotation.Internal;
 import io.spine.annotation.SPI;
 import io.spine.annotation.VisibleForTesting;
-import io.spine.base.Identifier;
 import io.spine.base.Routable;
 import io.spine.core.SignalContext;
 import io.spine.logging.WithLogging;
@@ -49,7 +48,6 @@ import io.spine.system.server.RoutingFailed;
 import io.spine.type.TypeUrl;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.dataflow.qual.Pure;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Iterator;
@@ -73,7 +71,10 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * @param <E>
  *         the type of managed entities
  */
-@SuppressWarnings("ClassWithTooManyMethods") // OK for this core class.
+@SuppressWarnings({
+        "ClassWithTooManyMethods" /* OK for this core class. */,
+        "resource" /* Accessing `AutoCloseable` properties */
+})
 public abstract class Repository<I, E extends Entity<I, ?>>
         implements ContextAware, Closeable, WithLogging {
 
@@ -144,6 +145,7 @@ public abstract class Repository<I, E extends Entity<I, ?>>
      */
     public Iterator<E> iterator(Predicate<E> filter) {
         Iterator<E> unfiltered = new EntityIterator<>(this);
+        @SuppressWarnings("NullableProblems") // Safe as `E` is never `null`.
         Iterator<E> filtered = Iterators.filter(unfiltered, filter::test);
         return filtered;
     }
@@ -271,7 +273,6 @@ public abstract class Repository<I, E extends Entity<I, ?>>
      * @throws IllegalStateException
      *         if the repository has no context assigned
      */
-    @SuppressWarnings("DataFlowIssue") // non-null result ensured by `hasContext()` call.
     protected final BoundedContext context() {
         checkState(hasContext(),
                    "The repository (class: `%s`) is not registered with a `BoundedContext`.",
@@ -338,7 +339,7 @@ public abstract class Repository<I, E extends Entity<I, ?>>
      * @return passed value if it is not null
      * @throws IllegalStateException if the passed instance is null
      */
-    protected static <S extends Closeable> @NonNull S checkStorage(@Nullable S storage) {
+    protected static <S extends Closeable> S checkStorage(@Nullable S storage) {
         checkState(storage != null, ERR_MSG_STORAGE_NOT_ASSIGNED);
         return storage;
     }
@@ -408,8 +409,7 @@ public abstract class Repository<I, E extends Entity<I, ?>>
      */
     private void checkMatchesIdType(Object result) {
         Class<?> routingResultType = null;
-        if (result instanceof Iterable) {
-            var asIterable = (Iterable<?>) result;
+        if (result instanceof Iterable<?> asIterable) {
             var element = getFirst(asIterable, null);
             if (element != null) {
                 routingResultType = element.getClass();
@@ -513,47 +513,6 @@ public abstract class Repository<I, E extends Entity<I, ?>>
         @Override
         public int index() {
             return this.index;
-        }
-    }
-
-    /**
-     * An iterator of all entities from the storage.
-     *
-     * <p>This iterator does not allow removal.
-     *
-     * @param <I>
-     *         the type of entity identifiers
-     * @param <E>
-     *         the type of entities
-     */
-    private static class EntityIterator<I, E extends Entity<I, ?>> implements Iterator<E> {
-
-        private final Repository<I, E> repository;
-        private final Iterator<I> index;
-
-        private EntityIterator(Repository<I, E> repository) {
-            this.repository = repository;
-            this.index = repository.storage()
-                                   .index();
-        }
-
-        @Override
-        public boolean hasNext() {
-            var result = index.hasNext();
-            return result;
-        }
-
-        @Override
-        public E next() {
-            var id = index.next();
-            var loaded = repository.find(id);
-            if (loaded.isEmpty()) {
-                var idStr = Identifier.toString(id);
-                throw newIllegalStateException("Unable to load entity with ID: `%s`.", idStr);
-            }
-
-            var entity = loaded.get();
-            return entity;
         }
     }
 }
