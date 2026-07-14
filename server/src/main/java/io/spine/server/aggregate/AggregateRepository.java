@@ -714,16 +714,42 @@ public abstract class AggregateRepository<I,
     }
 
     /**
-     * Lazily creates the state history storage.
+     * Creates the storage of the recent state history of the aggregates of this repository.
+     *
+     * <p>Mirrors {@link #createStorage()}: the default implementation uses the
+     * {@linkplain #defaultStorageFactory() default storage factory} — the same one the default
+     * {@code createStorage()} uses for the aggregate state. A repository that overrides
+     * {@code createStorage()} to serve the aggregate state from a custom
+     * {@link io.spine.server.storage.StorageFactory} or backend should override this method as
+     * well, so the recorded state history is served by the same backend as the state, rather
+     * than silently falling back to the default one.
+     *
+     * @return a new state history storage
+     */
+    protected EntityStateHistoryStorage<I> createStateHistoryStorage() {
+        var factory = defaultStorageFactory();
+        return factory.createEntityStateHistoryStorage(context().spec(), entityClass());
+    }
+
+    /**
+     * Returns the storage of the recent state history of the aggregates of this repository,
+     * creating it lazily via {@link #createStateHistoryStorage()} on the first access.
+     *
+     * <p>Unlike the fail-fast {@link #stateHistory()} accessor, this method does not require
+     * recording to be {@linkplain #recordStateHistory() enabled}: it exposes the storage for
+     * the maintenance operations — {@link EntityStateHistoryStorage#truncate(Timestamp) truncate}
+     * and {@link EntityStateHistoryStorage#trim(Object, int) trim} — which a repository may run
+     * even while the recording is off.
      *
      * <p>Synchronized: unlike the main {@linkplain #storage() storage}, which is first
      * accessed during the single-threaded registration of the repository, this storage
      * is first touched when a signal is dispatched, possibly by concurrent workers.
+     *
+     * @return the state history storage
      */
-    private synchronized EntityStateHistoryStorage<I> stateHistoryStorage() {
+    protected final synchronized EntityStateHistoryStorage<I> stateHistoryStorage() {
         if (stateHistory == null) {
-            var factory = defaultStorageFactory();
-            stateHistory = factory.createEntityStateHistoryStorage(context().spec(), entityClass());
+            stateHistory = createStateHistoryStorage();
         }
         return stateHistory;
     }
