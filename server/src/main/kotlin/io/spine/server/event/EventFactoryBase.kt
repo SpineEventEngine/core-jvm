@@ -50,7 +50,7 @@ internal open class EventFactoryBase protected constructor(
         newContext(version).build()
 
     /**
-     * Creates a builder for a new context of the event with optionally set
+     * Creates a builder for a new context of the event with an optionally set
      * version of an entity that is generating the event.
      */
     protected fun newContext(version: Version?): EventContext.Builder {
