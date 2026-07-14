@@ -338,7 +338,7 @@ public abstract class Repository<I, E extends Entity<I, ?>>
      * @return passed value if it is not null
      * @throws IllegalStateException if the passed instance is null
      */
-    protected static <S extends Closeable> S checkStorage(@Nullable S storage) {
+    private static <S extends Closeable> S checkStorage(@Nullable S storage) {
         checkState(storage != null, ERR_MSG_STORAGE_NOT_ASSIGNED);
         return storage;
     }
