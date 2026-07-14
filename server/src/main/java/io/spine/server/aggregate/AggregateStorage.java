@@ -376,9 +376,18 @@ public class AggregateStorage<I, S extends AggregateState<I>>
         checkNotClosed();
         try {
             eventStorage.close();
-        } finally {
-            super.close();
+        } catch (RuntimeException e) {
+            // Still release the inherited record storage, but keep the journal's failure as the
+            // primary exception; a failure while closing the state storage is added as suppressed
+            // so neither is lost.
+            try {
+                super.close();
+            } catch (RuntimeException secondary) {
+                e.addSuppressed(secondary);
+            }
+            throw e;
         }
+        super.close();
     }
 
     private void checkNotClosedAndArguments(I id, Object argument) {
