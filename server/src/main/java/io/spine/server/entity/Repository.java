@@ -145,7 +145,6 @@ public abstract class Repository<I, E extends Entity<I, ?>>
      */
     public Iterator<E> iterator(Predicate<E> filter) {
         Iterator<E> unfiltered = new EntityIterator<>(this);
-        @SuppressWarnings("NullableProblems") // Safe as `E` is never `null`.
         Iterator<E> filtered = Iterators.filter(unfiltered, filter::test);
         return filtered;
     }
