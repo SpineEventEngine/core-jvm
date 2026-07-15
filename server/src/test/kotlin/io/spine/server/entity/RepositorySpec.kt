@@ -27,9 +27,10 @@
 package io.spine.server.entity
 
 import com.google.common.collect.ImmutableSet
+import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
 import io.spine.core.Versions
 import io.spine.server.BoundedContextBuilder
 import io.spine.server.delivery.Inbox
@@ -40,6 +41,7 @@ import io.spine.server.type.EventClass
 import io.spine.server.type.EventEnvelope
 import io.spine.test.entity.Project
 import io.spine.test.entity.ProjectId
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
@@ -50,17 +52,30 @@ import org.junit.jupiter.api.Test
  * gets one just when it [configures][Repository.setupInbox] at least one endpoint.
  */
 @DisplayName("`Repository`, as the owner of the `Inbox` and the cache, should")
-internal class RepositoryInboxSpec {
+internal class RepositorySpec {
 
     private val context = BoundedContextBuilder.assumingTests().build()
+
+    /**
+     * Closes the context, which closes the repositories registered with it.
+     *
+     * Closing a repository unregisters its inbox from the `Delivery` of the current
+     * `ServerEnvironment`, which is server-wide and outlives this test.
+     */
+    @AfterEach
+    fun closeContext() {
+        context.close()
+    }
 
     @Test
     fun `create a cache, but no inbox, for a repository configuring no endpoints`() {
         val repo = NoEndpointsRepository()
         context.internalAccess().register(repo)
 
-        repo.exposedCache() shouldNotBe null
-        shouldThrow<IllegalStateException> { repo.exposedInbox() }
+        shouldNotThrowAny { repo.exposedCache() }
+
+        val error = shouldThrow<IllegalStateException> { repo.exposedInbox() }
+        error.message shouldContain "has no `Inbox`"
     }
 
     @Test
@@ -68,14 +83,15 @@ internal class RepositoryInboxSpec {
         val repo = WithEndpointRepository()
         context.internalAccess().register(repo)
 
-        repo.exposedInbox() shouldNotBe null
-        repo.exposedCache() shouldNotBe null
+        shouldNotThrowAny { repo.exposedInbox() }
+        shouldNotThrowAny { repo.exposedCache() }
     }
 
     @Test
     fun `treat an absent cache as an initialization error`() {
         // `registerWith()` is what creates the cache, and this repository is not registered.
-        shouldThrow<IllegalStateException> { NoEndpointsRepository().exposedCache() }
+        val error = shouldThrow<IllegalStateException> { NoEndpointsRepository().exposedCache() }
+        error.message shouldContain "has no cache"
     }
 
     @Test
