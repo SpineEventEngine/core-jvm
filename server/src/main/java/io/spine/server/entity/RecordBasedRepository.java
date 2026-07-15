@@ -130,6 +130,7 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
     @Override
     public Iterator<E> iterator(Predicate<E> filter) {
         var allEntities = loadAll(ResponseFormat.getDefaultInstance());
+        @SuppressWarnings("NullableProblems") // Safe as `E` is never `null`.
         Iterator<E> result = Iterators.filter(allEntities, filter::test);
         return result;
     }

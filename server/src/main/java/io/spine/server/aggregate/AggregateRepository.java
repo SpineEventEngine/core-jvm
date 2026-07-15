@@ -30,7 +30,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import com.google.protobuf.Timestamp;
 import io.spine.annotation.Internal;
-import io.spine.annotation.VisibleForTesting;
 import io.spine.base.AggregateState;
 import io.spine.client.ResponseFormat;
 import io.spine.client.TargetFilters;
@@ -120,7 +119,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * @see Aggregate
  */
 @SuppressWarnings({
-        "ClassWithTooManyMethods", "OverlyComplexClass" /* Acknowledged complexity. */,
+        "ClassWithTooManyMethods" /* Acknowledged complexity. */,
         "resource" /* Accessing `Closeable` properties. */
 })
 public abstract class AggregateRepository<I,
@@ -164,6 +163,9 @@ public abstract class AggregateRepository<I,
     private @MonotonicNonNull EntityEventStorage<I> eventStorage;
 
     /** Creates a new instance. */
+    @SuppressWarnings(
+            "NullableProblems" /* Memoizing suppliers will return non-null routing result. */
+    )
     protected AggregateRepository() {
         super();
         this.commandRouting = memoize(() -> CommandRouting.newInstance(idClass()));
@@ -854,7 +856,7 @@ public abstract class AggregateRepository<I,
         // the primary exception and the later ones are attached to it as suppressed, so none of
         // them is lost. `super.close()` is called directly (not via the helper) so that the
         // `@OverridingMethodsMustInvokeSuper` check recognizes the super-call.
-        @Nullable RuntimeException failure = null;
+        RuntimeException failure = null;
         try {
             super.close();
         } catch (RuntimeException e) {

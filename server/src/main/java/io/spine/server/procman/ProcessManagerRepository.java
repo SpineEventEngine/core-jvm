@@ -383,22 +383,6 @@ public abstract class ProcessManagerRepository<I,
      */
     @Override
     protected final P findOrCreate(I id) {
-        var result = cache().load(id);
-        return result;
-    }
-
-    @Override
-    protected P doLoadOrCreate(I id) {
         return super.findOrCreate(id);
-    }
-
-    @Override
-    public final void store(P entity) {
-        cache().store(entity);
-    }
-
-    @Override
-    protected void doStore(P entity) {
-        super.store(entity);
     }
 }

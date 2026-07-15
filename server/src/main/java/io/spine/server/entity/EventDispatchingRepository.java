@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -137,5 +137,58 @@ public abstract class EventDispatchingRepository<I,
         @SuppressWarnings("unchecked")
         var result = (Set<I>) targets.orElse(ImmutableSet.of());
         return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Loads through the {@linkplain #cache() cache}, so that a batch delivered to
+     * an entity costs one read instead of one per message.
+     *
+     * @implSpec An overriding repository is expected to do nothing but call {@code super}.
+     *         Overriding is allowed only so that a repository in another package can
+     *         re-declare this method to expose it to that package; that is also why this
+     *         method is not {@code final}.
+     */
+    @Override
+    protected E findOrCreate(I id) {
+        return cache().load(id);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @implSpec Reads through to the storage, bypassing the cache — this is the loading
+     *         function the cache itself calls on a miss. Not overridable: were it to go
+     *         through {@link #findOrCreate(Object) findOrCreate()}, the two would call
+     *         each other in a loop.
+     */
+    @Override
+    protected final E doLoadOrCreate(I id) {
+        return super.findOrCreate(id);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Stores through the {@linkplain #cache() cache}, so that a batch delivered to
+     * an entity costs one write instead of one per message; the cache flushes the entity
+     * to the storage when the batch ends.
+     */
+    @Override
+    public final void store(E entity) {
+        cache().store(entity);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @implSpec Writes through to the storage, bypassing the cache — this is the storing
+     *         function the cache itself calls when flushing. Not overridable, for the
+     *         reason given on {@link #doLoadOrCreate(Object)}.
+     */
+    @Override
+    protected final void doStore(E entity) {
+        super.store(entity);
     }
 }

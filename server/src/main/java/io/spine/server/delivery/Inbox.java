@@ -183,7 +183,8 @@ public final class Inbox<I> {
         }
 
         /**
-         * Allows to specify the listener of the starting and ending batch dispatching operations.
+         * Allows one to specify the listener of the starting and ending batch
+         * dispatching operations.
          */
         @CanIgnoreReturnValue
         public Builder<I> withBatchListener(BatchDeliveryListener<I> dispatcher) {

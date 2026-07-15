@@ -26,13 +26,18 @@
 
 package io.spine.server.entity
 
+import com.google.common.collect.ImmutableSet
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.spine.core.Versions
 import io.spine.server.BoundedContextBuilder
 import io.spine.server.delivery.Inbox
 import io.spine.server.delivery.InboxLabel.UPDATE_SUBSCRIBER
+import io.spine.server.dispatch.DispatchOutcome
 import io.spine.server.entity.given.repository.ProjectEntity
+import io.spine.server.type.EventClass
+import io.spine.server.type.EventEnvelope
 import io.spine.test.entity.Project
 import io.spine.test.entity.ProjectId
 import org.junit.jupiter.api.DisplayName
@@ -41,8 +46,8 @@ import org.junit.jupiter.api.Test
 /**
  * Tests the `Inbox` and `RepositoryCache` lifecycle owned by [Repository].
  *
- * Both resources are created by `registerWith()` only for a repository that
- * [configures][Repository.setupInbox] at least one inbox endpoint.
+ * Every registered repository has a cache. Only the inbox is optional — a repository
+ * gets one just when it [configures][Repository.setupInbox] at least one endpoint.
  */
 @DisplayName("`Repository`, as the owner of the `Inbox` and the cache, should")
 internal class RepositoryInboxSpec {
@@ -50,12 +55,12 @@ internal class RepositoryInboxSpec {
     private val context = BoundedContextBuilder.assumingTests().build()
 
     @Test
-    fun `create neither an inbox nor a cache for a repository configuring no endpoints`() {
+    fun `create a cache, but no inbox, for a repository configuring no endpoints`() {
         val repo = NoEndpointsRepository()
         context.internalAccess().register(repo)
 
+        repo.exposedCache() shouldNotBe null
         shouldThrow<IllegalStateException> { repo.exposedInbox() }
-        shouldThrow<IllegalStateException> { repo.exposedCache() }
     }
 
     @Test
@@ -68,10 +73,37 @@ internal class RepositoryInboxSpec {
     }
 
     @Test
+    fun `treat an absent cache as an initialization error`() {
+        // `registerWith()` is what creates the cache, and this repository is not registered.
+        shouldThrow<IllegalStateException> { NoEndpointsRepository().exposedCache() }
+    }
+
+    @Test
     fun `not fail the registration of a repository dispatching no messages by default`() {
         // `NoEndpointsRepository` does not override `checkDispatchesMessages()`,
         // so the no-op default of `Repository` applies.
         context.internalAccess().register(NoEndpointsRepository())
+    }
+
+    @Test
+    fun `store and load through the cache of an event-dispatching repository with no inbox`() {
+        val repo = NoInboxDispatchingRepository()
+        context.internalAccess().register(repo)
+
+        val id = ProjectId.newBuilder()
+            .setId("no-inbox")
+            .build()
+        val entity = repo.create(id)
+        val state = entity.state()
+            .toBuilder()
+            .setId(id)
+            .build()
+        TestTransaction.injectState(entity, state, Versions.zero())
+
+        repo.store(entity)
+
+        repo.find(id).isPresent shouldBe true
+        repo.loadOrCreate(id).state() shouldBe state
     }
 }
 
@@ -100,4 +132,29 @@ private class WithEndpointRepository : NoEndpointsRepository() {
             error("This endpoint is never reached in this test.")
         }
     }
+}
+
+/**
+ * An [EventDispatchingRepository] that adds no inbox endpoints, and so has a cache
+ * but no inbox.
+ *
+ * `ProcessManagerRepository` and `ProjectionRepository` — the only two subclasses in the
+ * framework — both add endpoints unconditionally, so this stub is the only way to check
+ * that [EventDispatchingRepository.store] and [EventDispatchingRepository.findOrCreate]
+ * serve an inbox-less repository through its cache.
+ */
+private class NoInboxDispatchingRepository
+    : EventDispatchingRepository<ProjectId, ProjectEntity, Project>() {
+
+    override fun messageClasses(): ImmutableSet<EventClass> = ImmutableSet.of()
+
+    override fun domesticEventClasses(): ImmutableSet<EventClass> = ImmutableSet.of()
+
+    override fun externalEventClasses(): ImmutableSet<EventClass> = ImmutableSet.of()
+
+    override fun dispatchTo(ids: Set<ProjectId>, event: EventEnvelope): DispatchOutcome =
+        error("This repository dispatches nothing in this test.")
+
+    /** Exposes the `protected` accessor to this test. */
+    fun loadOrCreate(id: ProjectId): ProjectEntity = findOrCreate(id)
 }

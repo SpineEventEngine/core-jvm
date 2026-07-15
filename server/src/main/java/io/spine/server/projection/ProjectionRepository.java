@@ -292,26 +292,11 @@ public abstract class ProjectionRepository<I,
     /**
      * {@inheritDoc}
      *
-     * <p>Overrides to perform finding using the cache.
+     * <p>Overrides to expose the method to the package.
      */
     @Override
     protected final P findOrCreate(I id) {
-        return cache().load(id);
-    }
-
-    @Override
-    protected P doLoadOrCreate(I id) {
         return super.findOrCreate(id);
-    }
-
-    @Override
-    public final void store(P entity) {
-        cache().store(entity);
-    }
-
-    @Override
-    protected void doStore(P entity) {
-        super.store(entity);
     }
 
     @Override
