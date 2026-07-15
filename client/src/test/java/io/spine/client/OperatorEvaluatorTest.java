@@ -285,7 +285,7 @@ class OperatorEvaluatorTest {
             checkFailsToCompareBy(LESS_OR_EQUAL);
         }
 
-        private void checkFailsToCompareBy(Operator operator) {
+        private static void checkFailsToCompareBy(Operator operator) {
             assertThrows(UnsupportedOperationException.class,
                          () -> eval(FaultyComparisonType.INSTANCE,
                                     operator,
@@ -308,7 +308,7 @@ class OperatorEvaluatorTest {
     private static class FaultyComparisonType {
 
         @SuppressWarnings("InstantiationOfUtilityClass") // Not a utility class
-        public static final FaultyComparisonType INSTANCE = new FaultyComparisonType();
+        static final FaultyComparisonType INSTANCE = new FaultyComparisonType();
 
         private FaultyComparisonType() {
             // Singleton type.

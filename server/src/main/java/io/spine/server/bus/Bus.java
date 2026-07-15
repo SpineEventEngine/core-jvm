@@ -48,7 +48,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Suppliers.memoize;
+import static io.spine.server.Suppliers2.memoize;
 import static io.spine.server.bus.MessageIdExtensions.acknowledge;
 import static io.spine.util.Preconditions2.checkNotDefaultArg;
 import static java.lang.String.format;

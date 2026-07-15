@@ -38,20 +38,14 @@ interface DispatchOutcomeMixin extends DispatchOutcomeOrBuilder, FieldAwareMessa
 
     @Override
     default Object readValue(FieldDescriptor field) {
-        switch (field.getIndex()) {
-            case 0:
-                return getPropagatedSignal();
-            case 1:
-                return getSuccess();
-            case 2:
-                return getError();
-            case 3:
-                return getInterrupted();
-            case 4:
-                return getIgnored();
-            default:
-                return getField(field);
-        }
+        return switch (field.getIndex()) {
+            case 0 -> getPropagatedSignal();
+            case 1 -> getSuccess();
+            case 2 -> getError();
+            case 3 -> getInterrupted();
+            case 4 -> getIgnored();
+            default -> getField(field);
+        };
     }
 
     /**

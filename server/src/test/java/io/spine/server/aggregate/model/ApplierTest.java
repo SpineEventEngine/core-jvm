@@ -62,6 +62,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayName("`EventApplierMethod` should")
+@SuppressWarnings({
+        "deprecation" /* Still need to use `@Apply` annotation. */,
+        "EffectivelyPrivate" /* Need current modifiers for testing purposes. */
+})
 class ApplierTest {
 
     private final EventApplierSignature signature = new EventApplierSignature();

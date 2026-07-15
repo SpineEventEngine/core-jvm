@@ -38,16 +38,12 @@ interface SuccessMixin extends SuccessOrBuilder, FieldAwareMessage {
 
     @Override
     default Object readValue(FieldDescriptor field) {
-        switch (field.getIndex()) {
-            case 0:
-                return getProducedEvents();
-            case 1:
-                return getProducedCommands();
-            case 2:
-                return getRejection();
-            default:
-                return getField(field);
-        }
+        return switch (field.getIndex()) {
+            case 0 -> getProducedEvents();
+            case 1 -> getProducedCommands();
+            case 2 -> getRejection();
+            default -> getField(field);
+        };
     }
 
     /**

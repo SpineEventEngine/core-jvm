@@ -224,8 +224,8 @@ public abstract class InboxStorageTest
     /*
      * Test environment and utilities.
      *
-     * @implNote Some of the package-private utilities are accessed in this section. This is why
-     * it is not extracted into a separate {@code TestEnv}.
+     * Some of the package-private utilities are accessed in this section.
+     * This is why it is not extracted into a separate `TestEnv`.
      ******************************************************************************/
 
     private static void assertSameContent(Collection<InboxMessage> expected,
@@ -300,7 +300,7 @@ public abstract class InboxStorageTest
     /**
      * Generates an {@link InboxMessage} with the specified values.
      *
-     * The message values are set as if it was received at {@code whenReceived} time
+     * <p>The message values are set as if it was received at {@code whenReceived} time
      * and its status was {@link InboxMessageStatus#TO_DELIVER TO_DELIVER}.
      */
     public static InboxMessage generate(int shardIndex, int totalShards, Timestamp whenReceived) {

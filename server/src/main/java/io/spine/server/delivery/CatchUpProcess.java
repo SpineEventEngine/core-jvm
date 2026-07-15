@@ -784,8 +784,8 @@ public final class CatchUpProcess<I>
         if (message instanceof CatchUpSignal) {
             return routeCatchUpSignal(message);
         }
-        if (message instanceof ShardProcessed) {
-            return routeShardProcessed((ShardProcessed) message);
+        if (message instanceof ShardProcessed shardProcessed) {
+            return routeShardProcessed(shardProcessed);
         }
         return ImmutableSet.of();
     }

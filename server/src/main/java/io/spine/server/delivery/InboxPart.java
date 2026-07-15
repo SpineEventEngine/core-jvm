@@ -165,7 +165,7 @@ abstract class InboxPart<I, M extends SignalEnvelope<?, ?, ?>> {
         }
 
         @CanIgnoreReturnValue
-        public R invoke() {
+        R invoke() {
             return TenantAwareRunner
                     .with(envelope.tenantId())
                     .evaluate(() -> doInvoke(endpoint, targetId, envelope));

@@ -408,11 +408,11 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
     /*
      * Test environment.
      *
-     * <p>Accesses the {@linkplain Delivery Delivery API} that has been made
-     * package-private and marked as visible for testing. Therefore, the test environment routines
-     * aren't moved to a separate {@code ...TestEnv} class. Otherwise the test-only API
-     * of {@code Delivery} must have been made {@code public}, which wouldn't be
-     * a good API design move.
+     * Accesses the Delivery API that has been made
+     * package-private and marked as visible for testing.
+     * Therefore, the test environment routines aren't moved to a separate `...TestEnv class.
+     * Otherwise, the test-only API of `Delivery` must have been made `public`,
+     * which wouldn't be a good API design move.
      ******************************************************************************/
 
     private static void
@@ -494,11 +494,11 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
             return super.onShardAlreadyPicked(failure);
         }
 
-        public ImmutableList<ShardIndex> alreadyPickedShards() {
+        ImmutableList<ShardIndex> alreadyPickedShards() {
             return ImmutableList.copyOf(alreadyPicked);
         }
 
-        public ImmutableList<ShardIndex> failedToPickUp() {
+        ImmutableList<ShardIndex> failedToPickUp() {
             return ImmutableList.copyOf(failedToPickUp);
         }
     }

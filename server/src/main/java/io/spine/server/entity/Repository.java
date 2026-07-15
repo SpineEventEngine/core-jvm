@@ -26,7 +26,6 @@
 
 package io.spine.server.entity;
 
-import com.google.common.collect.Iterators;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import io.spine.annotation.Internal;
 import io.spine.annotation.SPI;
@@ -38,6 +37,7 @@ import io.spine.reflect.GenericTypeIndex;
 import io.spine.server.BoundedContext;
 import io.spine.server.Closeable;
 import io.spine.server.ContextAware;
+import io.spine.server.Iterators2;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.delivery.BatchDeliveryListener;
 import io.spine.server.delivery.Inbox;
@@ -162,9 +162,7 @@ public abstract class Repository<I, E extends Entity<I, ?>>
      */
     public Iterator<E> iterator(Predicate<E> filter) {
         Iterator<E> unfiltered = new EntityIterator<>(this);
-        @SuppressWarnings("NullableProblems") // Safe as `E` is never `null`.
-        Iterator<E> filtered = Iterators.filter(unfiltered, filter::test);
-        return filtered;
+        return Iterators2.filter(unfiltered, filter);
     }
 
     /**

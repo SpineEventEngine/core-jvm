@@ -67,9 +67,9 @@ import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Suppliers.memoize;
 import static com.google.common.collect.Iterators.transform;
 import static io.spine.option.EntityOption.Kind.AGGREGATE;
+import static io.spine.server.Suppliers2.memoize;
 import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
 import static io.spine.server.delivery.InboxLabel.HANDLE_COMMAND;
 import static io.spine.server.delivery.InboxLabel.REACT_UPON_EVENT;
@@ -163,9 +163,6 @@ public abstract class AggregateRepository<I,
     private @MonotonicNonNull EntityEventStorage<I> eventStorage;
 
     /** Creates a new instance. */
-    @SuppressWarnings(
-            "NullableProblems" /* Memoizing suppliers will return non-null routing result. */
-    )
     protected AggregateRepository() {
         super();
         this.commandRouting = memoize(() -> CommandRouting.newInstance(idClass()));

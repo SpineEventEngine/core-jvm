@@ -45,8 +45,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import java.util.function.Supplier;
 
-import static com.google.common.base.Suppliers.memoize;
 import static io.spine.protobuf.AnyPacker.pack;
+import static io.spine.server.Suppliers2.memoize;
 
 /**
  * The abstract base for non-aggregate classes that dispatch commands to their methods
@@ -148,10 +148,9 @@ public abstract class AbstractCommandDispatcher implements CommandDispatcher, Co
         if (this == o) {
             return true;
         }
-        if (!(o instanceof AbstractCommandDispatcher)) {
+        if (!(o instanceof AbstractCommandDispatcher otherHandler)) {
             return false;
         }
-        var otherHandler = (AbstractCommandDispatcher) o;
         var equals = id().equals(otherHandler.id());
         return equals;
     }

@@ -40,7 +40,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Suppliers.memoize;
+import static io.spine.server.Suppliers2.memoize;
 
 /**
  * Abstract base for repositories that deliver events to entities they manage.

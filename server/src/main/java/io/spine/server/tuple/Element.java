@@ -41,7 +41,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static io.spine.util.Exceptions.newIllegalArgumentException;
-import static io.spine.util.Exceptions.newIllegalStateException;
 import static io.spine.util.Preconditions2.checkNotDefaultArg;
 
 /**
@@ -114,24 +113,16 @@ final class Element implements Serializable {
     }
 
     Message toMessage() {
-        switch (type) {
-            case MESSAGE:
-                return (Message) value;
-            case EITHER:
-                return ((Either) value).value();
-            case OPTIONAL: {
+        return switch (type) {
+            case MESSAGE -> (Message) value;
+            case EITHER -> ((Either) value).value();
+            case OPTIONAL -> {
                 var optional = (Optional<?>) value;
                 var result = optional.map(o -> (Message) o)
                                      .orElseGet(Empty::getDefaultInstance);
-                return result;
+                yield result;
             }
-            default:
-                throw uncoveredType();
-        }
-    }
-
-    private IllegalStateException uncoveredType() {
-        throw newIllegalStateException("Unsupported element type encountered: `%s`.", this.type);
+        };
     }
 
     @Serial
@@ -175,10 +166,9 @@ final class Element implements Serializable {
         if (this == obj) {
             return true;
         }
-        if (obj == null || getClass() != obj.getClass()) {
+        if (!(obj instanceof Element other)) {
             return false;
         }
-        var other = (Element) obj;
         return Objects.equals(this.value, other.value)
                 && this.type == other.type;
     }

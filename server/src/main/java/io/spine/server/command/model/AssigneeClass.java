@@ -29,8 +29,6 @@ package io.spine.server.command.model;
 import io.spine.server.command.AbstractAssignee;
 import io.spine.server.type.EventClass;
 
-import java.io.Serial;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -41,9 +39,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public final class AssigneeClass<C extends AbstractAssignee>
         extends AbstractCommandHandlingClass<C, EventClass, AssigneeReceptor> {
-
-    @Serial
-    private static final long serialVersionUID = 0L;
 
     private AssigneeClass(Class<C> cls) {
         super(cls, new AssigneeSignature());

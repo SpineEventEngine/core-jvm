@@ -53,7 +53,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import java.util.function.Supplier;
 
-import static com.google.common.base.Suppliers.memoize;
+import static io.spine.server.Suppliers2.memoize;
 import static io.spine.server.dispatch.DispatchOutcomes.ignored;
 import static java.lang.String.format;
 

@@ -410,19 +410,18 @@ public final class StandTestEnv {
         public void accept(SubscriptionUpdate update) {
             acceptedUpdates.add(update);
             switch (update.getUpdateCase()) {
-                case ENTITY_UPDATES:
+                case ENTITY_UPDATES -> {
                     var entityStateUpdate = update.getEntityUpdates()
                                                   .getUpdateList()
                                                   .get(0);
                     newEntityState = entityStateUpdate.getState();
-                    break;
-                case EVENT_UPDATES:
-                    newEvent = update.getEventUpdates()
-                                     .getEventList()
-                                     .get(0);
-                    break;
-                default:
+                }
+                case EVENT_UPDATES -> newEvent = update.getEventUpdates()
+                                                       .getEventList()
+                                                       .get(0);
+                default -> {
                     // Do nothing.
+                }
             }
         }
 

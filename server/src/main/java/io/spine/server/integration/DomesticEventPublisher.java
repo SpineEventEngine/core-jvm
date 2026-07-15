@@ -76,14 +76,9 @@ final class DomesticEventPublisher implements EventDispatcher {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof DomesticEventPublisher)) {
-            return false;
-        }
-        var publisher = (DomesticEventPublisher) o;
-        return Objects.equal(eventClasses, publisher.eventClasses);
+        return (this == o) ||
+                ((o instanceof DomesticEventPublisher publisher) &&
+                        Objects.equal(eventClasses, publisher.eventClasses));
     }
 
     @Override

@@ -48,7 +48,9 @@ public class MethodAccessCheckerTestEnv {
     @SuppressWarnings("unused") // Reflective access.
     private static class StubMethodContainer {
 
-        @SuppressWarnings("WeakerAccess") // Has to be `public` for the test.
+        @SuppressWarnings({
+                "WeakerAccess", "EffectivelyPrivate" // Has to be `public` for the test.
+        })
         public void publicMethod() {
         }
     }

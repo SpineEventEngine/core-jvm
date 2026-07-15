@@ -53,9 +53,8 @@ final class UpdateShardProcessingEvents implements ConveyorJob {
         if (message.hasEvent()) {
             var event = message.getEvent();
             var eventMessage = event.enclosedMessage();
-            if (eventMessage instanceof ShardProcessingRequested) {
-                var cast = (ShardProcessingRequested) eventMessage;
-                var updatedSignal = updateWithRunInfo(cast);
+            if (eventMessage instanceof ShardProcessingRequested request) {
+                var updatedSignal = updateWithRunInfo(request);
                 var modified = inject(updatedSignal, message);
                 return Optional.of(modified);
             }

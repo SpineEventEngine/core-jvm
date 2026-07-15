@@ -51,8 +51,7 @@ public final class MagazineAggregate extends Aggregate<String, Magazine, Magazin
 
     ArtistName author(PublishArticle cmd, CommandContext ctx) {
         var article = AnyPacker.unpack(cmd.getArticle());
-        if (article instanceof Manifesto) {
-            var manifesto = (Manifesto) article;
+        if (article instanceof Manifesto manifesto) {
             return manifesto.getAuthor();
         }
 

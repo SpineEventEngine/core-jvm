@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package io.spine.server.event;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -56,7 +57,6 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static io.spine.grpc.StreamObservers.noOpObserver;
-import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -271,9 +271,9 @@ public final class EventBus
         var enrichedEnvelope = enrich(event);
         var dispatchersCalled = callDispatchers(enrichedEnvelope);
         checkState(dispatchersCalled != 0,
-                   format("Message of type `%s` and ID `%s` has no dispatchers.",
-                          event.messageClass(),
-                          event.id().getValue()));
+                   "Message of type `%s` and ID `%s` has no dispatchers.",
+                   event.messageClass(),
+                   event.id().getValue());
     }
 
     @Override
@@ -407,8 +407,8 @@ public final class EventBus
             return checkNotNull(observer);
         }
 
-        /** 
-         * Obtains {@code StreamObserver} assigned to the bus. 
+        /**
+         * Obtains {@code StreamObserver} assigned to the bus.
          *
          * @deprecated Use {@link #getObserver()} and {@link #hasObserver()} instead.
          */

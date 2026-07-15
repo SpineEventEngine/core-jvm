@@ -161,8 +161,7 @@ public final class EntityLifecycleMonitor<I> implements TransactionListener<I> {
             return;
         }
         var details = AnyPacker.unpack(cause.getDetails());
-        if (details instanceof ValidationError) {
-            var error = (ValidationError) details;
+        if (details instanceof ValidationError error) {
             checkState(lastMessage != null, "Transaction failed but no messages were propagated.");
             var causeMessage = lastMessage.messageId();
             var rootMessage = lastMessage.rootMessage();
