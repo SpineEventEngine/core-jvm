@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,11 +33,9 @@ import io.spine.annotation.VisibleForTesting;
 import io.spine.base.ProcessManagerState;
 import io.spine.core.Command;
 import io.spine.server.BoundedContext;
-import io.spine.server.ServerEnvironment;
 import io.spine.server.commandbus.CommandBus;
 import io.spine.server.commandbus.CommandDispatcherDelegate;
 import io.spine.server.commandbus.DelegatingCommandDispatcher;
-import io.spine.server.delivery.BatchDeliveryListener;
 import io.spine.server.delivery.Inbox;
 import io.spine.server.delivery.InboxLabel;
 import io.spine.server.dispatch.DispatchOutcome;
@@ -45,7 +43,6 @@ import io.spine.server.entity.EntityLifecycleMonitor;
 import io.spine.server.entity.EntityRecord;
 import io.spine.server.entity.EventDispatchingRepository;
 import io.spine.server.entity.EventProducingRepository;
-import io.spine.server.entity.RepositoryCache;
 import io.spine.server.entity.TransactionListener;
 import io.spine.server.event.EventBus;
 import io.spine.server.procman.model.ProcessManagerClass;
@@ -58,7 +55,6 @@ import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
 import io.spine.server.type.SignalEnvelope;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -95,14 +91,6 @@ public abstract class ProcessManagerRepository<I,
     /** The command routing schema used by this repository. */
     private final Supplier<CommandRouting<I>> commandRouting;
 
-    /**
-     * The {@link Inbox} for the messages, which are sent to the instances managed by this
-     * repository.
-     */
-    private @MonotonicNonNull Inbox<I> inbox;
-
-    private @MonotonicNonNull RepositoryCache<I, P> cache;
-
     protected ProcessManagerRepository() {
         super();
         this.commandRouting = memoize(() -> CommandRouting.newInstance(idClass()));
@@ -132,18 +120,6 @@ public abstract class ProcessManagerRepository<I,
      * <p>Registers with the {@code IntegrationBroker} for dispatching external events and
      * rejections.
      *
-     * <p>Ensures there is at least one handler method declared by the class of the managed
-     * process manager:
-     *
-     * <ul>
-     *     <li>command handler methods;
-     *     <li>domestic or external event reactor methods;
-     *     <li>domestic or external rejection reactor methods;
-     *     <li>commanding method.
-     * </ul>
-     *
-     * <p>Throws an {@code IllegalStateException} otherwise.
-     *
      * @param context
      *         the Bounded Context of this repository
      * @throws IllegalStateException
@@ -154,12 +130,7 @@ public abstract class ProcessManagerRepository<I,
     @OverridingMethodsMustInvokeSuper
     public void registerWith(BoundedContext context) {
         super.registerWith(context);
-
         doSetupCommandRouting();
-
-        checkNotDeaf();
-        initCache(context.isMultitenant());
-        initInbox();
     }
 
     private void doSetupCommandRouting() {
@@ -174,42 +145,17 @@ public abstract class ProcessManagerRepository<I,
         return context().eventBus();
     }
 
-    private void initCache(boolean multitenant) {
-        cache = new RepositoryCache<>(multitenant, this::doFindOrCreate, this::doStore);
-    }
-
     /**
-     * Initializes the {@code Inbox}.
+     * {@inheritDoc}
+     *
+     * <p>Adds the endpoints reacting upon events and handling commands.
      */
-    private void initInbox() {
-        var delivery = ServerEnvironment.instance()
-                                        .delivery();
-        inbox = delivery
-                .<I>newInbox(entityStateType())
-                .withBatchListener(newCachingListener())
-                .addEventEndpoint(InboxLabel.REACT_UPON_EVENT,
-                                  e -> PmEventEndpoint.of(this, e))
-                .addCommandEndpoint(InboxLabel.HANDLE_COMMAND,
-                                    c -> PmCommandEndpoint.of(this, c))
-                .build();
-    }
-
-    private BatchDeliveryListener<I> newCachingListener() {
-        return new BatchDeliveryListener<>() {
-            @Override
-            public void onStart(I id) {
-                cache.startCaching(id);
-            }
-
-            @Override
-            public void onEnd(I id) {
-                cache.stopCaching(id);
-            }
-        };
-    }
-
-    private Inbox<I> inbox() {
-        return checkNotNull(inbox);
+    @Override
+    protected final void setupInbox(Inbox.Builder<I> builder) {
+        builder.addEventEndpoint(InboxLabel.REACT_UPON_EVENT,
+                                 e -> PmEventEndpoint.of(this, e))
+               .addCommandEndpoint(InboxLabel.HANDLE_COMMAND,
+                                   c -> PmCommandEndpoint.of(this, c));
     }
 
     /**
@@ -240,9 +186,20 @@ public abstract class ProcessManagerRepository<I,
     }
 
     /**
-     * Ensures the process manager class handles at least one type of messages.
+     * {@inheritDoc}
+     *
+     * <p>Ensures there is at least one receptor declared by the class of the managed
+     * process manager:
+     *
+     * <ul>
+     *     <li>command handler methods;
+     *     <li>domestic or external event reactor methods;
+     *     <li>domestic or external rejection reactor methods;
+     *     <li>commanding method.
+     * </ul>
      */
-    private void checkNotDeaf() {
+    @Override
+    protected final void checkDispatchesMessages() {
         if (!dispatchesCommands() && !dispatchesEvents()) {
             throw newIllegalStateException(
                     "Process managers of the repository `%s` have no command handlers, " +
@@ -426,29 +383,22 @@ public abstract class ProcessManagerRepository<I,
      */
     @Override
     protected final P findOrCreate(I id) {
-        var result = cache.load(id);
+        var result = cache().load(id);
         return result;
     }
 
-    private P doFindOrCreate(I id) {
+    @Override
+    protected P doLoadOrCreate(I id) {
         return super.findOrCreate(id);
     }
 
     @Override
     public final void store(P entity) {
-        cache.store(entity);
+        cache().store(entity);
     }
 
-    private void doStore(P entity) {
-        super.store(entity);
-    }
-
-    @OverridingMethodsMustInvokeSuper
     @Override
-    public void close() {
-        super.close();
-        if (inbox != null) {
-            inbox.unregister();
-        }
+    protected void doStore(P entity) {
+        super.store(entity);
     }
 }
