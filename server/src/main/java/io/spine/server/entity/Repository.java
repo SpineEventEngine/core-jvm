@@ -136,13 +136,13 @@ public abstract class Repository<I, E extends Entity<I, ?>>
     public abstract E create(I id);
 
     /**
-     * Stores the passed object.
+     * Stores the given entity.
      *
      * <p>Note: The storage must be assigned before calling this method.
      *
-     * @param obj an instance to store
+     * @param entity the entity to store
      */
-    protected abstract void store(E obj);
+    protected abstract void store(E entity);
 
     /**
      * Finds an entity with the passed ID.
