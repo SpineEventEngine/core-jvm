@@ -24,7 +24,51 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+package io.spine.server.entity;
+
+import io.spine.base.Identifier;
+
+import java.util.Iterator;
+
+import static io.spine.util.Exceptions.newIllegalStateException;
+
 /**
- * The version of this library.
+ * An iterator of all entities from the storage.
+ *
+ * <p>This iterator does not allow removal.
+ *
+ * @param <I>
+ *         the type of entity identifiers
+ * @param <E>
+ *         the type of entities
  */
-extra.set("versionToPublish", "2.0.0-SNAPSHOT.470")
+final class EntityIterator<I, E extends Entity<I, ?>> implements Iterator<E> {
+
+    private final Repository<I, E> repository;
+    private final Iterator<I> index;
+
+    EntityIterator(Repository<I, E> repository) {
+        this.repository = repository;
+        this.index = repository.storage()
+                               .index();
+    }
+
+    @Override
+    public boolean hasNext() {
+        var result = index.hasNext();
+        return result;
+    }
+
+    @Override
+    public E next() {
+        var id = index.next();
+        var loaded = repository.find(id);
+        if (loaded.isEmpty()) {
+            var idStr = Identifier.toString(id);
+            throw newIllegalStateException("Unable to load entity with ID: `%s`.", idStr);
+        }
+
+        var entity = loaded.get();
+        return entity;
+    }
+}

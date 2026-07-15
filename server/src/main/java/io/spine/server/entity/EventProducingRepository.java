@@ -69,6 +69,7 @@ public interface EventProducingRepository {
     /**
      * Filters the passed events and posts the result to the EventBus.
      */
+    @SuppressWarnings("resource") // Accessing `Closeable` `EventBus`.
     default void postEvents(Collection<Event> events) {
         var filtered = filter(events);
         eventBus().post(filtered);

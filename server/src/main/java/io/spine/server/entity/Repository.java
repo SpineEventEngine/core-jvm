@@ -31,7 +31,6 @@ import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import io.spine.annotation.Internal;
 import io.spine.annotation.SPI;
 import io.spine.annotation.VisibleForTesting;
-import io.spine.base.Identifier;
 import io.spine.base.Routable;
 import io.spine.core.SignalContext;
 import io.spine.logging.WithLogging;
@@ -49,7 +48,6 @@ import io.spine.system.server.RoutingFailed;
 import io.spine.type.TypeUrl;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.dataflow.qual.Pure;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Iterator;
@@ -73,7 +71,10 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * @param <E>
  *         the type of managed entities
  */
-@SuppressWarnings("ClassWithTooManyMethods") // OK for this core class.
+@SuppressWarnings({
+        "ClassWithTooManyMethods" /* OK for this core class. */,
+        "resource" /* Accessing `Closeable` properties */
+})
 public abstract class Repository<I, E extends Entity<I, ?>>
         implements ContextAware, Closeable, WithLogging {
 
@@ -271,7 +272,6 @@ public abstract class Repository<I, E extends Entity<I, ?>>
      * @throws IllegalStateException
      *         if the repository has no context assigned
      */
-    @SuppressWarnings("DataFlowIssue") // non-null result ensured by `hasContext()` call.
     protected final BoundedContext context() {
         checkState(hasContext(),
                    "The repository (class: `%s`) is not registered with a `BoundedContext`.",
@@ -338,7 +338,7 @@ public abstract class Repository<I, E extends Entity<I, ?>>
      * @return passed value if it is not null
      * @throws IllegalStateException if the passed instance is null
      */
-    protected static <S extends Closeable> @NonNull S checkStorage(@Nullable S storage) {
+    private static <S extends Closeable> S checkStorage(@Nullable S storage) {
         checkState(storage != null, ERR_MSG_STORAGE_NOT_ASSIGNED);
         return storage;
     }
@@ -358,7 +358,9 @@ public abstract class Repository<I, E extends Entity<I, ?>>
     /**
      * Closes the repository by closing the underlying storage.
      *
-     * <p>The reference to the storage becomes null after this call.
+     * <p>The reference to the storage becomes null after this call. If closing the storage
+     * fails, the storage and context references are still cleared before the failure is
+     * re-thrown, so a failed close does not leave the repository half-open.
      *
      * <p>A closed repository is not meant to be {@linkplain #registerWith(BoundedContext)
      * registered} again: not every resource it owns is re-created on a repeated
@@ -367,11 +369,42 @@ public abstract class Repository<I, E extends Entity<I, ?>>
     @Override
     @OverridingMethodsMustInvokeSuper
     public void close() {
+        @Nullable RuntimeException failure = null;
         if (isOpen()) {
-            storage().close();
+            failure = attemptClose(failure, storage()::close);
             this.storage = null;
         }
         this.context = null;
+        if (failure != null) {
+            throw failure;
+        }
+    }
+
+    /**
+     * Runs one close step for a {@link #close()} override that releases several resources,
+     * folding any exception the step throws into the accumulated failure.
+     *
+     * <p>Threading each close through this method attempts them all and keeps the first failure
+     * as the primary exception; a later failure is attached to it as
+     * {@linkplain Throwable#addSuppressed(Throwable) suppressed}, so no failure is lost.
+     *
+     * @param failure
+     *         the failure accumulated so far, or {@code null} if every prior step succeeded
+     * @param step
+     *         the close step to run
+     * @return the accumulated failure after running the step
+     */
+    protected static @Nullable RuntimeException
+    attemptClose(@Nullable RuntimeException failure, Runnable step) {
+        try {
+            step.run();
+        } catch (RuntimeException e) {
+            if (failure == null) {
+                return e;
+            }
+            failure.addSuppressed(e);
+        }
+        return failure;
     }
 
     /**
@@ -408,8 +441,7 @@ public abstract class Repository<I, E extends Entity<I, ?>>
      */
     private void checkMatchesIdType(Object result) {
         Class<?> routingResultType = null;
-        if (result instanceof Iterable) {
-            var asIterable = (Iterable<?>) result;
+        if (result instanceof Iterable<?> asIterable) {
             var element = getFirst(asIterable, null);
             if (element != null) {
                 routingResultType = element.getClass();
@@ -513,47 +545,6 @@ public abstract class Repository<I, E extends Entity<I, ?>>
         @Override
         public int index() {
             return this.index;
-        }
-    }
-
-    /**
-     * An iterator of all entities from the storage.
-     *
-     * <p>This iterator does not allow removal.
-     *
-     * @param <I>
-     *         the type of entity identifiers
-     * @param <E>
-     *         the type of entities
-     */
-    private static class EntityIterator<I, E extends Entity<I, ?>> implements Iterator<E> {
-
-        private final Repository<I, E> repository;
-        private final Iterator<I> index;
-
-        private EntityIterator(Repository<I, E> repository) {
-            this.repository = repository;
-            this.index = repository.storage()
-                                   .index();
-        }
-
-        @Override
-        public boolean hasNext() {
-            var result = index.hasNext();
-            return result;
-        }
-
-        @Override
-        public E next() {
-            var id = index.next();
-            var loaded = repository.find(id);
-            if (loaded.isEmpty()) {
-                var idStr = Identifier.toString(id);
-                throw newIllegalStateException("Unable to load entity with ID: `%s`.", idStr);
-            }
-
-            var entity = loaded.get();
-            return entity;
         }
     }
 }

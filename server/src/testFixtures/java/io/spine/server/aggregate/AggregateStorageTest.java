@@ -27,19 +27,8 @@
 package io.spine.server.aggregate;
 
 import com.google.common.collect.ImmutableList;
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import com.google.protobuf.Timestamp;
-import com.google.protobuf.util.Durations;
 import io.spine.base.AggregateState;
 import io.spine.base.Identifier;
-import io.spine.base.Time;
-import io.spine.core.ActorContext;
-import io.spine.core.Event;
-import io.spine.core.EventContext;
-import io.spine.core.EventId;
-import io.spine.core.MessageId;
-import io.spine.core.Origin;
-import io.spine.core.Version;
 import io.spine.protobuf.AnyPacker;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.server.ContextSpec;
@@ -47,51 +36,29 @@ import io.spine.server.ServerEnvironment;
 import io.spine.server.aggregate.given.repo.GivenAggregate;
 import io.spine.server.aggregate.given.repo.ProjectAggregateRepository;
 import io.spine.server.entity.EntityRecord;
-import io.spine.server.event.NoReaction;
 import io.spine.server.storage.AbstractStorageTest;
 import io.spine.test.aggregate.AggProject;
-import io.spine.test.aggregate.IntegerProject;
-import io.spine.test.aggregate.LongProject;
 import io.spine.test.aggregate.ProjectId;
-import io.spine.test.aggregate.StringProject;
 import io.spine.testdata.Sample;
-import io.spine.testing.TestValues;
-import io.spine.testing.core.given.GivenCommandContext;
-import io.spine.testing.server.TestEventFactory;
 import io.spine.testing.server.model.ModelTests;
-import io.spine.type.TypeUrl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.protobuf.util.Timestamps.add;
-import static com.google.protobuf.util.Timestamps.subtract;
-import static io.spine.base.Identifier.newUuid;
-import static io.spine.base.Time.currentTime;
-import static io.spine.core.Versions.increment;
 import static io.spine.core.Versions.zero;
-import static io.spine.protobuf.Messages.isDefault;
-import static io.spine.server.aggregate.given.StorageRecords.sequenceFor;
-import static io.spine.server.aggregate.given.aggregate.AggregateTestEnv.event;
-import static io.spine.testing.TestValues.nullRef;
-import static io.spine.testing.core.given.GivenEnrichment.withOneAttribute;
-import static java.lang.Integer.MAX_VALUE;
-import static java.util.Collections.reverse;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * An abstract base for tests of {@link AggregateStorage} implementations.
+ *
+ * <p>Since the event-sourcing cutover, {@code AggregateStorage} keeps only the latest
+ * Aggregate states; the journal of the emitted events is owned by the
+ * {@link AggregateRepository} and covered by
+ * {@code io.spine.server.entity.storage.EntityEventStorageSpec}.
  *
  * <p>The storage under test is produced by the
  * {@linkplain ServerEnvironment#storageFactory() current} {@code StorageFactory}. Descendants
@@ -106,24 +73,6 @@ public abstract class AggregateStorageTest
     private final ProjectId id = Sample.messageOfType(ProjectId.class);
 
     private AggregateStorage<ProjectId, AggProject> storage;
-
-    private static EventId newEventId() {
-        return EventId.newBuilder()
-                      .setValue(newUuid())
-                      .build();
-    }
-
-    /**
-     * Creates an event factory producing the events on behalf of the entity with
-     * the passed identifier.
-     *
-     * <p>The journal stores an event under its producer, so the tests writing events
-     * must emit them with the identifier they later read the history by.
-     */
-    private static TestEventFactory eventFactoryFor(Object producerId) {
-        return TestEventFactory.newInstance(Identifier.pack(producerId),
-                                            AggregateStorageTest.class);
-    }
 
     @Override
     @BeforeEach
@@ -156,7 +105,7 @@ public abstract class AggregateStorageTest
     }
 
     /**
-     * Creates the storage for the specified ID and aggregate class.
+     * Creates the storage for the specified aggregate class.
      *
      * <p>The created storage should be closed manually.
      *
@@ -164,6 +113,8 @@ public abstract class AggregateStorageTest
      *         the aggregate class
      * @param <I>
      *         the type of aggregate IDs
+     * @param <S>
+     *         the type of aggregate states
      * @return a new storage instance
      */
     <I, S extends AggregateState<I>> AggregateStorage<I, S>
@@ -172,110 +123,16 @@ public abstract class AggregateStorageTest
         var result =
                 ServerEnvironment.instance()
                                  .storageFactory()
-                                 .createAggregateStorage(spec,aggregateClass);
+                                 .createAggregateStorage(spec, aggregateClass);
         return result;
     }
 
-    @Nested
-    @DisplayName("being empty, return")
-    class BeingEmptyReturn {
+    @Test
+    @DisplayName("return an empty `Optional` on reading an absent state")
+    void absentRecord() {
+        var record = storage.read(id);
 
-        @Test
-        @DisplayName("iterator over empty collection on reading history")
-        void emptyHistory() {
-            var iterator = eventHistoryBackward();
-
-            assertFalse(iterator.hasNext());
-        }
-
-        @Test
-        @DisplayName("empty `Optional` on reading an absent state")
-        void absentRecord() {
-            var record = storage.read(id);
-
-            assertFalse(record.isPresent());
-        }
-
-        @Test
-        @DisplayName("empty list on reading events")
-        void emptyEvents() {
-            assertThat(storage.readEvents(id)).isEmpty();
-        }
-    }
-
-    @Nested
-    @DisplayName("not accept `null`")
-    class NotAcceptNull {
-
-        @Test
-        @DisplayName("request ID when reading history")
-        void idForReadHistory() {
-            assertThrows(NullPointerException.class,
-                         () -> storage.eventHistoryBackward(nullRef(), 10));
-        }
-
-        @Test
-        @DisplayName("event for writing")
-        void event() {
-            assertThrows(NullPointerException.class,
-                         () -> storage.writeEvent(id, nullRef()));
-        }
-
-        @Test
-        @DisplayName("event ID for writing")
-        void eventId() {
-            assertThrows(NullPointerException.class,
-                         () -> storage.writeEvent(nullRef(), Event.getDefaultInstance()));
-        }
-    }
-
-    @Nested
-    @DisplayName("write and read single event by ID of type")
-    class WriteAndReadEvent {
-
-        @Test
-        @DisplayName("`Message`")
-        void byMessageId() {
-            writeAndReadEventTest(id, storage);
-        }
-
-        @Test
-        @DisplayName("`String`")
-        void byStringId() {
-            AggregateStorage<String, ?> storage = newStorage(TestAggregateWithIdString.class);
-            var id = newUuid();
-            writeAndReadEventTest(id, storage);
-        }
-
-        @Test
-        @DisplayName("`Long`")
-        void byLongId() {
-            AggregateStorage<Long, ?> storage = newStorage(TestAggregateWithIdLong.class);
-            var id = 10L;
-            writeAndReadEventTest(id, storage);
-        }
-
-        @Test
-        @DisplayName("`Integer`")
-        void byIntegerId() {
-            AggregateStorage<Integer, ?> storage = newStorage(TestAggregateWithIdInteger.class);
-            var id = 10;
-            writeAndReadEventTest(id, storage);
-        }
-
-        private <I> void writeAndReadEventTest(I id, AggregateStorage<I, ?> storage) {
-            var factory = eventFactoryFor(id);
-            var expectedEvent = factory.createEvent(event(AggProject.getDefaultInstance()));
-
-            storage.writeEvent(id, expectedEvent);
-
-            var events = storage.readEvents(id, MAX_VALUE);
-            assertEquals(1, events.size());
-            var actualEvent = events.get(0);
-            assertEquals(expectedEvent, actualEvent);
-
-            close(storage);
-        }
+        assertFalse(record.isPresent());
     }
 
     @Test
@@ -304,257 +161,9 @@ public abstract class AggregateStorageTest
         assertThat(actualIds).containsExactlyElementsIn(expectedIds);
     }
 
-    @Test
-    @DisplayName("throw `IllegalStateException` on reading events after being closed")
-    void throwOnReadEventsWhenClosed() {
-        var closed = newStorage(TestAggregate.class);
-        closed.close();
-        assertThrows(IllegalStateException.class, () -> closed.readEvents(id));
-    }
-
-    @Nested
-    @DisplayName("write records and return them")
-    class WriteRecordsAndReturn {
-
-        @Test
-        @DisplayName("sorted by timestamp descending")
-        void sortedByTimestamp() {
-            var events = sequenceFor(id);
-
-            writeAll(id, events);
-
-            var iterator = eventHistoryBackward();
-            List<Event> actual = newArrayList(iterator);
-            reverse(events); // expected events should be in a reverse order
-            assertEquals(events, actual);
-        }
-
-        @Test
-        @DisplayName("sorted by version descending")
-        void sortedByVersion() {
-            var eventsNumber = 5;
-            List<Event> events = newLinkedList();
-            var timestamp = currentTime();
-            var currentVersion = zero();
-            var factory = eventFactoryFor(id);
-            for (var i = 0; i < eventsNumber; i++) {
-                var state = AggProject.getDefaultInstance();
-                var event = factory.createEvent(event(state), currentVersion, timestamp);
-                events.add(event);
-                currentVersion = increment(currentVersion);
-            }
-            writeAll(id, events);
-
-            var iterator = eventHistoryBackward();
-            List<Event> actual = newArrayList(iterator);
-            reverse(events); // expected events should be in a reverse order
-            assertEquals(events, actual);
-        }
-
-        @Test
-        @DisplayName("sorted by version rather than by timestamp")
-        void sortByVersionFirstly() {
-            var state = AggProject.getDefaultInstance();
-            var minVersion = zero();
-            var maxVersion = increment(minVersion);
-            var minTimestamp = currentTime();
-            var maxTimestamp = add(minTimestamp, Durations.fromHours(1));
-
-            // The first event is an event, which is the oldest, i.e. with the minimal version.
-            var factory = eventFactoryFor(id);
-            var expectedFirst = factory.createEvent(event(state), minVersion, maxTimestamp);
-            var expectedSecond = factory.createEvent(event(state), maxVersion, minTimestamp);
-
-            storage.writeEvent(id, expectedSecond);
-            storage.writeEvent(id, expectedFirst);
-
-            var events = storedEvents(id);
-            assertTrue(events.indexOf(expectedFirst) < events.indexOf(expectedSecond));
-        }
-    }
-
-    @Nested
-    @DisplayName("write records and load history")
-    class WriteRecordsAndLoadHistory {
-
-        @Test
-        @DisplayName("in the order of emission")
-        void inOrderOfEmission() {
-            testWriteRecordsAndLoadHistory(currentTime());
-        }
-
-        @Test
-        @DisplayName("limited to the requested number of the most recent events")
-        void limitedToMostRecent() {
-            var eventCount = 5;
-            var window = 3;
-            List<Event> written = new ArrayList<>(eventCount);
-            var currentVersion = zero();
-            var factory = eventFactoryFor(id);
-            for (var i = 0; i < eventCount; i++) {
-                currentVersion = increment(currentVersion);
-                var state = AggProject.getDefaultInstance();
-                var event = factory.createEvent(event(state), currentVersion);
-                written.add(event);
-                storage.writeEvent(id, event);
-            }
-
-            var events = storage.readEvents(id, window);
-
-            var expected = written.subList(eventCount - window, eventCount);
-            assertEquals(expected, events);
-        }
-    }
-
-    @Nested
-    @DisplayName("truncate the journal")
-    class TruncateJournal {
-
-        private Version currentVersion = zero();
-
-        @Test
-        @DisplayName("deleting only the events older than the given time")
-        void olderThan() {
-            var longAgo = subtract(currentTime(), Durations.fromDays(365));
-            writeSequentialEvents(2, longAgo);
-            var recent = writeSequentialEvents(2, currentTime());
-            var cutoff = subtract(currentTime(), Durations.fromDays(30));
-
-            storage.truncate(cutoff);
-
-            var remaining = storedEvents(id);
-            assertEquals(recent, remaining);
-        }
-
-        @CanIgnoreReturnValue
-        private List<Event> writeSequentialEvents(int count, Timestamp at) {
-            List<Event> events = new ArrayList<>(count);
-            var factory = eventFactoryFor(id);
-            for (var i = 0; i < count; i++) {
-                currentVersion = increment(currentVersion);
-                var state = AggProject.getDefaultInstance();
-                var event = factory.createEvent(event(state), currentVersion, at);
-                events.add(event);
-                storage.writeEvent(id, event);
-            }
-            return events;
-        }
-    }
-
-    @Nested
-    @DisplayName("not store enrichment")
-    class NotStoreEnrichment {
-
-        @Test
-        @DisplayName("for `EventContext`")
-        void forEventContext() {
-            var context = ActorContext.newBuilder().buildPartial();
-            var messageId = MessageId.newBuilder()
-                    .setId(AnyPacker.pack(newEventId()))
-                    .setTypeUrl(TypeUrl.of(NoReaction.class)
-                                       .value())
-                    .buildPartial();
-            var origin = Origin.newBuilder()
-                    .setActorContext(context)
-                    .setMessage(messageId)
-                    .build();
-            var enrichedContext = EventContext.newBuilder()
-                    .setEnrichment(withOneAttribute())
-                    .setTimestamp(Time.currentTime())
-                    .setProducerId(Identifier.pack(id))
-                    .setPastMessage(origin)
-                    .build();
-            var event = Event.newBuilder()
-                    .setId(newEventId())
-                    .setContext(enrichedContext)
-                    .setMessage(AnyPacker.pack(TestValues.newUuidValue()))
-                    .build();
-            storage.writeEvent(id, event);
-
-            var events = storedEvents(id);
-            var loadedContext = events.get(0).context();
-            assertTrue(isDefault(loadedContext.getEnrichment()));
-        }
-
-        @SuppressWarnings("deprecation") // For backward compatibility.
-        @Test
-        @DisplayName("for origin of `EventContext` type")
-        void forEventContextOrigin() {
-            var origin = EventContext.newBuilder()
-                    .setEnrichment(withOneAttribute())
-                    .setTimestamp(Time.currentTime())
-                    .setProducerId(AnyPacker.pack(TestValues.newUuidValue()))
-                    .setCommandContext(GivenCommandContext.withRandomActor())
-                    .build();
-            var context = EventContext.newBuilder()
-                    .setEventContext(origin)
-                    .setTimestamp(Time.currentTime())
-                    .setProducerId(Identifier.pack(id))
-                    .build();
-            var event = Event.newBuilder()
-                    .setId(newEventId())
-                    .setContext(context)
-                    .setMessage(AnyPacker.pack(TestValues.newUuidValue()))
-                    .build();
-            storage.writeEvent(id, event);
-            var events = storedEvents(id);
-            var loadedOrigin = events.get(0)
-                                     .context()
-                                     .getEventContext();
-            assertTrue(isDefault(loadedOrigin.getEnrichment()));
-        }
-    }
-
-    private List<Event> storedEvents(ProjectId id) {
-        return storage.readEvents(id);
-    }
-
-    void testWriteRecordsAndLoadHistory(Timestamp firstRecordTime) {
-        var expectedEvents = sequenceFor(id, firstRecordTime);
-
-        writeAll(id, expectedEvents);
-
-        var actualEvents = storedEvents(id);
-        assertEquals(expectedEvents, actualEvents);
-    }
-
-    protected void writeAll(ProjectId id, Iterable<Event> events) {
-        for (var event : events) {
-            storage.writeEvent(id, event);
-        }
-    }
-
-    private Iterator<Event> eventHistoryBackward() {
-        return storage.eventHistoryBackward(id, MAX_VALUE);
-    }
-
     public static class TestAggregate extends Aggregate<ProjectId, AggProject, AggProject.Builder> {
 
         protected TestAggregate(ProjectId id) {
-            super(id);
-        }
-    }
-
-    private static class TestAggregateWithIdString
-            extends Aggregate<String, StringProject, StringProject.Builder> {
-
-        private TestAggregateWithIdString(String id) {
-            super(id);
-        }
-    }
-
-    private static class TestAggregateWithIdInteger
-            extends Aggregate<Integer, IntegerProject, IntegerProject.Builder> {
-
-        private TestAggregateWithIdInteger(Integer id) {
-            super(id);
-        }
-    }
-
-    private static class TestAggregateWithIdLong
-            extends Aggregate<Long, LongProject, LongProject.Builder> {
-
-        private TestAggregateWithIdLong(Long id) {
             super(id);
         }
     }

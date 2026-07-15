@@ -48,6 +48,7 @@ import io.spine.server.entity.QueryableRepository;
 import io.spine.server.entity.Repository;
 import io.spine.server.entity.RepositoryCache;
 import io.spine.server.entity.StateHistoryLoader;
+import io.spine.server.entity.storage.EntityEventStorage;
 import io.spine.server.entity.storage.EntityStateHistoryStorage;
 import io.spine.server.event.EventBus;
 import io.spine.server.event.EventDispatcherDelegate;
@@ -90,7 +91,9 @@ import static java.util.Objects.requireNonNull;
  *
  * <p>Since the event-sourcing cutover, an aggregate is loaded from its latest persisted
  * {@link io.spine.server.entity.EntityRecord EntityRecord} rather than by replaying its event
- * journal. The journal is kept append-only for traceability and for the opt-in
+ * journal. The repository keeps that latest state in an {@link AggregateStorage} and appends
+ * the emitted events to a separate {@linkplain #eventStorage() event journal}
+ * (an {@link EntityEventStorage}), kept append-only for traceability and for the opt-in
  * {@link IdempotencyGuard}.
  *
  * <p>Three per-repository settings tune this behavior:
@@ -120,7 +123,10 @@ import static java.util.Objects.requireNonNull;
  *         the type of the state of aggregates managed by this repository
  * @see Aggregate
  */
-@SuppressWarnings({"ClassWithTooManyMethods", "resource"})
+@SuppressWarnings({
+        "ClassWithTooManyMethods", "OverlyComplexClass" /* Acknowledged complexity. */,
+        "resource" /* Accessing `Closeable` properties. */
+})
 public abstract class AggregateRepository<I,
                                           A extends Aggregate<I, S, ?>,
                                           S extends AggregateState<I>>
@@ -162,6 +168,12 @@ public abstract class AggregateRepository<I,
 
     /** The storage of recent state records; created lazily once the history is first needed. */
     private @MonotonicNonNull EntityStateHistoryStorage<I> stateHistory;
+
+    /**
+     * The journal of the events emitted by the aggregates of this repository; created lazily
+     * once the journal is first needed.
+     */
+    private @MonotonicNonNull EntityEventStorage<I> eventStorage;
 
     /** Creates a new instance. */
     protected AggregateRepository() {
@@ -321,7 +333,7 @@ public abstract class AggregateRepository<I,
      */
     final void setUpHistoryReading(A aggregate, I id) {
         aggregate.setEventHistoryLoader(
-                depth -> aggregateStorage().eventHistoryBackward(id, depth));
+                depth -> eventStorage().historyBackward(id, depth));
         aggregate.setStateHistoryLoader(stateHistoryLoaderFor(id));
         if (idempotencyGuardEnabled) {
             aggregate.enableIdempotencyGuard(eventHistoryDepth);
@@ -342,10 +354,10 @@ public abstract class AggregateRepository<I,
      * Stores the passed aggregate and commits its uncommitted events.
      *
      * <p>When the state history is {@linkplain #recordStateHistory() recorded}, appends
-     * the current state record on each call — that is, once per successful dispatch. The
-     * append happens here and not in {@link #doStore}, because under a batched delivery
-     * the cache defers {@code doStore()} to the end of the batch — the history still
-     * captures every intermediate version of the batch.
+     * the current state record on each call — that is, once per successful dispatch.
+     * The append operation happens here and not in {@link #doStore}, because under
+     * a batched delivery the cache defers {@code doStore()} to the end of the batch —
+     * the history still captures every intermediate version of the batch.
      */
     @Override
     protected final void store(A aggregate) {
@@ -364,8 +376,12 @@ public abstract class AggregateRepository<I,
         if (!aggregate.changed() && !aggregate.hasUncommittedEvents()) {
             return;
         }
-        var history = aggregate.uncommittedHistory();
-        aggregateStorage().writeAll(aggregate, history.get());
+        // Journal the emitted events, then store the latest state. Under a batched delivery the
+        // aggregate accumulates its events until `commitEvents()`, so the journal drops none.
+        var events = aggregate.uncommittedHistory().get();
+        var journal = eventStorage();
+        events.forEach(journal::write);
+        aggregateStorage().writeState(aggregate);
         aggregate.commitEvents();
     }
 
@@ -551,8 +567,8 @@ public abstract class AggregateRepository<I,
     }
 
     /**
-     * Enables the opt-in, journal-backed {@link IdempotencyGuard} for the aggregates of this
-     * repository.
+     * Enables the opt-in, journal-backed {@link IdempotencyGuard} for the aggregates of
+     * this repository.
      *
      * <p>When enabled, each dispatch scans the last {@link #eventHistoryDepth()} journal events and
      * rejects a signal already seen among them, however long ago it was dispatched — a mechanism
@@ -579,7 +595,7 @@ public abstract class AggregateRepository<I,
      * {@link EntityRecord} to an {@link EntityStateHistoryStorage} — e.g., for answering
      * {@linkplain EntityStateHistoryStorage#stateAt(Object, com.google.protobuf.Timestamp)
      * the "state at a time" query}. The history is <b>off by default</b>: recording adds
-     * a write to every dispatch.
+     * a write operation to every dispatch.
      *
      * <p>The aggregates of this repository read the recorded history via
      * {@link Aggregate#stateAt(Timestamp)} and {@link Aggregate#stateHistoryBackward(int)}.
@@ -698,18 +714,84 @@ public abstract class AggregateRepository<I,
     }
 
     /**
-     * Lazily creates the state history storage.
+     * Creates the storage of the recent state history of the aggregates of this repository.
+     *
+     * <p>Mirrors {@link #createStorage()}: the default implementation uses the
+     * {@linkplain #defaultStorageFactory() default storage factory} — the same one the default
+     * {@code createStorage()} uses for the aggregate state. A repository that overrides
+     * {@code createStorage()} to serve the aggregate state from a custom
+     * {@link io.spine.server.storage.StorageFactory} or backend should override this method as
+     * well, so the recorded state history is served by the same backend as the state, rather
+     * than silently falling back to the default one.
+     *
+     * @return a new state history storage
+     */
+    protected EntityStateHistoryStorage<I> createStateHistoryStorage() {
+        var factory = defaultStorageFactory();
+        return factory.createEntityStateHistoryStorage(context().spec(), entityClass());
+    }
+
+    /**
+     * Returns the storage of the recent state history of the aggregates of this repository,
+     * creating it lazily via {@link #createStateHistoryStorage()} on the first access.
+     *
+     * <p>Unlike the fail-fast {@link #stateHistory()} accessor, this method does not require
+     * recording to be {@linkplain #recordStateHistory() enabled}: it exposes the storage for
+     * the maintenance operations — {@link EntityStateHistoryStorage#truncate(Timestamp) truncate}
+     * and {@link EntityStateHistoryStorage#trim(Object, int) trim} — which a repository may run
+     * even while the recording is off.
      *
      * <p>Synchronized: unlike the main {@linkplain #storage() storage}, which is first
      * accessed during the single-threaded registration of the repository, this storage
      * is first touched when a signal is dispatched, possibly by concurrent workers.
+     *
+     * @return the state history storage
      */
-    private synchronized EntityStateHistoryStorage<I> stateHistoryStorage() {
+    protected final synchronized EntityStateHistoryStorage<I> stateHistoryStorage() {
         if (stateHistory == null) {
-            var factory = defaultStorageFactory();
-            stateHistory = factory.createEntityStateHistoryStorage(context().spec(), entityClass());
+            stateHistory = createStateHistoryStorage();
         }
         return stateHistory;
+    }
+
+    /**
+     * Creates the journal of the events emitted by the aggregates of this repository.
+     *
+     * <p>Mirrors {@link #createStorage()}: the default implementation uses the
+     * {@linkplain #defaultStorageFactory() default storage factory} — the same one the default
+     * {@code createStorage()} uses for the aggregate state. A repository that overrides
+     * {@code createStorage()} to serve the aggregate state from a custom
+     * {@link io.spine.server.storage.StorageFactory} or backend should override this method as
+     * well, so the journal — feeding the {@link IdempotencyGuard} and the
+     * {@linkplain Aggregate#eventHistoryBackward(int) recent-history} reads — is served by the
+     * same backend as the state, rather than silently falling back to the default one.
+     *
+     * @return a new event journal
+     */
+    protected EntityEventStorage<I> createEventStorage() {
+        return defaultStorageFactory().createEntityEventStorage(context().spec(), entityClass());
+    }
+
+    /**
+     * Returns the journal of the events emitted by the aggregates of this repository,
+     * creating it lazily via {@link #createEventStorage()} on the first access.
+     *
+     * <p>Unlike the opt-in {@linkplain #stateHistory() state history}, the journal is always
+     * maintained, so this accessor has no fail-fast gate: it exposes the journal — e.g., for the
+     * {@linkplain EntityEventStorage#truncate(com.google.protobuf.Timestamp) time-based
+     * truncation} that bounds the journal growth as a periodic maintenance operation.
+     *
+     * <p>Synchronized for the same reason as {@link #stateHistoryStorage()}: unlike the main
+     * {@linkplain #storage() storage}, the journal is first touched when a signal is dispatched,
+     * possibly by concurrent workers.
+     *
+     * @return the event journal of this repository
+     */
+    protected final synchronized EntityEventStorage<I> eventStorage() {
+        if (eventStorage == null) {
+            eventStorage = createEventStorage();
+        }
+        return eventStorage;
     }
 
     /**
@@ -803,11 +885,36 @@ public abstract class AggregateRepository<I,
     @OverridingMethodsMustInvokeSuper
     @Override
     public void close() {
-        super.close();
-        if (inbox != null) {
-            inbox.unregister();
+        // Release every owned resource even if one close fails: the first failure is kept as
+        // the primary exception and the later ones are attached to it as suppressed, so none of
+        // them is lost. `super.close()` is called directly (not via the helper) so that the
+        // `@OverridingMethodsMustInvokeSuper` check recognizes the super-call.
+        @Nullable RuntimeException failure = null;
+        try {
+            super.close();
+        } catch (RuntimeException e) {
+            failure = e;
         }
-        closeStateHistory();
+        if (inbox != null) {
+            failure = attemptClose(failure, inbox::unregister);
+        }
+        failure = attemptClose(failure, this::closeEventStorage);
+        failure = attemptClose(failure, this::closeStateHistory);
+        if (failure != null) {
+            throw failure;
+        }
+    }
+
+    /**
+     * Closes the event journal if it was created.
+     *
+     * <p>Synchronized to pair with {@link #eventStorage()}: the journal may have been
+     * created by a dispatch worker, and the closing thread must observe that write.
+     */
+    private synchronized void closeEventStorage() {
+        if (eventStorage != null && eventStorage.isOpen()) {
+            eventStorage.close();
+        }
     }
 
     /**
