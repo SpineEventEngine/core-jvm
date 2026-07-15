@@ -184,22 +184,26 @@ public abstract class ProjectionRepository<I,
     private void initInbox(Delivery delivery) {
         inbox = delivery
                 .<I>newInbox(entityStateType())
-                .withBatchListener(new BatchDeliveryListener<>() {
-                    @Override
-                    public void onStart(I id) {
-                        cache.startCaching(id);
-                    }
-
-                    @Override
-                    public void onEnd(I id) {
-                        cache.stopCaching(id);
-                    }
-                })
+                .withBatchListener(newCachingListener())
                 .addEventEndpoint(InboxLabel.UPDATE_SUBSCRIBER,
                                   e -> ProjectionEndpoint.of(this, e))
                 .addEventEndpoint(InboxLabel.CATCH_UP,
                                   e -> CatchUpEndpoint.of(this, e))
                 .build();
+    }
+
+    private BatchDeliveryListener<I> newCachingListener() {
+        return new BatchDeliveryListener<>() {
+            @Override
+            public void onStart(I id) {
+                cache.startCaching(id);
+            }
+
+            @Override
+            public void onEnd(I id) {
+                cache.stopCaching(id);
+            }
+        };
     }
 
     private Inbox<I> inbox() {

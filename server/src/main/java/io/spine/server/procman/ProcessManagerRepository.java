@@ -186,22 +186,26 @@ public abstract class ProcessManagerRepository<I,
                                         .delivery();
         inbox = delivery
                 .<I>newInbox(entityStateType())
-                .withBatchListener(new BatchDeliveryListener<>() {
-                    @Override
-                    public void onStart(I id) {
-                        cache.startCaching(id);
-                    }
-
-                    @Override
-                    public void onEnd(I id) {
-                        cache.stopCaching(id);
-                    }
-                })
+                .withBatchListener(newCachingListener())
                 .addEventEndpoint(InboxLabel.REACT_UPON_EVENT,
                                   e -> PmEventEndpoint.of(this, e))
                 .addCommandEndpoint(InboxLabel.HANDLE_COMMAND,
                                     c -> PmCommandEndpoint.of(this, c))
                 .build();
+    }
+
+    private BatchDeliveryListener<I> newCachingListener() {
+        return new BatchDeliveryListener<>() {
+            @Override
+            public void onStart(I id) {
+                cache.startCaching(id);
+            }
+
+            @Override
+            public void onEnd(I id) {
+                cache.stopCaching(id);
+            }
+        };
     }
 
     private Inbox<I> inbox() {
