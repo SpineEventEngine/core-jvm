@@ -29,8 +29,13 @@ package io.spine.dependency.build
 // https://errorprone.info/
 @Suppress("unused", "ConstPropertyName")
 object ErrorProne {
-    // https://github.com/google/error-prone
-    private const val version = "2.36.0"
+    /**
+     * This is the last version which is compatible with Java 17.
+     *
+     * The version 2.43.0 requires JDK 21.
+     * https://github.com/google/error-prone/releases/tag/v2.43.0
+     */
+    private const val version = "2.42.0"
 
     const val group = "com.google.errorprone"
 
