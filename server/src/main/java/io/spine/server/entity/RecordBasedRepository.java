@@ -140,7 +140,7 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
      * <ol>
      *     <li>Load an entity by the given ID.
      *     <li>Transform it through the migration operation.
-     *     <li>Store the entity back to the repository or delete it depending on the migration
+     *     <li>Store the entity back in the repository or delete it depending on the migration
      *         configuration.
      * </ol>
      *
