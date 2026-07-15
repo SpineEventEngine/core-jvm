@@ -311,12 +311,13 @@ Expected: **no test changes.** Verify during implementation:
    already resolved at send time — routing is consulted only on the inbound
    `dispatch()`/`dispatchEvent()` path, which requires bus registration that happens
    later. `configureQuerying()` is likewise unaffected (flag read on the query path only).
-2. **A `ProjectionRepository` whose state routing fails validation leaks its `Inbox`
-   registration.** `setupEventRouting()` → `createStateRouting()` → `validate()` throws
-   *after* `super.registerWith()` has built the inbox. Note this leak already exists in
-   the same shape today for the **event dispatcher**: `EventDispatchingRepository`
-   registers it before `setupEventRouting()` runs. Not a new class of bug, and bounded
-   by `ServerEnvironment.reset()`. Mitigate later if it bites.
+2. **A registration that fails after `super.registerWith()` leaves the `Inbox` registered
+   with the `Delivery`.** NOT A PROBLEM — reviewed and dismissed (owner, 2026-07-15).
+   A failing `registerWith()` is a configuration error that fails the creation of the whole
+   Bounded Context, which is the correct outcome. A stale entry in a map, in a JVM that is
+   not going to finish starting, does not matter at that scale. No code change, and no
+   Javadoc either: a caveat about it on `registerWith()` only buries the contract of the
+   method under something of no consequence.
 3. **`doLoadOrCreate` / `doStore` now appear on every `Repository`**, dead for
    non-caching ones — the accepted cost of driving from the base.
 

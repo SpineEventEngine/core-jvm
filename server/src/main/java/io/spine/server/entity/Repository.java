@@ -266,12 +266,9 @@ public abstract class Repository<I, E extends Entity<I, ?>>
     /**
      * Verifies that this repository dispatches at least one kind of message to its entities.
      *
-     * <p>Called by {@link #registerWith(BoundedContext)} first thing: the context is not
-     * assigned, the storage is not created, and the {@linkplain #inbox() inbox} is not
-     * registered with the {@code Delivery} yet. So a repository failing this check leaves
-     * none of them behind. Note that this is not a guarantee about registration as a whole —
-     * a step that fails <em>later</em>, such as the routing setup of a subclass, does so with
-     * the inbox already registered.
+     * <p>Called by {@link #registerWith(BoundedContext)} before the context is assigned, so
+     * an overriding method cannot use {@link #context()}. The class of the entities, which
+     * is what the check needs, is available from {@link #entityModelClass()}.
      *
      * @throws IllegalStateException
      *         if this repository dispatches no messages
