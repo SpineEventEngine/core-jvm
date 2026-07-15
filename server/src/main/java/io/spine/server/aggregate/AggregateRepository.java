@@ -329,6 +329,16 @@ public abstract class AggregateRepository<I,
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Journals the events the aggregate emitted, then writes its latest state — rather
+     * than delegating to {@link #store(Aggregate) store()}, which routes through the cache.
+     *
+     * @implSpec Skips an aggregate that was neither changed nor produced events. An
+     *         overriding repository is expected to call {@code super}: writing an untouched
+     *         instance would overwrite the stored state of another instance sharing its ID.
+     */
     @Override
     @Internal
     protected void doStore(A aggregate) {
@@ -768,6 +778,13 @@ public abstract class AggregateRepository<I,
         return cache().load(id);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @implSpec Creating an aggregate here also posts the
+     *         {@linkplain io.spine.system.server.event.EntityCreated entity-created} event —
+     *         this is the "loads or creates differently" case the base method describes.
+     */
     @Override
     @Internal
     protected A doLoadOrCreate(I id) {

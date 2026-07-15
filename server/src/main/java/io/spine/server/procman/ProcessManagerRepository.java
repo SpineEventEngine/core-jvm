@@ -192,10 +192,10 @@ public abstract class ProcessManagerRepository<I,
      * process manager:
      *
      * <ul>
-     *     <li>command handler methods;
-     *     <li>domestic or external event reactor methods;
-     *     <li>domestic or external rejection reactor methods;
-     *     <li>commanding method.
+     *     <li>a command handler;
+     *     <li>a domestic or external event reactor;
+     *     <li>a domestic or external rejection reactor;
+     *     <li>a commander.
      * </ul>
      */
     @Override

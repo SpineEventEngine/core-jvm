@@ -68,7 +68,10 @@ public abstract class EventDispatchingRepository<I,
     }
 
     /**
-     * Registers itself as an event dispatcher with the parent {@code BoundedContext}.
+     * {@inheritDoc}
+     *
+     * <p>Registers itself as an event dispatcher with the parent {@code BoundedContext},
+     * and sets up the routing of the events it dispatches.
      *
      * @param context
      *         the {@code BoundedContext} of this repository

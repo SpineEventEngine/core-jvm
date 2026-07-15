@@ -229,8 +229,8 @@ public abstract class Repository<I, E extends Entity<I, ?>>
      *
      * @throws IllegalStateException
      *          if the repository has a context value already assigned, and the passed value is
-     *          not equal to the assigned one, or if the repository dispatches no messages
-     *          (see {@link #checkDispatchesMessages()})
+     *          not equal to the assigned one, or if {@link #checkDispatchesMessages()}
+     *          rejects this repository
      */
     @OverridingMethodsMustInvokeSuper
     @Override
@@ -264,15 +264,14 @@ public abstract class Repository<I, E extends Entity<I, ?>>
     /**
      * Verifies that this repository dispatches at least one kind of message to its entities.
      *
-     * <p>Called by {@link #registerWith(BoundedContext)} before the context is assigned, so
-     * an overriding method cannot use {@link #context()}. The class of the entities, which
-     * is what the check needs, is available from {@link #entityModelClass()}.
-     *
      * @throws IllegalStateException
      *         if this repository dispatches no messages
      * @implSpec Does nothing by default. A repository dispatching messages to its entities
      *         should override this method, throwing an {@code IllegalStateException} if
-     *         the class of its entities declares no receptors.
+     *         the class of its entities declares no receptors. The override runs before
+     *         {@link #registerWith(BoundedContext) registerWith()} assigns the context, so
+     *         it cannot use {@link #context()}; the class of the entities, which is what
+     *         the check needs, comes from {@link #entityModelClass()}.
      */
     @SuppressWarnings("NoopMethodInAbstractClass") // See `@implSpec`.
     protected void checkDispatchesMessages() {
@@ -447,14 +446,13 @@ public abstract class Repository<I, E extends Entity<I, ?>>
      * A callback for derived classes to add the endpoints serving the messages
      * dispatched to the entities of this repository.
      *
-     * <p>Adding no endpoint tells that this repository does not use the {@code Inbox}.
-     * No inbox is then created and {@link #inbox()} fails. The {@linkplain #cache() cache}
-     * is unaffected — every repository has one.
-     *
      * @param builder
      *         the builder of the {@code Inbox} of this repository
-     * @implSpec Does nothing by default. An overriding repository is expected to
-     *         add endpoints via the given builder.
+     * @implSpec Does nothing by default. An overriding repository is expected to add
+     *         endpoints via the given builder. Adding none means that the repository does
+     *         not use the {@code Inbox}: no inbox is then created and {@link #inbox()}
+     *         fails. The {@linkplain #cache() cache} is unaffected — every repository
+     *         has one.
      */
     @SuppressWarnings("NoopMethodInAbstractClass") // See `@implSpec`.
     @Internal

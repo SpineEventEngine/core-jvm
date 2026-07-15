@@ -237,7 +237,7 @@ Fixes applied from that review:
 
 ### Test
 
-`RepositoryInboxSpec` covers the lifecycle in five cases: a repository with no endpoints
+`RepositorySpec` covers the lifecycle in five cases: a repository with no endpoints
 gets a cache but no inbox; one with an endpoint gets both; an unregistered repository's
 `cache()` fails as an initialization error; the default `checkDispatchesMessages()` does
 not block registration; and `NoInboxDispatchingRepository` — a direct
