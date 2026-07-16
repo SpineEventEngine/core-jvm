@@ -31,6 +31,7 @@ import com.google.common.testing.NullPointerTester;
 import io.spine.core.TenantId;
 import io.spine.server.aggregate.AggregateRootDirectory;
 import io.spine.server.aggregate.InMemoryRootDirectory;
+import io.spine.server.bc.given.Given.CommandDispatchingRepository;
 import io.spine.server.bc.given.Given.NoOpCommandDispatcher;
 import io.spine.server.bc.given.Given.NoOpEventDispatcher;
 import io.spine.server.bc.given.ProjectAggregate;
@@ -234,11 +235,13 @@ class BoundedContextBuilderTest {
 
         private BoundedContextBuilder builder;
         private CommandDispatcher dispatcher;
+        private CommandDispatchingRepository repository;
 
         @BeforeEach
         void setUp() {
             builder = BoundedContextBuilder.assumingTests();
             dispatcher = new NoOpCommandDispatcher();
+            repository = new CommandDispatchingRepository();
         }
 
         @Test
@@ -259,6 +262,31 @@ class BoundedContextBuilderTest {
 
             builder.removeCommandDispatcher(dispatcher);
             assertFalse(builder.hasCommandDispatcher(dispatcher));
+        }
+
+        @Test
+        @DisplayName("register repository if it's passed as a command dispatcher")
+        void registerRepo() {
+            assertFalse(builder.hasRepository(repository));
+            builder.addCommandDispatcher(repository);
+            assertTrue(builder.hasRepository(repository));
+        }
+
+        @Test
+        @DisplayName("remove registered repository if it's passed as a command dispatcher")
+        void removeRegisteredRepo() {
+            builder.add(repository);
+            assertTrue(builder.hasRepository(repository));
+
+            builder.removeCommandDispatcher(repository);
+            assertFalse(builder.hasRepository(repository));
+        }
+
+        @Test
+        @DisplayName("check repository presence if it's queried as a command dispatcher")
+        void checkHasRepo() {
+            builder.add(repository);
+            assertTrue(builder.hasCommandDispatcher(repository));
         }
     }
 
