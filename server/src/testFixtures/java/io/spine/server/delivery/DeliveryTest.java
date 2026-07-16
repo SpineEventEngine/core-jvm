@@ -410,7 +410,7 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
      *
      * Accesses the Delivery API that has been made
      * package-private and marked as visible for testing.
-     * Therefore, the test environment routines aren't moved to a separate `...TestEnv class.
+     * Therefore, the test environment routines aren't moved to a separate `...TestEnv` class.
      * Otherwise, the test-only API of `Delivery` must have been made `public`,
      * which wouldn't be a good API design move.
      ******************************************************************************/
