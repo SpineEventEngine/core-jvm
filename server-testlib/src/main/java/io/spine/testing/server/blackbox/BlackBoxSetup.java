@@ -89,7 +89,6 @@ final class BlackBoxSetup {
      *
      * @param commandMessages
      *         a list of {@linkplain CommandMessage command messages}
-     *         or {@linkplain Command commands}
      */
     List<Command> postCommands(Collection<CommandMessage> commandMessages) {
         var commands = commandMessages.stream()
@@ -185,22 +184,16 @@ final class BlackBoxSetup {
     }
 
     /**
-     * Generates a {@link Command} from a {@link CommandMessage}.
+     * Generates a {@link Command} from the passed {@link CommandMessage}.
      *
-     * <p>If the passed message is a {@link Command} does nothing.
-     *
-     * @param commandOrMessage
-     *         a command or command message
+     * @param message
+     *         a command message
      * @param requestFactory
      *         the factory to produce commands with
      * @return a {@code Command}
      */
-    private static Command command(Message commandOrMessage,
+    private static Command command(CommandMessage message,
                                    TestActorRequestFactory requestFactory) {
-        if (commandOrMessage instanceof Command command) {
-            return command;
-        }
-        var message = (CommandMessage) commandOrMessage;
         return requestFactory.command()
                              .create(message);
     }

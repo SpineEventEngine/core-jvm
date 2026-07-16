@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -30,6 +30,7 @@ import io.spine.core.TenantId;
 import io.spine.core.Versions;
 import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
+import io.spine.server.entity.given.repository.BareRepository;
 import io.spine.server.entity.given.repository.ProjectEntity;
 import io.spine.server.entity.given.repository.TestRepo;
 import io.spine.server.entity.storage.EntityRecordStorage;
@@ -185,6 +186,20 @@ class RepositoryTest {
         createAndStoreEntities();
         var numEntities = size(iteratorAt(tenantId));
         assertEquals(3, numEntities);
+    }
+
+    @Test
+    @DisplayName("iterate over the entities of a repository built directly on `Repository`")
+    void iterateBareRepository() throws Exception {
+        try (var bareContext = BoundedContextBuilder.assumingTests().build()) {
+            var bare = new BareRepository();
+            bareContext.internalAccess()
+                       .register(bare);
+            bare.store(bare.create(createId("Uno")));
+            bare.store(bare.create(createId("Dos")));
+
+            assertEquals(2, size(bare.iterator(entity -> true)));
+        }
     }
 
     @Test

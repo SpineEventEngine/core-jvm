@@ -24,15 +24,42 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.server.entity.given.repository;
+package io.spine.server.entity
 
-import io.spine.server.entity.TransactionalEntity;
-import io.spine.test.entity.Project;
-import io.spine.test.entity.ProjectId;
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
+import io.spine.base.Identifier
+import io.spine.client.EntityId
+import io.spine.server.given.groups.GroupId
+import io.spine.test.entity.ProjectId
+import io.spine.testdata.Sample
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
 
-public final class ProjectEntity extends TransactionalEntity<ProjectId, Project, Project.Builder> {
+@DisplayName("`EntityIdFunction` should")
+internal class EntityIdFunctionSpec {
 
-    ProjectEntity(ProjectId id) {
-        super(id);
+    @Test
+    fun `unpack an identifier of the expected type`() {
+        val id = Sample.messageOfType(ProjectId::class.java)
+        val entityId = EntityId.newBuilder()
+            .setId(Identifier.pack(id))
+            .build()
+
+        val unpacked = EntityIdFunction(ProjectId::class.java).apply(entityId)
+
+        unpacked shouldBe id
+    }
+
+    @Test
+    fun `reject an identifier of an unexpected type`() {
+        val alien = Sample.messageOfType(GroupId::class.java)
+        val entityId = EntityId.newBuilder()
+            .setId(Identifier.pack(alien))
+            .build()
+
+        shouldThrow<IllegalStateException> {
+            EntityIdFunction(ProjectId::class.java).apply(entityId)
+        }
     }
 }
