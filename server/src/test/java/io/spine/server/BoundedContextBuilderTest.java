@@ -45,6 +45,10 @@ import io.spine.server.projection.ProjectionRepository;
 import io.spine.server.tenant.TenantIndex;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventEnvelope;
+import io.spine.test.bc.ProjectId;
+import io.spine.test.bc.command.BcCreateProject;
+import io.spine.testdata.Sample;
+import io.spine.testing.client.TestActorRequestFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -287,6 +291,20 @@ class BoundedContextBuilderTest {
         void checkHasRepo() {
             builder.add(repository);
             assertTrue(builder.hasCommandDispatcher(repository));
+        }
+
+        @Test
+        @DisplayName("accept a repository dispatching commands on its own")
+        void acceptDispatchingRepository() {
+            assertFalse(repository.messageClasses().isEmpty());
+
+            var requestFactory = new TestActorRequestFactory(BoundedContextBuilderTest.class);
+            var command = requestFactory.command()
+                                        .create(Sample.messageOfType(BcCreateProject.class));
+            var outcome = repository.dispatch(CommandEnvelope.of(command));
+            assertTrue(outcome.hasSuccess());
+
+            assertNotNull(repository.create(Sample.messageOfType(ProjectId.class)));
         }
     }
 

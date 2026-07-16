@@ -135,6 +135,15 @@ class AggregatePartTest {
         assertThrows(IllegalStateException.class, () -> part.stateAt(currentTime()));
     }
 
+    @Test
+    @DisplayName("expose the constructor of the part class taking its root")
+    void exposePartConstructor() {
+        var ctor = taskRepository.entityFactory().constructor();
+        assertThat(ctor.getParameterTypes())
+                .asList()
+                .containsExactly(TaskRoot.class);
+    }
+
     private void assertEntityCount(Class<? extends EntityState<?>> stateType, int expectedCount) {
         var entityStates = queryEntities(stateType);
         assertThat(entityStates).hasSize(expectedCount);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -149,6 +149,20 @@ abstract class BlackBoxTest<T extends BlackBox> {
 
     final T context() {
         return context;
+    }
+
+    @Test
+    @DisplayName("receive events on behalf of the given producer")
+    void receiveEventsProducedBy() {
+        var id = newProjectId();
+        context.receivesCommand(createProject(id))
+               .receivesEventsProducedBy(id, taskAdded(id));
+        // The received event is an input to the context, not an emitted one,
+        // so only the event of the handled command is asserted.
+        context.assertEvent(
+                BbProjectCreated.newBuilder()
+                        .setProjectId(id)
+                        .build());
     }
 
     @Test

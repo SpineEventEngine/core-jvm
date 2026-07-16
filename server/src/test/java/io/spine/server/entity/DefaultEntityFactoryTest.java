@@ -57,8 +57,9 @@ class DefaultEntityFactoryTest {
     @Test
     @DisplayName("support equality")
     void supportEquality() {
+        RecordBasedRepository<ProjectId, TestEntity1, Project> anotherRepo = new TestRepository1();
         new EqualsTester()
-                .addEqualityGroup(entityFactory1)
+                .addEqualityGroup(entityFactory1, anotherRepo.entityFactory())
                 .addEqualityGroup(entityFactory2)
                 .testEquals();
     }

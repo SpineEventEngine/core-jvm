@@ -26,6 +26,7 @@
 
 package io.spine.server.entity;
 
+import com.google.common.testing.EqualsTester;
 import com.google.protobuf.FieldMask;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.server.given.organizations.Organization;
@@ -69,6 +70,19 @@ class DefaultConverterTest {
         var withMasks = converter.withFieldMask(fieldMask);
 
         assertEquals(fieldMask, withMasks.fieldMask());
+    }
+
+    @Test
+    @DisplayName("support equality")
+    void supportEquality() {
+        var sameFields = forAllFields(converter.entityStateType(), converter.entityFactory());
+        var masked = converter.withFieldMask(FieldMask.newBuilder()
+                                                     .addPaths("foo.bar")
+                                                     .build());
+        new EqualsTester()
+                .addEqualityGroup(converter, sameFields)
+                .addEqualityGroup(masked)
+                .testEquals();
     }
 
     private static TestEntity createEntity(OrganizationId id, Organization state) {
