@@ -24,7 +24,8 @@ PR #1649) preserves emitted events, but there is no way to see the *states*
 an entity went through. Phase E adds an opt-in, bounded history of recent
 `EntityRecord` versions per entity for debugging and analysis, including the
 "state at time T" query. The contract is entity-generic: Phase F wires the
-same storage to `ProcessManager`s without touching it.
+same storage to `ProcessManager`s — and, per the 2026-07-16 decision, to
+`Projection`s (opt-in, off by default) — without touching it.
 
 ## Design
 
@@ -178,7 +179,8 @@ same storage to `ProcessManager`s without touching it.
   `RecentHistory<T>` base with `RecentEventHistory` (the renamed event
   view; loader renamed `EventHistoryLoader`) and `RecentStateHistory<S>`
   (fed by `StateHistoryLoader`, unpacking records to the state type) —
-  so Phase F wires only the PM repository side. The repository installs
+  so Phase F wires only the repository side — PM and, per the 2026-07-16
+  decision, Projection (opt-in, off by default). The repository installs
   a loader delegating to the fail-fast `stateHistory()` accessor in
   `create(id)`; a bare instance outside a repository reads empty.
   **Both loaders are lazy (product owner, 2026-07-11, ultra review

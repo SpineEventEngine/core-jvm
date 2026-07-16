@@ -568,6 +568,18 @@ Locked decisions (product owner, 2026-07-10):
   bare instances outside a repository keep the entity-layer "no loader →
   empty history" behavior that tests rely on).
 
+Locked decisions (product owner, 2026-07-16):
+
+- **The PM journal is confirmed wanted.** Reaffirmed after the
+  `SignalDispatchingRepository` extraction: the journal is a Process
+  Manager feature (items 1, 2, 5) and proceeds regardless of how far the
+  aggregate/PM repository unification goes.
+- **Projections gain state-history querying** — an optional feature,
+  turned off by default, with the same opt-in posture as the PM state
+  history. This narrows the item 6 non-goal to the event journal only:
+  projections still journal no events (they emit none), but their *states*
+  may be recorded and queried through the Phase E machinery. See item 7.
+
 1. Event journaling (needs Phase D only). When enabled,
    `ProcessManagerRepository` creates an `EntityEventStorage`
    (`StorageFactory.createEntityEventStorage`) and writes emitted events on
@@ -616,11 +628,25 @@ Locked decisions (product owner, 2026-07-10):
 6. Non-goals (2026-07-10): emitted *commands* are not journaled — the
    journal is an event history; command traceability stays with the system
    context's command lifecycle events. No `IdempotencyGuard` for PMs —
-   delivery owns dedup (A5/D5). `Projection`s are out of scope (they emit
-   no events of their own).
+   delivery owns dedup (A5/D5). `Projection`s are out of scope *for the
+   journal* (they emit no events of their own); their *state history* is in
+   scope since the 2026-07-16 decision — see item 7.
+7. State history for Projections (2026-07-16 decision; needs Phase E).
+   Same shape and config surface as item 3: opt-in per repository, **off by
+   default**, enable/disable only, no depth knob, retention is the
+   application's duty via `truncate`/`trim`. The wiring mirrors the PM side
+   with no new contracts: `Projection` is a `TransactionalEntity`, so the
+   `StateHistoryLoader` seam applies as-is, and `ProjectionTransaction`
+   already advances the version `sequentially` per applied event — the
+   temporal axis of item 4 holds for projections too; verify, don't build.
+   The write hook is the per-dispatch `Repository.afterStore()` callback
+   (the generalization of the item 3 placement, extracted during the
+   inbox/cache pull-up). Reads mirror item 3: `stateAt(Timestamp)` /
+   `stateHistoryBackward(depth)` on `Projection`.
 
 Delivery: two PRs — (a) journal + business API (items 1, 2, 5), which may
-land while Phase E is still in flight; (b) state history (items 3, 4) after
+land while Phase E is still in flight; (b) state history (items 3, 4, and
+7 — the projection half may ride along or follow as its own PR) after
 Phase E merges. New tests in Kotlin per the per-phase rules; journal tests
 must emit events via a producer-bound `TestEventFactory` — the storage
 revalidates events on `clearEnrichments()` (see the implementation notes in
