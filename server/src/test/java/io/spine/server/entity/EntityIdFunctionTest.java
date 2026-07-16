@@ -28,7 +28,6 @@ package io.spine.server.entity;
 
 import com.google.protobuf.StringValue;
 import io.spine.client.EntityId;
-import io.spine.server.entity.RecordBasedRepository.EntityIdFunction;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
