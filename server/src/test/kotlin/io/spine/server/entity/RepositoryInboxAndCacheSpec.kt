@@ -52,7 +52,7 @@ import org.junit.jupiter.api.Test
  * gets one just when it [configures][Repository.setupInbox] at least one endpoint.
  */
 @DisplayName("`Repository`, as the owner of the `Inbox` and the cache, should")
-internal class RepositorySpec {
+internal class RepositoryInboxAndCacheSpec {
 
     private val context = BoundedContextBuilder.assumingTests().build()
 
