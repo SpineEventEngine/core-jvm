@@ -297,6 +297,14 @@ The owner retired the querying gate; `AggregateStorage` dissolved into
   reconstruction path, the converter's, identical to Process Managers; the
   `AggregateTransaction` detour and both `AggregateTest` restore tests are
   gone.
+- **Follow-on (owner, same day): `createNew()` merged into `create()`.** The
+  split existed only because `create(id)` sat on the event-sourced load path,
+  where posting `EntityCreated` per load would be wrong; with loading on the
+  converter path, `create(id)` runs only for genuinely new instances — so it
+  posts the lifecycle event itself, exactly like `ProcessManagerRepository`.
+  The `doLoadOrCreate` override died with it: the inherited
+  `find(id).orElseGet(create)` is identical, since the aggregate's `find` is
+  its `load`.
 
 Follow-up candidates surfaced by review, deliberately not taken here:
 `BoundedContextBuilder.addCommandDispatcher` `@apiNote` still advertises

@@ -189,10 +189,18 @@ public abstract class AggregateRepository<I,
         // Do nothing.
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Also posts the {@linkplain io.spine.system.server.event.EntityCreated
+     * entity-created} system event, and installs the history loaders and, when enabled,
+     * the idempotency guard on the created aggregate.
+     */
     @Override
     @OverridingMethodsMustInvokeSuper
     public A create(I id) {
         var aggregate = super.create(id);
+        lifecycleOf(id).onEntityCreated(AGGREGATE);
         setUpHistoryReading(aggregate, id);
         return aggregate;
     }
@@ -619,27 +627,6 @@ public abstract class AggregateRepository<I,
      */
     final A loadOrCreate(I id) {
         return cache().load(id);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>Creating an aggregate here also posts the
-     * {@linkplain io.spine.system.server.event.EntityCreated entity-created} event —
-     * this is the "loads or creates differently" case the base method describes.
-     */
-    @Override
-    @Internal
-    protected A doLoadOrCreate(I id) {
-        var result = load(id).orElseGet(() -> createNew(id));
-        return result;
-    }
-
-    /** Creates a new entity with the passed ID. */
-    private A createNew(I id) {
-        var created = create(id);
-        lifecycleOf(id).onEntityCreated(AGGREGATE);
-        return created;
     }
 
     /**
