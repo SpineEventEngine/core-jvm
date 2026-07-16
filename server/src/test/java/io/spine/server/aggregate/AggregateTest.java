@@ -473,7 +473,7 @@ public class AggregateTest {
     // covered by `AggregateRepositoryTest` ("restoring the stored state"). The former tolerance
     // of a pre-cutover stateless record (a `NONE`-visibility aggregate persisting only its ID,
     // version, and lifecycle flags) is retired with the method: such records are a documented
-    // hard break (see the de-event-sourcing plan, "Data assumptions"), and loading one now
+    // hard break (see `docs/migration/aggregates-without-event-sourcing.md`, §8), and loading one
     // fails loudly instead of silently resurrecting the aggregate with its default state.
 
     @Test

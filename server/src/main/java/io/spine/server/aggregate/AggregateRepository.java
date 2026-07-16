@@ -355,7 +355,7 @@ public abstract class AggregateRepository<I,
     /**
      * Obtains a set of event classes on which the aggregates of this repository react.
      *
-     * @return a set of event classes or an empty set if the aggregates do not react on events
+     * @return a set of event classes or an empty set if the aggregates do not react to events
      */
     @Override
     public ImmutableSet<EventClass> messageClasses() {
@@ -366,7 +366,7 @@ public abstract class AggregateRepository<I,
      * Obtains classes of domestic events on which the aggregates of this repository react.
      *
      * @return a set of event classes or an empty set if the aggregates do not react
-     *         on domestic events
+     *         to domestic events
      */
     @Override
     public ImmutableSet<EventClass> domesticEventClasses() {
@@ -377,7 +377,7 @@ public abstract class AggregateRepository<I,
      * Obtains classes of external events on which the aggregates of this repository react.
      *
      * @return a set of event classes or an empty set if the aggregates do not react
-     *         on external events
+     *         to external events
      */
     @Override
     public ImmutableSet<EventClass> externalEventClasses() {

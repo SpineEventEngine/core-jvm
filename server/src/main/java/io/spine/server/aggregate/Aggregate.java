@@ -322,9 +322,8 @@ public abstract class Aggregate<I,
      * its version and lifecycle flags.
      *
      * <p>Since the event-sourcing cutover, the persisted {@link EntityRecord} is the source
-     * of truth for loading an aggregate, so the business
-     * {@linkplain #state() state} is <em>always</em> packed into the record — unconditionally
-     * of the aggregate's visibility.
+     * of truth for loading an aggregate, so the business {@linkplain #state() state}
+     * is <em>always</em> packed into the record, regardless of the aggregate's visibility.
      *
      * @return a new record with the data of this aggregate
      */

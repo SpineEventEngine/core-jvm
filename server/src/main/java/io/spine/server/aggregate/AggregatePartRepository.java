@@ -33,7 +33,6 @@ import io.spine.base.AggregateState;
 import io.spine.server.BoundedContext;
 import io.spine.server.aggregate.model.AggregatePartClass;
 import io.spine.server.entity.EntityFactory;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import java.lang.reflect.Constructor;
 
@@ -60,8 +59,8 @@ public abstract class AggregatePartRepository<I,
                                               R extends AggregateRoot<I>>
                       extends AggregateRepository<I, A, S> {
 
-    /** The factory of aggregate parts; created lazily on the first access. */
-    private @MonotonicNonNull EntityFactory<A> partFactory;
+    /** The factory of aggregate parts. */
+    private final EntityFactory<A> partFactory = new PartByIdFactory();
 
     /**
      * Creates a new instance.
@@ -94,9 +93,6 @@ public abstract class AggregatePartRepository<I,
      */
     @Override
     protected EntityFactory<A> entityFactory() {
-        if (partFactory == null) {
-            partFactory = new PartByIdFactory();
-        }
         return partFactory;
     }
 

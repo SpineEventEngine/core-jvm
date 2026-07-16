@@ -298,17 +298,17 @@ The `Snapshot` and `AggregateHistory` proto messages are **retained** for journa
 compatibility (`AggregateHistory` is superseded by the plain `core.Event` journal — §9).
 Snapshot-index journal trimming (`AggregateStorage.truncateOlderThan`) is **removed**:
 it could only ever trim by snapshot positions, and the current journal contains no
-snapshots. Its replacement is **count/date-based truncation**:
+snapshots. Its replacement is **time-based truncation** on the journal owned by
+the repository:
 
 ```java
-storage.truncate(keepMostRecent);            // keep the N most recent events per aggregate
-storage.truncate(keepMostRecent, olderThan); // drop events older than the time,
-                                             // but never cut into the N most recent
+repository.eventStorage().truncate(olderThan); // drop journal events older than the time
 ```
 
 The journal is append-only on the write path, so production systems run the truncation
-as periodic maintenance. When the opt-in `IdempotencyGuard` is enabled (§5), keep at
-least the repository's `eventHistoryDepth` events, so the deduplication window stays intact.
+as periodic maintenance. When the opt-in `IdempotencyGuard` is enabled (§5), never pick
+a timestamp that could cut into the guard's window of the `eventHistoryDepth` most
+recent events, so the deduplication stays intact.
 
 ## 8. Data caveat — `NONE`-visibility aggregates are a hard break
 
@@ -355,8 +355,8 @@ compatibility). The storage-level classes — `AggregateEventStorage`,
 `AggregateEventRecordColumn`, `StorageFactory.createAggregateEventStorage` — and the
 snapshot-index `AggregateStorage.truncateOlderThan` trimming are **removed**: org-wide
 usage research found no production callers, and the trimming could only operate on
-pre-cutover journals. The current journal is trimmed by the count/date-based
-`truncate(keepMostRecent[, olderThan])` instead (§7).
+pre-cutover journals. The current journal is trimmed by the time-based
+`truncate(olderThan)` instead (§7).
 
 **Data caveat — pre-upgrade journals become invisible to reads.** Read this before
 upgrading a running system. The journal now stores plain `Event`s — a **record kind
@@ -382,8 +382,8 @@ The legacy records stay on disk as inert data; the current runtime does not read
   `AggregateClass.importableEvents()` / `importsEvents()`, `BlackBox.importsEvent` (§3)
 - `AggregateEventStorage`, `AggregateEventRecordColumn`,
   `StorageFactory.createAggregateEventStorage` → the entity-level journal types (§9)
-- `AggregateStorage.truncateOlderThan(int)` / `(int, Timestamp)` → the count/date-based
-  `EntityEventStorage.truncate(int)` / `(int, Timestamp)`, reached via
+- `AggregateStorage.truncateOlderThan(int)` / `(int, Timestamp)` → the time-based
+  `EntityEventStorage.truncate(Timestamp)`, reached via
   `AggregateRepository.eventStorage()` (§7, §9)
 - `AggregateStorage` itself, `StorageFactory.createAggregateStorage`, and the
   `AggregateStorageTest` fixture suite → the latest state is served by a plain
