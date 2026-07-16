@@ -129,7 +129,7 @@ internal class RepositoryInboxAndCacheSpec {
  * This is the shape of every plain record-based repository.
  */
 private open class NoEndpointsRepository
-    : DefaultRecordBasedRepository<ProjectId, ProjectEntity, Project>() {
+    : AbstractEntityRepository<ProjectId, ProjectEntity, Project>() {
 
     /** Exposes the `protected` accessor to this test. */
     fun exposedInbox(): Inbox<ProjectId> = inbox()

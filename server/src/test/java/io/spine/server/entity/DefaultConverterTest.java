@@ -113,6 +113,6 @@ class DefaultConverterTest {
      * A test repository.
      */
     private static class TestRepository
-            extends DefaultRecordBasedRepository<OrganizationId, TestEntity, Organization> {
+            extends AbstractEntityRepository<OrganizationId, TestEntity, Organization> {
     }
 }

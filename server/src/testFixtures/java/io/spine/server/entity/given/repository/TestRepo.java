@@ -26,13 +26,13 @@
 
 package io.spine.server.entity.given.repository;
 
-import io.spine.server.entity.DefaultRecordBasedRepository;
+import io.spine.server.entity.AbstractEntityRepository;
 import io.spine.test.entity.Project;
 import io.spine.test.entity.ProjectId;
 
 import java.util.Optional;
 
-public class TestRepo extends DefaultRecordBasedRepository<ProjectId, ProjectEntity, Project> {
+public class TestRepo extends AbstractEntityRepository<ProjectId, ProjectEntity, Project> {
 
     /**
      * The ID value to simulate failure to load an entity.

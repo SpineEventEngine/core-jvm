@@ -55,7 +55,7 @@ import static io.spine.util.Suppliers2.memoize;
 public abstract class EventDispatchingRepository<I,
                                                  E extends AbstractEntity<I, S>,
                                                  S extends EntityState<I>>
-        extends DefaultRecordBasedRepository<I, E, S>
+        extends AbstractEntityRepository<I, E, S>
         implements EventDispatcher {
 
     private final Supplier<EventRouting<I>> eventRouting;

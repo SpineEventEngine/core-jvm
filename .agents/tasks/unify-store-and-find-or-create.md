@@ -121,7 +121,7 @@ protected final void doStore(E entity) {
 ```
 
 `super.findOrCreate(id)` and `super.store(entity)` resolve through
-`DefaultRecordBasedRepository` to `RecordBasedRepository` — the same targets they hit
+`AbstractEntityRepository` to `RecordBasedRepository` — the same targets they hit
 from the subclasses today, so behavior is unchanged.
 
 (As landed, `findOrCreate` and `store` route through the cache unconditionally — see
