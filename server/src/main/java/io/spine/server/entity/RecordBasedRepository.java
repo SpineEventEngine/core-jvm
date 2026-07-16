@@ -81,7 +81,6 @@ import static java.util.Objects.requireNonNull;
  * @param <S>
  *         the type of entity state messages
  */
-@SuppressWarnings("ClassWithTooManyMethods")    /* OK for this abstract type. */
 public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends EntityState<I>>
         extends Repository<I, E> implements QueryableRepository<I, S> {
 
@@ -499,49 +498,5 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
                            "supported for transactional entity types.",
                    entityClass().getCanonicalName()
         );
-    }
-
-    /**
-     * Transforms an instance of {@link EntityId} into an identifier
-     * of the required type.
-     *
-     * @param <I>
-     *         the target type of identifiers
-     */
-    @VisibleForTesting
-    static class EntityIdFunction<I> implements Function<EntityId, I> {
-
-        private final Class<I> expectedIdClass;
-
-        EntityIdFunction(Class<I> expectedIdClass) {
-            this.expectedIdClass = expectedIdClass;
-        }
-
-        @Override
-        public @Nullable I apply(EntityId input) {
-            checkNotNull(input);
-            var idAsAny = input.getId();
-
-            var typeUrl = TypeUrl.ofEnclosed(idAsAny);
-            var messageClass = typeUrl.toJavaClass();
-            checkIdClass(messageClass);
-
-            var idAsMessage = unpack(idAsAny);
-
-            @SuppressWarnings("unchecked")
-            // As the message class is the same as expected, the conversion is safe.
-            var id = (I) idAsMessage;
-            return id;
-        }
-
-        private void checkIdClass(Class<?> messageClass) {
-            var classIsSame = expectedIdClass.equals(messageClass);
-            if (!classIsSame) {
-                throw newIllegalStateException(
-                        "Unexpected ID class encountered: `%s`. Expected: `%s`.",
-                        messageClass.getCanonicalName(), expectedIdClass.getCanonicalName()
-                );
-            }
-        }
     }
 }
