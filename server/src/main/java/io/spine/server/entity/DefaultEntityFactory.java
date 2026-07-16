@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ import io.spine.server.entity.model.AbstractEntityFactory;
 import io.spine.server.model.ModelError;
 import org.jspecify.annotations.Nullable;
 
-import java.io.Serial;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
@@ -48,9 +47,6 @@ import static com.google.common.base.Preconditions.checkState;
  *         the type of produced entities
  */
 public final class DefaultEntityFactory<E extends Entity<?, ?>> extends AbstractEntityFactory<E> {
-
-    @Serial
-    private static final long serialVersionUID = 0L;
 
     /**
      * The method that the factory would use for setting an entity ID, if the entity class

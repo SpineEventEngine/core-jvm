@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,8 +34,6 @@ import io.spine.base.Identifier;
 import io.spine.type.TypeUrl;
 import org.jspecify.annotations.Nullable;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -54,10 +52,8 @@ import static io.spine.protobuf.AnyPacker.unpack;
  *         the type of the entity state
  */
 public abstract class StorageConverter<I, E extends Entity<I, S>, S extends EntityState<I>>
-        extends Converter<E, EntityRecord> implements Serializable {
+        extends Converter<E, EntityRecord> {
 
-    @Serial
-    private static final long serialVersionUID = 0L;
     private final TypeUrl entityStateType;
     private final EntityFactory<E> entityFactory;
     private final FieldMask fieldMask;
@@ -136,9 +132,8 @@ public abstract class StorageConverter<I, E extends Entity<I, S>, S extends Enti
         return builder;
     }
 
-    @SuppressWarnings("unchecked" /* The cast is safe since the <I> and <S> types are bound with
-            the type <E>, and forward conversion is performed on the entity of type <E>. */)
     @Override
+    @SuppressWarnings({"unchecked", "ConstantValue"})
     protected E doBackward(EntityRecord entityRecord) {
         var unpacked = (S) unpack(entityRecord.getState());
         var state = FieldMasks.applyMask(fieldMask(), unpacked);
@@ -182,15 +177,11 @@ public abstract class StorageConverter<I, E extends Entity<I, S>, S extends Enti
 
     @Override
     public boolean equals(@Nullable Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!(obj instanceof StorageConverter)) {
-            return false;
-        }
-        var other = (StorageConverter<?, ?, ?>) obj;
-        return Objects.equals(this.entityStateType, other.entityStateType)
-                && Objects.equals(this.entityFactory, other.entityFactory)
-                && Objects.equals(this.fieldMask, other.fieldMask);
+        return (this == obj)
+                ||
+                (obj instanceof StorageConverter<?, ?, ?> other)
+                        && Objects.equals(this.entityStateType, other.entityStateType)
+                        && Objects.equals(this.entityFactory, other.entityFactory)
+                        && Objects.equals(this.fieldMask, other.fieldMask);
     }
 }

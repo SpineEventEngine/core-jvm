@@ -122,13 +122,8 @@ public abstract class AggregatePartRepository<I,
      * <p>Creates the {@linkplain AggregateRoot root} for the passed identifier, and then
      * the part served by that root. The {@linkplain #constructor() constructor} is that
      * of the part class, taking the root.
-     *
-     * <p>Captures the enclosing repository and is therefore not practically serializable;
-     * the framework never serializes the storage converters holding entity factories.
      */
     private final class PartByIdFactory implements EntityFactory<A> {
-
-        private static final long serialVersionUID = 0L;
 
         @Override
         public A create(Object constructionArgument) {

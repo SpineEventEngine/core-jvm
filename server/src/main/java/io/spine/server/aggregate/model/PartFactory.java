@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ import io.spine.server.aggregate.AggregateRoot;
 import io.spine.server.entity.model.AbstractEntityFactory;
 import io.spine.server.model.ModelError;
 
-import java.io.Serial;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
@@ -51,9 +50,6 @@ import static java.lang.String.format;
  */
 @Deprecated
 final class PartFactory<A extends AggregatePart<?, ?, ?, ?>> extends AbstractEntityFactory<A> {
-
-    @Serial
-    private static final long serialVersionUID = 0L;
 
     private final Class<? extends AggregateRoot<?>> rootClass;
 
