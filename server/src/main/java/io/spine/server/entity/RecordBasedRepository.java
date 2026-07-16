@@ -40,7 +40,6 @@ import io.spine.client.TargetFilters;
 import io.spine.client.Targets;
 import io.spine.core.Signal;
 import io.spine.query.EntityQuery;
-import io.spine.server.Iterators2;
 import io.spine.server.entity.storage.EntityRecordStorage;
 import io.spine.server.entity.storage.ToEntityRecordQuery;
 import io.spine.server.storage.QueryConverter;
@@ -64,6 +63,7 @@ import static com.google.common.collect.Lists.newLinkedList;
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.util.Exceptions.newIllegalArgumentException;
 import static io.spine.util.Exceptions.newIllegalStateException;
+import static io.spine.util.Iterators2.filter;
 import static io.spine.validation.Validate.check;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
@@ -130,7 +130,7 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
     @Override
     public Iterator<E> iterator(Predicate<E> filter) {
         var allEntities = loadAll(ResponseFormat.getDefaultInstance());
-        return Iterators2.filter(allEntities, filter);
+        return filter(allEntities, filter);
     }
 
     /**

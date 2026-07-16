@@ -46,7 +46,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import java.util.function.Supplier;
 
 import static io.spine.protobuf.AnyPacker.pack;
-import static io.spine.server.Suppliers2.memoize;
+import static io.spine.util.Suppliers2.memoize;
 
 /**
  * The abstract base for non-aggregate classes that dispatch commands to their methods
@@ -61,10 +61,13 @@ public abstract class AbstractCommandDispatcher implements CommandDispatcher, Co
     private @MonotonicNonNull SystemWriteSide system;
 
     /** Supplier for a packed version of the dispatcher ID. */
-    private final Supplier<Any> producerId =
-            memoize(() -> pack(TypeConverter.toMessage(id())));
-    private final Supplier<MessageId> eventAnchor =
-            memoize(() -> Identity.ofProducer(producerId()));
+    private final Supplier<Any> producerId;
+    private final Supplier<MessageId> eventAnchor;
+
+    {
+        producerId = memoize(() -> pack(TypeConverter.toMessage(id())));
+        eventAnchor = memoize(() -> Identity.ofProducer(producerId()));
+    }
 
     @Override
     public void registerWith(BoundedContext context) {

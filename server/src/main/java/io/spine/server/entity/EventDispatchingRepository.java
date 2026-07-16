@@ -40,7 +40,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static io.spine.server.Suppliers2.memoize;
+import static io.spine.util.Suppliers2.memoize;
 
 /**
  * Abstract base for repositories that deliver events to entities they manage.
@@ -63,8 +63,7 @@ public abstract class EventDispatchingRepository<I,
     protected EventDispatchingRepository() {
         super();
         this.eventRouting = memoize(
-                () -> EventRouting.withDefaultByProducerIdOrFirstField(idClass())
-        );
+                () -> EventRouting.withDefaultByProducerIdOrFirstField(idClass()));
     }
 
     /**

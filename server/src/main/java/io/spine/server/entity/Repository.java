@@ -37,7 +37,6 @@ import io.spine.reflect.GenericTypeIndex;
 import io.spine.server.BoundedContext;
 import io.spine.server.Closeable;
 import io.spine.server.ContextAware;
-import io.spine.server.Iterators2;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.delivery.BatchDeliveryListener;
 import io.spine.server.delivery.Inbox;
@@ -64,6 +63,7 @@ import static com.google.common.collect.Iterables.getFirst;
 import static io.spine.base.Errors.fromThrowable;
 import static io.spine.server.entity.model.EntityClass.asEntityClass;
 import static io.spine.util.Exceptions.newIllegalStateException;
+import static io.spine.util.Iterators2.filter;
 
 /**
  * Abstract base class for repositories.
@@ -153,7 +153,7 @@ public abstract class Repository<I, E extends Entity<I, ?>>
      */
     public Iterator<E> iterator(Predicate<E> filter) {
         Iterator<E> unfiltered = new EntityIterator<>(this);
-        return Iterators2.filter(unfiltered, filter);
+        return filter(unfiltered, filter);
     }
 
     /**

@@ -39,9 +39,9 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static io.spine.server.Suppliers2.memoize;
 import static io.spine.server.dispatch.DispatchOutcomes.maybeSentToInbox;
 import static io.spine.server.tenant.TenantAwareRunner.with;
+import static io.spine.util.Suppliers2.memoize;
 
 /**
  * Abstract base for repositories that dispatch signals — both events and commands —

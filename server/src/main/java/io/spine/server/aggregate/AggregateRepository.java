@@ -69,7 +69,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterators.transform;
 import static io.spine.option.EntityOption.Kind.AGGREGATE;
-import static io.spine.server.Suppliers2.memoize;
 import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
 import static io.spine.server.delivery.InboxLabel.HANDLE_COMMAND;
 import static io.spine.server.delivery.InboxLabel.REACT_UPON_EVENT;
@@ -77,6 +76,7 @@ import static io.spine.server.dispatch.DispatchOutcomes.maybeSentToInbox;
 import static io.spine.server.dispatch.DispatchOutcomes.sentToInbox;
 import static io.spine.server.tenant.TenantAwareRunner.with;
 import static io.spine.util.Exceptions.newIllegalStateException;
+import static io.spine.util.Suppliers2.memoize;
 
 /**
  * The repository that manages instances of {@code Aggregate}s.
@@ -167,8 +167,7 @@ public abstract class AggregateRepository<I,
         super();
         this.commandRouting = memoize(() -> CommandRouting.newInstance(idClass()));
         this.eventRouting = memoize(
-                () -> EventRouting.withDefaultByProducerIdOrFirstField(idClass())
-        );
+                () -> EventRouting.withDefaultByProducerIdOrFirstField(idClass()));
     }
 
     /**

@@ -53,8 +53,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import java.util.function.Supplier;
 
-import static io.spine.server.Suppliers2.memoize;
 import static io.spine.server.dispatch.DispatchOutcomes.ignored;
+import static io.spine.util.Suppliers2.memoize;
 import static java.lang.String.format;
 
 /**
@@ -73,8 +73,8 @@ import static java.lang.String.format;
 public abstract class AbstractEventReactor
         implements EventReactor, EventDispatcher, ContextAware, WithLogging {
 
-    private final EventReactorClass<?> thisClass = EventReactorClass.asReactorClass(getClass());
-    private final Supplier<MessageId> eventAnchor = memoize(() -> Identity.ofSingleton(getClass()));
+    private final EventReactorClass<?> thisClass;
+    private final Supplier<MessageId> eventAnchor;
     @LazyInit
     private SystemWriteSide system = NoOpSystemWriteSide.INSTANCE;
 
@@ -82,8 +82,14 @@ public abstract class AbstractEventReactor
     @LazyInit
     private @MonotonicNonNull EventBus eventBus;
 
-    private final Supplier<Any> producerId =
-            memoize(() -> TypeConverter.toAny(getClass().getName()));
+    private final Supplier<Any> producerId;
+
+    protected AbstractEventReactor() {
+        var cls = getClass();
+        this.thisClass = EventReactorClass.asReactorClass(cls);
+        this.eventAnchor = memoize(() -> Identity.ofSingleton(cls));
+        this.producerId = memoize(() -> TypeConverter.toAny(cls.getName()));
+    }
 
     @Override
     public void registerWith(BoundedContext context) {

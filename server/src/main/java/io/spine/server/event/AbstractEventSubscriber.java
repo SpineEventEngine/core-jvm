@@ -50,9 +50,9 @@ import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.server.Ignored.ignored;
-import static io.spine.server.Suppliers2.memoize;
 import static io.spine.server.event.model.EventSubscriberClass.asEventSubscriberClass;
 import static io.spine.server.tenant.TenantAwareRunner.with;
+import static io.spine.util.Suppliers2.memoize;
 import static java.lang.String.format;
 
 /**
@@ -69,7 +69,8 @@ public abstract class AbstractEventSubscriber
 
     /** Model class for this subscriber. */
     private final EventSubscriberClass<?> thisClass = asEventSubscriberClass(getClass());
-    private final Supplier<MessageId> eventAnchor = memoize(() -> Identity.ofSingleton(getClass()));
+    private final Supplier<MessageId> eventAnchor = memoize(
+            () -> Identity.ofSingleton(getClass()));
     @LazyInit
     private SystemWriteSide system = NoOpSystemWriteSide.INSTANCE;
     @LazyInit
