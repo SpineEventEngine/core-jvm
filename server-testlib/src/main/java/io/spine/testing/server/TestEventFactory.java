@@ -55,8 +55,8 @@ public class TestEventFactory extends EventFactory {
     }
 
     private static Any toAny(Message producerId) {
-        return producerId instanceof Any
-               ? (Any) producerId
+        return producerId instanceof Any any
+               ? any
                : Identifier.pack(producerId);
     }
 
