@@ -122,7 +122,6 @@ public class EntityVisibility private constructor(
 
     override fun toString(): String = value.name
 
-    @Suppress("UnstableApiUsage") // `ImmutableGraph` is in `@Beta`.
     public companion object {
 
         @Serial
