@@ -136,15 +136,6 @@ public abstract class Repository<I, E extends Entity<I, ?>>
     public abstract E create(I id);
 
     /**
-     * Stores the given entity.
-     *
-     * <p>Note: The storage must be assigned before calling this method.
-     *
-     * @param entity the entity to store
-     */
-    protected abstract void store(E entity);
-
-    /**
      * Finds an entity with the passed ID.
      *
      * @param id the ID of the entity to load
@@ -461,19 +452,36 @@ public abstract class Repository<I, E extends Entity<I, ?>>
     }
 
     /**
+     * Loads the entity with the passed ID through the {@linkplain #cache() cache}, creating
+     * a new one if there is no such entity.
+     *
+     * <p>The direct load-or-create, bypassing the cache, is {@link #doLoadOrCreate(Object)}.
+     *
+     * @param id
+     *         the ID of the entity to load
+     * @return the loaded or created entity
+     * @implSpec Not {@code final} only so that a repository in another package can re-declare
+     *         it to expose it to that package. Such an override does nothing but call
+     *         {@code super}.
+     */
+    @Internal
+    protected E findOrCreate(I id) {
+        return cache().load(id);
+    }
+
+    /**
      * Loads the entity with the passed ID, creating a new one if there is no such entity,
      * bypassing the {@linkplain #cache() cache}.
      *
-     * <p>Serves as the loading function of the cache.
+     * <p>Serves as the loading function of the cache, invoked on a cache miss.
      *
      * @param id
      *         the ID of the entity to load
      * @return the loaded or created entity
      * @implSpec Loads via {@link #find(Object) find()}, falling back to
-     *         {@link #create(Object) create()}. A repository that loads or creates an entity
-     *         differently — e.g., posting an entity-created event — should override
-     *         this method. {@link EventDispatchingRepository} declares it {@code final},
-     *         so its descendants customize {@link #create(Object) create()} instead.
+     *         {@link #create(Object) create()}. A repository whose load or create differs —
+     *         e.g., one that restores from a state record, or posts an entity-created event —
+     *         overrides this method.
      */
     @Internal
     protected E doLoadOrCreate(I id) {
@@ -481,28 +489,56 @@ public abstract class Repository<I, E extends Entity<I, ?>>
     }
 
     /**
-     * Stores the passed entity bypassing the {@linkplain #cache() cache}.
+     * Stores the given entity through the {@linkplain #cache() cache}.
      *
-     * <p>Serves as the storing function of the cache.
+     * <p>Under a batched delivery the cache defers the write to the storage to the end of
+     * the batch; the direct write is {@link #doStore(Entity) doStore()}. In contrast,
+     * {@link #afterStore(Entity)} runs on every call to this method.
      *
      * @param entity
      *         the entity to store
-     * @implSpec Delegates to {@link #store(Entity) store()}, which is the direct write for
-     *         a repository that does not route {@code store()} through the cache.
-     *         <b>A repository that does route {@code store()} through the cache must
-     *         override this method</b> to perform the write itself — otherwise the two
-     *         methods call each other in a loop.
+     */
+    public final void store(E entity) {
+        cache().store(entity);
+        afterStore(entity);
+    }
+
+    /**
+     * Writes the given entity to the storage, bypassing the {@linkplain #cache() cache}.
+     *
+     * <p>Serves as the storing function of the cache, invoked when the cache flushes —
+     * under a batched delivery, at the end of the batch.
+     *
+     * @param entity
+     *         the entity to write
      */
     @Internal
-    protected void doStore(E entity) {
-        store(entity);
+    protected abstract void doStore(E entity);
+
+    /**
+     * A callback invoked once per {@link #store(Entity) store()} call, after the entity
+     * is handed to the cache.
+     *
+     * <p>Unlike {@link #doStore(Entity) doStore()}, which the cache may defer to the end of
+     * a delivery batch, this runs on every dispatch. A repository that records something per
+     * dispatch — such as a state history — hooks in here rather than in {@code doStore()}.
+     *
+     * <p>Does nothing by default.
+     *
+     * @param entity
+     *         the stored entity
+     */
+    @SuppressWarnings("NoopMethodInAbstractClass") // See Javadoc.
+    @Internal
+    protected void afterStore(E entity) {
+        // Do nothing by default.
     }
 
     /**
      * Creates the {@code Inbox} of this repository, unless {@link #setupInbox(Inbox.Builder)}
      * adds no endpoint.
      *
-     * <p>Called after {@link #initCache()}, because the built inbox is registered with the
+     * <p>Called after {@link #initCache()}, because the created inbox is registered with the
      * {@code Delivery} of the current {@code ServerEnvironment} straight away, and the
      * caching listener it carries reaches for the cache.
      */

@@ -121,7 +121,7 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
     }
 
     @Override
-    public void store(E entity) {
+    protected void doStore(E entity) {
         var record = toRecord(entity);
         var storage = recordStorage();
         storage.write(record);
@@ -280,24 +280,6 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
         }
         var record = found.get();
         return Optional.of(record);
-    }
-
-    /**
-     * Loads an entity by the passed ID or creates a new one, if the entity was not found.
-     *
-     * <p>An entity will be loaded whether its {@linkplain WithLifecycle#isActive() active} or not.
-     *
-     * <p>The new entity is created if and only if there is no record with the corresponding ID.
-     *
-     * @param id
-     *         the ID of the entity to load
-     * @return the entity with the specified ID
-     */
-    protected E findOrCreate(I id) {
-        var record = findRecord(id);
-        var result = record.map(this::toEntity)
-                           .orElseGet(() -> create(id));
-        return result;
     }
 
     @VisibleForTesting

@@ -313,17 +313,16 @@ public abstract class AggregateRepository<I,
     }
 
     /**
-     * Stores the passed aggregate and commits its uncommitted events.
+     * {@inheritDoc}
      *
      * <p>When the state history is {@linkplain #recordStateHistory() recorded}, appends
-     * the current state record on each call — that is, once per successful dispatch.
-     * The append operation happens here and not in {@link #doStore}, because under
-     * a batched delivery the cache defers {@code doStore()} to the end of the batch —
-     * the history still captures every intermediate version of the batch.
+     * the current state record on each call — that is, once per successful dispatch. The
+     * append happens here and not in {@link #doStore}, because under a batched delivery the
+     * cache defers {@code doStore()} to the end of the batch — the history still captures
+     * every intermediate version of the batch.
      */
     @Override
-    protected final void store(A aggregate) {
-        cache().store(aggregate);
+    protected void afterStore(A aggregate) {
         if (stateHistoryEnabled) {
             appendStateHistory(aggregate);
         }
@@ -333,7 +332,8 @@ public abstract class AggregateRepository<I,
      * {@inheritDoc}
      *
      * <p>Journals the events the aggregate emitted, then writes its latest state — rather
-     * than delegating to {@link #store(Aggregate) store()}, which routes through the cache.
+     * than delegating to {@link #store(io.spine.server.entity.Entity) store()}, which routes
+     * through the cache.
      *
      * @implSpec Skips an aggregate that was neither changed nor produced events. An
      *         overriding repository is expected to call {@code super}: writing an untouched
@@ -363,7 +363,8 @@ public abstract class AggregateRepository<I,
      *
      * <p>Obtains the storage directly, bypassing the fail-fast {@link #stateHistory()}
      * accessor: the decision to record is made by the single flag check in
-     * {@link #store(Aggregate)}, so a concurrent {@link #stopRecordingStateHistory()}
+     * {@link #store(io.spine.server.entity.Entity) store()}, so a concurrent
+     * {@link #stopRecordingStateHistory()}
      * cannot fail a dispatch which has already persisted its state.
      *
      * <p>A failure to record the history fails the dispatch. Under a batched delivery,

@@ -58,7 +58,7 @@ public abstract class TransactionalEntity<I : Any, S : EntityState<I>, B : Valid
 
     /**
      * The flag that becomes `true` if the state of the entity has been changed
-     * since it has been [loaded or created][RecordBasedRepository.findOrCreate].
+     * since it has been [loaded or created][Repository.findOrCreate].
      */
     @Volatile
     private var stateChanged: Boolean = false

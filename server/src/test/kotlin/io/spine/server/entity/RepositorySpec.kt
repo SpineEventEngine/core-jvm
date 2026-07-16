@@ -156,8 +156,8 @@ private class WithEndpointRepository : NoEndpointsRepository() {
  *
  * `ProcessManagerRepository` and `ProjectionRepository` — the only two subclasses in the
  * framework — both add endpoints unconditionally, so this stub is the only way to check
- * that [EventDispatchingRepository.store] and [EventDispatchingRepository.findOrCreate]
- * serve an inbox-less repository through its cache.
+ * that [Repository.store] and [Repository.findOrCreate] serve an inbox-less repository
+ * through its cache.
  */
 private class NoInboxDispatchingRepository
     : EventDispatchingRepository<ProjectId, ProjectEntity, Project>() {
