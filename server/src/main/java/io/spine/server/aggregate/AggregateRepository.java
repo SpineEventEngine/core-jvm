@@ -31,10 +31,6 @@ import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import com.google.protobuf.Timestamp;
 import io.spine.annotation.Internal;
 import io.spine.base.AggregateState;
-import io.spine.client.ResponseFormat;
-import io.spine.client.TargetFilters;
-import io.spine.query.EntityQuery;
-import io.spine.server.BoundedContext;
 import io.spine.server.aggregate.model.AggregateClass;
 import io.spine.server.delivery.Inbox;
 import io.spine.server.dispatch.DispatchOutcome;
@@ -59,7 +55,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.Iterators.transform;
 import static io.spine.option.EntityOption.Kind.AGGREGATE;
 import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
 import static io.spine.server.delivery.InboxLabel.HANDLE_COMMAND;
@@ -75,7 +70,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  *
  * <p>Since the event-sourcing cutover, an aggregate is loaded from its latest persisted
  * {@link io.spine.server.entity.EntityRecord EntityRecord} rather than by replaying its event
- * journal. The repository keeps that latest state in an {@link AggregateStorage} and appends
+ * journal. The repository keeps that latest state in its record storage and appends
  * the emitted events to a separate {@linkplain #eventStorage() event journal}
  * (an {@link EntityEventStorage}), kept append-only for traceability and for the opt-in
  * {@link IdempotencyGuard}.
@@ -107,10 +102,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  *         the type of the state of aggregates managed by this repository
  * @see Aggregate
  */
-@SuppressWarnings({
-        "ClassWithTooManyMethods" /* Acknowledged complexity. */,
-        "resource" /* Accessing `Closeable` properties. */
-})
+@SuppressWarnings("resource" /* Accessing `Closeable` properties. */)
 public abstract class AggregateRepository<I,
                                           A extends Aggregate<I, S, ?>,
                                           S extends AggregateState<I>>
@@ -147,22 +139,6 @@ public abstract class AggregateRepository<I,
     /** Creates a new instance. */
     protected AggregateRepository() {
         super();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>Enables the querying of the latest aggregate states if the aggregates of
-     * this repository are visible for querying.
-     *
-     * @param context
-     *         the context of this repository
-     */
-    @Override
-    @OverridingMethodsMustInvokeSuper
-    public void registerWith(BoundedContext context) {
-        super.registerWith(context);
-        configureQuerying();
     }
 
     @Override
@@ -294,7 +270,7 @@ public abstract class AggregateRepository<I,
         var events = aggregate.uncommittedHistory().get();
         var journal = eventStorage();
         events.forEach(journal::write);
-        aggregateStorage().writeState(aggregate);
+        super.doStore(aggregate);
         aggregate.commitEvents();
     }
 
@@ -349,18 +325,6 @@ public abstract class AggregateRepository<I,
                 return stateHistory().stateAt(id, at);
             }
         };
-    }
-
-    /**
-     * Creates aggregate storage for the repository.
-     *
-     * @return new storage
-     */
-    @Override
-    protected AggregateStorage<I, S> createStorage() {
-        var sf = defaultStorageFactory();
-        var result = sf.createAggregateStorage(context().spec(), entityClass());
-        return result;
     }
 
     /**
@@ -544,43 +508,6 @@ public abstract class AggregateRepository<I,
     }
 
     /**
-     * Checks if the aggregate should be mirrored and configures
-     * the underlying storage accordingly.
-     */
-    private void configureQuerying() {
-        if(exposedToQuerying()) {
-            aggregateStorage().enableStateQuerying();
-        }
-    }
-
-    /**
-     * Returns {@code true} if the aggregates of this repository should be available for querying.
-     *
-     * <p>When enabled, the underlying storage persists the latest state of the corresponding
-     * Aggregate instance.
-     *
-     * <p>This feature is enabled for all aggregates visible for querying or subscribing.
-     */
-    private boolean exposedToQuerying() {
-        var result = aggregateClass().visibility()
-                                     .isNotNone();
-        return result;
-    }
-
-    /**
-     * Returns the storage assigned to this aggregate.
-     *
-     * @return storage instance
-     * @throws IllegalStateException
-     *         if the storage is null
-     */
-    protected AggregateStorage<I, S> aggregateStorage() {
-        @SuppressWarnings("unchecked") // We check the type on initialization.
-        var result = (AggregateStorage<I, S>) storage();
-        return result;
-    }
-
-    /**
      * Returns the storage of the recent state history of the aggregates of this repository.
      *
      * <p>The state history is an opt-in feature. Reading it while disabled is
@@ -697,9 +624,9 @@ public abstract class AggregateRepository<I,
     /**
      * {@inheritDoc}
      *
-     * @implSpec Creating an aggregate here also posts the
-     *         {@linkplain io.spine.system.server.event.EntityCreated entity-created} event —
-     *         this is the "loads or creates differently" case the base method describes.
+     * <p>Creating an aggregate here also posts the
+     * {@linkplain io.spine.system.server.event.EntityCreated entity-created} event —
+     * this is the "loads or creates differently" case the base method describes.
      */
     @Override
     @Internal
@@ -720,8 +647,8 @@ public abstract class AggregateRepository<I,
      *
      * <p>Since the event-sourcing cutover, the aggregate is loaded from its latest persisted
      * {@link EntityRecord state record} rather than by replaying its event journal. The record
-     * is read directly from the state storage, bypassing the querying/visibility gate, so even
-     * {@code NONE}-visibility aggregates load correctly.
+     * is read directly from the record storage, regardless of the visibility of
+     * the aggregate, so even {@code NONE}-visibility aggregates load correctly.
      *
      * @param id
      *         the ID of the aggregate
@@ -729,29 +656,8 @@ public abstract class AggregateRepository<I,
      *         with the ID
      */
     private Optional<A> load(I id) {
-        var found = aggregateStorage().read(id);
-        var result = found.map(record -> restore(id, record));
-        return result;
-    }
-
-    /**
-     * Restores an {@link Aggregate} instance with the given ID from its latest persisted state
-     * record.
-     *
-     * <p>The state, version, and lifecycle flags are set directly from the record; no events are
-     * replayed, so there is no corrupted-state outcome to report.
-     *
-     * @param id
-     *         the ID of the {@code Aggregate} to load
-     * @param record
-     *         the latest state record of the {@code Aggregate}
-     * @return an instance of {@link Aggregate}
-     */
-    protected A restore(I id, EntityRecord record) {
-        var result = create(id);
-        AggregateTransaction<I, ?, ?> tx = AggregateTransaction.start(result);
-        result.restore(record);
-        tx.commitIfActive();
+        var found = recordStorage().read(id);
+        var result = found.map(this::toEntity);
         return result;
     }
 
@@ -828,24 +734,5 @@ public abstract class AggregateRepository<I,
         if (stateHistory != null && stateHistory.isOpen()) {
             stateHistory.close();
         }
-    }
-
-    @Override
-    @Internal
-    public Iterator<EntityRecord> findRecords(TargetFilters filters, ResponseFormat format) {
-        return aggregateStorage().readStates(filters, format);
-    }
-
-    @Override
-    public Iterator<S> findStates(EntityQuery<I, S, ?> query) {
-        var rawStates = aggregateStorage().readStates(query);
-        var result = transform(rawStates, this::stateFrom);
-        return result;
-    }
-
-    @Override
-    @Internal
-    public Iterator<EntityRecord> findRecords(ResponseFormat format) {
-        return aggregateStorage().readStates(format);
     }
 }

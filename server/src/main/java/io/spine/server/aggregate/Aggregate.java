@@ -57,7 +57,6 @@ import java.util.function.Predicate;
 
 import static com.google.common.collect.Iterators.any;
 import static io.spine.protobuf.AnyPacker.pack;
-import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.server.Ignored.ignored;
 import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
 
@@ -319,46 +318,13 @@ public abstract class Aggregate<I,
     }
 
     /**
-     * Restores the state, the version, and the lifecycle flags of this aggregate from the
-     * passed record loaded from the state storage.
-     *
-     * <p>Since the event-sourcing cutover, an aggregate loads from its latest persisted
-     * {@link EntityRecord} rather than by replaying its event journal. This method must be
-     * invoked in the scope of an {@linkplain #isTransactionInProgress() active transaction}.
-     *
-     * @param record
-     *         the latest state record of the aggregate
-     */
-    final void restore(EntityRecord record) {
-        var version = record.getVersion();
-        var packedState = record.getState();
-        if (packedState.getTypeUrl().isEmpty()) {
-            // A legacy record. Before the event-sourcing cutover a `NONE`-visibility aggregate
-            // (the default visibility) persisted only its ID, version, and lifecycle flags,
-            // keeping the business state solely in the event journal. That journal is no longer
-            // replayed, so restore the available attributes and leave the state at its default
-            // rather than unpacking an empty `Any` (which would fail).
-            setInitialState(defaultState(), version);
-        } else {
-            @SuppressWarnings("unchecked") /* The cast is safe since the record holds the state of
-                this aggregate, which is bound by the type <S>. */
-            var stateToRestore = (S) unpack(packedState);
-            setInitialState(stateToRestore, version);
-        }
-        var lifecycle = record.getLifecycleFlags();
-        setArchived(lifecycle.getArchived());
-        setDeleted(lifecycle.getDeleted());
-    }
-
-    /**
      * Creates a new record storing the latest state of this aggregate along with
      * its version and lifecycle flags.
      *
      * <p>Since the event-sourcing cutover, the persisted {@link EntityRecord} is the source
-     * of truth for {@linkplain #restore(EntityRecord) loading} an aggregate, so the business
+     * of truth for loading an aggregate, so the business
      * {@linkplain #state() state} is <em>always</em> packed into the record — unconditionally
-     * of the aggregate's visibility. Visibility gates only the read-side query exposure,
-     * not the state write.
+     * of the aggregate's visibility.
      *
      * @return a new record with the data of this aggregate
      */

@@ -467,47 +467,14 @@ public class AggregateTest {
                                .nonEmpty());
     }
 
-    @Test
-    @DisplayName("restore state, version, and lifecycle flags from the latest state record")
-    void restoreStateFromRecord() {
-
-        dispatchCommand(aggregate, command(createProject));
-
-        var record = aggregate().toRecord();
-
-        Aggregate<?, ?, ?> anotherAggregate = newAggregate(aggregate.id());
-
-        AggregateTransaction<?, ?, ?> tx = AggregateTransaction.start(anotherAggregate);
-        anotherAggregate.restore(record);
-        tx.commit();
-
-        assertEquals(aggregate.state(), anotherAggregate.state());
-        assertEquals(aggregate.version(), anotherAggregate.version());
-        assertEquals(aggregate.lifecycleFlags(), anotherAggregate.lifecycleFlags());
-    }
-
-    @Test
-    @DisplayName("restore from a legacy record that has no packed state")
-    void restoreFromStatelessRecord() {
-        dispatchCommand(aggregate, command(createProject));
-
-        // Emulate a pre-cutover `NONE`-visibility record: only the ID, version, and lifecycle
-        // flags were persisted, with the business state left in the (no longer replayed) journal.
-        var statelessRecord = aggregate().toRecord()
-                                         .toBuilder()
-                                         .clearState()
-                                         .build();
-
-        Aggregate<?, ?, ?> restored = newAggregate(aggregate.id());
-        AggregateTransaction<?, ?, ?> tx = AggregateTransaction.start(restored);
-        // Must not throw while unpacking the empty `Any`.
-        restored.restore(statelessRecord);
-        tx.commit();
-
-        // The version is recovered; the business state stays at its default.
-        assertEquals(aggregate.version(), restored.version());
-        assertEquals(AggProject.getDefaultInstance(), restored.state());
-    }
+    // Since the removal of `Aggregate.restore(EntityRecord)` (2026-07-16), an aggregate is
+    // reconstructed from its latest state record by the standard `StorageConverter` path of the
+    // record-based repository — the same way as a Process Manager. The record round-trip is
+    // covered by `AggregateRepositoryTest` ("restoring the stored state"). The former tolerance
+    // of a pre-cutover stateless record (a `NONE`-visibility aggregate persisting only its ID,
+    // version, and lifecycle flags) is retired with the method: such records are a documented
+    // hard break (see the de-event-sourcing plan, "Data assumptions"), and loading one now
+    // fails loudly instead of silently resurrecting the aggregate with its default state.
 
     @Test
     @DisplayName("increment version upon state changing event applied")

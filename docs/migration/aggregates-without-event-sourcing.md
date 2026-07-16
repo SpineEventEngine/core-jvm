@@ -344,10 +344,11 @@ as a follow-up.
 
 The journal stores plain `Event`s; the emitting entity, the event time, and the event
 version are exposed for querying as columns derived from the event context.
-`AggregateStorage` now extends `EntityRecordStorage`, so its `read`/`write` operate on the
-latest state record, while the recent events are read via `readEvents(...)` returning a
-`List<Event>`. Storage vendors implement the same `RecordStorage`-level SPI as before — this
-is a recompile against the new types, not a rewrite.
+The latest aggregate state lives in a plain `EntityRecordStorage` — the same storage type
+serving every record-based repository — while the recent events are read from the journal
+owned by `AggregateRepository` (the former `AggregateStorage` is dissolved; see the quick
+reference below). Storage vendors implement the same `RecordStorage`-level SPI as before —
+this is a recompile against the new types, not a rewrite.
 
 Of the superseded API, only the **proto messages remain** (marked `deprecated`, for wire
 compatibility). The storage-level classes — `AggregateEventStorage`,
@@ -382,7 +383,13 @@ The legacy records stay on disk as inert data; the current runtime does not read
 - `AggregateEventStorage`, `AggregateEventRecordColumn`,
   `StorageFactory.createAggregateEventStorage` → the entity-level journal types (§9)
 - `AggregateStorage.truncateOlderThan(int)` / `(int, Timestamp)` → the count/date-based
-  `AggregateStorage.truncate(int)` / `(int, Timestamp)` (§7, §9)
+  `EntityEventStorage.truncate(int)` / `(int, Timestamp)`, reached via
+  `AggregateRepository.eventStorage()` (§7, §9)
+- `AggregateStorage` itself, `StorageFactory.createAggregateStorage`, and the
+  `AggregateStorageTest` fixture suite → the latest state is served by a plain
+  `EntityRecordStorage` (`createEntityRecordStorage`); the repository accessor is
+  `recordStorage()`; vendor suites extend the published `AbstractStorageTest` /
+  `DelegatingRecordStorageTest` bases (§9)
 
 **Deprecated** (still compile; removed in v2.0.0):
 

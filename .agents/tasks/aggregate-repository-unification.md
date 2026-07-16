@@ -268,10 +268,47 @@ WITH CHANGES → fixed):**
   symmetry; `setUpHistoryReading` doc now names both creation and
   reconstruction paths.
 
-Work list B remains open (gate decision pending with the owner). Follow-up
-candidates surfaced by review, deliberately not taken here:
+## Outcome — Work list B landed (2026-07-16, same branch)
+
+The owner retired the querying gate; `AggregateStorage` dissolved into
+`EntityRecordStorage`. Drift vs the predictions:
+
+- B1 decided as **retire** — the inherited ungated `findRecords`/`findStates`
+  replaced `readStates`; the aggregate's `QueryableRepository` overrides and
+  the `registerWith`/`configureQuerying` wiring disappeared. The two tests
+  pinning the gate now pin the positive contract (direct queries are served;
+  `VisibilityGuard` owns external gating).
+- B2: no aggregate-aware `StorageConverter` proved necessary — `doStore` ends
+  with `super.doStore()`; `Aggregate.toRecord()` and the converter build
+  identical records field-for-field, so `writeState` died with the class.
+- B3: removed **outright** instead of deprecate-then-remove, per the
+  `createHistoryStorage` precedent; the Phase G vendor obligation is recorded
+  in the plan, as B3 required.
+- B4: the owner's call = remove outright (pre-GA); the published
+  `AggregateStorageTest` suite, `InMemoryAggregateStorageTest`, and the
+  orphaned `storage.system.given.TestAggregate` fixture went with it.
+- **Follow-on (owner, same day): `restore()` removed too.** With the gate
+  gone, the only thing keeping aggregate loading apart from the PM path was
+  the legacy stateless-record tolerance in `Aggregate.restore(EntityRecord)`
+  (pre-cutover `NONE`-visibility records with no packed state). The owner
+  retired it: such records are a documented hard break (plan → "Data
+  assumptions"), and silently resurrecting an aggregate with default state
+  was the riskier behavior. `load(id)` now routes through `toEntity()` — ONE
+  reconstruction path, the converter's, identical to Process Managers; the
+  `AggregateTransaction` detour and both `AggregateTest` restore tests are
+  gone.
+
+Follow-up candidates surfaced by review, deliberately not taken here:
 `BoundedContextBuilder.addCommandDispatcher` `@apiNote` still advertises
-repository registration (true only for user-defined repositories now);
-`TypeRegistry.register` doc pre-dates aggregates being `QueryableRepository`;
+repository registration (true only for user-defined repositories now) —
+**done** (2026-07-16, doc-only pass: the note now scopes the capability to
+user-defined repositories and points framework ones at
+`CommandDispatcherDelegate`);
+`TypeRegistry.register` doc pre-dates aggregates being `QueryableRepository` —
+**done** (same pass: `register()` doc now describes the queryable-reference +
+aggregate-type behavior per `InMemoryTypeRegistry`; new nit surfaced —
+`recordRepositoryOf` doc still says `RecordBasedRepository` though it returns
+`Optional<QueryableRepository<?, ?>>`; fixing it means also dropping the
+then-unused `RecordBasedRepository` import);
 event-class accessors left non-final (PMR marks its twins `final`) — owner's
 call under a future breaking pass.

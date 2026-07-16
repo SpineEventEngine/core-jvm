@@ -660,6 +660,18 @@ order. Per-repo checklist: bump core version → migrate any real aggregates
 gate (`grep -rn "@Apply" --include=*.java --include=*.kt`, excluding
 `build/` and `generated/` → zero hits).
 
+**Storage-vendor obligation (added 2026-07-16, the `AggregateStorage`
+dissolution):** `AggregateStorage`, the `StorageFactory.createAggregateStorage`
+seam, and the published `AggregateStorageTest` fixture suite are REMOVED —
+same category as the earlier `createHistoryStorage` seam removal. JDBC and
+Datastore must drop any `createAggregateStorage` override (aggregate latest
+state now arrives via `createEntityRecordStorage`/`createRecordStorage` with
+`group == null`, the path they already serve) and retarget any vendor suite
+that extended `AggregateStorageTest` at the published `AbstractStorageTest`/
+`DelegatingRecordStorageTest` bases (core-jvm's own `EntityRecordStorageTest`
+is unpublished `src/test`). See
+[`aggregate-repository-unification.md`](aggregate-repository-unification.md).
+
 **Reality check (verified 2026-07-03):** most listed repos have **no
 production aggregate migration** — their `@Apply` is confined to test
 fixtures or vendored doc copies. Do not over-scope.

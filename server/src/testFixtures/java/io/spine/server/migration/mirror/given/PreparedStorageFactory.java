@@ -70,8 +70,8 @@ public final class PreparedStorageFactory {
         @Override
         public <I, R extends Message> RecordStorage<I, R> createRecordStorage(
                 ContextSpec context, RecordSpec<I, R> recordSpec, @Nullable StorageGroup group) {
-            // `AggregateStorage` extends `EntityRecordStorage`, so it obtains its latest-state
-            // record delegate through `createRecordStorage()` rather than
+            // The aggregate's latest-state storage is an `EntityRecordStorage`, which obtains
+            // its record delegate through `createRecordStorage()` rather than
             // `createEntityRecordStorage()`. Serve the substituted storage here too, but ONLY for
             // that delegate: match the full record spec (record, source, and id types) and require
             // `group == null`. The event journal shares the same `sourceType` but stores `Event`

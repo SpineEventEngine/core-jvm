@@ -286,7 +286,7 @@ public abstract class ProcessManagerRepository<I,
      *         the process manager to configure
      */
     @OverridingMethodsMustInvokeSuper
-    protected void configure(@SuppressWarnings("unused") P processManager) {
+    protected void configure(P processManager) {
         processManager.injectContext(context());
     }
 

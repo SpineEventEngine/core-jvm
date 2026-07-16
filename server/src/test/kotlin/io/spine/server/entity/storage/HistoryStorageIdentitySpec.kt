@@ -107,7 +107,7 @@ internal class HistoryStorageIdentitySpec {
 
         factory.createEntityEventStorage(context, TestAggregate::class.java)
         factory.createEntityStateHistoryStorage(context, TestAggregate::class.java)
-        factory.createAggregateStorage(context, TestAggregate::class.java)
+        factory.createEntityRecordStorage(context, TestAggregate::class.java)
 
         // The two histories arrive at the vendor seam with distinct identities.
         factory.historyIdentities() shouldContainExactly listOf(

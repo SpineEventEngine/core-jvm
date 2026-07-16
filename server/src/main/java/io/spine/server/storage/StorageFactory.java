@@ -27,12 +27,9 @@
 package io.spine.server.storage;
 
 import com.google.protobuf.Message;
-import io.spine.base.AggregateState;
 import io.spine.base.EntityState;
 import io.spine.server.Closeable;
 import io.spine.server.ContextSpec;
-import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.AggregateStorage;
 import io.spine.server.delivery.CatchUpStorage;
 import io.spine.server.delivery.InboxStorage;
 import io.spine.server.entity.Entity;
@@ -126,23 +123,6 @@ public interface StorageFactory extends Closeable {
     default <I, R extends Message> RecordStorage<I, R>
     createRecordStorage(ContextSpec context, RecordSpec<I, R> recordSpec) {
         return createRecordStorage(context, recordSpec, null);
-    }
-
-    /**
-     * Creates a new {@link AggregateStorage}.
-     *
-     * @param <I>
-     *         the type of aggregate IDs
-     * @param <S>
-     *         the type of aggregate state
-     * @param context
-     *         specification of the Bounded Context, in scope of which the storage will be used
-     * @param aggregateCls
-     *         the class of {@code Aggregate}s to be stored
-     */
-    default <I, S extends AggregateState<I>> AggregateStorage<I, S>
-    createAggregateStorage(ContextSpec context, Class<? extends Aggregate<I, S, ?>> aggregateCls) {
-        return new AggregateStorage<>(context, aggregateCls, this);
     }
 
     /**

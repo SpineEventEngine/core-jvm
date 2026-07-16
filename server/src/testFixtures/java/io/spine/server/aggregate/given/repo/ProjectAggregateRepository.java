@@ -32,7 +32,6 @@ import io.spine.base.Identifier;
 import io.spine.core.Origin;
 import io.spine.server.Identity;
 import io.spine.server.aggregate.AggregateRepository;
-import io.spine.server.aggregate.AggregateStorage;
 import io.spine.server.entity.EntityRecord;
 import io.spine.server.entity.EntityRecordChange;
 import io.spine.server.route.EventRouting;
@@ -40,22 +39,14 @@ import io.spine.test.aggregate.AggProject;
 import io.spine.test.aggregate.ProjectId;
 import io.spine.test.aggregate.event.AggProjectArchived;
 import io.spine.test.aggregate.event.AggProjectDeleted;
-import org.jspecify.annotations.Nullable;
 
 import static io.spine.protobuf.AnyPacker.pack;
 
 /**
- * The repository of positive scenarios
- * {@linkplain io.spine.server.aggregate.given.repo.ProjectAggregate aggregates}.
- *
- * <p>It also widens visibility of the
- * {@link io.spine.server.aggregate.AggregateRepository#aggregateStorage()} method so it can be
- * used in this test env.
+ * The repository of {@linkplain ProjectAggregate aggregates} used in positive scenarios.
  */
 public class ProjectAggregateRepository
         extends AggregateRepository<ProjectId, ProjectAggregate, AggProject> {
-
-    private @Nullable AggregateStorage<ProjectId, AggProject> customStorage;
 
     @Override
     protected void setupEventRouting(EventRouting<ProjectId> routing) {
@@ -65,27 +56,6 @@ public class ProjectAggregateRepository
                .route(AggProjectDeleted.class,
                       (msg, ctx) -> ImmutableSet.copyOf(msg.getChildProjectIdList()));
 
-    }
-
-    /**
-     * Returns the storage for this repository.
-     *
-     * <p>The returning result may be customized by {@linkplain #injectStorage(AggregateStorage)
-     * injecting} the custom storage.
-     */
-    @Override
-    public AggregateStorage<ProjectId, AggProject> aggregateStorage() {
-        if (customStorage != null) {
-            return customStorage;
-        }
-        return super.aggregateStorage();
-    }
-
-    /**
-     * Injects a storage to use for this repository.
-     */
-    public void injectStorage(AggregateStorage<ProjectId, AggProject> storage) {
-        this.customStorage = storage;
     }
 
     void storeAggregate(ProjectAggregate aggregate) {
