@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,8 +42,6 @@ import io.spine.test.aggregate.event.AggProjectArchived;
 import io.spine.test.aggregate.event.AggProjectDeleted;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Optional;
-
 import static io.spine.protobuf.AnyPacker.pack;
 
 /**
@@ -51,17 +49,11 @@ import static io.spine.protobuf.AnyPacker.pack;
  * {@linkplain io.spine.server.aggregate.given.repo.ProjectAggregate aggregates}.
  *
  * <p>It also widens visibility of the
- * {@link io.spine.server.aggregate.AggregateRepository#store(io.spine.server.aggregate.Aggregate)}
- * and
- * {@link io.spine.server.aggregate.AggregateRepository#aggregateStorage()} methods so they can be
+ * {@link io.spine.server.aggregate.AggregateRepository#aggregateStorage()} method so it can be
  * used in this test env.
  */
 public class ProjectAggregateRepository
         extends AggregateRepository<ProjectId, ProjectAggregate, AggProject> {
-
-    public static final ProjectId troublesome = ProjectId.newBuilder()
-                                                         .setUuid("INVALID_ID")
-                                                         .build();
 
     private @Nullable AggregateStorage<ProjectId, AggProject> customStorage;
 
@@ -73,14 +65,6 @@ public class ProjectAggregateRepository
                .route(AggProjectDeleted.class,
                       (msg, ctx) -> ImmutableSet.copyOf(msg.getChildProjectIdList()));
 
-    }
-
-    @Override
-    public Optional<ProjectAggregate> find(ProjectId id) {
-        if (id.equals(troublesome)) {
-            return Optional.empty();
-        }
-        return super.find(id);
     }
 
     /**

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -88,7 +88,7 @@ class AggregateCommandEndpointTest {
     void postEventsOnCommandDispatching() {
         var cmd = CommandEnvelope.of(createProject(projectId));
 
-        repository.dispatch(cmd);
+        repository.dispatchCommand(cmd);
         var msg = subscriber.remembered;
         assertThat(msg.getProjectId())
                 .isEqualTo(projectId);
@@ -100,7 +100,7 @@ class AggregateCommandEndpointTest {
         var cmd = CommandEnvelope.of(createProject(projectId));
         var msg = (AggCreateProject) cmd.message();
 
-        repository.dispatch(cmd);
+        repository.dispatchCommand(cmd);
         var optional = repository.find(projectId);
         assertTrue(optional.isPresent());
 
@@ -133,7 +133,7 @@ class AggregateCommandEndpointTest {
     // ignore ID of the aggregate returned by the repository
     private void assertDispatches(Command cmd) {
         var envelope = CommandEnvelope.of(cmd);
-        repository.dispatch(envelope);
+        repository.dispatchCommand(envelope);
         ProjectAggregate.assertHandled(cmd);
     }
 

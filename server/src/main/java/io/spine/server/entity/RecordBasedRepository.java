@@ -285,8 +285,7 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
     @VisibleForTesting
     public Iterator<E> loadAll(ResponseFormat format) {
         var records = findRecords(format);
-        Function<EntityRecord, E> toEntity = storageConverter().reverse();
-        var result = transform(records, toEntity::apply);
+        var result = transform(records, this::toEntity);
         return result;
     }
 
@@ -323,8 +322,7 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
     public Iterator<E> loadAll(Iterable<I> ids, FieldMask fieldMask) {
         var storage = recordStorage();
         var records = storage.readAll(ids, fieldMask);
-        Function<EntityRecord, E> toEntity = storageConverter().reverse();
-        var result = transform(records, toEntity::apply);
+        var result = transform(records, this::toEntity);
         return result;
     }
 
@@ -382,8 +380,7 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
         checkNotNull(format);
 
         var records = findRecords(filters, format);
-        Function<EntityRecord, E> toEntity = storageConverter().reverse();
-        var result = transform(records, toEntity::apply);
+        var result = transform(records, this::toEntity);
         return result;
     }
 
@@ -399,8 +396,7 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
     public Iterator<E> find(EntityQuery<I, S, ?> query) {
         checkNotNull(query);
         var records = findRecords(query);
-        Function<EntityRecord, E> toEntity = storageConverter().reverse();
-        var result = transform(records, toEntity::apply);
+        var result = transform(records, this::toEntity);
         return result;
     }
 

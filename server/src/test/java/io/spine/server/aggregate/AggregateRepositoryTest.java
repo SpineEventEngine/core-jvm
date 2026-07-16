@@ -26,8 +26,8 @@
 
 package io.spine.server.aggregate;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import io.grpc.stub.StreamObserver;
 import io.spine.base.Identifier;
 import io.spine.core.Ack;
@@ -42,7 +42,6 @@ import io.spine.server.aggregate.given.repo.ReactingRepository;
 import io.spine.server.aggregate.given.repo.RejectingRepository;
 import io.spine.server.aggregate.given.repo.RejectionReactingAggregate;
 import io.spine.server.aggregate.given.repo.RejectionReactingRepository;
-import io.spine.server.tenant.TenantAwareOperation;
 import io.spine.server.type.CommandClass;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventClass;
@@ -84,13 +83,11 @@ import static io.spine.server.aggregate.given.repo.AggregateRepositoryTestEnv.co
 import static io.spine.server.aggregate.given.repo.AggregateRepositoryTestEnv.givenAggregate;
 import static io.spine.server.aggregate.given.repo.AggregateRepositoryTestEnv.givenAggregateId;
 import static io.spine.server.aggregate.given.repo.AggregateRepositoryTestEnv.givenStoredAggregate;
-import static io.spine.server.aggregate.given.repo.AggregateRepositoryTestEnv.givenStoredAggregateWithId;
 import static io.spine.server.aggregate.given.repo.AggregateRepositoryTestEnv.repository;
 import static io.spine.server.aggregate.given.repo.AggregateRepositoryTestEnv.requestFactory;
 import static io.spine.server.aggregate.given.repo.AggregateRepositoryTestEnv.resetBoundedContext;
 import static io.spine.server.aggregate.given.repo.AggregateRepositoryTestEnv.resetRepository;
 import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
-import static io.spine.testing.core.given.GivenTenantId.generate;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -132,7 +129,7 @@ class AggregateRepositoryTest {
             Set<CommandClass> aggregateCommands =
                     asAggregateClass(ProjectAggregate.class)
                             .commands();
-            Set<CommandClass> exposedByRepository = repository().messageClasses();
+            Set<CommandClass> exposedByRepository = repository().commandClasses();
 
             assertTrue(exposedByRepository.containsAll(aggregateCommands));
         }
@@ -140,7 +137,7 @@ class AggregateRepositoryTest {
         @Test
         @DisplayName("event classes on which aggregate reacts")
         void aggregateEventClasses() {
-            Set<EventClass> eventClasses = repository().events();
+            Set<EventClass> eventClasses = repository().messageClasses();
             assertTrue(eventClasses.contains(EventClass.from(AggProjectArchived.class)));
             assertTrue(eventClasses.contains(EventClass.from(AggProjectDeleted.class)));
         }
@@ -162,6 +159,36 @@ class AggregateRepositoryTest {
             assertTrue(isNotDefault(actual.state()));
             assertEquals(expected.id(), actual.id());
             assertEquals(expected.state(), actual.state());
+        }
+
+        @Test
+        @DisplayName("journaling the events of each instance when storing in bulk")
+        void journalOnBulkStore() {
+            var firstId = Sample.messageOfType(ProjectId.class);
+            var secondId = Sample.messageOfType(ProjectId.class);
+            var first = givenAggregate().withUncommittedEvents(firstId);
+            var second = givenAggregate().withUncommittedEvents(secondId);
+
+            repository().store(ImmutableList.of(first, second));
+
+            assertFound(firstId);
+            assertFound(secondId);
+            var journal = repository().eventStorage();
+            assertTrue(journal.historyBackward(firstId, 1).hasNext());
+            assertTrue(journal.historyBackward(secondId, 1).hasNext());
+        }
+
+        @Test
+        @DisplayName("installing the history loaders on the instances obtained via bulk reads")
+        void loadersOnBulkReads() {
+            var id = Sample.messageOfType(ProjectId.class);
+            var aggregate = givenAggregate().withUncommittedEvents(id);
+            repository().store(aggregate);
+
+            var iterated = repository().iterator(a -> true).next();
+
+            var history = iterated.eventHistoryBackward(10);
+            assertTrue(history.hasNext());
         }
 
         private ProjectAggregate assertFound(ProjectId id) {
@@ -276,28 +303,11 @@ class AggregateRepositoryTest {
         assertFalse(optional.isPresent());
     }
 
-    @SuppressWarnings("CheckReturnValue") // The returned value is not used in this test.
-    @Test
-    @DisplayName("throw `IllegalStateException` if unable to load entity by ID from storage index")
-    void throwWhenUnableToLoadEntity() {
-        // Store a valid aggregate.
-        givenStoredAggregate();
-
-        // Store a troublesome entity, which cannot be loaded.
-        var op = new TenantAwareOperation(generate()) {
-            @Override
-            public void run() {
-                givenStoredAggregateWithId(ProjectAggregateRepository.troublesome.getUuid());
-            }
-        };
-        op.execute();
-
-        var iterator =
-                repository().iterator(aggregate -> true);
-
-        // This should iterate through all and fail.
-        assertThrows(IllegalStateException.class, () -> Lists.newArrayList(iterator));
-    }
+    // Since the descent from `SignalDispatchingRepository`, the repository iterates the stored
+    // records directly, as any record-based repository does, instead of reading the storage
+    // index and loading each aggregate by its ID. An ID listed in the index but not loadable —
+    // the premise of the former "throw `IllegalStateException` if unable to load entity by ID
+    // from storage index" case — cannot occur on this path, so the case is removed.
 
     // Since the event-sourcing cutover an aggregate loads from its latest state record rather than
     // by replaying its event journal, so a corrupted journal can no longer make loading fail. The

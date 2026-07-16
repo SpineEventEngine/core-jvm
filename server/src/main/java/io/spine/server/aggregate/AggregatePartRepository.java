@@ -32,6 +32,10 @@ import io.spine.annotation.Internal;
 import io.spine.base.AggregateState;
 import io.spine.server.BoundedContext;
 import io.spine.server.aggregate.model.AggregatePartClass;
+import io.spine.server.entity.EntityFactory;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+
+import java.lang.reflect.Constructor;
 
 /**
  * Common abstract base for repositories that manage {@code AggregatePart}s.
@@ -56,6 +60,9 @@ public abstract class AggregatePartRepository<I,
                                               R extends AggregateRoot<I>>
                       extends AggregateRepository<I, A, S> {
 
+    /** The factory of aggregate parts; created lazily on the first access. */
+    private @MonotonicNonNull EntityFactory<A> partFactory;
+
     /**
      * Creates a new instance.
      */
@@ -77,12 +84,20 @@ public abstract class AggregatePartRepository<I,
                .register(this);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Unlike the default factory, which passes the identifier to the constructor of
+     * the entity, the returned factory creates the {@linkplain AggregateRoot root} for
+     * the passed identifier first, and then the part served by that root — the way
+     * {@code AggregatePart}s are constructed.
+     */
     @Override
-    public A create(I id) {
-        var root = createAggregateRoot(id);
-        var result = createAggregatePart(root);
-        setUpHistoryReading(result, id);
-        return result;
+    protected EntityFactory<A> entityFactory() {
+        if (partFactory == null) {
+            partFactory = new PartByIdFactory();
+        }
+        return partFactory;
     }
 
     @Internal
@@ -103,5 +118,33 @@ public abstract class AggregatePartRepository<I,
 
     private A createAggregatePart(AggregateRoot<I> root) {
         return aggregatePartClass().create(root);
+    }
+
+    /**
+     * Creates aggregate parts by their identifiers.
+     *
+     * <p>Creates the {@linkplain AggregateRoot root} for the passed identifier, and then
+     * the part served by that root. The {@linkplain #constructor() constructor} is that
+     * of the part class, taking the root.
+     *
+     * <p>Captures the enclosing repository and is therefore not practically serializable;
+     * the framework never serializes the storage converters holding entity factories.
+     */
+    private final class PartByIdFactory implements EntityFactory<A> {
+
+        private static final long serialVersionUID = 0L;
+
+        @Override
+        public A create(Object constructionArgument) {
+            @SuppressWarnings("unchecked")
+            var id = (I) constructionArgument;
+            var root = createAggregateRoot(id);
+            return createAggregatePart(root);
+        }
+
+        @Override
+        public Constructor<A> constructor() {
+            return aggregatePartClass().factory().constructor();
+        }
     }
 }

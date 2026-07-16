@@ -163,8 +163,7 @@ public abstract class ProcessManagerRepository<I,
     /**
      * Obtains a set of event classes to which process managers of this repository react.
      *
-     * @return a set of event classes or empty set if process managers do not react to
-     *         domestic events
+     * @return a set of event classes or empty set if process managers do not react to events
      */
     @Override
     public final ImmutableSet<EventClass> messageClasses() {

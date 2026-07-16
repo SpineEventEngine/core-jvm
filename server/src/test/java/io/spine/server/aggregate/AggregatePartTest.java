@@ -109,7 +109,7 @@ class AggregatePartTest {
         assertEntityCount(AggTaskComments.class, 0);
         assertEntityCount(AggTask.class, 1);
 
-        taskCommentsRepository.dispatch(command(commentTask()));
+        taskCommentsRepository.dispatchCommand(command(commentTask()));
 
         assertEntityCount(AggTaskComments.class, 1);
         assertEntityCount(AggTask.class, 1);
@@ -165,7 +165,7 @@ class AggregatePartTest {
 
     @SuppressWarnings("CheckReturnValue")
     private void prepareAggregatePart() {
-        taskRepository.dispatch(command(createTask()));
+        taskRepository.dispatchCommand(command(createTask()));
     }
 
     private static CommandEnvelope command(CommandMessage commandMessage) {

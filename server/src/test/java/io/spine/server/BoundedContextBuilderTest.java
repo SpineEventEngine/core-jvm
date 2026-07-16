@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -29,7 +29,6 @@ package io.spine.server;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.testing.NullPointerTester;
 import io.spine.core.TenantId;
-import io.spine.server.aggregate.AggregateRepository;
 import io.spine.server.aggregate.AggregateRootDirectory;
 import io.spine.server.aggregate.InMemoryRootDirectory;
 import io.spine.server.bc.given.Given.NoOpCommandDispatcher;
@@ -235,14 +234,11 @@ class BoundedContextBuilderTest {
 
         private BoundedContextBuilder builder;
         private CommandDispatcher dispatcher;
-        private AggregateRepository<?, ?, ?> repository;
 
         @BeforeEach
         void setUp() {
             builder = BoundedContextBuilder.assumingTests();
             dispatcher = new NoOpCommandDispatcher();
-            repository =
-                    (AggregateRepository<?, ?, ?>) DefaultRepository.of(ProjectAggregate.class);
         }
 
         @Test
@@ -263,31 +259,6 @@ class BoundedContextBuilderTest {
 
             builder.removeCommandDispatcher(dispatcher);
             assertFalse(builder.hasCommandDispatcher(dispatcher));
-        }
-
-        @Test
-        @DisplayName("register repository if it's passed as a command dispatcher")
-        void registerRepo() {
-            assertFalse(builder.hasRepository(repository));
-            builder.addCommandDispatcher(repository);
-            assertTrue(builder.hasRepository(repository));
-        }
-
-        @Test
-        @DisplayName("remove registered repository if it's passed as a command dispatcher")
-        void removeRegisteredRepo() {
-            builder.add(repository);
-            assertTrue(builder.hasRepository(repository));
-
-            builder.removeCommandDispatcher(repository);
-            assertFalse(builder.hasRepository(repository));
-        }
-
-        @Test
-        @DisplayName("check repository presence if it's queried as a command dispatcher")
-        void checkHasRepo() {
-            builder.add(repository);
-            assertTrue(builder.hasCommandDispatcher(repository));
         }
     }
 

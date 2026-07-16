@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -113,7 +113,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 
 @DisplayName("`Stand` should")  // It's OK for this test.
 class StandTest extends TenantAwareTest {
@@ -380,7 +379,7 @@ class StandTest extends TenantAwareTest {
                     .build();
             var command = requestFactory.command().create(createCustomer);
             var cmd = CommandEnvelope.of(command);
-            repository.dispatch(cmd);
+            repository.dispatchCommand(cmd);
 
             // Check the callback is called with the correct event.
             var event = callback.newEvent();

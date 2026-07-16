@@ -653,8 +653,8 @@ public class AggregateTest {
         var tenantId = newTenantId();
         var createCommand = command(createProject, tenantId);
         var envelope = CommandEnvelope.of(createCommand);
-        repository.dispatch(envelope);
-        repository.dispatch(envelope);
+        repository.dispatchCommand(envelope);
+        repository.dispatchCommand(envelope);
         var duplicateCommandEvents = monitor.duplicateCommandEvents();
         assertThat(duplicateCommandEvents).hasSize(1);
         var event = duplicateCommandEvents.get(0);

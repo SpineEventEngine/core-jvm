@@ -196,3 +196,82 @@ the hierarchy change (A).
   task).
 - Renaming `findOrCreate`/`loadOrCreate` to one name beyond what item A7
   requires.
+
+## Outcome — Work list A landed (2026-07-16)
+
+Implemented on `signal-dispatching-repository`; full `build dokkaGenerate`
+green (all tests), aggregate/context/stand suites verified focused first.
+
+- A1/A2 as planned. `registerWith` shrank to `super` + `configureQuerying()`;
+  the `CommandBus` registration rides the
+  `instanceof CommandDispatcherDelegate` tail of
+  `BoundedContext.registerEventDispatcher`, the PMR path. Event-side member
+  modifiers were kept as they were (`public`, non-final) rather than adopting
+  PMR's `final` — a deliberate no-semantic-change choice.
+- A3 resolved as a **repository-local `public final store(Collection<A>)`**
+  looping per-entity `store()` (journals + skips untouched instances +
+  `afterStore` per instance). The base-level reroute was rejected for now: it
+  would trade the batched `writeAll` away for every record-based repository;
+  when Phase F hoists journaling, the override moves up with it. Covered by
+  the new `journalOnBulkStore` test.
+- A4 resolved by keeping the aggregate's `find(id)` override (loads archived/
+  deleted). One pinned behavior was **lost by design**: `Repository.iterator`'s
+  "throw `ISE` when an indexed ID cannot be loaded" — record-based iteration
+  streams records, the mismatch cannot occur; the test was removed with an
+  obsolescence comment.
+- A6 held. **A5 surprise — `AggregatePart`**: ErrorProne's `MissingSuperCall`
+  on `create()` exposed that parts (root-constructed) would break the
+  inherited factory/converter machinery (`StorageConverter` passes the
+  unpacked ID to `entityFactory.create`). Fixed at the factory seam:
+  `AggregatePartRepository.entityFactory()` returns an id-accepting
+  `PartByIdFactory` (creates the root, then the part), which made the
+  inherited `create(id)`, `toEntity`, and the converter all correct and
+  deleted the part repo's `create` override. A new
+  `protected final toEntity(EntityRecord)` override on `AggregateRepository`
+  installs the history loaders + idempotency guard on converter-reconstructed
+  instances.
+- A7 not taken (no endpoint churn was forced; `loadOrCreate` stays).
+- Tests: `dispatch` → `dispatchCommand` renames; three
+  `BoundedContextBuilderTest` repository-as-command-dispatcher tests deleted —
+  no framework repository is a direct `CommandDispatcher` anymore, and the
+  same generic builder helper stays covered by the `EventDispatchers` twin
+  tests.
+- Version: no re-bump — the branch already carries the round-ten `.490` over
+  master's `.470`.
+
+**Review round (spine-code-review REQUEST CHANGES → fixed; review-docs APPROVE
+WITH CHANGES → fixed):**
+
+- **The `toEntity` seam was leaky — fixed at the base.** Four
+  `RecordBasedRepository` bulk-read paths (`loadAll` ×2, `find(filters)`,
+  `find(query)`) inlined `storageConverter().reverse()` instead of calling the
+  virtual `toEntity`, so `iterator()` yielded aggregates with no history
+  loaders and no idempotency guard (a silent regression vs the pre-descent
+  `EntityIterator` path — history reads would quietly return empty), and PM
+  instances from the same paths silently missed `configure()` context
+  injection (a pre-existing latent bug). All four sites now route through
+  `this::toEntity`; pinned by the new `loadersOnBulkReads` test (an aggregate
+  obtained via `iterator()` reads its journal).
+- The deleted test's fixture apparatus was orphaned and went with it
+  (`AggregateRepositoryTestEnv.givenStoredAggregateWithId`,
+  `ProjectAggregateRepository.troublesome` + its `find` short-circuit, which
+  altered semantics for a magic ID no test used); the fixture's stale
+  "widens `store` visibility" class-doc line (obsolete since `be55da92c5`)
+  was corrected in passing.
+- `PartByIdFactory` is now cached in a field (matching the model-class
+  memoization posture) and documents why the inherited `Serializable`
+  contract is not practically honorable.
+- Javadoc accuracy: `messageClasses()` `@return` said "domestic events" while
+  the set contains domestic + external — fixed here AND the same pre-existing
+  flaw in `ProcessManagerRepository.messageClasses()`; `@return` tags added to
+  the aggregate's `domesticEventClasses()`/`externalEventClasses()` for PMR
+  symmetry; `setUpHistoryReading` doc now names both creation and
+  reconstruction paths.
+
+Work list B remains open (gate decision pending with the owner). Follow-up
+candidates surfaced by review, deliberately not taken here:
+`BoundedContextBuilder.addCommandDispatcher` `@apiNote` still advertises
+repository registration (true only for user-defined repositories now);
+`TypeRegistry.register` doc pre-dates aggregates being `QueryableRepository`;
+event-class accessors left non-final (PMR marks its twins `final`) — owner's
+call under a future breaking pass.
