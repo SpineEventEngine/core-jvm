@@ -200,7 +200,7 @@ public class EntityVisibility private constructor(
             mutableGraph.nodes().forEach { visibility ->
                 mutableGraph.putEdge(visibility, visibility)
             }
-            return ImmutableGraph.copyOf<Visibility>(mutableGraph)
+            return ImmutableGraph.copyOf(mutableGraph)
         }
     }
 }
