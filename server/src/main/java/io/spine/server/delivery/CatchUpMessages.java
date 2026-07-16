@@ -91,6 +91,7 @@ final class CatchUpMessages {
     /**
      * Wraps the passed list of {@code String}s into a list of {@code EventFilter}s.
      */
+    @SuppressWarnings("NonApiType") // We highlight the fact of working with Protobuf strings.
     static ImmutableList<EventFilter> toFilters(ProtocolStringList rawEventTypes) {
         checkNotNull(rawEventTypes);
         return rawEventTypes.stream()

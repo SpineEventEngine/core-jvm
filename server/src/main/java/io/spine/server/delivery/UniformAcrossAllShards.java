@@ -98,8 +98,8 @@ public final class UniformAcrossAllShards extends DeliveryStrategy implements Se
 
     private static int hash(Object entityId) {
         byte[] bytes;
-        if (entityId instanceof Message) {
-            bytes = ((Message) entityId).toByteArray();
+        if (entityId instanceof Message message) {
+            bytes = message.toByteArray();
         } else {
             bytes = entityId.toString()
                             .getBytes(Charset.defaultCharset());

@@ -49,8 +49,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Suppliers.memoize;
 import static io.spine.server.Ignored.ignored;
+import static io.spine.server.Suppliers2.memoize;
 import static io.spine.server.event.model.EventSubscriberClass.asEventSubscriberClass;
 import static io.spine.server.tenant.TenantAwareRunner.with;
 import static java.lang.String.format;

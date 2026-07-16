@@ -240,7 +240,7 @@ public class Given {
             extends Aggregate<ProjectId, AggProject, AggProject.Builder> {
 
         // an aggregate constructor must be public because it is used via reflection
-        @SuppressWarnings("PublicConstructorInNonPublicClass")
+        @SuppressWarnings({"PublicConstructorInNonPublicClass", "EffectivelyPrivate"})
         public ProjectAggregate(ProjectId id) {
             super(id);
         }

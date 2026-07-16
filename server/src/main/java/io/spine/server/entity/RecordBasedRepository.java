@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -27,7 +27,6 @@
 package io.spine.server.entity;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterators;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import com.google.protobuf.FieldMask;
 import io.spine.annotation.Experimental;
@@ -41,6 +40,7 @@ import io.spine.client.TargetFilters;
 import io.spine.client.Targets;
 import io.spine.core.Signal;
 import io.spine.query.EntityQuery;
+import io.spine.server.Iterators2;
 import io.spine.server.entity.storage.EntityRecordStorage;
 import io.spine.server.entity.storage.ToEntityRecordQuery;
 import io.spine.server.storage.QueryConverter;
@@ -121,7 +121,7 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
     }
 
     @Override
-    public void store(E entity) {
+    protected void doStore(E entity) {
         var record = toRecord(entity);
         var storage = recordStorage();
         storage.write(record);
@@ -130,8 +130,7 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
     @Override
     public Iterator<E> iterator(Predicate<E> filter) {
         var allEntities = loadAll(ResponseFormat.getDefaultInstance());
-        Iterator<E> result = Iterators.filter(allEntities, filter::test);
-        return result;
+        return Iterators2.filter(allEntities, filter);
     }
 
     /**
@@ -141,7 +140,7 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
      * <ol>
      *     <li>Load an entity by the given ID.
      *     <li>Transform it through the migration operation.
-     *     <li>Store the entity back to the repository or delete it depending on the migration
+     *     <li>Store the entity back in the repository or delete it depending on the migration
      *         configuration.
      * </ol>
      *
@@ -281,24 +280,6 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
         }
         var record = found.get();
         return Optional.of(record);
-    }
-
-    /**
-     * Loads an entity by the passed ID or creates a new one, if the entity was not found.
-     *
-     * <p>An entity will be loaded whether its {@linkplain WithLifecycle#isActive() active} or not.
-     *
-     * <p>The new entity is created if and only if there is no record with the corresponding ID.
-     *
-     * @param id
-     *         the ID of the entity to load
-     * @return the entity with the specified ID
-     */
-    protected E findOrCreate(I id) {
-        var record = findRecord(id);
-        var result = record.map(this::toEntity)
-                           .orElseGet(() -> create(id));
-        return result;
     }
 
     @VisibleForTesting

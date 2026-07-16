@@ -30,23 +30,19 @@ import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import com.google.protobuf.Timestamp;
 import io.spine.annotation.Internal;
-import io.spine.annotation.VisibleForTesting;
 import io.spine.base.AggregateState;
 import io.spine.client.ResponseFormat;
 import io.spine.client.TargetFilters;
 import io.spine.query.EntityQuery;
 import io.spine.server.BoundedContext;
-import io.spine.server.ServerEnvironment;
 import io.spine.server.aggregate.model.AggregateClass;
 import io.spine.server.commandbus.CommandDispatcher;
-import io.spine.server.delivery.BatchDeliveryListener;
 import io.spine.server.delivery.Inbox;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.EntityRecord;
 import io.spine.server.entity.EventProducingRepository;
 import io.spine.server.entity.QueryableRepository;
 import io.spine.server.entity.Repository;
-import io.spine.server.entity.RepositoryCache;
 import io.spine.server.entity.StateHistoryLoader;
 import io.spine.server.entity.storage.EntityEventStorage;
 import io.spine.server.entity.storage.EntityStateHistoryStorage;
@@ -71,9 +67,9 @@ import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Suppliers.memoize;
 import static com.google.common.collect.Iterators.transform;
 import static io.spine.option.EntityOption.Kind.AGGREGATE;
+import static io.spine.server.Suppliers2.memoize;
 import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
 import static io.spine.server.delivery.InboxLabel.HANDLE_COMMAND;
 import static io.spine.server.delivery.InboxLabel.REACT_UPON_EVENT;
@@ -81,7 +77,6 @@ import static io.spine.server.dispatch.DispatchOutcomes.maybeSentToInbox;
 import static io.spine.server.dispatch.DispatchOutcomes.sentToInbox;
 import static io.spine.server.tenant.TenantAwareRunner.with;
 import static io.spine.util.Exceptions.newIllegalStateException;
-import static java.util.Objects.requireNonNull;
 
 /**
  * The repository that manages instances of {@code Aggregate}s.
@@ -124,7 +119,7 @@ import static java.util.Objects.requireNonNull;
  * @see Aggregate
  */
 @SuppressWarnings({
-        "ClassWithTooManyMethods", "OverlyComplexClass" /* Acknowledged complexity. */,
+        "ClassWithTooManyMethods" /* Acknowledged complexity. */,
         "resource" /* Accessing `Closeable` properties. */
 })
 public abstract class AggregateRepository<I,
@@ -142,14 +137,6 @@ public abstract class AggregateRepository<I,
 
     /** The routing schema for events to which aggregates react. */
     private final Supplier<EventRouting<I>> eventRouting;
-
-    /**
-     * The {@link Inbox} for the messages, which are sent to the instances managed by this
-     * repository.
-     */
-    private @MonotonicNonNull Inbox<I> inbox;
-
-    private @MonotonicNonNull RepositoryCache<I, A> cache;
 
     /** The window (in journal events) the opt-in {@link IdempotencyGuard} scans. */
     private int eventHistoryDepth = DEFAULT_HISTORY_DEPTH;
@@ -185,14 +172,11 @@ public abstract class AggregateRepository<I,
     }
 
     /**
-     * Initializes the repository during its registration with its context.
-     *
-     * <p>Verifies that the class of aggregates of this repository subscribes to at least one
-     * type of messages.
+     * {@inheritDoc}
      *
      * <p>Registers itself with {@link io.spine.server.commandbus.CommandBus CommandBus} and
      * {@link io.spine.server.event.EventBus EventBus} of the context for dispatching messages to
-     * its aggregates.
+     * its aggregates, and sets up the routing of those messages.
      *
      * @param context
      *         the context of this repository
@@ -202,13 +186,10 @@ public abstract class AggregateRepository<I,
     @Override
     @OverridingMethodsMustInvokeSuper
     public void registerWith(BoundedContext context) {
-        checkNotVoid();
         super.registerWith(context);
         setupRouting();
         context.internalAccess()
                .registerCommandDispatcher(this);
-        initCache(context.isMultitenant());
-        initInbox();
         configureQuerying();
     }
 
@@ -234,46 +215,27 @@ public abstract class AggregateRepository<I,
         return context().eventBus();
     }
 
-    private void initCache(boolean multitenant) {
-        cache = new RepositoryCache<>(multitenant, this::doLoadOrCreate, this::doStore);
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Adds the endpoints reacting upon events and handling commands.
+     */
+    @Override
+    protected final void setupInbox(Inbox.Builder<I> builder) {
+        builder.addEventEndpoint(REACT_UPON_EVENT,
+                                 e -> new AggregateEventReactionEndpoint<>(this, e))
+               .addCommandEndpoint(HANDLE_COMMAND,
+                                   c -> new AggregateCommandEndpoint<>(this, c));
     }
 
     /**
-     * Initializes the {@code Inbox}.
+     * {@inheritDoc}
+     *
+     * <p>Ensures that the aggregates of this repository handle commands, react on events,
+     * or both.
      */
-    private void initInbox() {
-        var delivery = ServerEnvironment.instance().delivery();
-        inbox = delivery.<I>newInbox(entityStateType())
-                .withBatchListener(newCachingListener())
-                .addEventEndpoint(REACT_UPON_EVENT,
-                                  e -> new AggregateEventReactionEndpoint<>(this, e))
-                .addCommandEndpoint(HANDLE_COMMAND,
-                                    c -> new AggregateCommandEndpoint<>(this, c))
-                .build();
-    }
-
-    private BatchDeliveryListener<I> newCachingListener() {
-        return new BatchDeliveryListener<>() {
-            @Override
-            public void onStart(I id) {
-                cache.startCaching(id);
-            }
-
-            @Override
-            public void onEnd(I id) {
-                cache.stopCaching(id);
-            }
-        };
-    }
-
-    private Inbox<I> inbox() {
-        return requireNonNull(inbox);
-    }
-
-    /**
-     * Ensures that this repository dispatches at least one kind of messages.
-     */
-    private void checkNotVoid() {
+    @Override
+    protected final void checkDispatchesMessages() {
         var handlesCommands = dispatchesCommands();
         var reactsOnEvents = dispatchesEvents();
 
@@ -351,23 +313,34 @@ public abstract class AggregateRepository<I,
     }
 
     /**
-     * Stores the passed aggregate and commits its uncommitted events.
+     * {@inheritDoc}
      *
      * <p>When the state history is {@linkplain #recordStateHistory() recorded}, appends
-     * the current state record on each call — that is, once per successful dispatch.
-     * The append operation happens here and not in {@link #doStore}, because under
-     * a batched delivery the cache defers {@code doStore()} to the end of the batch —
-     * the history still captures every intermediate version of the batch.
+     * the current state record on each call — that is, once per successful dispatch. The
+     * append happens here and not in {@link #doStore}, because under a batched delivery the
+     * cache defers {@code doStore()} to the end of the batch — the history still captures
+     * every intermediate version of the batch.
      */
     @Override
-    protected final void store(A aggregate) {
-        cache.store(aggregate);
+    protected void afterStore(A aggregate) {
         if (stateHistoryEnabled) {
             appendStateHistory(aggregate);
         }
     }
 
-    @VisibleForTesting
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Journals the events the aggregate emitted, then writes its latest state — rather
+     * than delegating to {@link #store(io.spine.server.entity.Entity) store()}, which routes
+     * through the cache.
+     *
+     * @implSpec Skips an aggregate that was neither changed nor produced events. An
+     *         overriding repository is expected to call {@code super}: writing an untouched
+     *         instance would overwrite the stored state of another instance sharing its ID.
+     */
+    @Override
+    @Internal
     protected void doStore(A aggregate) {
         // Since the cutover the state is persisted independently of visibility, but still only
         // for an aggregate that was actually modified. Persisting an untouched instance would
@@ -390,7 +363,8 @@ public abstract class AggregateRepository<I,
      *
      * <p>Obtains the storage directly, bypassing the fail-fast {@link #stateHistory()}
      * accessor: the decision to record is made by the single flag check in
-     * {@link #store(Aggregate)}, so a concurrent {@link #stopRecordingStateHistory()}
+     * {@link #store(io.spine.server.entity.Entity) store()}, so a concurrent
+     * {@link #stopRecordingStateHistory()}
      * cannot fail a dispatch which has already persisted its state.
      *
      * <p>A failure to record the history fails the dispatch. Under a batched delivery,
@@ -802,10 +776,18 @@ public abstract class AggregateRepository<I,
      * @return loaded or created aggregate instance
      */
     final A loadOrCreate(I id) {
-        return cache.load(id);
+        return cache().load(id);
     }
 
-    @VisibleForTesting
+    /**
+     * {@inheritDoc}
+     *
+     * @implSpec Creating an aggregate here also posts the
+     *         {@linkplain io.spine.system.server.event.EntityCreated entity-created} event —
+     *         this is the "loads or creates differently" case the base method describes.
+     */
+    @Override
+    @Internal
     protected A doLoadOrCreate(I id) {
         var result = load(id).orElseGet(() -> createNew(id));
         return result;
@@ -889,14 +871,11 @@ public abstract class AggregateRepository<I,
         // the primary exception and the later ones are attached to it as suppressed, so none of
         // them is lost. `super.close()` is called directly (not via the helper) so that the
         // `@OverridingMethodsMustInvokeSuper` check recognizes the super-call.
-        @Nullable RuntimeException failure = null;
+        RuntimeException failure = null;
         try {
             super.close();
         } catch (RuntimeException e) {
             failure = e;
-        }
-        if (inbox != null) {
-            failure = attemptClose(failure, inbox::unregister);
         }
         failure = attemptClose(failure, this::closeEventStorage);
         failure = attemptClose(failure, this::closeStateHistory);

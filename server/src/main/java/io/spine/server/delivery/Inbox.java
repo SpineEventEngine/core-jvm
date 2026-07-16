@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -158,7 +158,7 @@ public final class Inbox<I> {
 
         /**
          * Adds an endpoint for events that will be delivered through the {@code Inbox} and
-         * marks it with the certain label.
+         * marks it with a certain label.
          */
         @CanIgnoreReturnValue
         public Builder<I> addEventEndpoint(InboxLabel label,
@@ -171,7 +171,7 @@ public final class Inbox<I> {
 
         /**
          * Adds an endpoint for commands that will be delivered through the {@code Inbox} and
-         * marks it with the certain label.
+         * marks it with a certain label.
          */
         @CanIgnoreReturnValue
         public Builder<I> addCommandEndpoint(InboxLabel label,
@@ -183,7 +183,8 @@ public final class Inbox<I> {
         }
 
         /**
-         * Allows to specify the listener of the starting and ending batch dispatching operations.
+         * Allows one to specify the listener of the starting and ending batch
+         * dispatching operations.
          */
         @CanIgnoreReturnValue
         public Builder<I> withBatchListener(BatchDeliveryListener<I> dispatcher) {
@@ -192,14 +193,28 @@ public final class Inbox<I> {
         }
 
         /**
+         * Tells if at least one event or command endpoint was added to this builder.
+         *
+         * <p>Since {@link #build()} requires an endpoint, this method tells if the builder
+         * is ready to be built.
+         */
+        public boolean hasEndpoints() {
+            return !eventEndpoints.isEmpty() || !commandEndpoints.isEmpty();
+        }
+
+        /**
          * Creates an instance of {@code Inbox} and registers it in the
          * server-wide {@code Delivery}.
+         *
+         * @throws IllegalArgumentException
+         *         if neither an event nor a command endpoint was added; use
+         *         {@link #hasEndpoints()} to tell in advance
          */
         public Inbox<I> build() {
             var delivery = ServerEnvironment.instance()
                                             .delivery();
             checkNotNull(entityStateType, "Entity state type must be set.");
-            checkArgument(!eventEndpoints.isEmpty() || !commandEndpoints.isEmpty(),
+            checkArgument(hasEndpoints(),
                           "There must be at least one event or command endpoint.");
             var inbox = new Inbox<>(this, delivery);
             delivery.register(inbox);

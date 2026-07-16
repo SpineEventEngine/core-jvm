@@ -167,14 +167,9 @@ final class SubscriptionRecord {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof SubscriptionRecord)) {
-            return false;
-        }
-        var that = (SubscriptionRecord) o;
-        return Objects.equal(subscription, that.subscription);
+        return (this == o) ||
+                ((o instanceof SubscriptionRecord that) &&
+                        Objects.equal(subscription, that.subscription));
     }
 
     @Override

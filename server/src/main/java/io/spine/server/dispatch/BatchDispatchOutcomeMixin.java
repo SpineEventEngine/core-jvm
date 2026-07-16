@@ -38,15 +38,11 @@ interface BatchDispatchOutcomeMixin extends BatchDispatchOutcomeOrBuilder, Field
 
     @Override
     default Object readValue(FieldDescriptor field) {
-        switch (field.getIndex()) {
-            case 0:
-                return getTargetEntity();
-            case 1:
-                return getOutcomeList();
-            case 2:
-                return getSuccessful();
-            default:
-                return getField(field);
-        }
+        return switch (field.getIndex()) {
+            case 0 -> getTargetEntity();
+            case 1 -> getOutcomeList();
+            case 2 -> getSuccessful();
+            default -> getField(field);
+        };
     }
 }

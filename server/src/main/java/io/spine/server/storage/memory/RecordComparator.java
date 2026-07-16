@@ -34,6 +34,7 @@ import io.spine.query.RecordColumn;
 import io.spine.query.SortBy;
 import io.spine.server.storage.RecordWithColumns;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.List;
@@ -60,6 +61,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
 public class RecordComparator<I, R extends Message>
         implements Comparator<RecordWithColumns<I, R>>, Serializable {
 
+    @Serial
     private static final long serialVersionUID = 0L;
 
     private final RecordColumn<R, ?> column;
@@ -109,7 +111,10 @@ public class RecordComparator<I, R extends Message>
         return RecordComparator.<I, R>ascending(column).reversed();
     }
 
-    @SuppressWarnings("ChainOfInstanceofChecks")    // Different special cases are covered.
+    @SuppressWarnings({
+            "ChainOfInstanceofChecks" /* Different special cases are covered. */,
+            "PatternMatchingInstanceof" /* Would not provide better readability here.*/
+    })
     @Override
     public int compare(RecordWithColumns<I, R> a, RecordWithColumns<I, R> b) {
         checkNotNull(a);

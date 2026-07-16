@@ -231,20 +231,14 @@ public final class ToEntityRecordQuery<I, S extends EntityState<I>>
         var castSource = (Column<?, V>) source;
         var column = AsEntityRecordColumn.apply(castSource);
         var where = builder.where(column);
-        switch (operator) {
-            case EQUALS:
-                return where.is(value);
-            case GREATER_OR_EQUALS:
-                return where.isGreaterOrEqualTo(value);
-            case GREATER_THAN:
-                return where.isGreaterThan(value);
-            case LESS_OR_EQUALS:
-                return where.isLessOrEqualTo(value);
-            case LESS_THAN:
-                return where.isLessThan(value);
-            default:
-                throw newIllegalStateException("Unknown comparison operator `%s`.",
-                                               operator);
-        }
+        return switch (operator) {
+            case EQUALS -> where.is(value);
+            case GREATER_OR_EQUALS -> where.isGreaterOrEqualTo(value);
+            case GREATER_THAN -> where.isGreaterThan(value);
+            case LESS_OR_EQUALS -> where.isLessOrEqualTo(value);
+            case LESS_THAN -> where.isLessThan(value);
+            default -> throw newIllegalStateException("Unknown comparison operator `%s`.",
+                                                      operator);
+        };
     }
 }

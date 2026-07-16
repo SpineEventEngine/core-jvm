@@ -294,25 +294,16 @@ final class CatchUpStation extends Station {
                 var jobStatus = job.getStatus();
 
                 switch (jobStatus) {
-                    case STARTED:
-                        started(message);
-                        break;
-                    case IN_PROGRESS:
-                        inProgress(message);
-                        break;
-                    case FINALIZING:
-                        finalizingWith(message);
-                        break;
-                    case COMPLETED:
-                        completedWith(message);
-                        break;
-                    case CUS_UNDEFINED:
-                    case UNRECOGNIZED:
-                        throw newIllegalStateException(
-                                "The catch-up job must have a definite status: `%s`.", job
-                        );
-                    default:
+                    case STARTED -> started(message);
+                    case IN_PROGRESS -> inProgress(message);
+                    case FINALIZING -> finalizingWith(message);
+                    case COMPLETED -> completedWith(message);
+                    case CUS_UNDEFINED, UNRECOGNIZED -> throw newIllegalStateException(
+                            "The catch-up job must have a definite status: `%s`.", job
+                    );
+                    default -> {
                         // Skip the message.
+                    }
                 }
             }
         }

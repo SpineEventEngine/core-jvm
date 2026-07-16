@@ -134,10 +134,9 @@ public final class ContextSpec {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof ContextSpec)) {
+        if (!(o instanceof ContextSpec spec)) {
             return false;
         }
-        var spec = (ContextSpec) o;
         return isMultitenant() == spec.isMultitenant() &&
                 storeEvents == spec.storeEvents &&
                 Objects.equal(name, spec.name);

@@ -204,10 +204,9 @@ public abstract class EnricherBuilder<M extends Message,
             if (this == obj) {
                 return true;
             }
-            if (!(obj instanceof Key)) {
+            if (!(obj instanceof Key other)) {
                 return false;
             }
-            final var other = (Key) obj;
             return Objects.equals(this.sourceClass.getName(),
                                   other.sourceClass.getName())
                     && Objects.equals(this.enrichmentClass.getName(),

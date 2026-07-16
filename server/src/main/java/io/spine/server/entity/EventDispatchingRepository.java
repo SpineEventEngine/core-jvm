@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Suppliers.memoize;
+import static io.spine.server.Suppliers2.memoize;
 
 /**
  * Abstract base for repositories that deliver events to entities they manage.
@@ -68,7 +68,10 @@ public abstract class EventDispatchingRepository<I,
     }
 
     /**
-     * Registers itself as an event dispatcher with the parent {@code BoundedContext}.
+     * {@inheritDoc}
+     *
+     * <p>Registers itself as an event dispatcher with the parent {@code BoundedContext},
+     * and sets up the routing of the events it dispatches.
      *
      * @param context
      *         the {@code BoundedContext} of this repository

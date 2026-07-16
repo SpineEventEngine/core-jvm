@@ -82,8 +82,8 @@ public interface EventProducingRepository {
      * <p>Otherwise, does nothing.
      */
     default void postIfCommandRejected(SignalEnvelope<?, ?, ?> signal, Throwable cause) {
-        if (signal instanceof CommandEnvelope && cause instanceof RejectionThrowable) {
-            var command = ((CommandEnvelope) signal).outerObject();
+        if (signal instanceof CommandEnvelope ce && cause instanceof RejectionThrowable) {
+            var command = ce.outerObject();
             var rejection = reject(command, cause);
             postEvents(rejection.toSet());
         }

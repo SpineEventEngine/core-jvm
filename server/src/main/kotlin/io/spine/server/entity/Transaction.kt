@@ -144,13 +144,13 @@ public abstract class Transaction<I : Any,
 
     /**
      * The flag, which becomes `true`, if the state of the entity [has been changed][commit] since
-     * it has been [loaded or created][RecordBasedRepository.findOrCreate].
+     * it has been [loaded or created][Repository.findOrCreate].
      */
     internal var stateChanged: Boolean = false
         private set
 
     /**
-     * Allows to understand whether this transaction is active.
+     * Tells whether this transaction is active.
      *
      * Has `true` value since the transaction instance creation until [commit] is performed.
      */

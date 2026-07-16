@@ -60,43 +60,43 @@ public class RoverBot extends Aggregate<Integer, Position, Position.Builder> {
     /** Generates a random move event. */
     private MovingEvent nextMove() {
         var nextMove = TestValues.random(4);
-        var id = id();
-        switch (nextMove) {
-            case 0: {
+        int id = id();
+        return switch (nextMove) {
+            case 0 -> {
                 var e = MovedNorth.newBuilder()
                         .setBotId(id)
                         .build();
                 builder().setId(e.getBotId())
                          .setY(currentY() + 1);
-                return e;
+                yield e;
             }
-            case 1: {
+            case 1 -> {
                 var e = MovedEast.newBuilder()
                         .setBotId(id)
                         .build();
                 builder().setId(e.getBotId())
                          .setX(currentX() + 1);
-                return e;
+                yield e;
             }
-            case 2: {
+            case 2 -> {
                 var e = MovedSouth.newBuilder()
                         .setBotId(id)
                         .build();
                 builder().setId(e.getBotId())
                          .setY(currentY() - 1);
-                return e;
+                yield e;
             }
-            case 3: {
+            case 3 -> {
                 var e = MovedWest.newBuilder()
                         .setBotId(id)
                         .build();
                 builder().setId(e.getBotId())
                          .setX(currentX() - 1);
-                return e;
+                yield e;
             }
-            default:
-                throw newIllegalStateException("Unable to create a move event for %d.", nextMove);
-        }
+            default -> throw newIllegalStateException("Unable to create a move event for %d.",
+                                                      nextMove);
+        };
     }
 
     private int currentX() {

@@ -5,6 +5,8 @@ Each entry is a memory file with YAML frontmatter and a body. Types: `feedback`,
 
 - [Proto Builder DSL Policy in Tests](feedback_proto_builder_dsl.md) — Use Kotlin DSL for `.build()` only; plain Java chains for `.buildPartial()`; never use `.apply {}` with proto builders
 - [`@NonValidated` on `buildPartial()` stubs](feedback_non_validated_annotation.md) — Annotate every function return type that returns a `buildPartial()` proto with `@NonValidated`
+- [No `@Nullable` on locals](feedback_no_nullable_on_locals.md) — the annotation does not apply to local variables (nullness is flow-inferred); keep it on parameters, returns, and fields — and never "restore" one removed from a local
+- [Proportionate API docs](feedback_proportionate_api_docs.md) — don't document failure modes with no consequence; a caveat must never outweigh the method's contract. Failing loudly on a config error is correct behavior, not a defect needing a disclaimer
 - [which-fixer applied](which-fixer-applied.md) — bulk sweep done; skill now runs in incremental mode
 - [Java→Kotlin visibility traps](java-to-kotlin-visibility-traps.md) — protected/package-private mapping, `@JvmName` for Java callers, `HasVersionColumn.getVersion()` clash
 - [KDoc tag descriptions: sentence case](feedback_kdoc_tag_descriptions_sentence_case.md) — `@param I The type...`; don't carry lowercase over from legacy Javadoc

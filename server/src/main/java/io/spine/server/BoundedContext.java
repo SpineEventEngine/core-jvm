@@ -240,8 +240,7 @@ public abstract class BoundedContext
         if (dispatcher.dispatchesCommands()) {
             commandBus().register(dispatcher);
         }
-        if (dispatcher instanceof EventDispatcherDelegate) {
-            var eventDispatcher = (EventDispatcherDelegate) dispatcher;
+        if (dispatcher instanceof EventDispatcherDelegate eventDispatcher) {
             registerEventDispatcher(eventDispatcher);
         }
     }
@@ -288,8 +287,7 @@ public abstract class BoundedContext
         if (dispatcher.dispatchesExternalEvents()) {
             broker.register(dispatcher);
         }
-        if (dispatcher instanceof CommandDispatcherDelegate) {
-            var commandDispatcher = (CommandDispatcherDelegate) dispatcher;
+        if (dispatcher instanceof CommandDispatcherDelegate commandDispatcher) {
             registerCommandDispatcher(commandDispatcher);
         }
     }
@@ -316,8 +314,7 @@ public abstract class BoundedContext
         if (dispatcher.dispatchesExternalEvents()) {
             broker.unregister(dispatcher);
         }
-        if (dispatcher instanceof CommandDispatcherDelegate) {
-            var commandDispatcher = (CommandDispatcherDelegate) dispatcher;
+        if (dispatcher instanceof CommandDispatcherDelegate commandDispatcher) {
             unregisterCommandDispatcher(commandDispatcher);
         }
     }
@@ -338,11 +335,8 @@ public abstract class BoundedContext
      * {@linkplain ContextAware#registerWith registers} it with this context.
      */
     private void registerIfAware(Object contextPart) {
-        if (contextPart instanceof ContextAware) {
-            var contextAware = (ContextAware) contextPart;
-            if (!contextAware.isRegistered()) {
-                contextAware.registerWith(this);
-            }
+        if (contextPart instanceof ContextAware contextAware && !contextAware.isRegistered()) {
+            contextAware.registerWith(this);
         }
     }
 
@@ -351,11 +345,8 @@ public abstract class BoundedContext
      * {@linkplain ContextAware#unregister() unregisters} it from this context.
      */
     private static void unregisterIfAware(Object contextPart) {
-        if (contextPart instanceof ContextAware) {
-            var contextAware = (ContextAware) contextPart;
-            if (contextAware.isRegistered()) {
-                contextAware.unregister();
-            }
+        if (contextPart instanceof ContextAware contextAware && contextAware.isRegistered()) {
+            contextAware.unregister();
         }
     }
 
@@ -504,10 +495,7 @@ public abstract class BoundedContext
      */
     private void shutDownRepositories() {
         guard.shutDownRepositories();
-
-        if (tenantIndex != null) {
-            tenantIndex.close();
-        }
+        tenantIndex.close();
     }
 
     /**
@@ -600,14 +588,8 @@ public abstract class BoundedContext
      */
     @Override
     public boolean equals(@Nullable Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof BoundedContext)) {
-            return false;
-        }
-        var another = (BoundedContext) o;
-        return name().equals(another.name());
+        return (this == o) ||
+                ((o instanceof BoundedContext another) && name().equals(another.name()));
     }
 
     @Override

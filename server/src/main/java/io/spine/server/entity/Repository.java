@@ -26,7 +26,6 @@
 
 package io.spine.server.entity;
 
-import com.google.common.collect.Iterators;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import io.spine.annotation.Internal;
 import io.spine.annotation.SPI;
@@ -38,7 +37,10 @@ import io.spine.reflect.GenericTypeIndex;
 import io.spine.server.BoundedContext;
 import io.spine.server.Closeable;
 import io.spine.server.ContextAware;
+import io.spine.server.Iterators2;
 import io.spine.server.ServerEnvironment;
+import io.spine.server.delivery.BatchDeliveryListener;
+import io.spine.server.delivery.Inbox;
 import io.spine.server.entity.model.EntityClass;
 import io.spine.server.route.RouteFn;
 import io.spine.server.storage.Storage;
@@ -78,8 +80,6 @@ import static io.spine.util.Exceptions.newIllegalStateException;
 public abstract class Repository<I, E extends Entity<I, ?>>
         implements ContextAware, Closeable, WithLogging {
 
-    private static final String ERR_MSG_STORAGE_NOT_ASSIGNED = "Storage is not assigned.";
-
     /**
      * The {@link BoundedContext} to which the repository belongs.
      *
@@ -105,6 +105,23 @@ public abstract class Repository<I, E extends Entity<I, ?>>
     private @Nullable Storage<I, ?> storage;
 
     /**
+     * The {@code Inbox} for the messages sent to the entities managed by this repository.
+     *
+     * <p>This field is {@code null} for a repository that does not
+     * {@linkplain #setupInbox(Inbox.Builder) configure} any inbox endpoints.
+     */
+    private @MonotonicNonNull Inbox<I> inbox;
+
+    /**
+     * The cache of the entities managed by this repository.
+     *
+     * <p>Every repository has one once it is
+     * {@linkplain #registerWith(BoundedContext) registered}. This field is {@code null}
+     * only before that.
+     */
+    private @MonotonicNonNull RepositoryCache<I, E> cache;
+
+    /**
      * Creates the repository.
      */
     protected Repository() {
@@ -117,15 +134,6 @@ public abstract class Repository<I, E extends Entity<I, ?>>
      * @return new entity instance
      */
     public abstract E create(I id);
-
-    /**
-     * Stores the passed object.
-     *
-     * <p>Note: The storage must be assigned before calling this method.
-     *
-     * @param obj an instance to store
-     */
-    protected abstract void store(E obj);
 
     /**
      * Finds an entity with the passed ID.
@@ -145,8 +153,7 @@ public abstract class Repository<I, E extends Entity<I, ?>>
      */
     public Iterator<E> iterator(Predicate<E> filter) {
         Iterator<E> unfiltered = new EntityIterator<>(this);
-        Iterator<E> filtered = Iterators.filter(unfiltered, filter::test);
-        return filtered;
+        return Iterators2.filter(unfiltered, filter);
     }
 
     /**
@@ -207,9 +214,14 @@ public abstract class Repository<I, E extends Entity<I, ?>>
      * <p>A repository which has been {@linkplain #close() closed} is not meant to be
      * registered again: create a new repository instance instead.
      *
+     * <p>Also creates the {@linkplain #cache() cache} of this repository, and — if it
+     * {@linkplain #setupInbox(Inbox.Builder) configures} any inbox endpoints — its
+     * {@linkplain #inbox() inbox}.
+     *
      * @throws IllegalStateException
      *          if the repository has a context value already assigned, and the passed value is
-     *          not equal to the assigned one
+     *          not equal to the assigned one, or if {@link #checkDispatchesMessages()}
+     *          rejects this repository
      */
     @OverridingMethodsMustInvokeSuper
     @Override
@@ -227,12 +239,34 @@ public abstract class Repository<I, E extends Entity<I, ?>>
         if (sameValue) {
             return;
         }
+        checkDispatchesMessages();
         this.context = context;
         open();
         if (isTypeSupplier()) {
             context.stand()
                    .registerTypeSupplier(this);
         }
+        if (!hasCache()) {
+            initCache();
+        }
+        initInbox();
+    }
+
+    /**
+     * Verifies that this repository dispatches at least one kind of message to its entities.
+     *
+     * @throws IllegalStateException
+     *         if this repository dispatches no messages
+     * @implSpec Does nothing by default. A repository dispatching messages to its entities
+     *         should override this method, throwing an {@code IllegalStateException} if
+     *         the class of its entities declares no receptors. The override runs before
+     *         {@link #registerWith(BoundedContext) registerWith()} assigns the context, so
+     *         it cannot use {@link #context()}; the class of the entities, which is what
+     *         the check needs, comes from {@link #entityModelClass()}.
+     */
+    @SuppressWarnings("NoopMethodInAbstractClass") // See `@implSpec`.
+    protected void checkDispatchesMessages() {
+        // Do nothing by default.
     }
 
     /**
@@ -339,7 +373,7 @@ public abstract class Repository<I, E extends Entity<I, ?>>
      * @throws IllegalStateException if the passed instance is null
      */
     private static <S extends Closeable> S checkStorage(@Nullable S storage) {
-        checkState(storage != null, ERR_MSG_STORAGE_NOT_ASSIGNED);
+        checkState(storage != null, "Storage is not assigned.");
         return storage;
     }
 
@@ -356,11 +390,208 @@ public abstract class Repository<I, E extends Entity<I, ?>>
     protected abstract Storage<I, ?> createStorage();
 
     /**
-     * Closes the repository by closing the underlying storage.
+     * Returns the {@code Inbox} of this repository.
      *
-     * <p>The reference to the storage becomes null after this call. If closing the storage
-     * fails, the storage and context references are still cleared before the failure is
-     * re-thrown, so a failed close does not leave the repository half-open.
+     * @throws IllegalStateException
+     *         if this repository does not {@linkplain #setupInbox(Inbox.Builder) configure}
+     *         any inbox endpoints, or is not registered with a context yet
+     */
+    @Internal
+    protected final Inbox<I> inbox() {
+        checkState(inbox != null, "The repository (class: `%s`) has no `Inbox`." +
+                " It either configures no inbox endpoints," +
+                " or is not registered with a `BoundedContext` yet.", getClass().getName());
+        return inbox;
+    }
+
+    /**
+     * Returns the cache of the entities of this repository.
+     *
+     * <p>Every repository has a cache. Not having one is an initialization error, so this
+     * method fails rather than telling the caller to work around a missing cache.
+     *
+     * @throws IllegalStateException
+     *         if this repository is not registered with a context yet
+     */
+    @Internal
+    protected final RepositoryCache<I, E> cache() {
+        checkState(cache != null, "The repository (class: `%s`) has no cache." +
+                           " Check that `registerWith()` was called.",
+                   getClass().getName());
+        return cache;
+    }
+
+    /**
+     * Tells if the {@linkplain #cache() cache} of this repository is already created.
+     *
+     * <p>Serves the initialization performed by {@link #registerWith(BoundedContext)} only.
+     * Everywhere else the cache is expected to be there — use {@link #cache()}, which fails
+     * fast if it is not, instead of branching on this method.
+     */
+    @Internal
+    protected final boolean hasCache() {
+        return cache != null;
+    }
+
+    /**
+     * A callback for derived classes to add the endpoints serving the messages
+     * dispatched to the entities of this repository.
+     *
+     * @param builder
+     *         the builder of the {@code Inbox} of this repository
+     * @implSpec Does nothing by default. An overriding repository is expected to add
+     *         endpoints via the given builder. Adding none means that the repository does
+     *         not use the {@code Inbox}: no inbox is then created and {@link #inbox()}
+     *         fails. The {@linkplain #cache() cache} is unaffected — every repository
+     *         has one.
+     */
+    @SuppressWarnings("NoopMethodInAbstractClass") // See `@implSpec`.
+    @Internal
+    protected void setupInbox(Inbox.Builder<I> builder) {
+        // Do nothing by default.
+    }
+
+    /**
+     * Loads the entity with the passed ID through the {@linkplain #cache() cache}, creating
+     * a new one if there is no such entity.
+     *
+     * <p>The direct load-or-create, bypassing the cache, is {@link #doLoadOrCreate(Object)}.
+     *
+     * @param id
+     *         the ID of the entity to load
+     * @return the loaded or created entity
+     * @implSpec Not {@code final} only so that a repository in another package can re-declare
+     *         it to expose it to that package. Such an override does nothing but call
+     *         {@code super}.
+     */
+    @Internal
+    protected E findOrCreate(I id) {
+        return cache().load(id);
+    }
+
+    /**
+     * Loads the entity with the passed ID, creating a new one if there is no such entity,
+     * bypassing the {@linkplain #cache() cache}.
+     *
+     * <p>Serves as the loading function of the cache, invoked on a cache miss.
+     *
+     * @param id
+     *         the ID of the entity to load
+     * @return the loaded or created entity
+     * @implSpec Loads via {@link #find(Object) find()}, falling back to
+     *         {@link #create(Object) create()}. A repository whose load or create differs —
+     *         e.g., one that restores from a state record, or posts an entity-created event —
+     *         overrides this method.
+     */
+    @Internal
+    protected E doLoadOrCreate(I id) {
+        return find(id).orElseGet(() -> create(id));
+    }
+
+    /**
+     * Stores the given entity through the {@linkplain #cache() cache}.
+     *
+     * <p>Under a batched delivery the cache defers the write to the storage to the end of
+     * the batch; the direct write is {@link #doStore(Entity) doStore()}. In contrast,
+     * {@link #afterStore(Entity)} runs on every call to this method.
+     *
+     * @param entity
+     *         the entity to store
+     */
+    public final void store(E entity) {
+        cache().store(entity);
+        afterStore(entity);
+    }
+
+    /**
+     * Writes the given entity to the storage, bypassing the {@linkplain #cache() cache}.
+     *
+     * <p>Serves as the storing function of the cache, invoked when the cache flushes —
+     * under a batched delivery, at the end of the batch.
+     *
+     * @param entity
+     *         the entity to write
+     */
+    @Internal
+    protected abstract void doStore(E entity);
+
+    /**
+     * A callback invoked once per {@link #store(Entity) store()} call, after the entity
+     * is handed to the cache.
+     *
+     * <p>Unlike {@link #doStore(Entity) doStore()}, which the cache may defer to the end of
+     * a delivery batch, this runs on every dispatch. A repository that records something per
+     * dispatch — such as a state history — hooks in here rather than in {@code doStore()}.
+     *
+     * <p>Does nothing by default.
+     *
+     * @param entity
+     *         the stored entity
+     */
+    @SuppressWarnings("NoopMethodInAbstractClass") // See Javadoc.
+    @Internal
+    protected void afterStore(E entity) {
+        // Do nothing by default.
+    }
+
+    /**
+     * Creates the {@code Inbox} of this repository, unless {@link #setupInbox(Inbox.Builder)}
+     * adds no endpoint.
+     *
+     * <p>Called after {@link #initCache()}, because the created inbox is registered with the
+     * {@code Delivery} of the current {@code ServerEnvironment} straight away, and the
+     * caching listener it carries reaches for the cache.
+     */
+    private void initInbox() {
+        var delivery = ServerEnvironment.instance()
+                                        .delivery();
+        Inbox.Builder<I> builder = delivery.newInbox(entityStateType());
+        setupInbox(builder);
+        if (!builder.hasEndpoints()) {
+            return;
+        }
+        inbox = builder.withBatchListener(newCachingListener())
+                       .build();
+    }
+
+    /**
+     * Creates the cache of the entities of this repository.
+     */
+    private void initCache() {
+        cache = new RepositoryCache<>(context().isMultitenant(),
+                                      this::doLoadOrCreate,
+                                      this::doStore);
+    }
+
+    /**
+     * Creates a listener that caches an entity for the span of a batch delivered to it,
+     * so that the batch costs one read and one write instead of one of each per message.
+     */
+    private BatchDeliveryListener<I> newCachingListener() {
+        return new BatchDeliveryListener<>() {
+            @Override
+            public void onStart(I id) {
+                cache().startCaching(id);
+            }
+
+            @Override
+            public void onEnd(I id) {
+                cache().stopCaching(id);
+            }
+        };
+    }
+
+    /**
+     * Closes the repository by unregistering the {@linkplain #inbox() inbox}, if this
+     * repository has one, and closing the underlying storage.
+     *
+     * <p>The inbox is unregistered first, so that no message is delivered to an entity
+     * whose storage is already closed.
+     *
+     * <p>The reference to the storage becomes {@code null} after this call. If one of the
+     * steps fails, the remaining ones are still attempted, and the storage and context
+     * references are still cleared, before the failure is re-thrown — so a failed close
+     * does not leave the repository half-open.
      *
      * <p>A closed repository is not meant to be {@linkplain #registerWith(BoundedContext)
      * registered} again: not every resource it owns is re-created on a repeated
@@ -369,7 +600,10 @@ public abstract class Repository<I, E extends Entity<I, ?>>
     @Override
     @OverridingMethodsMustInvokeSuper
     public void close() {
-        @Nullable RuntimeException failure = null;
+        RuntimeException failure = null;
+        if (inbox != null) {
+            failure = attemptClose(null, inbox::unregister);
+        }
         if (isOpen()) {
             failure = attemptClose(failure, storage()::close);
             this.storage = null;

@@ -52,8 +52,7 @@ public final class FailingAggregateRepository
      * Defines a routing function that takes absolute value as ID.
      */
     private static long byAbsoluteValueOf(CommandMessage message) {
-        if (message instanceof RejectNegativeInt) {
-            var event = (RejectNegativeInt) message;
+        if (message instanceof RejectNegativeInt event) {
             return Math.abs(event.getNumber());
         }
         return 0L;
@@ -71,8 +70,8 @@ public final class FailingAggregateRepository
      * @see io.spine.server.aggregate.given.repo.FailingAggregate#on(io.spine.test.aggregate.number.FloatEncountered)
      */
     private static ImmutableSet<Long> newDefaultRouteFor(EventMessage message) {
-        if (message instanceof FloatEncountered) {
-            var absValue = FailingAggregate.toId((FloatEncountered) message);
+        if (message instanceof FloatEncountered fe) {
+            var absValue = FailingAggregate.toId(fe);
             return ImmutableSet.of(absValue, absValue + 100, absValue + 200);
         }
         return ImmutableSet.of(1L, 2L);

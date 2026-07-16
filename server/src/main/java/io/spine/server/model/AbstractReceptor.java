@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,9 +51,9 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Suppliers.memoize;
 import static io.spine.base.Errors.causeOf;
 import static io.spine.base.Errors.fromThrowable;
+import static io.spine.server.Suppliers2.memoize;
 import static io.spine.server.model.MethodResults.collectMessageClasses;
 import static io.spine.util.Exceptions.illegalStateWithCauseOf;
 import static java.lang.String.format;
@@ -313,10 +313,10 @@ class AbstractReceptor<T,
         } catch (InvocationTargetException e) {
             var cause = e.getCause();
             checkNotNull(cause);
-            if (cause instanceof Mistake) {
-                throw (Mistake) cause;
-            } else if (cause instanceof RejectionThrowable) {
-                var success = asRejection(target, envelope, (RejectionThrowable) cause);
+            if (cause instanceof Mistake mistake) {
+                throw mistake;
+            } else if (cause instanceof RejectionThrowable rt) {
+                var success = asRejection(target, envelope, rt);
                 outcome.setSuccess(success);
             } else {
                 var error = causeOf(cause);
@@ -378,7 +378,6 @@ class AbstractReceptor<T,
      * @return full name of the subscriber
      */
     public String getFullName() {
-        var template = "%s.%s(%s)";
         var className = method.getDeclaringClass()
                               .getName();
         var methodName = method.getName();
@@ -386,7 +385,7 @@ class AbstractReceptor<T,
                 Stream.of(method.getParameterTypes())
                       .map(Class::getSimpleName)
                       .collect(joining(", "));
-        var result = format(template, className, methodName, parameterTypes);
+        var result = format("%s.%s(%s)", className, methodName, parameterTypes);
         return result;
     }
 
@@ -403,14 +402,9 @@ class AbstractReceptor<T,
 
     @Override
     public boolean equals(@Nullable Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!(obj instanceof AbstractReceptor)) {
-            return false;
-        }
-        var other = (AbstractReceptor<?, ?, ?, ?, ?>) obj;
-        return Objects.equals(this.method, other.method);
+        return (this == obj) ||
+                ((obj instanceof AbstractReceptor<?, ?, ?, ?, ?> other) &&
+                        Objects.equals(this.method, other.method));
     }
 
     /**

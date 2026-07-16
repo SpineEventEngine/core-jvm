@@ -83,10 +83,9 @@ final class SystemConfig implements SystemFeatures {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof SystemConfig)) {
+        if (!(o instanceof SystemConfig config)) {
             return false;
         }
-        var config = (SystemConfig) o;
         return commandLog == config.commandLog &&
                 storeEvents == config.storeEvents &&
                 Objects.equals(postingExecutor, config.postingExecutor);

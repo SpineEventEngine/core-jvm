@@ -35,6 +35,7 @@ import io.spine.test.reflect.event.RefProjectStarted;
 /**
  * Provides a method that has correct parameter and return value, but wrong annotations.
  */
+@SuppressWarnings("deprecation") // Still need to use `@Apply`.
 public final class RcWrongAnnotation extends TestEventReactor {
 
     @Apply

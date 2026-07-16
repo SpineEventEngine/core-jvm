@@ -231,9 +231,8 @@ public class AbstractReactorTestEnv {
         }
 
         private static DeliveryServiceNotified notifyDelivery(Order order) {
-            var messageFormat = "Order %s is ready to be delivered.";
             var result = DeliveryServiceNotified.newBuilder()
-                    .setMessage(format(messageFormat, order.getOrderId()))
+                    .setMessage(format("Order %s is ready to be delivered.", order.getOrderId()))
                     .setOrder(order)
                     .build();
             return result;

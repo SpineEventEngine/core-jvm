@@ -109,7 +109,7 @@ public final class SystemSettings implements SystemFeatures {
      *
      * <p>This is the default setting.
      *
-     * @return self for method chaining
+     * @return self, for method chaining
      * @see #enableCommandLog()
      */
     @CanIgnoreReturnValue
@@ -121,7 +121,7 @@ public final class SystemSettings implements SystemFeatures {
     /**
      * Configures the system context to store system events.
      *
-     * @return self for method chaining
+     * @return self, for method chaining
      * @see #forgetEvents()
      */
     @CanIgnoreReturnValue
@@ -135,7 +135,7 @@ public final class SystemSettings implements SystemFeatures {
      *
      * <p>This is the default setting.
      *
-     * @return self for method chaining
+     * @return self, for method chaining
      * @see #persistEvents()
      */
     @CanIgnoreReturnValue
@@ -149,9 +149,9 @@ public final class SystemSettings implements SystemFeatures {
      *
      * <p>The events are posted using the {@link ForkJoinPool#commonPool() common pool}.
      *
-     * <p>This is the default setting in production environment.
+     * <p>This is the default setting in a production environment.
      *
-     * @return self for method chaining
+     * @return self, for method chaining
      *
      * @see #useCustomPostingExecutor(Executor)
      * @see #disableParallelPosting()
@@ -243,16 +243,15 @@ public final class SystemSettings implements SystemFeatures {
         return new SystemConfig(commandLog, storeEvents, customExecutor);
     }
 
-    @SuppressWarnings("NonFinalFieldReferenceInEquals")
+    @SuppressWarnings({"NonFinalFieldReferenceInEquals", "OverlyComplexBooleanExpression"})
     @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof SystemSettings)) {
+        if (!(o instanceof SystemSettings settings)) {
             return false;
         }
-        var settings = (SystemSettings) o;
         return commandLog == settings.commandLog &&
                 storeEvents == settings.storeEvents &&
                 parallelPosting == settings.parallelPosting &&

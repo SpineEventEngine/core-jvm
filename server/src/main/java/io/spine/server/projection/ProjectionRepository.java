@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,17 +38,14 @@ import io.spine.base.Time;
 import io.spine.core.Event;
 import io.spine.server.BoundedContext;
 import io.spine.server.ServerEnvironment;
-import io.spine.server.delivery.BatchDeliveryListener;
 import io.spine.server.delivery.CatchUpAlreadyStartedException;
 import io.spine.server.delivery.CatchUpId;
 import io.spine.server.delivery.CatchUpProcess;
 import io.spine.server.delivery.CatchUpSignal;
-import io.spine.server.delivery.Delivery;
 import io.spine.server.delivery.Inbox;
 import io.spine.server.delivery.InboxLabel;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.EventDispatchingRepository;
-import io.spine.server.entity.RepositoryCache;
 import io.spine.server.entity.model.StateClass;
 import io.spine.server.entity.storage.EntityRecordStorage;
 import io.spine.server.event.EventStore;
@@ -65,7 +62,6 @@ import org.jspecify.annotations.Nullable;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.Sets.intersection;
 import static com.google.common.collect.Sets.union;
@@ -117,26 +113,16 @@ public abstract class ProjectionRepository<I,
                                            S extends ProjectionState<I>>
         extends EventDispatchingRepository<I, P, S> {
 
-    private @MonotonicNonNull Inbox<I> inbox;
-
     private @MonotonicNonNull CatchUpProcess<I> catchUpProcess;
 
-    private @MonotonicNonNull RepositoryCache<I, P> cache;
-
     /**
-     * Initializes the repository.
-     *
-     * <p>Ensures there is at least one event subscriber method (external or domestic) declared
-     * by the class of the projection. Throws an {@code IllegalStateException} otherwise.
+     * {@inheritDoc}
      *
      * <p>If projections of this repository are {@linkplain io.spine.core.Subscribe subscribed} to
      * entity state updates, a routing for state updates is created and
      * {@linkplain #setupStateRouting(StateUpdateRouting) configured}.
      * If one of the states of entities cannot be routed during the created schema,
      * {@code IllegalStateException} will be thrown.
-     *
-     * <p>Initializes the {@link Inbox}es for the instances of this repository and creates
-     * a {@link RepositoryCache} to optimize the delivery of the event batches.
      *
      * <p>Creates an instance of the {@link CatchUpProcess} enabling this repository {@linkplain
      * #catchUp(Timestamp, Set) to catch-up} its instances.
@@ -151,19 +137,16 @@ public abstract class ProjectionRepository<I,
     @OverridingMethodsMustInvokeSuper
     public void registerWith(BoundedContext context) throws IllegalStateException {
         super.registerWith(context);
-        ensureDispatchesEvents();
-        initCache(context.isMultitenant());
-        var delivery = ServerEnvironment.instance()
-                                        .delivery();
-        initInbox(delivery);
-        initCatchUp(context, delivery);
+        initCatchUp(context);
     }
 
     /**
      * Initializes the catch-up process for the instances of this repository and registers it
      * as an event dispatcher in the same Bounded Context as the repository itself.
      */
-    private void initCatchUp(BoundedContext context, Delivery delivery) {
+    private void initCatchUp(BoundedContext context) {
+        var delivery = ServerEnvironment.instance()
+                                        .delivery();
         var builder = delivery.newCatchUpProcess(this);
         catchUpProcess = builder.setDispatchOp(this::sendToCatchingUp)
                                 .build();
@@ -171,39 +154,17 @@ public abstract class ProjectionRepository<I,
                .registerEventDispatcher(catchUpProcess);
     }
 
-    private void initCache(boolean multitenant) {
-        cache = new RepositoryCache<>(multitenant, this::doFindOrCreate, this::doStore);
-    }
-
     /**
-     * Initializes the {@code Inbox}.
+     * {@inheritDoc}
      *
-     * @param delivery
-     *         the delivery of the current server environment
+     * <p>Adds the endpoints updating the subscribing projections and catching them up.
      */
-    private void initInbox(Delivery delivery) {
-        inbox = delivery
-                .<I>newInbox(entityStateType())
-                .withBatchListener(new BatchDeliveryListener<>() {
-                    @Override
-                    public void onStart(I id) {
-                        cache.startCaching(id);
-                    }
-
-                    @Override
-                    public void onEnd(I id) {
-                        cache.stopCaching(id);
-                    }
-                })
-                .addEventEndpoint(InboxLabel.UPDATE_SUBSCRIBER,
-                                  e -> ProjectionEndpoint.of(this, e))
-                .addEventEndpoint(InboxLabel.CATCH_UP,
-                                  e -> CatchUpEndpoint.of(this, e))
-                .build();
-    }
-
-    private Inbox<I> inbox() {
-        return checkNotNull(inbox);
+    @Override
+    protected final void setupInbox(Inbox.Builder<I> builder) {
+        builder.addEventEndpoint(InboxLabel.UPDATE_SUBSCRIBER,
+                                 e -> ProjectionEndpoint.of(this, e))
+               .addEventEndpoint(InboxLabel.CATCH_UP,
+                                 e -> CatchUpEndpoint.of(this, e));
     }
 
     @Override
@@ -216,7 +177,14 @@ public abstract class ProjectionRepository<I,
         }
     }
 
-    private void ensureDispatchesEvents() {
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Ensures there is at least one event subscriber method — domestic or external —
+     * declared by the class of the projection.
+     */
+    @Override
+    protected final void checkDispatchesMessages() {
         var noEventSubscriptions = !dispatchesEvents();
         if (noEventSubscriptions) {
             throw newIllegalStateException(
@@ -324,24 +292,11 @@ public abstract class ProjectionRepository<I,
     /**
      * {@inheritDoc}
      *
-     * <p>Overrides to perform finding using the cache.
+     * <p>Overrides to expose the method to the package.
      */
     @Override
     protected final P findOrCreate(I id) {
-        return cache.load(id);
-    }
-
-    private P doFindOrCreate(I id) {
         return super.findOrCreate(id);
-    }
-
-    @Override
-    public final void store(P entity) {
-        cache.store(entity);
-    }
-
-    private void doStore(P entity) {
-        super.store(entity);
     }
 
     @Override
@@ -498,14 +453,5 @@ public abstract class ProjectionRepository<I,
                  .toCatchUp(target);
         }
         return catchUpTargets;
-    }
-
-    @OverridingMethodsMustInvokeSuper
-    @Override
-    public void close() {
-        super.close();
-        if (inbox != null) {
-            inbox.unregister();
-        }
     }
 }

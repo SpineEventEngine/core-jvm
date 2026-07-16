@@ -101,28 +101,24 @@ final class CommandAckMonitor implements StreamObserver<Ack> {
 
     @SuppressWarnings("EnumSwitchStatementWhichMissesCases") // Default values.
     private static EventMessage systemEventFor(Status status, CommandId commandId) {
-        switch (status.getStatusCase()) {
-            case OK:
-                return CommandAcknowledged.newBuilder()
-                                          .setId(commandId)
-                                          .build();
-            case ERROR:
-                return CommandErrored.newBuilder()
-                                     .setId(commandId)
-                                     .setError(status.getError())
-                                     .build();
-            case REJECTION:
-                return CommandRejected.newBuilder()
-                                      .setId(commandId)
-                                      .setRejectionEvent(status.getRejection())
-                                      .build();
-            default:
-                throw newIllegalArgumentException(
-                        "Command `%s` has invalid status `%s`.",
-                        commandId.getUuid(),
-                        status.getStatusCase()
-                );
-        }
+        return switch (status.getStatusCase()) {
+            case OK -> CommandAcknowledged.newBuilder()
+                    .setId(commandId)
+                    .build();
+            case ERROR -> CommandErrored.newBuilder()
+                    .setId(commandId)
+                    .setError(status.getError())
+                    .build();
+            case REJECTION -> CommandRejected.newBuilder()
+                    .setId(commandId)
+                    .setRejectionEvent(status.getRejection())
+                    .build();
+            default -> throw newIllegalArgumentException(
+                    "Command `%s` has invalid status `%s`.",
+                    commandId.getUuid(),
+                    status.getStatusCase()
+            );
+        };
     }
 
     /**

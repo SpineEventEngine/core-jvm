@@ -40,7 +40,6 @@ import org.jspecify.annotations.Nullable;
 import java.util.function.Predicate;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static io.spine.util.Exceptions.newIllegalArgumentException;
 
 /**
  * Matches the records to the {@linkplain RecordQuery#subject() subject} of a {@link RecordQuery}.
@@ -100,17 +99,10 @@ public class RecordQueryMatcher<I, R extends Message>
         var operator = predicate.operator();
         var parameters = predicate.parameters();
         var children = predicate.children();
-        switch (operator) {
-            case AND:
-                match = checkAnd(record, parameters, children);
-                break;
-            case OR:
-                match = checkEither(record, parameters, children);
-                break;
-            default:
-                throw newIllegalArgumentException("Logical operator `%s` is invalid.",
-                                                  operator);
-        }
+        match = switch (operator) {
+            case AND -> checkAnd(record, parameters, children);
+            case OR -> checkEither(record, parameters, children);
+        };
         return match;
     }
 
@@ -158,8 +150,7 @@ public class RecordQueryMatcher<I, R extends Message>
         if (!recWithColumns.hasColumn(column.name())) {
             return false;
         }
-        @Nullable Object columnValue = recWithColumns.columnValue(param.column()
-                                                                       .name());
+        var columnValue = recWithColumns.columnValue(param.column().name());
         var result = checkSingleParameter(param, columnValue);
         return result;
     }

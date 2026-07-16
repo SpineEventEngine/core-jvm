@@ -73,8 +73,8 @@ public final class SystemAwareStorageFactory implements StorageFactory {
      */
     public static SystemAwareStorageFactory wrap(StorageFactory factory) {
         checkNotNull(factory);
-        return factory instanceof SystemAwareStorageFactory
-               ? (SystemAwareStorageFactory) factory
+        return factory instanceof SystemAwareStorageFactory systemAware
+               ? systemAware
                : new SystemAwareStorageFactory(factory);
     }
 
