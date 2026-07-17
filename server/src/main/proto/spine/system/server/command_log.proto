@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -45,7 +45,7 @@ import "spine/client/entities.proto";
 
 // The current status of a command in a system.
 //
-// All the commands in the system have a corresponding lifecycle instance. The only exception are
+// All the commands in the system have a corresponding lifecycle instance. The only exception is
 // the commands of the `System` bounded contexts, which do not have an explicit lifecycle.
 //
 message CommandLog {
@@ -100,7 +100,7 @@ message CommandTimeline {
     // The instant when the command processing is completed, successfully or otherwise.
     google.protobuf.Timestamp when_handled = 6 [(goes).with = "how_handled"];
 
-    // The instance when the command was substituted with one or more commands to be
+    // The instant when the command was substituted with one or more commands to be
     // handled instead of this one.
     //
     google.protobuf.Timestamp when_substituted = 7 [(goes).with = "substituted"];
@@ -116,7 +116,7 @@ message CommandTimeline {
     }
 }
 
-// Describes which command(s) were generated instead of incoming one.
+// Describes which command(s) were generated instead of the incoming one.
 message Substituted {
 
     oneof kind {

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package io.spine.server.stand;
 
 import com.google.common.collect.ImmutableSet;
@@ -141,7 +142,7 @@ public class Stand implements Closeable {
      *         the lifecycle of the entity
      * @implNote The only purpose of this method is to deliver the new entity state to the
      *         subscribers through the artificially created {@link EntityStateChanged} event.
-     *         It doesn't do any proper lifecycle management ignoring "archived"/"deleted" actions,
+     *         It doesn't do any proper lifecycle management, ignoring "archived"/"deleted" actions,
      *         IDs of applied messages, etc.
      */
     @VisibleForTesting
@@ -169,7 +170,7 @@ public class Stand implements Closeable {
      * @param topic
      *         defines the subscription target
      * @param responseObserver
-     *         the observer for obtaining created subscription
+     *         the observer for obtaining the created subscription
      */
     public void subscribe(Topic topic, StreamObserver<Subscription> responseObserver)
             throws InvalidRequestException {
@@ -189,7 +190,7 @@ public class Stand implements Closeable {
     }
 
     /**
-     * Registers this inactive subscription is this {@code Stand}.
+     * Registers this inactive subscription in this {@code Stand}.
      *
      * <p>The given subscription is shared between different Bounded Contexts.
      *
@@ -221,7 +222,7 @@ public class Stand implements Closeable {
      * @param subscription
      *         the subscription to activate
      * @param callback
-     *         the action which notifies the subscribers about an update
+     *         the action that notifies the subscribers about an update
      * @param responseObserver
      *         an observer to notify of a successful acknowledgement of the subscription activation
      * @see #subscribe(Topic, StreamObserver)
@@ -319,9 +320,9 @@ public class Stand implements Closeable {
 
     /**
      * Reads a particular set of items from the read-side of the application and
-     * feed the result into an instance.
+     * feeds the result into an instance.
      *
-     * <p>{@link Query} defines the query target and the expected detail level for response.
+     * <p>{@link Query} defines the query target and the expected detail level for the response.
      *
      * <p>The query results are fed to an instance
      * of {@link StreamObserver}&lt;{@link QueryResponse}&gt;.
@@ -417,11 +418,11 @@ public class Stand implements Closeable {
         /**
          * The multi-tenancy flag for the {@code Stand} to build.
          *
-         * <p>The value of this field should be equal to that of corresponding
+         * <p>The value of this field should be equal to that of the corresponding
          * {@linkplain io.spine.server.BoundedContextBuilder BoundedContextBuilder} and is not
          * supposed to be {@linkplain #setMultitenant(boolean) set directly}.
          *
-         * <p>If set directly, the value would be matched to the multi-tenancy flag of aggregating
+         * <p>If set directly, the value would be matched to the multi-tenancy flag of the aggregating
          * {@code BoundedContext}.
          */
         private @Nullable Boolean multitenant;
@@ -480,7 +481,7 @@ public class Stand implements Closeable {
         /**
          * Builds an instance of {@code Stand}.
          *
-         * <p>This method is supposed to be called internally when building aggregating
+         * <p>This method is supposed to be called internally when building the aggregating
          * {@code BoundedContext}.
          *
          * @return a new instance of {@code Stand}

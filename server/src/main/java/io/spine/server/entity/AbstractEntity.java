@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -172,7 +172,7 @@ public abstract class AbstractEntity<I, S extends EntityState<I>>
     }
 
     /**
-     * Creates new instance with the passed ID.
+     * Creates a new instance with the passed ID.
      */
     protected AbstractEntity(I id) {
         this();
@@ -242,12 +242,12 @@ public abstract class AbstractEntity<I, S extends EntityState<I>>
      *
      * <p>In case the access is prohibited, throws a {@code RuntimeException}.
      *
-     * <p>In some scenarios, the state of Entity may be not up-to-date,
+     * <p>In some scenarios, the state of Entity may not be up-to-date,
      * so descendants of {@code AbstractEntity} are able to put the corresponding restrictions
      * on this method invocation.
      *
      * <p>By default, this method performs no checks,
-     * thus allowing to access Entity's {@code state()} at any point of time.
+     * thus allowing access to Entity's {@code state()} at any point in time.
      */
     @Internal
     @SuppressWarnings("NoopMethodInAbstractClass" /* By design. */)
@@ -256,7 +256,7 @@ public abstract class AbstractEntity<I, S extends EntityState<I>>
     }
 
     /**
-     * Obtains model class for this entity.
+     * Obtains the model class for this entity.
      */
     @Internal
     protected EntityClass<?> thisClass() {
@@ -323,7 +323,7 @@ public abstract class AbstractEntity<I, S extends EntityState<I>>
      *
      * @param newState
      *         a state object to replace the current state
-     * @return the violation constraints
+     * @return the constraint violations
      */
     protected final List<ConstraintViolation> checkEntityState(S newState) {
         checkNotNull(newState);
@@ -349,7 +349,7 @@ public abstract class AbstractEntity<I, S extends EntityState<I>>
     }
 
     /**
-     * Obtains ID of the entity in the {@linkplain Stringifiers#toString(Object) string form}.
+     * Obtains the ID of the entity in the {@linkplain Stringifiers#toString(Object) string form}.
      *
      * <p>Subsequent calls to the method return a cached instance of the string, which minimizes
      * the performance impact of repeated calls.
@@ -438,7 +438,7 @@ public abstract class AbstractEntity<I, S extends EntityState<I>>
      * Ensures that the entity is not marked as {@code archived}.
      *
      * @throws CannotModifyArchivedEntity
-     *         if the entity in the archived status
+     *         if the entity is in the archived status
      * @see #lifecycleFlags()
      * @see io.spine.server.entity.LifecycleFlags#getArchived()
      */
@@ -567,7 +567,7 @@ public abstract class AbstractEntity<I, S extends EntityState<I>>
     /**
      * Advances the current version by one and records the time of the modification.
      *
-     * @return new version number
+     * @return the new version number
      */
     int incrementVersion() {
         setVersion(incrementedVersion());
@@ -575,7 +575,7 @@ public abstract class AbstractEntity<I, S extends EntityState<I>>
     }
 
     /**
-     * Obtains timestamp of the entity version.
+     * Obtains the timestamp of the entity version.
      */
     public Timestamp whenModified() {
         return _version.getTimestamp();

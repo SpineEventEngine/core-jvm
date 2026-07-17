@@ -64,7 +64,7 @@ final class AggregateCommandEndpoint<I, A extends Aggregate<I, ?, ?>>
 
     /**
      * Throws {@link IllegalStateException} with the message containing details of the aggregate and
-     * the command in response to which the aggregate generated empty set of event messages.
+     * the command in response to which the aggregate generated an empty set of event messages.
      *
      * @throws IllegalStateException always
      */

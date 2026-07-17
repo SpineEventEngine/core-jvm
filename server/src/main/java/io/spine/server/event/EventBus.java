@@ -69,7 +69,7 @@ import static java.util.Objects.requireNonNull;
  *     <li>Expose a {@code public} method that accepts an event message as the first parameter
  *         and an {@link EventContext EventContext} as the second (optional) parameter.
  *     <li>Mark the method with the {@link io.spine.core.Subscribe @Subscribe} annotation.
- *     <li>{@linkplain #register(io.spine.server.bus.MessageDispatcher)} Register} with an
+ *     <li>{@linkplain #register(io.spine.server.bus.MessageDispatcher) Register} with an
  *         instance of {@code EventBus} directly or rely on message delivery
  *         from an {@link EventDispatcher}. An example of such a dispatcher is
  *         {@link io.spine.server.projection.ProjectionRepository ProjectionRepository}.
@@ -155,7 +155,7 @@ public final class EventBus
     /**
      * Obtains the view {@code Set} of events that are known to this {@code EventBus}.
      *
-     * <p>This set is changed when event dispatchers or handlers are registered or un-registered.
+     * <p>This set is changed when event dispatchers or handlers are registered or unregistered.
      *
      * @return a set of classes of supported events
      */
@@ -195,7 +195,7 @@ public final class EventBus
      * Posts the event for handling.
      *
      * <p>Performs the same action as the
-     * {@linkplain io.spine.server.bus.Bus#post(Signal, StreamObserver)} parent method},
+     * {@linkplain io.spine.server.bus.Bus#post(Signal, StreamObserver) parent method},
      * but does not require any response observer.
      *
      * @param event the event to be handled
@@ -209,7 +209,7 @@ public final class EventBus
      * Posts the events for handling.
      *
      * <p>Performs the same action as the
-     * {@linkplain io.spine.server.bus.Bus#post(Iterable, StreamObserver)} parent method}
+     * {@linkplain io.spine.server.bus.Bus#post(Iterable, StreamObserver) parent method}
      * but does not require any response observer.
      *
      * <p>This method should be used if the callee does not care about the events acknowledgement.
@@ -370,7 +370,7 @@ public final class EventBus
         }
 
         /**
-         * Obtains {@code Enricher} assigned to the bus to be built.
+         * Obtains the {@code Enricher} assigned to the bus to be built.
          *
          * @deprecated Use {@link #getEnricher()} and {@link #hasEnricher()} instead.
          */
@@ -408,7 +408,7 @@ public final class EventBus
         }
 
         /**
-         * Obtains {@code StreamObserver} assigned to the bus.
+         * Obtains the {@code StreamObserver} assigned to the bus.
          *
          * @deprecated Use {@link #getObserver()} and {@link #hasObserver()} instead.
          */

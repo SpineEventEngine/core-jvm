@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -35,7 +35,7 @@ import io.spine.server.NodeId;
  * <p>In some cases when a funnel-like {@code Entity} (e.g. some projection of a business report
  * subscribed to half of the domain events) has a lot of messages in its {@code Inbox},
  * the delivery process may be slowed down for other targets in the same shard, while
- * all the messages are being dispatched the "busy" {@code Entity}. Depending on the number
+ * all the messages are being dispatched to the "busy" {@code Entity}. Depending on the number
  * of messages to deliver, it may take a lot of time.
  *
  * <p>Environments such as Google AppEngine Standard imply restrictions on the duration of the
@@ -134,7 +134,7 @@ public class DeliveryMonitor {
      * the occurred exception.
      *
      * @param failure
-     *         contains an information about the occurred failure, and gives access to
+     *         contains information about the occurred failure, and gives access to
      *         predefined {@code Action}s to handle the error
      */
     @SuppressWarnings("WeakerAccess" /* Part of public API. */)
@@ -152,7 +152,7 @@ public class DeliveryMonitor {
      * an empty {@code Optional} will be returned from the {@code deliverMessagesFrom()} method.
      *
      * @param failure
-     *         contains an information about the worker who owns the session and gives access
+     *         contains information about the worker who owns the session and gives access
      *         to predefined {@code Action}s to handle the error
      */
     @SuppressWarnings("WeakerAccess" /* Part of public API. */)

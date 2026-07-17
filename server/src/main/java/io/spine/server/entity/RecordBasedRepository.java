@@ -178,7 +178,7 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
      * <ol>
      *     <li>Load entities by the given IDs.
      *     <li>Transform each entity through the migration operation.
-     *     <li>Store the entities which are not configured to be deleted by the {@link Migration}
+     *     <li>Store the entities that are not configured to be deleted by the {@link Migration}
      *         back to the repository.
      * </ol>
      *
@@ -243,7 +243,7 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
      *
      * @param id
      *         the ID of the entity to find
-     * @return the entity or {@link Optional#empty()} if there is no entity with such ID
+     * @return the entity or {@link Optional#empty()} if there is no entity with such an ID
      */
     @Override
     public Optional<E> find(I id) {
@@ -257,7 +257,7 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
      *
      * @param id
      *         the ID of the entity to find
-     * @return the entity or {@link Optional#empty()} if there is no entity with such ID,
+     * @return the entity or {@link Optional#empty()} if there is no entity with such an ID,
      *         or the entity is not active
      */
     public Optional<E> findActive(I id) {
@@ -289,7 +289,7 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
     }
 
     /**
-     * Loads all the entities in this repository with IDs,
+     * Loads all the entities in this repository with IDs
      * contained within the passed {@code ids} values.
      *
      * <p>Provides a convenience wrapper around multiple invocations of
@@ -358,7 +358,7 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
      * <p>A number of elements to retrieve can be limited to a certain number. The order of
      * the resulting entities is specified by the {@link OrderBy}.
      *
-     * <p>Field mask is applied according to <a href="https://goo.gl/tW5wIU">FieldMask specs</a>.
+     * <p>The field mask is applied according to <a href="https://goo.gl/tW5wIU">FieldMask specs</a>.
      *
      * <p>The field paths in the entity column field filters are specified
      * to contain a single path member - the name of the entity column.
@@ -447,7 +447,7 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
      * @param id
      *         the entity ID
      * @param deletionCause
-     *         the {@code Signal} which caused the deletion
+     *         the {@code Signal} that caused the deletion
      */
     private boolean deleteAndPostEvent(I id, Signal<?, ?, ?> deletionCause) {
         var deleted = delete(id);
@@ -472,7 +472,7 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
     }
 
     /**
-     * Converts the passed entity into the record.
+     * Converts the passed entity into a record.
      */
     @VisibleForTesting
     RecordWithColumns<I, EntityRecord> toRecord(E entity) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ public abstract class EventException extends RuntimeException implements Message
      * @param eventMessage
      *         the related event message
      * @param error
-     *          the error occurred
+     *          the error that occurred
      */
     protected EventException(String messageText, EventMessage eventMessage, Error error) {
         super(messageText);

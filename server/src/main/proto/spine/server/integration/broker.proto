@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 syntax = "proto3";
 
 package spine.server.integration;
@@ -43,10 +44,10 @@ import "spine/core/bounded_context.proto";
 // to/from external application components, such as other Bounded Contexts.
 message ExternalMessage {
 
-    // An ID of the original message wrapped to `Any` (e.g. an event ID).
+    // An ID of the original message wrapped into `Any` (e.g. an event ID).
     google.protobuf.Any id = 1 [(required) = true];
 
-    // An original message wrapped to `Any` (e.g. a wrapped instance of `io.spine.core.Event`).
+    // An original message wrapped into `Any` (e.g. a wrapped instance of `io.spine.core.Event`).
     google.protobuf.Any original_message = 2 [(required) = true];
 
     // `actor_context` field has been deleted, as it is impossible to populate
@@ -59,7 +60,7 @@ message ExternalMessage {
     spine.core.BoundedContextName bounded_context_name = 4 [(required) = true];
 }
 
-// A document message, describing types of events,
+// A document message, describing types of events
 // that are required for consumption by some part of the system.
 //
 // One of the typical scenarios is a notification shout-out from the current Bounded Context
@@ -80,7 +81,7 @@ message ExternalEventType {
     string type_url = 1 [(required) = true];
 }
 
-// The type of error, that may occur during the `ExternalMessage` validation.
+// The type of error that may occur during the `ExternalMessage` validation.
 enum ExternalMessageValidationError {
 
     // Reserved value.

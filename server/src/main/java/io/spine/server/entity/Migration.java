@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -63,7 +63,7 @@ import static java.lang.String.format;
  * As a consequence, all entity lifecycle events occur as expected, having the
  * {@link MigrationApplied} event as the producing message.
  *
- * <p>To create a user-defined {@code Migration} in real life scenarios, consider inheriting from
+ * <p>To create a user-defined {@code Migration} in real-life scenarios, consider inheriting from
  * {@link io.spine.server.projection.ProjectionMigration ProjectionMigration} and
  * {@link io.spine.server.procman.ProcessManagerMigration ProcessManagerMigration} types.
  *
@@ -149,7 +149,7 @@ public abstract class Migration<I,
     /**
      * Configures the migration operation to delete the entity record from the storage.
      *
-     * <p>All other configured entity modifications are still applied, allowing to trigger
+     * <p>All other configured entity modifications are still applied, allowing one to trigger
      * {@linkplain EntityLifecycle entity lifecycle} events before the actual record deletion.
      *
      * <p>Depending on the storage implementation, this operation may be irreversible, so it should
@@ -167,7 +167,7 @@ public abstract class Migration<I,
     }
 
     /**
-     * Returns the version of entity under migration.
+     * Returns the version of the entity under migration.
      */
     protected final Version version() {
         return currentOperation().version();
@@ -254,10 +254,10 @@ public abstract class Migration<I,
     /**
      * A migration operation on a single entity.
      *
-     * <p>The operation is performed in scope of an active {@link Transaction}.
+     * <p>The operation is performed in the scope of an active {@link Transaction}.
      *
      * <p>All entity state and meta-data changes are propagated to the transaction and remain in
-     * pending state until the transaction is {@linkplain Transaction#commit() committed}, which is
+     * a pending state until the transaction is {@linkplain Transaction#commit() committed}, which is
      * the last step of a migration operation.
      *
      * <p>On a transaction commit, all changes are propagated to the actual entity passed to

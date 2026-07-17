@@ -53,12 +53,12 @@ import io.spine.validation.ValidatingBuilder
  * Serves as a buffer, accumulating the changes, intended for the enclosed `Entity`;
  * the changes are only applied to the actual object upon [commit].
  *
- * The transaction is injected to the entity, whose state should be modified. By doing so,
+ * The transaction is injected into the entity, whose state should be modified. By doing so,
  * the ["buffering" builder][builder] is exposed to concrete `TransactionalEntity` subclasses.
  * In turn, they receive an ability to change the entity state by modifying
  * [entity state builder][TransactionalEntity.builder].
  *
- * Same applies to the entity lifecycle flags.
+ * The same applies to the entity lifecycle flags.
  *
  * Version management is performed automatically by the transaction itself.
  *
@@ -143,7 +143,7 @@ public abstract class Transaction<I : Any,
     private val initialLifecycleFlags: LifecycleFlags
 
     /**
-     * The flag, which becomes `true`, if the state of the entity [has been changed][commit] since
+     * The flag, which becomes `true` if the state of the entity [has been changed][commit] since
      * it has been [loaded or created][Repository.findOrCreate].
      */
     internal var stateChanged: Boolean = false
@@ -246,9 +246,9 @@ public abstract class Transaction<I : Any,
     /**
      * Propagates the given phase and catches failures if any.
      *
-     * The catch block in this method and in [commit] prevents from force majeure situations such
+     * The catch block in this method and in [commit] prevents force majeure situations such
      * as storage failures, etc. All the exceptions produced in the framework users' code are
-     * handled before this failsafe and is already packed in the `DispatchOutcome` produced by
+     * handled before this failsafe and are already packed in the `DispatchOutcome` produced by
      * the phase.
      *
      * @see propagate
@@ -442,7 +442,7 @@ public abstract class Transaction<I : Any,
      * Cancels the changes made within this transaction and removes the injected transaction object
      * from the enclosed entity.
      *
-     * @param cause The reason of the rollback.
+     * @param cause The reason for the rollback.
      */
     @VisibleForTesting
     internal fun rollback(cause: Error) {
@@ -453,7 +453,7 @@ public abstract class Transaction<I : Any,
      * Cancels the changes made within this transaction and removes the injected transaction object
      * from the enclosed entity.
      *
-     * @param cause The reason of the rollback.
+     * @param cause The reason for the rollback.
      */
     private fun rollback(cause: Event) {
         doRollback { record -> listener().onTransactionFailed(cause, record) }
@@ -543,7 +543,7 @@ public abstract class Transaction<I : Any,
      * This method assumes that the entity version is zero.
      * If this is not so, `IllegalStateException` will be thrown.
      *
-     * One of the usages for this method is for creating an entity instance from a storage.
+     * One of the usages for this method is for creating an entity instance from storage.
      *
      * @param version The version to set.
      */
@@ -574,7 +574,7 @@ public abstract class Transaction<I : Any,
     }
 
     /**
-     * Set `archived` lifecycle flag to the passed value.
+     * Sets the `archived` lifecycle flag to the passed value.
      */
     @JvmName("setArchived")
     internal fun setArchived(archived: Boolean) {
@@ -584,7 +584,7 @@ public abstract class Transaction<I : Any,
     }
 
     /**
-     * Set `deleted` lifecycle flag to the passed value.
+     * Sets the `deleted` lifecycle flag to the passed value.
      */
     @JvmName("setDeleted")
     internal fun setDeleted(deleted: Boolean) {
@@ -596,7 +596,7 @@ public abstract class Transaction<I : Any,
     public companion object {
 
         /**
-         * Creates the builder for being used by a transaction when modifying the passed entity.
+         * Creates the builder to be used by a transaction when modifying the passed entity.
          *
          * If the entity has the default state, and the first field of the state is its ID, and
          * the field is required, initializes the builder with the value of the entity ID.

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package io.spine.server.stand;
 
 import com.google.common.base.Objects;
@@ -102,7 +103,7 @@ final class SubscriptionRecord {
     /**
      * Attaches a callback that notifies the read-side about a subscription update.
      *
-     * <p>Only active subscription records are eligible to receiving any event/entity updates.
+     * <p>Only active subscription records are eligible to receive any event/entity updates.
      *
      * @param callback
      *         the action to attach to the record

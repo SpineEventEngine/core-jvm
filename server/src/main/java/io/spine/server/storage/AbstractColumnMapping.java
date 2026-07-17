@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -41,7 +41,7 @@ import static io.spine.util.Exceptions.newIllegalArgumentException;
  * The base implementation of mapping rules for the {@linkplain io.spine.query.Column column values}
  * of a stored record.
  *
- * <p>Since record columns are proto-based and have a limited amount of possible types, this class
+ * <p>Since record columns are proto-based and have a limited number of possible types, this class
  * allows descendants to override concrete type mapping rules in a convenient way.
  *
  * <p>Some of the types are expected to be mapped in a way so that
@@ -90,9 +90,9 @@ public abstract class AbstractColumnMapping<R> implements ColumnMapping<R> {
     }
 
     /**
-     * Allows to specify custom mapping rules.
+     * Allows specifying custom mapping rules.
      *
-     * <p>If some message types are needed to be stored differently to the generic
+     * <p>If some message types need to be stored differently to the generic
      * {@linkplain Message messages}, the rules for their storage can be specified using this
      * method.
      *
@@ -207,7 +207,7 @@ public abstract class AbstractColumnMapping<R> implements ColumnMapping<R> {
     }
 
     /**
-     * Searches for column type mapping among the custom user-defined types mapping.
+     * Searches for the column type mapping among the custom user-defined type mappings.
      *
      * <p>It's a common case when a particular message type like
      * {@link com.google.protobuf.Timestamp} requires a type mapping different to other messages.

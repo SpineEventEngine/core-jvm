@@ -162,7 +162,7 @@ public abstract class AggregateRepository<I,
     /**
      * {@inheritDoc}
      *
-     * <p>Ensures that the aggregates of this repository handle commands, react on events,
+     * <p>Ensures that the aggregates of this repository handle commands, react to events,
      * or both.
      */
     @Override
@@ -180,7 +180,7 @@ public abstract class AggregateRepository<I,
     /**
      * {@inheritDoc}
      *
-     * <p>Does nothing by default: an Aggregate may react only on events,
+     * <p>Does nothing by default: an Aggregate may react only to events,
      * in which case no command routing is needed.
      */
     @Override
@@ -302,7 +302,7 @@ public abstract class AggregateRepository<I,
      * accessor: the decision to record is made by the single flag check in
      * {@link #store(io.spine.server.entity.Entity) store()}, so a concurrent
      * {@link #stopRecordingStateHistory()}
-     * cannot fail a dispatch which has already persisted its state.
+     * cannot fail a dispatch that has already persisted its state.
      *
      * <p>A failure to record the history fails the dispatch. Under a batched delivery,
      * the durable state write may happen later, at the batch flush, so a history record
@@ -397,7 +397,7 @@ public abstract class AggregateRepository<I,
     /**
      * {@inheritDoc}
      *
-     * <p>Sends the given event to the {@code Inbox}es of the aggregates reacting on it.
+     * <p>Sends the given event to the {@code Inbox}es of the aggregates reacting to it.
      */
     @Override
     protected final DispatchOutcome dispatchTo(Set<I> ids, EventEnvelope event) {
@@ -664,7 +664,7 @@ public abstract class AggregateRepository<I,
     /**
      * Loads an aggregate by the passed ID.
      *
-     * <p>An aggregate will be loaded even if
+     * <p>An aggregate will be loaded even if the
      * {@link io.spine.server.entity.Entity#isArchived() archived}
      * or {@link io.spine.server.entity.Entity#isDeleted() deleted} lifecycle
      * attribute, or both of them, are set to {@code true}.

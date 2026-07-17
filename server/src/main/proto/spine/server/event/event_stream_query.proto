@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 syntax = "proto3";
 
 package spine.server.event;
@@ -45,7 +46,7 @@ import "spine/server/event/event_filter.proto";
 message EventStreamQuery {
     option (is).java_type = "EventStreamQueryMixin";
 
-    // Include events with timestamp after this value.
+    // Include events with the timestamp after this value.
     //
     // If this parameter is not specified, all events since the start of
     // the history will be included.
@@ -59,7 +60,7 @@ message EventStreamQuery {
     //
     google.protobuf.Timestamp before = 2;
 
-    // Specification of `Event`s to be included into resulting stream.
+    // Specification of `Event`s to be included into the resulting stream.
     //
     repeated EventFilter filter = 3;
 

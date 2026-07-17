@@ -1,11 +1,11 @@
 /*
- * Copyright 2023, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -29,7 +29,7 @@ package io.spine.server.delivery;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Represents a scenario when shard could not be picked up,
+ * Represents a scenario when a shard could not be picked up,
  * as it's already picked up by another worker.
  */
 public final class AlreadyPickedUp extends FailedPickUp {
@@ -42,7 +42,7 @@ public final class AlreadyPickedUp extends FailedPickUp {
      * @param shard
      *         a shard that could not be picked
      * @param pickedUp
-     *         a message containing info about owner, and the time when the shard was picked
+     *         a message containing info about the owner and the time when the shard was picked
      * @param retry
      *         a way to retry delivery
      */

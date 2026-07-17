@@ -143,7 +143,7 @@ message AggregateHistoryCorrupted {
 
     // The number of events that come after the `erroneous_event` in the Aggregate history.
     //
-    // The events are not applied to the Aggregate when loading, i.e. applying of these events
+    // The events are not applied to the Aggregate when loading, i.e. applying these events
     // was interrupted.
     //
     uint32 interrupted_events = 6;

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -102,7 +102,7 @@ public abstract class BusBuilder<B extends BusBuilder<B, T, E, C, D>,
     }
 
     /**
-     * Obtains the filters added to this this builder by the time of the call.
+     * Obtains the filters added to this builder by the time of the call.
      *
      * @see #appendFilter(BusFilter)
      */
@@ -111,7 +111,7 @@ public abstract class BusBuilder<B extends BusBuilder<B, T, E, C, D>,
     }
 
     /**
-     * Adds a listener of the message posted to the bus being build.
+     * Adds a listener of the message posted to the bus being built.
      *
      * <p>When a message is posted to the bus, the listeners are notified before invoking filters.
      *
@@ -136,7 +136,7 @@ public abstract class BusBuilder<B extends BusBuilder<B, T, E, C, D>,
     }
 
     /**
-     * Obtains immutable set of listeners added to the builder by the time of the call.
+     * Obtains an immutable set of listeners added to the builder by the time of the call.
      */
     public final Set<Listener<E>> listeners() {
         return ImmutableSet.copyOf(listeners);
@@ -159,7 +159,7 @@ public abstract class BusBuilder<B extends BusBuilder<B, T, E, C, D>,
     }
 
     /**
-     * Inject the {@link SystemWriteSide} of the Bounded Context to which the built bus belongs.
+     * Injects the {@link SystemWriteSide} of the Bounded Context to which the built bus belongs.
      *
      * @apiNote This method is {@link Internal} to the framework. The name of the method starts
      *          with the {@code inject} prefix so that this method does not appear in an
@@ -173,7 +173,7 @@ public abstract class BusBuilder<B extends BusBuilder<B, T, E, C, D>,
     }
 
     /**
-     * Inject the {@link TenantIndex} of the Bounded Context to which the built bus belongs.
+     * Injects the {@link TenantIndex} of the Bounded Context to which the built bus belongs.
      *
      * @apiNote This method is {@link Internal} to the framework. The name of the method starts
      *          with the {@code inject} prefix so that this method does not appear in an
@@ -187,7 +187,7 @@ public abstract class BusBuilder<B extends BusBuilder<B, T, E, C, D>,
     }
 
     /**
-     * Similar to {@link #getTenantIndex} but throws custom exception, instead
+     * Similar to {@link #getTenantIndex} but throws a custom exception, instead
      * of the {@code NullPointerException}, if the tenant index is not set.
      */
     public TenantIndex ensureTenantIndex() {
@@ -219,8 +219,8 @@ public abstract class BusBuilder<B extends BusBuilder<B, T, E, C, D>,
     }
 
     /**
-     * Same as {@link #getSystem()} but throws custom exception, instead of
-     * {@code NullPointerException} if the system is not set.
+     * Same as {@link #getSystem()} but throws a custom exception, instead of
+     * the {@code NullPointerException}, if the system is not set.
      */
     @Internal
     public SystemWriteSide ensureSystem() throws IllegalStateException {
@@ -276,7 +276,7 @@ public abstract class BusBuilder<B extends BusBuilder<B, T, E, C, D>,
     protected abstract DispatcherRegistry<C, E, D> newRegistry();
 
     /**
-     * Creates new instance of {@code Bus} with the set parameters.
+     * Creates a new instance of {@code Bus} with the set parameters.
      *
      * <p>It is recommended to specify the exact resulting type of the bus in the return type
      * when overriding this method.

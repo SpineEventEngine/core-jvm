@@ -90,7 +90,7 @@ public abstract class StorageConverter<I, E extends Entity<I, S>, S extends Enti
     }
 
     /**
-     * Creates a copy of this converter modified with the passed filed mask.
+     * Creates a copy of this converter modified with the passed field mask.
      */
     public abstract StorageConverter<I, E, S> withFieldMask(FieldMask fieldMask);
 
@@ -153,7 +153,7 @@ public abstract class StorageConverter<I, E extends Entity<I, S>, S extends Enti
      * @param builder
      *         the entity builder to update
      * @param entity
-     *         the entity which data is passed to the {@link EntityRecord} we are building
+     *         the entity whose data is passed to the {@link EntityRecord} we are building
      */
     @SuppressWarnings({"WeakerAccess", "unused"})
     protected abstract void updateBuilder(EntityRecord.Builder builder, E entity);
@@ -162,11 +162,11 @@ public abstract class StorageConverter<I, E extends Entity<I, S>, S extends Enti
      * Derived classes must implement providing state injection into the passed entity.
      *
      * @param entity
-     *         the entity into which inject the state
+     *         the entity into which to inject the state
      * @param state
      *         the state message extracted from the record
      * @param entityRecord
-     *         the record which may contain additional properties for the entity
+     *         the record that may contain additional properties for the entity
      */
     protected abstract void injectState(E entity, S state, EntityRecord entityRecord);
 

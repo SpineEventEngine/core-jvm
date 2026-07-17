@@ -264,8 +264,8 @@ public final class BoundedContextBuilder implements WithLogging {
      * dispatcher to {@code addXxxDispatcher()} and {@code removeXxxDispatcher()} methods.
      *
      * <p>Such a call can be made by a developer (presumably by mistake) because some repositories
-     * <em>are</em> command- or event-dispatchers. Event though the methods
-     * {@link #add(Repository)} and {@link #remove(Repository)} is the correct way of handling
+     * <em>are</em> command- or event-dispatchers. Even though the methods
+     * {@link #add(Repository)} and {@link #remove(Repository)} are the correct way of handling
      * removing repositories, we do not want to play hard in this case, and simply divert the flow
      * to process the passed {@code Repository} via correct counterpart methods.
      *
@@ -274,7 +274,7 @@ public final class BoundedContextBuilder implements WithLogging {
      * @param repositoryConsumer
      *         the operation to perform if the passed instance is a {@code Repository}
      * @param dispatcherConsumer
-     *         the operation to perform if the passed instance is a not a {@code Repository}
+     *         the operation to perform if the passed instance is not a {@code Repository}
      * @param <D>
      *         the type of the dispatchers
      * @return this builder

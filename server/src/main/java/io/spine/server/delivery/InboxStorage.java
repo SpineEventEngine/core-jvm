@@ -48,7 +48,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * A contract for storages of {@link Inbox} messages.
  *
- * <p>The records a storage of this type are spreads across shards identified by a
+ * <p>The records of a storage of this type are spread across shards identified by a
  * {@linkplain ShardIndex shard index}.
  *
  * <p>Typically, the storage instance is specific to the

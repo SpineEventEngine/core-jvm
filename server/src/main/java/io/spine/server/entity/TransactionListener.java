@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package io.spine.server.entity;
 
 import io.spine.annotation.Internal;
@@ -45,7 +46,7 @@ public interface TransactionListener<I> {
      * A callback invoked before applying a {@linkplain Phase transaction phase}.
      *
      * @param phase
-     *         the phase which is being applied
+     *         the phase that is being applied
      */
     void onBeforePhase(Phase<I> phase);
 
@@ -55,7 +56,7 @@ public interface TransactionListener<I> {
      * <p>This callback is invoked for both successfully applied and failed phases.
      *
      * @param phase
-     *         the phase which was applied before this callback is invoked
+     *         the phase that was applied before this callback is invoked
      */
     void onAfterPhase(Phase<I> phase);
 
@@ -74,7 +75,7 @@ public interface TransactionListener<I> {
      * A callback invoked if the commit has failed.
      *
      * @param cause
-     *         the error which caused the commit failure
+     *         the error that caused the commit failure
      * @param entityRecord
      *         the uncommitted entity state
      * @apiNote The {@code entityRecord} is {@code @NonValidated} because the transaction
@@ -86,7 +87,7 @@ public interface TransactionListener<I> {
      * A callback invoked if the commit has failed due to a Rejection.
      *
      * @param cause
-     *         the rejection which caused the commit failure
+     *         the rejection that caused the commit failure
      * @param entityRecord
      *         the uncommitted entity state
      * @apiNote The {@code entityRecord} is {@code @NonValidated} because the transaction

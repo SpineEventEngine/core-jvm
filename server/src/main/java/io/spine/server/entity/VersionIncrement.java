@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -52,8 +52,8 @@ public abstract class VersionIncrement {
      * <p>Such an increment strategy is applied to the {@link Entity} types that represent
      * a sequence of events.
      *
-     * <p>One example of such entity is {@link io.spine.server.aggregate.Aggregate Aggregate}.
-     * As a sequence of events, an {@code Aggregate} has no own versioning system, thus inherits
+     * <p>One example of such an entity is {@link io.spine.server.aggregate.Aggregate Aggregate}.
+     * As a sequence of events, an {@code Aggregate} has no versioning system of its own, thus inherits
      * the versions of the {@linkplain io.spine.server.aggregate.Apply applied} events.
      * In other words, the current version of an {@code Aggregate} is the version of the last
      * applied event.
@@ -68,7 +68,7 @@ public abstract class VersionIncrement {
      * <p>Such an increment strategy is applied to the {@link Entity} types that cannot use
      * the event versions, such as {@link io.spine.server.projection.Projection Projection}s.
      *
-     * <p>A {@code Projection} represents an arbitrary cast of data in a specific moment in
+     * <p>A {@code Projection} represents an arbitrary cast of data at a specific moment in
      * time. The events applied to a {@code Projection} are produced by different {@code Entities}
      * and have no common versioning. Thus, a {@code Projection} has its own versioning system.
      * Each event <i>increments</i> the {@code Projection} version by one.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ import java.util.function.Function;
  *
  * <p>{@code Mirror} itself can be directly transformed into an {@link EntityRecord}.
  * In order to get {@code RecordWithColumns}, we need to know which columns should be
- * fetched from the entity's state. For this reason, aggregate class is passed along
+ * fetched from the entity's state. For this reason, the aggregate class is passed along with
  * the mirror itself. It contains information about which columns are declared to be stored
  * along the aggregate's state.
  *

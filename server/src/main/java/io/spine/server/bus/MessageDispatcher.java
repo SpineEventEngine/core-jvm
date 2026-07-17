@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ public interface MessageDispatcher<C extends MessageClass<?>, E extends MessageE
     /**
      * Obtains a set of message classes that can be processed by this dispatcher.
      *
-     * @return non-empty set of message classes
+     * @return a non-empty set of message classes
      */
     ImmutableSet<C> messageClasses();
 
@@ -62,13 +62,13 @@ public interface MessageDispatcher<C extends MessageClass<?>, E extends MessageE
      *
      * <p>This method does not check that the type of the message is one of
      * the {@linkplain #messageClasses() dispatched message classes}. Instead, it validates
-     * the message upon some custom rules of this dispatcher.
+     * the message against some custom rules of this dispatcher.
      *
      * <p>Extend this method to forbid messages from being dispatched to this instance.
      *
      * @param envelope
      *         the message to check
-     * @return {@code true} is the given message can be dispatched by this dispatcher,
+     * @return {@code true} if the given message can be dispatched by this dispatcher,
      *         {@code false} otherwise
      */
     default boolean canDispatch(E envelope) {

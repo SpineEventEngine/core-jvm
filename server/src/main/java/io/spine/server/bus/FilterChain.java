@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -42,12 +42,12 @@ import static java.util.stream.Collectors.joining;
  * A {@link BusFilter} representing a chain of other bus filters.
  *
  * <p>The initial ordering of the filters is preserved. The filters are called sequentially in
- * the order direct of the initial {@link Deque}.
+ * the direct order of the initial {@link Deque}.
  *
  * <p>The {@link #close() close()} method closes all the underlying filters.
  *
  * @param <E>
- *         the type of envelopers of the filtered messages
+ *         the type of envelopes of the filtered messages
  */
 final class FilterChain<E extends MessageEnvelope<?, ?, ?>> implements BusFilter<E>, Closeable {
 
@@ -78,7 +78,7 @@ final class FilterChain<E extends MessageEnvelope<?, ?, ?>> implements BusFilter
     /**
      * Closes all the filters in the chain and deletes them from the chain.
      *
-     * <p>The filters are closed in the reversed order comparing to the invocation order.
+     * <p>The filters are closed in the reversed order compared to the invocation order.
      *
      * @throws IllegalStateException
      *         on a repetitive call

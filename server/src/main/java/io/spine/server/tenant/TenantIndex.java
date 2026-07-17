@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -56,7 +56,7 @@ public interface TenantIndex extends Closeable {
     void close();
 
     /**
-     * Creates default implementation of {@code TenantIndex} for a multi-tenant context.
+     * Creates a default implementation of {@code TenantIndex} for a multi-tenant context.
      */
     static TenantIndex defaultMultitenant() {
         var factory = ServerEnvironment.instance()
@@ -67,9 +67,9 @@ public interface TenantIndex extends Closeable {
     }
 
     /**
-     * Obtains a {@code TenantIndex} to be used in single-tenant context.
+     * Obtains a {@code TenantIndex} to be used in a single-tenant context.
      *
-     * <p>This rudimentary implementation always returns pre-defined constant {@code TenantId}
+     * <p>This rudimentary implementation always returns a pre-defined constant {@code TenantId}
      * value, which a single-tenant application does not need to use.
      */
     static TenantIndex singleTenant() {

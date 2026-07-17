@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -130,7 +130,7 @@ public abstract class DispatcherRegistry<C extends MessageClass<? extends Messag
     }
 
     /**
-     * Returns a filter allowing to tell whether the attributes of the envelope match
+     * Returns a filter allowing one to tell whether the attributes of the envelope match
      * the dispatcher requirements.
      */
     protected BiPredicate<E, D> attributeFilter() {
@@ -204,7 +204,7 @@ public abstract class DispatcherRegistry<C extends MessageClass<? extends Messag
      * @param dispatcher
      *         the dispatcher to check
      * @throws IllegalArgumentException
-     *         if the check is failed
+     *         if the check fails
      */
     protected void checkDispatcher(D dispatcher) throws IllegalArgumentException {
         checkNotNull(dispatcher);

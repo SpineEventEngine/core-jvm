@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 syntax = "proto3";
 
 package spine.server.event;
@@ -36,7 +37,7 @@ option java_multiple_files = true;
 
 // An empty event.
 //
-// Use this event type when a message processing does not produce any output.
+// Use this event type when message processing does not produce any output.
 //
 // This type is treated by the framework in a special way.
 // A `NoReaction` event is never posted for processing after being emitted. Neither is it stored.

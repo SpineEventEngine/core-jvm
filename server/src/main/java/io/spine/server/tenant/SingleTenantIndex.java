@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -32,7 +32,7 @@ import io.spine.core.TenantId;
 import java.util.Set;
 
 /**
- * A null-object implementation of {@code TenantIndex} for being used in single-tenant
+ * A null-object implementation of {@code TenantIndex} for use in a single-tenant
  * execution context.
  */
 @SuppressWarnings("ImmutableEnumChecker") /* This enum implements the Singleton pattern here,

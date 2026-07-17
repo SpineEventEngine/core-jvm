@@ -142,7 +142,7 @@ message AggregateHistory {
 
     // Events of the aggregate.
     //
-    // If `snapshot` field is populated, events represent the 'tail' of
+    // If the `snapshot` field is populated, events represent the 'tail' of
     // the event history of the aggregate after the snapshot was made.
     // Otherwise, it is the full history of the aggregate.
     //

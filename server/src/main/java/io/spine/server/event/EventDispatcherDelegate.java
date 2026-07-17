@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -37,13 +37,13 @@ import io.spine.server.type.EventEnvelope;
  * A common interface for objects that need to dispatch {@linkplain io.spine.core.Event events},
  * but are unable to implement {@link io.spine.server.event.EventDispatcher EventDispatcher}.
  *
- * <p>This interface defines own contract for dispatching events, instead of extending
+ * <p>This interface defines its own contract for dispatching events, instead of extending
  * the {@link io.spine.server.bus.MessageDispatcher MessageDispatcher} interface.
  * Such an arrangement allows classes that dispatch messages other than events
- * (by implementing {@link io.spine.server.bus.MessageDispatcher MessageDispatcher}), also
+ * (by implementing {@link io.spine.server.bus.MessageDispatcher MessageDispatcher}), to also
  * dispatch events by implementing <em>this</em> interface.
  *
- * <p>Also this interface provides separate methods for obtaining
+ * <p>Also, this interface provides separate methods for obtaining
  * {@linkplain #domesticEvents() domestic} and {@linkplain #externalEvents() external} event types.
  *
  * @see DelegatingEventDispatcher
@@ -75,7 +75,7 @@ public interface EventDispatcherDelegate extends DispatcherDelegate<EventClass, 
      * Returns immutable set with one element with the identity of the multicast dispatcher
      * that dispatches messages to itself.
      *
-     * @implNote The identity obtained as the result of {@link Object#toString()
+     * @implNote The identity is obtained as the result of {@link Object#toString()
      * EventDispatcherDelegate.toString()}.
      *
      * @return immutable set with the dispatcher delegate identity

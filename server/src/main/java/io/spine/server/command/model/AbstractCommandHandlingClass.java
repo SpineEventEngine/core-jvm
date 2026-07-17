@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import io.spine.type.MessageClass;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 /**
- * Abstract base for classes providing message handling information of classes that handle commands.
+ * Abstract base for classes providing message handling information on classes that handle commands.
  *
  * @param <C>
  *         the type of command handling class

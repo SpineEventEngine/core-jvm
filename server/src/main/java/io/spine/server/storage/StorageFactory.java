@@ -46,13 +46,13 @@ import org.jspecify.annotations.Nullable;
  * and {@link io.spine.server.delivery.Delivery}.
  *
  * <p>The applications built with Spine use serialized Protobuf messages as a format of
- * storing the data objects. There is a number of storage types, each of them packs
+ * storing the data objects. There are a number of storage types, each of them packs
  * their run-time information into a Proto message of a certain kind.
  *
  * <p>In order to unify the structure of the stored information and the way of its further
  * retrieval, a {@link RecordStorage} type is made a common ground for all other storage
  * types. It is capable of storing and querying any Protobuf messages and provides
- * a configuration API for detailing on how each message is transformed into a stored record.
+ * a configuration API for detailing how each message is transformed into a stored record.
  *
  * <p>To achieve that, each of the storage classes starts its own initialization by creating
  * an underlying {@code RecordStorage} and customizing it with a {@linkplain RecordSpec
@@ -227,7 +227,7 @@ public interface StorageFactory extends Closeable {
     /**
      * Creates a new {@link MirrorStorage}.
      *
-     * <p>Pay attention, {@link io.spine.system.server.Mirror Mirror} was deprecated in Spine 2.0.
+     * <p>Pay attention: {@link io.spine.system.server.Mirror Mirror} was deprecated in Spine 2.0.
      * The presence of this storage in the factory is for those who will
      * {@linkplain io.spine.server.migration.mirror.MirrorMigration migrate mirrors} from Spine 1.x.
      *

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -49,12 +49,12 @@ import io.spine.server.event.reject
 /**
  * Acknowledges the message with this ID (e.g. [MessageId] or [SignalId]) with the OK status.
  *
- * @receiver the ID of the acknowledged message,
+ * @receiver the ID of the acknowledged message
  */
 public fun Message.acknowledge(): Ack = ackWithStatus(statusOk())
 
 /**
- * Rejects message with this ID (e.g. [MessageId] or [SignalId]) because the passed error occurred.
+ * Rejects a message with this ID (e.g. [MessageId] or [SignalId]) because the passed error occurred.
  *
  * @param cause the error that prevented the message from being handled
  * @receiver the ID of the message that caused the error
@@ -63,7 +63,7 @@ public fun Message.acknowledge(): Ack = ackWithStatus(statusOk())
 public fun Message.causedError(cause: Error): Ack = ackWithStatus(errorWith(cause))
 
 /**
- * Reject a command with this ID with the passed rejection event.
+ * Rejects a command with this ID with the passed rejection event.
  *
  * @receiver the ID of the rejected command
  */

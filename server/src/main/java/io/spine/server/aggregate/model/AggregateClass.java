@@ -55,7 +55,7 @@ public class AggregateClass<A extends Aggregate<?, ?, ?>>
     private final ReceptorMap<EventClass, EmptyClass, Applier> stateEvents;
     private final ReactorClassDelegate<A> delegate;
 
-    /** Creates new instance. */
+    /** Creates a new instance. */
     protected AggregateClass(Class<A> cls) {
         super(checkNotNull(cls));
         this.stateEvents = ReceptorMap.create(cls, new EventApplierSignature());
@@ -118,13 +118,13 @@ public class AggregateClass<A extends Aggregate<?, ?, ?>>
     }
 
     /**
-     * Obtains types of events that are going to be posted to {@code EventBus} as the result
+     * Obtains types of events that are going to be posted to {@code EventBus} as a result
      * of handling messages dispatched to aggregates of this class.
      *
      * <p>This includes:
      * <ol>
      *     <li>Events generated in response to commands.
-     *     <li>Events generated as reaction to incoming events.
+     *     <li>Events generated as a reaction to incoming events.
      *     <li>Rejections that may be thrown if incoming commands cannot be handled.
      * </ol>
      */
@@ -135,9 +135,9 @@ public class AggregateClass<A extends Aggregate<?, ?, ?>>
     }
 
     /**
-     * Obtains set of classes of events used as arguments of applier methods.
+     * Obtains the set of classes of events used as arguments of applier methods.
      *
-     * <p>Since the event-sourcing cutover an aggregate class must not declare any
+     * <p>Since the event-sourcing cutover, an aggregate class must not declare any
      * {@code @Apply}-annotated appliers (see the constructor), so for a successfully built class
      * this set is always empty. It is used only to <em>detect</em> lingering appliers and fail
      * fast with a {@link ModelError}.
@@ -157,7 +157,7 @@ public class AggregateClass<A extends Aggregate<?, ?, ?>>
     }
 
     /**
-     * Obtains event applier method for the passed class of events.
+     * Obtains the event applier method for the passed class of events.
      */
     public final Applier applierOf(EventEnvelope event) {
         return stateEvents.findReceptorFor(event).orElseThrow(() -> new ModelError(

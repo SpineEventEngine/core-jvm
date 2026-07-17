@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ public class InvalidEventException extends EventException implements MessageInva
     }
 
     /**
-     * Creates an exception instance for a event message that has fields that
+     * Creates an exception instance for an event message that has fields that
      * violate validation constraint(s).
      *
      * @param eventMsg   the invalid event message

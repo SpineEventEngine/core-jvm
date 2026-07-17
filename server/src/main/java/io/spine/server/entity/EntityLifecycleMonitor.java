@@ -179,7 +179,7 @@ public final class EntityLifecycleMonitor<I> implements TransactionListener<I> {
     }
 
     /**
-     * Ensures that the given entity is the same that was given the previous time.
+     * Ensures that the given entity is the same as was given the previous time.
      *
      * <p>An instance of {@code EntityLifecycleMonitor} should not be reused for multiple entity
      * transactions. Thus, if the given entity is not the same as seen before,

@@ -90,7 +90,7 @@ public class EntityRecordStorage<I, S extends EntityState<I>>
      * @param factory
      *         storage factory
      * @param entityClass
-     *         class of an Entity which data is stored in the created storage
+     *         class of an Entity whose data is stored in the created storage
      */
     public EntityRecordStorage(ContextSpec context,
                                StorageFactory factory,
@@ -119,7 +119,7 @@ public class EntityRecordStorage<I, S extends EntityState<I>>
     }
 
     /**
-     * Returns the iterator over identifiers of the records which match the passed query.
+     * Returns the iterator over identifiers of the records that match the passed query.
      *
      * <p>Unless the query specifies otherwise, only non-archived and non-deleted entity records
      * are queried.
@@ -146,7 +146,7 @@ public class EntityRecordStorage<I, S extends EntityState<I>>
      * Reads the entity records according to the passed query.
      *
      * <p>If the passed query has no ID parameter set, only the records of the active entities
-     * are returned. If the query includes the ID parameter, includes non-active entities as well.
+     * are returned. If the query includes the ID parameter, it includes non-active entities as well.
      */
     @Override
     public Iterator<EntityRecord> readAll(RecordQuery<I, EntityRecord> query) {

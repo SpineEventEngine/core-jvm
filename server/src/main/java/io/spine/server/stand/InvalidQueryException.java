@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package io.spine.server.stand;
 
 import io.spine.base.Error;
@@ -30,7 +31,7 @@ import io.spine.client.Query;
 
 /**
  * An exception thrown if the {@linkplain Query} instance
- * cannot be submitted to {@linkplain Stand} due to a technical error, such as validation error.
+ * cannot be submitted to {@linkplain Stand} due to a technical error, such as a validation error.
  */
 final class InvalidQueryException extends InvalidRequestException {
 

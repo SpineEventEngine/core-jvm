@@ -69,7 +69,7 @@ final class DefaultConverter<I, E extends AbstractEntity<I, S>, S extends Entity
      * Injects the state into an entity.
      *
      * @param entity
-     *         the entity to inject the state
+     *         the entity to inject the state into
      * @param state
      *         the state message to inject
      * @param entityRecord

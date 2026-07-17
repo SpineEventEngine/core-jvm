@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import io.spine.server.type.EventClass;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Provides message-handling information on a {@code Assignee} class.
+ * Provides message-handling information on an {@code Assignee} class.
  *
  * @param <C>
  *         the type of command assignees

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -57,7 +57,7 @@ public interface TypeMatcher extends Predicate<Class<?>> {
     }
 
     /**
-     * Creates a type matcher that matches the type is equal to the passed type.
+     * Creates a type matcher that matches the type if it is equal to the passed type.
      */
     static TypeMatcher exactly(Class<?> type) {
         checkNotNull(type);
@@ -80,14 +80,14 @@ public interface TypeMatcher extends Predicate<Class<?>> {
      *      <li> The same types always match;
      *      e.g. {@code UserId.class} always matches {@code UserId.class}.
      *
-     *      <li> Different types always don't match.
+     *      <li> Different types never match.
      *      e.g. {@code UserId.class} always does not match {@code Nothing.class};
      *
      *      <li> If {@code actual} is a subtype of {@code expected}, they match.
      *      e.g. {@code matches(EventMessage, Nothing)} returns {@code true}.
      *
      *      <li> The generic parameters are taken into account in a similar manner:
-     *      same always match, a subtype matches a parent type, different types aren't matching;
+     *      same always match, a subtype matches a parent type, different types don't match;
      *      e.g.
      *          {@literal matches(Collection<EventMessage>, Set<ProjectEvent>)} is {@code true};
      *          {@literal matches(Collection<EventMessage>, Set<CommandMessage>)} is {@code false}.
@@ -101,7 +101,7 @@ public interface TypeMatcher extends Predicate<Class<?>> {
      *              )} is {@code true},
      *          {@literal matches(Optional<EventMessage>, Optional<AddTask>)} is {@code false}.
      *
-     *      <li> Generic parameters with wildcard are <em>not</em> supported.
+     *      <li> Generic parameters with wildcards are <em>not</em> supported.
      * </ul>
      */
     @SuppressWarnings("PMD.SimplifyBooleanReturns") // Here we chose readability over compactness.
@@ -156,7 +156,7 @@ public interface TypeMatcher extends Predicate<Class<?>> {
     }
 
     /**
-     * Tells whether the {@code type} is not the same nor a descendant as {@code expectedSuper}.
+     * Tells whether the {@code type} is neither the same as nor a descendant of {@code expectedSuper}.
      */
     static boolean differs(TypeToken<?> type, TypeToken<?> expectedSuper) {
         checkNotNull(type);

@@ -121,7 +121,7 @@ public abstract class ProjectionRepository<I,
      * <p>If projections of this repository are {@linkplain io.spine.core.Subscribe subscribed} to
      * entity state updates, a routing for state updates is created and
      * {@linkplain #setupStateRouting(StateUpdateRouting) configured}.
-     * If one of the states of entities cannot be routed during the created schema,
+     * If one of the states of entities cannot be routed using the created schema,
      * {@code IllegalStateException} will be thrown.
      *
      * <p>Creates an instance of the {@link CatchUpProcess} enabling this repository {@linkplain
@@ -359,7 +359,7 @@ public abstract class ProjectionRepository<I,
      * @throws CatchUpAlreadyStartedException
      *         if another catch-up for the same entity type and overlapping targets is already in
      *         progress
-     * @see #catchUpAll(Timestamp) on a shortcut method that starts the catch-up for all
+     * @see #catchUpAll(Timestamp) a shortcut method that starts the catch-up for all
      *         entities in this repository
      */
     public CatchUpId catchUp(Timestamp since, @Nullable Set<I> ids)
@@ -410,7 +410,7 @@ public abstract class ProjectionRepository<I,
     /**
      * Sends the event to the inboxes of the catching-up projection instances.
      *
-     * <p>Allows to restrict the target entities by identifiers. In this case, the event is
+     * <p>Allows restricting the target entities by identifiers. In this case, the event is
      * routed as per the repository routing schema, and the obtained set of the identifiers
      * is narrowed down to the restricted targets.
      *
@@ -429,7 +429,7 @@ public abstract class ProjectionRepository<I,
      *         the event to dispatch
      * @param restrictToIds
      *         optional set of the target identifiers to which the dispatching must be restricted;
-     *         if {@code null}, no restriction are applied and the event should be dispatched as per
+     *         if {@code null}, no restrictions are applied and the event should be dispatched as per
      *         the routing schema
      * @return the set of the entity identifiers, which actually received the dispatched event
      * @see CatchUpEndpoint

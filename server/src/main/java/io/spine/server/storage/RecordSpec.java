@@ -77,7 +77,7 @@ public final class RecordSpec<I, R extends Message> {
 
     /**
      * Type of origin Proto message, which served as a source
-     * prior to potential transforming to a record of {@code recordType}.
+     * prior to a potential transformation to a record of {@code recordType}.
      *
      * <p>If this {@code RecordSpec} describes a storage configuration
      * of {@code EntityRecord}, this field is a type of corresponding Entity state.
@@ -87,7 +87,7 @@ public final class RecordSpec<I, R extends Message> {
      * with {@code recordType} of {@code Event} (see
      * {@link io.spine.server.entity.storage.HistoryStorage HistoryStorage}).
      *
-     * <p>In all other cases, this value equals to {@code recordType}.
+     * <p>In all other cases, this value equals {@code recordType}.
      */
     private final Class<? extends Message> sourceType;
 
@@ -125,7 +125,7 @@ public final class RecordSpec<I, R extends Message> {
      *         the definitions of the columns to store along with the record
      * @param extractId
      *         a method object to extract the value of an identifier given an instance of a record
-     * @apiNote This ctor is internal to framework, and used to create the record
+     * @apiNote This ctor is internal to the framework, and used to create the record
      *         specifications whose source type differs from the record type:
      *         the Entity states stored as {@code EntityRecord}s (see
      *         {@link io.spine.server.entity.storage.SpecScanner SpecScanner}), and the
@@ -196,7 +196,7 @@ public final class RecordSpec<I, R extends Message> {
 
     /**
      * Returns the type of origin Proto message, which served as a source
-     * prior to potential transforming to a record of {@linkplain #recordType() record type}.
+     * prior to a potential transformation to a record of {@linkplain #recordType() record type}.
      *
      * <p>In case if {@code recordType()} is {@code EntityRecord},
      * this method returns the type of Entity state.

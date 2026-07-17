@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -64,7 +64,7 @@ import static java.lang.String.format;
  *
  * <p>To use one, do the following:
  * <ol>
- *     <li>Create an instance, specifying the event bus which receives emitted events.
+ *     <li>Create an instance, specifying the event bus that receives emitted events.
  *     <li>{@linkplain io.spine.server.BoundedContextBuilder#addEventDispatcher(EventDispatcher) Register}.
  * </ol>
  *
@@ -104,7 +104,7 @@ public abstract class AbstractEventReactor
      *
      * <p>The descendants that emit system events may choose not to expose their signals
      * via {@code Stand}, or expose them partially. In which case this method should be
-     * overridden respectively.
+     * overridden accordingly.
      */
     @Internal
     protected void registerIn(Stand stand) {

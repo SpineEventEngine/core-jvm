@@ -1,11 +1,11 @@
 /*
- * Copyright 2023, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -37,7 +37,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * An abstract base for shard pick-up-related failures.
  *
- * <p>Although not marked {@code Internal} explicitly, this type <em>is</em> internal to framework
+ * <p>Although not marked {@code Internal} explicitly, this type <em>is</em> internal to the framework
  * in terms of extensibility. End-users should not extend it directly.
  * Its descendants are provided by the framework itself, and represent different
  * pick-up failure scenarios that may happen in {@code Delivery} at run-time.
@@ -73,7 +73,7 @@ public abstract class FailedPickUp {
 
     /**
      * Returns an action that makes the delivery process
-     * to finish without any processing done.
+     * finish without any processing done.
      */
     public Action doNothing() {
         return Optional::empty;

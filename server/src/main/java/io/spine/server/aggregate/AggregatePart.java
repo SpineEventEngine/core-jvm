@@ -44,8 +44,8 @@ import io.spine.validation.ValidatingBuilder;
  * <ul>
  *   <li>be a class derived from {@code AggregatePart}
  *   <li>have the same aggregate ID as other parts belonging to the same business object
- *   <li>have own state defined as a Protobuf message
- *   <li>managed by a separate repository class derived from {@link AggregateRepository}
+ *   <li>have its own state defined as a Protobuf message
+ *   <li>be managed by a separate repository class derived from {@link AggregateRepository}
  * </ul>
  *
  * <p>To access parts of the aggregate, {@link AggregateRoot} should be used.

@@ -275,7 +275,7 @@ public abstract class Aggregate<I,
     /**
      * Dispatches the event on which the aggregate reacts.
      *
-     * <p>Reacting on an event may result in emitting event messages.
+     * <p>Reacting to an event may result in emitting event messages.
      * All the {@linkplain Empty empty} messages are filtered out from the result.
      *
      * @param event

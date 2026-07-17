@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -32,7 +32,7 @@ import io.spine.server.model.Receptor;
  * Callbacks for a {@link Receptor} invocation.
  *
  * <p>If the target of the method implements {@code HandlerLifecycle}, it is invoked alongside
- * handler method. For example:
+ * the handler method. For example:
  * <pre>
  * class SignUpSubscriber extends AbstractEventSubscriber implements HandlerLifecycle {
  *

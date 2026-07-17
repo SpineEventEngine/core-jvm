@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -63,13 +63,13 @@ final class UpdateShardProcessingEvents implements ConveyorJob {
     }
 
     /**
-     * Injects the passed event message into the copye of the passed {@code InboxMessage}
+     * Injects the passed event message into the copy of the passed {@code InboxMessage}
      * and returns a new {@code InboxMessage} with the modified data.
      *
      * @param what
      *         the event message to inject
      * @param destination
-     *         the original inbox message into which copy the passed event message should be
+     *         the original inbox message into a copy of which the passed event message should be
      *         injected
      * @return a copy of the passed {@code InboxMessage} with the passed event message injected
      */
