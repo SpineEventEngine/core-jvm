@@ -24,41 +24,37 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.testing.server.blackbox;
+package io.spine.testing.server.blackbox
 
-import io.spine.server.type.CommandEnvelope;
-import io.spine.testing.client.TestActorRequestFactory;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.spine.server.type.CommandEnvelope
+import io.spine.testing.client.TestActorRequestFactory
+import io.spine.testing.server.blackbox.given.Given.createProject
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
 
-import static com.google.common.truth.Truth.assertThat;
-import static io.spine.testing.server.blackbox.given.Given.createProject;
-import static org.junit.jupiter.api.Assertions.assertSame;
+@DisplayName("`BlackBoxSetup` should")
+internal class BlackBoxSetupSpec {
 
-@DisplayName("`BlackBoxSetup.command()` should")
-class BlackBoxSetupTest {
-
-    private final TestActorRequestFactory requestFactory =
-            new TestActorRequestFactory(BlackBoxSetupTest.class);
+    private val requestFactory = TestActorRequestFactory(BlackBoxSetupSpec::class.java)
 
     @Test
-    @DisplayName("wrap a command message into a `Command`")
-    void wrapCommandMessage() {
-        var message = createProject();
+    fun `wrap a command message into a 'Command'`() {
+        val message = createProject()
 
-        var command = BlackBoxSetup.command(message, requestFactory);
+        val command = BlackBoxSetup.command(message, requestFactory)
 
-        assertThat(CommandEnvelope.of(command).message()).isEqualTo(message);
+        CommandEnvelope.of(command).message() shouldBe message
     }
 
     @Test
-    @DisplayName("return an already built `Command` as-is")
-    void returnPreBuiltCommand() {
-        var prebuilt = requestFactory.command()
-                                     .create(createProject());
+    fun `return an already built 'Command' as-is`() {
+        val message = createProject()
+        val prebuilt = requestFactory.command().create(message)
 
-        var command = BlackBoxSetup.command(prebuilt, requestFactory);
+        val command = BlackBoxSetup.command(prebuilt, requestFactory)
 
-        assertSame(prebuilt, command);
+        command shouldBeSameInstanceAs prebuilt
     }
 }
