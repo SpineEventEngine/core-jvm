@@ -53,9 +53,31 @@ Converting a Java class that has same-package collaborators to Kotlin changes wh
 - **JUnit does not discover `@Nested` classes inherited from an abstract superclass** (concrete-class
   `@Nested` run fine; inherited `@Test` methods run, inherited `@Nested` classes do not). An abstract
   test base (`TransactionTest`) must declare its cases as flat `@Test` methods, not `@Nested`.
+- **The Fir2Ir ICE needs a Java link in the inheritance chain — an all-Kotlin chain does NOT ICE**
+  (`AbstractEntity.java` → Kotlin, 2026-07-17). `Fixture : TransactionalEntity<…>()` (test-module
+  Kotlin subclass) inherited-calls `internal setState`/`checkEntityState` through the now-all-Kotlin
+  chain `Fixture → TransactionalEntity(kt) → AbstractEntity(kt)` and compiled clean. The earlier ICE
+  fired only through the Java intermediate `EventPlayingTransaction`. So: `internal` inherited by a
+  Kotlin subclass is safe **when every link from the caller down to the declaration is Kotlin**;
+  keep the "→ `protected`" cure for chains that still pass through a Java class. Verify empirically
+  with `compileTestKotlin` rather than pre-emptively widening.
+- **`protected` (Java) ≠ package-private (Java) when mapping to `internal` — `internal` CONTRACTS a
+  `protected` subclass API.** A Java `protected` member is external-subclass API; a package-private one
+  is not. Both, when they have a same-package non-subclass Kotlin caller (`Transaction.kt`), *tempt* you
+  to `internal`, but `internal` removes a real `protected` member from external Kotlin subclasses (Java
+  subclasses keep it via `@JvmName`'s public symbol). Fix: keep it `protected` and route the non-subclass
+  Kotlin caller through a **public** path — e.g. `AbstractEntity.defaultState()` stayed `protected`, and
+  `Transaction.kt` switched from `entity.defaultState()` to `entity.modelClass().defaultState()` (the
+  public `EntityClass.defaultState()` that `IdField` already used). Only widen genuinely package-private
+  members to `internal`.
+- **Guava `checkNotNull` (NPE) ≠ Kotlin `checkNotNull` (ISE).** Converting `id() = checkNotNull(_id)`
+  verbatim silently changes the thrown type NPE→ISE. Preserve with `_id ?: throw NullPointerException(…)`
+  (no `!!` — the skill forbids it). Non-null Kotlin *param* types keep their NPE via `Intrinsics`, so only
+  explicit `checkNotNull` on fields/returns drifts.
 
-**Why:** Discovered while converting `TransactionalEntity.java` (2026-07-06) and `Transaction.java`
-(2026-07-07) to Kotlin. These are compile-/runtime-level facts, not style preferences.
+**Why:** Discovered while converting `TransactionalEntity.java` (2026-07-06), `Transaction.java`
+(2026-07-07), and `AbstractEntity.java` (2026-07-17) to Kotlin. These are compile-/runtime-level facts,
+not style preferences.
 
 **How to apply:** Before converting a core Java class (e.g. in `io.spine.server.entity`), grep for
 same-package Kotlin callers of its protected/package-private members, and for `get*`-style column

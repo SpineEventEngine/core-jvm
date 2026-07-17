@@ -267,7 +267,7 @@ abstract class TransactionTest<I : Any,
     @Test
     fun `not allow injecting state if entity has non-zero version already`() {
         val entity = createEntity()
-        entity.incrementVersion()
+        entity.updateVersion(Versions.increment(entity.version()))
         val state = newState()
         val version = newVersion()
 
