@@ -83,6 +83,14 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      */
     private var _id: I? = null
 
+    /**
+     * The entity identifier.
+     *
+     * A property shortcut for `id()`.
+     */
+    public val id: I
+        get() = id()
+
     /** Cached version of string ID. */
     @Volatile
     private var stringId: String? = null
@@ -97,10 +105,26 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
     private var _state: S? = null
 
     /**
+     * The entity state.
+     *
+     * A property shortcut for `state()`.
+     */
+    public val state: S
+        get() = state()
+
+    /**
      * The version of the entity.
      */
     @Volatile
     private var _version: Version = Versions.zero()
+
+    /**
+     * The entity version.
+     *
+     * A property shortcut for `version()`.
+     */
+    public val version: Version
+        get() = version()
 
     /**
      * The lifecycle flags of the entity.
@@ -137,7 +161,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
     }
 
     /**
-     * Creates new instance with the passed ID.
+     * Creates a new instance with the passed ID.
      */
     protected constructor(id: I) : this() {
         setId(id)
@@ -185,7 +209,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
     }
 
     /**
-     * Ensures that the callee is allowed to access Entity's [state] method.
+     * Ensures that the callee is allowed to access Entity's `state()` method.
      *
      * In case the access is prohibited, throws a `RuntimeException`.
      *
@@ -194,7 +218,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      * on this method invocation.
      *
      * By default, this method performs no checks,
-     * thus allowing to access Entity's [state] at any point of time.
+     * thus allowing to access Entity's `state()` at any point of time.
      */
     @Internal
     protected open fun ensureAccessToState() {

@@ -15,11 +15,17 @@ Converting a Java class that has same-package collaborators to Kotlin changes wh
 - Java package-private members → Kotlin `internal` **plus `@JvmName`** on each function; otherwise
   the bytecode name is mangled (`foo$server`) and same-package Java callers
   (e.g. `Transaction.java`) stop compiling.
-- Do NOT convert the `id`/`version`/`state` shortcut extensions into member properties of entity
-  base classes: a member `val version` emits `getVersion()`, which collides with
-  `HasVersionColumn.getVersion()` implemented by `ProcessManager`/`Projection` — a protected member
-  cannot implement a public interface method, and a public one would silently override an
-  entity-column getter.
+- The `id`/`version`/`state` shortcut extensions CAN become **public** member properties of the
+  now-Kotlin `AbstractEntity` (done 2026-07-17, `:server:build` + 1968 tests green). A member
+  `val version` emits `getVersion()`, which the earlier note feared "collides" with the
+  `HasVersionColumn.getVersion()` default (implemented by `Aggregate`/`ProcessManager`/`Projection`):
+  in practice a **public** `val version` cleanly overrides that default with the identical value
+  (`getVersion()` returned `version()` anyway), and entity-column scanning is unaffected — like the
+  Fir2Ir note, the "collision" was over-cautious. The `id`/`state` twins have no column-getter to
+  clash with at all. Caveat that still holds: the property must be **public** — a `protected`
+  `val version` cannot implement the public interface method `getVersion()`. Keep the backing fields
+  underscore-prefixed (`_id`/`_state`/`_version`) so they stay distinct from the properties; the
+  interface methods `id()`/`state()`/`version()` coexist with the properties (different JVM names).
 - Java non-final methods must become `open` in Kotlin, or existing overrides
   (e.g. `Aggregate.recentHistory()`, `ProcessManager.missingTxMessage()`) break.
 - **Converting a same-package Java *test* of the now-Kotlin class hits the same wall.**
