@@ -40,6 +40,7 @@ import "google/protobuf/any.proto";
 // Represents an ID of an entity.
 //
 // Acts as a read-side API identifier for Projection state, Aggregate state and other entities.
+//
 message EntityId {
 
     // An ID of an entity.

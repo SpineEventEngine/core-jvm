@@ -72,8 +72,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  * {@link #onBehalfOf(UserId)} represents a valid logged-in user, ID of whom the client application
  * got (presumably as a field of a {@code UserLoggedIn} event) following due authentication process.
  * The server-side code also needs to make sure that the {@link UserId} matches security
- * constraints of the backend services. Security arrangements are not a part of the Spine client-side
- * library either.
+ * constraints of the backend services. Security arrangements are not a part of the Spine
+ * client-side library either.
  *
  * <p>Subscriptions to {@linkplain SubscriptionRequest entity states} or
  * {@linkplain EventSubscriptionRequest events} must be {@linkplain #cancel(Subscription)

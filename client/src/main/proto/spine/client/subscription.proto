@@ -137,8 +137,8 @@ message EntityStateUpdate {
         // The state of the entity has been changed, so that previously it matched the subscription
         // `Target` filters, and now it does not.
         //
-        // For example, consider a subscription to all `UserSession`s in which a user has sent at most
-        // `N` requests:
+        // For example, consider a subscription to all `UserSession`s in which a user has sent
+        // at most `N` requests:
         // ```
         // WHERE REQUEST_COUNT <= N
         // ```

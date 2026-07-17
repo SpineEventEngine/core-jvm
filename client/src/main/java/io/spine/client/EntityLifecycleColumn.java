@@ -44,7 +44,8 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * @apiNote Unlike other types of {@link io.spine.query.Column Column}s, the descendants of
  *         this type are intended just to introduce the definitions of columns into the query DSL.
  *         Therefore, the API for obtaining the column values from entities and entity records
- *         is disabled by explicitly throwing an {@code IllegalStateException} in the respective method.
+ *         is disabled by explicitly throwing an {@code IllegalStateException} in the
+ *         respective method.
  */
 @Internal
 @SuppressWarnings("AbstractClassWithoutAbstractMethods")    /* Must not be instantiated. */
