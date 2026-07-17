@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ public final class GivenUserId {
     }
 
     /**
-     * Creates a new user ID instance by passed string value.
+     * Creates a new user ID instance from the passed string value.
      *
      * @param value new user ID value
      * @return new instance
@@ -70,10 +70,10 @@ public final class GivenUserId {
     /**
      * Generates a new UUID-based {@code UserId}.
      *
-     * @apiNote This method is an alias for {@link #newUuid()}. The reason for having it this.
-     * The code {@code GivenUserId.newUuid()} is somewhat awkward to read and pronounce.
+     * @apiNote This method is an alias for {@link #newUuid()}. The reason for having it is this:
+     * the code {@code GivenUserId.newUuid()} is somewhat awkward to read and pronounce.
      * Some tests or test environments require setup where the code {@code GivenUserId.generated()}
-     * reads natural as it tells a story. In other places having {@code newUuid()}
+     * reads naturally as it tells a story. In other places having {@code newUuid()}
      * (which is statically imported) looks better, and it also clearly tells what it does.
      *
      * <p>So, this method is meant to be used with the class name, while its
