@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ import static io.spine.client.SubscriptionUpdate.UpdateCase.EVENT_UPDATES;
 import static java.util.Collections.synchronizedList;
 
 /**
- * Allows to assert updates received on a subscription.
+ * Allows asserting updates received on a subscription.
  */
 public final class SubscriptionFixture {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.protobuf.AnyPacker.pack;
 
 /**
- * The factory or producing events for tests.
+ * The factory for producing events for tests.
  */
 @CheckReturnValue
 public class TestEventFactory extends EventFactory {

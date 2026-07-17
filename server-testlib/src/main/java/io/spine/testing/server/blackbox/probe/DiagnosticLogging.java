@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ import static io.spine.type.Json.toJson;
 import static java.lang.String.format;
 
 /**
- * Provides a handy shortcut for logging exceptions happened during
+ * Provides a handy shortcut for logging exceptions that happened during
  * {@linkplain DiagnosticEvent events} handling.
  */
 interface DiagnosticLogging extends WithLogging {

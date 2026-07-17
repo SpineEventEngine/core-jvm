@@ -165,8 +165,8 @@ final class BlackBoxSetup {
     }
 
     /**
-     * Generates {@link Event} with the passed instance is an event message. If the passed
-     * instance is {@code Event} returns it.
+     * Generates {@link Event} if the passed instance is an event message. If the passed
+     * instance is {@code Event}, returns it.
      *
      * @param eventOrMessage
      *         a domain event message or {@code Event}
@@ -187,7 +187,7 @@ final class BlackBoxSetup {
     /**
      * Generates a {@link Command} from a {@link CommandMessage}.
      *
-     * <p>If the passed message is a {@link Command} does nothing.
+     * <p>If the passed message is a {@link Command}, does nothing.
      *
      * @param commandOrMessage
      *         a command or command message

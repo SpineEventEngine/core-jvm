@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,12 +40,12 @@ import static java.util.Objects.requireNonNull;
  *
  * <p>Such a test suite creates a new instance of {@link io.spine.server.BoundedContext
  * BoundedContext} using a builder that implementing classes must {@linkplain #contextBuilder()
- * provide}. The context under the test is created {@linkplain BeforeEach before each} test method
+ * provide}. The context under test is created {@linkplain BeforeEach before each} test method
  * and closed {@linkplain AfterEach after each} test method automatically.
  *
  * <p>Testing methods {@linkplain #context() obtain the context} for:
  * <ol>
- *     <li>Sending signals under the test to the context via {@code receivesXxx()} methods, such as
+ *     <li>Sending signals to the context under test via {@code receivesXxx()} methods, such as
  *         {@link BlackBox#receivesCommand(CommandMessage) receivesCommand()}.
  *     <li>Asserting results of handling the signals via {@code assertXxx()} methods,
  *     e.g. {@link BlackBox#assertEvents() assertEvents()}.
@@ -59,7 +59,7 @@ public abstract class ContextAwareTest {
     private @Nullable BlackBox context;
 
     /**
-     * Creates a new builder for the Bounded Context under the test.
+     * Creates a new builder for the Bounded Context under test.
      */
     protected abstract BoundedContextBuilder contextBuilder();
 
@@ -80,7 +80,7 @@ public abstract class ContextAwareTest {
     }
 
     /**
-     * Obtains test configuration and assertion API for the Bounded Context under the test.
+     * Obtains test configuration and assertion API for the Bounded Context under test.
      */
     protected BlackBox context() {
         return requireNonNull(
