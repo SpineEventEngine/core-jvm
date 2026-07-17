@@ -691,8 +691,8 @@ public final class Delivery implements WithLogging {
      * Registers the internal {@code Delivery} message dispatchers
      * in the given {@code BoundedContext}.
      *
-     * <p>The registration of the dispatchers allows one to handle the {@code Delivery}-specific
-     * events.
+     * <p>The registration of the dispatchers allows one to handle the
+     * {@code Delivery}-specific events.
      *
      * @param context
      *         Bounded Context in which the message dispatchers should be registered

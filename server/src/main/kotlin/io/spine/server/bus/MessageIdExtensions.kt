@@ -54,8 +54,8 @@ import io.spine.server.event.reject
 public fun Message.acknowledge(): Ack = ackWithStatus(statusOk())
 
 /**
- * Rejects a message with this ID (e.g. [MessageId] or [SignalId]) because the passed error
- * occurred.
+ * Rejects a message with this ID (e.g. [MessageId] or [SignalId]) because the passed
+ * error occurred.
  *
  * @param cause the error that prevented the message from being handled
  * @receiver the ID of the message that caused the error
