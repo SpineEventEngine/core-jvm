@@ -99,7 +99,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      * The state of the entity.
      *
      * Lazily initialized to the [default state][defaultState],
-     * if [accessed][state] before [initialization][setState].
+     * if accessed via `state()` before [initialization][setState].
      */
     @Volatile
     private var _state: S? = null
