@@ -71,7 +71,7 @@ public interface Entity<I, S extends EntityState<I>> extends WithLifecycle {
     S state();
 
     /**
-     * Tells whether lifecycle flags of the entity changed since its initialization.
+     * Tells whether lifecycle flags of the entity have been changed since its initialization.
      */
     boolean lifecycleFlagsChanged();
 
