@@ -50,6 +50,7 @@ import io.spine.util.Exceptions.newIllegalStateException
 import io.spine.validation.ConstraintViolation
 import io.spine.validation.Validate
 import java.util.Objects
+import java.util.Optional
 import java.util.function.Function
 
 /**
@@ -486,6 +487,92 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      * Obtains timestamp of the entity version.
      */
     public open fun whenModified(): Timestamp = _version.timestamp
+
+    /**
+     * The recent history of the states this entity went through.
+     *
+     * Served lazily from the durable storage through the loader installed by
+     * the repository via [setStateHistoryLoader]. An entity created outside a
+     * repository has no loader, so its history reads come back empty.
+     */
+    private val recentStateHistory = RecentStateHistory<S>()
+
+    /**
+     * Obtains the recent history of states of this entity.
+     */
+    protected fun recentStateHistory(): RecentStateHistory<S> = recentStateHistory
+
+    /**
+     * Installs the loader serving the [recent state history][recentStateHistory]
+     * reads from the durable storage.
+     *
+     * Called by the repository unconditionally when an entity instance is
+     * created. Whether the repository records the state history gates only
+     * the behavior of the installed loader: while the recording is off,
+     * reading through it fails fast rather than serving an empty history.
+     */
+    @Internal
+    public fun setStateHistoryLoader(loader: StateHistoryLoader) {
+        recentStateHistory.useLoader(loader)
+    }
+
+    /**
+     * Obtains the state this entity had at the given time, if the recorded
+     * state history retains it.
+     *
+     * The result is the recorded state with the highest version among those
+     * which became current not later than the given time. The answer is honest
+     * about retention: an empty result means the question cannot be answered
+     * from the retained window — the time either precedes the oldest retained
+     * record, or predates the entity itself.
+     *
+     * The state produced by the current, not-yet-stored dispatch is not
+     * recorded yet: a receptor reading the history observes the states
+     * persisted by the previous dispatches.
+     *
+     * The state history is an opt-in feature — see
+     * `AbstractEntityRepository.recordStateHistory()`. Reading it while the
+     * repository of this entity does not record it is a configuration error.
+     * An entity created outside a repository has no recorded history and
+     * reads an empty `Optional`.
+     *
+     * @param time
+     *         the point in time to look at
+     * @return the state at the given time, or an empty `Optional` if the
+     *         recorded history does not retain it
+     * @throws IllegalStateException
+     *         if the repository of this entity does not record the state history
+     */
+    protected fun stateAt(time: Timestamp): Optional<S> {
+        val state = recentStateHistory.stateAt(time)
+        return Optional.ofNullable(state)
+    }
+
+    /**
+     * Creates an iterator over up to [depth] most recent recorded states of
+     * this entity, newest first.
+     *
+     * Fewer states are returned if the recorded history retains fewer.
+     * The state produced by the current, not-yet-stored dispatch is not
+     * recorded yet: a receptor reading the history observes the states
+     * persisted by the previous dispatches.
+     *
+     * The state history is an opt-in feature — see
+     * `AbstractEntityRepository.recordStateHistory()`. Reading it while the
+     * repository of this entity does not record it is a configuration error.
+     * An entity created outside a repository has no recorded history and
+     * reads an empty iterator.
+     *
+     * @param depth
+     *         the maximal number of the most recent states to return; must be positive
+     * @return new iterator instance
+     * @throws IllegalArgumentException
+     *         if the [depth] is not positive
+     * @throws IllegalStateException
+     *         if the repository of this entity does not record the state history
+     */
+    protected fun stateHistoryBackward(depth: Int): Iterator<S> =
+        recentStateHistory.read(depth)
 
     /**
      * Creates new [ScopedLoggingContext] containing the names of the types of

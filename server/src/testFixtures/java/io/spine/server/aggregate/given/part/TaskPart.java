@@ -26,6 +26,7 @@
 
 package io.spine.server.aggregate.given.part;
 
+import com.google.protobuf.Timestamp;
 import io.spine.server.aggregate.AggregatePart;
 import io.spine.server.command.Assign;
 import io.spine.server.tuple.Pair;
@@ -35,6 +36,8 @@ import io.spine.test.aggregate.event.AggTaskAssigned;
 import io.spine.test.aggregate.event.AggTaskCreated;
 import io.spine.test.aggregate.task.AggTask;
 import io.spine.test.aggregate.task.AggTaskId;
+
+import java.util.Optional;
 
 /**
  * An aggregate part with {@link Task} state, which belongs to the aggregate
@@ -60,5 +63,13 @@ public class TaskPart
         builder().setId(created.getTaskId());
         builder().setAssignee(assigned.getNewAssignee());
         return Pair.of(created, assigned);
+    }
+
+    /**
+     * Exposes the {@code protected} {@link #stateAt(Timestamp)} read to a test that verifies
+     * the state history loader is installed on parts created by the repository.
+     */
+    public Optional<AggTask> readStateAt(Timestamp time) {
+        return stateAt(time);
     }
 }

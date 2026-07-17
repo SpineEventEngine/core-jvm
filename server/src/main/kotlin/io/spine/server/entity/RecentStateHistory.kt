@@ -31,10 +31,10 @@ import io.spine.base.EntityState
 import io.spine.protobuf.AnyPacker
 
 /**
- * The recent history of states of a [TransactionalEntity].
+ * The recent history of states of an [AbstractEntity].
  *
  * The states are read from the durable state history via the loader
- * [installed][TransactionalEntity.setStateHistoryLoader] by the repository
+ * [installed][AbstractEntity.setStateHistoryLoader] by the repository
  * of the entity. The stored records are unpacked into the entity state type.
  *
  * The repository installs the loader unconditionally; whether it records

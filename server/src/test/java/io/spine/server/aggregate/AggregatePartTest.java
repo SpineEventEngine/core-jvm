@@ -132,7 +132,7 @@ class AggregatePartTest {
         // The recording is not enabled for the repository: the installed
         // loader must fail fast, proving the part reads the repository
         // history rather than a silently empty one.
-        assertThrows(IllegalStateException.class, () -> part.stateAt(currentTime()));
+        assertThrows(IllegalStateException.class, () -> part.readStateAt(currentTime()));
     }
 
     @Test
