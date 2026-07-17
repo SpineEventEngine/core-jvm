@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -69,7 +69,8 @@ public interface WithTime {
      *         lower bound, exclusive
      * @param periodEnd
      *         higher bound, inclusive
-     * @return {@code true} if the time point of the command creation lies in between the given two
+     * @return {@code true} if the time point of the command creation lies in between the given
+     *         two bounds
      */
     default boolean isBetween(Timestamp periodStart, Timestamp periodEnd) {
         checkNotNull(periodStart);
@@ -87,7 +88,7 @@ public interface WithTime {
     }
 
     /**
-     * Obtains the local date of the {@linkplain #instant()} associated time point}.
+     * Obtains the local date of the {@linkplain #instant() associated time point}.
      */
     default LocalDate localDate() {
         @SuppressWarnings("FromTemporalAccessor") // `Instant` does have date info.
@@ -96,7 +97,7 @@ public interface WithTime {
     }
 
     /**
-     * Obtains the local date and time of the {@linkplain #instant()} associated time point}.
+     * Obtains the local date and time of the {@linkplain #instant() associated time point}.
      */
     default LocalDateTime localDateTime() {
         @SuppressWarnings("FromTemporalAccessor") // `Instant` does have date/time info.
