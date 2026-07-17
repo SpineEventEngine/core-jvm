@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -29,9 +29,9 @@ package io.spine.server;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.testing.NullPointerTester;
 import io.spine.core.TenantId;
-import io.spine.server.aggregate.AggregateRepository;
 import io.spine.server.aggregate.AggregateRootDirectory;
 import io.spine.server.aggregate.InMemoryRootDirectory;
+import io.spine.server.bc.given.Given.CommandDispatchingRepository;
 import io.spine.server.bc.given.Given.NoOpCommandDispatcher;
 import io.spine.server.bc.given.Given.NoOpEventDispatcher;
 import io.spine.server.bc.given.ProjectAggregate;
@@ -45,6 +45,10 @@ import io.spine.server.projection.ProjectionRepository;
 import io.spine.server.tenant.TenantIndex;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventEnvelope;
+import io.spine.test.bc.ProjectId;
+import io.spine.test.bc.command.BcCreateProject;
+import io.spine.testdata.Sample;
+import io.spine.testing.client.TestActorRequestFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -235,14 +239,13 @@ class BoundedContextBuilderTest {
 
         private BoundedContextBuilder builder;
         private CommandDispatcher dispatcher;
-        private AggregateRepository<?, ?, ?> repository;
+        private CommandDispatchingRepository repository;
 
         @BeforeEach
         void setUp() {
             builder = BoundedContextBuilder.assumingTests();
             dispatcher = new NoOpCommandDispatcher();
-            repository =
-                    (AggregateRepository<?, ?, ?>) DefaultRepository.of(ProjectAggregate.class);
+            repository = new CommandDispatchingRepository();
         }
 
         @Test
@@ -288,6 +291,20 @@ class BoundedContextBuilderTest {
         void checkHasRepo() {
             builder.add(repository);
             assertTrue(builder.hasCommandDispatcher(repository));
+        }
+
+        @Test
+        @DisplayName("accept a repository dispatching commands on its own")
+        void acceptDispatchingRepository() {
+            assertFalse(repository.messageClasses().isEmpty());
+
+            var requestFactory = new TestActorRequestFactory(BoundedContextBuilderTest.class);
+            var command = requestFactory.command()
+                                        .create(Sample.messageOfType(BcCreateProject.class));
+            var outcome = repository.dispatch(CommandEnvelope.of(command));
+            assertTrue(outcome.hasSuccess());
+
+            assertNotNull(repository.create(Sample.messageOfType(ProjectId.class)));
         }
     }
 

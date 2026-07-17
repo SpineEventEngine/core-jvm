@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -30,11 +30,14 @@ import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.server.commandbus.CommandDispatcher;
 import io.spine.server.dispatch.DispatchOutcome;
+import io.spine.server.entity.AbstractEntity;
+import io.spine.server.entity.AbstractEntityRepository;
 import io.spine.server.event.EventDispatcher;
 import io.spine.server.type.CommandClass;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
+import io.spine.test.bc.Project;
 import io.spine.test.bc.ProjectId;
 import io.spine.test.bc.command.BcCreateProject;
 import io.spine.test.bc.event.BcProjectCreated;
@@ -86,6 +89,40 @@ public class Given {
         @CanIgnoreReturnValue
         public DispatchOutcome dispatch(CommandEnvelope envelope) {
             return successfulOutcome(envelope);
+        }
+    }
+
+    /**
+     * A user-defined repository which dispatches commands directly.
+     *
+     * <p>No framework repository implements {@link CommandDispatcher} itself — the framework
+     * ones are {@code CommandDispatcherDelegate}s — so this fixture pins the
+     * {@code BoundedContextBuilder} entry points accepting a repository through
+     * the command-dispatcher API.
+     */
+    public static class CommandDispatchingRepository
+            extends AbstractEntityRepository<ProjectId, ProjectEntity, Project>
+            implements CommandDispatcher {
+
+        private final CommandClass commandClass = CommandClass.from(BcCreateProject.class);
+
+        @Override
+        public ImmutableSet<CommandClass> messageClasses() {
+            return ImmutableSet.of(commandClass);
+        }
+
+        @Override
+        @CanIgnoreReturnValue
+        public DispatchOutcome dispatch(CommandEnvelope envelope) {
+            return successfulOutcome(envelope);
+        }
+    }
+
+    /** A plain entity served by the {@link CommandDispatchingRepository}. */
+    public static class ProjectEntity extends AbstractEntity<ProjectId, Project> {
+
+        private ProjectEntity(ProjectId id) {
+            super(id);
         }
     }
 

@@ -109,7 +109,7 @@ class AggregatePartTest {
         assertEntityCount(AggTaskComments.class, 0);
         assertEntityCount(AggTask.class, 1);
 
-        taskCommentsRepository.dispatch(command(commentTask()));
+        taskCommentsRepository.dispatchCommand(command(commentTask()));
 
         assertEntityCount(AggTaskComments.class, 1);
         assertEntityCount(AggTask.class, 1);
@@ -133,6 +133,15 @@ class AggregatePartTest {
         // loader must fail fast, proving the part reads the repository
         // history rather than a silently empty one.
         assertThrows(IllegalStateException.class, () -> part.stateAt(currentTime()));
+    }
+
+    @Test
+    @DisplayName("expose the constructor of the part class taking its root")
+    void exposePartConstructor() {
+        var ctor = taskRepository.entityFactory().constructor();
+        assertThat(ctor.getParameterTypes())
+                .asList()
+                .containsExactly(TaskRoot.class);
     }
 
     private void assertEntityCount(Class<? extends EntityState<?>> stateType, int expectedCount) {
@@ -165,7 +174,7 @@ class AggregatePartTest {
 
     @SuppressWarnings("CheckReturnValue")
     private void prepareAggregatePart() {
-        taskRepository.dispatch(command(createTask()));
+        taskRepository.dispatchCommand(command(createTask()));
     }
 
     private static CommandEnvelope command(CommandMessage commandMessage) {

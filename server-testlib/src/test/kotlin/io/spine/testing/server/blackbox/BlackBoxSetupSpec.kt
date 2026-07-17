@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,37 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.server.storage.system.given;
+package io.spine.testing.server.blackbox
 
-import io.spine.server.aggregate.Aggregate;
-import io.spine.system.server.Company;
-import io.spine.system.server.CompanyId;
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.spine.server.type.CommandEnvelope
+import io.spine.testing.client.TestActorRequestFactory
+import io.spine.testing.server.blackbox.given.Given.createProject
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
 
-public class TestAggregate extends Aggregate<CompanyId, Company, Company.Builder> {
+@DisplayName("`BlackBoxSetup` should")
+internal class BlackBoxSetupSpec {
+
+    private val requestFactory = TestActorRequestFactory(BlackBoxSetupSpec::class.java)
+
+    @Test
+    fun `wrap a command message into a 'Command'`() {
+        val message = createProject()
+
+        val command = BlackBoxSetup.command(message, requestFactory)
+
+        CommandEnvelope.of(command).message() shouldBe message
+    }
+
+    @Test
+    fun `return an already built 'Command' as-is`() {
+        val message = createProject()
+        val prebuilt = requestFactory.command().create(message)
+
+        val command = BlackBoxSetup.command(prebuilt, requestFactory)
+
+        command shouldBeSameInstanceAs prebuilt
+    }
 }

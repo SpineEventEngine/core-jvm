@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -26,7 +26,7 @@
 
 package io.spine.server.entity;
 
-import com.google.common.testing.SerializableTester;
+import com.google.common.testing.EqualsTester;
 import com.google.protobuf.FieldMask;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.server.given.organizations.Organization;
@@ -72,6 +72,19 @@ class DefaultConverterTest {
         assertEquals(fieldMask, withMasks.fieldMask());
     }
 
+    @Test
+    @DisplayName("support equality")
+    void supportEquality() {
+        var sameFields = forAllFields(converter.entityStateType(), converter.entityFactory());
+        var masked = converter.withFieldMask(FieldMask.newBuilder()
+                                                     .addPaths("foo.bar")
+                                                     .build());
+        new EqualsTester()
+                .addEqualityGroup(converter, sameFields)
+                .addEqualityGroup(masked)
+                .testEquals();
+    }
+
     private static TestEntity createEntity(OrganizationId id, Organization state) {
         var result = new TestEntity(id);
         result.setState(state);
@@ -93,12 +106,6 @@ class DefaultConverterTest {
         assertEquals(entity, back);
     }
 
-    @Test
-    @DisplayName("be serializable")
-    void beSerializable() {
-        SerializableTester.reserialize(converter);
-    }
-
     /**
      * A test entity class that is not versionable.
      */
@@ -113,6 +120,6 @@ class DefaultConverterTest {
      * A test repository.
      */
     private static class TestRepository
-            extends DefaultRecordBasedRepository<OrganizationId, TestEntity, Organization> {
+            extends AbstractEntityRepository<OrganizationId, TestEntity, Organization> {
     }
 }

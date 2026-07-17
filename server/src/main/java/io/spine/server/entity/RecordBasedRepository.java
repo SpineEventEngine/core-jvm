@@ -40,7 +40,6 @@ import io.spine.client.TargetFilters;
 import io.spine.client.Targets;
 import io.spine.core.Signal;
 import io.spine.query.EntityQuery;
-import io.spine.server.Iterators2;
 import io.spine.server.entity.storage.EntityRecordStorage;
 import io.spine.server.entity.storage.ToEntityRecordQuery;
 import io.spine.server.storage.QueryConverter;
@@ -64,6 +63,7 @@ import static com.google.common.collect.Lists.newLinkedList;
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.util.Exceptions.newIllegalArgumentException;
 import static io.spine.util.Exceptions.newIllegalStateException;
+import static io.spine.util.Iterators2.filter;
 import static io.spine.validation.Validate.check;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
@@ -81,7 +81,6 @@ import static java.util.Objects.requireNonNull;
  * @param <S>
  *         the type of entity state messages
  */
-@SuppressWarnings("ClassWithTooManyMethods")    /* OK for this abstract type. */
 public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends EntityState<I>>
         extends Repository<I, E> implements QueryableRepository<I, S> {
 
@@ -130,7 +129,7 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
     @Override
     public Iterator<E> iterator(Predicate<E> filter) {
         var allEntities = loadAll(ResponseFormat.getDefaultInstance());
-        return Iterators2.filter(allEntities, filter);
+        return filter(allEntities, filter);
     }
 
     /**
@@ -285,8 +284,7 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
     @VisibleForTesting
     public Iterator<E> loadAll(ResponseFormat format) {
         var records = findRecords(format);
-        Function<EntityRecord, E> toEntity = storageConverter().reverse();
-        var result = transform(records, toEntity::apply);
+        var result = transform(records, this::toEntity);
         return result;
     }
 
@@ -323,8 +321,7 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
     public Iterator<E> loadAll(Iterable<I> ids, FieldMask fieldMask) {
         var storage = recordStorage();
         var records = storage.readAll(ids, fieldMask);
-        Function<EntityRecord, E> toEntity = storageConverter().reverse();
-        var result = transform(records, toEntity::apply);
+        var result = transform(records, this::toEntity);
         return result;
     }
 
@@ -382,8 +379,7 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
         checkNotNull(format);
 
         var records = findRecords(filters, format);
-        Function<EntityRecord, E> toEntity = storageConverter().reverse();
-        var result = transform(records, toEntity::apply);
+        var result = transform(records, this::toEntity);
         return result;
     }
 
@@ -399,8 +395,7 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
     public Iterator<E> find(EntityQuery<I, S, ?> query) {
         checkNotNull(query);
         var records = findRecords(query);
-        Function<EntityRecord, E> toEntity = storageConverter().reverse();
-        var result = transform(records, toEntity::apply);
+        var result = transform(records, this::toEntity);
         return result;
     }
 
@@ -503,49 +498,5 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
                            "supported for transactional entity types.",
                    entityClass().getCanonicalName()
         );
-    }
-
-    /**
-     * Transforms an instance of {@link EntityId} into an identifier
-     * of the required type.
-     *
-     * @param <I>
-     *         the target type of identifiers
-     */
-    @VisibleForTesting
-    static class EntityIdFunction<I> implements Function<EntityId, I> {
-
-        private final Class<I> expectedIdClass;
-
-        EntityIdFunction(Class<I> expectedIdClass) {
-            this.expectedIdClass = expectedIdClass;
-        }
-
-        @Override
-        public @Nullable I apply(EntityId input) {
-            checkNotNull(input);
-            var idAsAny = input.getId();
-
-            var typeUrl = TypeUrl.ofEnclosed(idAsAny);
-            var messageClass = typeUrl.toJavaClass();
-            checkIdClass(messageClass);
-
-            var idAsMessage = unpack(idAsAny);
-
-            @SuppressWarnings("unchecked")
-            // As the message class is the same as expected, the conversion is safe.
-            var id = (I) idAsMessage;
-            return id;
-        }
-
-        private void checkIdClass(Class<?> messageClass) {
-            var classIsSame = expectedIdClass.equals(messageClass);
-            if (!classIsSame) {
-                throw newIllegalStateException(
-                        "Unexpected ID class encountered: `%s`. Expected: `%s`.",
-                        messageClass.getCanonicalName(), expectedIdClass.getCanonicalName()
-                );
-            }
-        }
     }
 }

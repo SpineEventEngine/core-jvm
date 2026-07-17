@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -27,7 +27,6 @@
 package io.spine.server.entity;
 
 import com.google.common.testing.EqualsTester;
-import com.google.common.testing.SerializableTester;
 import io.spine.server.entity.given.DefaultEntityFactoryTestEnv.TestEntity1;
 import io.spine.server.entity.given.DefaultEntityFactoryTestEnv.TestEntity2;
 import io.spine.server.entity.given.DefaultEntityFactoryTestEnv.TestRepository1;
@@ -56,16 +55,11 @@ class DefaultEntityFactoryTest {
     }
 
     @Test
-    @DisplayName("be serializable")
-    void beSerializable() {
-        SerializableTester.reserializeAndAssert(entityFactory1);
-    }
-
-    @Test
     @DisplayName("support equality")
     void supportEquality() {
+        RecordBasedRepository<ProjectId, TestEntity1, Project> anotherRepo = new TestRepository1();
         new EqualsTester()
-                .addEqualityGroup(entityFactory1)
+                .addEqualityGroup(entityFactory1, anotherRepo.entityFactory())
                 .addEqualityGroup(entityFactory2)
                 .testEquals();
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,8 +31,6 @@ import io.spine.annotation.VisibleForTesting
 import io.spine.base.EventMessage
 import io.spine.core.EventContext
 import io.spine.server.route.EventRoute.Companion.withId
-import io.spine.server.route.EventRouting.Companion.withDefault
-import io.spine.server.route.EventRouting.Companion.withDefaultByProducerIdOrFirstField
 import io.spine.system.server.event.EntityStateChanged
 
 /**
@@ -56,7 +54,7 @@ import io.spine.system.server.event.EntityStateChanged
  * by a repository.
  *
  * To override the default routing, use [replaceDefault] in
- * the `setupCommandRouting` method of the corresponding repository class.
+ * the `setupEventRouting` method of the corresponding repository class.
  * One option for an alternative default route is [EventRoute.byFirstMessageField].
  *
  * ## Adding custom routes

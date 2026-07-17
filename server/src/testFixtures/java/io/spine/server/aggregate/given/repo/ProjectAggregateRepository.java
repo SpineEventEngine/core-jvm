@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ import io.spine.base.Identifier;
 import io.spine.core.Origin;
 import io.spine.server.Identity;
 import io.spine.server.aggregate.AggregateRepository;
-import io.spine.server.aggregate.AggregateStorage;
 import io.spine.server.entity.EntityRecord;
 import io.spine.server.entity.EntityRecordChange;
 import io.spine.server.route.EventRouting;
@@ -40,30 +39,14 @@ import io.spine.test.aggregate.AggProject;
 import io.spine.test.aggregate.ProjectId;
 import io.spine.test.aggregate.event.AggProjectArchived;
 import io.spine.test.aggregate.event.AggProjectDeleted;
-import org.jspecify.annotations.Nullable;
-
-import java.util.Optional;
 
 import static io.spine.protobuf.AnyPacker.pack;
 
 /**
- * The repository of positive scenarios
- * {@linkplain io.spine.server.aggregate.given.repo.ProjectAggregate aggregates}.
- *
- * <p>It also widens visibility of the
- * {@link io.spine.server.aggregate.AggregateRepository#store(io.spine.server.aggregate.Aggregate)}
- * and
- * {@link io.spine.server.aggregate.AggregateRepository#aggregateStorage()} methods so they can be
- * used in this test env.
+ * The repository of {@linkplain ProjectAggregate aggregates} used in positive scenarios.
  */
 public class ProjectAggregateRepository
         extends AggregateRepository<ProjectId, ProjectAggregate, AggProject> {
-
-    public static final ProjectId troublesome = ProjectId.newBuilder()
-                                                         .setUuid("INVALID_ID")
-                                                         .build();
-
-    private @Nullable AggregateStorage<ProjectId, AggProject> customStorage;
 
     @Override
     protected void setupEventRouting(EventRouting<ProjectId> routing) {
@@ -73,35 +56,6 @@ public class ProjectAggregateRepository
                .route(AggProjectDeleted.class,
                       (msg, ctx) -> ImmutableSet.copyOf(msg.getChildProjectIdList()));
 
-    }
-
-    @Override
-    public Optional<ProjectAggregate> find(ProjectId id) {
-        if (id.equals(troublesome)) {
-            return Optional.empty();
-        }
-        return super.find(id);
-    }
-
-    /**
-     * Returns the storage for this repository.
-     *
-     * <p>The returning result may be customized by {@linkplain #injectStorage(AggregateStorage)
-     * injecting} the custom storage.
-     */
-    @Override
-    public AggregateStorage<ProjectId, AggProject> aggregateStorage() {
-        if (customStorage != null) {
-            return customStorage;
-        }
-        return super.aggregateStorage();
-    }
-
-    /**
-     * Injects a storage to use for this repository.
-     */
-    public void injectStorage(AggregateStorage<ProjectId, AggProject> storage) {
-        this.customStorage = storage;
     }
 
     void storeAggregate(ProjectAggregate aggregate) {

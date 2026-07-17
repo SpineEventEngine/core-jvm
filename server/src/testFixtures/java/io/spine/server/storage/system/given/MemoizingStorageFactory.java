@@ -28,10 +28,7 @@ package io.spine.server.storage.system.given;
 
 import com.google.common.collect.ImmutableList;
 import com.google.protobuf.Message;
-import io.spine.base.AggregateState;
 import io.spine.server.ContextSpec;
-import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.AggregateStorage;
 import io.spine.server.delivery.CatchUpStorage;
 import io.spine.server.delivery.InboxStorage;
 import io.spine.server.event.EventStore;
@@ -57,13 +54,6 @@ public final class MemoizingStorageFactory implements StorageFactory {
     private boolean requestedCatchUp = false;
     private boolean requestedEventStore = false;
     private boolean closed = false;
-
-    @Override
-    public <I, S extends AggregateState<I>> AggregateStorage<I, S>
-    createAggregateStorage(ContextSpec context, Class<? extends Aggregate<I, S, ?>> aggregateCls) {
-        requestedStorages.add(aggregateCls);
-        return nullRef();
-    }
 
     @Override
     public InboxStorage createInboxStorage(boolean multitenant) {

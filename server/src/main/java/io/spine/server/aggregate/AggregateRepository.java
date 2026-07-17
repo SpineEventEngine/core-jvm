@@ -31,51 +31,35 @@ import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import com.google.protobuf.Timestamp;
 import io.spine.annotation.Internal;
 import io.spine.base.AggregateState;
-import io.spine.client.ResponseFormat;
-import io.spine.client.TargetFilters;
-import io.spine.query.EntityQuery;
-import io.spine.server.BoundedContext;
 import io.spine.server.aggregate.model.AggregateClass;
-import io.spine.server.commandbus.CommandDispatcher;
 import io.spine.server.delivery.Inbox;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.EntityRecord;
 import io.spine.server.entity.EventProducingRepository;
-import io.spine.server.entity.QueryableRepository;
-import io.spine.server.entity.Repository;
+import io.spine.server.entity.SignalDispatchingRepository;
 import io.spine.server.entity.StateHistoryLoader;
 import io.spine.server.entity.storage.EntityEventStorage;
 import io.spine.server.entity.storage.EntityStateHistoryStorage;
 import io.spine.server.event.EventBus;
-import io.spine.server.event.EventDispatcherDelegate;
 import io.spine.server.route.CommandRouting;
-import io.spine.server.route.EventRouting;
-import io.spine.server.route.setup.CommandRoutingSetup;
-import io.spine.server.route.setup.EventRoutingSetup;
 import io.spine.server.type.CommandClass;
-import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
 import io.spine.server.type.SignalEnvelope;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Iterators.transform;
 import static io.spine.option.EntityOption.Kind.AGGREGATE;
-import static io.spine.server.Suppliers2.memoize;
 import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
 import static io.spine.server.delivery.InboxLabel.HANDLE_COMMAND;
 import static io.spine.server.delivery.InboxLabel.REACT_UPON_EVENT;
-import static io.spine.server.dispatch.DispatchOutcomes.maybeSentToInbox;
 import static io.spine.server.dispatch.DispatchOutcomes.sentToInbox;
-import static io.spine.server.tenant.TenantAwareRunner.with;
 import static io.spine.util.Exceptions.newIllegalStateException;
 
 /**
@@ -86,7 +70,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  *
  * <p>Since the event-sourcing cutover, an aggregate is loaded from its latest persisted
  * {@link io.spine.server.entity.EntityRecord EntityRecord} rather than by replaying its event
- * journal. The repository keeps that latest state in an {@link AggregateStorage} and appends
+ * journal. The repository keeps that latest state in its record storage and appends
  * the emitted events to a separate {@linkplain #eventStorage() event journal}
  * (an {@link EntityEventStorage}), kept append-only for traceability and for the opt-in
  * {@link IdempotencyGuard}.
@@ -118,25 +102,15 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  *         the type of the state of aggregates managed by this repository
  * @see Aggregate
  */
-@SuppressWarnings({
-        "ClassWithTooManyMethods" /* Acknowledged complexity. */,
-        "resource" /* Accessing `Closeable` properties. */
-})
+@SuppressWarnings("resource" /* Accessing `Closeable` properties. */)
 public abstract class AggregateRepository<I,
                                           A extends Aggregate<I, S, ?>,
                                           S extends AggregateState<I>>
-        extends Repository<I, A>
-        implements CommandDispatcher, EventProducingRepository,
-                   EventDispatcherDelegate, QueryableRepository<I, S> {
+        extends SignalDispatchingRepository<I, A, S>
+        implements EventProducingRepository {
 
     /** The default {@link #eventHistoryDepth()} value. */
     static final int DEFAULT_HISTORY_DEPTH = 100;
-
-    /** The routing schema for commands handled by the aggregates. */
-    private final Supplier<CommandRouting<I>> commandRouting;
-
-    /** The routing schema for events to which aggregates react. */
-    private final Supplier<EventRouting<I>> eventRouting;
 
     /** The window (in journal events) the opt-in {@link IdempotencyGuard} scans. */
     private int eventHistoryDepth = DEFAULT_HISTORY_DEPTH;
@@ -165,49 +139,6 @@ public abstract class AggregateRepository<I,
     /** Creates a new instance. */
     protected AggregateRepository() {
         super();
-        this.commandRouting = memoize(() -> CommandRouting.newInstance(idClass()));
-        this.eventRouting = memoize(
-                () -> EventRouting.withDefaultByProducerIdOrFirstField(idClass())
-        );
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>Registers itself with {@link io.spine.server.commandbus.CommandBus CommandBus} and
-     * {@link io.spine.server.event.EventBus EventBus} of the context for dispatching messages to
-     * its aggregates, and sets up the routing of those messages.
-     *
-     * @param context
-     *         the context of this repository
-     * @throws IllegalStateException
-     *         if the aggregate class does not handle any messages
-     */
-    @Override
-    @OverridingMethodsMustInvokeSuper
-    public void registerWith(BoundedContext context) {
-        super.registerWith(context);
-        setupRouting();
-        context.internalAccess()
-               .registerCommandDispatcher(this);
-        configureQuerying();
-    }
-
-    private void setupRouting() {
-        doSetupCommandRouting();
-        doSetupEventRouting();
-    }
-
-    private void doSetupCommandRouting() {
-        var cmdRouting = commandRouting();
-        var entityClass = entityClass();
-        CommandRoutingSetup.apply(entityClass, cmdRouting);
-        setupCommandRouting(cmdRouting);
-    }
-
-    private void doSetupEventRouting() {
-        EventRoutingSetup.apply(entityClass(), eventRouting.get());
-        setupEventRouting(eventRouting.get());
     }
 
     @Override
@@ -247,37 +178,29 @@ public abstract class AggregateRepository<I,
     }
 
     /**
-     * A callback for derived classes to customize routing schema for commands.
+     * {@inheritDoc}
      *
-     * <p>Default routing returns the value of the first field of a command message.
-     *
-     * @param routing
-     *         the routing schema to customize
+     * <p>Does nothing by default: an Aggregate may react only on events,
+     * in which case no command routing is needed.
      */
+    @Override
     @SuppressWarnings("NoopMethodInAbstractClass") // See Javadoc
     protected void setupCommandRouting(CommandRouting<I> routing) {
         // Do nothing.
     }
 
     /**
-     * A callback for derived classes to customize routing schema for events.
+     * {@inheritDoc}
      *
-     * <p>Default routing returns the ID of the entity that
-     * {@linkplain io.spine.core.EventContext#getProducerId() produced} the event.
-     * This allows to “link” different kinds of entities by having the same class of IDs.
-     * More complex scenarios (e.g., one-to-many relationships) may require custom routing schemas.
-     *
-     * @param routing
-     *         the routing schema to customize
+     * <p>Also posts the {@linkplain io.spine.system.server.event.EntityCreated
+     * entity-created} system event, and installs the history loaders and, when enabled,
+     * the idempotency guard on the created aggregate.
      */
-    @SuppressWarnings("NoopMethodInAbstractClass") // see Javadoc
-    protected void setupEventRouting(EventRouting<I> routing) {
-        // Do nothing.
-    }
-
     @Override
+    @OverridingMethodsMustInvokeSuper
     public A create(I id) {
-        var aggregate = aggregateClass().create(id);
+        var aggregate = super.create(id);
+        lifecycleOf(id).onEntityCreated(AGGREGATE);
         setUpHistoryReading(aggregate, id);
         return aggregate;
     }
@@ -286,7 +209,8 @@ public abstract class AggregateRepository<I,
      * Installs the history loaders and, when enabled, the idempotency guard
      * on a newly created aggregate.
      *
-     * <p>{@linkplain #create(Object) creation paths} must call this method.
+     * <p>{@linkplain #create(Object) Creation} and
+     * {@linkplain #toEntity(EntityRecord) reconstruction} paths must call this method.
      *
      * @param aggregate
      *         the newly created aggregate
@@ -354,8 +278,21 @@ public abstract class AggregateRepository<I,
         var events = aggregate.uncommittedHistory().get();
         var journal = eventStorage();
         events.forEach(journal::write);
-        aggregateStorage().writeState(aggregate);
+        super.doStore(aggregate);
         aggregate.commitEvents();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Stores each aggregate individually via
+     * {@link #store(io.spine.server.entity.Entity) store()}, so that the emitted events
+     * are journaled and an untouched instance is skipped — the bulk write of the parent
+     * class would bypass both.
+     */
+    @Override
+    public final void store(Collection<A> aggregates) {
+        aggregates.forEach(this::store);
     }
 
     /**
@@ -399,56 +336,13 @@ public abstract class AggregateRepository<I,
     }
 
     /**
-     * Creates aggregate storage for the repository.
+     * Obtains a set of classes of commands handled by the aggregates of this repository.
      *
-     * @return new storage
+     * @return a set of command classes or an empty set if the aggregates do not handle commands
      */
     @Override
-    protected AggregateStorage<I, S> createStorage() {
-        var sf = defaultStorageFactory();
-        var result = sf.createAggregateStorage(context().spec(), entityClass());
-        return result;
-    }
-
-    @Override
-    public final ImmutableSet<CommandClass> messageClasses() {
+    public final ImmutableSet<CommandClass> commandClasses() {
         return aggregateClass().commands();
-    }
-
-    /**
-     * Dispatches the passed command to an aggregate.
-     *
-     * <p>The aggregate ID is obtained from the passed command.
-     *
-     * <p>The repository loads the aggregate by this ID, or creates a new aggregate
-     * if there is no aggregate with such ID.
-     *
-     * @param cmd
-     *         the command to dispatch
-     */
-    @Override
-    public final DispatchOutcome dispatch(CommandEnvelope cmd) {
-        checkNotNull(cmd);
-        var target = route(cmd);
-        target.ifPresent(id -> inbox().send(cmd)
-                                      .toHandler(id));
-        return maybeSentToInbox(cmd, target);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>An {@code AggregateRepository} always dispatches commands with the correct type.
-     */
-    @Override
-    public final boolean canDispatch(CommandEnvelope envelope) {
-        return true;
-    }
-
-    private Optional<I> route(CommandEnvelope cmd) {
-        var target = route(commandRouting(), cmd);
-        target.ifPresent(id -> onCommandTargetSet(id, cmd));
-        return target;
     }
 
     @Internal
@@ -458,18 +352,35 @@ public abstract class AggregateRepository<I,
         postIfCommandRejected(envelope, cause);
     }
 
+    /**
+     * Obtains a set of event classes on which the aggregates of this repository react.
+     *
+     * @return a set of event classes or an empty set if the aggregates do not react to events
+     */
     @Override
-    public ImmutableSet<EventClass> events() {
+    public ImmutableSet<EventClass> messageClasses() {
         return aggregateClass().events();
     }
 
+    /**
+     * Obtains classes of domestic events on which the aggregates of this repository react.
+     *
+     * @return a set of event classes or an empty set if the aggregates do not react
+     *         to domestic events
+     */
     @Override
-    public ImmutableSet<EventClass> domesticEvents() {
+    public ImmutableSet<EventClass> domesticEventClasses() {
         return aggregateClass().domesticEvents();
     }
 
+    /**
+     * Obtains classes of external events on which the aggregates of this repository react.
+     *
+     * @return a set of event classes or an empty set if the aggregates do not react
+     *         to external events
+     */
     @Override
-    public ImmutableSet<EventClass> externalEvents() {
+    public ImmutableSet<EventClass> externalEventClasses() {
         return aggregateClass().externalEvents();
     }
 
@@ -479,44 +390,20 @@ public abstract class AggregateRepository<I,
     }
 
     @Override
-    public boolean canDispatchEvent(EventEnvelope envelope) {
+    public boolean canDispatch(EventEnvelope envelope) {
         return aggregateClass().reactorOf(envelope).isPresent();
     }
 
     /**
-     * Dispatches event to one or more aggregates reacting on the event.
+     * {@inheritDoc}
      *
-     * @param event
-     *         the event to dispatch
+     * <p>Sends the given event to the {@code Inbox}es of the aggregates reacting on it.
      */
     @Override
-    public DispatchOutcome dispatchEvent(EventEnvelope event) {
-        checkNotNull(event);
-        var targets = route(event);
-        targets.forEach((id) -> inbox().send(event)
-                                       .toReactor(id));
-        return sentToInbox(event, targets);
-    }
-
-    private Set<I> route(EventEnvelope event) {
-        var route = route(eventRouting(), event);
-        @SuppressWarnings("unchecked")
-        var result = (Set<I>) route.orElse(ImmutableSet.of());
-        return result;
-    }
-
-    /**
-     * Obtains command routing instance used by this repository.
-     */
-    private CommandRouting<I> commandRouting() {
-        return commandRouting.get();
-    }
-
-    /**
-     * Obtains event routing instance used by this repository.
-     */
-    private EventRouting<I> eventRouting() {
-        return eventRouting.get();
+    protected final DispatchOutcome dispatchTo(Set<I> ids, EventEnvelope event) {
+        ids.forEach(id -> inbox().send(event)
+                                 .toReactor(id));
+        return sentToInbox(event, ids);
     }
 
     /**
@@ -626,43 +513,6 @@ public abstract class AggregateRepository<I,
      */
     protected void stopRecordingStateHistory() {
         this.stateHistoryEnabled = false;
-    }
-
-    /**
-     * Checks if the aggregate should be mirrored and configures
-     * the underlying storage accordingly.
-     */
-    private void configureQuerying() {
-        if(exposedToQuerying()) {
-            aggregateStorage().enableStateQuerying();
-        }
-    }
-
-    /**
-     * Returns {@code true} if the aggregates of this repository should be available for querying.
-     *
-     * <p>When enabled, the underlying storage persists the latest state of the corresponding
-     * Aggregate instance.
-     *
-     * <p>This feature is enabled for all aggregates visible for querying or subscribing.
-     */
-    private boolean exposedToQuerying() {
-        var result = aggregateClass().visibility()
-                                     .isNotNone();
-        return result;
-    }
-
-    /**
-     * Returns the storage assigned to this aggregate.
-     *
-     * @return storage instance
-     * @throws IllegalStateException
-     *         if the storage is null
-     */
-    protected AggregateStorage<I, S> aggregateStorage() {
-        @SuppressWarnings("unchecked") // We check the type on initialization.
-        var result = (AggregateStorage<I, S>) storage();
-        return result;
     }
 
     /**
@@ -780,33 +630,12 @@ public abstract class AggregateRepository<I,
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @implSpec Creating an aggregate here also posts the
-     *         {@linkplain io.spine.system.server.event.EntityCreated entity-created} event —
-     *         this is the "loads or creates differently" case the base method describes.
-     */
-    @Override
-    @Internal
-    protected A doLoadOrCreate(I id) {
-        var result = load(id).orElseGet(() -> createNew(id));
-        return result;
-    }
-
-    /** Creates a new entity with the passed ID. */
-    private A createNew(I id) {
-        var created = create(id);
-        lifecycleOf(id).onEntityCreated(AGGREGATE);
-        return created;
-    }
-
-    /**
      * Loads an aggregate by the passed ID.
      *
      * <p>Since the event-sourcing cutover, the aggregate is loaded from its latest persisted
      * {@link EntityRecord state record} rather than by replaying its event journal. The record
-     * is read directly from the state storage, bypassing the querying/visibility gate, so even
-     * {@code NONE}-visibility aggregates load correctly.
+     * is read directly from the record storage, regardless of the visibility of
+     * the aggregate, so even {@code NONE}-visibility aggregates load correctly.
      *
      * @param id
      *         the ID of the aggregate
@@ -814,29 +643,21 @@ public abstract class AggregateRepository<I,
      *         with the ID
      */
     private Optional<A> load(I id) {
-        var found = aggregateStorage().read(id);
-        var result = found.map(record -> restore(id, record));
+        var found = recordStorage().read(id);
+        var result = found.map(this::toEntity);
         return result;
     }
 
     /**
-     * Restores an {@link Aggregate} instance with the given ID from its latest persisted state
-     * record.
+     * {@inheritDoc}
      *
-     * <p>The state, version, and lifecycle flags are set directly from the record; no events are
-     * replayed, so there is no corrupted-state outcome to report.
-     *
-     * @param id
-     *         the ID of the {@code Aggregate} to load
-     * @param record
-     *         the latest state record of the {@code Aggregate}
-     * @return an instance of {@link Aggregate}
+     * <p>Installs the history loaders and, when enabled, the idempotency guard on
+     * the reconstructed aggregate.
      */
-    protected A restore(I id, EntityRecord record) {
-        var result = create(id);
-        AggregateTransaction<I, ?, ?> tx = AggregateTransaction.start(result);
-        result.restore(record);
-        tx.commitIfActive();
+    @Override
+    protected final A toEntity(EntityRecord record) {
+        var result = super.toEntity(record);
+        setUpHistoryReading(result, result.id());
         return result;
     }
 
@@ -856,12 +677,6 @@ public abstract class AggregateRepository<I,
     @Override
     public Optional<A> find(I id) throws IllegalStateException {
         return load(id);
-    }
-
-    private void onCommandTargetSet(I id, CommandEnvelope cmd) {
-        var lifecycle = lifecycleOf(id);
-        var commandId = cmd.id();
-        with(cmd.tenantId()).run(() -> lifecycle.onTargetAssignedToCommand(commandId));
     }
 
     @OverridingMethodsMustInvokeSuper
@@ -906,24 +721,5 @@ public abstract class AggregateRepository<I,
         if (stateHistory != null && stateHistory.isOpen()) {
             stateHistory.close();
         }
-    }
-
-    @Override
-    @Internal
-    public Iterator<EntityRecord> findRecords(TargetFilters filters, ResponseFormat format) {
-        return aggregateStorage().readStates(filters, format);
-    }
-
-    @Override
-    public Iterator<S> findStates(EntityQuery<I, S, ?> query) {
-        var rawStates = aggregateStorage().readStates(query);
-        var result = transform(rawStates, this::stateFrom);
-        return result;
-    }
-
-    @Override
-    @Internal
-    public Iterator<EntityRecord> findRecords(ResponseFormat format) {
-        return aggregateStorage().readStates(format);
     }
 }

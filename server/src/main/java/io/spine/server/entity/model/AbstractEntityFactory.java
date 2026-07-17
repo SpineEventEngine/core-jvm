@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import java.lang.reflect.Constructor;
 import java.util.Objects;
-import java.io.Serial;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -45,9 +44,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
  *         the type of produced entities
  */
 public abstract class AbstractEntityFactory<E extends Entity<?, ?>> implements EntityFactory<E>  {
-
-    @Serial
-    private static final long serialVersionUID = 0L;
 
     /** The class of entities this factory creates. */
     private final Class<E> entityClass;
@@ -65,7 +61,7 @@ public abstract class AbstractEntityFactory<E extends Entity<?, ?>> implements E
      */
     @LazyInit
     @SuppressWarnings("Immutable") // effectively
-    private transient volatile @MonotonicNonNull Constructor<E> constructor;
+    private volatile @MonotonicNonNull Constructor<E> constructor;
 
     protected AbstractEntityFactory(Class<E> entityClass) {
         checkNotNull(entityClass);
@@ -117,14 +113,9 @@ public abstract class AbstractEntityFactory<E extends Entity<?, ?>> implements E
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!(obj instanceof AbstractEntityFactory)) {
-            return false;
-        }
-        final var other = (AbstractEntityFactory<?>) obj;
-        return Objects.equals(this.idClass, other.idClass)
-                && Objects.equals(this.entityClass, other.entityClass);
+        return (this == obj)
+                || ((obj instanceof AbstractEntityFactory<?> other)
+                        && Objects.equals(this.idClass, other.idClass)
+                        && Objects.equals(this.entityClass, other.entityClass));
     }
 }

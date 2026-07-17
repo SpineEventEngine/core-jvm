@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.truth.Subject;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
+import io.spine.base.Identifier;
 import io.spine.client.TopicFactory;
 import io.spine.core.ActorContext;
 import io.spine.core.TenantId;
@@ -53,6 +54,7 @@ import io.spine.server.type.EventEnvelope;
 import io.spine.testing.core.given.GivenUserId;
 import io.spine.testing.logging.mute.MuteLogging;
 import io.spine.testing.server.BlackBoxId;
+import io.spine.testing.server.TestEventFactory;
 import io.spine.testing.server.blackbox.command.BbCreateProject;
 import io.spine.testing.server.blackbox.command.BbRegisterCommandDispatcher;
 import io.spine.testing.server.blackbox.event.BbAssigneeAdded;
@@ -149,6 +151,31 @@ abstract class BlackBoxTest<T extends BlackBox> {
 
     final T context() {
         return context;
+    }
+
+    @Test
+    @DisplayName("receive events on behalf of the given producer")
+    void receiveEventsProducedBy() {
+        var id = newProjectId();
+        context.receivesCommand(createProject(id))
+               .receivesEventsProducedBy(id, taskAdded(id))
+               // The producer may also come packed into `Any` already.
+               .receivesEventsProducedBy(Identifier.pack(id), taskAdded(id));
+        // The received event is an input to the context, not an emitted one,
+        // so only the event of the handled command is asserted.
+        context.assertEvent(
+                BbProjectCreated.newBuilder()
+                        .setProjectId(id)
+                        .build());
+    }
+
+    @Test
+    @DisplayName("receive a pre-built external event as-is")
+    void receivePreBuiltExternalEvent() {
+        var id = newProjectId();
+        var eventFactory = TestEventFactory.newInstance(BlackBoxTest.class);
+        var event = eventFactory.createEvent(taskAdded(id));
+        assertDoesNotThrow(() -> context.receivesExternalEvent(event));
     }
 
     @Test

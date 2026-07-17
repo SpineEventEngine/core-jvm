@@ -43,20 +43,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * @param <S>
  *         the type of the entity state
  */
-public abstract class DefaultRecordBasedRepository<I,
-                                                   E extends AbstractEntity<I, S>,
-                                                   S extends EntityState<I>>
+public abstract class AbstractEntityRepository<I,
+                                               E extends AbstractEntity<I, S>,
+                                               S extends EntityState<I>>
                 extends RecordBasedRepository<I, E, S> {
 
     @LazyInit
     private @MonotonicNonNull StorageConverter<I, E, S> storageConverter;
 
     /**
-     * Creates a new instance with the {@linkplain #entityFactory() factory} of entities of class
-     * specified as the {@code <E>} generic parameter, and with the default
+     * Creates a new instance with the {@linkplain #entityFactory() factory} of entities of
+     * the class specified as the {@code <E>} generic parameter, and with the default
      * {@linkplain #storageConverter() entity storage converter}.
      */
-    protected DefaultRecordBasedRepository() {
+    protected AbstractEntityRepository() {
         super();
     }
 

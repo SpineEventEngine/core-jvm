@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -66,6 +66,7 @@ import static io.spine.server.aggregate.given.query.AggregateQueryingTestEnv.upl
 import static io.spine.test.aggregate.query.MRPhotoType.CROP_FRAME;
 import static io.spine.test.aggregate.query.MRPhotoType.FULL_FRAME;
 import static java.util.stream.Collectors.toList;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -155,25 +156,29 @@ class AggregateQueryingTest {
         }
     }
 
+    // Since the retirement of the `AggregateStorage` querying gate (2026-07-16), the repository
+    // of an invisible aggregate serves direct queries the way any record-based repository does:
+    // entity visibility is enforced by the `VisibilityGuard` when routing external queries, not
+    // by the storage. The former "throw `IllegalStateException` if an invisible Aggregate is
+    // queried" cases are replaced with their positive counterparts below.
+
     @Test
-    @DisplayName("throw `IllegalStateException` if an invisible Aggregate is queried" +
-            " via Proto `Query`")
-    void prohibitQueryingForInvisible() {
+    @DisplayName("serve direct queries for an invisible Aggregate via Proto `Query`")
+    void queryInvisible() {
         var query = MRSoundRecord.query()
                                  .build(transformWith(queries));
-        assertThrows(IllegalStateException.class,
-                     () -> InvisibleSound.repository()
-                                         .findRecords(query.filters(), query.responseFormat()));
+        var repository = InvisibleSound.repository();
+        assertDoesNotThrow(
+                () -> ImmutableList.copyOf(
+                        repository.findRecords(query.filters(), query.responseFormat())));
     }
 
     @Test
-    @DisplayName("throw `IllegalStateException` if an invisible Aggregate " +
-            "is queried via `EntityQuery`")
-    void prohibitEntityQueryingForInvisible() {
+    @DisplayName("serve direct queries for an invisible Aggregate via `EntityQuery`")
+    void entityQueryInvisible() {
         var entityQuery = MRSoundRecord.query().build();
-        assertThrows(IllegalStateException.class,
-                     () -> InvisibleSound.repository()
-                                         .findStates(entityQuery));
+        var repository = InvisibleSound.repository();
+        assertDoesNotThrow(() -> ImmutableList.copyOf(repository.findStates(entityQuery)));
     }
 
     /**

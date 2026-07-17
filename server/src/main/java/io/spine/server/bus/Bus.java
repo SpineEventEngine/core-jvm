@@ -48,9 +48,9 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static io.spine.server.Suppliers2.memoize;
 import static io.spine.server.bus.MessageIdExtensions.acknowledge;
 import static io.spine.util.Preconditions2.checkNotDefaultArg;
+import static io.spine.util.Suppliers2.memoize;
 import static java.lang.String.format;
 import static java.util.Collections.singleton;
 

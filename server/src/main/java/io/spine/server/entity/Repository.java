@@ -37,7 +37,6 @@ import io.spine.reflect.GenericTypeIndex;
 import io.spine.server.BoundedContext;
 import io.spine.server.Closeable;
 import io.spine.server.ContextAware;
-import io.spine.server.Iterators2;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.delivery.BatchDeliveryListener;
 import io.spine.server.delivery.Inbox;
@@ -64,6 +63,7 @@ import static com.google.common.collect.Iterables.getFirst;
 import static io.spine.base.Errors.fromThrowable;
 import static io.spine.server.entity.model.EntityClass.asEntityClass;
 import static io.spine.util.Exceptions.newIllegalStateException;
+import static io.spine.util.Iterators2.filter;
 
 /**
  * Abstract base class for repositories.
@@ -153,7 +153,7 @@ public abstract class Repository<I, E extends Entity<I, ?>>
      */
     public Iterator<E> iterator(Predicate<E> filter) {
         Iterator<E> unfiltered = new EntityIterator<>(this);
-        return Iterators2.filter(unfiltered, filter);
+        return filter(unfiltered, filter);
     }
 
     /**
@@ -479,9 +479,9 @@ public abstract class Repository<I, E extends Entity<I, ?>>
      *         the ID of the entity to load
      * @return the loaded or created entity
      * @implSpec Loads via {@link #find(Object) find()}, falling back to
-     *         {@link #create(Object) create()}. A repository whose load or create differs —
-     *         e.g., one that restores from a state record, or posts an entity-created event —
-     *         overrides this method.
+     *         {@link #create(Object) create()}. A repository whose load-or-create
+     *         semantics differ overrides this method; customizing only how entities are
+     *         found or created belongs in those methods themselves.
      */
     @Internal
     protected E doLoadOrCreate(I id) {

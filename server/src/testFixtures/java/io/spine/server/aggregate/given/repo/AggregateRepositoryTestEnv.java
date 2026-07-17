@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,13 +85,6 @@ public class AggregateRepositoryTestEnv {
 
         repository.storeAggregate(aggregate);
         return aggregate;
-    }
-
-    public static void givenStoredAggregateWithId(String id) {
-        var projectId = givenAggregateId(id);
-        var aggregate = givenAggregate().withUncommittedEvents(projectId);
-
-        repository.storeAggregate(aggregate);
     }
 
     private static TestActorRequestFactory newRequestFactory() {

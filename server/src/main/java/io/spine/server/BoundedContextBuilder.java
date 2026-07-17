@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -307,10 +307,13 @@ public final class BoundedContextBuilder implements WithLogging {
      * Adds the passed command dispatcher to the dispatcher registration list that will be
      * processed after the Bounded Context is created.
      *
-     * @apiNote This method is also capable of registering
+     * @apiNote This method is also capable of registering user-defined
      *         {@linkplain Repository repositories}
      *         that implement {@code CommandDispatcher}, but the {@link #add(Repository)} method
-     *         should be preferred for this purpose.
+     *         should be preferred for this purpose. The repositories provided by the framework
+     *         do not implement {@code CommandDispatcher}: those that dispatch commands do so
+     *         via {@link io.spine.server.commandbus.CommandDispatcherDelegate
+     *         CommandDispatcherDelegate}.
      */
     @CanIgnoreReturnValue
     public BoundedContextBuilder addCommandDispatcher(CommandDispatcher commandDispatcher) {

@@ -53,9 +53,9 @@ import java.util.stream.Stream;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.base.Errors.causeOf;
 import static io.spine.base.Errors.fromThrowable;
-import static io.spine.server.Suppliers2.memoize;
 import static io.spine.server.model.MethodResults.collectMessageClasses;
 import static io.spine.util.Exceptions.illegalStateWithCauseOf;
+import static io.spine.util.Suppliers2.memoize;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
 

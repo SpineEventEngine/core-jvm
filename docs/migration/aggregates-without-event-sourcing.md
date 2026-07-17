@@ -298,17 +298,17 @@ The `Snapshot` and `AggregateHistory` proto messages are **retained** for journa
 compatibility (`AggregateHistory` is superseded by the plain `core.Event` journal — §9).
 Snapshot-index journal trimming (`AggregateStorage.truncateOlderThan`) is **removed**:
 it could only ever trim by snapshot positions, and the current journal contains no
-snapshots. Its replacement is **count/date-based truncation**:
+snapshots. Its replacement is **time-based truncation** on the journal owned by
+the repository:
 
 ```java
-storage.truncate(keepMostRecent);            // keep the N most recent events per aggregate
-storage.truncate(keepMostRecent, olderThan); // drop events older than the time,
-                                             // but never cut into the N most recent
+repository.eventStorage().truncate(olderThan); // drop journal events older than the time
 ```
 
 The journal is append-only on the write path, so production systems run the truncation
-as periodic maintenance. When the opt-in `IdempotencyGuard` is enabled (§5), keep at
-least the repository's `eventHistoryDepth` events, so the deduplication window stays intact.
+as periodic maintenance. When the opt-in `IdempotencyGuard` is enabled (§5), never pick
+a timestamp that could cut into the guard's window of the `eventHistoryDepth` most
+recent events, so the deduplication stays intact.
 
 ## 8. Data caveat — `NONE`-visibility aggregates are a hard break
 
@@ -344,18 +344,19 @@ as a follow-up.
 
 The journal stores plain `Event`s; the emitting entity, the event time, and the event
 version are exposed for querying as columns derived from the event context.
-`AggregateStorage` now extends `EntityRecordStorage`, so its `read`/`write` operate on the
-latest state record, while the recent events are read via `readEvents(...)` returning a
-`List<Event>`. Storage vendors implement the same `RecordStorage`-level SPI as before — this
-is a recompile against the new types, not a rewrite.
+The latest aggregate state lives in a plain `EntityRecordStorage` — the same storage type
+serving every record-based repository — while the recent events are read from the journal
+owned by `AggregateRepository` (the former `AggregateStorage` is dissolved; see the quick
+reference below). Storage vendors implement the same `RecordStorage`-level SPI as before —
+this is a recompile against the new types, not a rewrite.
 
 Of the superseded API, only the **proto messages remain** (marked `deprecated`, for wire
 compatibility). The storage-level classes — `AggregateEventStorage`,
 `AggregateEventRecordColumn`, `StorageFactory.createAggregateEventStorage` — and the
 snapshot-index `AggregateStorage.truncateOlderThan` trimming are **removed**: org-wide
 usage research found no production callers, and the trimming could only operate on
-pre-cutover journals. The current journal is trimmed by the count/date-based
-`truncate(keepMostRecent[, olderThan])` instead (§7).
+pre-cutover journals. The current journal is trimmed by the time-based
+`truncate(olderThan)` instead (§7).
 
 **Data caveat — pre-upgrade journals become invisible to reads.** Read this before
 upgrading a running system. The journal now stores plain `Event`s — a **record kind
@@ -381,8 +382,14 @@ The legacy records stay on disk as inert data; the current runtime does not read
   `AggregateClass.importableEvents()` / `importsEvents()`, `BlackBox.importsEvent` (§3)
 - `AggregateEventStorage`, `AggregateEventRecordColumn`,
   `StorageFactory.createAggregateEventStorage` → the entity-level journal types (§9)
-- `AggregateStorage.truncateOlderThan(int)` / `(int, Timestamp)` → the count/date-based
-  `AggregateStorage.truncate(int)` / `(int, Timestamp)` (§7, §9)
+- `AggregateStorage.truncateOlderThan(int)` / `(int, Timestamp)` → the time-based
+  `EntityEventStorage.truncate(Timestamp)`, reached via
+  `AggregateRepository.eventStorage()` (§7, §9)
+- `AggregateStorage` itself, `StorageFactory.createAggregateStorage`, and the
+  `AggregateStorageTest` fixture suite → the latest state is served by a plain
+  `EntityRecordStorage` (`createEntityRecordStorage`); the repository accessor is
+  `recordStorage()`; vendor suites extend the published `AbstractStorageTest` /
+  `DelegatingRecordStorageTest` bases (§9)
 
 **Deprecated** (still compile; removed in v2.0.0):
 

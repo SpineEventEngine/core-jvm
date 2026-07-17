@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,7 +76,7 @@ import io.spine.core.CommandContext
  * @param I The type of entity IDs used by this routing schema.
  * @param defaultRoute The fallback route to use when no custom route is [set][route].
  *
- * @see io.spine.server.procman.ProcessManagerRepository.setupCommandRouting
+ * @see io.spine.server.entity.SignalDispatchingRepository.setupCommandRouting
  * @see io.spine.server.aggregate.AggregateRepository.setupCommandRouting
  */
 public class CommandRouting<I : Any> private constructor(

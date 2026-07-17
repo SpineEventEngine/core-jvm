@@ -39,9 +39,8 @@ import java.util.List;
  * state, so this class no longer segments the events by snapshots — it is a plain, ordered list
  * of the events emitted by the current command or reaction. The framework
  * {@linkplain Aggregate#recordEvents(List) records} the produced events here after a successful
- * dispatch, {@linkplain AggregateStorage#writeAll(Aggregate, List) stores} them
- * into the append-only journal alongside the latest state record, and then
- * {@link #commit() commits}.
+ * dispatch, stores them into the append-only journal alongside the latest state record,
+ * and then {@link #commit() commits}.
  */
 final class UncommittedHistory {
 

@@ -27,7 +27,7 @@
 package io.spine.server.entity.given;
 
 import io.spine.server.entity.AbstractEntity;
-import io.spine.server.entity.DefaultRecordBasedRepository;
+import io.spine.server.entity.AbstractEntityRepository;
 import io.spine.server.given.groups.GroupId;
 import io.spine.server.given.groups.GroupName;
 import io.spine.test.entity.Project;
@@ -48,7 +48,7 @@ public class DefaultEntityFactoryTestEnv {
 
     /** A test repository. */
     public static class TestRepository1
-            extends DefaultRecordBasedRepository<ProjectId, TestEntity1, Project> {
+            extends AbstractEntityRepository<ProjectId, TestEntity1, Project> {
     }
 
     /** Another entity with the same ID and different state. */
@@ -60,6 +60,6 @@ public class DefaultEntityFactoryTestEnv {
 
     /** A repository for {@link TestEntity2}. */
     public static class TestRepository2
-            extends DefaultRecordBasedRepository<GroupId, TestEntity2, GroupName> {
+            extends AbstractEntityRepository<GroupId, TestEntity2, GroupName> {
     }
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,13 +23,13 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package io.spine.server.stand;
 
 import com.google.common.collect.ImmutableSet;
 import io.spine.server.Closeable;
 import io.spine.server.entity.Entity;
 import io.spine.server.entity.QueryableRepository;
-import io.spine.server.entity.RecordBasedRepository;
 import io.spine.server.entity.Repository;
 import io.spine.type.TypeUrl;
 
@@ -47,23 +47,24 @@ interface TypeRegistry extends Closeable {
      * Registers a {@linkplain Repository repository} of objects and
      * {@linkplain Repository#entityStateType its entity state type} in this registry.
      *
-     * <p>For {@linkplain RecordBasedRepository record-based repositories},
+     * <p>For {@linkplain QueryableRepository queryable repositories},
      * the reference to the {@code repository} is also kept to allow accessing its records
      * from {@code Stand}.
      *
-     * <p>In case {@link io.spine.server.aggregate.AggregateRepository AggregateRepository}
-     * instance is passed, only its {@code type} is registered.
+     * <p>An {@link io.spine.server.aggregate.AggregateRepository AggregateRepository} is
+     * queryable as well, so its reference is kept as described above. In addition, its
+     * entity state type is remembered among the {@linkplain #aggregateTypes() aggregate types}.
      */
     <I, E extends Entity<I, ?>> void register(Repository<I, E> repository);
 
     /**
-     * Obtains the instance of {@linkplain RecordBasedRepository repository} for the passed
+     * Obtains the instance of {@linkplain QueryableRepository repository} for the passed
      * {@linkplain TypeUrl type}, if it {@linkplain #register(Repository) has been registered}
      * previously.
      *
      * @param type
      *         the type of {@code Entity} to obtain a repository for
-     * @return {@code RecordBasedRepository} managing the objects of the given {@code type},
+     * @return {@code QueryableRepository} managing the objects of the given {@code type},
      *         or {@code Optional.empty()} if no such repository has been registered
      */
     Optional<QueryableRepository<?, ?>> recordRepositoryOf(TypeUrl type);

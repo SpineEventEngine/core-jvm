@@ -29,10 +29,7 @@ package io.spine.server.storage.system;
 import com.google.protobuf.Message;
 import io.spine.annotation.Internal;
 import io.spine.annotation.VisibleForTesting;
-import io.spine.base.AggregateState;
 import io.spine.server.ContextSpec;
-import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.AggregateStorage;
 import io.spine.server.delivery.CatchUpStorage;
 import io.spine.server.delivery.InboxStorage;
 import io.spine.server.event.EventStore;
@@ -84,13 +81,6 @@ public final class SystemAwareStorageFactory implements StorageFactory {
     @VisibleForTesting
     public StorageFactory delegate() {
         return delegate;
-    }
-
-    @Override
-    public <I, S extends AggregateState<I>> AggregateStorage<I, S>
-    createAggregateStorage(ContextSpec context,
-                           Class<? extends Aggregate<I, S, ?>> aggregateClass) {
-        return delegate.createAggregateStorage(context, aggregateClass);
     }
 
     @Override

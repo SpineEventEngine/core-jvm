@@ -40,7 +40,7 @@ Only the **inbox endpoints** and the **cache's load/store functions** genuinely 
    `EventDispatchingRepository → DefaultRecordBasedRepository → RecordBasedRepository`.
    The brief's target is correct.
 2. **…but `Repository` also roots repositories that have no inbox and no cache.**
-   `DefaultRecordBasedRepository` is public API with concrete subclasses
+   `AbstractEntityRepository` is public API with concrete subclasses
    (`TestRepo`, `DefaultEntityFactoryTestEnv.*`, `DefaultConverterTest.*`, plus
    downstream user code). `Inbox.Builder.build()` throws when no endpoint was added.
    → `setupInbox()` must be a **no-op by default**, and the base must **skip
@@ -87,7 +87,7 @@ Only the **inbox endpoints** and the **cache's load/store functions** genuinely 
    repository has one without the other, so the cache is created inside `initInbox()`
    right before `build()`.
 2. **`setupInbox(Inbox.Builder<I>)` is a no-op callback**, not abstract — an abstract
-   method would land on every `DefaultRecordBasedRepository` subclass and break them.
+   method would land on every `AbstractEntityRepository` subclass and break them.
 3. **New `protected` members are `@Internal`.** `Inbox` and `RepositoryCache` are both
    `@Internal`; exposing them on the public `Repository` widens the user-facing
    extension surface. Precedent: `Repository.onRoutingFailed` and `Repository.toModelClass`

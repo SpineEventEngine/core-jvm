@@ -32,43 +32,32 @@ import io.spine.annotation.Internal;
 import io.spine.annotation.VisibleForTesting;
 import io.spine.base.ProcessManagerState;
 import io.spine.core.Command;
-import io.spine.server.BoundedContext;
 import io.spine.server.commandbus.CommandBus;
-import io.spine.server.commandbus.CommandDispatcherDelegate;
-import io.spine.server.commandbus.DelegatingCommandDispatcher;
 import io.spine.server.delivery.Inbox;
 import io.spine.server.delivery.InboxLabel;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.EntityLifecycleMonitor;
 import io.spine.server.entity.EntityRecord;
-import io.spine.server.entity.EventDispatchingRepository;
 import io.spine.server.entity.EventProducingRepository;
+import io.spine.server.entity.SignalDispatchingRepository;
 import io.spine.server.entity.TransactionListener;
 import io.spine.server.event.EventBus;
 import io.spine.server.procman.model.ProcessManagerClass;
 import io.spine.server.route.CommandRouting;
 import io.spine.server.route.EventRoute;
 import io.spine.server.route.EventRouting;
-import io.spine.server.route.setup.CommandRoutingSetup;
 import io.spine.server.type.CommandClass;
-import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
 import io.spine.server.type.SignalEnvelope;
 
 import java.util.Collection;
-import java.util.Optional;
 import java.util.Set;
-import java.util.function.Supplier;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.grpc.StreamObservers.noOpObserver;
 import static io.spine.option.EntityOption.Kind.PROCESS_MANAGER;
-import static io.spine.server.Suppliers2.memoize;
-import static io.spine.server.dispatch.DispatchOutcomes.maybeSentToInbox;
 import static io.spine.server.dispatch.DispatchOutcomes.sentToInbox;
 import static io.spine.server.procman.model.ProcessManagerClass.asProcessManagerClass;
-import static io.spine.server.tenant.TenantAwareRunner.with;
 import static io.spine.util.Exceptions.newIllegalStateException;
 
 /**
@@ -85,15 +74,11 @@ import static io.spine.util.Exceptions.newIllegalStateException;
 public abstract class ProcessManagerRepository<I,
                                                P extends ProcessManager<I, S, ?>,
                                                S extends ProcessManagerState<I>>
-        extends EventDispatchingRepository<I, P, S>
-        implements CommandDispatcherDelegate, EventProducingRepository {
-
-    /** The command routing schema used by this repository. */
-    private final Supplier<CommandRouting<I>> commandRouting;
+        extends SignalDispatchingRepository<I, P, S>
+        implements EventProducingRepository {
 
     protected ProcessManagerRepository() {
         super();
-        this.commandRouting = memoize(() -> CommandRouting.newInstance(idClass()));
     }
 
     /**
@@ -107,37 +92,6 @@ public abstract class ProcessManagerRepository<I,
     @Override
     protected final ProcessManagerClass<P> toModelClass(Class<P> cls) {
         return asProcessManagerClass(cls);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>Customizes event routing to use first message field.
-     *
-     * <p>Registers with the {@code CommandBus} for dispatching commands
-     * (via {@linkplain DelegatingCommandDispatcher delegating dispatcher}).
-     *
-     * <p>Registers with the {@code IntegrationBroker} for dispatching external events and
-     * rejections.
-     *
-     * @param context
-     *         the Bounded Context of this repository
-     * @throws IllegalStateException
-     *         if the Process Manager class of this repository does not declare message
-     *         handling methods
-     */
-    @Override
-    @OverridingMethodsMustInvokeSuper
-    public void registerWith(BoundedContext context) {
-        super.registerWith(context);
-        doSetupCommandRouting();
-    }
-
-    private void doSetupCommandRouting() {
-        var cmdRouting = commandRouting();
-        var entityClass = entityClass();
-        CommandRoutingSetup.apply(entityClass, cmdRouting);
-        setupCommandRouting(cmdRouting);
     }
 
     @Override
@@ -173,13 +127,12 @@ public abstract class ProcessManagerRepository<I,
     }
 
     /**
-     * A callback for derived classes to customize routing schema for commands.
+     * {@inheritDoc}
      *
-     * <p>Default routing returns the value of the first field of a command message.
-     *
-     * @param routing
-     *         the routing schema to customize
+     * <p>Does nothing by default: a Process Manager may handle only events,
+     * in which case no command routing is needed.
      */
+    @Override
     @SuppressWarnings("NoopMethodInAbstractClass") // See Javadoc
     protected void setupCommandRouting(CommandRouting<I> routing) {
         // Do nothing.
@@ -210,8 +163,7 @@ public abstract class ProcessManagerRepository<I,
     /**
      * Obtains a set of event classes to which process managers of this repository react.
      *
-     * @return a set of event classes or empty set if process managers do not react to
-     *         domestic events
+     * @return a set of event classes or an empty set if process managers do not react to events
      */
     @Override
     public final ImmutableSet<EventClass> messageClasses() {
@@ -252,47 +204,9 @@ public abstract class ProcessManagerRepository<I,
         return processManagerClass().commands();
     }
 
-    /**
-     * Obtains command routing schema used by this repository.
-     */
-    private CommandRouting<I> commandRouting() {
-        return commandRouting.get();
-    }
-
     @Override
     public ImmutableSet<EventClass> outgoingEvents() {
         return processManagerClass().outgoingEvents();
-    }
-
-    /**
-     * Dispatches the command to a corresponding process manager.
-     *
-     * <p>If there is no stored process manager with such an ID,
-     * a new process manager is created and stored after it handles the passed command.
-     *
-     * @param command
-     *         a request to dispatch
-     */
-    @Override
-    public final DispatchOutcome dispatchCommand(CommandEnvelope command) {
-        checkNotNull(command);
-        var target = route(command);
-        target.ifPresent(id -> inbox().send(command)
-                                      .toHandler(id));
-        return maybeSentToInbox(command, target);
-    }
-
-    private Optional<I> route(CommandEnvelope cmd) {
-        var target = route(commandRouting(), cmd);
-        target.ifPresent(id -> onCommandTargetSet(id, cmd));
-        return target;
-    }
-
-    private void onCommandTargetSet(I id, CommandEnvelope cmd) {
-        var lifecycle = lifecycleOf(id);
-        var commandId = cmd.id();
-        with(cmd.tenantId())
-                .run(() -> lifecycle.onTargetAssignedToCommand(commandId));
     }
 
     @Internal
@@ -362,9 +276,9 @@ public abstract class ProcessManagerRepository<I,
     /**
      * A callback method for configuring a recently created {@code ProcessManager} instance
      * before it is returned by the repository as the result of creating a new process manager
-     * instance or finding existing one.
+     * instance or finding an existing one.
      *
-     * <p>Default implementation attaches the process manager to the bounded context,
+     * <p>The default implementation attaches the process manager to the bounded context
      * so that it can perform querying. Overriding repositories may use this method for
      * injecting other dependencies that process managers need to have.
      *
@@ -372,7 +286,7 @@ public abstract class ProcessManagerRepository<I,
      *         the process manager to configure
      */
     @OverridingMethodsMustInvokeSuper
-    protected void configure(@SuppressWarnings("unused") P processManager) {
+    protected void configure(P processManager) {
         processManager.injectContext(context());
     }
 

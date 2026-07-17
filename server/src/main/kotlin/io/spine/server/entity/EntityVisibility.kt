@@ -122,7 +122,6 @@ public class EntityVisibility private constructor(
 
     override fun toString(): String = value.name
 
-    @Suppress("UnstableApiUsage") // `ImmutableGraph` is in `@Beta`.
     public companion object {
 
         @Serial
@@ -201,7 +200,7 @@ public class EntityVisibility private constructor(
             mutableGraph.nodes().forEach { visibility ->
                 mutableGraph.putEdge(visibility, visibility)
             }
-            return ImmutableGraph.copyOf<Visibility>(mutableGraph)
+            return ImmutableGraph.copyOf(mutableGraph)
         }
     }
 }

@@ -34,7 +34,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Suppliers.memoize;
+import static io.spine.util.Suppliers2.memoize;
 
 /**
  * Abstract base for client requests that may filter messages by certain criteria.

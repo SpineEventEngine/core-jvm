@@ -173,8 +173,8 @@ final class BlackBoxSetup {
      * @return a newly created {@code Event} instance or passed {@code Event}
      */
     private static Event event(Message eventOrMessage, TestEventFactory eventFactory) {
-        if (eventOrMessage instanceof Event) {
-            return (Event) eventOrMessage;
+        if (eventOrMessage instanceof Event event) {
+            return event;
         }
         var message = (EventMessage) eventOrMessage;
         return eventFactory.createEvent(message);
@@ -195,10 +195,11 @@ final class BlackBoxSetup {
      *         the factory to produce commands with
      * @return a {@code Command}
      */
-    private static Command command(Message commandOrMessage,
-                                   TestActorRequestFactory requestFactory) {
-        if (commandOrMessage instanceof Command) {
-            return (Command) commandOrMessage;
+    @VisibleForTesting
+    static Command command(Message commandOrMessage,
+                           TestActorRequestFactory requestFactory) {
+        if (commandOrMessage instanceof Command command) {
+            return command;
         }
         var message = (CommandMessage) commandOrMessage;
         return requestFactory.command()
@@ -214,8 +215,8 @@ final class BlackBoxSetup {
      */
     private TestEventFactory newEventFactory(Object producerId) {
         checkNotNull(producerId);
-        var id = producerId instanceof Any
-                 ? (Any) producerId
+        var id = producerId instanceof Any any
+                 ? any
                  : Identifier.pack(producerId);
         return TestEventFactory.newInstance(id, requestFactory);
     }
