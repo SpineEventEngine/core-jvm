@@ -32,8 +32,8 @@ review and prioritize independently.
    Unifying the name is cosmetic and was explicitly not taken in two places
    (`aggregate-repository-unification.md` item A7,
    `unify-store-and-find-or-create.md` reviewer nit #6) — both point at
-   Phase F ("when these methods are being reshaped anyway") as the natural
-   time to revisit.
+   the history phases (F/G, "when these methods are being reshaped
+   anyway") as the natural time to revisit.
 
 ## Test/vendor coverage gaps
 
@@ -41,11 +41,12 @@ review and prioritize independently.
    Before the cutover, vendor repos (`jdbc-storage`, `gcloud-jvm`, …) got
    journal coverage for free by subclassing the now-deleted
    `AggregateStorageTest`. That path is gone and nothing replaced it — the
-   plan's Phase G "Storage-vendor obligation" section covers the
+   plan's Phase H "Storage-vendor obligation" section covers the
    `AggregateStorage` *removal* (retarget at `AbstractStorageTest`/
    `DelegatingRecordStorageTest`) but does not mention a published
-   `EntityEventStorage` fixture suite. Worth deciding, before Phase G lands,
-   whether vendors need one or are expected to write their own.
+   `EntityEventStorage` fixture suite. Worth deciding, before Phase H (the
+   downstream rollout) lands, whether vendors need one or are expected to
+   write their own.
    (from `event-storage-at-the-repo-level.md`, "Out of scope")
 
 ## Dead code / published-API cleanup (needs its own commit — testFixtures is published API)
@@ -73,14 +74,16 @@ review and prioritize independently.
    just unreviewed for whether the same duplication exists there.
    (from `pull-inbox-and-cache-to-repository-class.md`, "Out of scope")
 
-## Reference for Phase F planning
+## Reference for Phase G planning
 
 `aggregate-repository-unification.md` (archived) has a section, "Interaction
 with the Phase F decisions (2026-07-16)", reasoning about where the shared
-journal/state-history configuration surface should live once PM journaling
-and Projection state history land: the **journal** belongs on
-`SignalDispatchingRepository` (only entities that emit signals need it —
-aggregates unconditional, PMs opt-in); the **state history** belongs higher,
-on `EventDispatchingRepository` or `Repository` itself, since it must also
-serve `ProjectionRepository`, which sits outside the signal-dispatching
-subtree. Re-read that section when scoping Phase F items 1–3 and 7.
+journal/state-history configuration surface should live: the **journal**
+belongs on `SignalDispatchingRepository` (only entities that emit signals
+need it — aggregates unconditional, PMs opt-in); the **state history**
+belongs higher, since it must also serve `ProjectionRepository`. The
+state-history half was realized by the 2026-07-17 Phase F reshaping —
+landing even higher than predicted, on `AbstractEntityRepository`
+([`state-history-for-all-entities.md`](state-history-for-all-entities.md)).
+The journal half remains the standing input: re-read that section when
+scoping Phase G (entity event history for PMs together with Aggregates).
