@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -34,7 +34,7 @@ import io.spine.server.type.MessageEnvelope;
  *
  * <p> If no target dispatchers are found for a message passed to the bus, it will result in a call
  * to {@link DeadMessageHandler#handle DeadMessageHandler.handle(MessageEnvelope)}. The method
- * produces {@link MessageUnhandled} instance describing the dead message. It may also process the
+ * produces a {@link MessageUnhandled} instance describing the dead message. It may also process the
  * given message (e.g. store it into the bus store).
  *
  * @param <E>
@@ -44,7 +44,7 @@ import io.spine.server.type.MessageEnvelope;
 public interface DeadMessageHandler<E extends MessageEnvelope<?, ?, ?>> {
 
     /**
-     * Handles the dead message in a bus-specific way and produces an {@link MessageUnhandled} 
+     * Handles the dead message in a bus-specific way and produces a {@link MessageUnhandled}
      * that may be converted to a {@link Error} for notifying the poster about the absence of
      * dispatchers.
      *

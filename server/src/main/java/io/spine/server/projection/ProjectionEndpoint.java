@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,8 +119,8 @@ public class ProjectionEndpoint<I, P extends Projection<I, S, ?>, S extends Proj
     }
 
     /**
-     * Does nothing since a state of a projection should not be necessarily
-     * updated upon execution of a {@linkplain io.spine.core.Subscribe subscriber} method.
+     * Does nothing since a state of a projection should not necessarily
+     * be updated upon execution of a {@linkplain io.spine.core.Subscribe subscriber} method.
      */
     @Override
     protected void onEmptyResult(P entity) {

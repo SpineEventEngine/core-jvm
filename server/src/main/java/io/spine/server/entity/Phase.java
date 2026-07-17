@@ -38,15 +38,15 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * An atomic entity state change that advances the entity version.
  *
- * <p>The {@code Phase} is a part of {@linkplain Transaction transaction} mechanism and should only
- * be propagated during the active transaction.
+ * <p>The {@code Phase} is a part of the {@linkplain Transaction transaction} mechanism and
+ * should only be propagated during the active transaction.
  *
  * <p>Typically, to perform the entity state change, a {@code Phase} executes some event/command
  * dispatch task provided by the caller from the outside.
  *
  * <p>The result of the dispatch task execution could be the list of
  * {@linkplain io.spine.core.Event events} if the applier method generated events or the
- * list of {@linkplain io.spine.core.Command commands} if the dispatch was performed to the
+ * list of {@linkplain io.spine.core.Command commands} if the dispatch was performed on the
  * commanding method.
  *
  * @param <I>

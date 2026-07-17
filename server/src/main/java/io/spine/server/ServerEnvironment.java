@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -90,7 +90,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * Namely, under the same environment type, all Bounded Contexts will share the same storage
  * factory, transport factory, delivery and tracing tools.
  *
- * <p>If one decides that some of the Bounded Contexts of an application requires custom
+ * <p>If one decides that some of the Bounded Contexts of an application require custom
  * settings, they should arrange a separate deployable artifact and distinct configuration
  * of the respective {@code ServerEnvironment} for those Bounded Contexts. In this way,
  * the Contexts would reside in their own JVMs and not overlap on interacting with this singleton.
@@ -103,7 +103,7 @@ public final class ServerEnvironment implements Closeable {
      * The deployment detector is instantiated with a system {@link DeploymentDetector} and
      * can be reassigned the value using {@link #configureDeployment(Supplier)}.
      *
-     * <p>Value from this supplier are used to {@linkplain #deploymentType()
+     * <p>Values from this supplier are used to {@linkplain #deploymentType()
      * get the deployment type}.
      */
     private Supplier<DeploymentType> deploymentDetector = DeploymentDetector.newInstance();
@@ -112,7 +112,7 @@ public final class ServerEnvironment implements Closeable {
      * The identifier of the server instance running in scope of this application.
      *
      * <p>It is currently impossible to set the node identifier directly.
-     * This is a subject to change in the future framework versions.
+     * This is subject to change in the future framework versions.
      */
     private final NodeId nodeId;
 
@@ -574,10 +574,10 @@ public final class ServerEnvironment implements Closeable {
          * a feature of {@code ServerEnvironment}.
          *
          * @param prefixFmt
-         *         the first part of the error message which explains the error, containing
-         *         format parameter for the type name of the current environment
+         *         the first part of the error message that explains the error, containing
+         *         a format parameter for the type name of the current environment
          * @param type
-         *         the type of the environment under which we depected the error
+         *         the type of the environment under which we detected the error
          * @param featureParamName
          *         the name of the parameter passed to the {@code use()} method
          */

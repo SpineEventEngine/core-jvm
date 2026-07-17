@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -40,7 +40,7 @@ final class MaintenanceStation extends Station {
     private final ImmutableList<CatchUp> finalizingCatchUps;
 
     /**
-     * Creates a station in this delivery run-time information and initializes itself by searching
+     * Creates a station with this delivery run-time information and initializes itself by searching
      * for the matching catch-up jobs.
      */
     MaintenanceStation(DeliveryRunInfo runInfo) {
@@ -59,7 +59,7 @@ final class MaintenanceStation extends Station {
      *
      * @param conveyor
      *         the conveyor on which the messages are travelling
-     * @return empty result, as no messages are ever delivered.
+     * @return an empty result, as no messages are ever delivered.
      */
     @Override
     Result process(Conveyor conveyor) {

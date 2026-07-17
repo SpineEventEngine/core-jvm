@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * Verifies that the commands posted to the {@link BlackBox} are not the
  * {@linkplain io.spine.server.bus.DeadMessageHandler "dead"} messages.
  *
- * <p>The guard subscribes to {@link CommandErrored} event.
+ * <p>The guard subscribes to the {@link CommandErrored} event.
  * It does not subscribe to external events.
  */
 final class UnsupportedCommandGuard extends AbstractEventSubscriber {

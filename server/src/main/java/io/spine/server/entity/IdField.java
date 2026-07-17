@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -86,7 +86,7 @@ final class IdField {
      * <em>iff</em> the field's {@code (required)} option is not set
      * to {@code false} explicitly.
      *
-     * <p>Conventionally, an entity state ID assumed a required field.
+     * <p>Conventionally, an entity state ID is assumed a required field.
      * So, if there is no option set, we assume that the field is required.
      */
     <I, S extends EntityState<I>, B extends ValidatingBuilder<S>>

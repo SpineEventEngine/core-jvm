@@ -148,7 +148,7 @@ public abstract class RecordStorage<I, R extends Message> extends AbstractStorag
     /**
      * Reads all the message records according to the passed identifiers.
      *
-     * <p>The response contains only the records which were found.
+     * <p>The response contains only the records that were found.
      *
      * @param ids
      *         the identifiers of the records to read
@@ -166,7 +166,7 @@ public abstract class RecordStorage<I, R extends Message> extends AbstractStorag
      * Reads all the message records according to the passed record identifiers and returns
      * each record applying the passed field mask.
      *
-     * <p>The response contains only the records which were found.
+     * <p>The response contains only the records that were found.
      *
      * @param ids
      *         the identifiers of the records to read
@@ -269,7 +269,7 @@ public abstract class RecordStorage<I, R extends Message> extends AbstractStorag
     }
 
     /**
-     * Creates a new query for the target with the specified ID, which, if exists, should be
+     * Creates a new query for the target with the specified ID, which, if it exists, should be
      * returned according to the specified field mask.
      */
     protected RecordQuery<I, R> toQuery(I id, FieldMask mask) {

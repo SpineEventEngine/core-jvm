@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -62,7 +62,7 @@ final class StateColumns<S extends EntityState<?>> implements Iterable<EntityCol
      * Returns an empty column set.
      *
      * @param <S>
-     *         the type of the entity state which columns are described
+     *         the type of the entity state whose columns are described
      */
     static <S extends EntityState<?>> StateColumns<S> none() {
         return new StateColumns<>(ImmutableSet.of());

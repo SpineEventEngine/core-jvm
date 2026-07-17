@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,7 +89,7 @@ public final class EitherOf4<A extends Message,
     }
 
     /**
-     * Creates a new instance with {@code <C>} value.
+     * Creates a new instance with {@code <D>} value.
      */
     public static <A extends Message, B extends Message, C extends Message, D extends Message>
     EitherOf4<A, B, C, D> withD(D d) {
@@ -165,7 +165,7 @@ public final class EitherOf4<A extends Message,
     }
 
     /**
-     * Obtains the value of the third alternative.
+     * Obtains the value of the fourth alternative.
      *
      * @throws IllegalStateException if a value of another type is stored instead.
      * @return the stored value

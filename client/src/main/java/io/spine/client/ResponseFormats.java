@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -49,7 +49,7 @@ final class ResponseFormats {
      * passed signalizes that the part should not be set.
      *
      * @param mask
-     *         the field mast to apply to each item in the response,
+     *         the field mask to apply to each item in the response,
      *         or {@code null} if it should not be set
      * @param ordering
      *         the ordering to return the results in,

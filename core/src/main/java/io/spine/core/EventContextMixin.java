@@ -1,11 +1,11 @@
 /*
- * Copyright 2023, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -163,7 +163,7 @@ interface EventContextMixin extends EventContextOrBuilder,
     }
 
     /**
-     * Reads the values of the fields without using the reflection.
+     * Reads the values of the fields without using reflection.
      *
      * <p>During the validation of the contents this call reduces the cost of value extraction.
      * It is needed to improve the performance. However, some of the fields in {@code EventContext}
@@ -173,35 +173,21 @@ interface EventContextMixin extends EventContextOrBuilder,
     @Override
     @Internal
     default Object readValue(FieldDescriptor field) {
-        switch (field.getIndex()) {
-            case 0:
-                return getTimestamp();
-            case 1:
-                return getCommandContext();
-            case 2:
-                return getEventContext();
-            case 3:
-                return getPastMessage();
-            case 4:
-                return getImportContext();
-            case 5:
-                return getCommandId();
-            case 6:
-                return getEventId();
-            case 7:
-                return getRootCommandId();
-            case 8:
-                return getProducerId();
-            case 9:
-                return getVersion();
-            case 10:
-                return getEnrichment();
-            case 11:
-                return getExternal();
-            case 12:
-                return getRejection();
-            default:
-                return getField(field);
-        }
+        return switch (field.getIndex()) {
+            case 0 -> getTimestamp();
+            case 1 -> getCommandContext();
+            case 2 -> getEventContext();
+            case 3 -> getPastMessage();
+            case 4 -> getImportContext();
+            case 5 -> getCommandId();
+            case 6 -> getEventId();
+            case 7 -> getRootCommandId();
+            case 8 -> getProducerId();
+            case 9 -> getVersion();
+            case 10 -> getEnrichment();
+            case 11 -> getExternal();
+            case 12 -> getRejection();
+            default -> getField(field);
+        };
     }
 }

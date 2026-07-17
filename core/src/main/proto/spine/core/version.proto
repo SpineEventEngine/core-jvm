@@ -37,7 +37,7 @@ option java_multiple_files = true;
 
 import "google/protobuf/timestamp.proto";
 
-// A version number with timestamp of the version creation.
+// A version number with the timestamp of the version creation.
 message Version {
     option (is).java_type = "io.spine.core.VersionMixin";
 
@@ -53,7 +53,7 @@ message Version {
 
     // A zero-based version number.
     //
-    // When numbering versions of entities the zero value is reserved for
+    // When numbering versions of entities, the zero value is reserved for
     // the "pre-initialization" version of an entity.
     //
     int32 number = 1 [(min).value = "0"];

@@ -91,7 +91,7 @@ public abstract class EventDispatchingRepository<I,
      *
      * <p>Default routing returns the ID of the entity that
      * {@linkplain io.spine.core.EventContext#getProducerId() produced} the event.
-     * This allows to “link” different kinds of entities by having the same class of IDs.
+     * This allows one to “link” different kinds of entities by having the same class of IDs.
      * More complex scenarios (e.g., one-to-many relationships) may require custom routing schemas.
      *
      * @param routing

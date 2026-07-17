@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 syntax = "proto3";
 
 package spine.core;
@@ -55,7 +56,7 @@ message EventId {
     string value = 1;
 }
 
-// `Event` is something, which happened in the past.
+// `Event` is something that happened in the past.
 //
 // An event consists of two parts: event message and its context.
 //
@@ -73,7 +74,7 @@ message EventId {
 // It can also contain additional attributes added by the code handling the event.
 //
 // There is a special case of an event - a rejection event.
-// A rejection event represents erroneous conditions in business, which do not allow to execute
+// A rejection event represents erroneous conditions in business, which do not allow executing
 // a command. The event is a rejection event if the `EventContext.rejection` field is present.
 //
 // See `EventContext.rejection` to determine the event kind.
@@ -129,7 +130,7 @@ message EventContext {
         EventId event_id = 13 [deprecated = true];
     }
 
-    // An ID of the root command, which lead to this event.
+    // An ID of the root command, which led to this event.
     //
     // If the event is a reaction to another event, then this attribute holds the identifier
     // of the very first command in this chain.
@@ -172,7 +173,7 @@ message RejectionEventContext {
 
     core.Command command = 3;
 
-    // A stacktrace of from the code, which generated the rejection message (if available).
+    // A stacktrace from the code, which generated the rejection message (if available).
     string stacktrace = 2;
 
     // The message of the command that caused the rejection.

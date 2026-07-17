@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -33,8 +33,8 @@ import io.spine.type.TypeName;
 import static java.lang.String.format;
 
 /**
- * An exception thrown when trying to subscribe to updates of state of entity, which is not visible
- * for subscription.
+ * An exception thrown when trying to subscribe to updates of state of an entity, which is not
+ * visible for subscription.
  */
 public final class InsufficientVisibilityError extends ModelError {
 

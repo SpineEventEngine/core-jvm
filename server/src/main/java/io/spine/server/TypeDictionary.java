@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -40,7 +40,7 @@ import java.util.function.Function;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Allows to find to which Bounded Context a given type belongs.
+ * Allows finding to which Bounded Context a given type belongs.
  *
  * <p>Such a dictionary is used in services exposed to client communications
  * to find out to which bounded context a message received by the service belongs.
@@ -80,7 +80,7 @@ final class TypeDictionary {
     }
 
     /**
-     * Tells if this dictionary empty or not.
+     * Tells if this dictionary is empty or not.
      */
     boolean isEmpty() {
         return map.isEmpty();

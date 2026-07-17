@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -45,7 +45,7 @@ public interface ColumnTypeMapping<T, R> extends Function<T, R> {
     /**
      * A convenience alias for {@code #apply(T)}.
      *
-     * <p>Can be used when the object is known of being of type {@code T} but can't be cast to it
+     * <p>Can be used when the object is known to be of type {@code T} but can't be cast to it
      * explicitly (e.g. in case of wildcard arguments).
      */
     @Internal

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -31,10 +31,10 @@ import io.spine.server.event.EventReceiver;
 /**
  * An interface common for objects posting one or more commands in response to an incoming message.
  *
- * <p>Example of use case scenarios:
+ * <p>Examples of use case scenarios:
  * <ul>
  *     <li>Converting a command into another (e.g. because of command API changes).
- *     <li>Splitting a command which holds data for a bigger aggregate into several commands
+ *     <li>Splitting a command that holds data for a bigger aggregate into several commands
  *     set to corresponding aggregate parts.
  *     <li>Issuing a command in response to an event.
  *     <li>Posting a command to handle a rejection using a command posted on behalf of another user.

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -43,7 +43,7 @@ import static java.lang.String.format;
  * The cache of {@code Entity} objects for a certain {@code Repository} and
  * {@linkplain #startCaching(Object) selected} identifiers.
  *
- * <p>Reduces the number of both read and write storage operations in cases if more than one
+ * <p>Reduces the number of both read and write storage operations in cases when more than one
  * message is dispatched to the target entity. The typical scenario looks like this:
  *
  * <ol>
@@ -86,7 +86,7 @@ public final class RepositoryCache<I, E extends Entity<I, ?>> implements WithLog
 
     /**
      * Creates the instance of the cache considering the multi-tenancy setting,
-     * the function to load entities and the function to store the entity .
+     * the function to load entities and the function to store the entity.
      */
     public RepositoryCache(boolean multitenant, Load<I, E> loadFn, Store<E> storeFn) {
         this.multitenant = multitenant;

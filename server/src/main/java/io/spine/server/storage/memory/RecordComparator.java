@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -54,8 +54,8 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * @implNote More sophisticated storage implementations can sort records by
  *         non-{@link Comparable} fields like {@link com.google.protobuf.Message message}-type
  *         fields, depending on their storage method (e.g. comparing the string content of
- *         messages).The in-memory implementation stores all column values "as-is" and cannot do
- *         that. Trying to {@linkplain SortBy sort by} column of non-comparable type will lead to
+ *         messages). The in-memory implementation stores all column values "as-is" and cannot do
+ *         that. Trying to {@linkplain SortBy sort by} a column of non-comparable type will lead to
  *         an exception being thrown.
  */
 public class RecordComparator<I, R extends Message>
@@ -76,7 +76,7 @@ public class RecordComparator<I, R extends Message>
      *
      * @param sortByList
      *         a specification of columns and the directions for sorting
-     * @return a new comparator instance, which uses specified columns and aligns items
+     * @return a new comparator instance, which uses the specified columns and aligns items
      *         in the provided directions
      * @throws IllegalArgumentException
      *         if the provided {@code SortBy} list is empty

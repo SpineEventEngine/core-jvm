@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 syntax = "proto3";
 
 package spine.client;
@@ -39,11 +40,11 @@ import "spine/core/response.proto";
 
 // A service for subscribing to receive updates by a specified topic.
 //
-// The subscription topic define a type in updates of which the client code is interested in, and
+// The subscription topic defines a type in updates of which the client code is interested, and
 // filtering conditions (e.g. by values of fields or identity).
 //
-// Creating a subscriptions consists of two steps:
-//  * Step 1: creating `Subscription` instance. This steps verifies that type specified in
+// Creating a subscription consists of two steps:
+//  * Step 1: creating a `Subscription` instance. This step verifies that the type specified in
 //    the `Topic` is available at the server, and prepares backend structures for delivering
 //    updates. Subscription is created by the `Subscribe(Topic)` call.
 //    together with the contexts of the events.
@@ -60,7 +61,7 @@ service SubscriptionService {
     // Topic defines the target of subscription and other attributes (like field masks).
     //
     // NOTE: this method only creates a `Subscription` for the passed `Topic`.
-    // To start listening for updates please call `Activate(Subscription)`.
+    // To start listening for updates, please call `Activate(Subscription)`.
     //
     rpc Subscribe(Topic) returns (Subscription);
 
@@ -70,7 +71,7 @@ service SubscriptionService {
     // in the topic changes and 2) filtering conditions are met. See `spine.client.Target`.
     //
     // Cancelled subscriptions cannot be activated. Passing a cancelled subscription will result
-    // in run-time error.
+    // in a run-time error.
     //
     rpc Activate(Subscription) returns (stream SubscriptionUpdate);
 
@@ -78,7 +79,7 @@ service SubscriptionService {
     //
     // Clients will stop receiving the `SubscriptionUpdate` after this method is called.
     //
-    // The subscription is destroyed as the result of this call. To restore the subscription
+    // The subscription is destroyed as the result of this call. To restore the subscription,
     // please call `Subscribe(Topic)` and then `Activate(Subscription)` again.
     //
     rpc Cancel(Subscription) returns (core.Response);

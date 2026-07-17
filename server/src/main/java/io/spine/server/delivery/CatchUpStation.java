@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -68,7 +68,7 @@ final class CatchUpStation extends Station {
     }
 
     /**
-     * Delivers the messages sent for catch-up from the passed conveyor
+     * Delivers the messages sent for catch-up from the passed conveyor.
      *
      * <p>Prior to the dispatching, the messages are deduplicated and put into the chronological
      * order in scope of the processed message batch.
@@ -94,7 +94,7 @@ final class CatchUpStation extends Station {
      *
      * <p>Prior to dispatching, the passed messages are sorted chronologically, putting the events
      * of a framework-internal {@link CatchUpStarted} type first. Such an order guarantees that
-     * the targets entities will know of the started catch-up before any message
+     * the target entities will know of the started catch-up before any message
      * in {@code TO_CATCH_UP} status is dispatched to them.
      *
      * @param messages
@@ -141,7 +141,7 @@ final class CatchUpStation extends Station {
          * @param jobs
          *         the ongoing {@code CatchUp} jobs
          * @param conveyor
-         *         the conveyor containing the messages to filer
+         *         the conveyor containing the messages to filter
          */
         private JobFilter(Iterable<CatchUp> jobs, Conveyor conveyor) {
             this.jobs = jobs;
@@ -259,7 +259,7 @@ final class CatchUpStation extends Station {
          * the messages accepted for delivery are
          * {@linkplain Conveyor#keepForLonger(InboxMessage, Duration) set to be kept} in their
          * inboxes for the duration, corresponding to the width of the window. In this way, they
-         * will not be removed after get delivered and will be available as a source
+         * will not be removed after being delivered and will be available as a source
          * for the deduplication.
          *
          * @param message

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package io.spine.server;
 
 import com.google.common.collect.ImmutableSet;
@@ -54,7 +55,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * Wrapping container for gRPC server.
  *
- * <p>Maintains and deploys several of gRPC services within a single server.
+ * <p>Maintains and deploys several gRPC services within a single server.
  *
  * <p>Uses {@link ServerServiceDefinition}s of each service.
  */
@@ -90,7 +91,7 @@ public final class GrpcContainer {
     /**
      * Initiates creating an in-process container exposed with the given server name.
      *
-     * <p>The container in fully-featured, high performance, and is useful in testing.
+     * <p>The container is fully-featured, high performance, and is useful in testing.
      */
     public static Builder inProcess(String serverName) {
         return new Builder(null, serverName);
@@ -266,7 +267,8 @@ public final class GrpcContainer {
      *
      * @param service
      *         the gRPC service to check
-     * @return {@code true}, if the given gRPC service for deployment and {@code false} otherwise
+     * @return {@code true}, if the given gRPC service is scheduled for deployment and
+     *         {@code false} otherwise
      */
     public boolean isScheduledForDeployment(BindableService service) {
         var nameOfInterest = service.bindService()
@@ -422,7 +424,7 @@ public final class GrpcContainer {
     }
 
     /**
-     * The builder for {@code GrpcContainer} allows to define a port and services exposed
+     * The builder for {@code GrpcContainer} allows defining a port and services exposed
      * by the container.
      */
     public static final class Builder extends ConnectionBuilder {
@@ -492,10 +494,10 @@ public final class GrpcContainer {
     }
 
     /**
-     * Allows to configure the gRPC's {@link Server} instance,
+     * Allows configuring the gRPC's {@link Server} instance,
      * on top of which this {@code GrpcContainer} will operate.
      *
-     * <p>It is expected that the obtained builder of gRPC server is used to perform
+     * <p>It is expected that the obtained builder of the gRPC server is used to perform
      * some fine-grained tuning of its features. The same instance of {@link ServerBuilder}
      * should be returned.
      *

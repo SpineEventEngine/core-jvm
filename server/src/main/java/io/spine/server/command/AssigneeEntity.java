@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -41,7 +41,7 @@ import io.spine.validation.ValidatingBuilder;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * An entity that has one or methods {@link Assign assigned} to handle commands.
+ * An entity that has one or more methods {@link Assign assigned} to handle commands.
  *
  * @param <I>
  *         the type of the entity identifiers
@@ -58,7 +58,7 @@ public abstract class AssigneeEntity<I,
         implements Assignee {
 
     /**
-     * Cached value of the ID in the form of {@code Any} instance.
+     * Cached value of the ID in the form of an {@code Any} instance.
      */
     @LazyInit
     private @MonotonicNonNull Any idAsAny;
@@ -101,7 +101,7 @@ public abstract class AssigneeEntity<I,
      *
      * @param  actual   the value discovered instead of the default value
      * @param  newValue the new value requested in the command
-     * @return new {@code ValueMismatch} instance
+     * @return a new {@code ValueMismatch} instance
      */
     protected ValueMismatch expectedDefault(Message actual, Message newValue) {
         return MessageMismatch.expectedDefault(actual, newValue, versionNumber());
@@ -112,7 +112,7 @@ public abstract class AssigneeEntity<I,
      * but discovered that the field already has the default value.
      *
      * @param expected the value of the field that the command wanted to clear
-     * @return new {@code ValueMismatch} instance
+     * @return a new {@code ValueMismatch} instance
      */
     protected ValueMismatch expectedNotDefault(Message expected) {
         return MessageMismatch.expectedNotDefault(expected, versionNumber());
@@ -124,7 +124,7 @@ public abstract class AssigneeEntity<I,
      *
      * @param expected the value expected by the command
      * @param newValue the value the command wanted to set
-     * @return new {@code ValueMismatch} instance
+     * @return a new {@code ValueMismatch} instance
      */
     protected ValueMismatch expectedNotDefault(Message expected, Message newValue) {
         return MessageMismatch.expectedNotDefault(expected, newValue, versionNumber());
@@ -137,7 +137,7 @@ public abstract class AssigneeEntity<I,
      * @param expected the value expected by the command
      * @param actual   the value discovered instead of the expected value
      * @param newValue the new value requested in the command
-     * @return new {@code ValueMismatch} instance
+     * @return a new {@code ValueMismatch} instance
      */
     protected ValueMismatch unexpectedValue(Message expected, Message actual, Message newValue) {
         return MessageMismatch.unexpectedValue(expected, actual, newValue, versionNumber());
@@ -149,7 +149,7 @@ public abstract class AssigneeEntity<I,
      *
      * @param actual   the value discovered instead of the empty string
      * @param newValue the new value requested in the command
-     * @return new {@code ValueMismatch} instance
+     * @return a new {@code ValueMismatch} instance
      */
     protected ValueMismatch expectedEmpty(String actual, String newValue) {
         return StringMismatch.expectedEmpty(actual, newValue, versionNumber());
@@ -160,7 +160,7 @@ public abstract class AssigneeEntity<I,
      * but discovered that the field is already empty.
      *
      * @param expected the value of the field that the command wanted to clear
-     * @return new ValueMismatch instance
+     * @return a new ValueMismatch instance
      */
     protected ValueMismatch expectedNotEmpty(String expected) {
         return StringMismatch.expectedNotEmpty(expected, versionNumber());
@@ -173,7 +173,7 @@ public abstract class AssigneeEntity<I,
      * @param expected the value expected by the command
      * @param actual   the value discovered instead of the expected string
      * @param newValue the new value requested in the command
-     * @return new {@code ValueMismatch} instance
+     * @return a new {@code ValueMismatch} instance
      */
     protected ValueMismatch unexpectedValue(String expected, String actual, String newValue) {
         return StringMismatch.unexpectedValue(expected, actual, newValue, versionNumber());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ public class TestClient implements WithLogging {
     private final QueryServiceBlockingStub queryClient;
 
     /**
-     * Construct the client connecting to server at {@code host:port}.
+     * Constructs the client connecting to the server at {@code host:port}.
      */
     public TestClient(UserId userId, String host, int port) {
         checkNotNull(userId);
@@ -100,7 +100,7 @@ public class TestClient implements WithLogging {
     }
 
     /**
-     * Queries all entities of provided type.
+     * Queries all entities of the provided type.
      *
      * @param messageType
      *         an entity type to query
@@ -123,7 +123,7 @@ public class TestClient implements WithLogging {
     }
 
     /**
-     * Shutdown the client waiting 5 seconds for preexisting calls to continue.
+     * Shuts down the client, waiting 5 seconds for preexisting calls to continue.
      *
      * @throws InterruptedException
      *         if waiting is interrupted.
@@ -136,7 +136,7 @@ public class TestClient implements WithLogging {
     }
 
     /**
-     * Verifies if the client is shutdown.
+     * Verifies if the client is shut down.
      */
     public boolean isShutdown() {
         return channel.isShutdown();

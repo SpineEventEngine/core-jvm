@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ public class EntityVisibility private constructor(
     /**
      * Checks if the visibility level is not `NONE`.
      *
-     * @return `true` if the visibility is anything but `NONE`, `false` otherwise
+     * @return `true` if the visibility is anything but `NONE`, `false` otherwise.
      */
     public fun isNotNone(): Boolean = value != NONE
 

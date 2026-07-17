@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 syntax = "proto3";
 
 package spine.server.catchup;
@@ -58,7 +59,7 @@ message CatchUp {
 
         // Since which point in time the catch-up has been originally requested.
         //
-        // This value is inclusive as for the timestamp of events to which this catch-up should
+        // This value is inclusive of the timestamp of events to which this catch-up should
         // be applicable.
         //
         google.protobuf.Timestamp since_when = 2 [(required) = true, (when).in = PAST];
@@ -85,7 +86,7 @@ message CatchUp {
     repeated int32 affected_shard = 6;
 
     // The number of target projection instances whose state has to be cleared before
-    // the historical events are started to be recalled.
+    // the historical events start being recalled.
     //
     int32 instances_to_clear = 7;
 

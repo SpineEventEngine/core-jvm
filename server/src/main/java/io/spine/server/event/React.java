@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -61,7 +61,7 @@ import java.lang.annotation.Target;
  * some perspective. Available sets of parameters are described below.
  *
  * <h3>Single event message</h3>
- * 
+ *
  * <pre>
  *
  * {@literal @}React
@@ -104,12 +104,12 @@ import java.lang.annotation.Target;
  * <p>The essence of a reacting method is an emission of one or several events in a reaction to
  * the dispatched event.
  *
- * <p>As long as an entity may have a complex logic of determining which event to emit in reaction,
+ * <p>As long as an entity may have complex logic of determining which event to emit in reaction,
  * the {@code React}-marked methods allow a variety of options for the returned types.
  * A reacting method must return one of the following.
  *
  * <h3>An event message</h3>
- * 
+ *
  *  <pre>
  *
  * {@literal @}React
@@ -137,7 +137,7 @@ import java.lang.annotation.Target;
  *  </pre>
  *
  *  <h3>An {@code Iterable} of event messages</h3>
- *  
+ *
  *  <pre>
  *
  * {@literal @}React
@@ -147,7 +147,7 @@ import java.lang.annotation.Target;
  *
  *  <h3>A {@link io.spine.server.tuple.Tuple tuple} of event messages</h3>
  *
- *  <p>Being similar to {@code Iterable}, tuples allow declaring the exact types of returning
+ *  <p>Being similar to {@code Iterable}, tuples allow declaring the exact types of return
  *  values, including {@code Optional} values:
  *  <pre>
  *
@@ -161,7 +161,7 @@ import java.lang.annotation.Target;
  * <h2>Handling Incorrect Signatures</h2>
  *
  * <p>If the annotation is applied to a method that does not satisfy either of these requirements,
- * this method will not be registering for receiving events.
+ * this method will not be registered for receiving events.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

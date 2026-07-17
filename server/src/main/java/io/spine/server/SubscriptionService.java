@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package io.spine.server;
 
 import com.google.common.base.Joiner;
@@ -282,9 +283,9 @@ public final class SubscriptionService
          * to this service.
          *
          * @implNote The original {@code observer} is only fed with an acknowledgement once
-         *         after the subscription in cancelled in each Bounded Context.
+         *         after the subscription is cancelled in each Bounded Context.
          *         This is because it is not possible to call {@code onCompleted()}
-         *         for several times, which would happen should we run
+         *         several times, which would happen should we run
          *         the original {@code observer} through a default cancellation procedure.
          */
         @Override

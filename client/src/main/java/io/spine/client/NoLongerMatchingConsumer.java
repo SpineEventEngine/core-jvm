@@ -1,11 +1,11 @@
 /*
- * Copyright 2023, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -49,7 +49,7 @@ final class NoLongerMatchingConsumer<I> implements Consumer<Any> {
     private final Consumer<I> delegate;
 
     /**
-     * Creates a new instance of {@code IdConsumer}.
+     * Creates a new instance of {@code NoLongerMatchingConsumer}.
      *
      * @param idClass
      *         the type of identifiers used to unpack the incoming {@code Any} instances

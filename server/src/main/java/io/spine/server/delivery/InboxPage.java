@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -88,7 +88,7 @@ public final class InboxPage implements Page<InboxMessage> {
     }
 
     /**
-     * Loads a content for the next page and returns an new instance of the {@code InboxPage}.
+     * Loads the contents for the next page and returns a new instance of the {@code InboxPage}.
      *
      * <p>In case there were no messages loaded, this page is considered to be the last one,
      * and {@code Optional.empty()} is returned.
@@ -104,7 +104,7 @@ public final class InboxPage implements Page<InboxMessage> {
     }
 
     /**
-     * A strategy on fetching the {@link InboxMessage}s from the storage based
+     * A strategy for fetching the {@link InboxMessage}s from the storage based
      * on the passed timestamp.
      */
     interface Lookup {

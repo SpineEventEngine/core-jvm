@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -39,7 +39,7 @@ import static io.spine.util.Suppliers2.memoize;
 /**
  * Abstract base for client requests that may filter messages by certain criteria.
  *
- * <p>This class warps around {@link TargetBuilder} for providing fluent API for
+ * <p>This class wraps around {@link TargetBuilder} for providing fluent API for
  * client request composition and placement.
  *
  * @param <M>
@@ -50,7 +50,7 @@ import static io.spine.util.Suppliers2.memoize;
  *         the type of the builder of the request
  * @param <B>
  *         the type of this client request (which wraps over type {@code <A>} for
- *         return type covariance
+ *         return type covariance)
  */
 public abstract class
 FilteringRequest<M extends Message,
@@ -82,7 +82,7 @@ FilteringRequest<M extends Message,
     abstract Function<ActorRequestFactory, A> builderFn();
 
     /**
-     * Obtains typed reference to {@code this} builder instance.
+     * Obtains a typed reference to {@code this} builder instance.
      */
     abstract B self();
 
@@ -106,7 +106,7 @@ FilteringRequest<M extends Message,
     }
 
     /**
-     * Requests only passed IDs to be included into the result of the request.
+     * Requests only passed IDs to be included in the result of the request.
      *
      * <p>The calling code must pass identifiers that are of the same type, which also
      * matches the ID type of the requested messages.
@@ -119,7 +119,7 @@ FilteringRequest<M extends Message,
     }
 
     /**
-     * Requests only passed IDs to be included into the result of the request.
+     * Requests only passed IDs to be included in the result of the request.
      */
     @CanIgnoreReturnValue
     public B byId(Message... ids) {
@@ -127,7 +127,7 @@ FilteringRequest<M extends Message,
     }
 
     /**
-     * Requests only passed IDs to be included into the result of the request.
+     * Requests only passed IDs to be included in the result of the request.
      */
     @CanIgnoreReturnValue
     public B byId(Long... ids) {
@@ -135,7 +135,7 @@ FilteringRequest<M extends Message,
     }
 
     /**
-     * Requests only passed IDs to be included into the result of the request.
+     * Requests only passed IDs to be included in the result of the request.
      */
     @CanIgnoreReturnValue
     public B byId(Integer... ids) {
@@ -143,7 +143,7 @@ FilteringRequest<M extends Message,
     }
 
     /**
-     * Requests only passed IDs to be included into the result of the request.
+     * Requests only passed IDs to be included in the result of the request.
      */
     @CanIgnoreReturnValue
     public B byId(String... ids) {

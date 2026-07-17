@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ import static io.spine.testing.server.query.ResponseStatusSubject.responseStatus
 /**
  * A set of assertions for a {@link io.spine.client.Query Query} execution result.
  *
- * <p>The class base methods check a set of {@linkplain EntityState entity states} received in the
+ * <p>The class's base methods check a set of {@linkplain EntityState entity states} received in the
  * {@link QueryResponse}. The subject can be used as follows:
  * <pre>
  * context.assertQueryResult(query)
@@ -67,8 +67,8 @@ import static io.spine.testing.server.query.ResponseStatusSubject.responseStatus
  * <p>There are also convenience methods for checking response {@link Status} and received entity
  * {@linkplain Version versions}, as well as some others.
  *
- * <p>This class is not a "typical" {@link Subject} in a sense that it's not accessible to the
- * outer world through it's {@linkplain #queryResult() factory}, but is rather created with a
+ * <p>This class is not a "typical" {@link Subject} in the sense that it's not accessible to the
+ * outer world through its {@linkplain #queryResult() factory}, but is rather created with a
  * custom {@code static} {@linkplain #assertQueryResult(QueryResponse) method}.
  */
 @VisibleForTesting
@@ -76,7 +76,7 @@ public final class QueryResultSubject
         extends IterableOfProtosSubject<EntityState<?>> {
 
     /**
-     * A helper {@code Subject} that allows to check the {@link QueryResponse} status.
+     * A helper {@code Subject} that allows checking the {@link QueryResponse} status.
      *
      * <p>Is effectively {@code final}, as the only way to create an instance of
      * {@code QueryResultSubject} is to use the {@link #assertQueryResult(QueryResponse)} method.
@@ -84,8 +84,8 @@ public final class QueryResultSubject
     private ResponseStatusSubject statusSubject;
 
     /**
-     * A helper {@code Subject} that allows to verify the {@linkplain Version versions} of
-     * entities in {@link QueryResponse}.
+     * A helper {@code Subject} that allows verifying the {@linkplain Version versions} of
+     * entities in the {@link QueryResponse}.
      *
      * <p>Is effectively {@code final}, as the only way to create an instance of
      * {@code QueryResultSubject} is to use the {@link #assertQueryResult(QueryResponse)} method.
@@ -104,7 +104,7 @@ public final class QueryResultSubject
      * Creates a new instance of the subject.
      *
      * <p>Unlike other {@code Subject}s, the {@code QueryResultSubject} does not accept
-     * {@code null} arguments, as {@code null} {@code QueryResponse} always indicates an error.
+     * {@code null} arguments, as a {@code null} {@code QueryResponse} always indicates an error.
      */
     public static QueryResultSubject assertQueryResult(QueryResponse queryResponse) {
         checkNotNull(queryResponse, "`QueryResponse` must never be `null`.");

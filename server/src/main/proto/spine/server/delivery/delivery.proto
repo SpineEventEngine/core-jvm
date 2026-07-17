@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 syntax = "proto3";
 
 package spine.server.delivery;
@@ -44,7 +45,8 @@ import "spine/server/catchup/catch_up.proto";
 // An index of a shard.
 //
 // A value type used across the application. To be potentially used in JavaScript, Go, C++ and
-// other client and server environments, that are split into shards.
+// other client and server environments that are split into shards.
+//
 message ShardIndex {
 
     // The zero-based index of the shard.
@@ -79,7 +81,7 @@ message ShardSessionRecord {
 // A stage of the `Delivery` process running for some particular `ShardIndex`.
 message DeliveryStage {
 
-    // The index of a shard to which the delivery stage was performed.
+    // The index of a shard for which the delivery stage was performed.
     ShardIndex index = 1 [(required) = true, (validate) = true];
 
     // How many messages were delivered in scope of this stage.
@@ -98,7 +100,7 @@ message ShardMaintenance {
 // The configuration data `Delivery` used at its run-time to make decisions on how
 // to dispatch messages.
 //
-// The system-wide processes, such as `CatchUp` need to know the details on how the messages
+// The system-wide processes, such as `CatchUp`, need to know the details on how the messages
 // were dispatched by `Delivery`. Therefore, `Delivery` records some of its parameters
 // when it is delivering the signals, and passes this data on to all interested parties.
 //
@@ -120,7 +122,7 @@ message WorkerId {
 
     // Worker's identifier.
     //
-    // An example of such an identifier could be ID of the thread that processes a shard.
+    // An example of such an identifier could be the ID of the thread that processes a shard.
     string value = 2 [(required) = true];
 }
 
@@ -133,7 +135,7 @@ message ShardAlreadyPickedUp {
 
     // Time when the worker has picked up the shard.
     //
-    // Note, this value is not synchronized between application servers by default.
+    // Note: this value is not synchronized between application servers by default.
     // The wall clock on each instance is generally slightly different.
     // Comparing this value (potentially instantiated on another application node)
     // with the wall clock on your current application node may give

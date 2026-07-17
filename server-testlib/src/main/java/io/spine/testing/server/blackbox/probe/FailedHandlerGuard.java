@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ import static java.lang.System.lineSeparator;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * Performs logging of failed signals handlers or fails the test
+ * Performs logging of failed signal handlers or fails the test
  * depending upon the current context exception tolerance.
  */
 public final class FailedHandlerGuard
@@ -56,7 +56,7 @@ public final class FailedHandlerGuard
     }
 
     /**
-     * Always dispatched {@link HandlerFailedUnexpectedly} event.
+     * Always dispatches the {@link HandlerFailedUnexpectedly} event.
      */
     @Override
     public boolean canDispatch(EventEnvelope eventEnvelope) {
@@ -106,7 +106,7 @@ public final class FailedHandlerGuard
     /**
      * {@inheritDoc}
      *
-     * <p>The {@code BlackBoxBoundedContext} only consumes domestic events.
+     * <p>The {@code BlackBox} bounded context only consumes domestic events.
      */
     @Override
     public ImmutableSet<EventClass> domesticEventClasses() {
@@ -116,7 +116,7 @@ public final class FailedHandlerGuard
     /**
      * {@inheritDoc}
      *
-     * <p>The {@code BlackBoxBoundedContext} does not consume external events.
+     * <p>The {@code BlackBox} bounded context does not consume external events.
      */
     @Override
     public ImmutableSet<EventClass> externalEventClasses() {

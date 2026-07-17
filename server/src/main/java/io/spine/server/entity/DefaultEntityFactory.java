@@ -74,7 +74,7 @@ public final class DefaultEntityFactory<E extends Entity<?, ?>> extends Abstract
     private transient volatile @Nullable Class<?> firstParameterType;
 
     /**
-     * Creates new instance.
+     * Creates a new instance.
      */
     public DefaultEntityFactory(Class<E> entityClass) {
         super(entityClass);

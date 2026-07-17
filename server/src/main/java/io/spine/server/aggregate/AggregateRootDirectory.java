@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -56,7 +56,7 @@ public interface AggregateRootDirectory {
      * Looks up an aggregate part repository by the type of the root and
      * the type of the part state.
      *
-     * <p>If a matching repository if registered, it is obtained by this method with
+     * <p>If a matching repository is registered, it is obtained by this method with
      * no regard to the visibility of the aggregate.
      *
      * @param rootClass

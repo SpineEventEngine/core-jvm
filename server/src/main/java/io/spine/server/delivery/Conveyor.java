@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -51,7 +51,7 @@ import static java.util.stream.Collectors.toList;
  * A mutable wrapper for the {@link InboxMessage}s to be dispatched in scope of a
  * {@link DeliveryStage}.
  *
- * <p>Collects the state updates of the messages and allows to flush the pending changes to the
+ * <p>Collects the state updates of the messages and allows one to flush the pending changes to the
  * respective {@link InboxStorage} in a bulk.
  *
  * <p>By accessing the {@linkplain DeliveredMessagesCache cache}, knows which messages were marked
@@ -137,7 +137,7 @@ final class Conveyor implements Iterable<InboxMessage> {
      * Changes the status of the passed message to {@link InboxMessageStatus#TO_CATCH_UP
      * TO_CATCH_UP}.
      *
-     * <p>Produced the change to the storage, pending until the next {@link #flushTo(InboxStorage)
+     * <p>Produces the change to the storage, pending until the next {@link #flushTo(InboxStorage)
      * flushTo(InboxStorage)} call.
      */
     void markCatchUp(InboxMessage message) {

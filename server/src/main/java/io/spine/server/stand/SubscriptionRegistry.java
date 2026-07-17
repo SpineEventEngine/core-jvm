@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package io.spine.server.stand;
 
 import io.spine.client.Subscription;
@@ -42,14 +43,14 @@ import java.util.Set;
 interface SubscriptionRegistry {
 
     /**
-     * Activate the subscription with the passed action.
+     * Activates the subscription with the passed action.
      *
      * <p>The passed action will be used to notify the read-side about the subscription update.
      *
      * @param subscription
      *         the subscription to activate
      * @param callback
-     *         the action which notifies the subscription listeners on the read-side
+     *         the action that notifies the subscription listeners on the read-side
      */
     void activate(Subscription subscription, SubscriptionCallback callback);
 
@@ -74,7 +75,7 @@ interface SubscriptionRegistry {
     void add(Subscription subscription);
 
     /**
-     * Remove the subscription from this registry.
+     * Removes the subscription from this registry.
      *
      * <p>If there is no such subscription in this instance of {@code SubscriptionRegistry},
      * invocation has no effect.
@@ -85,7 +86,7 @@ interface SubscriptionRegistry {
     void remove(Subscription subscription);
 
     /**
-     * Allows to determine if this registry has an item with the specified ID.
+     * Allows determining if this registry has an item with the specified ID.
      *
      * @param subscriptionId
      *         the subscription ID to look for
@@ -95,7 +96,7 @@ interface SubscriptionRegistry {
     boolean containsId(SubscriptionId subscriptionId);
 
     /**
-     * Filter the registered {@link SubscriptionRecord}s by their type.
+     * Filters the registered {@link SubscriptionRecord}s by their type.
      *
      * @param type
      *         the type to filter by

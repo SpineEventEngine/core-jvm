@@ -71,7 +71,7 @@ message DispatchOutcome {
 
         // Result of a successful handling.
         //
-        // If the handling resulted in signals, commands, events, or a rejection, stores
+        // If the handling resulted in signals, commands, events, or a rejection, it stores
         // those signals.
         //
         Success success = 2 [(validate) = true];
@@ -117,8 +117,8 @@ message DispatchOutcome {
 // This message may be empty if:
 //   1. The receptor does not return a result by its nature (e.g. a subscribing method), or
 //   2. The method returns `Nothing` (wrapped inside a tuple) because the entity ignores the signal.
-//      For example, a reacting receptor or a commanding receptor may chose not to produce
-//      an outgoing signal in response to incoming event.
+//      For example, a reacting receptor or a commanding receptor may choose not to produce
+//      an outgoing signal in response to an incoming event.
 //
 message Success {
     option (is).java_type = "SuccessMixin";

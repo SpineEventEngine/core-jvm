@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -69,8 +69,8 @@ public final class CommandClass extends MessageClass<CommandMessage> {
     /**
      * Creates a new instance for the class of the passed command.
      *
-     * <p>If an instance of {@link Command} is passed to this method, enclosing command message will
-     * be un-wrapped to determine the class of the command.
+     * <p>If an instance of {@link Command} is passed to this method, the enclosing command message
+     * will be un-wrapped to determine the class of the command.
      *
      * <p>If an instance of {@link Any} is passed, it will be unpacked, and the class of the wrapped
      * message will be used.

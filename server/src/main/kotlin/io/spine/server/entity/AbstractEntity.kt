@@ -213,12 +213,12 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      *
      * In case the access is prohibited, throws a `RuntimeException`.
      *
-     * In some scenarios, the state of Entity may be not up-to-date,
+     * In some scenarios, the state of Entity may not be up-to-date,
      * so descendants of `AbstractEntity` are able to put the corresponding restrictions
      * on this method invocation.
      *
      * By default, this method performs no checks,
-     * thus allowing to access Entity's `state()` at any point of time.
+     * thus allowing access to Entity's `state()` at any point in time.
      */
     @Internal
     protected open fun ensureAccessToState() {
@@ -226,7 +226,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
     }
 
     /**
-     * Obtains model class for this entity.
+     * Obtains the model class for this entity.
      */
     @Internal
     protected open fun thisClass(): EntityClass<*> {
@@ -283,7 +283,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      *
      * @param newState
      *         a state object to replace the current state
-     * @return the violation constraints
+     * @return the constraint violations
      */
     protected fun checkEntityState(newState: S): List<ConstraintViolation> {
         val violations = ImmutableList.builder<ConstraintViolation>()
@@ -308,7 +308,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
     }
 
     /**
-     * Obtains ID of the entity in the [string form][Stringifiers.toString].
+     * Obtains the ID of the entity in the [string form][Stringifiers.toString].
      *
      * Subsequent calls to the method return a cached instance of the string, which minimizes
      * the performance impact of repeated calls.
@@ -381,7 +381,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      * Ensures that the entity is not marked as `archived`.
      *
      * @throws CannotModifyArchivedEntity
-     *         if the entity in the archived status
+     *         if the entity is in the archived status
      * @see lifecycleFlags
      * @see LifecycleFlags.archived
      */
@@ -500,7 +500,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
     /**
      * Advances the current version by one and records the time of the modification.
      *
-     * @return new version number
+     * @return the new version number
      */
     protected open fun incrementVersion(): Int {
         setVersion(incrementedVersion())
@@ -508,7 +508,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
     }
 
     /**
-     * Obtains timestamp of the entity version.
+     * Obtains the timestamp of the entity version.
      */
     public open fun whenModified(): Timestamp = _version.timestamp
 

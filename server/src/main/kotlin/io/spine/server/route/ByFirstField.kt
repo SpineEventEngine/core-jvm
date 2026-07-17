@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import io.spine.util.Exceptions.newIllegalStateException
  * It is expected that the types of the first field and the identifier are the same.
  *
  * @param I The type of the identifiers.
- * @param M The common supertype for messages routable messages.
+ * @param M The common supertype for routable messages.
  * @param C The type of the message contexts.
  */
 internal class ByFirstField<I : Any, M : Routable, C : SignalContext>(
@@ -52,7 +52,7 @@ internal class ByFirstField<I : Any, M : Routable, C : SignalContext>(
     }
 
     /**
-     * Obtains a descriptor of the first field of the passed.
+     * Obtains a descriptor of the first field of the passed message.
      *
      * @throws IllegalStateException if the passed message does not declare fields, or
      *   the field is a repeated field or a map.

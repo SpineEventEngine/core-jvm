@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package io.spine.core
 
 import kotlin.annotation.AnnotationRetention.RUNTIME
@@ -49,9 +50,9 @@ import kotlin.annotation.AnnotationTarget.VALUE_PARAMETER
  * method.
  *
  * Only methods that accept an event may add filters. Entity subscribers cannot use this kind of
- * filtering, neither can methods that receive a command. Declaring a `@Where` filter on a parameter
+ * filtering, nor can methods that receive a command. Declaring a `@Where` filter on a parameter
  * of such a method will cause a runtime error. See the annotation [AcceptsFilters] for more info
- * on which methods can have a filer.
+ * on which methods can have a filter.
  *
  * A single class may define a number of handler methods with different field filters. Though,
  * all the field filters must target the same field. For example, this setup is valid:
@@ -102,8 +103,7 @@ public annotation class Where(
     /**
      * The expected value of the field.
      *
-     *
-     * The value converted with help of [Stringifier][io.spine.string.Stringifier]s into
+     * The value is converted with the help of [Stringifier][io.spine.string.Stringifier]s into
      * the type of the actual value of the message field.
      */
     public val equals: String

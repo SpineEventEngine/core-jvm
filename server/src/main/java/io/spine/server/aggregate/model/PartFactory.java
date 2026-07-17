@@ -77,8 +77,8 @@ final class PartFactory<A extends AggregatePart<?, ?, ?, ?>> extends AbstractEnt
      *
      * <p>The part class must have a constructor with ID and {@code AggregateRoot} parameters.
      *
-     * <p>Returns the constructor if the first parameter is aggregate ID
-     * and the second constructor parameter is subtype of the {@code AggregateRoot}
+     * <p>Returns the constructor if the first parameter is an aggregate ID
+     * and the second constructor parameter is a subtype of the {@code AggregateRoot}.
      * For example:
      * <pre>{@code
      *  // A user-defined AggregateRoot:

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -126,7 +126,7 @@ public final class SignatureMismatch {
      * @param values
      *         the values, which did not meet the criterion requirements
      * @return a new {@code SignatureMismatch} instance wrapped in {@code Optional}
-     *         which is guaranteed to be non-empty
+     *         that is guaranteed to be non-empty
      */
     static Optional<SignatureMismatch> create(MatchCriterion criterion, Object... values) {
         checkNotNull(criterion);

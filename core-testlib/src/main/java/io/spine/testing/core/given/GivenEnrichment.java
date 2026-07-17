@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import static io.spine.protobuf.AnyPacker.pack;
 import static io.spine.protobuf.TypeConverter.toMessage;
 
 /**
- * Factory methods to create {@code Enrichment} instances in test purposes.
+ * Factory methods to create {@code Enrichment} instances for test purposes.
  */
 public final class GivenEnrichment {
 

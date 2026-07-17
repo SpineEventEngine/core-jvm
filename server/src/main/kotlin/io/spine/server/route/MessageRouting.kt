@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,14 +54,14 @@ import java.util.Collections.synchronizedMap
  * ```
  * Entries for classes must come before those for interfaces.
  * Entries for more specific interfaces must be added before entries for super-interfaces of
- * the already added interface entries. There rules ensure correct routing of messages.
+ * the already added interface entries. These rules ensure correct routing of messages.
  * If these rules are not followed, `IllegalStateException` will be thrown when calling
  * a [route] function that attempts to add a violating entry.
  *
  * ## Optional `context` parameter
  *
  * A routing function may accept two parameters `message` and `context`, or only
- * single `message` parameter, if the message context does not participate in the routing.
+ * a single `message` parameter, if the message context does not participate in the routing.
  *
  * ## Replacing the default route
  *

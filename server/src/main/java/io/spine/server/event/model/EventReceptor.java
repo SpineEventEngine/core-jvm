@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -82,9 +82,10 @@ public abstract class EventReceptor<T, R extends MessageClass<?>>
      * Ensures that the passed event matches the {@code external} attribute
      * of the method annotation.
      *
-     * <p>If the method annotated to accept {@code external} events, the event passed to the handler
-     * method must be produced {@linkplain io.spine.core.EventContext#getExternal() outside} of
-     * the Bounded Context to which the handling entity belongs.
+     * <p>If the method is annotated to accept {@code external} events, the event passed to the
+     * handler method must be produced
+     * {@linkplain io.spine.core.EventContext#getExternal() outside} of the Bounded Context to
+     * which the handling entity belongs.
      *
      * <p>And vice versa, if the event handling method is designed for domestic events,
      * it does not accept external events.

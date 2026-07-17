@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -32,7 +32,7 @@ import io.spine.system.server.Mirror;
 /**
  * Directs and oversees the process of {@link MirrorMigration}.
  *
- * <p>There are three responsibility of a monitor:
+ * <p>There are three responsibilities of a monitor:
  *
  * <ol>
  *     <li>Dictates a {@link #batchSize() batch size} which is a number of records
@@ -46,12 +46,12 @@ import io.spine.system.server.Mirror;
  * <p>This class is open for extending. It may come in handy in the next cases:
  *
  * <ol>
- *     <li>When an application environment imposes restrictions on a session duration. Which means,
+ *     <li>When an application environment imposes restrictions on a session duration. Which means
  *         the migration can't be completed in a single run. For example, one can
  *         {@link #shouldContinueAfter(MirrorsMigrated) terminate} the migration after the desired
  *         time since {@link #onMigrationStarted() start}. And then run it again to continue.
  *     <li>When there is a need to collect data about the course of the migration. One can measure
- *         speed of the whole process or for every batch. And be aware about the number
+ *         the speed of the whole process or for every batch. And be aware of the number
  *         of already migrated mirrors.
  * </ol>
  */
@@ -69,7 +69,7 @@ public class MirrorMigrationMonitor {
     }
 
     /**
-     * Number of records, processed in a single request during the migration.
+     * The number of records, processed in a single request during the migration.
      */
     public int batchSize() {
         return batchSize;
@@ -135,7 +135,7 @@ public class MirrorMigrationMonitor {
      * Called when the current batch is completed.
      *
      * @param migrated
-     *         number of mirrors, migrated within the last batch
+     *         the number of mirrors, migrated within the last batch
      */
     public void onBatchCompleted(MirrorsMigrated migrated) {
         // do nothing.

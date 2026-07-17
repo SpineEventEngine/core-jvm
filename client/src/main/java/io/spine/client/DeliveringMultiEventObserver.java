@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -47,13 +47,13 @@ final class DeliveringMultiEventObserver implements StreamObserver<Event>, WithL
     private final ErrorHandler streamingErrorHandler;
 
     /**
-     * Creates new instance.
+     * Creates a new instance.
      *
      * @param consumers
      *         event consumers
      * @param streamingErrorHandler
-     *         the handler for errors which is used when a {@linkplain #onError(Throwable)
-     *         streaming error occurs}. When this handler is invoked no further delivery of
+     *         the handler for errors that is used when a {@linkplain #onError(Throwable)
+     *         streaming error occurs}. When this handler is invoked, no further delivery of
      *         events is expected. If {@code null} is passed, default implementation would
      *         log the error.
      */

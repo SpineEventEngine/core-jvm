@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 syntax = "proto3";
 
 package spine.core;
@@ -41,9 +42,9 @@ import "spine/core/event.proto";
 
 // The result of a call returned by a service.
 //
-// A service may return either `ok` or an `error` (technical problem) or a `rejection`.
-// The client may expect results (returned via a separate call to read-side or via event stream)
-// only upon receiving the `ok` status.
+// A service may return `ok` or an `error` (technical problem) or a `rejection`.
+// The client may expect results (returned via a separate call to the read-side or via event
+// stream) only upon receiving the `ok` status.
 //
 message Response {
     option (is).java_type = "ResponseMixin";
@@ -60,7 +61,7 @@ message Status {
         // The request was accepted to execution.
         google.protobuf.Empty ok = 1;
 
-        // The technical error occurred upon receiving the request and no further
+        // The technical error occurred upon receiving the request, and no further
         // processing would occur.
         base.Error error = 2;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,8 +41,8 @@ import io.spine.core.SignalContext
  * ## Unicast routing
  *
  * In some cases, a routing function returns only one identifier.
- * This class provides convenience methods called [unicast] that allow to adapt
- * function returning a single identifier to the general contract of the schema.
+ * This class provides convenience methods called [unicast] that allow adapting
+ * a function returning a single identifier to the general contract of the schema.
  *
  * ```kotlin
  * routing.route<MyMessage> { message, context -> ... }

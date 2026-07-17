@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * </ul>
  *
  * <p>Therefore, if the subscriber method specifies both the command message and
- * the command context, it must have the parameters exactly is that order, i.e.
+ * the command context, it must have the parameters exactly in that order, i.e.
  * {@code (RejectionMessage, CommandMessage, CommandContext)}.
  * Otherwise, an exception may be thrown at runtime.
  *
@@ -72,7 +72,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * the subscriber receives the rejection if:
  * <ul>
  *     <li>the rejection type matches the first argument type;
- *     <li>the command, which processing caused the rejection, has the same type as
+ *     <li>the command, whose processing caused the rejection, has the same type as
  *         the command message argument if it is present;
  *     <li>if the command message argument is absent, any rejection of a matching type
  *         is received by the subscriber.
@@ -88,7 +88,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *         the only parameter.
  * </ul>
  *
- * <p>If the annotation is applied to a method that doesn't satisfy either of these requirements,
+ * <p>If the annotation is applied to a method that doesn't satisfy any of these requirements,
  * this method is not considered a subscriber and is not registered for the command output delivery.
  *
  * <p>Event subscriber methods are designed to be called by the framework only.
