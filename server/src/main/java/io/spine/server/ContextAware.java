@@ -28,7 +28,7 @@ package io.spine.server;
 
 import io.spine.annotation.Internal;
 
-import javax.annotation.OverridingMethodsMustInvokeSuper;
+import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 
 import static com.google.common.base.Preconditions.checkState;
 
