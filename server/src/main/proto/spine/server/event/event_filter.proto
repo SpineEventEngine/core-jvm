@@ -46,6 +46,7 @@ import "spine/base/field_filter.proto";
 //   4. values stored in the `event_context` field of the event.
 //
 // The time of the event is filtered by `before` and `after` attributes of `EventStreamQuery`.
+//
 message EventFilter {
     // The full protobuf type name of the event message.
     string event_type = 1;

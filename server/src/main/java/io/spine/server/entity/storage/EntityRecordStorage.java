@@ -146,7 +146,8 @@ public class EntityRecordStorage<I, S extends EntityState<I>>
      * Reads the entity records according to the passed query.
      *
      * <p>If the passed query has no ID parameter set, only the records of the active entities
-     * are returned. If the query includes the ID parameter, it includes non-active entities as well.
+     * are returned. If the query includes the ID parameter, it includes non-active entities
+     * as well.
      */
     @Override
     public Iterator<EntityRecord> readAll(RecordQuery<I, EntityRecord> query) {

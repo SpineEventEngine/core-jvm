@@ -62,8 +62,9 @@ import static java.util.Objects.requireNonNull;
  * storing lifecycle and version attributes of an {@code Entity}.
  *
  * @implNote Client-side API includes generic definitions of lifecycle and version columns
- *         (such as {@link ArchivedColumn}). However, their code cannot depend on the {@code Entity}
- *         type directly, as the {@code client} module has no dependency on the {@code server} module.
+ *         (such as {@link ArchivedColumn}). However, their code cannot depend on the
+ *         {@code Entity} type directly, as the {@code client} module has no dependency on
+ *         the {@code server} module.
  *         Therefore, this column scanning process wires those generic column definitions with an
  *         actual {@code Entity} type, instances of which serve as a data source for each column.
  *         Also, instead of scanning the {@code (column)} options from an entity state

@@ -69,8 +69,8 @@ public interface PickUpOutcomeMixin extends PickUpOutcomeOrBuilder {
     }
 
     /**
-     * Returns {@code ShardProcessingSession} if this outcome indicates that the shard is successfully
-     * picked up, or empty {@code Optional} otherwise.
+     * Returns {@code ShardProcessingSession} if this outcome indicates that the shard is
+     * successfully picked up, or empty {@code Optional} otherwise.
      */
     default Optional<ShardSessionRecord> session() {
         var session = getSession();

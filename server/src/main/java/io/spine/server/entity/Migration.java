@@ -257,8 +257,8 @@ public abstract class Migration<I,
      * <p>The operation is performed in the scope of an active {@link Transaction}.
      *
      * <p>All entity state and meta-data changes are propagated to the transaction and remain in
-     * a pending state until the transaction is {@linkplain Transaction#commit() committed}, which is
-     * the last step of a migration operation.
+     * a pending state until the transaction is {@linkplain Transaction#commit() committed},
+     * which is the last step of a migration operation.
      *
      * <p>On a transaction commit, all changes are propagated to the actual entity passed to
      * {@link Migration#applyTo(TransactionalEntity, RecordBasedRepository)}, modifying it in-place.

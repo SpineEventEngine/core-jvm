@@ -156,7 +156,8 @@ public interface TypeMatcher extends Predicate<Class<?>> {
     }
 
     /**
-     * Tells whether the {@code type} is neither the same as nor a descendant of {@code expectedSuper}.
+     * Tells whether the {@code type} is neither the same as nor a descendant of
+     * {@code expectedSuper}.
      */
     static boolean differs(TypeToken<?> type, TypeToken<?> expectedSuper) {
         checkNotNull(type);

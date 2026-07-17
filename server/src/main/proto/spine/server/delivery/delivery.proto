@@ -46,6 +46,7 @@ import "spine/server/catchup/catch_up.proto";
 //
 // A value type used across the application. To be potentially used in JavaScript, Go, C++ and
 // other client and server environments that are split into shards.
+//
 message ShardIndex {
 
     // The zero-based index of the shard.

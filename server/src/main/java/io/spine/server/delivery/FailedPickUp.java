@@ -37,8 +37,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * An abstract base for shard pick-up-related failures.
  *
- * <p>Although not marked {@code Internal} explicitly, this type <em>is</em> internal to the framework
- * in terms of extensibility. End-users should not extend it directly.
+ * <p>Although not marked {@code Internal} explicitly, this type <em>is</em> internal to the
+ * framework in terms of extensibility. End-users should not extend it directly.
  * Its descendants are provided by the framework itself, and represent different
  * pick-up failure scenarios that may happen in {@code Delivery} at run-time.
  *

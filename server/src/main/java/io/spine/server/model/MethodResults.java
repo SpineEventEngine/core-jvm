@@ -62,8 +62,9 @@ final class MethodResults {
      * Collects command or event classes declared in the return type of the handler method.
      *
      * <p>If the method returns a parameterized type like {@link Iterable}, the produced messages
-     * are gathered from its generic arguments. Generic arguments are traversed recursively, enabling
-     * correct parsing of return types like {@code Pair<ProjectCreated, Optional<ProjectStarted>>}.
+     * are gathered from its generic arguments. Generic arguments are traversed recursively,
+     * enabling correct parsing of return types like
+     * {@code Pair<ProjectCreated, Optional<ProjectStarted>>}.
      *
      * <p>Too broad types are ignored, so methods returning something like
      * {@code Optional<Message>} are deemed producing no types.

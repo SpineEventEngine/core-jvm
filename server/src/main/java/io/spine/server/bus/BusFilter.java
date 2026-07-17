@@ -58,8 +58,8 @@ public interface BusFilter<E extends MessageEnvelope<?, ?, ?>> extends Closeable
      *     <li>accept the message (by returning {@code Optional.empty()});
      *     <li>reject the message with an {@link io.spine.base.Error Error} status, for example, if
      *         it fails to pass the validation;
-     *     <li>reject the message with an {@code OK} status. For example, a scheduled command may not
-     *         pass a filter;
+     *     <li>reject the message with an {@code OK} status. For example, a scheduled command
+     *         may not pass a filter;
      *     <li>reject the message with a business rejection. For example, a command can be rejected
      *         if the user who made the request does not have enough permissions in the system.
      *         Such rejection is only applicable to commands.

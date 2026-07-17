@@ -121,8 +121,8 @@
  * classes.
  *
  * <p>We believe that a list of alternatives longer than five is hard to understand.
- * If you face such a need, consider splitting the incoming message into two or more independent ones
- * so that their outcome is more obvious.
+ * If you face such a need, consider splitting the incoming message into two or more
+ * independent ones so that their outcome is more obvious.
  *
  * <h3>Using Tuples with Alternatives</h3>
  *

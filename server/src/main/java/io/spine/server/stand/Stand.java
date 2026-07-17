@@ -422,8 +422,8 @@ public class Stand implements Closeable {
          * {@linkplain io.spine.server.BoundedContextBuilder BoundedContextBuilder} and is not
          * supposed to be {@linkplain #setMultitenant(boolean) set directly}.
          *
-         * <p>If set directly, the value would be matched to the multi-tenancy flag of the aggregating
-         * {@code BoundedContext}.
+         * <p>If set directly, the value would be matched to the multi-tenancy flag of the
+         * aggregating {@code BoundedContext}.
          */
         private @Nullable Boolean multitenant;
 

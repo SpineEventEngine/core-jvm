@@ -29,7 +29,8 @@ package io.spine.server.delivery;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Represents a scenario when the shard could not be picked because of some {@code RuntimeException}.
+ * Represents a scenario when the shard could not be picked because of some
+ * {@code RuntimeException}.
  */
 public final class RuntimeFailure extends FailedPickUp {
 

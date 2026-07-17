@@ -177,7 +177,7 @@ public abstract class ProcessManager<I,
      * @throws IllegalStateException
      *         if the method is called from outside an event/rejection reactor or a command assignee
      * @apiNote Marked {@link VisibleForTesting} to allow package-local use of this method in tests.
-     *         It does not affect the visibility for inheritors that stays {@code protected}
+     *         It does not affect the visibility for inheritors that stay {@code protected}
      *         {@linkplain io.spine.server.entity.TransactionalEntity#builder() as originally
      *         defined in parents}.
      *         See <a href="https://youtrack.jetbrains.com/issue/IDEA-204081">IDEA issue</a>

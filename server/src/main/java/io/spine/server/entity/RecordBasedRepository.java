@@ -358,7 +358,8 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
      * <p>A number of elements to retrieve can be limited to a certain number. The order of
      * the resulting entities is specified by the {@link OrderBy}.
      *
-     * <p>The field mask is applied according to <a href="https://goo.gl/tW5wIU">FieldMask specs</a>.
+     * <p>The field mask is applied according to
+     * <a href="https://goo.gl/tW5wIU">FieldMask specs</a>.
      *
      * <p>The field paths in the entity column field filters are specified
      * to contain a single path member - the name of the entity column.

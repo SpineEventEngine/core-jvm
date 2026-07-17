@@ -429,8 +429,8 @@ public abstract class ProjectionRepository<I,
      *         the event to dispatch
      * @param restrictToIds
      *         optional set of the target identifiers to which the dispatching must be restricted;
-     *         if {@code null}, no restrictions are applied and the event should be dispatched as per
-     *         the routing schema
+     *         if {@code null}, no restrictions are applied and the event should be dispatched
+     *         as per the routing schema
      * @return the set of the entity identifiers, which actually received the dispatched event
      * @see CatchUpEndpoint
      */

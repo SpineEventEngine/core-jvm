@@ -348,9 +348,9 @@ public final class CatchUpProcess<I>
      * <ol>
      *      <li>The reading timestamp of the process is set to the one specified in the request.
      *      However, people are used to saying "I want to catch-up since 1 PM" meaning "counting
-     *      the events that happened at 1 PM sharp". Therefore, the process always subtracts a single
-     *      nanosecond from the specified catch-up start time and then treats this interval as
-     *      exclusive.
+     *      the events that happened at 1 PM sharp". Therefore, the process always subtracts
+     *      a single nanosecond from the specified catch-up start time and then treats this
+     *      interval as exclusive.
      *
      *      <li>A {@link CatchUpStarted} event is dispatched directly to the inboxes of the
      *      catching-up targets based on the original catch-up request.

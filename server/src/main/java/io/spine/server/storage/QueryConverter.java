@@ -76,7 +76,8 @@ public final class QueryConverter {
      *         the original response format to convert
      * @param spec
      *         the specification of the columns stored for the particular record type
-     * @return a new record query with the same semantics as the original filters and response format
+     * @return a new record query with the same semantics as the original filters and response
+     *         format
      */
     public static <I, R extends Message> RecordQuery<I, R>
     convert(TargetFilters filters, ResponseFormat format, RecordSpec<I, R> spec) {

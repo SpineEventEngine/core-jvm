@@ -33,8 +33,8 @@ import io.spine.type.TypeName;
 import static java.lang.String.format;
 
 /**
- * An exception thrown when trying to subscribe to updates of state of an entity, which is not visible
- * for subscription.
+ * An exception thrown when trying to subscribe to updates of state of an entity, which is not
+ * visible for subscription.
  */
 public final class InsufficientVisibilityError extends ModelError {
 

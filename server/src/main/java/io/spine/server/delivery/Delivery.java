@@ -161,8 +161,8 @@ import static java.util.Collections.synchronizedList;
  * to the {@link Conveyor} responsible for tracking the status of each message.
  * The conveyor is run through the pipeline of stations, each modifying the state of the messages.
  * At the end of the pipeline, the changes made to the messages are committed to the underlying
- * {@code InboxStorage} in a bulk. Such an approach allows one to minimize the number of the requests
- * sent to the storage.
+ * {@code InboxStorage} in a bulk. Such an approach allows one to minimize the number of the
+ * requests sent to the storage.
  *
  * <p>As long as the new {@code DeliveryStage} is started, the new instance of the {@code Conveyor}
  * is created.
@@ -691,7 +691,8 @@ public final class Delivery implements WithLogging {
      * Registers the internal {@code Delivery} message dispatchers
      * in the given {@code BoundedContext}.
      *
-     * <p>The registration of the dispatchers allows one to handle the {@code Delivery}-specific events.
+     * <p>The registration of the dispatchers allows one to handle the {@code Delivery}-specific
+     * events.
      *
      * @param context
      *         Bounded Context in which the message dispatchers should be registered

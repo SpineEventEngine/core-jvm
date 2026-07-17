@@ -53,8 +53,8 @@ public abstract class VersionIncrement {
      * a sequence of events.
      *
      * <p>One example of such an entity is {@link io.spine.server.aggregate.Aggregate Aggregate}.
-     * As a sequence of events, an {@code Aggregate} has no versioning system of its own, thus inherits
-     * the versions of the {@linkplain io.spine.server.aggregate.Apply applied} events.
+     * As a sequence of events, an {@code Aggregate} has no versioning system of its own, thus
+     * inherits the versions of the {@linkplain io.spine.server.aggregate.Apply applied} events.
      * In other words, the current version of an {@code Aggregate} is the version of the last
      * applied event.
      */
