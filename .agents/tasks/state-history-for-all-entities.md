@@ -98,10 +98,35 @@ Not moving (stays in `AggregateRepository`, next session's scope):
 `eventHistoryDepth`, `IdempotencyGuard` wiring, the single-dispatch
 `doStore` journaling, the bulk-store override.
 
+## Prerequisite: `AbstractEntity` → Kotlin (decided 2026-07-17)
+
+The entity-side landing class converts to Kotlin **before** the move
+(owner, 2026-07-17): the codebase is heading to Kotlin anyway — take the
+step incrementally, instead of rewriting the moved Kotlin members back
+into Java. Precedent: `TransactionalEntity` (#1644) and `Transaction`
+(#1645) were converted as their own PRs right before PR-B2 needed them.
+Ship the conversion the same way — **its own PR, `java-to-kotlin` skill
+governs** — so the state-history diff stays a pure member move.
+
+Conversion facts (verified 2026-07-17):
+
+- `AbstractEntity.java` is 644 lines; its only direct subclass in `main`
+  is the already-Kotlin `TransactionalEntity.kt`, so the inheritance chain
+  becomes Kotlin-extends-Kotlin.
+- Package-private members (`updateState`, `updateVersion`,
+  `incrementVersion`, …) are called from same-package Java
+  (`DefaultConverter`, `StorageConverter`, `Migration`). Kotlin has no
+  package-private — these map per the team-memory recipe
+  (`java-to-kotlin-visibility-traps.md`: `internal` + `@JvmName` care for
+  Java callers; the `HasVersionColumn.getVersion()` clash; and the
+  `internal`+`@JvmName` inherited-member ICE, whose cure is `protected`
+  where it bites).
+
 ## What moves — entity side
 
-To `AbstractEntity.java` (written in Java; the Kotlin originals are removed
-from `TransactionalEntity.kt`):
+To `AbstractEntity.kt` (after the prerequisite conversion — the
+`TransactionalEntity.kt` members move Kotlin-to-Kotlin, near-verbatim;
+the `Aggregate.java` read API converts to Kotlin while moving):
 
 | Member                                                       | Today                              |
 |--------------------------------------------------------------|------------------------------------|
@@ -114,12 +139,13 @@ from `TransactionalEntity.kt`):
   binary break** for aggregate authors (a member moved to a superclass stays
   reachable). PMs, Projections, and plain `AbstractEntity` subclasses gain
   the same `protected final` API with no per-class code.
-- **Visibility win:** `setStateHistoryLoader` is `public @Internal` today
-  only because Kotlin lacks package-private and the caller
-  (`AggregateRepository`) sits in another package. After the move both the
-  seam (`AbstractEntity`) and its only caller (`AbstractEntityRepository`)
-  live in `io.spine.server.entity` — narrow it to package-private. The event
-  twin `setEventHistoryLoader` stays as-is (next session).
+- **Visibility:** `setStateHistoryLoader` keeps its `public @Internal`
+  shape, matching the event twin `setEventHistoryLoader`. *(The Java-plan
+  idea of narrowing it to package-private is void with the Kotlin
+  conversion; Kotlin `internal` was considered and rejected — its caller
+  `AbstractEntityRepository.java` would need the mangled name or
+  `@JvmName`, and the `internal`+`@JvmName` combination has the documented
+  inherited-member ICE. `@Internal` already marks it non-API.)*
 - The event half (`recentEventHistory`, `EventHistoryLoader`,
   `setEventHistoryLoader`) does **not** move.
 - `RecentStateHistory`, `StateHistoryLoader`, `RecentHistory`,
@@ -157,18 +183,29 @@ from `TransactionalEntity.kt`):
 
 ## Design points needing an explicit call (recommendations inline)
 
-1. **`afterStore` override discipline.** With
-   `AbstractEntityRepository.afterStore` carrying the recording logic, a
-   subclass override that forgets `super.afterStore(entity)` silently
-   disables recording. Recommendation: keep it `protected` non-final with an
-   `@implSpec` requiring the `super` call — the exact precedent set for
-   `doLoadOrCreate`/`doStore` during the store() unification. (Alternative —
-   `final` + a fresh empty hook — churns the just-published `Repository`
-   contract for a hazard no in-repo subclass exhibits.)
-2. **Version treatment.** The member moves are source- and binary-compatible;
-   the only breaking-flavored bit is the `@Internal` `setStateHistoryLoader`
-   narrowing. Recommendation: normal bump (the branch guard handles it);
-   round-up only if the owner counts the narrowing as breaking.
+1. **`afterStore` override discipline — DECIDED (owner, 2026-07-17):
+   the `AbstractEntityRepository.afterStore` override is `final`.**
+   With the recording logic inside it, a subclass override that forgot
+   `super.afterStore(entity)` would silently disable recording — the
+   worst failure mode (enabled flag, passing fail-fast reads, nothing
+   written). Sealing the override makes the compiler enforce what a
+   Javadoc `@implSpec` could only request, and matches the inbox/cache
+   pull-up precedent ("all six subclass overrides are `final`" — same
+   hazard, same cure). No replacement user hook is added: nothing in-repo
+   or downstream overrides `afterStore` today (it is two days old,
+   pre-GA); a deliberate `onStored`-style callback can be introduced
+   later if a real need appears. `Repository.afterStore` itself stays the
+   no-op default for the (empty) set of non-record-based repositories;
+   its Javadoc is rewritten from "a callback you may override" to "the
+   per-store hook, implemented by `AbstractEntityRepository` to record
+   the state history". *(A package-private narrowing was considered and
+   rejected: a Java-only trick that becomes a trap when the class
+   converts to Kotlin — no package-private there.)*
+2. **Version treatment.** The member moves are source- and binary-compatible
+   for subclasses, and the visibility narrowing is off the table (see the
+   `setStateHistoryLoader` note above). Recommendation: normal bump per
+   branch — one for the conversion PR, one for the move PR (the
+   `version-bumped` guard handles both).
 
 ## Tests (Kotlin, JUnit 5 + Kotest, `Spec` suffix)
 
@@ -201,10 +238,13 @@ gate → I).
 
 ## Verification
 
-- `./gradlew build` (no proto changes expected → `build`, not `clean build`)
-  + `dokkaGenerate` (moved KDoc/Javadoc links).
-- Reviewers via `pre-pr`: `spine-code-review`, `kotlin-engineer` (the
-  `TransactionalEntity.kt` edits + new Kotlin tests), `review-docs`.
+- The prerequisite conversion PR verifies per the `java-to-kotlin` skill
+  (build, `dokkaGenerate`, reference updates, its own version bump).
+- The move PR: `./gradlew build` (no proto changes expected → `build`, not
+  `clean build`) + `dokkaGenerate` (moved KDoc/Javadoc links).
+- Reviewers via `pre-pr`: `spine-code-review`, `kotlin-engineer`
+  (`AbstractEntity.kt`, the `TransactionalEntity.kt` edits, new Kotlin
+  tests), `review-docs`.
 - Version gate (`version-bumped`).
 
 ## Out of scope
@@ -214,9 +254,11 @@ gate → I).
   `SignalDispatchingRepository` placement reasoning for the journal (see the
   archived unification task) remains the standing recommendation.
 - `IdempotencyGuard` for anything but aggregates (A5/D5 unchanged).
-- Kotlin conversion of the touched Java classes (`AbstractEntity`,
-  `AbstractEntityRepository`, `AggregateRepository`) — tracked in
-  [`de-event-sourcing-followups.md`](de-event-sourcing-followups.md) item 1.
+- Kotlin conversion of the touched *repository* classes
+  (`AbstractEntityRepository`, `AggregateRepository`) — tracked in
+  [`de-event-sourcing-followups.md`](de-event-sourcing-followups.md)
+  item 1. (`AbstractEntity` itself is no longer out of scope — its
+  conversion is the prerequisite PR above, decided 2026-07-17.)
 - Vendor-facing storage changes: none — the
   `createEntityStateHistoryStorage`/`createHistoryStorage` seams already
   take the entity class and are unaffected by who calls them; the vendor
