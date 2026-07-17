@@ -195,8 +195,9 @@ final class BlackBoxSetup {
      *         the factory to produce commands with
      * @return a {@code Command}
      */
-    private static Command command(Message commandOrMessage,
-                                   TestActorRequestFactory requestFactory) {
+    @VisibleForTesting
+    static Command command(Message commandOrMessage,
+                           TestActorRequestFactory requestFactory) {
         if (commandOrMessage instanceof Command command) {
             return command;
         }
