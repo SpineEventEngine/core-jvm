@@ -106,7 +106,7 @@ public final class FailedHandlerGuard
     /**
      * {@inheritDoc}
      *
-     * <p>The {@code BlackBoxBoundedContext} only consumes domestic events.
+     * <p>The {@code BlackBox} bounded context only consumes domestic events.
      */
     @Override
     public ImmutableSet<EventClass> domesticEventClasses() {
@@ -116,7 +116,7 @@ public final class FailedHandlerGuard
     /**
      * {@inheritDoc}
      *
-     * <p>The {@code BlackBoxBoundedContext} does not consume external events.
+     * <p>The {@code BlackBox} bounded context does not consume external events.
      */
     @Override
     public ImmutableSet<EventClass> externalEventClasses() {
