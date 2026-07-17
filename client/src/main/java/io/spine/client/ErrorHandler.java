@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ public interface ErrorHandler extends Consumer<Throwable> {
      *         the instance of the logger to use for reporting the error
      * @param messageFormat
      *         the formatting message where the sole parameter is the type of
-     *         the message which caused the error
+     *         the message that caused the error
      * @param type
      *         the type of messages delivered to the consumers
      * @return the logging error handler

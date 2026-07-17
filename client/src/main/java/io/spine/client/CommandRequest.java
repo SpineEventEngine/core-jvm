@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -46,7 +46,7 @@ import static io.spine.type.ProtoTexts.shortDebugString;
 import static io.spine.util.Exceptions.newIllegalStateException;
 
 /**
- * Allows to post a command optionally subscribing to events that are immediate results
+ * Allows posting a command optionally subscribing to events that are immediate results
  * of handling this command.
  *
  * <p>Usage example:
@@ -130,7 +130,7 @@ public final class CommandRequest extends ClientRequestBase implements WithLoggi
      * Assigns a handler for errors occurred in consumers of events.
      *
      * <p>After the passed handler is called, remaining event consumers will get the messages
-     * as usually. If not specified, the default implementation simply logs the error.
+     * as usual. If not specified, the default implementation simply logs the error.
      */
     @CanIgnoreReturnValue
     public CommandRequest onConsumingError(ConsumerErrorHandler<EventMessage> handler) {
@@ -172,7 +172,7 @@ public final class CommandRequest extends ClientRequestBase implements WithLoggi
      *         required for their maintenance. It is not possible to cancel the returned
      *         subscription in an automatic way because of the following.
      *         Subscriptions by nature are asynchronous and infinite requests.
-     *         Even that we know expected types of the events produced by the command, only the
+     *         Even though we know expected types of the events produced by the command, only the
      *         client code "knows" how many of them it expects. Also, some events may not arrive
      *         because of communication or business logic reasons. That's why the returned
      *         subscriptions should be cancelled by the client code when it no longer needs it.

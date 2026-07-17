@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -58,7 +58,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  * {@code QueryService}, or {@code SubscriptionService}.
  *
  * <p>A connection can be established via {@linkplain #connectTo(String, int) host/port}
- * combination, or via already available {@link #usingChannel(ManagedChannel) ManagedChannel}.
+ * combination, or via an already available {@link #usingChannel(ManagedChannel) ManagedChannel}.
  *
  * <p>Multitenant applications need to specify {@link Builder#forTenant(TenantId) TenantId}
  * for a new client connection. Single-tenant applications do nothing about it.
@@ -67,12 +67,12 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  * if the user is not yet authenticated, and on behalf of the
  * {@linkplain #onBehalfOf(UserId) current user} after the user is authenticated.
  *
- * <p>Please note that Spine client-side library does not define the authentication process.
- * The {@code Client} class simply relies on the fact that {@link UserId} passed to the method
+ * <p>Please note that the Spine client-side library does not define the authentication process.
+ * The {@code Client} class simply relies on the fact that the {@link UserId} passed to the method
  * {@link #onBehalfOf(UserId)} represents a valid logged-in user, ID of whom the client application
- * got (presumably as field of a {@code UserLoggedIn} event) following due authentication process.
+ * got (presumably as a field of a {@code UserLoggedIn} event) following due authentication process.
  * The server-side code also needs to make sure that the {@link UserId} matches security
- * constraints of the backend services. Security arrangements is not a part of the Spine client-side
+ * constraints of the backend services. Security arrangements are not a part of the Spine client-side
  * library either.
  *
  * <p>Subscriptions to {@linkplain SubscriptionRequest entity states} or
@@ -83,7 +83,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public final class Client implements AutoCloseable {
 
-    /** The default port number for a gRCP connection. */
+    /** The default port number for a gRPC connection. */
     public static final int DEFAULT_CLIENT_SERVICE_PORT = 50051;
 
     /** The default amount of time to wait when {@linkplain #close() closing} the client. */
@@ -122,8 +122,8 @@ public final class Client implements AutoCloseable {
     /**
      * Creates a builder for a client connected to the specified address.
      *
-     * <p>The returned builder will create {@code ManagedChannel} with the default configuration.
-     * For a channel with custom configuration please use {@link #usingChannel(ManagedChannel)}.
+     * <p>The returned builder will create a {@code ManagedChannel} with the default configuration.
+     * For a channel with custom configuration, please use {@link #usingChannel(ManagedChannel)}.
      *
      * @see #usingChannel(ManagedChannel)
      * @see #inProcess(String)
@@ -153,7 +153,7 @@ public final class Client implements AutoCloseable {
      * Creates a builder for the client that will be connected to the in-process
      * server with the given name.
      *
-     * <p>The client is fully-featured, high performance, and is useful in testing.
+     * <p>The client is fully-featured, high performance, and useful in testing.
      *
      * @see #connectTo(String, int)
      * @see #usingChannel(ManagedChannel)
@@ -332,7 +332,7 @@ public final class Client implements AutoCloseable {
          * The address of the host that will be used for creating an instance
          * of {@code ManagedChannel}.
          *
-         * <p>This field is {@code null} if the builder is created using already made
+         * <p>This field is {@code null} if the builder is created using an already made
          * {@code ManagedChannel}.
          */
         private @MonotonicNonNull String host;
@@ -342,7 +342,7 @@ public final class Client implements AutoCloseable {
         /**
          * The ID of the tenant in a multi-tenant application.
          *
-         * <p>Is {@code null} in single-tenant applications.
+         * <p>It is {@code null} in single-tenant applications.
          */
         private @Nullable TenantId tenant;
 
@@ -392,9 +392,9 @@ public final class Client implements AutoCloseable {
         }
 
         /**
-         * Assigns the ID of the user for performing requests on behalf of non-logged in user.
+         * Assigns the ID of the user for performing requests on behalf of a non-logged in user.
          *
-         * <p>If is not set directly, the value {@code "guest"} will be used.
+         * <p>If not set directly, the value {@code "guest"} will be used.
          *
          * @param guestUser
          *         non-null and non-default value
@@ -408,12 +408,12 @@ public final class Client implements AutoCloseable {
         }
 
         /**
-         * Assigns the ID of the user for performing requests on behalf of non-logged in user.
+         * Assigns the ID of the user for performing requests on behalf of a non-logged in user.
          *
-         * <p>If the not set directly, the value {@code "guest"} will be used.
+         * <p>If not set directly, the value {@code "guest"} will be used.
          *
          * @param guestUser
-         *         non-null and not empty or a blank value
+         *         non-null and not an empty or a blank value
          */
         @CanIgnoreReturnValue
         public Builder withGuestId(String guestUser) {

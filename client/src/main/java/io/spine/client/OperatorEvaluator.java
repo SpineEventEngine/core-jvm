@@ -137,7 +137,7 @@ public enum OperatorEvaluator {
     /**
      * Evaluates the given expression.
      *
-     * <p>For example, if operands where {@code 42} and {@code 9} (exactly in that order) and
+     * <p>For example, if operands were {@code 42} and {@code 9} (exactly in that order) and
      * the operator was {@link Operator#GREATER_THAN GREATER_THAN}, then this function could be
      * expressed as {@code 42 > 9}. The function returns the {@code boolean} result of
      * the evaluation.
@@ -167,9 +167,9 @@ public enum OperatorEvaluator {
     /**
      * Evaluates the expression of joining the given operands with a certain operator.
      *
-     * @see OperatorEvaluator#eval for the detailed behaiour
+     * @see OperatorEvaluator#eval for the detailed behavior
      * description
-     * @return {@code true} if the expression evaluates into {@code true}, {@code false} otherwise
+     * @return {@code true} if the expression evaluates to {@code true}, {@code false} otherwise
      */
     abstract boolean eval(@Nullable Object left, @Nullable Object right);
 }

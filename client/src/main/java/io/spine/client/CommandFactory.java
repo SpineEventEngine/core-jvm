@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -106,7 +106,7 @@ public final class CommandFactory {
     }
 
     /**
-     * Creates new {@code Command} with the passed message using the existing context.
+     * Creates a new {@code Command} with the passed message using the existing context.
      *
      * <p>The produced command is created with a {@code CommandContext} instance, copied from
      * the given one, but with the current time set as a context timestamp.
@@ -157,7 +157,7 @@ public final class CommandFactory {
     }
 
     /**
-     * Creates command context for a new command.
+     * Creates a command context for a new command.
      */
     @VisibleForTesting
     CommandContext createContext() {
@@ -168,7 +168,7 @@ public final class CommandFactory {
     }
 
     /**
-     * Creates command context for a new command with entity ID.
+     * Creates a command context for a new command with entity ID.
      */
     private CommandContext createContext(int targetVersion) {
         var actorContext = actorRequestFactory.newActorContext();

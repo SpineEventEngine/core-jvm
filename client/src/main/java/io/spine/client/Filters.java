@@ -67,7 +67,7 @@ import static java.util.Arrays.stream;
  * <a name="types"></a>
  * <h3>Supported Types</h3>
  *
- * <p>The filters allow to put criteria on fields with comparison operations. The criteria either
+ * <p>The filters allow putting criteria on fields with comparison operations. The criteria either
  * define the particular values for the fields or specify some ordering.
  *
  * <p>The {@linkplain #eq equality comparison} supports any data type for the compared objects.
@@ -454,7 +454,7 @@ public final class Filters {
      *         the field path or the entity column name for entity filters
      * @param value
      *         the requested value
-     * @return new instance of {@code Filter}
+     * @return a new instance of {@code Filter}
      */
     public static Filter le(String fieldPath, Object value) {
         checkNotNull(fieldPath);
@@ -546,7 +546,7 @@ public final class Filters {
      *         the first {@link Filter}
      * @param rest
      *         the array of additional {@linkplain Filter filters}, possibly empty
-     * @return new instance of {@link CompositeFilter}
+     * @return a new instance of {@link CompositeFilter}
      */
     public static CompositeFilter all(Filter first, Filter... rest) {
         checkNotNull(first);
@@ -564,7 +564,7 @@ public final class Filters {
      *         the first {@link Filter}
      * @param rest
      *         the array of additional {@linkplain Filter filters}, possibly empty
-     * @return new instance of {@link CompositeFilter}
+     * @return a new instance of {@link CompositeFilter}
      */
     public static CompositeFilter either(Filter first, Filter... rest) {
         checkNotNull(first);
@@ -583,7 +583,7 @@ public final class Filters {
      *
      * @param filters
      *         the aggregated filters, must contain at least one filter
-     * @return new instance of {@link CompositeFilter}
+     * @return a new instance of {@link CompositeFilter}
      * @see #either(Filter, Filter...) for the public API equivalent
      * @throws IllegalArgumentException if the given filters are empty
      */
@@ -604,7 +604,7 @@ public final class Filters {
      *
      * @param filters
      *         the aggregated filters, must contain at least one filter
-     * @return new instance of {@code CompositeFilter}
+     * @return a new instance of {@code CompositeFilter}
      * @see #all(Filter, Filter...) for the public API equivalent
      * @throws IllegalArgumentException if the given filters are empty
      */
@@ -700,7 +700,7 @@ public final class Filters {
 
     /**
      * Obtains the {@link Filter}s from the passed array of {@code Filter} wrappers and returns
-     * them as new array.
+     * them as a new array.
      *
      * @param filters
      *         the filter wrappers
@@ -733,7 +733,7 @@ public final class Filters {
 
     /**
      * Obtains the {@link CompositeFilter}s from the passed array of {@code CompositeFilter}
-     * wrappers and returns them as new array.
+     * wrappers and returns them as a new array.
      *
      * @param filters
      *         the composite filter wrappers
@@ -774,7 +774,7 @@ public final class Filters {
 
     /**
      * Creates a filter of events that can apply conditions from the passed
-     * {@code CompositeFilter} to both event message and its context.
+     * {@code CompositeFilter} to both the event message and its context.
      *
      * <p>The filter is deemed addressing the {@linkplain io.spine.core.EventContext event context}
      * if the field path specified in it starts with the {@code "context."} prefix.

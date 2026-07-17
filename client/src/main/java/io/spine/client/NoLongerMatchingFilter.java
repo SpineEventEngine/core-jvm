@@ -1,11 +1,11 @@
 /*
- * Copyright 2023, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -35,7 +35,7 @@ import static io.spine.client.EntityStateUpdate.KindCase.NO_LONGER_MATCHING;
  * {@code NoLongerMatchingConsumer} in case the {@code SubscriptionUpdate} tells
  * that some entity stopped matching the subscription criteria.
  *
- * <p>If {@code SubscriptionUpdate} does not correspond to "no longer matching" scenario,
+ * <p>If {@code SubscriptionUpdate} does not correspond to a "no longer matching" scenario,
  * does nothing.
  */
 final class NoLongerMatchingFilter implements StreamObserver<SubscriptionUpdate> {

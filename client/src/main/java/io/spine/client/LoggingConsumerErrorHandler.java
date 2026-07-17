@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,15 +43,15 @@ final class LoggingConsumerErrorHandler<M extends Message>
         implements ConsumerErrorHandler<M> {
 
     /**
-     * Creates new instance of the logging handler.
+     * Creates a new instance of the logging handler.
      *
      * @param logger
      *         the instance of the logger to use for reporting the error
      * @param messageFormat
-     *         the formatting message where the first parameter is the consumer which caused
-     *         the error, and the second parameter is the type of the message which caused the error
+     *         the formatting message where the first parameter is the consumer that caused
+     *         the error, and the second parameter is the type of the message that caused the error
      * @param type
-     *         the type of the message which caused the error
+     *         the type of the message that caused the error
      */
     LoggingConsumerErrorHandler(Logger logger,
                                 String messageFormat,

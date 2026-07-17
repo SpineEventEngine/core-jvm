@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -41,15 +41,15 @@
  *
  *   <dt><strong>Low-level {@link io.spine.client.ActorRequestFactory} API</strong></dt>
  *   <dd>is meant for server-side code that needs to speak to backend services without involving
- *   gRPC. This API is also by the High-level API implementation.</dd>
+ *   gRPC. This API is also used by the High-level API implementation.</dd>
  * </dl>
  *
  * <p>The {@link io.spine.client.Filters} utility class provides methods for composing filtering
  * conditions for both levels of the API.
  *
- * <p>When subscribing the Client API accepts an implementation of a functional interface
+ * <p>When subscribing, the Client API accepts an implementation of a functional interface
  * (see {@link io.spine.client.StateConsumer} and {@link io.spine.client.EventConsumer}).
- * Errors occurred when streaming or consuming messages are handled via
+ * Errors occurring when streaming or consuming messages are handled via
  * {@link io.spine.client.ErrorHandler} and {@link io.spine.client.ConsumerErrorHandler}
  * correspondingly.
  */
