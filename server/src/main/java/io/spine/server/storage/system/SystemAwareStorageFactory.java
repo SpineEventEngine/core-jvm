@@ -65,8 +65,9 @@ public final class SystemAwareStorageFactory implements StorageFactory {
      *
      * @param factory
      *         the {@link StorageFactory} to use as the delegate for storage construction
-     * @return a new {@code SystemAwareStorageFactory} of the given {@code factory} if it is
-     *         an instance of {@code SystemAwareStorageFactory}
+     * @return the given {@code factory} itself if it is already an instance of
+     *         {@code SystemAwareStorageFactory}, or a new {@code SystemAwareStorageFactory}
+     *         wrapping it otherwise
      */
     public static SystemAwareStorageFactory wrap(StorageFactory factory) {
         checkNotNull(factory);
