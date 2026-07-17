@@ -191,7 +191,7 @@ the hierarchy change (A).
 ## Out of scope
 
 - The Phase F feature work itself (PM journal, PM/Projection state history) —
-  tracked in [the plan](de-event-sourcing-plan.md), Phase F items 1–7.
+  tracked in [the plan](../de-event-sourcing-plan.md), Phase F items 1–7.
 - Kotlin conversion of the repository hierarchy (dedicated `java-to-kotlin`
   task).
 - Renaming `findOrCreate`/`loadOrCreate` to one name beyond what item A7

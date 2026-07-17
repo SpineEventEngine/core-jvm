@@ -443,7 +443,7 @@ Naming locked 2026-07-08 (product owner): the journal types move to the
   new reads (see the data caveat in the detailed task).
 
 Detailed task:
-[`introduce-event-history-type.md`](introduce-event-history-type.md).
+[`introduce-event-history-type.md`](archive/introduce-event-history-type.md).
 The count/date journal trimming (Phase E item 3) shipped together with this
 opener in PR #1649, built against `EntityEventStorage`; the snapshot-index
 truncation and the legacy `AggregateEventStorage` were removed outright
@@ -454,7 +454,7 @@ truncation and the legacy `AggregateEventStorage` were removed outright
 > **Implemented on `entity-state-history` (2026-07-10)** — items 1, 2, and 5,
 > honoring the item 4 constraint (nothing aggregate-specific in the new
 > types); item 3 had shipped earlier with PR #1649. Detailed task:
-> [`entity-state-history.md`](entity-state-history.md). Settled while
+> [`entity-state-history.md`](archive/entity-state-history.md). Settled while
 > implementing: records are keyed by the new `EntityStateKey`
 > (entity + version), so a same-version re-write is an idempotent overwrite;
 > recording is opt-in via `AggregateRepository.recordStateHistory()`,
@@ -650,7 +650,7 @@ land while Phase E is still in flight; (b) state history (items 3, 4, and
 Phase E merges. New tests in Kotlin per the per-phase rules; journal tests
 must emit events via a producer-bound `TestEventFactory` — the storage
 revalidates events on `clearEnrichments()` (see the implementation notes in
-[`introduce-event-history-type.md`](introduce-event-history-type.md)).
+[`introduce-event-history-type.md`](archive/introduce-event-history-type.md)).
 
 ## Phase G — Downstream rollout (dependency order)
 
@@ -670,7 +670,7 @@ state now arrives via `createEntityRecordStorage`/`createRecordStorage` with
 that extended `AggregateStorageTest` at the published `AbstractStorageTest`/
 `DelegatingRecordStorageTest` bases (core-jvm's own `EntityRecordStorageTest`
 is unpublished `src/test`). See
-[`aggregate-repository-unification.md`](aggregate-repository-unification.md).
+[`aggregate-repository-unification.md`](archive/aggregate-repository-unification.md).
 
 **Reality check (verified 2026-07-03):** most listed repos have **no
 production aggregate migration** — their `@Apply` is confined to test

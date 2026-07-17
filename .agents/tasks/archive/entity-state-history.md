@@ -1,7 +1,7 @@
 # Entity state history for Aggregates (`EntityStateHistoryStorage`)
 
 **Status:** in progress on `entity-state-history` (2026-07-10) — implements
-Phase E of [`de-event-sourcing-plan.md`](de-event-sourcing-plan.md)
+Phase E of [`de-event-sourcing-plan.md`](../de-event-sourcing-plan.md)
 (items 1, 2, 5; item 3 shipped with PR #1649; item 4 is a design constraint
 honored throughout).
 **Effort:** part of the "migrate Aggregates off event sourcing" line of work.
