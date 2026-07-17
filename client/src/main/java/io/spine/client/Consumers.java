@@ -67,7 +67,7 @@ import static com.google.common.base.Preconditions.checkState;
  *         the type of context of consumed messages, or {@link io.spine.core.EmptyContext}
  *         if messages do not have a context
  * @param <W>
- *         the type of message that wraps the consumed message and its context,
+ *         the type of the message that wraps the consumed message and its context,
  *         or the same type as {@code <M>} if the messages do not have a context
  */
 abstract class Consumers<M extends Message, C extends MessageContext, W extends Message>
