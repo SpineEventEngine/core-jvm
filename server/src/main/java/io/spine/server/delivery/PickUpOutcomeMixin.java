@@ -1,11 +1,11 @@
 /*
- * Copyright 2023, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -69,8 +69,8 @@ public interface PickUpOutcomeMixin extends PickUpOutcomeOrBuilder {
     }
 
     /**
-     * Returns {@code ShardProcessingSession} if this outcome indicates that shard is successfully
-     * picked up, or empty {@code Optional} otherwise.
+     * Returns {@code ShardProcessingSession} if this outcome indicates that the shard is
+     * successfully picked up, or empty {@code Optional} otherwise.
      */
     default Optional<ShardSessionRecord> session() {
         var session = getSession();
@@ -81,7 +81,7 @@ public interface PickUpOutcomeMixin extends PickUpOutcomeOrBuilder {
     }
 
     /**
-     * Returns {@code ShardAlreadyPickedUp} if this outcome indicates that shard could not be
+     * Returns {@code ShardAlreadyPickedUp} if this outcome indicates that the shard could not be
      * picked up as it's already picked up by another worker, or empty {@code Optional} otherwise.
      */
     default Optional<ShardAlreadyPickedUp> alreadyPicked() {

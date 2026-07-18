@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -55,8 +55,8 @@ final class FilteringField {
      * <p>If the passed target represents an entity state, the field must be a reference to
      * a column (and annotated as such).
      *
-     * <p>If the passed target is an event message, the field must be present in the event message.
-     * or, the field must reference a field of {@code EventContext}.
+     * <p>If the passed target is an event message, the field must be present in the event message,
+     * or the field must reference a field of {@code EventContext}.
      *
      * @throws IllegalStateException
      *         if the field does not apply to the passed target

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -142,7 +142,7 @@ public abstract class Bus<T extends Signal<?, ?, ?>,
      *
      * @param message  the message to post
      * @param observer the observer to receive an outcome of the operation
-     * @see #post(Iterable, StreamObserver) for posing multiple messages at once
+     * @see #post(Iterable, StreamObserver) for posting multiple messages at once
      */
     public final void post(T message, StreamObserver<Ack> observer) {
         checkNotDefaultArg(message);
@@ -164,15 +164,15 @@ public abstract class Bus<T extends Signal<?, ?, ?>,
      * {@link io.spine.base.Error Error} status is passed in {@code Ack} instance.
      *
      * <p>Depending on the underlying {@link MessageDispatcher}, a message that causes a business
-     * {@linkplain io.spine.base.RejectionThrowable rejection} may result either a rejection
+     * {@linkplain io.spine.base.RejectionThrowable rejection} may result in either a rejection
      * status or an {@link io.spine.core.Status.StatusCase#OK OK} status {@link Ack} instance.
      * The rejection status may only pop up if the {@link MessageDispatcher} processes the message
-     * sequentially and throws the rejection (wrapped in a
+     * sequentially and throws the rejection (wrapped in
      * the {@linkplain io.spine.base.RejectionThrowable RejectionThrowables}) instead of
      * handling them. Otherwise, the {@code OK} status should be expected.
      *
      * <p>Note that {@linkplain StreamObserver#onError StreamObserver.onError()} is never called
-     * for the passed observer, since errors are propagated as statuses of {@code Ack} response.
+     * for the passed observer, since errors are propagated as statuses of {@code Ack} responses.
      *
      * @param messages the messages to post
      * @param observer the observer to receive the outcome of the operation
@@ -227,7 +227,7 @@ public abstract class Bus<T extends Signal<?, ?, ?>,
     /**
      * Tells if this bus can accept messages for posting.
      *
-     * <p>If the bus is closed posting to it is going to cause {@code IllegalStateException}.
+     * <p>If the bus is closed, posting to it is going to cause an {@code IllegalStateException}.
      */
     @Override
     public final boolean isOpen() {
@@ -290,7 +290,7 @@ public abstract class Bus<T extends Signal<?, ?, ?>,
      * is notified by the filter directly.
      *
      * @param messages
-     *         the message to filter
+     *         the messages to filter
      * @param observer
      *         the observer to receive the negative outcome of the operation
      * @return a map of filtered messages where keys are messages, and values are envelopes with
@@ -337,7 +337,7 @@ public abstract class Bus<T extends Signal<?, ?, ?>,
      * Packs the given message of type {@code T} into an envelope of type {@code E}.
      *
      * @param message the message to pack
-     * @return new envelope with the given message inside
+     * @return a new envelope with the given message inside
      */
     protected abstract E toEnvelope(T message);
 
@@ -359,7 +359,7 @@ public abstract class Bus<T extends Signal<?, ?, ?>,
      * <p>If {@link #dispatch(SignalEnvelope) dispatching} throws a {@link Mistake} it is rethrown.
      * Other types of exceptions are logged and then rethrown.
      *
-     * <p>We treat {@link Mistake}s differently and want to void much of console output
+     * <p>We treat {@link Mistake}s differently and want to avoid much of console output
      * for this special case of exceptions.
      * Please see {@link io.spine.server.model.AbstractReceptor#invoke(Object, MessageEnvelope)}
      * for more details on special treatment of {@link Mistake} during dispatching.

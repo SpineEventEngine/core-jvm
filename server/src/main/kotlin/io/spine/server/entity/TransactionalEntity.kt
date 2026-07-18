@@ -467,7 +467,7 @@ public abstract class TransactionalEntity<I : Any, S : EntityState<I>, B : Valid
         }
 
     /**
-     * Sets `archived` status flag to the passed value.
+     * Sets the `archived` status flag to the passed value.
      *
      * The execution of this method requires an [active transaction][isTransactionInProgress].
      */
@@ -476,7 +476,7 @@ public abstract class TransactionalEntity<I : Any, S : EntityState<I>, B : Valid
     }
 
     /**
-     * Sets `deleted` status flag to the passed value.
+     * Sets the `deleted` status flag to the passed value.
      *
      * The execution of this method requires an [active transaction][isTransactionInProgress].
      */

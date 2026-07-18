@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -94,7 +94,7 @@ import static io.spine.server.entity.EventFilter.allowAll;
  * <p>On each call, posts from zero to several system commands. See the individual method
  * descriptions for more info about the posted commands.
  *
- * <p>An instance of {@code EntityLifecycle} is associated with a single instance of entity.
+ * <p>An instance of {@code EntityLifecycle} is associated with a single instance of an entity.
  *
  * @see Repository#lifecycleOf(Object) Repository.lifecycleOf(I)
  */

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,7 +93,7 @@ public final class CommandBus
      *
      * <p>The value is effectively final, though should be initialized lazily.
      *
-     * @see #validator() to getreive the non-null value of the validator
+     * @see #validator() to retrieve the non-null value of the validator
      */
     @LazyInit
     private @MonotonicNonNull CommandValidator commandValidator;

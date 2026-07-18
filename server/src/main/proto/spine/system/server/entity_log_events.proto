@@ -238,10 +238,10 @@ message EntityUnarchived {
     // The IDs of the signals that caused the mutation.
     repeated core.MessageId signal_id = 2 [(required) = true, (validate) = true];
 
-    // The instant when the entity was extracted.
+    // The instant when the entity was unarchived.
     google.protobuf.Timestamp when = 3;
 
-    // The version received by the entity upon extraction.
+    // The version received by the entity upon unarchiving.
     core.Version version = 4;
 
     // The state of the entity after marking it as non-archived.

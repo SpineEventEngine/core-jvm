@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -111,7 +111,7 @@ import java.lang.annotation.Target;
  *
  *
  *  <li>a {@link io.spine.server.tuple.Tuple tuple} of event messages; being similar
- *  to {@code Iterable}, tuples allow to declare the exact types of returning values, including
+ *  to {@code Iterable}, tuples allow declaring the exact types of returning values, including
  *  {@code Optional} values:
  *  <pre>
  *
@@ -135,9 +135,9 @@ import java.lang.annotation.Target;
  *
  * <p>An application must have one and only one handler per command message class.
  * This includes {@linkplain io.spine.server.command.Command the case} of transforming an incoming
- * command into one or more commands that will to be handled instead of the received one.
+ * command into one or more commands that will be handled instead of the received one.
  *
- * <p>Declaring two methods that handle the same command class will result in run-time error.
+ * <p>Declaring two methods that handle the same command class will result in a run-time error.
  *
  * @see io.spine.server.tuple.Tuple Returning Two or More Event Messages
  * @see io.spine.server.tuple.Either Returning One of Event Messages

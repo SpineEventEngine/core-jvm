@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -43,7 +43,7 @@ import java.util.function.Function;
  * Takes the messages, which were previously sent to their targets via their inbox, and
  * delivers them.
  *
- * <p>Groups messages sent to the same target, but preserving the original order
+ * <p>Groups messages sent to the same target, while preserving the original order
  * throughout all the batches. Each of the resulting batches is delivered with a prior notification
  * of the supplied {@linkplain BatchDeliveryListener listener}. Underlying listener implementations
  * may then optimize loading of their targets, e.g. use a single read and single write operation
@@ -144,7 +144,6 @@ final class TargetDelivery<I> implements ShardedMessageDelivery<InboxMessage> {
         private final InboxOfCommands<I> inboxOfCommands;
         private final InboxOfEvents<I> inboxOfEvents;
 
-
         private MonitoringDispatcher(DeliveryMonitor monitor,
                                      Conveyor conveyor,
                                      InboxOfCommands<I> inboxOfCommands,
@@ -172,7 +171,6 @@ final class TargetDelivery<I> implements ShardedMessageDelivery<InboxMessage> {
                    : inboxOfEvents.deliver(message);
         }
     }
-
 
     /**
      * The batch of messages headed to the same target.

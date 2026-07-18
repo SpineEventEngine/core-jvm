@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,14 +45,14 @@ private val unknownProducer: Any = Identifier.pack("Unknown")
 /**
  * Creates a rejection event for the passed command and the throwable.
  *
- * If the ID of the actor generating the rejection was not [set][RejectionThrowable.initProducer],
+ * If the ID of the actor generating the rejection was not [set][RejectionThrowable.initProducer]
  * in the rejection, a placeholder with the string `"Unknown"` will be used as the producer ID.
  *
  * @param command The command to be rejected.
  * @param throwable The reason for the command to be rejected, must implement [RejectionThrowable],
  *   or have its cause implementing this interface.
  * @throws IllegalArgumentException if neither the passed throwable nor its cause
- *   implement [RejectionThrowable].
+ *   implements [RejectionThrowable].
  */
 public fun reject(command: Command, throwable: Throwable): Event {
     val rt = unwrap(throwable)

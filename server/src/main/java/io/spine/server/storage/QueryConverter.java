@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -76,7 +76,8 @@ public final class QueryConverter {
      *         the original response format to convert
      * @param spec
      *         the specification of the columns stored for the particular record type
-     * @return a new record query with the same semantic as the original filters and response format
+     * @return a new record query with the same semantics as the original filters and
+     *         response format
      */
     public static <I, R extends Message> RecordQuery<I, R>
     convert(TargetFilters filters, ResponseFormat format, RecordSpec<I, R> spec) {
@@ -159,7 +160,7 @@ public final class QueryConverter {
      * and child composite filters) into the conditions and applies them to the passed builder
      * in accordance with the record specification.
      *
-     * <p>This method works for conjunctive composite filters
+     * <p>This method works for conjunctive composite filters.
      */
     @CanIgnoreReturnValue
     @SuppressWarnings("MethodWithMultipleLoops")    /* To avoid a myriad of tiny static methods. */
@@ -183,7 +184,7 @@ public final class QueryConverter {
      * and child composite filters) into the conditions and applies them to the passed builder
      * in accordance with the record specification.
      *
-     * <p>This method works for disjunctive composite filters
+     * <p>This method works for disjunctive composite filters.
      */
     @CanIgnoreReturnValue
     private static <I, R extends Message> RecordQueryBuilder<I, R>
@@ -208,7 +209,7 @@ public final class QueryConverter {
     }
 
     /**
-     * Converts a bunch of simple {@code Filter}s to a distinct {@link Either} statements.
+     * Converts a bunch of simple {@code Filter}s to distinct {@link Either} statements.
      */
     @SuppressWarnings("Immutable")  /* Using `builder` in lambda is fine. */
     private static <I, R extends Message> ImmutableList<Either<RecordQueryBuilder<I, R>>>
@@ -225,7 +226,7 @@ public final class QueryConverter {
     }
 
     /**
-     * Converts a list of composite filters to a distinct {@link Either} statements.
+     * Converts a list of composite filters to distinct {@link Either} statements.
      *
      * <p>The children of each composite are also processed.
      */
@@ -354,7 +355,7 @@ public final class QueryConverter {
      * type erasure.
      *
      * @param <R>
-     *         the type of the message which column is being viewed
+     *         the type of the message whose column is being viewed
      */
     private static final class AsRecordColumn<R extends Message> extends RecordColumn<R, Object> {
 
@@ -369,7 +370,7 @@ public final class QueryConverter {
      * Returns the getter that always throws an {@link IllegalStateException} upon invocation.
      *
      * @param <R>
-     *         the type of the message which column getter it is
+     *         the type of the message whose column getter it is
      */
     @Immutable
     private static final class NoGetter<R extends Message> implements Column.Getter<R, Object> {

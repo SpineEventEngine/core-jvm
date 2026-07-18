@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -38,7 +38,7 @@ import java.util.Set;
  *
  * <p>The cache is limited in size, aiming to hunt down only the duplicates of the recently
  * delivered messages. The idea behind it is that the messages were read locally anyway,
- * so as well their identifiers may be reused for deduplication instead of just wasting
+ * so their identifiers may as well be reused for deduplication instead of just wasting
  * the effort and feeding the garbage collector.
  */
 final class DeliveredMessagesCache {

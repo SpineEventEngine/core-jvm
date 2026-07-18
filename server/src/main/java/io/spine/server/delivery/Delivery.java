@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -57,7 +57,7 @@ import static java.util.Collections.synchronizedList;
 /**
  * Delivers the messages to the entities.
  *
- * <p>Splits the incoming messages into shards and allows to deliver the
+ * <p>Splits the incoming messages into shards and allows one to deliver the
  * messages to their destinations on a per-shard basis. Guarantees that one and only one
  * application server node serves the messages from the given shard at a time, thus preventing
  * any concurrent modifications of entity state.
@@ -91,7 +91,7 @@ import static java.util.Collections.synchronizedList;
  *
  * <p>{@linkplain DeliveryBuilder#setDeduplicationWindow(Duration) Provides} the time-based
  * deduplication capabilities to eliminate the messages, which may have been already delivered
- * to their targets. The duplicates will be detected among the messages, which are not older, than
+ * to their targets. The duplicates will be detected among the messages, which are not older than
  * {@code now - [deduplication window]}.
  *
  * <h3>Customizing {@code InboxStorage}</h3>
@@ -106,7 +106,7 @@ import static java.util.Collections.synchronizedList;
  *
  * <h3>Catch-up</h3>
  *
- * <p>In addition to delivering the messages sent in a real-time, {@code Delivery} dispatches
+ * <p>In addition to delivering the messages sent in real-time, {@code Delivery} dispatches
  * the historical events sent to the catching-up projections. These events are dispatched through
  * the same shards as the live messages. A special {@link CatchUpStation} is responsible for
  * handling this use-case. See more on that in the respective section.
@@ -137,7 +137,7 @@ import static java.util.Collections.synchronizedList;
  * <h3>Work registry</h3>
  *
  * <p>Once an application node picks the shard to deliver the messages from it, it registers itself
- * in a {@link ShardedWorkRegistry}. It serves as a list of locks-per-shard that only allows
+ * in a {@link ShardedWorkRegistry}. It serves as a list of locks-per-shard that only allows one
  * to pick a shard to a single node at a time. The framework users may configure the implementation
  * of the registry by calling {@link DeliveryBuilder#setWorkRegistry(ShardedWorkRegistry)}.
  *
@@ -160,9 +160,9 @@ import static java.util.Collections.synchronizedList;
  * <p>In a scope of {@code DeliveryStage} the page of the {@code InboxMessage}s is placed
  * to the {@link Conveyor} responsible for tracking the status of each message.
  * The conveyor is run through the pipeline of stations, each modifying the state of the messages.
- * At the end of the pipeline, the changed made to the messages are committed to the underlying
- * {@code InboxStorage} in a bulk. Such an approach allows to minimize the number of the requests
- * sent to the storage.
+ * At the end of the pipeline, the changes made to the messages are committed to the underlying
+ * {@code InboxStorage} in a bulk. Such an approach allows one to minimize the number of the
+ * requests sent to the storage.
  *
  * <p>As long as the new {@code DeliveryStage} is started, the new instance of the {@code Conveyor}
  * is created.
@@ -180,7 +180,7 @@ import static java.util.Collections.synchronizedList;
  *
  * <b>2. Live delivery station</b>
  *
- * <p>This station is responsible for dispatching the messages sent in a real-time. It ignores
+ * <p>This station is responsible for dispatching the messages sent in real-time. It ignores
  * the messages in {@link InboxMessageStatus#TO_CATCH_UP TO_CATCH_UP} status. Another responsibility
  * of this station is to set for how long the delivered messages should be kept according to the
  * {@linkplain DeliveryBuilder#setDeduplicationWindow(Duration) deduplication window} settings.
@@ -194,22 +194,22 @@ import static java.util.Collections.synchronizedList;
  * <b>Deduplication</b>
  *
  * <p>During the dispatching, {@code Conveyor} keeps track of the delivered messages. The stations
- * performing the actual message dispatching rely onto this knowledge and deduplicate
+ * performing the actual message dispatching rely on this knowledge and deduplicate
  * the messages prior to calling the target's endpoint.
  *
  * <p>Additionally, the {@code Delivery} provides a {@linkplain DeliveredMessagesCache cache of recently
- * delivered messages}. Each instance of the {@code Conveyor} has an access to it and uses it
+ * delivered messages}. Each instance of the {@code Conveyor} has access to it and uses it
  * in deduplication procedures.
  *
  * <h3>Local environment</h3>
  *
  * <p>By default, the delivery is configured to {@linkplain Delivery#local() run locally}. It
- * uses {@linkplain LocalDispatchingObserver see-and-dispatch observer}, which delivers the
+ * uses a {@linkplain LocalDispatchingObserver see-and-dispatch observer}, which delivers the
  * messages from the observed shard once a message is passed to its
  * {@link LocalDispatchingObserver#onMessage(InboxMessage) onMessage(InboxMessage)} method. This
  * process is synchronous.
  *
- * <p>To deal with the multi-threaded access in a local mode,
+ * <p>To deal with the multi-threaded access in local mode,
  * an {@linkplain InMemoryShardedWorkRegistry} is used. It operates on top of the
  * {@code synchronized} in-memory data structures and prevents several threads from picking up the
  * same shard.
@@ -336,7 +336,7 @@ public final class Delivery implements WithLogging {
     }
 
     /**
-     * Creates a new instance of {@code Delivery} suitable for local and development environment.
+     * Creates a new instance of {@code Delivery} suitable for a local and development environment.
      *
      * <p>In this setup, the {@code InboxMessage}s are delivered to their targets synchronously.
      *
@@ -353,7 +353,7 @@ public final class Delivery implements WithLogging {
     }
 
     /**
-     * Creates a new instance of {@code Delivery} for local and development environment.
+     * Creates a new instance of {@code Delivery} for a local and development environment.
      *
      * <p>The {@code InboxMessage}s are delivered to their targets asynchronously.
      *
@@ -362,9 +362,9 @@ public final class Delivery implements WithLogging {
      *
      * <p>To construct a {@code Delivery} instance, a {@code StorageFactory} is needed.
      * If it was not configured in the {@code ServerEnvironment}, a new {@code
-     * InMemoryStorageFactory} used.
+     * InMemoryStorageFactory} is used.
      *
-     * @see #local() to create a syncrhonous version of the local {@code Delivery}
+     * @see #local() to create a synchronous version of the local {@code Delivery}
      */
     public static Delivery localAsync() {
         var delivery = newBuilder()
@@ -375,7 +375,7 @@ public final class Delivery implements WithLogging {
     }
 
     /**
-     * Creates a new instance of {@code Delivery} suitable for local and development environment
+     * Creates a new instance of {@code Delivery} suitable for a local and development environment
      * with the given number of shards.
      */
     @VisibleForTesting
@@ -399,7 +399,7 @@ public final class Delivery implements WithLogging {
     }
 
     /**
-     * Creates a new instance of {@code Delivery} that makes all signals to skip
+     * Creates a new instance of {@code Delivery} that makes all signals skip
      * the {@code Inbox}es and be delivered straight to their respective targets.
      *
      * <p>In this mode, no signals are stored in the {@code InboxStorage}. Also, the signals
@@ -408,7 +408,7 @@ public final class Delivery implements WithLogging {
      * <p>This mode only suits the applications that operate in a single-thread mode
      * and in scope of a single JVM. Typically, that would be some tools executing
      * linear-style jobs, which aim for the maximum performance under
-     * the strictly controlled circumstances.
+     * strictly controlled circumstances.
      *
      * <p>Any concurrent dispatching of signals (command posting, receiving external events, etc.)
      * will likely break the consistency of their target entities.
@@ -440,12 +440,12 @@ public final class Delivery implements WithLogging {
      * <p>In case the given shard is already processed by some node, this method does nothing and
      * returns {@code Optional.empty()}.
      *
-     * <p>The content of the shard is read and delivered on page-by-page basis. The runtime
+     * <p>The content of the shard is read and delivered on a page-by-page basis. The runtime
      * exceptions occurring while a page is being delivered are accumulated and then the first
      * exception is rethrown, if any.
      *
      * <p>After all the pages are read, the delivery process is launched again for the same shard.
-     * It is required in order to handle the messages, that may have been put to the same shard
+     * It is required in order to handle the messages that may have been put to the same shard
      * as an outcome of the first-wave messages.
      *
      * <p>Once the shard has no more messages to deliver, the delivery process ends, releasing
@@ -454,7 +454,7 @@ public final class Delivery implements WithLogging {
      * @param index
      *         the shard index to deliver the messages from.
      * @return the statistics on the performed delivery, or {@code Optional.empty()} if there
-     *         were no delivery performed
+     *         was no delivery performed
      */
     @CanIgnoreReturnValue
     public Optional<DeliveryStats> deliverMessagesFrom(ShardIndex index) {
@@ -492,7 +492,7 @@ public final class Delivery implements WithLogging {
 
     /**
      * Notifies the {@code DeliveryMonitor} telling about the runtime error
-     * occurred while performing the delivery from certain shard.
+     * occurred while performing the delivery from a certain shard.
      *
      * <p>Executes the failure handler {@code Action} returned by the monitor.
      *
@@ -507,7 +507,7 @@ public final class Delivery implements WithLogging {
     }
 
     /**
-     * Notifies the {@code DeliveryMonitor} telling the shard from which the delivery
+     * Notifies the {@code DeliveryMonitor} telling the shard, from which the delivery
      * was asked to run, is already picked up.
      *
      * <p>Executes the failure handler {@code Action} returned by the monitor.
@@ -664,7 +664,7 @@ public final class Delivery implements WithLogging {
      * @param entityType
      *         the type of the entity, to which the inbox will belong
      * @param <I>
-     *         the type if entity identifiers
+     *         the type of entity identifiers
      * @return the builder for the {@code Inbox}
      */
     public <I> Inbox.Builder<I> newInbox(TypeUrl entityType) {
@@ -691,7 +691,8 @@ public final class Delivery implements WithLogging {
      * Registers the internal {@code Delivery} message dispatchers
      * in the given {@code BoundedContext}.
      *
-     * <p>The registration of the dispatchers allows to handle the {@code Delivery}-specific events.
+     * <p>The registration of the dispatchers allows one to handle the
+     * {@code Delivery}-specific events.
      *
      * @param context
      *         Bounded Context in which the message dispatchers should be registered
@@ -734,7 +735,7 @@ public final class Delivery implements WithLogging {
     }
 
     /**
-     * Determines the shard index for the message, judging on the identifier of the entity,
+     * Determines the shard index for the message, judging by the identifier of the entity,
      * to which this message is dispatched.
      *
      * @param entityId

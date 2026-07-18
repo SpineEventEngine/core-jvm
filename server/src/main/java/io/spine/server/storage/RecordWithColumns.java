@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -96,7 +96,7 @@ public final class RecordWithColumns<I, R extends Message> {
     /**
      * Wraps a passed record.
      *
-     * <p>Such instance of {@code RecordWithColumns} will contain no storage fields.
+     * <p>Such an instance of {@code RecordWithColumns} will contain no storage fields.
      */
     public static <I, R extends Message> RecordWithColumns<I, R> of(I id, R record) {
         return new RecordWithColumns<>(id, record, Collections.emptyMap());

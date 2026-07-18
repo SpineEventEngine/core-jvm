@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package io.spine.server.event.store;
 
 import com.google.common.collect.ImmutableList;
@@ -68,7 +69,7 @@ public final class DefaultEventStore extends MessageStorage<EventId, Event>
     private final Log log;
 
     /**
-     * Constructs new instance.
+     * Constructs a new instance.
      */
     public DefaultEventStore(ContextSpec context, StorageFactory factory) {
         super(context, factory.createRecordStorage(context, spec()));
@@ -160,7 +161,7 @@ public final class DefaultEventStore extends MessageStorage<EventId, Event>
     }
 
     /**
-     * Obtains iteration over entities matching the passed query.
+     * Obtains an iteration over entities matching the passed query.
      */
     private Iterator<Event> find(EventStreamQuery query) {
         var converted = Queries.convert(query);

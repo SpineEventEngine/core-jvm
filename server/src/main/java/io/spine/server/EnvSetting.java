@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * }</pre>
  *
  * <h2>Fallback</h2>
- * <p>{@code EnvSetting} allows to configure a default value for an environment type. It is used
+ * <p>{@code EnvSetting} allows configuring a default value for an environment type. It is used
  * when the value for the environment hasn't been {@linkplain #use(Object, Class) set explicitly}.
  * <pre>{@code
  *      // Assuming the environment is `Tests`.

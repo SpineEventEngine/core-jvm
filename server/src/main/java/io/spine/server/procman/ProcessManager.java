@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -177,7 +177,7 @@ public abstract class ProcessManager<I,
      * @throws IllegalStateException
      *         if the method is called from outside an event/rejection reactor or a command assignee
      * @apiNote Marked {@link VisibleForTesting} to allow package-local use of this method in tests.
-     *         It does not affect the visibility for inheritors which stays {@code protected}
+     *         It does not affect the visibility for inheritors that stay {@code protected}
      *         {@linkplain io.spine.server.entity.TransactionalEntity#builder() as originally
      *         defined in parents}.
      *         See <a href="https://youtrack.jetbrains.com/issue/IDEA-204081">IDEA issue</a>
@@ -235,7 +235,7 @@ public abstract class ProcessManager<I,
     }
 
     /**
-     * Dispatches an event the handling method.
+     * Dispatches an event to the handling method.
      *
      * @param event
      *         the envelope with the event

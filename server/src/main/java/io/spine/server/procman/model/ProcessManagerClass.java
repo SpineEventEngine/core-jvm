@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -135,7 +135,7 @@ public final class ProcessManagerClass<P extends ProcessManager<?, ?, ?>>
     }
 
     /**
-     * Obtains a method that may generate one or more commands in response to incoming
+     * Obtains a method that may generate one or more commands in response to an incoming
      * event with the passed class.
      */
     public Optional<CommandingReaction> commanderOf(EventEnvelope event) {
@@ -151,7 +151,7 @@ public final class ProcessManagerClass<P extends ProcessManager<?, ?, ?>>
     }
 
     /**
-     * Verifies if the class of process managers react on an event of the passed class.
+     * Verifies if the class of process managers reacts on an event of the passed class.
      */
     public boolean reactsOnEvent(EventClass eventClass) {
         return reactorDelegate.contains(eventClass);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,7 +93,7 @@ public class CommandReactionSignature
     /**
      * {@inheritDoc}
      *
-     * <p>@implNote This method distinguishes {@linkplain Command Commander} methods
+     * @implNote This method distinguishes {@linkplain Command Commander} methods
      * one from another, as they use the same annotation, but have a different parameter list.
      * It skips the methods whose first parameter
      * {@linkplain MethodParams#firstIsCommand(Method) is} a {@code Command} message.

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -44,14 +44,14 @@ public interface ShardedWorkRegistry {
      * by a single application node at a given moment of time.
      *
      * <p>In case of a successful operation, an instance of {@link PickUpOutcome} containing
-     * {@code ShardSessionRecord} is returned. The worker node that obtained the session,
+     * {@code ShardSessionRecord} is returned. The worker node that obtained the session
      * should release {@link #release(ShardSessionRecord) release()} the session
      * at the end of its work.
      *
      * <p>If the shard at a given index is already picked up by some node,
      * a {@link PickUpOutcome} containing {@link ShardAlreadyPickedUp} is returned. This outcome
      * contains information about the {@code WorkerId} of the worker owning the session
-     * at the moment, and a {@code Timestamp} telling the shard was picked up.
+     * at the moment, and a {@code Timestamp} telling when the shard was picked up.
      *
      * @param index
      *         the index of the shard to pick up for processing
@@ -72,7 +72,7 @@ public interface ShardedWorkRegistry {
 
     /**
      * Clears up the recorded {@code NodeId}s from the session records if there was no activity
-     * for longer than passed {@code inactivityPeriod}.
+     * for longer than the passed {@code inactivityPeriod}.
      *
      * <p>It may be handy if an application node hangs or gets killed — so that it is not able
      * to complete the session in a conventional way.

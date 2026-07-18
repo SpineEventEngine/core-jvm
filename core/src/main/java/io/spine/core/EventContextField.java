@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -33,8 +33,8 @@ import io.spine.base.SubscribableField;
  * A subscribable field of an event context.
  *
  * <p>When such field is specified to a subscription filter, the {@code "context."} prefix will be
- * automatically appended to the field path, allowing to distinguish between event context and
- * event message filters when sending the request to a server side.
+ * automatically appended to the field path, allowing one to distinguish between event context and
+ * event message filters when sending the request to the server side.
  */
 public class EventContextField extends SubscribableField {
 

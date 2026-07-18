@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -36,7 +36,7 @@ import java.lang.annotation.Target;
  * Marks a package as one belonging to a Bounded Context with
  * the {@linkplain #value() specified name}.
  *
- * <p>Java does not have the notion of package nesting. Packages in Java are separated namespaces
+ * <p>Java does not have the notion of package nesting. Packages in Java are separate namespaces
  * that seem to have a hierarchical structure for convenience.
  *
  * <h2>Nesting Convention</h2>
@@ -50,9 +50,9 @@ import java.lang.annotation.Target;
  * annotated with another Bounded Context name.
  *
  * <p>A possible usage scenario would be to have an aggregate root class placed in a “parent”
- * package, and aggregate parts being under “sub-packages”.
+ * package, and aggregate parts placed under “sub-packages”.
  *
- * <p>Packages that do not have a common “parent” but annotated with the same name belong
+ * <p>Packages that do not have a common “parent” but are annotated with the same name belong
  * to the same Bounded Context.
  */
 @Target(ElementType.PACKAGE)

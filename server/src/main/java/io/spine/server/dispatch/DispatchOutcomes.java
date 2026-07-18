@@ -1,11 +1,11 @@
 /*
- * Copyright 2023, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -74,7 +74,7 @@ public final class DispatchOutcomes {
      * of the passed event envelope.
      *
      * @param event
-     *         envelope of the event which was successfully dispatched
+     *         envelope of the event that was successfully dispatched
      */
     public static DispatchOutcome successfulOutcome(EventEnvelope event) {
         checkNotNull(event);
@@ -86,7 +86,7 @@ public final class DispatchOutcomes {
      * of the passed command envelope.
      *
      * @param command
-     *         envelope of the command which was successfully dispatched
+     *         envelope of the command that was successfully dispatched
      */
     public static DispatchOutcome successfulOutcome(CommandEnvelope command) {
         checkNotNull(command);
@@ -98,9 +98,9 @@ public final class DispatchOutcomes {
      * was sent to the inbox of the entity with the passed ID.
      *
      * @param signal
-     *         the signal which has been sent to the inbox
+     *         the signal that has been sent to the inbox
      * @param entityId
-     *         identifier of the entity, to which inbox the signal
+     *         identifier of the entity, to whose inbox the signal
      *         has been sent
      */
     public static <I> DispatchOutcome sentToInbox(SignalEnvelope<?, ?, ?> signal, I entityId) {
@@ -123,9 +123,9 @@ public final class DispatchOutcomes {
      * {@linkplain #noTargetsToRoute(SignalEnvelope) no targets} to route the signal to.
      *
      * @param signal
-     *         the signal which has been sent to the inbox
+     *         the signal that has been sent to the inbox
      * @param entityId
-     *         an optional identifier of the entity, to which inbox the signal
+     *         an optional identifier of the entity, to whose inbox the signal
      *         should have been sent
      */
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType" /* Handling `Optional` uniformly. */)
@@ -147,9 +147,9 @@ public final class DispatchOutcomes {
      * to route the signal to.
      *
      * @param event
-     *         the event which has been sent to inboxes
+     *         the event that has been sent to inboxes
      * @param entityIds
-     *         identifiers of entities to which inboxes the event
+     *         identifiers of entities to whose inboxes the event
      *         has been sent
      */
     public static <I> DispatchOutcome sentToInbox(EventEnvelope event, Set<I> entityIds) {
@@ -189,7 +189,7 @@ public final class DispatchOutcomes {
      * to a remote channel, most likely, to another Bounded Context.
      *
      * @param event
-     *         the event which has been published
+     *         the event that has been published
      */
     public static DispatchOutcome publishedToRemote(EventEnvelope event) {
         checkNotNull(event);

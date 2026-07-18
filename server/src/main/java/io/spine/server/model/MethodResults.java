@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -62,8 +62,9 @@ final class MethodResults {
      * Collects command or event classes declared in the return type of the handler method.
      *
      * <p>If the method returns a parameterized type like {@link Iterable}, the produced messages
-     * are gathered from its generic arguments. Generic arguments are traversed recursively enabling
-     * correct parsing of return types like {@code Pair<ProjectCreated, Optional<ProjectStarted>>}.
+     * are gathered from its generic arguments. Generic arguments are traversed recursively,
+     * enabling correct parsing of return types like
+     * {@code Pair<ProjectCreated, Optional<ProjectStarted>>}.
      *
      * <p>Too broad types are ignored, so methods returning something like
      * {@code Optional<Message>} are deemed producing no types.

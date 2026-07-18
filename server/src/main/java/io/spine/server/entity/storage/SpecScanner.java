@@ -62,14 +62,15 @@ import static java.util.Objects.requireNonNull;
  * storing lifecycle and version attributes of an {@code Entity}.
  *
  * @implNote Client-side API includes generic definitions of lifecycle and version columns
- *         (such as {@link ArchivedColumn}). However, their code cannot depend on the {@code Entity}
- *         type directly, as the {@code client} module has no dependency on {@code server} module.
+ *         (such as {@link ArchivedColumn}). However, their code cannot depend on the
+ *         {@code Entity} type directly, as the {@code client} module has no dependency on
+ *         the {@code server} module.
  *         Therefore, this column scanning process wires those generic column definitions with an
  *         actual {@code Entity} type, instances of which serve as a data source for each column.
  *         Also, instead of scanning the {@code (column)} options from an entity state
  *         {@code Message} directly, this scanner uses a Spine compiler-generated shortcut method
  *         called {@code definitions()} which returns the set of {@link EntityColumn}s.
- *         Such an approach improves the scanning performance and preserve the types of generic
+ *         Such an approach improves the scanning performance and preserves the types of generic
  *         parameters code-generated for each {@code EntityColumn}.
  */
 @Internal
@@ -90,7 +91,7 @@ public final class SpecScanner {
     private static final String COL_DEFS_METHOD_NAME = "definitions";
 
     /**
-     * Prevent this utility from direct instantiation.
+     * Prevents this utility from direct instantiation.
      */
     private SpecScanner() {
     }
@@ -218,7 +219,7 @@ public final class SpecScanner {
     }
 
     /**
-     * Finds the {@code Column} class that is generated the messages representing the entity
+     * Finds the {@code Column} class that is generated for the messages representing the entity
      * state type.
      *
      * <p>If an entity has no such class generated, it does not declare any columns. In this

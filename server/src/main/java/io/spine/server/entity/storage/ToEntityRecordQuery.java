@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -52,7 +52,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * over the {@link EntityRecord}s.
  *
  * @param <I>
- *         the type of the identifiers of entities which are queried by the given query
+ *         the type of the identifiers of entities that are queried by the given query
  * @param <S>
  *         the type of the queried entity state
  */
@@ -66,7 +66,7 @@ public final class ToEntityRecordQuery<I, S extends EntityState<I>>
      * @param query
      *         a query to transform
      * @param <I>
-     *         the type of the identifiers of entities which are queried by the given query
+     *         the type of the identifiers of entities that are queried by the given query
      * @param <S>
      *         the type of the queried entity state
      * @return a new instance of {@code RecordQuery} targeting the {@link EntityRecord}s
@@ -132,7 +132,7 @@ public final class ToEntityRecordQuery<I, S extends EntityState<I>>
      * Copies the predicates of the passed subject to this instance of {@code ToEntityRecordQuery}.
      *
      * @param subject
-     *         the subject which predicates to copy
+     *         the subject whose predicates to copy
      */
     private void copyPredicates(Subject<I, S> subject) {
         var root = subject.predicate();

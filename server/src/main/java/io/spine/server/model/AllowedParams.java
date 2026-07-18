@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -48,7 +48,7 @@ public final class AllowedParams<E extends MessageEnvelope<?, ?, ?>> {
     private final ImmutableList<? extends ParameterSpec<E>> specs;
 
     /**
-     * Constructs new instance using passed parameter specifications.
+     * Constructs a new instance using passed parameter specifications.
      *
      * @param spec
      *         specification of allowed parameters in the order of importance
@@ -64,7 +64,7 @@ public final class AllowedParams<E extends MessageEnvelope<?, ?, ?>> {
      * the class, describing the parameter specification.
      *
      * @param method
-     *         the method, which parameter list is used to match the parameter specification
+     *         the method, whose parameter list is used to match the parameter specification
      * @return the matching parameter spec,
      *         or {@link Optional#empty() Optional.empty()} if no matching specification is found
      */

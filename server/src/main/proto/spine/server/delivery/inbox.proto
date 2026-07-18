@@ -114,7 +114,7 @@ message InboxMessageId {
 // Identifies the original signal message that is packed inside the `InboxMessage`.
 message InboxSignalId {
 
-    // The value of the identifier of the source signal message, that has been put into the `Inbox`.
+    // The value of the identifier of the source signal message that has been put into the `Inbox`.
     //
     // E.g. if an instance of `Event` is put into the `Inbox`,
     // this field has a value of `Event.id.value`.
@@ -161,7 +161,7 @@ message InboxMessage {
     int32 version = 10 [(min).value = "0"];
 
     // If set, this value determines for how long the message should be kept in the `Inbox`
-    // after delivered. During this time it may be used for deduplication.
+    // after being delivered. During this time it may be used for deduplication.
     //
     // If not set, the message will not be kept any longer than required to deliver it.
     //

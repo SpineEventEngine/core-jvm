@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import io.spine.core.EventContext
 /**
  * Obtains an event producer ID from the context of the event.
  *
- * @param I The type of obtained IDs
+ * @param I The type of obtained IDs.
  */
 internal class ByProducerId<I : Any> : EventRoute<I, EventMessage> {
 

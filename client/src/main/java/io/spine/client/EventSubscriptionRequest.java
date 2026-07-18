@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -37,7 +37,7 @@ import java.util.function.Function;
 import static io.spine.client.Filters.extractFilters;
 
 /**
- * Allows to subscribe to events using filtering conditions.
+ * Allows subscribing to events using filtering conditions.
  *
  * <p>Similarly to subscriptions to entity states, event subscriptions may use filtering by
  * values of the proto types of subscribed messages:
@@ -49,8 +49,8 @@ import static io.spine.client.Filters.extractFilters;
  * }</pre>
  *
  * <p>In addition to regular filtering conditions, event subscription requests may also reference
- * fields of {@code spine.core.EventContext}. For example, in order to filter events originate from
- * commands of the given user, please use the following code:
+ * fields of {@code spine.core.EventContext}. For example, in order to filter events that originate
+ * from commands of the given user, please use the following code:
  * <pre>{@code
  * clientRequest.subscribeToEvent(MyEventMessage.class)
  *              .where(eq(EventContext.Field.pastMessage().actorContext().actor(), userId))

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -33,7 +33,7 @@ import java.util.Optional;
 import static io.spine.util.Preconditions2.checkNotDefaultArg;
 
 /**
- * This class allows to obtain a ID of the current tenant when handling
+ * This class allows obtaining an ID of the current tenant when handling
  * a command or a query in a multi-tenant application.
  *
  * @see <a href="http://ramblingsofraju.com/wp-content/uploads/2016/08/Multi-Tenant-Data-Architecture.pdf">Multi-Tenant Data Architecture</a>
@@ -63,7 +63,7 @@ final class CurrentTenant {
      * <p>If this is not the case, {@code IllegalStateException} will be thrown.
      *
      * @return the ID of the current tenant
-     * @throws IllegalStateException if the is no current tenant ID set
+     * @throws IllegalStateException if there is no current tenant ID set
      */
     static TenantId ensure() throws IllegalStateException {
         var currentTenant = get();

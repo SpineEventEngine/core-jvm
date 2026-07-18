@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -73,7 +73,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * <h3>Accepted Parameters</h3>
  *
  * <p>There are several combinations of accepted parameters for a command-transforming method.
- * The set of available parameters include
+ * The set of available parameters includes
  *
  * <ul>
  *
@@ -109,7 +109,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * </pre>
  *
  *
- * <li>{@linkplain io.spine.server.tuple.Either one of} of several command messages:
+ * <li>{@linkplain io.spine.server.tuple.Either one of} several command messages:
  * <pre>
  *
  * {@literal @}Command
@@ -126,7 +126,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *
  *
  * <li>a {@link io.spine.server.tuple.Tuple tuple} of several command messages; being similar
- * to {@code Iterable}, tuples allow to declare the exact types of returning values, including
+ * to {@code Iterable}, tuples allow declaring the exact types of returning values, including
  * {@code Optional} values:
  *
  * <pre>
@@ -140,7 +140,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *
  * <p>As a command-handling method, a command-transforming method may reject an incoming command.
  * In this case, it should declare a generated class derived from
- * {@link io.spine.base.RejectionThrowable RejectionThrowable} in {@code throws} clause:
+ * {@link io.spine.base.RejectionThrowable RejectionThrowable} in the {@code throws} clause:
  *
  * <pre>
  *
@@ -159,7 +159,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *
  * <h3>Accepted Parameters</h3>
  *
- * <p>Command-reaction method must accept either
+ * <p>A command-reaction method must accept either
  *
  * <ul>
  *
@@ -227,7 +227,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * </pre>
  *
 
- * <li>{@linkplain io.spine.server.tuple.Either one of} of several command messages:
+ * <li>{@linkplain io.spine.server.tuple.Either one of} several command messages:
  * <pre>
  *
  * {@literal @}Command
@@ -244,7 +244,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *
  *
  * <li>a {@link io.spine.server.tuple.Tuple tuple} of several command messages;
- * it allows to declare the exact types of returning values, including {@code Optional}s:
+ * it allows declaring the exact types of returning values, including {@code Optional}s:
  *
  * <pre>
  *

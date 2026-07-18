@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 syntax = "proto3";
 
 package spine.server.command;
@@ -43,8 +44,6 @@ option java_multiple_files = true;
 // for processing after being emitted. Neither is it stored.
 //
 // There can be no handlers for a `DoNothing` command.
-//
-// Deprecated: please use `spine.server.command.DoNothing` instead.
 //
 message DoNothing {
 }

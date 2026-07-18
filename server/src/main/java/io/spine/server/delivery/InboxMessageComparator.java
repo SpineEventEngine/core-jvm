@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import java.util.Comparator;
  * A comparator comparing the {@link InboxMessage}s so that they appear in a chronological order
  * of their appearance in the corresponding {@code Inbox}.
  *
- * <p>If case the timestamps are equal, the {@linkplain InboxMessage#getVersion() versions}
+ * <p>In case the timestamps are equal, the {@linkplain InboxMessage#getVersion() versions}
  * are compared.
  *
  * <p>If the versions are the same too, the messages are compared according to their ID values

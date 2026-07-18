@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -128,7 +128,7 @@ import static java.util.stream.Collectors.toSet;
  *     <li>A {@link CatchUpStarted} event is emitted. The target projection repository listens to
  *     this event and kills the state of the matching entities.
  *
- *     <li>The status if the catch-up process is set to {@link CatchUpStatus#IN_PROGRESS
+ *     <li>The status of the catch-up process is set to {@link CatchUpStatus#IN_PROGRESS
  *     IN_PROGRESS}.
  * </ol>
  *
@@ -141,19 +141,19 @@ import static java.util.stream.Collectors.toSet;
  *     <li>A {@link CatchUpStarted} event is emitted. The target projection repository listens to
  *     this event and kills the state of the matching entities.
  *
- *     <li>The status if the catch-up process is set to {@link CatchUpStatus#IN_PROGRESS
+ *     <li>The status of the catch-up process is set to {@link CatchUpStatus#IN_PROGRESS
  *     IN_PROGRESS}.
  * </ol>
  *
  * <h3>{@link CatchUpStatus#IN_PROGRESS IN_PROGRESS}</h3>
  *
  * <p>When the process is in this status, the event history is read and the matching events are sent
- * to the {@code Inbox}es of the corresponding projections
+ * to the {@code Inbox}es of the corresponding projections.
  *
  * <p>The catch-up maintains this status until the history is read till the point in time,
  * which is very close to the {@link Time#currentTime() Time.currentTime()}. When this time comes,
  * the events arriving to the {@code EventStore} are very likely to be just-emitted in a live mode.
- * Therefore, the process needs to decide whether to decide that the history is fully read, or
+ * Therefore, the process needs to decide whether the history is fully read, or
  * to continue the traversal through the history.
  *
  * <p>At this stage the actions are as follows.
@@ -167,7 +167,7 @@ import static java.util.stream.Collectors.toSet;
  *      <li>Depending on the targets requested for the catch-up, the events are posted to the
  *      corresponding entities.
  *
- *      <li>Unless the timestamps of the events are getting close to the current time, an
+ *      <li>Unless the timestamps of the events are getting close to the current time, a
  *      {@link HistoryEventsRecalled} is emitted, leaving the process in the {@code IN_PROGRESS}
  *      status and triggering the next round similar to this one.
  *
@@ -216,7 +216,7 @@ import static java.util.stream.Collectors.toSet;
  * <p>In order to guarantee that prior to moving to the {@code COMPLETED} status, the catch-up
  * process emits special {@link ShardProcessingRequested} events for each shard. The events are
  * dispatched to a {@link ShardMaintenanceProcess}, which responds back by emitting
- * {@link ShardProcessed} events. The {@code Delivery} knows about this special-case signals
+ * {@link ShardProcessed} events. The {@code Delivery} knows about these special-case signals
  * and appends the data in these events with its own picture of ongoing catch-up
  * processes and their statuses. By receiving {@code ShardProcessed} events populated with this
  * information the catch-up process knows which status was seen by the {@code Delivery}
@@ -225,7 +225,7 @@ import static java.util.stream.Collectors.toSet;
  * <p>The actions at this stage are as follows.
  *
  * <ol>
- *      <li>All the remaining messages of the matching event types are read {@link EventStore}.
+ *      <li>All the remaining messages of the matching event types are read from {@link EventStore}.
  *      In this operation the read limits set by the {@code Delivery} are NOT used, since
  *      the goal is to read the remainder of the events.
  *
@@ -323,8 +323,8 @@ public final class CatchUpProcess<I>
     /**
      * Starts the catch-up for the projection instances selecting them by their identifiers.
      *
-     * <p>If no identifiers is passed (i.e. {@code null}) then all of the instances should be
-     * caught up
+     * <p>If no identifiers are passed (i.e. {@code null}), then all of the instances should be
+     * caught up.
      *
      * @param since
      *         since when the catch-up should be performed
@@ -347,12 +347,12 @@ public final class CatchUpProcess<I>
      * <p>Several important things happen at this stage:
      * <ol>
      *      <li>The reading timestamp of the process is set to the one specified in the request.
-     *      However, people are used to say "I want to catch-up since 1 PM" meaning "counting
-     *      the events happened at 1 PM sharp". Therefore process always subtracts a single
-     *      nanosecond from the specified catch-up start time and then treats this interval as
-     *      exclusive.
+     *      However, people are used to saying "I want to catch-up since 1 PM" meaning "counting
+     *      the events that happened at 1 PM sharp". Therefore, the process always subtracts
+     *      a single nanosecond from the specified catch-up start time and then treats this
+     *      interval as exclusive.
      *
-     *      <li>{@link CatchUpStarted} event is dispatched directly to the inboxes of the
+     *      <li>A {@link CatchUpStarted} event is dispatched directly to the inboxes of the
      *      catching-up targets based on the original catch-up request.
      *
      *      <li>The identifiers of the catch-up targets are defined. They are set according to
@@ -401,7 +401,7 @@ public final class CatchUpProcess<I>
      * and dispatches the results to the inboxes of respective projections.
      *
      * <p>If the history has been read fully (i.e. until the start of the {@linkplain Turbulence
-     * turbulence period}), emits {@code HistoryFullyRecalled} event. Otherwise, emits
+     * turbulence period}), emits a {@code HistoryFullyRecalled} event. Otherwise, emits
      * {@code HistoryEventsRecalled} by which it triggers the next round of history reading.
      */
     @React
@@ -427,8 +427,8 @@ public final class CatchUpProcess<I>
      * historical events to the inboxes of the catching-up projections.
      *
      * <p>If the history has been read fully (i.e. until the start of the {@linkplain Turbulence
-     * turbulence period}), emits {@code HistoryFullyRecalled} event. Otherwise,
-     * emits {@code HistoryEventsRecalled} by which triggers the next round of history reading.
+     * turbulence period}), emits a {@code HistoryFullyRecalled} event. Otherwise,
+     * emits {@code HistoryEventsRecalled} by which it triggers the next round of history reading.
      */
     @React
     EitherOf2<HistoryEventsRecalled, HistoryFullyRecalled> handle(HistoryEventsRecalled event) {
@@ -445,7 +445,7 @@ public final class CatchUpProcess<I>
      *
      * <p>Read operations are also supplied with a query limit configured for this process. Thus,
      * several events stamped with the same time value may be caught in-between query pages. As
-     * long as their order is not defined, some of them could have gone lost. To deal with this
+     * long as their order is not defined, some of them could have been lost. To deal with this
      * issue, this method strips the events with the most recent time from the query result and
      * aims to read all of them in the next read round.
      *
@@ -475,9 +475,9 @@ public final class CatchUpProcess<I>
 
     /**
      * Sets the process status to {@link CatchUpStatus#FINALIZING FINALIZING} and reads all
-     * the remaining events, then dispatching those to the projection inboxes.
+     * the remaining events, then dispatches those to the projection inboxes.
      *
-     * <p>Emits {@code LiveEventsPickedUp} event, which is dispatched to this process
+     * <p>Emits a {@code LiveEventsPickedUp} event, which is dispatched to this process
      * in the next round.
      */
     @React
@@ -575,7 +575,7 @@ public final class CatchUpProcess<I>
 
     /**
      * Upon the catch-up completion, requests an additional processing of the messages in those
-     * shards, which were involved into the dispatching during the catch-up.
+     * shards, which were involved in the dispatching during the catch-up.
      *
      * <p>In this way, the process ensures that any events, whose delivery may have been potentially
      * paused during the process finalization, are propagated from their shards to the target
@@ -730,7 +730,7 @@ public final class CatchUpProcess<I>
     }
 
     /**
-     * Loads the instance of corresponding {@link ProjectionRepository} from
+     * Loads the instance of the corresponding {@link ProjectionRepository} from
      * the {@link CatchUpRepositories} cache.
      *
      * <p>Such a mechanism ensures that this process always has both its ID and underlying
@@ -836,7 +836,7 @@ public final class CatchUpProcess<I>
     public interface DispatchCatchingUp<I> {
 
         /**
-         * Dispatches the given event and optionally narrowing down the entities by the set
+         * Dispatches the given event and optionally narrows down the entities by the set
          * of entity identifiers to dispatch the event to.
          *
          * <p>If no particular IDs are specified, the event will be dispatched according to the

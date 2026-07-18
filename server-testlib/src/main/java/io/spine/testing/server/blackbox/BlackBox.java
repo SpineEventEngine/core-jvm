@@ -85,7 +85,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * This class provides means for integration testing of Bounded Contexts.
  *
- * <p>Such a test suite would send commands or events to the Bounded Context under the test,
+ * <p>Such a test suite would send commands or events to the Bounded Context under test,
  * and then verify consequences of handling a command or an event.
  */
 @SuppressWarnings({"ClassWithTooManyMethods", "OverlyCoupledClass"})
@@ -93,12 +93,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public abstract class BlackBox implements WithLogging, Closeable {
 
     /**
-     * The context under the test.
+     * The context under test.
      */
     private final BoundedContext context;
 
     /**
-     * The probe inserted into the context under the test.
+     * The probe inserted into the context under test.
      */
     private final BlackboxProbe probe;
 
@@ -183,9 +183,9 @@ public abstract class BlackBox implements WithLogging, Closeable {
      * {@link BoundedContextBuilder} and then {@link #from(BoundedContext)}.
      *
      * @param multitenant
-     *         whether the context under the test is multitenant
+     *         whether the context under test is multitenant
      * @param components
-     *         repositories or entity classes to be added to the context under the test
+     *         repositories or entity classes to be added to the context under test
      */
     public static BlackBox with(boolean multitenant, Object... components) {
         checkNotNull(components);
@@ -202,9 +202,9 @@ public abstract class BlackBox implements WithLogging, Closeable {
      * {@link BoundedContextBuilder} and then {@link #from(BoundedContext)}.
      *
      * @param builder
-     *         the context builder to use for creating the context under the test
+     *         the context builder to use for creating the context under test
      * @param components
-     *         repositories or entity classes to be added to the context under the test
+     *         repositories or entity classes to be added to the context under test
      */
     @SuppressWarnings("ChainOfInstanceofChecks") // We allow passing `Object`s to simplify setup.
     public static BlackBox with(BoundedContextBuilder builder, Object... components) {
@@ -245,7 +245,7 @@ public abstract class BlackBox implements WithLogging, Closeable {
     }
 
     /**
-     * Obtains the name of the context under the test.
+     * Obtains the name of the context under test.
      */
     public BoundedContextName name() {
         return context.name();
@@ -301,7 +301,7 @@ public abstract class BlackBox implements WithLogging, Closeable {
     }
 
     /**
-     * Appends the passed event to the history of the context under the test.
+     * Appends the passed event to the history of the context under test.
      */
     @CanIgnoreReturnValue
     public final BlackBox append(Event event) {
@@ -319,7 +319,7 @@ public abstract class BlackBox implements WithLogging, Closeable {
      * @param domainCommand
      *         a domain command to be dispatched to the Bounded Context
      * @return current instance
-     * @apiNote Returned value can be ignored when this method invoked for test setup.
+     * @apiNote Returned value can be ignored when this method is invoked for test setup.
      */
     @CanIgnoreReturnValue
     public final BlackBox receivesCommand(CommandMessage domainCommand) {
@@ -337,7 +337,7 @@ public abstract class BlackBox implements WithLogging, Closeable {
      * @param rest
      *         optional domain commands to be dispatched to the Bounded Context in supplied order
      * @return current instance
-     * @apiNote Returned value can be ignored when this method invoked for test setup.
+     * @apiNote Returned value can be ignored when this method is invoked for test setup.
      */
     @CanIgnoreReturnValue
     public final BlackBox
@@ -353,7 +353,7 @@ public abstract class BlackBox implements WithLogging, Closeable {
      * @param domainCommands
      *         a list of domain commands to be dispatched to the Bounded Context
      * @return current instance
-     * @apiNote Returned value can be ignored when this method invoked for test setup.
+     * @apiNote Returned value can be ignored when this method is invoked for test setup.
      */
     @CanIgnoreReturnValue
     public final BlackBox receivesCommands(List<CommandMessage> domainCommands) {
@@ -369,7 +369,7 @@ public abstract class BlackBox implements WithLogging, Closeable {
      * @param domainEvent
      *         a domain event to be dispatched to the Bounded Context.
      * @return current instance
-     * @apiNote Returned value can be ignored when this method invoked for test setup.
+     * @apiNote Returned value can be ignored when this method is invoked for test setup.
      */
     @CanIgnoreReturnValue
     public final BlackBox receivesEvent(EventMessage domainEvent) {
@@ -392,7 +392,7 @@ public abstract class BlackBox implements WithLogging, Closeable {
      * @param rest
      *         optional domain events to be dispatched in the supplied order
      * @return current instance
-     * @apiNote Returned value can be ignored when this method invoked for test setup.
+     * @apiNote Returned value can be ignored when this method is invoked for test setup.
      */
     @CanIgnoreReturnValue
     public final BlackBox
@@ -403,7 +403,7 @@ public abstract class BlackBox implements WithLogging, Closeable {
     }
 
     /**
-     * Sends off a provided event to the Bounded Context as event from an external source.
+     * Sends off a provided event to the Bounded Context as an event from an external source.
      *
      * @param messageOrEvent
      *         an event message or {@link Event}. If an instance of {@code Event} is
@@ -412,7 +412,7 @@ public abstract class BlackBox implements WithLogging, Closeable {
      *         Otherwise, an instance of {@code Event} will be generated basing
      *         on the passed event message and posted to the bus.
      * @return current instance
-     * @apiNote Returned value can be ignored when this method invoked for test setup.
+     * @apiNote Returned value can be ignored when this method is invoked for test setup.
      */
     @CanIgnoreReturnValue
     public final BlackBox receivesExternalEvent(Message messageOrEvent) {
@@ -437,7 +437,7 @@ public abstract class BlackBox implements WithLogging, Closeable {
      * @param other
      *         optional external events to be dispatched in the supplied order
      * @return current instance
-     * @apiNote Returned value can be ignored when this method invoked for test setup.
+     * @apiNote Returned value can be ignored when this method is invoked for test setup.
      */
     @SuppressWarnings("unused") // IDEA does not see the usage of this method from tests.
     @CanIgnoreReturnValue
@@ -472,7 +472,7 @@ public abstract class BlackBox implements WithLogging, Closeable {
      * @param rest
      *         optional domain events to be dispatched to the Bounded Context in the supplied order
      * @return current instance
-     * @apiNote Returned value can be ignored when this method invoked for test setup.
+     * @apiNote Returned value can be ignored when this method is invoked for test setup.
      */
     @CanIgnoreReturnValue
     public final BlackBox

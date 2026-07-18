@@ -44,7 +44,7 @@ import java.util.Optional;
  * the records of {@code Entity} states, some aren't (e.g. {@code Event}s). The concrete
  * storage implementations for these objects vary in API and functionality. However, neither
  * of them performs the save/load operations themselves. Instead, they create a separate
- * {@code RecordStorage}, configure it according to the properties of respective stored objects,
+ * {@code RecordStorage}, configure it according to the properties of the respective stored objects,
  * and use it as a delegate. This type serves as a base for all such storages.
  *
  * <p>Such an approach standardizes the way to store and query all objects in the system. It makes
@@ -53,7 +53,7 @@ import java.util.Optional;
  * {@code super(..)} constructor.
  *
  * <p>In order to allow the descendants to configure the visibility of their API themselves,
- * most of the methods of this type is made {@code protected}. The particular implementations
+ * most of the methods of this type are made {@code protected}. The particular implementations
  * are able to override these methods with the required level of visibility, if needed.
  *
  * @param <I>

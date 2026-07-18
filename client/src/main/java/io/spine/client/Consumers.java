@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -50,15 +50,15 @@ import static com.google.common.base.Preconditions.checkState;
  * <p>There are two types of errors that may occur when delivering messages to the consumers:
  * <ol>
  *     <li><strong>Streaming errors</strong> occur on the
- *      {@linkplain StreamObserver#onError(Throwable) level of gRPC}. When such an error occur,
+ *      {@linkplain StreamObserver#onError(Throwable) level of gRPC}. When such an error occurs,
  *      no further messages will be delivered. To handle such an error, please
  *      supply a streaming {@link Builder#onStreamingError(ErrorHandler) ErrorHandler}.
- *      If no handler is configured, default implementation will log the error.
+ *      If no handler is configured, the default implementation will log the error.
  *
  *     <li><strong>Consuming errors</strong> occur when one of the consumers throws. Such an error
  *     does not prevent delivery of a message to other consumers. To handle such an error, please
  *     supply a {@link Builder#onConsumingError(ConsumerErrorHandler) ConsumingErrorHandler}.
- *     If no handler is configured, default implementation will log the error.
+ *     If no handler is configured, the default implementation will log the error.
  * </ol>
  *
  * @param <M>
@@ -67,7 +67,7 @@ import static com.google.common.base.Preconditions.checkState;
  *         the type of context of consumed messages, or {@link io.spine.core.EmptyContext}
  *         if messages do not have a context
  * @param <W>
- *         the type of message that wraps the consumed message and its context,
+ *         the type of the message that wraps the consumed message and its context,
  *         or the same type as {@code <M>} if the messages do not have a context
  */
 abstract class Consumers<M extends Message, C extends MessageContext, W extends Message>
@@ -182,7 +182,7 @@ abstract class Consumers<M extends Message, C extends MessageContext, W extends 
      *         the type of message context, or {@link io.spine.core.EmptyContext} if
      *         consumed messages do not have contexts
      * @param <W>
-     *         the type of a message which wraps the message and its context; or
+     *         the type of a message that wraps the message and its context; or
      *         the same type as {@code <M>} if messages do not have contexts
      * @param <B>
      *         the type of this builder for return type covariance
@@ -227,7 +227,7 @@ abstract class Consumers<M extends Message, C extends MessageContext, W extends 
         /**
          * Assigns a handler for an error that may occur in the code of one of the consumers.
          *
-         * <p>After this handler called, remaining consumers will get the message as usually.
+         * <p>After this handler is called, remaining consumers will get the message as usual.
          *
          * @see #onStreamingError(ErrorHandler)
          */

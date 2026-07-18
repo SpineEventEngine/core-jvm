@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,14 +57,14 @@ import java.util.Iterator;
  * <p>In Spine 2.0 a new optional field has been added to {@code Mirror}.
  * {@link Mirror#getWasMigrated()} tells whether the given mirror record was already migrated.
  * The migration relies on a value of this field. It migrates only those records, for which a value
- * of this field is not set at all or equals to {@code false}.
+ * of this field is not set at all or equals {@code false}.
  *
  * <p>There is no particular ordering in which mirrors are fetched. For every batch
  * just the first {@code x} non-migrated records are queried. But, limiting the resulting dataset
  * requires at least one sorting directive. For this reason, the query result is additionally sorted
- * by {@link Mirror#getWasMigrated()}, which in fact makes no effect on the resulting dataset.
+ * by {@link Mirror#getWasMigrated()}, which in fact has no effect on the resulting dataset.
  *
- * <p>Mirrors, which are marked as archived or deleted – will be migrated as well.
+ * <p>Mirrors, which are marked as archived or deleted, will be migrated as well.
  *
  * <p><b>An example usage</b>
  *

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ public final class Assertions {
     }
 
     /**
-     * Asserts that each of the expected command class is available in the given collection.
+     * Asserts that each of the expected command classes is available in the given collection.
      */
     @SafeVarargs
     public static void assertCommandClasses(Collection<CommandClass> commandClasses,
@@ -60,7 +60,7 @@ public final class Assertions {
     }
 
     /**
-     * Asserts that each of the expected event class is available in the given collection.
+     * Asserts that each of the expected event classes is available in the given collection.
      */
     @SafeVarargs
     public static void assertEventClasses(Collection<EventClass> eventClasses,

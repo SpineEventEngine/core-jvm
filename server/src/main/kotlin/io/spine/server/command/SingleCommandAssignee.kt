@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,9 +33,9 @@ import io.spine.server.BoundedContext
 
 /**
  * Abstract base for [Assignee] classes that handle only one command specified by
- * the generic parameter [C]
+ * the generic parameter [C].
  *
- * @param C the type of the commands a derived is going to [handle].
+ * @param C the type of the commands a derived class is going to [handle].
  */
 public abstract class SingleCommandAssignee<C : CommandMessage> : AbstractAssignee() {
 

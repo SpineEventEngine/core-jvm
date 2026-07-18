@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -71,7 +71,7 @@ public final class EntityQueryToProto implements Function<EntityQuery<?, ?, ?>, 
     }
 
     /**
-     * Creates an instance of a transformer in a context of the passed {@code ClientRequest}.
+     * Creates an instance of a transformer in the context of the passed {@code ClientRequest}.
      *
      * <p>The instances of {@link Query} created by the transformer will rely on the properties
      * of the client associated with the request.

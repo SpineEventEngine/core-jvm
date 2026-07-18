@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package io.spine.grpc;
 
 import io.grpc.Metadata;
@@ -64,7 +65,7 @@ public final class StreamObservers {
     }
 
     /**
-     * A utility method that sends {@linkplain Responses#ok() acknowledgement}
+     * A utility method that sends an {@linkplain Responses#ok() acknowledgement}
      * to the client via the {@code responseObserver} provided and
      * {@linkplain StreamObserver#onCompleted() completes} the response.
      */
@@ -78,7 +79,7 @@ public final class StreamObservers {
      *
      * @param delegate the delegate observer
      * @param <T>      generic parameter type of the delegating observer to be created.
-     * @return delegating observer that only proxies errors.
+     * @return a delegating observer that only proxies errors.
      */
     @Internal
     public static <T> StreamObserver<T> forwardErrorsOnly(StreamObserver<?> delegate) {
@@ -89,7 +90,7 @@ public final class StreamObservers {
      * Creates an instance of observer that memoizes the responses.
      *
      * @param <T> type of objects streamed to this observer
-     * @return memoizing observer
+     * @return a memoizing observer
      */
     @Internal
     public static <T> MemoizingObserver<T> memoizingObserver() {
@@ -106,7 +107,7 @@ public final class StreamObservers {
      *
      * <p>If any other type of {@code Throwable} is passed, {@code Optional.empty()} is returned.
      *
-     * @param throwable the {@code Throwable} to extract an {@link Error}
+     * @param throwable the {@code Throwable} to extract an {@link Error} from
      * @return the extracted error or {@code Optional.empty()} if the extraction failed
      */
     @SuppressWarnings("ChainOfInstanceofChecks") // Only way to check an exact throwable type.

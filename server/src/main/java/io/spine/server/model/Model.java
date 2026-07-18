@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,7 +80,7 @@ public class Model {
      * Obtains the instance that belongs to the Bounded Context of the passed class.
      *
      * <p>The method tries to obtain the context from the annotations of the package "hierarchy"
-     * to which the class belongs. If no annotation found,
+     * to which the class belongs. If no annotation is found,
      * {@linkplain BoundedContextNames#assumingTests() test-only} will be created.
      *
      * @see BoundedContext

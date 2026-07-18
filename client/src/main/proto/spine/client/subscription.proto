@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 syntax = "proto3";
 
 package spine.client;
@@ -77,7 +78,7 @@ message Topic {
 message SubscriptionUpdate {
     option (is).java_type = "SubscriptionUpdateMixin";
 
-    // The subscription in which scope this update is propagated.
+    // The subscription in whose scope this update is propagated.
     Subscription subscription = 1 [(required) = true];
 
     // Represents the base part of the response,
@@ -89,13 +90,13 @@ message SubscriptionUpdate {
 
     // Deleted field `updates`.
     //
-    // Use new `update` field instead.
+    // Use the new `update` field instead.
     //
     reserved 10;
 
     // Deleted field `entity_state_updates`.
     //
-    // Use new `update` field instead.
+    // Use the new `update` field instead.
     //
     reserved 11;
 
@@ -106,7 +107,7 @@ message SubscriptionUpdate {
         // The entity state updates if it's an entity subscription.
         EntityUpdates entity_updates = 12;
 
-        // The new events occurred in the system if it's an event subscription.
+        // The new events that occurred in the system if it's an event subscription.
         EventUpdates event_updates = 13;
     }
 }
@@ -127,7 +128,7 @@ message EntityStateUpdate {
     // The update may be one of two things.
     oneof kind {
 
-        // The state of entity has been updated and packed here as `Any`.
+        // The state of the entity has been updated and packed here as `Any`.
         //
         // If the field mask is set in `Topic`, this value is masked.
         //
@@ -136,8 +137,8 @@ message EntityStateUpdate {
         // The state of the entity has been changed, so that previously it matched the subscription
         // `Target` filters, and now it does not.
         //
-        // For example, consider a subscription to all `UserSession`s in which user has sent at most
-        // `N` requests:
+        // For example, consider a subscription to all `UserSession`s in which a user has sent
+        // at most `N` requests:
         // ```
         // WHERE REQUEST_COUNT <= N
         // ```
@@ -181,7 +182,7 @@ message Subscription {
 
     // Unique identifier of the subscription.
     //
-    // Must be unique in scope of a bounded context.
+    // Must be unique in the scope of a bounded context.
     //
     SubscriptionId id = 1 [(required) = true];
 
@@ -189,7 +190,7 @@ message Subscription {
     Topic topic = 2 [(required) = true, (validate) = true];
 }
 
-// Enumeration of possible technical error reasons occurred in topic validation.
+// Enumeration of possible technical error reasons occurring in topic validation.
 enum TopicValidationError {
 
     // Reserved value.
@@ -202,7 +203,7 @@ enum TopicValidationError {
     INVALID_TOPIC = 2;
 }
 
-// Enumeration of possible technical error reasons occurred in subscription validation.
+// Enumeration of possible technical error reasons occurring in subscription validation.
 enum SubscriptionValidationError {
 
     // Reserved value.

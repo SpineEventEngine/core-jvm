@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package io.spine.server.stand;
 
 import com.google.protobuf.Message;
@@ -52,7 +53,7 @@ abstract class RequestValidator<M extends Message> {
     protected abstract ProtocolMessageEnum invalidMessageErrorCode();
 
     /**
-     * Obtains error code for an error of unsupported request target.
+     * Obtains an error code for an error of unsupported request target.
      */
     protected abstract ProtocolMessageEnum unsupportedTargetErrorCode();
 
@@ -120,7 +121,7 @@ abstract class RequestValidator<M extends Message> {
      * and packs it into an exception.
      *
      * @param request the request to check for support
-     * @return an instance of exception or null if the request is supported.
+     * @return an instance of an exception or null if the request is supported.
      */
     private @Nullable InvalidRequestException checkSupported(M request) {
         if (isSupported(request)) {
@@ -142,10 +143,10 @@ abstract class RequestValidator<M extends Message> {
     }
 
     /**
-     * Checks whether the {@code Message} of the given request conforms the constraints.
+     * Checks whether the {@code Message} of the given request conforms to the constraints.
      *
      * @param request the request message to validate
-     * @return an instance of exception or null if the request message is valid.
+     * @return an instance of an exception or null if the request message is valid.
      */
     private @Nullable InvalidRequestException validateMessage(M request) {
         var violations = Validate.violationsOf(request);

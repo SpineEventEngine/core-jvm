@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ import static java.util.stream.Collectors.toList;
  *     <li>{@linkplain #params() the specification of method parameters},
  *     <li>{@linkplain #modifier() the set of allowed access modifiers},
  *     <li>{@linkplain #returnTypes() the set of valid return types},
- *     <li>{@linkplain #allowedThrowable() the set of allowed exceptions}, that the method
+ *     <li>{@linkplain #allowedThrowable() the set of allowed exceptions} that the method
  *          declares to throw (empty by default),
  *     <li>whether an {@linkplain #mayReturnIgnored() ignored result},
  *         such as {@link io.spine.server.event.NoReaction NoReaction}, may be returned.
@@ -183,7 +183,7 @@ public abstract class ReceptorSignature<R extends Receptor<?, ?, E, ?>,
      * Creates a {@link Receptor} instance according to the passed
      * raw method and the parameter specification.
      *
-     * <p>By implementing this method descendants define how the parameter spec is used to fit
+     * <p>By implementing this method, descendants define how the parameter spec is used to fit
      * the {@code Message} envelope onto the parameter list during the method invocation.
      *
      * <p>This method is designed to NOT perform any matching, but rather create a specific
@@ -230,10 +230,10 @@ public abstract class ReceptorSignature<R extends Receptor<?, ?, E, ?>,
     }
 
     /**
-     * Match the method against the {@linkplain MatchCriterion criteria} and obtain a collection
+     * Matches the method against the {@linkplain MatchCriterion criteria} and obtains a collection
      * of mismatches, if any.
      *
-     * <p><strong>NOTE:</strong> this method does not test the presence of annotation.
+     * <p><strong>NOTE:</strong> this method does not test the presence of the annotation.
      *
      * @param method
      *         the method to match.

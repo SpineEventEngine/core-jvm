@@ -41,7 +41,7 @@ import io.spine.server.storage.StorageFactory
  * A history storage keeps items of the type [V] — e.g., the events emitted
  * by an entity, or the records of its past states — appended as the entity
  * handles its signals. Each stored item exposes the three
- * [columns][HistoryColumns], allowing to manage the history and query it
+ * [columns][HistoryColumns], allowing one to manage the history and query it
  * efficiently: the packed identifier of the entity, the time the item was
  * created, and the number of the entity version the item belongs to.
  *

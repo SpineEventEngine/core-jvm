@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -68,7 +68,7 @@ public abstract class DeliveryStrategy {
     }
 
     /**
-     * Creates a new {@code ShardIndex} according to the passed shard index
+     * Creates a new {@code ShardIndex} according to the passed shard index.
      *
      * <p>The passed shard index value must be less than the total number of shards specified.
      *
@@ -77,7 +77,7 @@ public abstract class DeliveryStrategy {
      * @param indexValue
      *         the value of the shard index, zero-based
      * @param ofTotal
-     *         the total number of shard
+     *         the total number of shards
      * @return a new instance of the {@code ShardIndex}
      */
     @Internal

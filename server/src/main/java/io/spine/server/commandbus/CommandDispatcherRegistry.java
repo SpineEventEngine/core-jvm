@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -87,7 +87,7 @@ public final class CommandDispatcherRegistry
 
     /**
      * Ensures that all of the commands of the passed dispatcher are not
-     * already registered for dispatched in this command bus.
+     * already registered for dispatching in this command bus.
      *
      * @throws IllegalArgumentException
      *          if at least one command class already has a registered dispatcher
@@ -112,7 +112,7 @@ public final class CommandDispatcherRegistry
      * @param alreadyRegistered
      *         the map of already registered classes or an empty set
      * @param registeringObject
-     *         the object which tries to register dispatching or handling
+     *         the object that tries to register dispatching or handling
      * @throws IllegalArgumentException
      *         if the set is not empty
      */

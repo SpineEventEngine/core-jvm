@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,8 +42,8 @@ final class LoggingTypeErrorHandler extends LoggingHandlerWithType implements Er
      * @param logger
      *         the instance of the logger to use for reporting the error
      * @param messageFormat
-     *         the formatting message with one string parameter is the name of the message type
-     *         which caused the error
+     *         the formatting message where one string parameter is the name of the message type
+     *         that caused the error
      * @param type
      *         the type of the message which caused the error
      */

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -28,7 +28,7 @@
  * This package provides classes for return values from message-handling methods.
  *
  * <h3>Overview</h3>
- * 
+ *
  * <p>Although tuples are <a href="https://github.com/google/guava/wiki/IdeaGraveyard#tuples-for-n--2">
  * considered harmful</a> in general, they are useful for describing types of several messages
  * returned by a method. Consider the following example.
@@ -62,12 +62,12 @@
  * other purposes.
  *
  * <h3>Two groups of classes</h3>
- * 
+ *
  * This package provides two groups of classes:
  * <ol>
  *     <li>{@link io.spine.server.tuple.Tuple Tuple} classes are for returning more than one message.
  *     <li>Alternatives — classes derived from {@link io.spine.server.tuple.Either Either} — are
- *     for returning only one message belonging the known set of types.
+ *     for returning only one message belonging to the known set of types.
  * </ol>
  *
  * <h3>Generic Parameters</h3>
@@ -93,7 +93,7 @@
  * <p>Tuple classes allow {@link java.util.Optional Optional} starting from
  * the second generic argument. The example below shows the method that always returns
  * the {@code TaskCreated} event, and returns the {@code TaskAssigned} event only if
- * the {@code CreateTask} command instructs to assign the task to a person.
+ * the {@code CreateTask} command instructs assigning the task to a person.
  * <pre>
  *    {@literal @}Assign
  *     Pair&lt;TaskCreated, Optional&lt;TaskAssigned&gt;&gt; on(CreateTask cmd) { ... }
@@ -121,8 +121,8 @@
  * classes.
  *
  * <p>We believe that a list of alternatives longer than five is hard to understand.
- * If you face a such a need, consider splitting incoming message into two or more independent ones
- * so that their outcome is more obvious.
+ * If you face such a need, consider splitting the incoming message into two or more
+ * independent ones so that their outcome is more obvious.
  *
  * <h3>Using Tuples with Alternatives</h3>
  *

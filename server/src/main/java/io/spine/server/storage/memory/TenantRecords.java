@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -72,7 +72,7 @@ final class TenantRecords<I, R extends Message>
     }
 
     /**
-     * Obtains the iterator over the identifiers of the records which match the passed query.
+     * Obtains the iterator over the identifiers of the records that match the passed query.
      */
     public Iterator<I> index(RecordQuery<I, R> query) {
         var subset = findRecords(query);
@@ -88,7 +88,7 @@ final class TenantRecords<I, R extends Message>
     /**
      * Returns the message with the passed identifier and applies the given field mask to it.
      *
-     * <p>If there is no such a message stored, returns {@code Optional.empty()}.
+     * <p>If there is no such message stored, returns {@code Optional.empty()}.
      */
     public Optional<R> get(I id, FieldMask mask) {
         return get(id).map(r -> new FieldMaskApplier<R>(mask).apply(r.record()));

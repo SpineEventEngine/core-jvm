@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -48,7 +48,7 @@ public final class FieldMasks {
     }
 
     /**
-     * Applies the given {@code FieldMask} to given collection of {@link Message}s.
+     * Applies the given {@code FieldMask} to the given collection of {@link Message}s.
      * Does not change the {@link Collection} itself.
      *
      * <p>If the {@code FieldMask} instance contains invalid field declarations, they are
@@ -82,9 +82,9 @@ public final class FieldMasks {
      * some required fields, the resulting instance is always built with {@code buildPartial()}.
      *
      * @param mask    the {@code FieldMask} to apply
-     * @param message the {@link Message} to apply given mask to
+     * @param message the {@link Message} to apply the given mask to
      * @return the message of the same type as the given one with only selected fields if
-     * the {@code mask} is valid, original message otherwise.
+     * the {@code mask} is valid, the original message otherwise.
      */
     public static <M extends Message> @NonValidated M applyMask(FieldMask mask, M message) {
         checkNotNull(mask);

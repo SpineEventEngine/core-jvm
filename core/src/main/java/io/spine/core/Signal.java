@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -47,7 +47,7 @@ import static io.spine.protobuf.AnyPacker.pack;
  * A message that can be dispatched and cause other messages.
  *
  * <p>A signal message travels through the system just like an electronic signal travels through
- * a neural network. It cases the system to change its state either directly or by exciting other
+ * a neural network. It causes the system to change its state either directly or by exciting other
  * signals.
  *
  * <p>A signal message may originate from outside the system, from a user, or from a policy

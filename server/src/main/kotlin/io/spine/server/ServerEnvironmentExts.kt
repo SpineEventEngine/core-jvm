@@ -1,11 +1,11 @@
 /*
- * Copyright 2023, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -31,7 +31,7 @@ package io.spine.server
 import io.spine.environment.EnvironmentType
 
 /**
- * Allows to configure [ServerEnvironment] features under various environments.
+ * Allows configuring [ServerEnvironment] features under various environments.
  *
  * Example of usage:
  * ```kotlin
@@ -45,7 +45,7 @@ import io.spine.environment.EnvironmentType
  * ```
  *
  * ### API NOTE
- * This function allows to avoid calling [ServerEnvironment.when] from Kotlin, which
+ * This function allows avoiding calling [ServerEnvironment.when] from Kotlin, which
  * requires backticking `"when"` because it is a reserved word.
  */
 public inline fun <reified E : EnvironmentType<*>>

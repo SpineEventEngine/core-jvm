@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -56,10 +56,10 @@ public interface BusFilter<E extends MessageEnvelope<?, ?, ?>> extends Closeable
      * <p>A filter can:
      * <ul>
      *     <li>accept the message (by returning {@code Optional.empty()});
-     *     <li>reject the message with {@link io.spine.base.Error Error} status, for example, if
+     *     <li>reject the message with an {@link io.spine.base.Error Error} status, for example, if
      *         it fails to pass the validation;
-     *     <li>reject the message with {@code OK} status. For example, a scheduled command may not
-     *         pass a filter;
+     *     <li>reject the message with an {@code OK} status. For example, a scheduled command
+     *         may not pass a filter;
      *     <li>reject the message with a business rejection. For example, a command can be rejected
      *         if the user who made the request does not have enough permissions in the system.
      *         Such rejection is only applicable to commands.

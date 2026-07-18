@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -32,7 +32,7 @@ import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.type.EventEnvelope;
 
 /**
- * Dispatches event to reacting process managers.
+ * Dispatches an event to reacting process managers.
  *
  * @param <I> the type of process manager IDs
  * @param <P> the type of process managers

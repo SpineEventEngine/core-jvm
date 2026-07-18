@@ -88,7 +88,7 @@ public abstract class MessageStorage<I, M extends Message> extends DelegatingRec
      * <p>The columns are extracted using the {@linkplain #recordSpec() record specification}.
      *
      * <p>The identifier for the written record is determined by the passed {@code id} value,
-     * while the ID value provided record specification is ignored.
+     * while the ID value provided by the record specification is ignored.
      *
      * @param id
      *         the identifier to use for the written record

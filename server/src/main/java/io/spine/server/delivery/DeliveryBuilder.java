@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -334,7 +334,7 @@ public final class DeliveryBuilder {
      * Sets strategy of assigning a shard index for a message that is delivered to a particular
      * target.
      *
-     * <p>If none set, {@link UniformAcrossAllShards#singleShard()} is be used.
+     * <p>If none set, {@link UniformAcrossAllShards#singleShard()} is used.
      */
     @CanIgnoreReturnValue
     public DeliveryBuilder setStrategy(DeliveryStrategy strategy) {

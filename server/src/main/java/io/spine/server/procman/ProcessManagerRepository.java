@@ -197,7 +197,7 @@ public abstract class ProcessManagerRepository<I,
     /**
      * Obtains a set of classes of commands handled by process managers of this repository.
      *
-     * @return a set of command classes or empty set if process managers do not handle commands
+     * @return a set of command classes or an empty set if process managers do not handle commands
      */
     @Override
     public final ImmutableSet<CommandClass> commandClasses() {
@@ -246,7 +246,7 @@ public abstract class ProcessManagerRepository<I,
     }
 
     /**
-     * Posts passed commands to {@link CommandBus}.
+     * Posts the passed commands to {@link CommandBus}.
      */
     final void postCommands(Collection<Command> commands) {
         var bus = context().commandBus();

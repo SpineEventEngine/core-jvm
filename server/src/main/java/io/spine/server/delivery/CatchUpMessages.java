@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -49,7 +49,7 @@ final class CatchUpMessages {
     }
 
     /**
-     * Creates a {@code CatchUpStarted} event messages with the specified ID.
+     * Creates a {@code CatchUpStarted} event message with the specified ID.
      */
     static CatchUpStarted started(CatchUpId id) {
         checkNotNull(id);
@@ -59,7 +59,7 @@ final class CatchUpMessages {
     }
 
     /**
-     * Creates a limit to be used in quering the {@link io.spine.server.event.EventStore
+     * Creates a limit to be used in querying the {@link io.spine.server.event.EventStore
      * EventStore}.
      */
     static EventStreamQuery.Limit limitOf(int value) {
@@ -69,7 +69,7 @@ final class CatchUpMessages {
     }
 
     /**
-     * Creates a {@code HistoryEventsRecalled} event messages with the specified ID.
+     * Creates a {@code HistoryEventsRecalled} event message with the specified ID.
      */
     static HistoryEventsRecalled recalled(CatchUpId id) {
         checkNotNull(id);
@@ -79,7 +79,7 @@ final class CatchUpMessages {
     }
 
     /**
-     * Creates a {@code HistoryFullyRecalled} event messages with the specified ID.
+     * Creates a {@code HistoryFullyRecalled} event message with the specified ID.
      */
     static HistoryFullyRecalled fullyRecalled(CatchUpId id) {
         checkNotNull(id);
@@ -102,7 +102,7 @@ final class CatchUpMessages {
     }
 
     /**
-     * Creates a {@code LiveEventsPickedUp} event messages with the specified ID.
+     * Creates a {@code LiveEventsPickedUp} event message with the specified ID.
      */
     static LiveEventsPickedUp liveEventsPickedUp(CatchUpId id) {
         checkNotNull(id);
@@ -112,7 +112,7 @@ final class CatchUpMessages {
     }
 
     /**
-     * Creates a {@code CatchUpCompleted} event messages with the specified ID.
+     * Creates a {@code CatchUpCompleted} event message with the specified ID.
      */
     static CatchUpCompleted catchUpCompleted(CatchUpId id) {
         checkNotNull(id);

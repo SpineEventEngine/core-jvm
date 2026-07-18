@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,14 +26,14 @@
 
 /**
  * This package provides test utilities for implementing black box server testing.
- * Such a tests would provide an ability to test complex systems without setting up 
+ * Such tests would provide an ability to test complex systems without setting up
  * the infrastructure.
- * 
+ *
  * <p>One such black box example is for {@link io.spine.testing.server.blackbox.BlackBox
- * Bounded Context testing}. It allows sending Commands and Events to the 
- * {@link io.spine.server.BoundedContext Bounded Context} and then verifying their effect 
+ * Bounded Context testing}. It allows sending Commands and Events to the
+ * {@link io.spine.server.BoundedContext Bounded Context} and then verifying their effect
  * inside the Bounded Context.
- * 
+ *
  * @see io.spine.testing.server.blackbox.BlackBox
  */
 @CheckReturnValue

@@ -139,7 +139,7 @@ public abstract class Repository<I, E extends Entity<I, ?>>
      * Finds an entity with the passed ID.
      *
      * @param id the ID of the entity to load
-     * @return the entity or {@link Optional#empty()} if there's no entity with such ID
+     * @return the entity or {@link Optional#empty()} if there's no entity with such an ID
      */
     public abstract Optional<E> find(I id);
 
@@ -206,8 +206,8 @@ public abstract class Repository<I, E extends Entity<I, ?>>
     /**
      * Assigns a {@code BoundedContext} to this repository.
      *
-     * <p>A context for a repository can be set only once. Passing the same second time will have
-     * no effect.
+     * <p>A context for a repository can be set only once. Passing the same context a second time
+     * will have no effect.
      *
      * <p>If the repository is not {@linkplain #isOpen() opened} prior to this call, it is opened.
      *
@@ -283,7 +283,7 @@ public abstract class Repository<I, E extends Entity<I, ?>>
      *
      * <p>Normally repositories are type suppliers. Some types of internal repositories are
      * not type suppliers because data of their entities should not be exposed.
-     * Those classes of repositories should overwrite this method returning {@code false}.
+     * Those classes of repositories should override this method returning {@code false}.
      *
      * @return true by default
      */
@@ -335,7 +335,7 @@ public abstract class Repository<I, E extends Entity<I, ?>>
      * {@linkplain #createStorage() creating} standard storages.
      *
      * <p>In order to create a custom storage, please override {@link #createStorage()} providing
-     * custom implementation.
+     * a custom implementation.
      *
      * @see #createStorage()
      */
@@ -383,7 +383,7 @@ public abstract class Repository<I, E extends Entity<I, ?>>
      * <p>Default implementations use {@link #defaultStorageFactory()} invoking its method
      * that creates a storage compatible with the repository.
      *
-     * <p>Overwrite this method for creating a custom implementation of {@code Storage}.
+     * <p>Override this method for creating a custom implementation of {@code Storage}.
      *
      * @return the created storage instance
      */

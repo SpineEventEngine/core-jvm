@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package io.spine.server.transport.memory;
 
 import com.google.common.collect.HashMultimap;
@@ -41,7 +42,7 @@ import static com.google.common.collect.Multimaps.synchronizedMultimap;
  * In-memory implementation of the {@link TransportFactory}.
  *
  * <p>Publishers and subscribers must be in the same JVM.
- * Therefore, this factory usage should be limited to tests.
+ * Therefore, this factory's usage should be limited to tests.
  */
 public class InMemoryTransportFactory implements TransportFactory {
 
@@ -51,10 +52,10 @@ public class InMemoryTransportFactory implements TransportFactory {
     private final Multimap<ChannelId, Subscriber> subscribers =
             synchronizedMultimap(HashMultimap.create());
 
-    /** Turns {@code true} upon {@linkplain #close()} closing} the factory. */
+    /** Turns {@code true} upon {@linkplain #close() closing} the factory. */
     private boolean closed;
 
-    /** Prevent direct instantiation from outside the inheritance tree. */
+    /** Prevents direct instantiation from outside the inheritance tree. */
     protected InMemoryTransportFactory() {
     }
 
@@ -90,7 +91,7 @@ public class InMemoryTransportFactory implements TransportFactory {
      *
      * @param id
      *         the identifier of the resulting subscriber
-     * @return an instance of subscribe
+     * @return an instance of a subscriber
      */
     protected Subscriber newSubscriber(ChannelId id) {
         checkNotNull(id);
@@ -103,7 +104,7 @@ public class InMemoryTransportFactory implements TransportFactory {
      *
      * @param subscribers
      *         currently registered subscribers
-     * @return a provider function allowing to fetch subscribers by the message type
+     * @return a provider function allowing fetching subscribers by the message type
      */
     private static Function<ChannelId, Iterable<Subscriber>>
     providerOf(Multimap<ChannelId, Subscriber> subscribers) {
