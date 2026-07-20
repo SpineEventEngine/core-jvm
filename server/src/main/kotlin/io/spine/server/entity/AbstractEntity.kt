@@ -56,13 +56,12 @@ import java.util.function.Function
 /**
  * Abstract base for entities.
  *
- * @param I
- *         the type of entity identifiers
- * @param S
- *         the type of entity state objects
+ * @param I The type of entity identifiers.
+ * @param S The type of entity state objects.
  */
-// The base type for all entities, so it naturally exposes many members.
-@Suppress("TooManyFunctions")
+@Suppress(
+    "TooManyFunctions" /* The base type for all entities, so it naturally exposes many members. */
+)
 public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
     Entity<I, S>, ReceptorLifecycle<AbstractEntity<I, S>> {
 
@@ -171,10 +170,8 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      * Creates a new instance with the passed ID and default entity state obtained
      * from the passed function.
      *
-     * @param id
-     *         the ID of the new entity
-     * @param defaultState
-     *         the function to obtain new entity state
+     * @param id The ID of the new entity.
+     * @param defaultState The function to obtain a new entity state.
      */
     protected constructor(id: I, defaultState: Function<I, S>) : this(id) {
         setState(defaultState.apply(id))
@@ -198,7 +195,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      * If the state of the entity was not initialized, it is set to
      * [default value][defaultState] and returned.
      *
-     * @return the current state or default state value
+     * @return The current state or default state value.
      */
     final override fun state(): S {
         ensureAccessToState()
@@ -265,10 +262,8 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      *
      * The new state must be [valid][validate].
      *
-     * @param state
-     *         the new state to set
-     * @throws InvalidEntityStateException
-     *         if the passed state is not [valid][validate]
+     * @param state The new state to set.
+     * @throws InvalidEntityStateException If the passed state is not [valid][validate].
      */
     @JvmName("updateState")
     internal fun updateState(state: S) {
@@ -279,11 +274,10 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
     /**
      * Verifies the new entity state and returns [ConstraintViolation]s, if any.
      *
-     * Default implementation uses the [message validation][Validate.violationsOf].
+     * The default implementation uses the [message validation][Validate.violationsOf].
      *
-     * @param newState
-     *         a state object to replace the current state
-     * @return the constraint violations
+     * @param newState A state object to replace the current state.
+     * @return The constraint violations.
      */
     protected fun checkEntityState(newState: S): List<ConstraintViolation> {
         val violations = ImmutableList.builder<ConstraintViolation>()
@@ -294,10 +288,8 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
     /**
      * Ensures that the passed new state is valid.
      *
-     * @param newState
-     *         a state object to replace the current state
-     * @throws InvalidEntityStateException
-     *         if the state is not valid
+     * @param newState A state object to replace the current state.
+     * @throws InvalidEntityStateException If the state is not valid.
      * @see checkEntityState
      */
     private fun validate(newState: S) {
@@ -313,7 +305,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      * Subsequent calls to the method return a cached instance of the string, which minimizes
      * the performance impact of repeated calls.
      *
-     * @return the string form of the entity ID
+     * @return The string form of the entity ID.
      */
     override fun idAsString(): String {
         stringId?.let { return it }
@@ -344,7 +336,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
     /**
      * Tests whether the entity is marked as archived.
      *
-     * @return `true` if the entity is archived, `false` otherwise
+     * @return `true` if the entity is archived, `false` otherwise.
      */
     final override fun isArchived(): Boolean = lifecycleFlags().archived
 
@@ -362,7 +354,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
     /**
      * Tests whether the entity is marked as deleted.
      *
-     * @return `true` if the entity is deleted, `false` otherwise
+     * @return `true` if the entity is deleted, `false` otherwise.
      */
     final override fun isDeleted(): Boolean = lifecycleFlags().deleted
 
@@ -380,8 +372,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
     /**
      * Ensures that the entity is not marked as `archived`.
      *
-     * @throws CannotModifyArchivedEntity
-     *         if the entity is in the archived status
+     * @throws CannotModifyArchivedEntity If the entity is in the archived status.
      * @see lifecycleFlags
      * @see LifecycleFlags.archived
      */
@@ -397,8 +388,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
     /**
      * Ensures that the entity is not marked as `deleted`.
      *
-     * @throws CannotModifyDeletedEntity
-     *         if the entity is marked as `deleted`
+     * @throws CannotModifyDeletedEntity If the entity is marked as `deleted`.
      * @see lifecycleFlags
      * @see LifecycleFlags.deleted
      */
@@ -428,15 +418,11 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      *
      * The passed version must have a number not less than the current version of the entity.
      *
-     * @param state
-     *         the state object to set
-     * @param version
-     *         the entity version to set
-     * @throws IllegalStateException
-     *         if the passed state is not valid
-     * @throws IllegalArgumentException
-     *         if the passed version has a number lower than the current
-     *         version of the entity
+     * @param state The state object to set.
+     * @param version The entity version to set.
+     * @throws IllegalStateException If the passed state is not valid.
+     * @throws IllegalArgumentException If the passed version has a number lower than
+     *   the current version of the entity.
      */
     @JvmName("updateState")
     internal fun updateState(state: S, version: Version) {
@@ -475,8 +461,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      *
      * Please use `updateState` directly in the production code.
      *
-     * @param newState
-     *         a new state to set
+     * @param newState A new state to set.
      */
     @VisibleForTesting
     @JvmName("incrementState")
@@ -500,7 +485,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
     /**
      * Advances the current version by one and records the time of the modification.
      *
-     * @return the new version number
+     * @return The new version number.
      */
     protected open fun incrementVersion(): Int {
         setVersion(incrementedVersion())
@@ -560,12 +545,11 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      * An entity created outside a repository has no recorded history and
      * reads an empty `Optional`.
      *
-     * @param time
-     *         the point in time to look at
-     * @return the state at the given time, or an empty `Optional` if the
-     *         recorded history does not retain it
-     * @throws IllegalStateException
-     *         if the repository of this entity does not record the state history
+     * @param time The point in time to look at.
+     * @return The state at the given time, or an empty `Optional` if the
+     *         recorded history does not retain it.
+     * @throws IllegalStateException If the repository of this entity
+     *   does not record the state history.
      */
     protected fun stateAt(time: Timestamp): Optional<S> {
         val state = recentStateHistory.stateAt(time)
@@ -587,13 +571,11 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      * An entity created outside a repository has no recorded history and
      * reads an empty iterator.
      *
-     * @param depth
-     *         the maximal number of the most recent states to return; must be positive
-     * @return new iterator instance
-     * @throws IllegalArgumentException
-     *         if the [depth] is not positive
-     * @throws IllegalStateException
-     *         if the repository of this entity does not record the state history
+     * @param depth The maximal number of the most recent states to return; must be positive.
+     * @return New iterator instance.
+     * @throws IllegalArgumentException If the [depth] is not positive.
+     * @throws IllegalStateException If the repository of this entity does not record
+     *   the state history.
      */
     protected fun stateHistoryBackward(depth: Int): Iterator<S> =
         recentStateHistory.read(depth)
@@ -606,7 +588,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      * iff the receptor performs logging.
      *
      * @param method
-     *         the receptor method that is going to be called
+     *         The receptor method that is going to be called.
      *
      * @see afterInvoke
      */
