@@ -26,8 +26,6 @@
 
 package io.spine.server.entity
 
-import java.util.Collections
-
 /**
  * A view on the recent history of a [TransactionalEntity], read lazily from
  * a durable storage.
@@ -82,7 +80,7 @@ public abstract class RecentHistory<T : Any, L : HistoryLoader<*>> internal cons
      */
     public fun read(depth: Int): Iterator<T> {
         require(depth > 0) { "History depth must be positive. Got $depth." }
-        val installed = loader ?: return Collections.emptyIterator()
+        val installed = loader ?: return emptyList<T>().iterator()
         return load(installed, depth)
     }
 
