@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -74,6 +74,30 @@ public class TestEntity
 
     private TestEntity(ProjectId id) {
         super(id);
+    }
+
+    // The following four methods widen the `protected` lifecycle members of
+    // `AbstractEntity` to `public`, so that the Kotlin `EntitySpec` — which is not
+    // a subclass and therefore cannot reach `protected` members — can exercise them.
+
+    @Override
+    public void setArchived(boolean archived) {
+        super.setArchived(archived);
+    }
+
+    @Override
+    public void setDeleted(boolean deleted) {
+        super.setDeleted(deleted);
+    }
+
+    @Override
+    public void checkNotArchived() {
+        super.checkNotArchived();
+    }
+
+    @Override
+    public void checkNotDeleted() {
+        super.checkNotDeleted();
     }
 
     public static class TestEntityBuilder extends EntityBuilder<TestEntity, ProjectId, Project> {
