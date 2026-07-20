@@ -34,8 +34,7 @@ import io.spine.testdata.Sample;
 import static io.spine.base.Identifier.newUuid;
 
 public class TestEntity
-        extends AbstractEntity<ProjectId, Project>
-        implements HasLifecycleColumns<ProjectId, Project> {
+        extends AbstractEntity<ProjectId, Project> {
 
     static TestEntity newInstance(String id) {
         var result = new TestEntityBuilder()

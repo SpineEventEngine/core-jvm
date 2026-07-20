@@ -34,7 +34,6 @@ import io.spine.core.EventValidationError;
 import io.spine.server.dispatch.BatchDispatchOutcome;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.EventPlayer;
-import io.spine.server.entity.HasLifecycleColumns;
 import io.spine.server.entity.TransactionalEntity;
 import io.spine.server.event.EventSubscriber;
 import io.spine.server.projection.model.ProjectionClass;
@@ -67,8 +66,7 @@ public abstract class Projection<I,
                                  B extends ValidatingBuilder<M>>
         extends TransactionalEntity<I, M, B>
         implements EventPlayer,
-                   EventSubscriber,
-                   HasLifecycleColumns<I, M> {
+                   EventSubscriber {
 
     /**
      * Creates a new instance.
