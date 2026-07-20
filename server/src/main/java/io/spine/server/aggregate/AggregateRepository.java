@@ -364,7 +364,7 @@ public abstract class AggregateRepository<I,
      *
      * <p>When enabled, each dispatch scans the last {@link #eventHistoryDepth()} events of
      * the aggregate's recent history — including the events of the current delivery batch
-     * which have not reached the journal yet — and rejects a signal already seen among them,
+     * that have not reached the journal yet — and rejects a signal already seen among them,
      * however long ago it was dispatched. This mechanism is distinct from the delivery
      * layer's time-windowed deduplication. The guard is <b>off by default</b> for
      * performance: it adds a bounded history read to every dispatch.

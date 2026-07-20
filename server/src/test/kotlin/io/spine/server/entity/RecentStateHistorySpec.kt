@@ -200,10 +200,10 @@ internal class RecentStateHistorySpec {
 }
 
 /**
- * A loader over an in-memory state history which records how it was called.
+ * A loader over an in-memory state history that records how it was called.
  *
- * The records arrive in the chronological order and are [served][load]
- * newest first, honoring the strict-less `startingFrom` filter of
+ * The records arrive in chronological order and are [served][load]
+ * newest first, honoring the exclusive `startingFrom` filter of
  * the real storage.
  */
 private class StubStateHistory(

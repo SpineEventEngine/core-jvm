@@ -117,7 +117,7 @@ internal constructor() {
     /**
      * Appends the given records to this history as its newest items.
      *
-     * The records must arrive in the chronological order, so that the last
+     * The records must arrive in chronological order, so that the last
      * of them becomes the newest item of the history.
      *
      * The caller — the framework code persisting the outcome of

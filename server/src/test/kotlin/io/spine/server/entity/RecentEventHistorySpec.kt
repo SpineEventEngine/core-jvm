@@ -126,7 +126,7 @@ internal class RecentEventHistorySpec {
         full shouldContainExactly listOf(eB, eA, eC)
         again shouldContainExactly listOf(eB, eA, eC)
         // The continuation resumes from the oldest cached item — a group
-        // boundary — so `eA` is never lost to the strict-less version
+        // boundary — so `eA` is never lost to the exclusive version
         // filter of the storage.
         journal.lastStartingFrom shouldBe eA.context.version
     }
@@ -281,10 +281,10 @@ internal class RecentEventHistorySpec {
 }
 
 /**
- * A loader over an in-memory journal which records how it was called.
+ * A loader over an in-memory journal that records how it was called.
  *
- * The events arrive in the chronological order and are [served][load]
- * newest first, honoring the strict-less `startingFrom` filter of
+ * The events arrive in chronological order and are [served][load]
+ * newest first, honoring the exclusive `startingFrom` filter of
  * the real storage.
  */
 private class StubJournal(vararg chronological: Event) : EventHistoryLoader {

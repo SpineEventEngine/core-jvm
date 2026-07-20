@@ -272,7 +272,7 @@ public abstract class AbstractEntityRepository<I,
      *
      * <p>The switch may be flipped at runtime: dispatch workers observe it on their
      * next dispatch. A dispatch already past its recording check may append one more
-     * record after this call returns. An entity instance which cached the records
+     * record after this call returns. An entity instance that cached the records
      * appended while the recording was on — e.g., in the middle of a delivery
      * batch — keeps serving them from memory for the rest of its lifetime.
      *
