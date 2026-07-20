@@ -58,7 +58,7 @@ final class IdempotencyGuard {
     private boolean enabled = false;
 
     /** The number of the most recent journal events scanned for a duplicate when enabled. */
-    private int historyDepth = 100;
+    private int historyDepth = 0;
 
     IdempotencyGuard(Aggregate<?, ?, ?> aggregate) {
         this.aggregate = aggregate;
