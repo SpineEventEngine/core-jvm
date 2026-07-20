@@ -53,13 +53,17 @@ final class UncommittedHistory {
      *
      * @param produced
      *         the events emitted by the current command handler or reactor
+     * @return the events kept for journaling by this call, in the order of emission
      */
-    void record(Iterable<Event> produced) {
+    List<Event> record(Iterable<Event> produced) {
+        var kept = ImmutableList.<Event>builder();
         for (var event : produced) {
             if (!event.isRejection()) {
                 events.add(event);
+                kept.add(event);
             }
         }
+        return kept.build();
     }
 
     /**

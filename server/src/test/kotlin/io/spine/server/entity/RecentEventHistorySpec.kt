@@ -154,9 +154,57 @@ internal class RecentEventHistorySpec {
         val e1 = newEvent(version = 1)
         val e2 = newEvent(version = 2)
 
-        history.append(listOf(e1, e2))
+        history.append(e1)
+        history.append(e2)
 
         history.read(5).asSequence().toList() shouldContainExactly listOf(e2, e1)
+    }
+
+    @Test
+    fun `serve a uniform appended group newest first`() {
+        val eA = newEvent(version = 5)
+        val eB = newEvent(version = 5)
+
+        history.append(listOf(eA, eB))
+
+        history.read(5).asSequence().toList() shouldContainExactly listOf(eB, eA)
+    }
+
+    @Test
+    fun `drop the cache when an appended group mixes versions`() {
+        val e1 = newEvent(version = 1)
+        val journal = StubJournal(e1)
+        history.useLoader(journal)
+        history.read(5).asSequence().toList()
+
+        history.append(listOf(newEvent(version = 2), newEvent(version = 3)))
+
+        val read = history.read(5).asSequence().toList()
+        read shouldContainExactly listOf(e1)
+        // The healing also reset `exhausted`, so the storage was consulted again.
+        journal.calls shouldBe 2
+    }
+
+    @Test
+    fun `drop the cache when an appended group does not extend the history`() {
+        history.append(newEvent(version = 2))
+
+        history.append(newEvent(version = 2))
+
+        history.read(5)
+            .asSequence()
+            .toList()
+            .shouldBeEmpty()
+    }
+
+    @Test
+    fun `ignore an empty append`() {
+        val e2 = newEvent(version = 2)
+        history.append(e2)
+
+        history.append(emptyList())
+
+        history.read(5).asSequence().toList() shouldContainExactly listOf(e2)
     }
 
     @Test

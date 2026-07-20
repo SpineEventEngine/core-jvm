@@ -158,9 +158,22 @@ internal class RecentStateHistorySpec {
         val older = newState()
         val newer = newState()
 
-        history.append(listOf(record(older, number = 1), record(newer, number = 2)))
+        history.append(record(older, number = 1))
+        history.append(record(newer, number = 2))
 
         history.read(5).asSequence().toList() shouldContainExactly listOf(newer, older)
+    }
+
+    @Test
+    fun `drop the cache when an appended record is not newer than the cached ones`() {
+        history.append(record(newState(), number = 2))
+
+        history.append(record(newState(), number = 1))
+
+        history.read(5)
+            .asSequence()
+            .toList()
+            .shouldBeEmpty()
     }
 
     @Test

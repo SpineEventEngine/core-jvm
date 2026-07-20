@@ -181,10 +181,17 @@ public abstract class AbstractEntityRepository<I,
      * <p>A failure to record the history fails the dispatch. Under a batched delivery,
      * the durable state write may happen later, at the batch flush, so a history record
      * may briefly precede the state it captures.
+     *
+     * <p>Once the durable write succeeds, the record also enters the
+     * {@linkplain AbstractEntity#appendToStateHistory(EntityRecord) recent state history}
+     * of the entity instance, so the reads served by this instance — e.g., during the
+     * later dispatches of a delivery batch — come from memory.
      */
     private void appendStateHistory(E entity) {
         var history = stateHistoryStorage();
-        history.write(StorageConverter.toEntityRecord(entity).build());
+        var record = StorageConverter.toEntityRecord(entity).build();
+        history.write(record);
+        entity.appendToStateHistory(record);
     }
 
     /**
@@ -265,7 +272,9 @@ public abstract class AbstractEntityRepository<I,
      *
      * <p>The switch may be flipped at runtime: dispatch workers observe it on their
      * next dispatch. A dispatch already past its recording check may append one more
-     * record after this call returns.
+     * record after this call returns. An entity instance which cached the records
+     * appended while the recording was on — e.g., in the middle of a delivery
+     * batch — keeps serving them from memory for the rest of its lifetime.
      *
      * <p>To also purge the retained records, truncate the history up to the present
      * <em>before</em> stopping: {@code stateHistory().truncate(currentTime())}.

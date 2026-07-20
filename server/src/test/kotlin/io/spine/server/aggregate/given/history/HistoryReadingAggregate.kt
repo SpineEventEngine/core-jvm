@@ -27,6 +27,7 @@
 package io.spine.server.aggregate.given.history
 
 import com.google.protobuf.Timestamp
+import io.spine.core.Event
 import io.spine.server.aggregate.Aggregate
 import io.spine.server.command.Assign
 import io.spine.server.event.NoReaction
@@ -105,6 +106,9 @@ internal class HistoryReadingAggregate(id: ProjectId) :
         statesSeenOnStart = stateHistoryBackward(10)
             .asSequence()
             .toList()
+        eventsSeenOnStart = eventHistoryBackward(10)
+            .asSequence()
+            .toList()
         alter {
             status = Status.STARTED
         }
@@ -123,6 +127,11 @@ internal class HistoryReadingAggregate(id: ProjectId) :
      */
     fun readStatesBackward(depth: Int): Iterator<AggProject> = stateHistoryBackward(depth)
 
+    /**
+     * Reads up to [depth] most recent events of this aggregate, newest first.
+     */
+    fun readEventsBackward(depth: Int): Iterator<Event> = eventHistoryBackward(depth)
+
     internal companion object {
 
         /**
@@ -133,5 +142,13 @@ internal class HistoryReadingAggregate(id: ProjectId) :
          * the one a test can obtain from the repository afterwards.
          */
         var statesSeenOnStart: List<AggProject> = emptyList()
+
+        /**
+         * The recent events the [AggStartProject] receptor saw during
+         * the dispatch, newest first.
+         *
+         * Captured statically for the same reason as [statesSeenOnStart].
+         */
+        var eventsSeenOnStart: List<Event> = emptyList()
     }
 }

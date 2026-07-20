@@ -61,6 +61,27 @@ Full plan: `.claude/plans/toasty-wibbling-leaf.md` (session-local).
   `AggregateRepositoryStateHistorySpec` (fail-fast contract), then full
   `./gradlew build`.
 
+## Follow-up: `append` wiring (same branch, second commit)
+
+- Event side: `UncommittedHistory.record` returns the kept events;
+  `Aggregate.recordEvents` appends them to the recent event history at the
+  per-dispatch commit point (success-only, post-transaction). Visibility
+  change: earlier same-batch dispatches' events are now readable, and the
+  `IdempotencyGuard` catches duplicates within one batch; docs updated in
+  `Aggregate`, `IdempotencyGuard`, `AggregateRepository`.
+- State side: `AbstractEntityRepository.appendStateHistory` writes the
+  durable record first, then appends it to the entity instance via the new
+  `AbstractEntity.appendToStateHistory` forwarder. No visibility change —
+  read-optimization only.
+- `append` is self-healing instead of `require`-guarded: a group breaking
+  the contract (uniform version strictly above the cache head) clears the
+  cache and is dropped — reads fall back to storage. Rationale: catch-up
+  replay overlaps versions; a cache must never fail a dispatch.
+- New `AggregateRecentHistorySpec` pins: same-instance visibility,
+  own-dispatch exclusion, batch visibility (`beginBatch`/`endBatch` fixture
+  lever over `cache().startCaching/stopCaching`), same-batch duplicate
+  detection, cache-serving after storage truncation.
+
 ## Status
 
 - [x] Loader interfaces extended
@@ -68,4 +89,11 @@ Full plan: `.claude/plans/toasty-wibbling-leaf.md` (session-local).
 - [x] Subclasses adapted
 - [x] Repository loader implementations adapted
 - [x] Specs extended
-- [x] Build green (`./gradlew build`, 2026-07-20)
+- [x] Build green (`./gradlew build`, 2026-07-20); committed `7d542fc754d`
+- [x] `append` wired (events at `recordEvents`, states in `afterStore` path)
+- [x] Self-healing `append` + heal tests
+- [x] `AggregateRecentHistorySpec` (93 affected tests green)
+- [x] Wiring reviewed (kotlin-engineer + spine-code-review, findings applied);
+      `IdempotencyGuard.historyDepth` zero-initialized per owner feedback
+- [x] Final full build green (`./gradlew build`, 2026-07-20); committed
+- [ ] Version bump (once, at PR time — flagged by both reviews)

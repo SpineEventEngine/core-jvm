@@ -526,6 +526,20 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
     }
 
     /**
+     * Appends the given record to the [recent state history][recentStateHistory]
+     * of this entity.
+     *
+     * Called by the repository once per successful dispatch, right after
+     * the record is written to the durable state history, so that the
+     * subsequent reads served by this instance — e.g., during the later
+     * dispatches of a delivery batch — come from memory.
+     */
+    @Internal
+    public fun appendToStateHistory(record: EntityRecord) {
+        recentStateHistory.append(record)
+    }
+
+    /**
      * Obtains the state this entity had at the given time, if the recorded
      * state history retains it.
      *

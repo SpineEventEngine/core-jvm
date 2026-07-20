@@ -111,7 +111,7 @@ internal constructor() {
      */
     @Internal
     public fun append(record: R) {
-        cache.addFirst(cachedFrom(record))
+        append(listOf(record))
     }
 
     /**
@@ -125,10 +125,27 @@ internal constructor() {
      * call: a complete version group, never split between calls, with
      * versions above everything this history has seen. This keeps
      * the cached run contiguous and its reads exact.
+     *
+     * The contract is not enforced by failing: a history cache must never
+     * fail a dispatch. A group breaking it — e.g., a catch-up replay
+     * re-producing the versions already seen — instead drops the whole
+     * cache and is itself discarded, so the further reads fall back to
+     * the storage, the source of truth. A breaking group offered to
+     * an empty cache cannot be told from a legitimate one and is accepted;
+     * the mismatch is bounded by the lifetime of the entity instance.
      */
     @Internal
     public fun append(records: Iterable<R>) {
-        records.forEach { append(it) }
+        val group = records.map { cachedFrom(it) }
+        if (group.isEmpty()) {
+            return
+        }
+        if (extendsHistory(group)) {
+            group.forEach { cache.addFirst(it) }
+        } else {
+            cache.clear()
+            exhausted = false
+        }
     }
 
     /**
@@ -205,6 +222,23 @@ internal constructor() {
         if (consumed < remaining && population.complete()) {
             exhausted = true
         }
+    }
+
+    /**
+     * Tells if the given group can extend this history at its newest end:
+     * the records share one version, strictly above everything cached.
+     *
+     * The "strictly above" comparison tolerates numeric gaps — a dispatch
+     * may advance the entity version without producing a history record.
+     */
+    private fun extendsHistory(group: List<Cached<T>>): Boolean {
+        val number = group.first().version.number
+        val uniform = group.all { it.version.number == number }
+        if (!uniform) {
+            return false
+        }
+        val head = cache.firstOrNull()
+        return head == null || number > head.version.number
     }
 
     private fun cachedFrom(record: R): Cached<T> =
