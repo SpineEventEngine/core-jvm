@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,6 @@ import io.spine.server.dispatch.BatchDispatchOutcome;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.EventPlayer;
 import io.spine.server.entity.HasLifecycleColumns;
-import io.spine.server.entity.HasVersionColumn;
 import io.spine.server.entity.TransactionalEntity;
 import io.spine.server.event.EventSubscriber;
 import io.spine.server.projection.model.ProjectionClass;
@@ -69,7 +68,6 @@ public abstract class Projection<I,
         extends TransactionalEntity<I, M, B>
         implements EventPlayer,
                    EventSubscriber,
-                   HasVersionColumn<I, M>,
                    HasLifecycleColumns<I, M> {
 
     /**
