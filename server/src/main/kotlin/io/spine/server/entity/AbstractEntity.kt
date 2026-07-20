@@ -250,7 +250,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
     /**
      * Obtains the default state of the entity.
      */
-    protected fun defaultState(): S {
+    public fun defaultState(): S {
         @Suppress("UNCHECKED_CAST")
         // cast is safe because this type of messages is saved to the map
         val result = thisClass().defaultState() as S
@@ -487,7 +487,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      *
      * @return The new version number.
      */
-    protected open fun incrementVersion(): Int {
+    internal fun incrementVersion(): Int {
         setVersion(incrementedVersion())
         return _version.number
     }

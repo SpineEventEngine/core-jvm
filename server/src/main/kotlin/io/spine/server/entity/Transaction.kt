@@ -610,7 +610,7 @@ public abstract class Transaction<I : Any,
             val currentState = entity.state()
             @Suppress("UNCHECKED_CAST") // Ensured by the argument of `<E>`.
             val result = currentState.toBuilder() as B
-            if (currentState == entity.modelClass().defaultState()) {
+            if (currentState == entity.defaultState()) {
                 val idField = IdField.of(entity.modelClass())
                 idField.initBuilder(result, entity.id())
             }
