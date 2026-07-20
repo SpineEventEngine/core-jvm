@@ -72,6 +72,13 @@ AggregateStorage.writeAll:
 EventBus.post(events)   (unchanged — projections, PMs, catch-up unaffected)
 ```
 
+*(The names above are as of the cutover design, 2026-07-03. Since then:
+the journal became `EntityEventStorage`, owned by the repository
+(PR #1655); `AggregateStorage` dissolved into `EntityRecordStorage`, and
+`AggregateRepository` descends from `SignalDispatchingRepository` in the
+record-based hierarchy (2026-07-16, PR #1657) — see the archived
+[`aggregate-repository-unification.md`](archive/aggregate-repository-unification.md).)*
+
 Load path: `AggregateRepository.load(id)` reads the latest `EntityRecord`
 from the state storage and restores state, version, and lifecycle flags. No
 snapshot, no replay. Deduplication is primarily the delivery layer's job; the
@@ -170,7 +177,7 @@ Open points with recommendations:
 | #  | Question                                                  | Recommendation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 |----|-----------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | A1 | Name and shape of the import receptor annotation          | **Revised 2026-07-05 (ADR D1): event import is dropped entirely** — usage research found one dormant production usage in six years. Superseded original recommendation: an `@Import` receptor mirroring `@Assign` with routing via `setupImportRouting`                                                                                                                                                                                                                                                                                                        |
-| A2 | Fate of classes that still declare `@Apply` after cutover | Fail fast: `AggregateClass` (**and `AggregatePartClass`**) raises a `ModelError` at model-building time with a migration message. Silent non-invocation is unacceptable. (`@Apply` on a `ProcessManager` is invalid and unsupported — the one such downstream fixture is fixed in `model-tools`; see Phase G)                                                                                                                                                                                                                                                  |
+| A2 | Fate of classes that still declare `@Apply` after cutover | Fail fast: `AggregateClass` (**and `AggregatePartClass`**) raises a `ModelError` at model-building time with a migration message. Silent non-invocation is unacceptable. (`@Apply` on a `ProcessManager` is invalid and unsupported — the one such downstream fixture is fixed in `model-tools`; see Phase H)                                                                                                                                                                                                                                                  |
 | A3 | Version advancement                                       | Aggregate version advances **+1 per command handler, not per event** (product decision) — the `ProcessManager` semantics. Reuse the PM path: one `CommandDispatchingPhase` + `VersionIncrement.sequentially`. Emitted events carry the resulting version; the per-event `VersionSequence` is removed. Confirm/adjust emitted-event version stamping and document the change from prior per-event versions. Own test                                                                                                                                            |
 | A4 | State mutation without emitted events                     | Command handlers and reactors work the same way (**may** update state via `builder()`, may call `setArchived()`/`setDeleted()` — state update never forced), differing only in emission: `@Assign` **must emit ≥1 event or reject**; `@React` **may emit zero events**. *(The `@Import` clause originally here is void — event import is dropped; ADR D1, revised 2026-07-05.)* No blanket "builder touched but no event → reject" and no new "must change state" guard. Lifecycle-flag flips that lived in appliers migrate into the handler body. See ADR D4 |
 | A5 | Deduplication + recent-history window                     | Delivery layer owns dedup; the aggregate `IdempotencyGuard` is **opt-in per repository, off by default** (`useIdempotencyGuard()`), kept so it can be removed later. Recent history loaded **lazily on demand** from the journal tail, bounded by `historyDepth` (default 100, = old `DEFAULT_SNAPSHOT_TRIGGER`; per-repository = per-aggregate-type). Guard-off dispatch does only the state read; guard-on pays the bounded journal read. Delivery durable dedup needs a configured `deduplicationWindow` in production. See ADR D5                          |
@@ -434,7 +441,7 @@ Naming locked 2026-07-08 (product owner): the journal types move to the
   entity — and deprecate `AggregateEventStorage`, with
   `StorageFactory.createAggregateEventStorage` superseded by a new
   `createEntityEventStorage`. Initial rollout covers aggregates;
-  `ProcessManager` journaling follows in Phase F, so nothing in
+  `ProcessManager` journaling follows in Phase G, so nothing in
   the new types may be aggregate-specific (the same constraint as
   Phase E item 4).
   Record level settled 2026-07-08: **clean replacement** — a new
@@ -443,7 +450,7 @@ Naming locked 2026-07-08 (product owner): the journal types move to the
   new reads (see the data caveat in the detailed task).
 
 Detailed task:
-[`introduce-event-history-type.md`](introduce-event-history-type.md).
+[`introduce-event-history-type.md`](archive/introduce-event-history-type.md).
 The count/date journal trimming (Phase E item 3) shipped together with this
 opener in PR #1649, built against `EntityEventStorage`; the snapshot-index
 truncation and the legacy `AggregateEventStorage` were removed outright
@@ -454,7 +461,7 @@ truncation and the legacy `AggregateEventStorage` were removed outright
 > **Implemented on `entity-state-history` (2026-07-10)** — items 1, 2, and 5,
 > honoring the item 4 constraint (nothing aggregate-specific in the new
 > types); item 3 had shipped earlier with PR #1649. Detailed task:
-> [`entity-state-history.md`](entity-state-history.md). Settled while
+> [`entity-state-history.md`](archive/entity-state-history.md). Settled while
 > implementing: records are keyed by the new `EntityStateKey`
 > (entity + version), so a same-version re-write is an idempotent overwrite;
 > recording is opt-in via `AggregateRepository.recordStateHistory()`,
@@ -518,7 +525,7 @@ truncation and the legacy `AggregateEventStorage` were removed outright
    reserved for those honest data answers: **querying a repository that has
    state history disabled fails fast with a configuration error** (product
    owner, 2026-07-10) — a disabled recorder must be distinguishable from an
-   exhausted retention window. The Phase F business-history API follows the
+   exhausted retention window. The Phase G business-history API follows the
    same rule for a disabled journal. Baseline
    implementation: read the per-entity window (bounded by the configured
    depth) and select in memory — portable over the `RecordStorage` SPI on
@@ -535,124 +542,161 @@ truncation and the legacy `AggregateEventStorage` were removed outright
    to the fail-fast accessor, so reads from a non-recording repository fail
    fast at the entity too; a bare instance outside a repository reads empty.
 
-## Phase F — entity event history and state history for Process Managers
+## Phase F — Entity state history for all entity types
 
-Wiring-only by design: `EntityEventStorage` (Phase D) and
-`EntityStateHistoryStorage` (Phase E) are entity-level contracts on purpose
-(Phase E item 4), and PR #1649 left the entity layer ready —
-`RecentEventHistory` reads lazily through `EventHistoryLoader`
-(`io.spine.server.entity`; names as of the PR #1650 unification: a generic
-`RecentHistory<T>` base with `RecentEventHistory` and `RecentStateHistory<S>`),
-installed via `TransactionalEntity.setEventHistoryLoader`, and
+> **Reshaped 2026-07-17 (product owner): state history generalizes to ALL
+> entity types** — not only the Process Managers and Projections this
+> phase originally targeted, and not by per-repository wiring but by
+> structural inheritance. The machinery moves from `AggregateRepository`
+> to `AbstractEntityRepository` — the base of every entity repository —
+> and the read API from `Aggregate` (with the loader seam from
+> `TransactionalEntity`) to `AbstractEntity`, so every repository and
+> entity type inherits the feature. The event-journal items that shared
+> this phase (former items 1, 2, 5) moved to the new Phase G; the phases
+> after it were re-lettered (rollout → H, verification gate → I).
+> Detailed task:
+> [`state-history-for-all-entities.md`](state-history-for-all-entities.md).
+
+Needs Phase E (merged with PR #1650). Wiring-only remains the constraint:
+`EntityStateHistoryStorage` is an entity-level contract on purpose
+(Phase E item 4), and the `StateHistoryLoader` seam with
+`RecentStateHistory<S>` is already entity-generic. If a contract change
+turns out to be necessary, that is a Phase E design defect: fix it there,
+do not fork per-type variants.
+
+Locked decisions (product owner, 2026-07-10; unchanged by the reshaping):
+
+- **Opt-in per repository, off by default**; enable/disable only, no depth
+  knob; retention is the application's duty via `truncate`/`trim`.
+- **Fail-fast on a disabled recorder**: reading the state history of a
+  repository that does not record it is a configuration error, never a
+  silent empty; a bare instance outside a repository reads empty.
+
+Absorbed by the reshaping: "Projections gain state-history querying"
+(2026-07-16) and "hoist a configuration shape shared with
+`AggregateRepository`" (former item 3) both follow from the
+`AbstractEntityRepository` placement — nothing per-type remains to wire.
+
+1. Repository-side pull-up: the config surface (`recordStateHistory()` /
+   `stopRecordingStateHistory()`), the fail-fast `stateHistory()`
+   accessor, the `createStateHistoryStorage()` seam, the per-dispatch
+   `afterStore` write hook, and the loader installation at `create(id)` /
+   `toEntity(record)` move to `AbstractEntityRepository`. The append
+   generalizes to the converter `toRecord` path (`Aggregate.toRecord()`
+   is deleted), and the `store(Collection)` bulk path learns to fire
+   `afterStore` per entity — today it bypasses the hook, and batch
+   `applyMigration` terminates exactly there. Member-by-member inventory
+   in the task doc.
+2. Entity-side move: `stateAt(Timestamp)` / `stateHistoryBackward(depth)`
+   from `Aggregate`, the `RecentStateHistory` field and
+   `setStateHistoryLoader` from `TransactionalEntity` — all to
+   `AbstractEntity`.
+3. PM state history (former item 3) — now pure inheritance. The
+   per-dispatch placement Phase E item 2 required (record in `store()`,
+   never the cache-flushed `doStore()` — under a batched delivery
+   `RepositoryCache` defers `doStore()` to the batch end, dropping the
+   intermediate versions) is guaranteed structurally:
+   `Repository.store(E)` routes cache → `afterStore(E)` per call.
+   Acceptance: intermediate versions retained under a batched delivery.
+4. "State at time T" works for PMs — verify, don't build (unchanged). PMs
+   have advanced their version +1 per dispatch via
+   `VersionIncrement.sequentially` all along (the semantics A3 adopted for
+   aggregates), so the `Version` timestamp — the temporal axis of Phase E
+   item 1 — is already stamped once per dispatch. Acceptance: the Phase E
+   item 5 query against a PM repository, including the honest-empty cases
+   and the disabled-repository fail-fast.
+5. Projection state history (former item 7) — now pure inheritance;
+   `ProjectionTransaction` already advances the version `sequentially`
+   per applied event, so the temporal axis holds for projections too.
+   Verify the catch-up interplay: replayed versions re-advance along the
+   same numbers, idempotently overwriting history rows (the
+   `EntityStateKey` semantics) rather than duplicating them.
+
+Delivery: one PR, governed by the task doc; new tests in Kotlin per the
+per-phase rules.
+
+## Phase G — Entity event history for Process Managers and Aggregates
+
+New phase (2026-07-17; the journal half of the former Phase F, plus the
+shared-home unification the 2026-07-16 analysis recommended): Process
+Managers gain the opt-in event journal with full business-API parity, and
+the aggregate journal machinery moves up so one implementation serves
+both entity types. Sequenced after Phase F, as its own session; open it
+by authoring a detailed task doc the way
+[`state-history-for-all-entities.md`](state-history-for-all-entities.md)
+opened Phase F. Needs Phase D (merged 2026-07-10) only.
+
+The entity layer has been ready since PR #1649/#1650: `RecentEventHistory`
+reads lazily through `EventHistoryLoader`, installed via
+`TransactionalEntity.setEventHistoryLoader`, and
 `EntityEventStorage.write(Event)` resolves the journaling entity from
 `context.producerId`. If a contract change turns out to be necessary here,
-that is a Phase D/E design defect: fix it there, do not fork PM-specific
-types. Prerequisites are per-item: the journal items need only Phase D
-(merged 2026-07-10); the state-history items need Phase E.
+that is a Phase D design defect: fix it there, do not fork PM-specific
+types.
 
-Locked decisions (product owner, 2026-07-10):
+Locked decisions (product owner, 2026-07-10 and 2026-07-16; unchanged):
 
-- **Both histories are opt-in per repository, off by default** — unlike the
-  aggregate journal, which is written unconditionally. PM events are already
-  durable in `EventStore` via the bus; the per-entity journal and the state
-  history are deliberate diagnostics/history indexes, and flipping the
-  default later stays a non-breaking, pre-GA option.
+- **The PM journal is confirmed wanted** (2026-07-16) and is **opt-in per
+  repository, off by default** — unlike the aggregate journal, which
+  stays written unconditionally. PM events are already durable in
+  `EventStore` via the bus; the per-entity journal is a deliberate
+  diagnostics/history index, and flipping the default later stays a
+  non-breaking, pre-GA option.
 - **Full business-API parity with `Aggregate`**: `ProcessManager` gains
   `eventHistoryBackward(int depth)` / `eventHistoryContains(int depth,
-  Predicate)` — the ADR D10 depth-explicit forms only (under the qualified
-  names of 2026-07-11); there are no parameterless legacy forms to
-  deprecate on PMs. Because journaling is opt-in, the API must not
+  Predicate)` — the ADR D10 depth-explicit forms only (under the
+  qualified names of 2026-07-11); there are no parameterless legacy forms
+  to deprecate on PMs. Because journaling is opt-in, the API must not
   silently see an empty history: called on an instance managed by a
   repository with journaling disabled, it fails fast with a configuration
-  error (e.g., the repository installs a throwing loader instead of none;
-  bare instances outside a repository keep the entity-layer "no loader →
-  empty history" behavior that tests rely on).
+  error; bare instances outside a repository keep the entity-layer
+  "no loader → empty history" behavior that tests rely on.
 
-Locked decisions (product owner, 2026-07-16):
-
-- **The PM journal is confirmed wanted.** Reaffirmed after the
-  `SignalDispatchingRepository` extraction: the journal is a Process
-  Manager feature (items 1, 2, 5) and proceeds regardless of how far the
-  aggregate/PM repository unification goes.
-- **Projections gain state-history querying** — an optional feature,
-  turned off by default, with the same opt-in posture as the PM state
-  history. This narrows the item 6 non-goal to the event journal only:
-  projections still journal no events (they emit none), but their *states*
-  may be recorded and queried through the Phase E machinery. See item 7.
-
-1. Event journaling (needs Phase D only). When enabled,
-   `ProcessManagerRepository` creates an `EntityEventStorage`
-   (`StorageFactory.createEntityEventStorage`) and writes emitted events on
-   successful dispatch. Hook at the endpoint outcome chain
+1. Shared home for the journal machinery: the `eventStorage()` accessor,
+   the `createEventStorage()` seam, and the close participation move from
+   `AggregateRepository` to `SignalDispatchingRepository` — the natural
+   home per the archived
+   [unification analysis](archive/aggregate-repository-unification.md):
+   the journal is meaningful exactly for the repositories whose entities
+   emit events. Aggregates keep the unconditional posture, PMs get the
+   opt-in one — the default set per subclass. Aggregate-only pieces
+   (`IdempotencyGuard`, `eventHistoryDepth`) stay put; the aggregate's
+   per-entity bulk-store override is re-examined here, once the
+   journaling write path has its shared shape.
+2. PM journaling (former item 1). When enabled,
+   `ProcessManagerRepository` writes emitted events on successful
+   dispatch. Hook at the endpoint outcome chain
    (`PmEndpoint.performDispatch`, `server/.../procman/PmEndpoint.java:76-89`)
    — journal alongside the `.onEvents(...)` posting path, NOT inside the
    shared `EventProducingRepository.postEvents` default: rejections also
-   travel through `postEvents` (`PmEndpoint.postRejection`) and are not part
-   of an entity's history — parity with aggregates, whose journal never
-   contained rejections.
-2. Business history API (with item 1). Install the `EventHistoryLoader` on
-   PM instances the way `AggregateRepository` does for aggregates; add
+   travel through `postEvents` (`PmEndpoint.postRejection`) and are not
+   part of an entity's history — parity with aggregates, whose journal
+   never contained rejections.
+3. Business history API (former item 2, with item 2 above). Install the
+   `EventHistoryLoader` on PM instances the way
+   `AggregateRepository.setUpHistoryReading` does for aggregates; add
    `eventHistoryBackward` / `eventHistoryContains` to `ProcessManager`
-   mirroring `Aggregate`'s (fail-fast per the locked decision above). Kotlin tests:
-   depth window honored, journal-off fail-fast, bare-instance behavior
-   unchanged.
-3. State history (needs Phase E). Write hook in
-   `ProcessManagerRepository.store(P)`
-   (`server/.../procman/ProcessManagerRepository.java:434-436`) — per
-   dispatch, NOT in the cache-flushed `doStore()` — mirroring the
-   `AggregateRepository.store()` hook of Phase E item 2 (moved there during
-   the PR #1650 review: under a batched delivery `RepositoryCache` defers
-   `doStore()` to the batch end, which would drop the intermediate
-   versions). Same config surface as `AggregateRepository` *(2026-07-11:
-   enable/disable only — mirror `recordStateHistory()` /
-   `stopRecordingStateHistory()`; there is NO depth knob and NO automatic
-   retention — the maintenance is the application's duty via
-   `truncate`/`trim`)*: hoist a configuration shape shared with
-   `AggregateRepository` rather than duplicating it. PM business reads
-   mirror `Aggregate.stateAt(Timestamp)` / `stateHistoryBackward(depth)`;
-   the `StateHistoryLoader` seam on `TransactionalEntity` is already in
-   place (PR #1650) — wire only the loader installation in the PM
-   repository.
-4. "State at time T" works for PMs — verify, don't build. PMs have advanced
-   their version +1 per dispatch via `VersionIncrement.sequentially` all
-   along (the semantics A3 adopted for aggregates), so the `Version`
-   timestamp — the temporal axis of Phase E item 1 — is already stamped
-   once per dispatch. The Phase E item 5 read API must answer for a PM with
-   no PM-specific code; acceptance: the same "state at time T" query
-   against a PM repository, including the honest-empty cases and the
-   fail-fast on a repository with state history disabled (Phase E item 5).
-5. Journal trimming. `EntityEventStorage.truncate(keepMostRecent[,
-   olderThan])` shipped entity-generic in #1649; expose the equivalent of
-   the delegating `AggregateStorage.truncate(...)` maintenance methods for
-   PM repositories.
-6. Non-goals (2026-07-10): emitted *commands* are not journaled — the
-   journal is an event history; command traceability stays with the system
-   context's command lifecycle events. No `IdempotencyGuard` for PMs —
-   delivery owns dedup (A5/D5). `Projection`s are out of scope *for the
-   journal* (they emit no events of their own); their *state history* is in
-   scope since the 2026-07-16 decision — see item 7.
-7. State history for Projections (2026-07-16 decision; needs Phase E).
-   Same shape and config surface as item 3: opt-in per repository, **off by
-   default**, enable/disable only, no depth knob, retention is the
-   application's duty via `truncate`/`trim`. The wiring mirrors the PM side
-   with no new contracts: `Projection` is a `TransactionalEntity`, so the
-   `StateHistoryLoader` seam applies as-is, and `ProjectionTransaction`
-   already advances the version `sequentially` per applied event — the
-   temporal axis of item 4 holds for projections too; verify, don't build.
-   The write hook is the per-dispatch `Repository.afterStore()` callback
-   (the generalization of the item 3 placement, extracted during the
-   inbox/cache pull-up). Reads mirror item 3: `stateAt(Timestamp)` /
-   `stateHistoryBackward(depth)` on `Projection`.
+   (fail-fast per the parity decision above). Kotlin tests: depth window
+   honored, journal-off fail-fast, bare-instance behavior unchanged.
+4. Journal trimming (former item 5). `EntityEventStorage.truncate(
+   keepMostRecent[, olderThan])` shipped entity-generic in #1649; expose
+   the delegating maintenance methods for PM repositories, as
+   `AggregateRepository` exposes them today.
+5. Non-goals (2026-07-10, unchanged): emitted *commands* are not
+   journaled — the journal is an event history; command traceability
+   stays with the system context's command lifecycle events. No
+   `IdempotencyGuard` for PMs — delivery owns dedup (A5/D5).
+   `Projection`s journal nothing (they emit no events of their own);
+   their state history is Phase F's scope.
 
-Delivery: two PRs — (a) journal + business API (items 1, 2, 5), which may
-land while Phase E is still in flight; (b) state history (items 3, 4, and
-7 — the projection half may ride along or follow as its own PR) after
-Phase E merges. New tests in Kotlin per the per-phase rules; journal tests
-must emit events via a producer-bound `TestEventFactory` — the storage
-revalidates events on `clearEnrichments()` (see the implementation notes in
-[`introduce-event-history-type.md`](introduce-event-history-type.md)).
+Journal tests must emit events via a producer-bound `TestEventFactory` —
+the storage revalidates events on `clearEnrichments()` (see the
+implementation notes in
+[`introduce-event-history-type.md`](archive/introduce-event-history-type.md)).
 
-## Phase G — Downstream rollout (dependency order)
+## Phase H — Downstream rollout (dependency order)
+
+*(Formerly Phase G — re-lettered 2026-07-17 with the Phase G insertion.)*
 
 Publish a `core-jvm` snapshot after Phase B; then migrate consumers in
 order. Per-repo checklist: bump core version → migrate any real aggregates
@@ -670,7 +714,7 @@ state now arrives via `createEntityRecordStorage`/`createRecordStorage` with
 that extended `AggregateStorageTest` at the published `AbstractStorageTest`/
 `DelegatingRecordStorageTest` bases (core-jvm's own `EntityRecordStorageTest`
 is unpublished `src/test`). See
-[`aggregate-repository-unification.md`](aggregate-repository-unification.md).
+[`aggregate-repository-unification.md`](archive/aggregate-repository-unification.md).
 
 **Reality check (verified 2026-07-03):** most listed repos have **no
 production aggregate migration** — their `@Apply` is confined to test
@@ -689,18 +733,20 @@ fixtures or vendored doc copies. Do not over-scope.
 
 Excluded from the rollout:
 - **Retired/archived** — `core-java-1x` (the 1.x line keeps event sourcing),
-  `mc-java`, `web`. Do not touch; excluded from the Phase H gate.
+  `mc-java`, `web`. Do not touch; excluded from the Phase I gate.
 - **Dormant** — `users`, `roles`, `organizations`, and `auth`. Not scheduled
-  here; migrate only if/when a repo is reactivated. Out of the Phase H blocking
+  here; migrate only if/when a repo is reactivated. Out of the Phase I blocking
   set for now (they may still contain `@Apply`). `auth` holds the sole known
   production usage of event import (`GoogleGroupPart`, last push 2020); on
   reactivation it migrates to a gateway or reaction (revised D1).
 
 Confirm no other **active** org repo implements
 `AggregateStorage`/`StorageFactory` or declares `@Apply` before declaring
-Phase H clean.
+Phase I clean.
 
-## Phase H — Org-wide verification gate
+## Phase I — Org-wide verification gate
+
+*(Formerly Phase H — re-lettered 2026-07-17 with the Phase G insertion.)*
 
 The brief's completion criterion: **no `@Apply` in the active SpineEventEngine
 repos except the deprecated annotation type itself.**

@@ -5,7 +5,7 @@ Phase D as its own PR (decided 2026-07-08); follows PR-B2 (the event-sourcing
 cutover, merged in #1647). See "Implementation notes" at the bottom for the
 deliberate deltas from the sketch below.
 **Effort:** part of the "migrate Aggregates off event sourcing" line of work
-(see [`de-event-sourcing-plan.md`](de-event-sourcing-plan.md)).
+(see [`de-event-sourcing-plan.md`](../de-event-sourcing-plan.md)).
 
 > **Naming locked (product owner, 2026-07-08):** the new history type is named
 > **`EntityEventHistory`** (not `EventHistory`, as earlier drafts said), and

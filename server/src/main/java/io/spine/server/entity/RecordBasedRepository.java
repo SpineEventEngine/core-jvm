@@ -236,6 +236,7 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
                 .map(this::toRecord)
                 .collect(toImmutableList());
         recordStorage().writeAll(records);
+        entities.forEach(this::afterStore);
     }
 
     /**

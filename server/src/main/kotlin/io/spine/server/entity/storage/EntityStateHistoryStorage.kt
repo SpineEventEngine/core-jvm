@@ -47,7 +47,7 @@ import io.spine.server.storage.StorageGroup
  * dispatch, keyed by the entity identifier and the version number. Entities
  * read their recorded states through a
  * [StateHistoryLoader][io.spine.server.entity.StateHistoryLoader]
- * installed by the repository — e.g., `Aggregate.stateAt(Timestamp)` — and
+ * installed by the repository — e.g., `AbstractEntity.stateAt(Timestamp)` — and
  * the storage also serves debugging and analysis, answering
  * the ["state at a time" query][stateAt]. The history is never used for
  * loading: an entity loads from its latest record in the corresponding

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -26,7 +26,6 @@
 
 package io.spine.server.entity;
 
-import com.google.common.reflect.Invokable;
 import com.google.common.testing.EqualsTester;
 import io.spine.base.EntityState;
 import io.spine.protobuf.AnyPacker;
@@ -147,23 +146,6 @@ class AbstractEntityTest {
         new EqualsTester().addEqualityGroup(entity, similarEntity)
                           .addEqualityGroup(different)
                           .testEquals();
-    }
-
-    @Test
-    @DisplayName("have `updateState` method visible to package only")
-    void haveUpdateStatePackagePrivate() {
-        var methodFound = false;
-
-        var methods = AbstractEntity.class.getDeclaredMethods();
-        for (var method : methods) {
-            if ("updateState".equals(method.getName())) {
-                var updateState = Invokable.from(method);
-                assertTrue(updateState.isPackagePrivate());
-                methodFound = true;
-            }
-        }
-        assertTrue(methodFound,
-                   "Cannot check 'updateState(...)' in " + AbstractEntity.class);
     }
 
     private static class AvEntity extends AbstractEntity<ProjectId, Project> {

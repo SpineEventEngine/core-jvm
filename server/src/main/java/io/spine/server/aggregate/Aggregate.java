@@ -28,7 +28,6 @@ package io.spine.server.aggregate;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.Empty;
-import com.google.protobuf.Timestamp;
 import io.spine.annotation.Internal;
 import io.spine.annotation.VisibleForTesting;
 import io.spine.base.AggregateState;
@@ -52,7 +51,6 @@ import io.spine.validation.ValidatingBuilder;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Predicate;
 
 import static com.google.common.collect.Iterators.any;
@@ -318,25 +316,6 @@ public abstract class Aggregate<I,
     }
 
     /**
-     * Creates a new record storing the latest state of this aggregate along with
-     * its version and lifecycle flags.
-     *
-     * <p>Since the event-sourcing cutover, the persisted {@link EntityRecord} is the source
-     * of truth for loading an aggregate, so the business {@linkplain #state() state}
-     * is <em>always</em> packed into the record, regardless of the aggregate's visibility.
-     *
-     * @return a new record with the data of this aggregate
-     */
-    final EntityRecord toRecord() {
-        return EntityRecord.newBuilder()
-                .setEntityId(Identifier.pack(id()))
-                .setLifecycleFlags(lifecycleFlags())
-                .setVersion(version())
-                .setState(pack(state()))
-                .build();
-    }
-
-    /**
      * Returns all uncommitted events.
      *
      * @return immutable view of all uncommitted events
@@ -446,65 +425,6 @@ public abstract class Aggregate<I,
     @Deprecated
     protected final boolean historyContains(Predicate<Event> predicate) {
         return eventHistoryContains(DEFAULT_HISTORY_DEPTH, predicate);
-    }
-
-    /**
-     * Obtains the state this aggregate had at the given point in time,
-     * if the recorded state history retains it.
-     *
-     * <p>The result is the recorded state with the highest version among those which
-     * became current not later than the given time. The answer is honest about
-     * retention: an empty result means the question cannot be answered from the
-     * retained window — the time either precedes the oldest retained record,
-     * or predates the aggregate itself.
-     *
-     * <p>The state history is an opt-in feature —
-     * see {@link AggregateRepository#recordStateHistory()}. Reading it while
-     * the repository of this aggregate does not record it is a configuration error.
-     * An aggregate created outside a repository has no recorded history and
-     * reads an empty result.
-     *
-     * <p>The state produced by the current, not-yet-stored dispatch is not
-     * recorded yet: a receptor reading the history observes the states
-     * persisted by the previous dispatches.
-     *
-     * @param time
-     *         the point in time to look at
-     * @return the state at the given time, or an empty {@code Optional} if the
-     *         recorded history does not retain it
-     * @throws IllegalStateException
-     *         if the repository of this aggregate does not record the state history
-     */
-    protected final Optional<S> stateAt(Timestamp time) {
-        var state = recentStateHistory().stateAt(time);
-        return Optional.ofNullable(state);
-    }
-
-    /**
-     * Creates an iterator over up to {@code depth} most recent recorded states of
-     * this aggregate, newest first.
-     *
-     * <p>Fewer states are returned if the recorded history retains fewer.
-     * The state produced by the current, not-yet-stored dispatch is not
-     * recorded yet: a receptor reading the history observes the states
-     * persisted by the previous dispatches.
-     *
-     * <p>The state history is an opt-in feature —
-     * see {@link AggregateRepository#recordStateHistory()}. Reading it while
-     * the repository of this aggregate does not record it is a configuration error.
-     * An aggregate created outside a repository has no recorded history and
-     * reads an empty iterator.
-     *
-     * @param depth
-     *         the maximal number of the most recent states to return; must be positive
-     * @return new iterator instance
-     * @throws IllegalArgumentException
-     *         if the {@code depth} is not positive
-     * @throws IllegalStateException
-     *         if the repository of this aggregate does not record the state history
-     */
-    protected final Iterator<S> stateHistoryBackward(int depth) {
-        return recentStateHistory().read(depth);
     }
 
     /**

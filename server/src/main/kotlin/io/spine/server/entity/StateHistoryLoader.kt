@@ -32,9 +32,9 @@ import io.spine.annotation.Internal
 /**
  * Loads the recorded state history of an entity from the durable storage.
  *
- * An instance is installed via [TransactionalEntity.setStateHistoryLoader]
+ * An instance is installed via [AbstractEntity.setStateHistoryLoader]
  * by the repository owning the entity — see
- * `AggregateRepository.recordStateHistory()`. An entity created outside
+ * `AbstractEntityRepository.recordStateHistory()`. An entity created outside
  * a repository has no loader, and its state history reads come back empty.
  *
  * @see io.spine.server.entity.storage.EntityStateHistoryStorage
