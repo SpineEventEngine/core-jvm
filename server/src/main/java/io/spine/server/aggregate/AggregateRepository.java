@@ -205,7 +205,8 @@ public abstract class AggregateRepository<I,
      */
     final void setUpHistoryReading(A aggregate, I id) {
         aggregate.setEventHistoryLoader(
-                depth -> eventStorage().historyBackward(id, depth));
+                (depth, startingFrom) ->
+                        eventStorage().historyBackward(id, depth, startingFrom));
         if (idempotencyGuardEnabled) {
             aggregate.enableIdempotencyGuard(eventHistoryDepth);
         }

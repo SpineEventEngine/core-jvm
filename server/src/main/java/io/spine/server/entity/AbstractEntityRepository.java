@@ -30,6 +30,7 @@ import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import com.google.errorprone.annotations.concurrent.LazyInit;
 import com.google.protobuf.Timestamp;
 import io.spine.base.EntityState;
+import io.spine.core.Version;
 import io.spine.server.BoundedContext;
 import io.spine.server.entity.storage.EntityStateHistoryStorage;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -197,8 +198,8 @@ public abstract class AbstractEntityRepository<I,
         return new StateHistoryLoader() {
 
             @Override
-            public Iterator<EntityRecord> load(int depth) {
-                return stateHistory().historyBackward(id, depth);
+            public Iterator<EntityRecord> load(int depth, @Nullable Version startingFrom) {
+                return stateHistory().historyBackward(id, depth, startingFrom);
             }
 
             @Override

@@ -27,20 +27,23 @@
 package io.spine.server.entity
 
 import io.spine.core.Event
+import io.spine.core.Version
 
 /**
  * The recent history of events of a [TransactionalEntity].
  *
  * The events are read from the durable journal of the entity via the loader
  * [installed][TransactionalEntity.setEventHistoryLoader] by the repository
- * managing the entity.
+ * managing the entity, and cached for the lifetime of the entity instance —
+ * see [RecentHistory].
  *
  * An entity created outside a repository has no journal, so the reads
- * return no events.
+ * serve only the [appended][append] events, if any.
  */
 public class RecentEventHistory internal constructor() :
-    RecentHistory<Event, EventHistoryLoader>() {
+    RecentHistory<Event, Event, EventHistoryLoader>() {
 
-    override fun load(loader: EventHistoryLoader, depth: Int): Iterator<Event> =
-        loader.load(depth)
+    override fun toItem(record: Event): Event = record
+
+    override fun versionOf(record: Event): Version = record.context.version
 }
