@@ -44,7 +44,7 @@ import java.util.List;
  * record, and then {@link #commit() commits}.
  */
 @Internal
-public final class UncommittedHistory {
+public final class UncommittedEventHistory {
 
     private final List<Event> events = new ArrayList<>();
 
