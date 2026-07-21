@@ -28,6 +28,7 @@ package io.spine.server.entity
 
 import com.google.protobuf.Timestamp
 import io.spine.annotation.Internal
+import io.spine.core.Version
 
 /**
  * Loads the recorded state history of an entity from the durable storage.
@@ -46,9 +47,13 @@ public interface StateHistoryLoader : HistoryLoader<EntityRecord> {
      * Loads up to [depth] most recent state records of the entity,
      * ordered from newer to older.
      *
+     * When [startingFrom] is given, only the records with versions strictly
+     * lower than it are loaded. `null` starts from the newest record.
+     *
      * @param depth The maximum number of the records to load.
+     * @param startingFrom If set, only the records with versions lower than this one are loaded.
      */
-    override fun load(depth: Int): Iterator<EntityRecord>
+    override fun load(depth: Int, startingFrom: Version?): Iterator<EntityRecord>
 
     /**
      * Loads the state record the entity had at the given time, or `null`

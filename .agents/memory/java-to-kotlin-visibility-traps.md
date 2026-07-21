@@ -26,6 +26,12 @@ Converting a Java class that has same-package collaborators to Kotlin changes wh
   `val version` cannot implement the public interface method `getVersion()`. Keep the backing fields
   underscore-prefixed (`_id`/`_state`/`_version`) so they stay distinct from the properties; the
   interface methods `id()`/`state()`/`version()` coexist with the properties (different JVM names).
+  **Superseded 2026-07-20:** `HasVersionColumn` was removed outright as a redundant `@Internal`
+  marker — together with its sibling `HasLifecycleColumns` — because `SpecScanner` adds the
+  `version`/`archived`/`deleted` columns to every entity's `RecordSpec` unconditionally and the
+  `get*` defaults had no callers. So this `getVersion()`-vs-interface-default clash is now moot:
+  `AbstractEntity.version` is the sole `getVersion()`. `getArchived()`/`getDeleted()` are gone too —
+  read lifecycle flags via `isArchived()`/`isDeleted()` from `WithLifecycle`.
 - Java non-final methods must become `open` in Kotlin, or existing overrides
   (e.g. `Aggregate.recentHistory()`, `ProcessManager.missingTxMessage()`) break.
 - **Converting a same-package Java *test* of the now-Kotlin class hits the same wall.**

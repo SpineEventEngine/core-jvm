@@ -38,7 +38,6 @@ import io.spine.server.aggregate.model.AggregateClass;
 import io.spine.server.command.AssigneeEntity;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.EntityRecord;
-import io.spine.server.entity.HasLifecycleColumns;
 import io.spine.server.entity.RecentEventHistory;
 import io.spine.server.entity.RecentStateHistory;
 import io.spine.server.entity.Transaction;
@@ -117,7 +116,7 @@ import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
  *
  * <p>Event sourcing has been removed: an aggregate no longer declares {@code @Apply} event
  * appliers, and its state is not reconstructed by replaying events. Declaring an applier now fails
- * model building with a {@link io.spine.server.model.ModelError ModelError}. See {@link Apply}.
+ * model building with a {@link io.spine.server.model.ModelError ModelError}.
  *
  * @param <I>
  *         the type for IDs of this class of aggregates
@@ -130,7 +129,7 @@ public abstract class Aggregate<I,
                                 S extends AggregateState<I>,
                                 B extends ValidatingBuilder<S>>
         extends AssigneeEntity<I, S, B>
-        implements EventReactor, HasLifecycleColumns<I, S> {
+        implements EventReactor {
 
     /**
      * The fixed number of the most recent journal events read by the deprecated parameterless
@@ -200,7 +199,7 @@ public abstract class Aggregate<I,
 
     /**
      * Enables the opt-in {@link IdempotencyGuard} for this aggregate, scanning up to
-     * {@code historyDepth} most recent journal events for a duplicate on each dispatch.
+     * {@code historyDepth} most recent events for a duplicate on each dispatch.
      */
     final void enableIdempotencyGuard(int historyDepth) {
         idempotencyGuard.enable(historyDepth);
@@ -308,11 +307,17 @@ public abstract class Aggregate<I,
      * <p>Called by the framework after a command or reaction has been dispatched and its
      * transaction committed. Rejection events are not journaled.
      *
+     * <p>The journaled events also enter the {@linkplain #recentEventHistory() recent
+     * event history} right away, so the subsequent dispatches served by this instance —
+     * e.g., the later signals of a delivery batch — read them without waiting for
+     * the journal write, which may be deferred to the end of the batch.
+     *
      * @param events
      *         the events emitted by the current command handler or reactor
      */
     final void recordEvents(List<Event> events) {
-        uncommittedHistory.record(events);
+        var journaled = uncommittedHistory.record(events);
+        recentEventHistory().append(journaled);
     }
 
     /**
@@ -370,13 +375,13 @@ public abstract class Aggregate<I,
 
     /**
      * Creates an iterator over up to {@code depth} most recent events of this aggregate's
-     * journal, newest first.
+     * history, newest first.
      *
-     * <p>Fewer events are returned if the journal holds fewer. The events emitted by the
-     * current, not-yet-committed dispatch are excluded. Under a batched delivery, the
-     * durable writes are deferred to the end of the batch, so the events of the earlier
-     * dispatches of the same batch may not have reached the journal yet, and are then
-     * excluded too.
+     * <p>Fewer events are returned if the history retains fewer. The events emitted by the
+     * current, not-yet-committed dispatch are excluded. The events committed by the earlier
+     * dispatches served by this instance — e.g., the preceding signals of a delivery
+     * batch — are included even while the deferred journal write has not persisted
+     * them yet.
      *
      * @param depth
      *         the maximal number of the most recent events to return; must be positive
@@ -389,7 +394,7 @@ public abstract class Aggregate<I,
     }
 
     /**
-     * Verifies if up to {@code depth} most recent events of this aggregate's journal contain an
+     * Verifies if up to {@code depth} most recent events of this aggregate's history contain an
      * event that satisfies the passed predicate.
      *
      * <p>The visibility caveats of {@link #eventHistoryBackward(int)} apply to this check.

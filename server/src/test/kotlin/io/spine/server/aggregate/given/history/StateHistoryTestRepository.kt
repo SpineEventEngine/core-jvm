@@ -27,6 +27,7 @@
 package io.spine.server.aggregate.given.history
 
 import io.spine.server.aggregate.given.aggregate.AbstractAggregateTestRepository
+import io.spine.server.entity.storage.EntityEventStorage
 import io.spine.server.entity.storage.EntityStateHistoryStorage
 import io.spine.test.aggregate.AggProject
 import io.spine.test.aggregate.ProjectId
@@ -77,4 +78,26 @@ internal class StateHistoryTestRepository :
      * Returns the state history storage of this repository.
      */
     fun history(): EntityStateHistoryStorage<ProjectId> = stateHistory()
+
+    /**
+     * Returns the event journal of this repository.
+     */
+    fun journal(): EntityEventStorage<ProjectId> = eventStorage()
+
+    /**
+     * Enables the idempotency guard for the aggregates of this repository.
+     */
+    fun enableGuard() = useIdempotencyGuard()
+
+    /**
+     * Starts routing the writes of the aggregate with the given identifier
+     * through the repository cache, as a delivery batch does.
+     */
+    fun beginBatch(id: ProjectId) = cache().startCaching(id)
+
+    /**
+     * Flushes the deferred writes of the aggregate with the given identifier,
+     * as the end of a delivery batch does.
+     */
+    fun endBatch(id: ProjectId) = cache().stopCaching(id)
 }

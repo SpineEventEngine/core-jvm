@@ -37,8 +37,6 @@ import io.spine.server.command.Assign;
 import io.spine.server.command.AssigneeEntity;
 import io.spine.server.command.Commander;
 import io.spine.server.dispatch.DispatchOutcome;
-import io.spine.server.entity.HasLifecycleColumns;
-import io.spine.server.entity.HasVersionColumn;
 import io.spine.server.entity.Transaction;
 import io.spine.server.entity.TransactionalEntity;
 import io.spine.server.event.EventReactor;
@@ -93,8 +91,6 @@ public abstract class ProcessManager<I,
         extends AssigneeEntity<I, S, B>
         implements EventReactor,
                    Commander,
-                   HasVersionColumn<I, S>,
-                   HasLifecycleColumns<I, S>,
                    Querying,
                    WithLogging {
 

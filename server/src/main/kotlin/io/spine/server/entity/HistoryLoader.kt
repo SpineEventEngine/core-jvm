@@ -27,6 +27,7 @@
 package io.spine.server.entity
 
 import io.spine.annotation.Internal
+import io.spine.core.Version
 
 /**
  * Lazily loads up to a requested number of the most recent items of
@@ -48,8 +49,13 @@ public interface HistoryLoader<R : Any> {
      * Loads up to [depth] most recent items of the entity's history,
      * newest first.
      *
+     * When [startingFrom] is given, only the items with versions strictly
+     * lower than it are loaded — so a read may continue below the items
+     * it has already obtained. `null` starts from the newest item.
+     *
      * @param depth The maximum number of the most recent items to load; positive.
+     * @param startingFrom If set, only the items with versions lower than this one are loaded.
      * @return An iterator over the loaded items, newest first.
      */
-    public fun load(depth: Int): Iterator<R>
+    public fun load(depth: Int, startingFrom: Version?): Iterator<R>
 }
