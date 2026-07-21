@@ -31,15 +31,11 @@ import com.google.protobuf.Empty;
 import io.spine.annotation.Internal;
 import io.spine.annotation.VisibleForTesting;
 import io.spine.base.AggregateState;
-import io.spine.base.Identifier;
 import io.spine.core.Event;
-import io.spine.core.Version;
 import io.spine.server.aggregate.model.AggregateClass;
 import io.spine.server.command.AssigneeEntity;
 import io.spine.server.dispatch.DispatchOutcome;
-import io.spine.server.entity.EntityRecord;
 import io.spine.server.entity.RecentEventHistory;
-import io.spine.server.entity.RecentStateHistory;
 import io.spine.server.entity.Transaction;
 import io.spine.server.entity.TransactionalEntity;
 import io.spine.server.event.EventReactor;
@@ -53,7 +49,6 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import static com.google.common.collect.Iterators.any;
-import static io.spine.protobuf.AnyPacker.pack;
 import static io.spine.server.Ignored.ignored;
 import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
 
