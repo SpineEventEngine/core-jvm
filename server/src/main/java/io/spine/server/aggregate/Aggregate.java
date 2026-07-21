@@ -275,7 +275,7 @@ public abstract class Aggregate<I,
      * @return a list of event messages that the aggregate produces in reaction to the event, or
      *         an empty list if the aggregate state does not change because of the event
      */
-    DispatchOutcome reactOn(EventEnvelope event) {
+    DispatchOutcome dispatchEvent(EventEnvelope event) {
         var error = idempotencyGuard.check(event);
         if (error.isPresent()) {
             var outcome = DispatchOutcome.newBuilder()
