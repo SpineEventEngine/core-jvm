@@ -8,7 +8,7 @@ Each entry is a memory file with YAML frontmatter and a body. Types: `feedback`,
 - [No `@Nullable` on locals](feedback_no_nullable_on_locals.md) — the annotation does not apply to local variables (nullness is flow-inferred); keep it on parameters, returns, and fields — and never "restore" one removed from a local
 - [Proportionate API docs](feedback_proportionate_api_docs.md) — don't document failure modes with no consequence; a caveat must never outweigh the method's contract. Failing loudly on a config error is correct behavior, not a defect needing a disclaimer
 - [which-fixer applied](which-fixer-applied.md) — bulk sweep done; skill now runs in incremental mode
-- [Java→Kotlin visibility traps](java-to-kotlin-visibility-traps.md) — protected/package-private mapping, `@JvmName` for Java callers, `HasVersionColumn.getVersion()` clash
+- [Java→Kotlin visibility traps](java-to-kotlin-visibility-traps.md) — protected/package-private mapping, `@JvmName` for Java callers, `HasVersionColumn.getVersion()` clash (both `Has*Column` markers removed 2026-07-20)
 - [KDoc tag descriptions: sentence case](feedback_kdoc_tag_descriptions_sentence_case.md) — `@param I The type...`; don't carry lowercase over from legacy Javadoc
 - [Document `internal` members](feedback_document_internal_members.md) — every Kotlin `internal` method gets KDoc; project convention
 - [New proto types: separate file](feedback_proto_one_message_per_file.md) — one message per file recommended; don't append new types to existing multi-message protos
