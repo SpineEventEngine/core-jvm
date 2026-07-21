@@ -45,16 +45,8 @@ public class RecentEventHistory internal constructor() :
 
     /**
      * Clears the enrichments from the event before it enters the cache.
-     *
-     * The durable journal stores every event enrichment-free — see
-     * `EntityEventStorage.write()`. Normalizing the same way here keeps
-     * a read consistent whether it is served from the cache or from
-     * the storage: an [appended][append] event does not carry enrichments
-     * that would vanish once the journal write flushes or the entity is
-     * reloaded. Clearing is idempotent, so an event loaded from the already
-     * enrichment-free journal is unaffected.
      */
-    override fun toItem(record: Event): Event = record.clearEnrichments()
+    override fun toItem(record: Event): Event = record
 
     override fun versionOf(record: Event): Version = record.context.version
 }
