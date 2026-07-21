@@ -61,7 +61,7 @@ dependencies {
 
     with(AutoService) {
         testAnnotationProcessor(processor)
-        testCompileOnly(annotations)
+        testCompileOnly(AutoService.annotations)
     }
     testImplementation(Grpc.nettyShaded)
 
