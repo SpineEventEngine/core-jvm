@@ -26,6 +26,7 @@
 
 package io.spine.server.aggregate.given.aggregate;
 
+import io.spine.annotation.VisibleForTesting;
 import io.spine.test.aggregate.AggProject;
 import io.spine.test.aggregate.ProjectId;
 
@@ -36,6 +37,7 @@ public class TestAggregateRepository
         extends AbstractAggregateTestRepository<ProjectId, TestAggregate, AggProject> {
 
     /** Enables the double-dispatch guard, exposing the protected opt-in for tests. */
+    @VisibleForTesting
     public void enableGuard() {
         useDoubleDispatchGuard();
     }

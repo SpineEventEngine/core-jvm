@@ -153,6 +153,13 @@ public abstract class SignalDispatchingRepository<I,
      * This mechanism is distinct from the delivery layer's time-windowed deduplication. The
      * guard is <b>off by default</b> for performance: it adds a bounded history read to every
      * dispatch.
+     *
+     * <p><b>Note:</b> this flag takes effect only in repositories that also wire the entity
+     * side of the history machinery — installing the event-history loader on each entity and
+     * enabling the guard on it. {@link io.spine.server.aggregate.AggregateRepository
+     * AggregateRepository} performs this wiring for aggregates. In a repository whose entities
+     * are not {@link SignalDispatchingEntity} — such as a process-manager repository at
+     * present — enabling the guard has no effect until that wiring is added.
      */
     protected void useDoubleDispatchGuard() {
         this.doubleDispatchGuardEnabled = true;

@@ -47,8 +47,8 @@ import java.util.function.Predicate
  * a signal to the target entity, and the entity dispatches it to the matching receptor.
  *
  * Because such an entity emits events, it keeps the [recent history][recentEventHistory] of
- * them, served lazily from the entity's durable journal through the loader the repository
- * [installs][setEventHistoryLoader].
+ * them, served lazily from the entity's durable journal through the loader the
+ * repository [installs][setEventHistoryLoader].
  *
  * @param I The type of the entity identifiers.
  * @param S The type of the entity state.
@@ -57,6 +57,7 @@ import java.util.function.Predicate
  * @see AssigneeEntity
  * @see SignalDispatchingRepository
  */
+@Suppress("TooManyFunctions") // This base for signal-dispatching entities has many functions.
 public abstract class SignalDispatchingEntity<I : Any,
                                               S : EntityState<I>,
                                               B : ValidatingBuilder<S>> :
@@ -199,7 +200,7 @@ public abstract class SignalDispatchingEntity<I : Any,
      * the returned outcome.
      *
      * @param event The envelope with the event to dispatch.
-     * @return the outcome of dispatching the event.
+     * @return The outcome of dispatching the event.
      */
     protected abstract fun dispatchEvent(event: EventEnvelope): DispatchOutcome
 

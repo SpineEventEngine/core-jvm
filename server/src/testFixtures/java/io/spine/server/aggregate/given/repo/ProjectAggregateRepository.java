@@ -28,6 +28,7 @@ package io.spine.server.aggregate.given.repo;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.Any;
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.Identifier;
 import io.spine.core.Origin;
 import io.spine.server.Identity;
@@ -84,11 +85,13 @@ public class ProjectAggregateRepository
     }
 
     /** Enables the double-dispatch guard, exposing the protected opt-in for tests. */
+    @VisibleForTesting
     public void enableGuard() {
         useDoubleDispatchGuard();
     }
 
     /** Tells whether the double-dispatch guard is enabled, exposing the query for tests. */
+    @VisibleForTesting
     public boolean guardEnabled() {
         return doubleDispatchGuardEnabled();
     }

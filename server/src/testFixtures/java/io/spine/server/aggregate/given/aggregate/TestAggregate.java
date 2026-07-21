@@ -148,6 +148,7 @@ public class TestAggregate
     }
 
     /** Reads up to {@code depth} most recent events of this aggregate, newest first. */
+    @VisibleForTesting
     public Iterator<Event> readEventsBackward(int depth) {
         return eventHistoryBackward(depth);
     }

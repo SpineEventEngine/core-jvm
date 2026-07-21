@@ -209,17 +209,16 @@ internal class RecentEventHistorySpec {
     }
 
     @Test
-    fun `clear the enrichments from an appended event`() {
+    fun `keep the enrichments of an appended event`() {
         val enriched = enriched(newEvent(version = 1))
         enriched.context.hasEnrichment() shouldBe true
 
         history.append(enriched)
 
-        // The cache serves the event enrichment-free, matching the journal,
-        // so a read does not depend on whether it is cached or stored.
+        // The cache serves the event as it was appended, enrichments included.
         val read = history.read(1).asSequence().toList()
-        read shouldContainExactly listOf(enriched.clearEnrichments())
-        read.single().context.hasEnrichment() shouldBe false
+        read shouldContainExactly listOf(enriched)
+        read.single().context.hasEnrichment() shouldBe true
     }
 
     @Test

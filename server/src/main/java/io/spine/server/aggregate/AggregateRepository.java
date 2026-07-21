@@ -175,7 +175,7 @@ public abstract class AggregateRepository<I,
      *
      * <p>Also posts the {@linkplain io.spine.system.server.event.EntityCreated
      * entity-created} system event, and installs the history loaders and, when enabled,
-     * the idempotency guard on the created aggregate.
+     * the double-dispatch guard on the created aggregate.
      */
     @Override
     @OverridingMethodsMustInvokeSuper
@@ -187,7 +187,7 @@ public abstract class AggregateRepository<I,
     }
 
     /**
-     * Installs the event history loader and, when enabled, the idempotency guard
+     * Installs the event history loader and, when enabled, the double-dispatch guard
      * on a newly created aggregate.
      *
      * <p>The state history loader is installed by the base repository on the
@@ -348,7 +348,7 @@ public abstract class AggregateRepository<I,
      * Sets the {@linkplain #eventHistoryDepth() event history depth} to the passed value.
      *
      * @param depth
-     *         a positive number of recent events the idempotency guard scans
+     *         a positive number of recent events the double-dispatch guard scans
      */
     protected void setEventHistoryDepth(int depth) {
         checkArgument(depth > 0);
@@ -429,7 +429,7 @@ public abstract class AggregateRepository<I,
     /**
      * {@inheritDoc}
      *
-     * <p>Installs the history loaders and, when enabled, the idempotency guard on
+     * <p>Installs the history loaders and, when enabled, the double-dispatch guard on
      * the reconstructed aggregate.
      */
     @Override

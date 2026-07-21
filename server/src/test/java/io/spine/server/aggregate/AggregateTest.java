@@ -95,7 +95,6 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.extensions.proto.ProtoTruth.assertThat;
 import static io.spine.grpc.StreamObservers.noOpObserver;
-import static io.spine.server.entity.SignalDispatchingEntity.DEFAULT_HISTORY_DEPTH;
 import static io.spine.server.aggregate.given.Given.EventMessage.projectCreated;
 import static io.spine.server.aggregate.given.Given.EventMessage.projectStarted;
 import static io.spine.server.aggregate.given.Given.EventMessage.taskAdded;
@@ -108,6 +107,7 @@ import static io.spine.server.aggregate.given.aggregate.AggregateTestEnv.newTena
 import static io.spine.server.aggregate.given.aggregate.AggregateTestEnv.reassignTask;
 import static io.spine.server.aggregate.given.dispatch.AggregateMessageDispatcher.dispatchCommand;
 import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
+import static io.spine.server.entity.SignalDispatchingEntity.DEFAULT_HISTORY_DEPTH;
 import static io.spine.server.tenant.TenantAwareRunner.with;
 import static io.spine.testing.server.Assertions.assertCommandClasses;
 import static io.spine.testing.server.Assertions.assertEventClasses;

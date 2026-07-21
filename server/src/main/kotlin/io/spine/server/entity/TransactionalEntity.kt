@@ -311,6 +311,7 @@ public abstract class TransactionalEntity<I : Any, S : EntityState<I>, B : Valid
      *   or the constraint violations of the candidate state if the changes were withheld.
      * @see tryAlter
      */
+    @VisibleForTesting
     public fun tryAlter(block: Consumer<B>): List<ConstraintViolation> =
         tryAlter { block.accept(this) }
 

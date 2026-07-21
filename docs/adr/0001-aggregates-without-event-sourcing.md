@@ -350,7 +350,7 @@ bounded load on first access, independent of the guard.
 **Implementation constraint** (applies when the guard is on, or when business
 logic uses history for causality). `DoubleDispatchGuard` matches the incoming signal
 id against the `EventContext.pastMessage` origin of previously *emitted* events in
-recent history (`DoubleDispatchGuard.java:119-160`), so the lazy journal-tail read
+recent history (`DoubleDispatchGuard.didHandleRecently()`), so the lazy journal-tail read
 **must return emitted events with `EventContext.pastMessage` intact.** Verify in
 PR-B2 that `AggregateStorage.writeEvent`'s `clearEnrichments()`
 (`AggregateStorage.java:284-290`) strips enrichments only and not `pastMessage`,
@@ -375,9 +375,10 @@ redelivery/retry horizon.
 > deprecated parameterless forms.
 
 > **Renamed** (Phase G, 2026-07-21): the guard type is now `DoubleDispatchGuard`
-> (was `IdempotencyGuard`), toggled per repository by `useDoubleDispatchGuard()` /
-> `doubleDispatchGuardEnabled()`. The decision is unchanged — the name now states the
-> failure it prevents (one signal dispatched twice) rather than the property it upholds.
+> (was `IdempotencyGuard`), enabled per repository via `useDoubleDispatchGuard()` (its
+> state queried via `doubleDispatchGuardEnabled()`). The decision is unchanged — the name
+> now states the failure it prevents (one signal dispatched twice) rather than the property
+> it upholds.
 
 ---
 

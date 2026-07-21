@@ -78,7 +78,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static io.spine.base.Time.currentTime;
 import static io.spine.grpc.StreamObservers.noOpObserver;
 import static io.spine.protobuf.Messages.isNotDefault;
-import static io.spine.server.entity.SignalDispatchingEntity.DEFAULT_HISTORY_DEPTH;
 import static io.spine.server.aggregate.given.repo.AggregateRepositoryTestEnv.context;
 import static io.spine.server.aggregate.given.repo.AggregateRepositoryTestEnv.givenAggregate;
 import static io.spine.server.aggregate.given.repo.AggregateRepositoryTestEnv.givenAggregateId;
@@ -88,6 +87,7 @@ import static io.spine.server.aggregate.given.repo.AggregateRepositoryTestEnv.re
 import static io.spine.server.aggregate.given.repo.AggregateRepositoryTestEnv.resetBoundedContext;
 import static io.spine.server.aggregate.given.repo.AggregateRepositoryTestEnv.resetRepository;
 import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
+import static io.spine.server.entity.SignalDispatchingEntity.DEFAULT_HISTORY_DEPTH;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;

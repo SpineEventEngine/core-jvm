@@ -44,7 +44,12 @@ public class RecentEventHistory internal constructor() :
     RecentHistory<Event, Event, EventHistoryLoader>() {
 
     /**
-     * Clears the enrichments from the event before it enters the cache.
+     * Returns the event unchanged.
+     *
+     * An event carries no enrichments at this phase: they are attached later, when the
+     * event is posted for delivery. There is thus nothing to strip here, and the stored
+     * record already is the history item. Do not add normalization here without first
+     * re-verifying that events still reach [append] enrichment-free.
      */
     override fun toItem(record: Event): Event = record
 
