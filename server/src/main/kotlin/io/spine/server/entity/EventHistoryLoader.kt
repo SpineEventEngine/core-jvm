@@ -35,7 +35,7 @@ import io.spine.core.Version
  * events, newest first.
  *
  * A repository installs a loader on each entity it creates or loads — via
- * [TransactionalEntity.setEventHistoryLoader] — so that the
+ * [SignalDispatchingEntity.setEventHistoryLoader] — so that the
  * [recent event history reads][RecentEventHistory.read] are served from the
  * durable journal of the entity. See
  * `io.spine.server.aggregate.AggregateRepository` for the wiring on

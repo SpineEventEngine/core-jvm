@@ -26,6 +26,7 @@
 
 package io.spine.server.entity
 
+import io.spine.annotation.Internal
 import io.spine.base.EntityState
 import io.spine.server.command.AssigneeEntity
 import io.spine.server.dispatch.DispatchOutcome
@@ -42,6 +43,10 @@ import io.spine.validation.ValidatingBuilder
  * This is the entity-level counterpart of [SignalDispatchingRepository]: the repository routes
  * a signal to the target entity, and the entity dispatches it to the matching receptor.
  *
+ * Because such an entity emits events, it keeps the [recent history][recentEventHistory] of
+ * them, served lazily from the entity's durable journal through the loader the repository
+ * [installs][setEventHistoryLoader].
+ *
  * @param I The type of the entity identifiers.
  * @param S The type of the entity state.
  * @param B The type of the builders for the entity state.
@@ -53,6 +58,8 @@ public abstract class SignalDispatchingEntity<I : Any,
                                               S : EntityState<I>,
                                               B : ValidatingBuilder<S>> :
     AssigneeEntity<I, S, B> {
+
+    private val recentEventHistory = RecentEventHistory()
 
     /**
      * Creates a new instance with the entity ID left unassigned.
@@ -68,6 +75,24 @@ public abstract class SignalDispatchingEntity<I : Any,
      * @param id The ID for the new instance.
      */
     protected constructor(id: I) : super(id)
+
+    /**
+     * Obtains the recent history of events of this entity.
+     */
+    protected open fun recentEventHistory(): RecentEventHistory = recentEventHistory
+
+    /**
+     * Installs the loader serving the [recent event history][recentEventHistory]
+     * reads from the durable journal of this entity.
+     *
+     * Called by repositories when the entity is created or loaded, so that the recent
+     * history survives the instance lifecycle instead of being limited to the events
+     * committed by this very instance.
+     */
+    @Internal
+    public fun setEventHistoryLoader(loader: EventHistoryLoader) {
+        recentEventHistory.useLoader(loader)
+    }
 
     /**
      * Dispatches the given event to the receptor reacting to it.

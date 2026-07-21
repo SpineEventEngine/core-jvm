@@ -30,10 +30,10 @@ import io.spine.core.Event
 import io.spine.core.Version
 
 /**
- * The recent history of events of a [TransactionalEntity].
+ * The recent history of events of a [SignalDispatchingEntity].
  *
  * The events are read from the durable journal of the entity via the loader
- * [installed][TransactionalEntity.setEventHistoryLoader] by the repository
+ * [installed][SignalDispatchingEntity.setEventHistoryLoader] by the repository
  * managing the entity, and cached for the lifetime of the entity instance —
  * see [RecentHistory].
  *
