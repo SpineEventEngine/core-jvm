@@ -34,8 +34,8 @@ import io.spine.core.Version
  *
  * The events are read from the durable journal of the entity via the loader
  * [installed][TransactionalEntity.setEventHistoryLoader] by the repository
- * managing the entity, and cached for the lifetime of the entity instance —
- * see [RecentHistory].
+ * managing the entity, and cached for the lifetime of the entity
+ * instance — see [RecentHistory].
  *
  * An entity created outside a repository has no journal, so the reads
  * serve only the [appended][append] events, if any.
