@@ -364,8 +364,9 @@ public abstract class AggregateRepository<I,
      * {@code createStorage()} to serve the aggregate state from a custom
      * {@link io.spine.server.storage.StorageFactory} or backend should override this method as
      * well, so the journal — feeding the double-dispatch guard and the
-     * {@linkplain Aggregate#eventHistoryBackward(int) recent-history} reads — is served by the
-     * same backend as the state, rather than silently falling back to the default one.
+     * {@linkplain SignalDispatchingEntity#eventHistoryBackward(int) recent-history}
+     * reads — is served by the same backend as the state, rather than silently falling
+     * back to the default one.
      *
      * @return a new event journal
      */

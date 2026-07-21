@@ -28,10 +28,12 @@ package io.spine.server.entity
 
 import io.spine.annotation.Internal
 import io.spine.base.EntityState
+import io.spine.core.Event
 import io.spine.server.command.AssigneeEntity
 import io.spine.server.dispatch.DispatchOutcome
 import io.spine.server.type.EventEnvelope
 import io.spine.validation.ValidatingBuilder
+import java.util.function.Predicate
 
 /**
  * Abstract base for entities that dispatch signals — both commands and events —
@@ -95,6 +97,34 @@ public abstract class SignalDispatchingEntity<I : Any,
     public fun setEventHistoryLoader(loader: EventHistoryLoader) {
         recentEventHistory.useLoader(loader)
     }
+
+    /**
+     * Creates an iterator over up to [depth] most recent events of this entity's history,
+     * newest first.
+     *
+     * Fewer events are returned if the history retains fewer. The events emitted by the
+     * current, not-yet-committed dispatch are excluded. The events committed by the earlier
+     * dispatches served by this instance — e.g., the preceding signals of a delivery batch —
+     * are included even while the deferred journal write has not persisted them yet.
+     *
+     * @param depth The maximal number of the most recent events to return; must be positive.
+     * @return New iterator instance.
+     * @throws IllegalArgumentException If the [depth] is not positive.
+     */
+    protected fun eventHistoryBackward(depth: Int): Iterator<Event> =
+        recentEventHistory().read(depth)
+
+    /**
+     * Verifies if up to [depth] most recent events of this entity's history contain an event
+     * that satisfies the passed predicate.
+     *
+     * The visibility caveats of [eventHistoryBackward] apply to this check.
+     *
+     * @param depth The maximal number of the most recent events to inspect; must be positive.
+     * @param predicate The predicate to test the events against.
+     */
+    protected fun eventHistoryContains(depth: Int, predicate: Predicate<Event>): Boolean =
+        eventHistoryBackward(depth).asSequence().any { predicate.test(it) }
 
     /**
      * Returns the guard against dispatching the same signal to this entity more than once.

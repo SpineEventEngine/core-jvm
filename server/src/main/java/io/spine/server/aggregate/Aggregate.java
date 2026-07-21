@@ -50,7 +50,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static com.google.common.collect.Iterators.any;
 import static io.spine.server.Ignored.ignored;
 import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
 
@@ -339,42 +338,6 @@ public abstract class Aggregate<I,
     @Override
     protected final RecentEventHistory recentEventHistory() {
         return super.recentEventHistory();
-    }
-
-    /**
-     * Creates an iterator over up to {@code depth} most recent events of this aggregate's
-     * history, newest first.
-     *
-     * <p>Fewer events are returned if the history retains fewer. The events emitted by the
-     * current, not-yet-committed dispatch are excluded. The events committed by the earlier
-     * dispatches served by this instance — e.g., the preceding signals of a delivery
-     * batch — are included even while the deferred journal write has not persisted
-     * them yet.
-     *
-     * @param depth
-     *         the maximal number of the most recent events to return; must be positive
-     * @return new iterator instance
-     * @throws IllegalArgumentException
-     *         if the {@code depth} is not positive
-     */
-    protected final Iterator<Event> eventHistoryBackward(int depth) {
-        return recentEventHistory().read(depth);
-    }
-
-    /**
-     * Verifies if up to {@code depth} most recent events of this aggregate's history contain an
-     * event that satisfies the passed predicate.
-     *
-     * <p>The visibility caveats of {@link #eventHistoryBackward(int)} apply to this check.
-     *
-     * @param depth
-     *         the maximal number of the most recent events to inspect; must be positive
-     * @param predicate
-     *         the predicate to test the events against
-     */
-    protected final boolean eventHistoryContains(int depth, Predicate<Event> predicate) {
-        var iterator = eventHistoryBackward(depth);
-        return any(iterator, predicate::test);
     }
 
     /**

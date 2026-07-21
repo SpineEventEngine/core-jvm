@@ -187,7 +187,7 @@ class AggregateRepositoryTest {
 
             var iterated = repository().iterator(a -> true).next();
 
-            var history = iterated.eventHistoryBackward(10);
+            var history = iterated.readEventsBackward(10);
             assertTrue(history.hasNext());
         }
 
