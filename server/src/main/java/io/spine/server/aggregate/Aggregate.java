@@ -352,6 +352,7 @@ public abstract class Aggregate<I,
             replacement = "this.eventHistoryBackward(Aggregate.DEFAULT_HISTORY_DEPTH)",
             imports = "io.spine.server.aggregate.Aggregate"
     )
+    @SuppressWarnings("DuplicateStringLiteralInspection") // same `imports` as below.
     protected final Iterator<Event> historyBackward() {
         return eventHistoryBackward(DEFAULT_HISTORY_DEPTH);
     }
@@ -368,6 +369,7 @@ public abstract class Aggregate<I,
             replacement = "this.eventHistoryContains(Aggregate.DEFAULT_HISTORY_DEPTH, predicate)",
             imports = "io.spine.server.aggregate.Aggregate"
     )
+    @SuppressWarnings("DuplicateStringLiteralInspection") // same `imports` as above.
     protected final boolean historyContains(Predicate<Event> predicate) {
         return eventHistoryContains(DEFAULT_HISTORY_DEPTH, predicate);
     }
