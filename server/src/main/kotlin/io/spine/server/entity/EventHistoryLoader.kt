@@ -28,6 +28,7 @@ package io.spine.server.entity
 
 import io.spine.annotation.Internal
 import io.spine.core.Event
+import io.spine.core.Version
 
 /**
  * Lazily loads up to a requested number of an entity's most recent journal
@@ -46,8 +47,12 @@ public fun interface EventHistoryLoader : HistoryLoader<Event> {
     /**
      * Loads up to [depth] most recent events of the entity's journal, newest first.
      *
+     * When [startingFrom] is given, only the events with versions strictly
+     * lower than it are loaded. `null` starts from the newest event.
+     *
      * @param depth The maximum number of the most recent events to load; positive.
+     * @param startingFrom If set, only the events with versions lower than this one are loaded.
      * @return An iterator over the loaded events, newest first.
      */
-    override fun load(depth: Int): Iterator<Event>
+    override fun load(depth: Int, startingFrom: Version?): Iterator<Event>
 }
