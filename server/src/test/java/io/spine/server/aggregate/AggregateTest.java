@@ -57,7 +57,6 @@ import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
 import io.spine.system.server.DiagnosticMonitor;
-import io.spine.test.aggregate.AggProject;
 import io.spine.test.aggregate.ProjectId;
 import io.spine.test.aggregate.Status;
 import io.spine.test.aggregate.command.AggAddTask;
@@ -96,7 +95,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.extensions.proto.ProtoTruth.assertThat;
 import static io.spine.grpc.StreamObservers.noOpObserver;
-import static io.spine.server.aggregate.AggregateRepository.DEFAULT_HISTORY_DEPTH;
+import static io.spine.server.entity.SignalDispatchingEntity.DEFAULT_HISTORY_DEPTH;
 import static io.spine.server.aggregate.given.Given.EventMessage.projectCreated;
 import static io.spine.server.aggregate.given.Given.EventMessage.projectStarted;
 import static io.spine.server.aggregate.given.Given.EventMessage.taskAdded;
@@ -424,7 +423,7 @@ public class AggregateTest {
                                AggProjectStarted.class);
         }
 
-        private Collection<EventClass> getEventClasses(Collection<Event> events) {
+        private static Collection<EventClass> getEventClasses(Collection<Event> events) {
             var result = events.stream()
                     .map(EventClass::of)
                     .collect(toList());

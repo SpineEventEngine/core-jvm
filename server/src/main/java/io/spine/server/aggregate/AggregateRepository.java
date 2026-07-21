@@ -35,6 +35,7 @@ import io.spine.server.delivery.Inbox;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.EntityRecord;
 import io.spine.server.entity.EventProducingRepository;
+import io.spine.server.entity.SignalDispatchingEntity;
 import io.spine.server.entity.SignalDispatchingRepository;
 import io.spine.server.entity.storage.EntityEventStorage;
 import io.spine.server.event.EventBus;
@@ -68,18 +69,19 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * journal. The repository keeps that latest state in its record storage and appends
  * the emitted events to a separate {@linkplain #eventStorage() event journal}
  * (an {@link EntityEventStorage}), kept append-only for traceability and for the opt-in
- * {@link io.spine.server.entity.DoubleDispatchGuard DoubleDispatchGuard}.
+ * double-dispatch guard.
  *
  * <p>Three per-repository settings tune this behavior:
  * <ul>
- *     <li>{@link #useDoubleDispatchGuard()} — enables the history-backed {@link io.spine.server.entity.DoubleDispatchGuard DoubleDispatchGuard},
+ *     <li>{@link #useDoubleDispatchGuard()} — enables the history-backed double-dispatch guard,
  *         which rejects a signal already seen among the last {@link #eventHistoryDepth()}
  *         dispatches — however long ago, including the earlier dispatches of the current
  *         delivery batch. It is <b>off by default</b> for performance — when enabled, every
  *         dispatch pays a bounded history read. This is a mechanism distinct from
  *         the delivery layer's time-windowed deduplication, not a replacement for it.
  *     <li>{@linkplain #eventHistoryDepth() eventHistoryDepth} — how many recent events
- *         the guard scans on each dispatch when enabled (default {@value #DEFAULT_HISTORY_DEPTH}).
+ *         the guard scans on each dispatch when enabled
+ *         (default {@value SignalDispatchingEntity#DEFAULT_HISTORY_DEPTH}).
  *     <li>{@link #recordStateHistory()} — records the state history of the aggregates
  *         on each dispatch. This is an opt-in feature shared by all entity repositories
  *         (see {@link io.spine.server.entity.AbstractEntityRepository}).
@@ -106,14 +108,8 @@ public abstract class AggregateRepository<I,
         extends SignalDispatchingRepository<I, A, S>
         implements EventProducingRepository {
 
-    /** The default {@link #eventHistoryDepth()} value. */
-    static final int DEFAULT_HISTORY_DEPTH = 100;
-
-    /**
-     * The window (in journal events) the opt-in
-     * {@link io.spine.server.entity.DoubleDispatchGuard DoubleDispatchGuard} scans.
-     */
-    private int eventHistoryDepth = DEFAULT_HISTORY_DEPTH;
+    /** The window (in journal events) the opt-in double-dispatch guard scans. */
+    private int eventHistoryDepth = SignalDispatchingEntity.DEFAULT_HISTORY_DEPTH;
 
     /**
      * The journal of the events emitted by the aggregates of this repository; created lazily
@@ -339,9 +335,10 @@ public abstract class AggregateRepository<I,
 
     /**
      * Returns the number of the most recent events scanned by the opt-in
-     * {@link io.spine.server.entity.DoubleDispatchGuard DoubleDispatchGuard} when it is enabled.
+     * double-dispatch guard when it is enabled.
      *
-     * @return a positive integer value; the default is {@value #DEFAULT_HISTORY_DEPTH}
+     * @return a positive integer value; the default is
+     *         {@value SignalDispatchingEntity#DEFAULT_HISTORY_DEPTH}
      */
     protected int eventHistoryDepth() {
         return this.eventHistoryDepth;
@@ -366,8 +363,7 @@ public abstract class AggregateRepository<I,
      * {@code createStorage()} uses for the aggregate state. A repository that overrides
      * {@code createStorage()} to serve the aggregate state from a custom
      * {@link io.spine.server.storage.StorageFactory} or backend should override this method as
-     * well, so the journal — feeding
-     * the {@link io.spine.server.entity.DoubleDispatchGuard DoubleDispatchGuard} and the
+     * well, so the journal — feeding the double-dispatch guard and the
      * {@linkplain Aggregate#eventHistoryBackward(int) recent-history} reads — is served by the
      * same backend as the state, rather than silently falling back to the default one.
      *

@@ -27,6 +27,7 @@
 package io.spine.server.aggregate;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.errorprone.annotations.InlineMe;
 import com.google.protobuf.Empty;
 import io.spine.annotation.Internal;
 import io.spine.annotation.VisibleForTesting;
@@ -65,7 +66,7 @@ import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
  * state is persisted directly: an aggregate loads from its latest
  * {@link io.spine.server.entity.EntityRecord EntityRecord} rather than by replaying its events.
  * The produced events form an append-only journal kept for traceability and for the opt-in
- * {@link io.spine.server.entity.DoubleDispatchGuard DoubleDispatchGuard}.
+ * double-dispatch guard.
  *
  * <h2>Creating an aggregate class</h2>
  *
@@ -126,14 +127,6 @@ public abstract class Aggregate<I,
                                 B extends ValidatingBuilder<S>>
         extends SignalDispatchingEntity<I, S, B>
         implements EventReactor {
-
-    /**
-     * The fixed number of the most recent journal events read by the deprecated parameterless
-     * {@linkplain #historyBackward() history accessors}.
-     *
-     * <p>Equal to {@code AggregateRepository.DEFAULT_HISTORY_DEPTH}.
-     */
-    private static final int DEFAULT_HISTORY_DEPTH = 100;
 
     private final UncommittedHistory uncommittedHistory = new UncommittedHistory();
 
@@ -388,9 +381,14 @@ public abstract class Aggregate<I,
      * Creates an iterator of the aggregate event history with reverse traversal.
      *
      * @deprecated Please use {@link #eventHistoryBackward(int)} and state the history window
-     *         explicitly. This form reads the last {@value #DEFAULT_HISTORY_DEPTH} events.
+     *         explicitly. This form reads the last
+     *         {@value SignalDispatchingEntity#DEFAULT_HISTORY_DEPTH} events.
      */
     @Deprecated
+    @InlineMe(
+            replacement = "this.eventHistoryBackward(Aggregate.DEFAULT_HISTORY_DEPTH)",
+            imports = "io.spine.server.aggregate.Aggregate"
+    )
     protected final Iterator<Event> historyBackward() {
         return eventHistoryBackward(DEFAULT_HISTORY_DEPTH);
     }
@@ -399,10 +397,14 @@ public abstract class Aggregate<I,
      * Verifies if the aggregate history contains an event that satisfies the passed predicate.
      *
      * @deprecated Please use {@link #eventHistoryContains(int, Predicate)} and state the history
-     *         window explicitly. This form inspects the last {@value #DEFAULT_HISTORY_DEPTH}
-     *         events.
+     *         window explicitly. This form inspects the last
+     *         {@value SignalDispatchingEntity#DEFAULT_HISTORY_DEPTH} events.
      */
     @Deprecated
+    @InlineMe(
+            replacement = "this.eventHistoryContains(Aggregate.DEFAULT_HISTORY_DEPTH, predicate)",
+            imports = "io.spine.server.aggregate.Aggregate"
+    )
     protected final boolean historyContains(Predicate<Event> predicate) {
         return eventHistoryContains(DEFAULT_HISTORY_DEPTH, predicate);
     }

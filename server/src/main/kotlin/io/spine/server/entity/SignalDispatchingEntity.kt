@@ -120,4 +120,16 @@ public abstract class SignalDispatchingEntity<I : Any,
      * @return the outcome of dispatching the event.
      */
     protected abstract fun dispatchEvent(event: EventEnvelope): DispatchOutcome
+
+    public companion object {
+
+        /**
+         * The default number of most recent events kept in an entity's history window.
+         *
+         * It is the window read by the deprecated parameterless history accessors, and
+         * the default number of recent events scanned per dispatch by the opt-in check
+         * that rejects a signal already dispatched to the entity.
+         */
+        public const val DEFAULT_HISTORY_DEPTH: Int = 100
+    }
 }
