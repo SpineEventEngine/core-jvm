@@ -380,9 +380,9 @@ public abstract class Aggregate<I,
      *
      * <p>Fewer events are returned if the history retains fewer. The events emitted by the
      * current, not-yet-committed dispatch are excluded. The events committed by the earlier
-     * dispatches served by this instance — e.g., the preceding signals of a delivery
-     * batch — are included even while the deferred journal write has not persisted
-     * them yet.
+     * dispatches served by this instance — e.g., the preceding signals of a
+     * delivery batch — are included even while the deferred journal write has
+     * not persisted them yet.
      *
      * @param depth
      *         the maximal number of the most recent events to return; must be positive
