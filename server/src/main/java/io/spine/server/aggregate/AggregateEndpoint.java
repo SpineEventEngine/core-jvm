@@ -35,7 +35,6 @@ import io.spine.server.entity.TransactionListener;
 import io.spine.server.type.SignalEnvelope;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Abstract base for endpoints handling messages sent to aggregates.
