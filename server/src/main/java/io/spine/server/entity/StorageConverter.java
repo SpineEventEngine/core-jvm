@@ -179,9 +179,9 @@ public abstract class StorageConverter<I, E extends Entity<I, S>, S extends Enti
     public boolean equals(@Nullable Object obj) {
         return (this == obj)
                 ||
-                (obj instanceof StorageConverter<?, ?, ?> other)
+                ((obj instanceof StorageConverter<?, ?, ?> other)
                         && Objects.equals(this.entityStateType, other.entityStateType)
                         && Objects.equals(this.entityFactory, other.entityFactory)
-                        && Objects.equals(this.fieldMask, other.fieldMask);
+                        && Objects.equals(this.fieldMask, other.fieldMask));
     }
 }
