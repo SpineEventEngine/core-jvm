@@ -38,7 +38,6 @@ import io.spine.server.aggregate.model.AggregateClass;
 import io.spine.server.command.AssigneeEntity;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.EntityRecord;
-import io.spine.server.entity.HasLifecycleColumns;
 import io.spine.server.entity.RecentEventHistory;
 import io.spine.server.entity.RecentStateHistory;
 import io.spine.server.entity.Transaction;
@@ -130,7 +129,7 @@ public abstract class Aggregate<I,
                                 S extends AggregateState<I>,
                                 B extends ValidatingBuilder<S>>
         extends AssigneeEntity<I, S, B>
-        implements EventReactor, HasLifecycleColumns<I, S> {
+        implements EventReactor {
 
     /**
      * The fixed number of the most recent journal events read by the deprecated parameterless

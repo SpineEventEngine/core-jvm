@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,6 @@ import io.spine.core.Versions;
 import io.spine.query.EntityColumn;
 import io.spine.server.entity.Entity;
 import io.spine.server.entity.EntityRecord;
-import io.spine.server.entity.HasLifecycleColumns;
 import io.spine.server.entity.StorageConverter;
 import io.spine.server.entity.TestTransaction;
 import io.spine.server.entity.TransactionalEntity;
@@ -166,8 +165,7 @@ public final class EntityRecordStorageTestEnv {
 
     @SuppressWarnings("unused") // Reflective access
     public static class TestCounterEntity
-            extends TransactionalEntity<StgProjectId, StgProject, StgProject.Builder>
-            implements HasLifecycleColumns<StgProjectId, StgProject> {
+            extends TransactionalEntity<StgProjectId, StgProject, StgProject.Builder> {
 
         public static final Timestamp PROJECT_VERSION_TIMESTAMP =
                 Timestamp.newBuilder()

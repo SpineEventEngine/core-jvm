@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,13 +27,11 @@
 package io.spine.server.entity.storage.given;
 
 import io.spine.server.entity.AbstractEntity;
-import io.spine.server.entity.HasLifecycleColumns;
 import io.spine.test.storage.StgProject;
 import io.spine.test.storage.StgProjectId;
 
 public class TestEntity
-        extends AbstractEntity<StgProjectId, StgProject>
-        implements HasLifecycleColumns<StgProjectId, StgProject> {
+        extends AbstractEntity<StgProjectId, StgProject> {
 
     public TestEntity(StgProjectId id) {
         super(id);
