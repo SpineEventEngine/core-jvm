@@ -63,7 +63,7 @@ public abstract class SignalDispatchingRepository<I,
     /** The command routing schema used by this repository. */
     private final Supplier<CommandRouting<I>> commandRouting;
 
-    /** Whether the opt-in {@link DoubleDispatchGuard} is enabled for this repository. */
+    /** Whether the opt-in double-dispatch guard is enabled for this repository. */
     private boolean doubleDispatchGuardEnabled = false;
 
     protected SignalDispatchingRepository() {
@@ -144,7 +144,7 @@ public abstract class SignalDispatchingRepository<I,
     }
 
     /**
-     * Enables the opt-in, history-backed {@link DoubleDispatchGuard} for the entities of
+     * Enables the opt-in, history-backed double-dispatch guard for the entities of
      * this repository.
      *
      * <p>When enabled, each dispatch scans a bounded window of the entity's recent events —
@@ -159,7 +159,7 @@ public abstract class SignalDispatchingRepository<I,
     }
 
     /**
-     * Tells whether the opt-in {@link DoubleDispatchGuard} is enabled for this repository.
+     * Tells whether the opt-in double-dispatch guard is enabled for this repository.
      *
      * @return {@code false} by default
      */

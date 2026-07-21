@@ -12,5 +12,6 @@ Each entry is a memory file with YAML frontmatter and a body. Types: `feedback`,
 - [KDoc tag descriptions: sentence case](feedback_kdoc_tag_descriptions_sentence_case.md) — `@param I The type...`; don't carry lowercase over from legacy Javadoc
 - [Document `internal` members](feedback_document_internal_members.md) — every Kotlin `internal` method gets KDoc; project convention
 - [No Javadoc/KDoc-only imports](feedback_no_javadoc_only_imports.md) — qualify the link (`{@link fqName shortName}` / `[shortName][fqName]`) instead of importing a type used only by a doc comment
+- [No `@Internal` API in public docs](feedback_no_internal_api_in_public_docs.md) — don't link `@Internal` types from public/protected member docs (they may go Kotlin-internal or obfuscated); describe the behavior in prose
 - [New proto types: separate file](feedback_proto_one_message_per_file.md) — one message per file recommended; don't append new types to existing multi-message protos
 - [Kotlin over the storage SPI: two traps](kotlin-storage-spi-interop-traps.md) — `ExtractId` method refs fail under K2 (nullable Guava SAM → lambda + `requireNotNull`); proto-DSL receiver properties shadow outer params (bind a renamed local first)
