@@ -82,4 +82,14 @@ public class ProjectAggregateRepository
         lifecycleOf(aggregate.id())
                 .onStateChanged(change, ImmutableSet.of(origin), Origin.getDefaultInstance());
     }
+
+    /** Enables the double-dispatch guard, exposing the protected opt-in for tests. */
+    public void enableGuard() {
+        useDoubleDispatchGuard();
+    }
+
+    /** Tells whether the double-dispatch guard is enabled, exposing the query for tests. */
+    public boolean guardEnabled() {
+        return doubleDispatchGuardEnabled();
+    }
 }

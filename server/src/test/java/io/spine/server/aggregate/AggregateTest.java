@@ -635,7 +635,7 @@ public class AggregateTest {
         var monitor = new DiagnosticMonitor();
         context.internalAccess()
                .registerEventDispatcher(monitor);
-        repository.useDoubleDispatchGuard();
+        repository.enableGuard();
         var createCommand = command(createProject);
         var cmd = CommandEnvelope.of(createCommand);
         var tenantId = newTenantId();
@@ -656,7 +656,7 @@ public class AggregateTest {
         var monitor = new DiagnosticMonitor();
         context.internalAccess()
                .registerEventDispatcher(monitor);
-        repository.useDoubleDispatchGuard();
+        repository.enableGuard();
         var eventMessage = AggProjectDeleted.newBuilder()
                 .setProjectId(ID)
                 .build();

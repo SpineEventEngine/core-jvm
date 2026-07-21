@@ -245,15 +245,15 @@ class AggregateRepositoryTest {
         @Test
         @DisplayName("turned off by default")
         void turnedOffByDefault() {
-            assertFalse(repository().doubleDispatchGuardEnabled());
+            assertFalse(repository().guardEnabled());
         }
 
         @Test
         @DisplayName("turned on by `useDoubleDispatchGuard`")
         void turnedOn() {
-            repository().useDoubleDispatchGuard();
+            repository().enableGuard();
 
-            assertTrue(repository().doubleDispatchGuardEnabled());
+            assertTrue(repository().guardEnabled());
         }
     }
 

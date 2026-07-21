@@ -63,6 +63,9 @@ public abstract class SignalDispatchingRepository<I,
     /** The command routing schema used by this repository. */
     private final Supplier<CommandRouting<I>> commandRouting;
 
+    /** Whether the opt-in {@link DoubleDispatchGuard} is enabled for this repository. */
+    private boolean doubleDispatchGuardEnabled = false;
+
     protected SignalDispatchingRepository() {
         super();
         this.commandRouting = memoize(() -> CommandRouting.newInstance(idClass()));
@@ -138,5 +141,29 @@ public abstract class SignalDispatchingRepository<I,
         var commandId = cmd.id();
         with(cmd.tenantId())
                 .run(() -> lifecycle.onTargetAssignedToCommand(commandId));
+    }
+
+    /**
+     * Enables the opt-in, history-backed {@link DoubleDispatchGuard} for the entities of
+     * this repository.
+     *
+     * <p>When enabled, each dispatch scans a bounded window of the entity's recent events —
+     * including the events of the current delivery batch that have not reached the journal
+     * yet — and rejects a signal already seen among them, however long ago it was dispatched.
+     * This mechanism is distinct from the delivery layer's time-windowed deduplication. The
+     * guard is <b>off by default</b> for performance: it adds a bounded history read to every
+     * dispatch.
+     */
+    protected void useDoubleDispatchGuard() {
+        this.doubleDispatchGuardEnabled = true;
+    }
+
+    /**
+     * Tells whether the opt-in {@link DoubleDispatchGuard} is enabled for this repository.
+     *
+     * @return {@code false} by default
+     */
+    protected boolean doubleDispatchGuardEnabled() {
+        return doubleDispatchGuardEnabled;
     }
 }

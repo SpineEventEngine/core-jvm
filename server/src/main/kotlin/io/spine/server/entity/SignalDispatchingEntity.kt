@@ -61,6 +61,8 @@ public abstract class SignalDispatchingEntity<I : Any,
 
     private val recentEventHistory = RecentEventHistory()
 
+    private val doubleDispatchGuard = DoubleDispatchGuard(this)
+
     /**
      * Creates a new instance with the entity ID left unassigned.
      *
@@ -92,6 +94,20 @@ public abstract class SignalDispatchingEntity<I : Any,
     @Internal
     public fun setEventHistoryLoader(loader: EventHistoryLoader) {
         recentEventHistory.useLoader(loader)
+    }
+
+    /**
+     * Returns the guard against dispatching the same signal to this entity more than once.
+     */
+    protected fun doubleDispatchGuard(): DoubleDispatchGuard = doubleDispatchGuard
+
+    /**
+     * Enables the opt-in double-dispatch guard for this entity, scanning up to
+     * [historyDepth] most recent events for a duplicate on each dispatch.
+     */
+    @Internal
+    public fun enableDoubleDispatchGuard(historyDepth: Int) {
+        doubleDispatchGuard.enable(historyDepth)
     }
 
     /**

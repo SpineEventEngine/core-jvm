@@ -37,6 +37,7 @@ import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.server.aggregate.given.aggregate.IgTestAggregate;
 import io.spine.server.aggregate.given.aggregate.IgTestAggregateRepository;
+import io.spine.server.entity.DoubleDispatchGuard;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventEnvelope;
 import io.spine.test.aggregate.ProjectId;
