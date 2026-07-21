@@ -36,6 +36,7 @@ import io.spine.server.aggregate.model.AggregateClass;
 import io.spine.server.command.AssigneeEntity;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.RecentEventHistory;
+import io.spine.server.entity.SignalDispatchingEntity;
 import io.spine.server.entity.Transaction;
 import io.spine.server.entity.TransactionalEntity;
 import io.spine.server.event.EventReactor;
@@ -123,7 +124,7 @@ import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
 public abstract class Aggregate<I,
                                 S extends AggregateState<I>,
                                 B extends ValidatingBuilder<S>>
-        extends AssigneeEntity<I, S, B>
+        extends SignalDispatchingEntity<I, S, B>
         implements EventReactor {
 
     /**
@@ -275,7 +276,8 @@ public abstract class Aggregate<I,
      * @return a list of event messages that the aggregate produces in reaction to the event, or
      *         an empty list if the aggregate state does not change because of the event
      */
-    DispatchOutcome dispatchEvent(EventEnvelope event) {
+    @Override
+    protected DispatchOutcome dispatchEvent(EventEnvelope event) {
         var error = idempotencyGuard.check(event);
         if (error.isPresent()) {
             var outcome = DispatchOutcome.newBuilder()
