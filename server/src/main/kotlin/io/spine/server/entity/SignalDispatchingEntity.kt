@@ -66,7 +66,7 @@ public abstract class SignalDispatchingEntity<I : Any,
 
     private val doubleDispatchGuard = DoubleDispatchGuard(this)
 
-    private val uncommittedHistory = UncommittedEventHistory()
+    private val uncommittedEventHistory = UncommittedEventHistory()
 
     /**
      * Creates a new instance with the entity ID left unassigned.
@@ -145,7 +145,7 @@ public abstract class SignalDispatchingEntity<I : Any,
      */
     @Internal
     public fun recordEvents(events: List<Event>) {
-        val journaled = uncommittedHistory.record(events)
+        val journaled = uncommittedEventHistory.record(events)
         recentEventHistory().append(journaled)
     }
 
@@ -156,26 +156,26 @@ public abstract class SignalDispatchingEntity<I : Any,
      */
     @Internal
     @VisibleForTesting
-    public fun getUncommittedEvents(): UncommittedEvents = uncommittedHistory.events()
+    public fun getUncommittedEvents(): UncommittedEvents = uncommittedEventHistory.events()
 
     /**
      * Tells if there are any uncommitted events.
      */
     @Internal
-    public fun hasUncommittedEvents(): Boolean = uncommittedHistory.hasEvents()
+    public fun hasUncommittedEvents(): Boolean = uncommittedEventHistory.hasEvents()
 
     /**
      * Returns the uncommitted events of this entity.
      */
     @Internal
-    public fun uncommittedHistory(): UncommittedEventHistory = uncommittedHistory
+    public fun uncommittedEventHistory(): UncommittedEventHistory = uncommittedEventHistory
 
     /**
      * Marks the uncommitted events of this entity as committed and clears them.
      */
     @Internal
     public fun commitEvents() {
-        uncommittedHistory.commit()
+        uncommittedEventHistory.commit()
     }
 
     /**

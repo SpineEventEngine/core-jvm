@@ -242,7 +242,7 @@ public abstract class AggregateRepository<I,
         }
         // Journal the emitted events, then store the latest state. Under a batched delivery the
         // aggregate accumulates its events until `commitEvents()`, so the journal drops none.
-        var events = aggregate.uncommittedHistory().get();
+        var events = aggregate.uncommittedEventHistory().get();
         var journal = eventStorage();
         events.forEach(journal::write);
         super.doStore(aggregate);
