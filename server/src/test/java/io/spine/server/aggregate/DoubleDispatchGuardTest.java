@@ -52,16 +52,16 @@ import java.util.Optional;
 import static com.google.common.truth.Truth.assertThat;
 import static io.spine.core.CommandValidationError.DUPLICATE_COMMAND_VALUE;
 import static io.spine.grpc.StreamObservers.noOpObserver;
-import static io.spine.server.aggregate.given.IdempotencyGuardTestEnv.command;
-import static io.spine.server.aggregate.given.IdempotencyGuardTestEnv.createProject;
-import static io.spine.server.aggregate.given.IdempotencyGuardTestEnv.event;
-import static io.spine.server.aggregate.given.IdempotencyGuardTestEnv.projectPaused;
-import static io.spine.server.aggregate.given.IdempotencyGuardTestEnv.startProject;
-import static io.spine.server.aggregate.given.IdempotencyGuardTestEnv.taskStarted;
+import static io.spine.server.aggregate.given.DoubleDispatchGuardTestEnv.command;
+import static io.spine.server.aggregate.given.DoubleDispatchGuardTestEnv.createProject;
+import static io.spine.server.aggregate.given.DoubleDispatchGuardTestEnv.event;
+import static io.spine.server.aggregate.given.DoubleDispatchGuardTestEnv.projectPaused;
+import static io.spine.server.aggregate.given.DoubleDispatchGuardTestEnv.startProject;
+import static io.spine.server.aggregate.given.DoubleDispatchGuardTestEnv.taskStarted;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@DisplayName("`IdempotencyGuard` should")
-class IdempotencyGuardTest {
+@DisplayName("`DoubleDispatchGuard` should")
+class DoubleDispatchGuardTest {
 
     private BoundedContext context;
     private IgTestAggregateRepository repository;
@@ -100,7 +100,7 @@ class IdempotencyGuardTest {
             post(createCommand);
 
             var aggregate = repository.loadAggregate(projectId);
-            var guard = new IdempotencyGuard(aggregate);
+            var guard = new DoubleDispatchGuard(aggregate);
             var error = check(guard, createCommand);
             assertTrue(error.isPresent());
             var actualError = error.get();
@@ -120,7 +120,7 @@ class IdempotencyGuardTest {
 
             var aggregate = aggregate();
 
-            var guard = new IdempotencyGuard(aggregate);
+            var guard = new DoubleDispatchGuard(aggregate);
             var error = check(guard, createCommand);
             assertThat(error).isEmpty();
         }
@@ -131,7 +131,7 @@ class IdempotencyGuardTest {
             var createCommand = command(createProject(projectId));
             var aggregate = new IgTestAggregate(projectId);
 
-            var guard = new IdempotencyGuard(aggregate);
+            var guard = new DoubleDispatchGuard(aggregate);
             var error = guard.check(CommandEnvelope.of(createCommand));
             assertThat(error).isEmpty();
         }
@@ -146,7 +146,7 @@ class IdempotencyGuardTest {
 
             var aggregate = aggregate();
 
-            var guard = new IdempotencyGuard(aggregate);
+            var guard = new DoubleDispatchGuard(aggregate);
             var error = check(guard, startCommand);
             assertThat(error).isEmpty();
         }
@@ -157,7 +157,7 @@ class IdempotencyGuardTest {
             commandBus.post(command, noOpObserver);
         }
 
-        private Optional<Error> check(IdempotencyGuard guard, Command command) {
+        private Optional<Error> check(DoubleDispatchGuard guard, Command command) {
             guard.enable(repository.eventHistoryDepth());
             var envelope = CommandEnvelope.of(command);
             return guard.check(envelope);
@@ -181,7 +181,7 @@ class IdempotencyGuardTest {
             post(event);
 
             var aggregate = repository.loadAggregate(projectId);
-            var guard = new IdempotencyGuard(aggregate);
+            var guard = new DoubleDispatchGuard(aggregate);
             var error = check(guard, event);
             assertTrue(error.isPresent());
             var actualError = error.get();
@@ -199,7 +199,7 @@ class IdempotencyGuardTest {
             post(event(projectPaused(projectId)));
 
             var aggregate = repository.loadAggregate(projectId);
-            var guard = new IdempotencyGuard(aggregate);
+            var guard = new DoubleDispatchGuard(aggregate);
             var error = check(guard, event);
             assertThat(error).isEmpty();
         }
@@ -210,7 +210,7 @@ class IdempotencyGuardTest {
             var event = event(taskStarted(projectId));
             var aggregate = new IgTestAggregate(projectId);
 
-            var guard = new IdempotencyGuard(aggregate);
+            var guard = new DoubleDispatchGuard(aggregate);
             var error = check(guard, event);
             assertThat(error).isEmpty();
         }
@@ -226,7 +226,7 @@ class IdempotencyGuardTest {
 
             var aggregate = repository.loadAggregate(projectId);
 
-            var guard = new IdempotencyGuard(aggregate);
+            var guard = new DoubleDispatchGuard(aggregate);
             var error = check(guard, projectEvent);
             assertThat(error).isEmpty();
         }
@@ -236,7 +236,7 @@ class IdempotencyGuardTest {
                    .post(event);
         }
 
-        private Optional<Error> check(IdempotencyGuard guard, Event event) {
+        private Optional<Error> check(DoubleDispatchGuard guard, Event event) {
             guard.enable(repository.eventHistoryDepth());
             var envelope = EventEnvelope.of(event);
             return guard.check(envelope);

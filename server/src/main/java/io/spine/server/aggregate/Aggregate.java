@@ -65,7 +65,7 @@ import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
  * state is persisted directly: an aggregate loads from its latest
  * {@link io.spine.server.entity.EntityRecord EntityRecord} rather than by replaying its events.
  * The produced events form an append-only journal kept for traceability and for the opt-in
- * {@link IdempotencyGuard}.
+ * {@link DoubleDispatchGuard}.
  *
  * <h2>Creating an aggregate class</h2>
  *
@@ -138,9 +138,9 @@ public abstract class Aggregate<I,
     private final UncommittedHistory uncommittedHistory = new UncommittedHistory();
 
     /**
-     * A guard for ensuring idempotency of messages dispatched by this aggregate.
+     * A guard against dispatching the same signal to this aggregate more than once.
      */
-    private IdempotencyGuard idempotencyGuard;
+    private DoubleDispatchGuard doubleDispatchGuard;
 
     /**
      * Creates a new instance.
@@ -160,7 +160,7 @@ public abstract class Aggregate<I,
      */
     protected Aggregate() {
         super();
-        setIdempotencyGuard();
+        setDoubleDispatchGuard();
     }
 
     /**
@@ -183,22 +183,22 @@ public abstract class Aggregate<I,
      */
     protected Aggregate(I id) {
         super(id);
-        setIdempotencyGuard();
+        setDoubleDispatchGuard();
     }
 
     /**
-     * Creates and assigns the aggregate an {@link IdempotencyGuard idempotency guard}.
+     * Creates and assigns the aggregate a {@link DoubleDispatchGuard double-dispatch guard}.
      */
-    private void setIdempotencyGuard() {
-        idempotencyGuard = new IdempotencyGuard(this);
+    private void setDoubleDispatchGuard() {
+        doubleDispatchGuard = new DoubleDispatchGuard(this);
     }
 
     /**
-     * Enables the opt-in {@link IdempotencyGuard} for this aggregate, scanning up to
+     * Enables the opt-in {@link DoubleDispatchGuard} for this aggregate, scanning up to
      * {@code historyDepth} most recent events for a duplicate on each dispatch.
      */
-    final void enableIdempotencyGuard(int historyDepth) {
-        idempotencyGuard.enable(historyDepth);
+    final void enableDoubleDispatchGuard(int historyDepth) {
+        doubleDispatchGuard.enable(historyDepth);
     }
 
     /**
@@ -251,7 +251,7 @@ public abstract class Aggregate<I,
      */
     @Override
     protected DispatchOutcome dispatchCommand(CommandEnvelope command) {
-        var error = idempotencyGuard.check(command);
+        var error = doubleDispatchGuard.check(command);
         if (error.isPresent()) {
             var outcome = DispatchOutcome.newBuilder()
                     .setPropagatedSignal(command.messageId())
@@ -278,7 +278,7 @@ public abstract class Aggregate<I,
      */
     @Override
     protected DispatchOutcome dispatchEvent(EventEnvelope event) {
-        var error = idempotencyGuard.check(event);
+        var error = doubleDispatchGuard.check(event);
         if (error.isPresent()) {
             var outcome = DispatchOutcome.newBuilder()
                     .setPropagatedSignal(event.messageId())

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,8 +33,8 @@ import io.spine.test.aggregate.event.AggProjectPaused;
 import io.spine.test.aggregate.event.AggTaskStarted;
 
 /**
- * Test environment repository for {@linkplain io.spine.server.aggregate.IdempotencyGuardTest
- * IdempotencyGuard tests}.
+ * Test environment repository for {@linkplain io.spine.server.aggregate.DoubleDispatchGuardTest
+ * DoubleDispatchGuard tests}.
  */
 public final class IgTestAggregateRepository
         extends AbstractAggregateTestRepository<ProjectId, IgTestAggregate, AggProject> {

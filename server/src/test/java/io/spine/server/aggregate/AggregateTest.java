@@ -630,12 +630,12 @@ public class AggregateTest {
     }
 
     @Test
-    @DisplayName("run `IdempotencyGuard` when dispatching commands")
+    @DisplayName("run `DoubleDispatchGuard` when dispatching commands")
     void checkCommandsUponHistory() {
         var monitor = new DiagnosticMonitor();
         context.internalAccess()
                .registerEventDispatcher(monitor);
-        repository.useIdempotencyGuard();
+        repository.useDoubleDispatchGuard();
         var createCommand = command(createProject);
         var cmd = CommandEnvelope.of(createCommand);
         var tenantId = newTenantId();
@@ -651,12 +651,12 @@ public class AggregateTest {
     }
 
     @Test
-    @DisplayName("run Idempotency guard when dispatching events")
+    @DisplayName("run `DoubleDispatchGuard` when dispatching events")
     void checkEventsUponHistory() {
         var monitor = new DiagnosticMonitor();
         context.internalAccess()
                .registerEventDispatcher(monitor);
-        repository.useIdempotencyGuard();
+        repository.useDoubleDispatchGuard();
         var eventMessage = AggProjectDeleted.newBuilder()
                 .setProjectId(ID)
                 .build();

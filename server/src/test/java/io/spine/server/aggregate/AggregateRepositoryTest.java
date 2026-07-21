@@ -239,21 +239,21 @@ class AggregateRepositoryTest {
     }
 
     @Nested
-    @DisplayName("have the idempotency guard")
-    class HaveIdempotencyGuard {
+    @DisplayName("have the double-dispatch guard")
+    class HaveDoubleDispatchGuard {
 
         @Test
         @DisplayName("turned off by default")
         void turnedOffByDefault() {
-            assertFalse(repository().idempotencyGuardEnabled());
+            assertFalse(repository().doubleDispatchGuardEnabled());
         }
 
         @Test
-        @DisplayName("turned on by `useIdempotencyGuard`")
+        @DisplayName("turned on by `useDoubleDispatchGuard`")
         void turnedOn() {
-            repository().useIdempotencyGuard();
+            repository().useDoubleDispatchGuard();
 
-            assertTrue(repository().idempotencyGuardEnabled());
+            assertTrue(repository().doubleDispatchGuardEnabled());
         }
     }
 

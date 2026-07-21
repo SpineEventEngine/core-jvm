@@ -60,7 +60,7 @@ The runtime facts this ADR is grounded in (verified against the tree
 | D2  | `@Apply` on any aggregate (incl. `AggregatePart`) is a **`ModelError` at model-building time** after cutover — fail fast, never a silent no-op.                                                                                                                                                                                                                                                                                                                                            |
 | D3  | Aggregate version advances **+1 per command dispatch**, not per event — `ProcessManager` semantics via `CommandDispatchingPhase` + `VersionIncrement.sequentially`.                                                                                                                                                                                                                                                                                                                        |
 | D4  | State update is never forced in any handler. Only `@Assign` must emit ≥1 event (or reject); `@React` emission is optional. Persistence must trigger on a business-state change, not only on events/lifecycle.                                                                                                                                                                                                                                                                              |
-| D5  | Dedup is the delivery layer's job; the aggregate `IdempotencyGuard` is **opt-in, off by default**. Recent history is loaded **lazily** from the journal tail, bounded by `historyDepth` (default 100).                                                                                                                                                                                                                                                                                     |
+| D5  | Dedup is the delivery layer's job; the aggregate `DoubleDispatchGuard` is **opt-in, off by default**. Recent history is loaded **lazily** from the journal tail, bounded by `historyDepth` (default 100).                                                                                                                                                                                                                                                                                     |
 | D6  | A handler mutates the open transaction's `builder()`; validation happens **once, at commit**; any failure rolls the whole transaction back. This structurally eliminates partial validity (brief problem #2).                                                                                                                                                                                                                                                                              |
 | D7  | Snapshot-index journal trimming is dropped; count/date-based trimming is deferred to Phase D. The journal is append-only until then.                                                                                                                                                                                                                                                                                                                                                       |
 | D8  | Handlers read the **pre-transaction** `state()` and mutate via `builder()`; the applier-only access guard is relaxed to allow `@Assign`/`@React` to touch the builder.                                                                                                                                                                                                                                                                                                                     |
@@ -309,7 +309,7 @@ or reject".
 ## D5 — Deduplication and the recent-history window (resolves A5)
 
 **Decision.** Deduplication is primarily the **delivery layer's** responsibility.
-The aggregate-level `IdempotencyGuard` becomes an **opt-in, per-repository
+The aggregate-level `DoubleDispatchGuard` becomes an **opt-in, per-repository
 backstop, off by default**. Recent history — both for the guard when enabled and
 for business-logic access via `historyBackward()`/`historyContains()` — is loaded
 **lazily from the tail of the event journal, only on demand**, bounded by a new
@@ -337,7 +337,7 @@ eviction on a hot shard (>1000 in-flight keys), or a late retry past a
 history. Because state now changes directly in the handler (D4/D6), a missed
 duplicate means a **double state mutation** — so the durable, journal-backed
 guard is worth keeping as an option. Enable it per repository (working API
-`AggregateRepository.useIdempotencyGuard()` / an `enabled` flag, default off).
+`AggregateRepository.useDoubleDispatchGuard()` / an `enabled` flag, default off).
 Kept deliberately so it can be **removed entirely later** if delivery-layer dedup
 proves sufficient in practice.
 
@@ -348,9 +348,9 @@ state-record read — no journal read. Guard **on**: each dispatch loads the bou
 bounded load on first access, independent of the guard.
 
 **Implementation constraint** (applies when the guard is on, or when business
-logic uses history for causality). `IdempotencyGuard` matches the incoming signal
+logic uses history for causality). `DoubleDispatchGuard` matches the incoming signal
 id against the `EventContext.pastMessage` origin of previously *emitted* events in
-recent history (`IdempotencyGuard.java:119-160`), so the lazy journal-tail read
+recent history (`DoubleDispatchGuard.java:119-160`), so the lazy journal-tail read
 **must return emitted events with `EventContext.pastMessage` intact.** Verify in
 PR-B2 that `AggregateStorage.writeEvent`'s `clearEnrichments()`
 (`AggregateStorage.java:284-290`) strips enrichments only and not `pastMessage`,
@@ -365,7 +365,7 @@ aggregates that enable it should tune `historyDepth`. With the guard **disabled*
 redelivery/retry horizon.
 
 > **Approved** by product owner, 2026-07-03: delivery owns dedup; the aggregate
-> `IdempotencyGuard` is opt-in per repository, **off by default** (kept so it can
+> `DoubleDispatchGuard` is opt-in per repository, **off by default** (kept so it can
 > be removed later if unneeded); recent history is loaded **lazily on demand**,
 > bounded by `historyDepth` (default 100, name approved).
 
@@ -373,6 +373,11 @@ redelivery/retry horizon.
 > window explicitly — `historyBackward(depth)` / `historyContains(depth,
 > predicate)`. `historyDepth` remains the guard's window and the default of the
 > deprecated parameterless forms.
+
+> **Renamed** (Phase G, 2026-07-21): the guard type is now `DoubleDispatchGuard`
+> (was `IdempotencyGuard`), toggled per repository by `useDoubleDispatchGuard()` /
+> `doubleDispatchGuardEnabled()`. The decision is unchanged — the name now states the
+> failure it prevents (one signal dispatched twice) rather than the property it upholds.
 
 ---
 
@@ -627,7 +632,7 @@ Contract:
   re-reads.
 
 **`historyDepth` is demoted to one job.** It remains the per-repository window
-of the opt-in `IdempotencyGuard` (D5) — and the default of the deprecated
+of the opt-in `DoubleDispatchGuard` (D5) — and the default of the deprecated
 parameterless forms — an operational knob, no longer a hidden business
 parameter. A business call deeper than `historyDepth` simply reads deeper: the
 journal is append-only until Phase D (D7).
@@ -638,7 +643,7 @@ are deprecated, **not** fail-fast: they keep working, delegating to the
 explicit forms with `depth = historyDepth`. Old code compiles and runs; its
 window changes from "everything since the last snapshot" to "the last
 `historyDepth` events" — called out in the migration guide (plan, PR-B3).
-Removal at v2.0.0 (final), with the other deprecations. `IdempotencyGuard`
+Removal at v2.0.0 (final), with the other deprecations. `DoubleDispatchGuard`
 itself calls the parameterized form with the repository's `historyDepth`.
 
 **Why not fail-fast like D2's `@Apply`?** An un-migrated `@Apply` class would
@@ -775,13 +780,13 @@ static <I> EntityRecord newStateRecord(Aggregate<I, ?, ?> aggregate);  // state 
 ```
 
 **New — recent-history depth** (`AggregateRepository`, replacing the snapshot
-trigger) and the **opt-in idempotency guard** (off by default, D5):
+trigger) and the **opt-in double-dispatch guard** (off by default, D5):
 
 ```java
 protected final int  historyDepth();
 protected final void setHistoryDepth(int depth);   // default 100
-protected final void useIdempotencyGuard();        // enable the journal-backed dedup backstop
-protected final boolean idempotencyGuardEnabled(); // default false — delivery owns dedup
+protected final void useDoubleDispatchGuard();        // enable the journal-backed dedup backstop
+protected final boolean doubleDispatchGuardEnabled(); // default false — delivery owns dedup
 ```
 
 **Changed — aggregate history access states its window** (D10). The explicit

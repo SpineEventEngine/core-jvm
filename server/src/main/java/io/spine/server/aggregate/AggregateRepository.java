@@ -68,11 +68,11 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * journal. The repository keeps that latest state in its record storage and appends
  * the emitted events to a separate {@linkplain #eventStorage() event journal}
  * (an {@link EntityEventStorage}), kept append-only for traceability and for the opt-in
- * {@link IdempotencyGuard}.
+ * {@link DoubleDispatchGuard}.
  *
  * <p>Three per-repository settings tune this behavior:
  * <ul>
- *     <li>{@link #useIdempotencyGuard()} — enables the history-backed {@link IdempotencyGuard},
+ *     <li>{@link #useDoubleDispatchGuard()} — enables the history-backed {@link DoubleDispatchGuard},
  *         which rejects a signal already seen among the last {@link #eventHistoryDepth()}
  *         dispatches — however long ago, including the earlier dispatches of the current
  *         delivery batch. It is <b>off by default</b> for performance — when enabled, every
@@ -109,11 +109,11 @@ public abstract class AggregateRepository<I,
     /** The default {@link #eventHistoryDepth()} value. */
     static final int DEFAULT_HISTORY_DEPTH = 100;
 
-    /** The window (in journal events) the opt-in {@link IdempotencyGuard} scans. */
+    /** The window (in journal events) the opt-in {@link DoubleDispatchGuard} scans. */
     private int eventHistoryDepth = DEFAULT_HISTORY_DEPTH;
 
-    /** Whether the opt-in {@link IdempotencyGuard} is enabled for this repository. */
-    private boolean idempotencyGuardEnabled = false;
+    /** Whether the opt-in {@link DoubleDispatchGuard} is enabled for this repository. */
+    private boolean doubleDispatchGuardEnabled = false;
 
     /**
      * The journal of the events emitted by the aggregates of this repository; created lazily
@@ -208,8 +208,8 @@ public abstract class AggregateRepository<I,
         aggregate.setEventHistoryLoader(
                 (depth, startingFrom) ->
                         eventStorage().historyBackward(id, depth, startingFrom));
-        if (idempotencyGuardEnabled) {
-            aggregate.enableIdempotencyGuard(eventHistoryDepth);
+        if (doubleDispatchGuardEnabled) {
+            aggregate.enableDoubleDispatchGuard(eventHistoryDepth);
         }
     }
 
@@ -339,7 +339,7 @@ public abstract class AggregateRepository<I,
 
     /**
      * Returns the number of the most recent events scanned by the opt-in
-     * {@link IdempotencyGuard} when it is enabled.
+     * {@link DoubleDispatchGuard} when it is enabled.
      *
      * @return a positive integer value; the default is {@value #DEFAULT_HISTORY_DEPTH}
      */
@@ -359,7 +359,7 @@ public abstract class AggregateRepository<I,
     }
 
     /**
-     * Enables the opt-in, history-backed {@link IdempotencyGuard} for the aggregates of
+     * Enables the opt-in, history-backed {@link DoubleDispatchGuard} for the aggregates of
      * this repository.
      *
      * <p>When enabled, each dispatch scans the last {@link #eventHistoryDepth()} events of
@@ -369,17 +369,17 @@ public abstract class AggregateRepository<I,
      * layer's time-windowed deduplication. The guard is <b>off by default</b> for
      * performance: it adds a bounded history read to every dispatch.
      */
-    protected void useIdempotencyGuard() {
-        this.idempotencyGuardEnabled = true;
+    protected void useDoubleDispatchGuard() {
+        this.doubleDispatchGuardEnabled = true;
     }
 
     /**
-     * Tells whether the opt-in {@link IdempotencyGuard} is enabled for this repository.
+     * Tells whether the opt-in {@link DoubleDispatchGuard} is enabled for this repository.
      *
      * @return {@code false} by default
      */
-    protected boolean idempotencyGuardEnabled() {
-        return idempotencyGuardEnabled;
+    protected boolean doubleDispatchGuardEnabled() {
+        return doubleDispatchGuardEnabled;
     }
 
     /**
@@ -390,7 +390,7 @@ public abstract class AggregateRepository<I,
      * {@code createStorage()} uses for the aggregate state. A repository that overrides
      * {@code createStorage()} to serve the aggregate state from a custom
      * {@link io.spine.server.storage.StorageFactory} or backend should override this method as
-     * well, so the journal — feeding the {@link IdempotencyGuard} and the
+     * well, so the journal — feeding the {@link DoubleDispatchGuard} and the
      * {@linkplain Aggregate#eventHistoryBackward(int) recent-history} reads — is served by the
      * same backend as the state, rather than silently falling back to the default one.
      *

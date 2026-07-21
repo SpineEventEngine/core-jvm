@@ -48,7 +48,7 @@ import static java.lang.String.format;
  * committed by the earlier dispatches of the current delivery batch even before they
  * reach the durable journal — so a duplicate arriving within one batch is caught too.
  */
-final class IdempotencyGuard {
+final class DoubleDispatchGuard {
 
     private final Aggregate<?, ?, ?> aggregate;
 
@@ -57,7 +57,7 @@ final class IdempotencyGuard {
      *
      * <p>Off by default: deduplication is primarily the delivery layer's responsibility, and this
      * guard is an opt-in per-repository backstop (see
-     * {@link AggregateRepository#useIdempotencyGuard()}).
+     * {@link AggregateRepository#useDoubleDispatchGuard()}).
      */
     private boolean enabled = false;
 
@@ -69,7 +69,7 @@ final class IdempotencyGuard {
      */
     private int historyDepth = 0;
 
-    IdempotencyGuard(Aggregate<?, ?, ?> aggregate) {
+    DoubleDispatchGuard(Aggregate<?, ?, ?> aggregate) {
         this.aggregate = aggregate;
     }
 
