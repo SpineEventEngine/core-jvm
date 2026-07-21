@@ -47,7 +47,6 @@ import io.spine.server.type.EventEnvelope;
 import io.spine.validation.ValidatingBuilder;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.function.Predicate;
 
 import static io.spine.server.Ignored.ignored;
@@ -126,8 +125,6 @@ public abstract class Aggregate<I,
                                 B extends ValidatingBuilder<S>>
         extends SignalDispatchingEntity<I, S, B>
         implements EventReactor {
-
-    private final UncommittedHistory uncommittedHistory = new UncommittedHistory();
 
     /**
      * Creates a new instance.
@@ -265,57 +262,6 @@ public abstract class Aggregate<I,
     @Internal
     public ImmutableSet<EventClass> producedEvents() {
         return modelClass().outgoingEvents();
-    }
-
-    /**
-     * Records the events produced by the current dispatch so that they are stored into the
-     * journal and made available as recent history.
-     *
-     * <p>Called by the framework after a command or reaction has been dispatched and its
-     * transaction committed. Rejection events are not journaled.
-     *
-     * <p>The journaled events also enter the {@linkplain #recentEventHistory() recent
-     * event history} right away, so the subsequent dispatches served by this instance —
-     * e.g., the later signals of a delivery batch — read them without waiting for
-     * the journal write, which may be deferred to the end of the batch.
-     *
-     * @param events
-     *         the events emitted by the current command handler or reactor
-     */
-    final void recordEvents(List<Event> events) {
-        var journaled = uncommittedHistory.record(events);
-        recentEventHistory().append(journaled);
-    }
-
-    /**
-     * Returns all uncommitted events.
-     *
-     * @return immutable view of all uncommitted events
-     */
-    @VisibleForTesting
-    UncommittedEvents getUncommittedEvents() {
-        return uncommittedHistory.events();
-    }
-
-    /**
-     * Tells if there are any uncommitted events.
-     */
-    boolean hasUncommittedEvents() {
-        return uncommittedHistory.hasEvents();
-    }
-
-    /**
-     * Returns the uncommitted events of this aggregate.
-     */
-    UncommittedHistory uncommittedHistory() {
-        return uncommittedHistory;
-    }
-
-    /**
-     * Marks the uncommitted events of this aggregate as committed and clears them.
-     */
-    final void commitEvents() {
-        uncommittedHistory.commit();
     }
 
     /**

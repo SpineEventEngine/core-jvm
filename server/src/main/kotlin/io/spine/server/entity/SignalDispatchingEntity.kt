@@ -27,6 +27,7 @@
 package io.spine.server.entity
 
 import io.spine.annotation.Internal
+import io.spine.annotation.VisibleForTesting
 import io.spine.base.EntityState
 import io.spine.core.Event
 import io.spine.server.command.AssigneeEntity
@@ -64,6 +65,8 @@ public abstract class SignalDispatchingEntity<I : Any,
     private val recentEventHistory = RecentEventHistory()
 
     private val doubleDispatchGuard = DoubleDispatchGuard(this)
+
+    private val uncommittedHistory = UncommittedHistory()
 
     /**
      * Creates a new instance with the entity ID left unassigned.
@@ -125,6 +128,55 @@ public abstract class SignalDispatchingEntity<I : Any,
      */
     protected fun eventHistoryContains(depth: Int, predicate: Predicate<Event>): Boolean =
         eventHistoryBackward(depth).asSequence().any { predicate.test(it) }
+
+    /**
+     * Records the events produced by the current dispatch so that they are stored into the
+     * journal and made available as recent history.
+     *
+     * Called by the framework after a command or reaction has been dispatched and its
+     * transaction committed. Rejection events are not journaled.
+     *
+     * The journaled events also enter the [recent event history][recentEventHistory] right
+     * away, so the subsequent dispatches served by this instance — e.g., the later signals of
+     * a delivery batch — read them without waiting for the journal write, which may be
+     * deferred to the end of the batch.
+     *
+     * @param events The events emitted by the current command handler or reactor.
+     */
+    @Internal
+    public fun recordEvents(events: List<Event>) {
+        val journaled = uncommittedHistory.record(events)
+        recentEventHistory().append(journaled)
+    }
+
+    /**
+     * Returns all uncommitted events.
+     *
+     * @return Immutable view of all uncommitted events.
+     */
+    @Internal
+    @VisibleForTesting
+    public fun getUncommittedEvents(): UncommittedEvents = uncommittedHistory.events()
+
+    /**
+     * Tells if there are any uncommitted events.
+     */
+    @Internal
+    public fun hasUncommittedEvents(): Boolean = uncommittedHistory.hasEvents()
+
+    /**
+     * Returns the uncommitted events of this entity.
+     */
+    @Internal
+    public fun uncommittedHistory(): UncommittedHistory = uncommittedHistory
+
+    /**
+     * Marks the uncommitted events of this entity as committed and clears them.
+     */
+    @Internal
+    public fun commitEvents() {
+        uncommittedHistory.commit()
+    }
 
     /**
      * Returns the guard against dispatching the same signal to this entity more than once.
