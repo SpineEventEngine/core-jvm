@@ -28,6 +28,7 @@ package io.spine.server.entity
 
 import com.google.protobuf.Timestamp
 import io.spine.base.EntityState
+import io.spine.core.Version
 import io.spine.protobuf.AnyPacker
 
 /**
@@ -35,18 +36,20 @@ import io.spine.protobuf.AnyPacker
  *
  * The states are read from the durable state history via the loader
  * [installed][AbstractEntity.setStateHistoryLoader] by the repository
- * of the entity. The stored records are unpacked into the entity state type.
+ * of the entity, and cached for the lifetime of the entity instance —
+ * see [RecentHistory]. The stored records are unpacked into the entity
+ * state type once, when first traversed.
  *
  * The repository installs the loader unconditionally; whether it records
  * the state history gates only the loader behavior — while the recording
  * is off, reading through the loader fails fast. An entity created outside
- * a repository has no loader at all, so the reads return no states and
- * [stateAt] answers `null`.
+ * a repository has no loader at all, so the reads serve only
+ * the [appended][append] states, if any, and [stateAt] answers `null`.
  *
  * @param S The type of the entity state.
  */
 public class RecentStateHistory<S : EntityState<*>> internal constructor() :
-    RecentHistory<S, StateHistoryLoader>() {
+    RecentHistory<EntityRecord, S, StateHistoryLoader>() {
 
     /**
      * Returns the state the entity had at the given time, if the recorded
@@ -63,11 +66,9 @@ public class RecentStateHistory<S : EntityState<*>> internal constructor() :
         loader()?.stateAt(at)
             ?.unpackState()
 
-    override fun load(loader: StateHistoryLoader, depth: Int): Iterator<S> =
-        loader.load(depth)
-            .asSequence()
-            .map { it.unpackState<S>() }
-            .iterator()
+    override fun toItem(record: EntityRecord): S = record.unpackState()
+
+    override fun versionOf(record: EntityRecord): Version = record.version
 }
 
 /**

@@ -43,13 +43,17 @@ import static java.lang.String.format;
 
 /**
  * This guard ensures that the message was not yet dispatched to the {@link Aggregate aggregate}.
+ *
+ * <p>The check scans the aggregate's recent event history, which includes the events
+ * committed by the earlier dispatches of the current delivery batch even before they
+ * reach the durable journal — so a duplicate arriving within one batch is caught too.
  */
 final class IdempotencyGuard {
 
     private final Aggregate<?, ?, ?> aggregate;
 
     /**
-     * Whether this journal-backed guard is active.
+     * Whether this history-backed guard is active.
      *
      * <p>Off by default: deduplication is primarily the delivery layer's responsibility, and this
      * guard is an opt-in per-repository backstop (see
@@ -57,15 +61,20 @@ final class IdempotencyGuard {
      */
     private boolean enabled = false;
 
-    /** The number of the most recent journal events scanned for a duplicate when enabled. */
-    private int historyDepth = 100;
+    /**
+     * The number of the most recent events scanned for a duplicate.
+     *
+     * <p>Zero while the guard is disabled: both fields are assigned together
+     * in {@link #enable(int)}, and the depth is never read before that.
+     */
+    private int historyDepth = 0;
 
     IdempotencyGuard(Aggregate<?, ?, ?> aggregate) {
         this.aggregate = aggregate;
     }
 
     /**
-     * Enables the guard, scanning up to {@code historyDepth} most recent journal events for a
+     * Enables the guard, scanning up to {@code historyDepth} most recent events for a
      * duplicate on each dispatch.
      */
     void enable(int historyDepth) {
@@ -129,8 +138,8 @@ final class IdempotencyGuard {
     /**
      * Checks if the event was already handled by the aggregate recently.
      *
-     * <p>The check is performed by searching the {@code historyDepth} most recent journal
-     * events for an event caused by this event.
+     * <p>The check is performed by searching the {@code historyDepth} most recent
+     * events of the aggregate's history for an event caused by this event.
      *
      * <p>This functionality supports the ability to stop duplicate events from being dispatched
      * to the aggregate.
@@ -159,8 +168,8 @@ final class IdempotencyGuard {
     /**
      * Checks if the command was already handled by the aggregate recently.
      *
-     * <p>The check is performed by searching the {@code historyDepth} most recent journal
-     * events for an event caused by this command.
+     * <p>The check is performed by searching the {@code historyDepth} most recent
+     * events of the aggregate's history for an event caused by this command.
      *
      * <p>This functionality supports the ability to stop duplicate commands from being dispatched
      * to the aggregate.

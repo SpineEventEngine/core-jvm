@@ -72,12 +72,13 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  *
  * <p>Three per-repository settings tune this behavior:
  * <ul>
- *     <li>{@link #useIdempotencyGuard()} — enables the journal-backed {@link IdempotencyGuard},
+ *     <li>{@link #useIdempotencyGuard()} — enables the history-backed {@link IdempotencyGuard},
  *         which rejects a signal already seen among the last {@link #eventHistoryDepth()}
- *         dispatches (however long ago). It is <b>off by default</b> for performance — when
- *         enabled, every dispatch pays a bounded journal read. This is a mechanism distinct from
+ *         dispatches — however long ago, including the earlier dispatches of the current
+ *         delivery batch. It is <b>off by default</b> for performance — when enabled, every
+ *         dispatch pays a bounded history read. This is a mechanism distinct from
  *         the delivery layer's time-windowed deduplication, not a replacement for it.
- *     <li>{@linkplain #eventHistoryDepth() eventHistoryDepth} — how many recent journal events
+ *     <li>{@linkplain #eventHistoryDepth() eventHistoryDepth} — how many recent events
  *         the guard scans on each dispatch when enabled (default {@value #DEFAULT_HISTORY_DEPTH}).
  *     <li>{@link #recordStateHistory()} — records the state history of the aggregates
  *         on each dispatch. This is an opt-in feature shared by all entity repositories
@@ -205,7 +206,8 @@ public abstract class AggregateRepository<I,
      */
     final void setUpHistoryReading(A aggregate, I id) {
         aggregate.setEventHistoryLoader(
-                depth -> eventStorage().historyBackward(id, depth));
+                (depth, startingFrom) ->
+                        eventStorage().historyBackward(id, depth, startingFrom));
         if (idempotencyGuardEnabled) {
             aggregate.enableIdempotencyGuard(eventHistoryDepth);
         }
@@ -336,7 +338,7 @@ public abstract class AggregateRepository<I,
     }
 
     /**
-     * Returns the number of the most recent journal events scanned by the opt-in
+     * Returns the number of the most recent events scanned by the opt-in
      * {@link IdempotencyGuard} when it is enabled.
      *
      * @return a positive integer value; the default is {@value #DEFAULT_HISTORY_DEPTH}
@@ -349,7 +351,7 @@ public abstract class AggregateRepository<I,
      * Sets the {@linkplain #eventHistoryDepth() event history depth} to the passed value.
      *
      * @param depth
-     *         a positive number of recent journal events the idempotency guard scans
+     *         a positive number of recent events the idempotency guard scans
      */
     protected void setEventHistoryDepth(int depth) {
         checkArgument(depth > 0);
@@ -357,13 +359,15 @@ public abstract class AggregateRepository<I,
     }
 
     /**
-     * Enables the opt-in, journal-backed {@link IdempotencyGuard} for the aggregates of
+     * Enables the opt-in, history-backed {@link IdempotencyGuard} for the aggregates of
      * this repository.
      *
-     * <p>When enabled, each dispatch scans the last {@link #eventHistoryDepth()} journal events and
-     * rejects a signal already seen among them, however long ago it was dispatched — a mechanism
-     * distinct from the delivery layer's time-windowed deduplication. The guard is
-     * <b>off by default</b> for performance: it adds a bounded journal read to every dispatch.
+     * <p>When enabled, each dispatch scans the last {@link #eventHistoryDepth()} events of
+     * the aggregate's recent history — including the events of the current delivery batch
+     * that have not reached the journal yet — and rejects a signal already seen among them,
+     * however long ago it was dispatched. This mechanism is distinct from the delivery
+     * layer's time-windowed deduplication. The guard is <b>off by default</b> for
+     * performance: it adds a bounded history read to every dispatch.
      */
     protected void useIdempotencyGuard() {
         this.idempotencyGuardEnabled = true;
