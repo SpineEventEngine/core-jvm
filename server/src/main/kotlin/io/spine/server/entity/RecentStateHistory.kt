@@ -37,8 +37,9 @@ import io.spine.protobuf.AnyPacker
  * The states are read from the durable state history via the loader
  * [installed][AbstractEntity.setStateHistoryLoader] by the repository
  * of the entity, and cached for the lifetime of the entity instance —
- * see [RecentHistory]. A record is unpacked into the entity state type
- * once — eagerly when appended, or lazily when first traversed from storage.
+ * see [RecentHistory]. Records are unpacked into the entity state type
+ * eagerly when appended and lazily when traversed from storage; a cached
+ * record is served without unpacking it again.
  *
  * The repository installs the loader unconditionally; whether it records
  * the state history gates only the loader behavior — while the recording
