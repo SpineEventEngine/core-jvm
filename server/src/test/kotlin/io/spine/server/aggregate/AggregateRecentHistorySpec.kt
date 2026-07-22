@@ -101,6 +101,16 @@ internal class AggregateRecentHistorySpec {
     }
 
     @Test
+    fun `tell whether the recent events contain a match for a predicate`() {
+        val aggregate = repository.create(projectId)
+
+        dispatch(aggregate, Given.ACommand.createProject(projectId))
+
+        aggregate.containsEvent(10) { it.enclosedMessage() is AggProjectCreated } shouldBe true
+        aggregate.containsEvent(10) { it.enclosedMessage() is AggTaskAdded } shouldBe false
+    }
+
+    @Test
     fun `hide the events of a dispatch from its own receptor`() {
         // The `AggStartProject` receptor also reads the state history.
         repository.enableStateHistory()
