@@ -173,17 +173,14 @@ public abstract class TransactionalEntity<I : Any, S : EntityState<I>, B : Valid
      * Provides the `alter` block for changing properties of the entity
      * state [builder].
      *
-     * For example, a receptor of a [ProcessManager][io.spine.server.procman.ProcessManager]
-     * handling a command may look like this:
+     * For example, a receptor of a [Projection][io.spine.server.projection.Projection]
+     * may look like this:
      *
      * ```kotlin
-     * @Assign
-     * fun handle(command: CreateTask): TaskCreated {
-     *     alter {
-     *         title = command.title
-     *         description = command.description
-     *     }
-     *     return taskCreated { title = command.title }
+     * @Subscribe
+     * fun on(e: TaskCreated) = alter {
+     *     title = e.title
+     *     description = e.description
      * }
      * ```
      * **API Note:** This function is not `inline` because [builder] is
