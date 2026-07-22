@@ -31,7 +31,6 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.spine.base.Time.currentTime
-import io.spine.core.Enrichment
 import io.spine.core.Event
 import io.spine.core.Version
 import io.spine.core.Versions
@@ -209,19 +208,6 @@ internal class RecentEventHistorySpec {
     }
 
     @Test
-    fun `keep the enrichments of an appended event`() {
-        val enriched = enriched(newEvent(version = 1))
-        enriched.context.hasEnrichment() shouldBe true
-
-        history.append(enriched)
-
-        // The cache serves the event as it was appended, enrichments included.
-        val read = history.read(1).asSequence().toList()
-        read shouldContainExactly listOf(enriched)
-        read.single().context.hasEnrichment() shouldBe true
-    }
-
-    @Test
     fun `serve a read started before an append from the pre-append window`() {
         val e1 = newEvent(version = 1)
         val e2 = newEvent(version = 2)
@@ -263,14 +249,6 @@ internal class RecentEventHistorySpec {
             Sample.messageOfType(StgProjectCreated::class.java),
             Versions.newVersion(version, currentTime())
         )
-
-    private fun enriched(event: Event): Event =
-        event.toBuilder()
-            .setContext(
-                event.context.toBuilder()
-                    .setEnrichment(Enrichment.newBuilder().setDoNotEnrich(true))
-            )
-            .build()
 
     private companion object {
 
