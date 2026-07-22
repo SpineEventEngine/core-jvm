@@ -37,15 +37,18 @@ import io.spine.grpc.StreamObservers.noOpObserver
 import io.spine.server.BoundedContext
 import io.spine.server.BoundedContextBuilder
 import io.spine.server.procman.given.journal.JournalTestEnv.addTask
+import io.spine.server.procman.given.journal.JournalTestEnv.completeProject
 import io.spine.server.procman.given.journal.JournalTestEnv.createProject
 import io.spine.server.procman.given.journal.JournalTestEnv.newProjectId
 import io.spine.server.procman.given.journal.JournalTestEnv.startProject
 import io.spine.server.procman.given.journal.JournalTestPmRepo
 import io.spine.server.procman.given.journal.JournalTestProcman
+import io.spine.system.server.DiagnosticMonitor
 import io.spine.test.procman.ProjectId
 import io.spine.test.procman.event.PmProjectCreated
 import io.spine.test.procman.event.PmProjectStarted
 import io.spine.test.procman.event.PmTaskAdded
+import io.spine.testing.logging.mute.MuteLogging
 import io.spine.testing.server.model.ModelTests
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -72,7 +75,7 @@ internal class PmEventHistorySpec {
     }
 
     private fun register(journaling: Boolean): JournalTestPmRepo {
-        val repo = JournalTestPmRepo(journaling)
+        val repo = JournalTestPmRepo(journaling = journaling)
         context.internalAccess().register(repo)
         return repo
     }
@@ -119,6 +122,32 @@ internal class PmEventHistorySpec {
         }
 
         failure.message.shouldNotBeNull() shouldContain "does not journal"
+    }
+
+    /**
+     * Unlike the case above, which reads on a freshly loaded instance, this case reads
+     * on the very instance which has just dispatched a signal within the same delivery
+     * batch. The read must fail fast too: were the endpoint to record the produced
+     * events on a non-journaling repository, they would serve this read from memory,
+     * silently defeating the fail-fast contract.
+     */
+    @Test
+    @MuteLogging
+    fun `fail fast on the instance which just dispatched`() {
+        val repo = register(journaling = false)
+        val monitor = DiagnosticMonitor()
+        context.internalAccess().registerEventDispatcher(monitor)
+
+        repo.beginBatch(id)
+        post(createProject(id))
+        post(completeProject(id))
+        repo.endBatch(id)
+
+        val failures = monitor.handlerFailureEvents()
+        failures shouldHaveSize 1
+        val error = failures[0].error
+        error.type shouldBe IllegalStateException::class.java.canonicalName
+        error.message shouldContain "does not journal"
     }
 
     @Test

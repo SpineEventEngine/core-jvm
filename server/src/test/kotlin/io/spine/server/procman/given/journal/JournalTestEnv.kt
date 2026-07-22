@@ -31,6 +31,7 @@ import io.spine.core.Command
 import io.spine.core.Event
 import io.spine.test.procman.ProjectId
 import io.spine.test.procman.command.pmAddTask
+import io.spine.test.procman.command.pmCompleteProject
 import io.spine.test.procman.command.pmCreateProject
 import io.spine.test.procman.command.pmReviewBacklog
 import io.spine.test.procman.command.pmStartProject
@@ -58,6 +59,9 @@ internal object JournalTestEnv {
 
     fun startProject(id: ProjectId): Command =
         command(pmStartProject { projectId = id })
+
+    fun completeProject(id: ProjectId): Command =
+        command(pmCompleteProject { projectId = id })
 
     fun reviewBacklog(id: ProjectId): Command =
         command(pmReviewBacklog { projectId = id })

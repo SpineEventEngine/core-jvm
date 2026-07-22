@@ -60,4 +60,14 @@ internal class JournalTestPmRepo(
     fun depth(value: Int) {
         setEventHistoryDepth(value)
     }
+
+    /**
+     * Starts serving the given entity from the cache, as a batched delivery would.
+     */
+    fun beginBatch(id: ProjectId) = cache().startCaching(id)
+
+    /**
+     * Stops serving the given entity from the cache, flushing the deferred store.
+     */
+    fun endBatch(id: ProjectId) = cache().stopCaching(id)
 }

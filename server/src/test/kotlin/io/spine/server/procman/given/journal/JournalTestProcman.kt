@@ -39,16 +39,19 @@ import io.spine.server.type.EventEnvelope
 import io.spine.test.procman.ElephantProcess
 import io.spine.test.procman.ProjectId
 import io.spine.test.procman.command.PmAddTask
+import io.spine.test.procman.command.PmCompleteProject
 import io.spine.test.procman.command.PmCreateProject
 import io.spine.test.procman.command.PmReviewBacklog
 import io.spine.test.procman.command.PmStartProject
 import io.spine.test.procman.command.PmThrowEntityAlreadyArchived
 import io.spine.test.procman.command.pmAddTask
+import io.spine.test.procman.event.PmNothingDone
 import io.spine.test.procman.event.PmNotificationSent
 import io.spine.test.procman.event.PmOwnerChanged
 import io.spine.test.procman.event.PmProjectCreated
 import io.spine.test.procman.event.PmProjectStarted
 import io.spine.test.procman.event.PmTaskAdded
+import io.spine.test.procman.event.pmNothingDone
 import io.spine.test.procman.event.pmNotificationSent
 import io.spine.test.procman.event.pmProjectCreated
 import io.spine.test.procman.event.pmProjectStarted
@@ -90,6 +93,18 @@ internal class JournalTestProcman :
         pmProjectStarted {
             projectId = command.projectId
         }
+
+    /**
+     * Reads the recent event history while handling, serving the cases which
+     * verify the reads made by the dispatching instance itself.
+     */
+    @Assign
+    fun handle(command: PmCompleteProject): PmNothingDone {
+        eventHistoryBackward(1).hasNext()
+        return pmNothingDone {
+            projectId = command.projectId
+        }
+    }
 
     /**
      * Always rejects, serving the rejections-are-not-journaled cases.
