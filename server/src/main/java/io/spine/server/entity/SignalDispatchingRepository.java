@@ -54,9 +54,9 @@ import static io.spine.util.Suppliers2.memoize;
  *
  * <p>The entities of such a repository emit events. The repository appends the emitted
  * events to the per-entity {@linkplain #eventStorage() event journal}, kept append-only
- * for traceability, for the
- * {@linkplain SignalDispatchingEntity#eventHistoryBackward(int) recent-history reads},
- * and for the opt-in double-dispatch guard. Whether the journal is written is told by
+ * for traceability. The journal serves the
+ * {@linkplain SignalDispatchingEntity#eventHistoryBackward(int) recent-history reads}
+ * and the opt-in double-dispatch guard. Whether the journal is written is determined by
  * {@link #eventHistoryEnabled()}: the journaling is unconditional for aggregates and
  * opt-in for process managers.
  *
@@ -110,9 +110,11 @@ public abstract class SignalDispatchingRepository<I,
      * (via a {@linkplain io.spine.server.commandbus.DelegatingCommandDispatcher
      * delegating dispatcher}), and sets up the routing of the commands.
      *
-     * <p>Also verifies that the configuration of this repository is consistent — e.g.,
-     * that the {@linkplain #useDoubleDispatchGuard() double-dispatch guard}, if enabled,
-     * has the {@linkplain #eventHistoryEnabled() event journal} it scans.
+     * <p>Before any of that, verifies that the configuration of this repository is
+     * consistent — e.g., that the {@linkplain #useDoubleDispatchGuard() double-dispatch
+     * guard}, if enabled, has the {@linkplain #eventHistoryEnabled() event journal} it
+     * scans. The check precedes the registration side effects, so a misconfigured
+     * repository is never left subscribed to the buses of the context.
      *
      * @param context
      *         the {@code BoundedContext} of this repository
@@ -120,9 +122,9 @@ public abstract class SignalDispatchingRepository<I,
     @Override
     @OverridingMethodsMustInvokeSuper
     public void registerWith(BoundedContext context) {
+        checkGuardHasJournal();
         super.registerWith(context);
         doSetupCommandRouting();
-        checkGuardHasJournal();
     }
 
     private void doSetupCommandRouting() {
@@ -216,8 +218,7 @@ public abstract class SignalDispatchingRepository<I,
     }
 
     /**
-     * Creates a loader reading the journaled events of the entity with the given
-     * identifier.
+     * Creates a loader reading the journaled events of the entity with the given identifier.
      */
     private EventHistoryLoader eventHistoryLoaderFor(I id) {
         return (depth, startingFrom) -> {
@@ -352,12 +353,12 @@ public abstract class SignalDispatchingRepository<I,
      * Returns the journal of the events emitted by the entities of this repository,
      * creating it lazily via {@link #createEventStorage()} on the first access.
      *
-     * <p>Unlike the opt-in state history, this accessor has no fail-fast gate on
-     * {@link #eventHistoryEnabled()}: it exposes the journal — e.g., for the
-     * {@linkplain EntityEventStorage#truncate(com.google.protobuf.Timestamp) time-based
-     * truncation} that bounds the journal growth as a periodic maintenance operation.
-     * The entity history reads fail fast instead through the loader installed on
-     * the managed entities.
+     * <p>Unlike the opt-in {@linkplain #stateHistory() state history}, this accessor has
+     * no fail-fast gate on {@link #eventHistoryEnabled()}: it exposes the journal — e.g.,
+     * for the {@linkplain EntityEventStorage#truncate(com.google.protobuf.Timestamp)
+     * time-based truncation} that bounds the journal growth as a periodic maintenance
+     * operation. The entity history reads still fail fast, but through the loader
+     * installed on the managed entities.
      *
      * <p>Synchronized for the same reason as {@code stateHistoryStorage()}: unlike the main
      * {@linkplain #storage() storage}, the journal is first touched when a signal is

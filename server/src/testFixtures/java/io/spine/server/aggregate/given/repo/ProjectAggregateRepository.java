@@ -99,12 +99,14 @@ public class ProjectAggregateRepository
 
     /** Exposes the event-history depth to the tests. */
     @Override
+    @VisibleForTesting
     public int eventHistoryDepth() {
         return super.eventHistoryDepth();
     }
 
     /** Exposes the event-history depth setter to the tests. */
     @Override
+    @VisibleForTesting
     public void setEventHistoryDepth(int depth) {
         super.setEventHistoryDepth(depth);
     }

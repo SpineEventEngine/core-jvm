@@ -26,6 +26,7 @@
 
 package io.spine.server.aggregate.given.aggregate;
 
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.AggregateState;
 import io.spine.core.TenantId;
 import io.spine.server.aggregate.Aggregate;
@@ -66,12 +67,14 @@ public class AbstractAggregateTestRepository<I,
 
     /** Exposes the event-history depth to the tests. */
     @Override
+    @VisibleForTesting
     public int eventHistoryDepth() {
         return super.eventHistoryDepth();
     }
 
     /** Exposes the event-history depth setter to the tests. */
     @Override
+    @VisibleForTesting
     public void setEventHistoryDepth(int depth) {
         super.setEventHistoryDepth(depth);
     }

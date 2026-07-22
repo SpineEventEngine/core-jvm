@@ -103,7 +103,7 @@ abstract class PmEndpoint<I,
         tx.commitIfActive();
         // Record the produced events as the process manager's uncommitted history right after
         // the transaction commits (success only), so that the repository journals them on
-        // store. A rolled-back dispatch leaves nothing to record.
+        // `store()`. A rolled-back dispatch leaves nothing to record.
         if (repository().eventHistoryEnabled()
                 && outcome.hasSuccess()
                 && outcome.getSuccess().hasEvents()) {
