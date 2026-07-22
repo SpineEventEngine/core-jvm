@@ -30,6 +30,7 @@ import com.google.common.collect.ImmutableList;
 import io.spine.annotation.VisibleForTesting;
 import io.spine.core.Command;
 import io.spine.core.CommandContext;
+import io.spine.core.Event;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.given.dispatch.AggregateMessageDispatcher;
 import io.spine.server.command.Assign;
@@ -48,6 +49,7 @@ import io.spine.test.aggregate.event.AggProjectDeleted;
 import io.spine.test.aggregate.event.AggProjectStarted;
 import io.spine.test.aggregate.event.AggTaskAdded;
 
+import java.util.Iterator;
 import java.util.List;
 
 import static io.spine.server.aggregate.given.Given.EventMessage.projectCreated;
@@ -143,5 +145,11 @@ public class TestAggregate
         for (var cmd : commands) {
             AggregateMessageDispatcher.dispatchCommand(this, env(cmd));
         }
+    }
+
+    /** Reads up to {@code depth} most recent events of this aggregate, newest first. */
+    @VisibleForTesting
+    public Iterator<Event> readEventsBackward(int depth) {
+        return eventHistoryBackward(depth);
     }
 }

@@ -63,6 +63,9 @@ public abstract class SignalDispatchingRepository<I,
     /** The command routing schema used by this repository. */
     private final Supplier<CommandRouting<I>> commandRouting;
 
+    /** Whether the opt-in double-dispatch guard is enabled for this repository. */
+    private boolean doubleDispatchGuardEnabled = false;
+
     protected SignalDispatchingRepository() {
         super();
         this.commandRouting = memoize(() -> CommandRouting.newInstance(idClass()));
@@ -138,5 +141,36 @@ public abstract class SignalDispatchingRepository<I,
         var commandId = cmd.id();
         with(cmd.tenantId())
                 .run(() -> lifecycle.onTargetAssignedToCommand(commandId));
+    }
+
+    /**
+     * Enables the opt-in, history-backed double-dispatch guard for the entities of
+     * this repository.
+     *
+     * <p>When enabled, each dispatch scans a bounded window of the entity's recent events —
+     * including the events of the current delivery batch that have not reached the journal
+     * yet — and rejects a signal already seen among them, however long ago it was dispatched.
+     * This mechanism is distinct from the delivery layer's time-windowed deduplication. The
+     * guard is <b>off by default</b> for performance: it adds a bounded history read to every
+     * dispatch.
+     *
+     * <p><b>Note:</b> this flag takes effect only in repositories that also wire the entity
+     * side of the history machinery — installing the event-history loader on each entity and
+     * enabling the guard on it. {@link io.spine.server.aggregate.AggregateRepository
+     * AggregateRepository} performs this wiring for aggregates. In a repository whose entities
+     * are not {@link SignalDispatchingEntity} — such as a process-manager repository at
+     * present — enabling the guard has no effect until that wiring is added.
+     */
+    protected void useDoubleDispatchGuard() {
+        this.doubleDispatchGuardEnabled = true;
+    }
+
+    /**
+     * Tells whether the opt-in double-dispatch guard is enabled for this repository.
+     *
+     * @return {@code false} by default
+     */
+    protected boolean doubleDispatchGuardEnabled() {
+        return doubleDispatchGuardEnabled;
     }
 }

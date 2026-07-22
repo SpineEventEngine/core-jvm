@@ -132,6 +132,13 @@ internal class HistoryReadingAggregate(id: ProjectId) :
      */
     fun readEventsBackward(depth: Int): Iterator<Event> = eventHistoryBackward(depth)
 
+    /**
+     * Tells whether the [depth] most recent events of this aggregate contain
+     * an event that satisfies the [predicate].
+     */
+    fun containsEvent(depth: Int, predicate: (Event) -> Boolean): Boolean =
+        eventHistoryContains(depth) { predicate(it) }
+
     internal companion object {
 
         /**

@@ -26,6 +26,8 @@
 
 package io.spine.server.aggregate.given.repo;
 
+import io.spine.annotation.VisibleForTesting;
+import io.spine.core.Event;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.command.Assign;
 import io.spine.server.event.React;
@@ -41,6 +43,7 @@ import io.spine.test.aggregate.event.AggProjectDeleted;
 import io.spine.test.aggregate.event.AggProjectStarted;
 import io.spine.test.aggregate.event.AggTaskAdded;
 
+import java.util.Iterator;
 import java.util.Optional;
 
 /**
@@ -125,5 +128,11 @@ public class ProjectAggregate
 
     public final void archive() {
         setArchived(true);
+    }
+
+    /** Reads up to {@code depth} most recent events of this aggregate, newest first. */
+    @VisibleForTesting
+    public Iterator<Event> readEventsBackward(int depth) {
+        return eventHistoryBackward(depth);
     }
 }

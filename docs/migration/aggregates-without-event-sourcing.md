@@ -23,7 +23,7 @@ declares one now fails fast at model-building time.
 | `@Apply` | required for every state transition | **`ModelError` at model build** — deprecated, removed in v2.0.0 |
 | Version | advanced per emitted event (`v+1..v+N`) | **+1 per command**, like a `ProcessManager` |
 | Event import | `@Apply(allowImport = true)` + `ImportBus` | **removed** — use external reactions / gateways |
-| Dedup | always-on aggregate `IdempotencyGuard` | guard **opt-in, off** (performance); delivery has its own time-window dedup |
+| Dedup | always-on aggregate `DoubleDispatchGuard` | guard **opt-in, off** (performance); delivery has its own time-window dedup |
 | Recent history | `historyBackward()` (window = last snapshot) | `eventHistoryBackward(depth)` — explicit window |
 | Snapshots | `setSnapshotTrigger()`, `toSnapshot()` | **removed** — use `setEventHistoryDepth()` |
 
@@ -232,7 +232,7 @@ back to event-id order only under a custom coarse `Time.Provider` that hands out
 timestamps, or a dispatch emitting more than 1000 events in a single millisecond — both
 deterministic across reads, just not necessarily emission order.
 
-## 5. Deduplication and the idempotency guard
+## 5. Deduplication and the double-dispatch guard
 
 Two independent deduplication mechanisms exist, and they are not interchangeable:
 
@@ -240,7 +240,7 @@ Two independent deduplication mechanisms exist, and they are not interchangeable
   signal and the target entity (so one event fanned out to many aggregates is not falsely
   deduplicated — D5). Size its `deduplicationWindow` in production to your realistic
   redelivery/retry horizon.
-- The aggregate-level **`IdempotencyGuard`** deduplicates against the last
+- The aggregate-level **`DoubleDispatchGuard`** deduplicates against the last
   `eventHistoryDepth()` *signals* (default 100), however long ago they were dispatched —
   a count-based window, not a time-based one.
 
@@ -251,7 +251,7 @@ layer makes it redundant — the two cover different windows (time vs. signal co
 ```java
 final class OrdersRepository extends AggregateRepository<OrderId, Order, OrderState> {
     OrdersRepository() {
-        useIdempotencyGuard();   // enable the journal-backed guard for this repository
+        useDoubleDispatchGuard();   // enable the journal-backed guard for this repository
     }
 }
 ```
@@ -306,7 +306,7 @@ repository.eventStorage().truncate(olderThan); // drop journal events older than
 ```
 
 The journal is append-only on the write path, so production systems run the truncation
-as periodic maintenance. When the opt-in `IdempotencyGuard` is enabled (§5), never pick
+as periodic maintenance. When the opt-in `DoubleDispatchGuard` is enabled (§5), never pick
 a timestamp that could cut into the guard's window of the `eventHistoryDepth` most
 recent events, so the deduplication stays intact.
 
@@ -361,7 +361,7 @@ pre-cutover journals. The current journal is trimmed by the time-based
 **Data caveat — pre-upgrade journals become invisible to reads.** Read this before
 upgrading a running system. The journal now stores plain `Event`s — a **record kind
 distinct** from the legacy `AggregateEventRecord`s — so journal entries written
-before the upgrade are not visible to the new reads. In particular, the `IdempotencyGuard`
+before the upgrade are not visible to the new reads. In particular, the `DoubleDispatchGuard`
 window and `eventHistoryBackward(depth)` **start empty right after the upgrade** and refill as
 new events are emitted. If the guard is your only deduplication safeguard, configure a
 delivery `deduplicationWindow` to cover the upgrade window (§5). As with the

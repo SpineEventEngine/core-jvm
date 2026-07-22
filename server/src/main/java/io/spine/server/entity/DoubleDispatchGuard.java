@@ -24,8 +24,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.server.aggregate;
+package io.spine.server.entity;
 
+import io.spine.annotation.Internal;
 import io.spine.base.Error;
 import io.spine.core.CommandValidationError;
 import io.spine.core.Event;
@@ -37,27 +38,30 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.Iterators.any;
 import static io.spine.core.CommandValidationError.DUPLICATE_COMMAND_VALUE;
 import static io.spine.core.EventValidationError.DUPLICATE_EVENT_VALUE;
 import static java.lang.String.format;
 
 /**
- * This guard ensures that the message was not yet dispatched to the {@link Aggregate aggregate}.
+ * This guard ensures that a signal was not yet dispatched to the
+ * {@link SignalDispatchingEntity entity}.
  *
- * <p>The check scans the aggregate's recent event history, which includes the events
+ * <p>The check scans the entity's recent event history, which includes the events
  * committed by the earlier dispatches of the current delivery batch even before they
  * reach the durable journal — so a duplicate arriving within one batch is caught too.
  */
-final class IdempotencyGuard {
+@Internal
+public final class DoubleDispatchGuard {
 
-    private final Aggregate<?, ?, ?> aggregate;
+    private final SignalDispatchingEntity<?, ?, ?> entity;
 
     /**
      * Whether this history-backed guard is active.
      *
      * <p>Off by default: deduplication is primarily the delivery layer's responsibility, and this
      * guard is an opt-in per-repository backstop (see
-     * {@link AggregateRepository#useIdempotencyGuard()}).
+     * {@link io.spine.server.aggregate.AggregateRepository#useDoubleDispatchGuard()}).
      */
     private boolean enabled = false;
 
@@ -69,29 +73,29 @@ final class IdempotencyGuard {
      */
     private int historyDepth = 0;
 
-    IdempotencyGuard(Aggregate<?, ?, ?> aggregate) {
-        this.aggregate = aggregate;
+    public DoubleDispatchGuard(SignalDispatchingEntity<?, ?, ?> entity) {
+        this.entity = entity;
     }
 
     /**
      * Enables the guard, scanning up to {@code historyDepth} most recent events for a
      * duplicate on each dispatch.
      */
-    void enable(int historyDepth) {
+    public void enable(int historyDepth) {
         checkArgument(historyDepth > 0);
         this.enabled = true;
         this.historyDepth = historyDepth;
     }
 
     /**
-     * Checks that the command was not dispatched to the aggregate.
+     * Checks that the command was not dispatched to the entity.
      *
      * @param command
      *         an envelope with a command to check
      * @return duplicate command error if the command has been recently handled,
      *         {@code Optional.empty()} otherwise
      */
-    Optional<Error> check(CommandEnvelope command) {
+    public Optional<Error> check(CommandEnvelope command) {
         if (enabled && didHandleRecently(command)) {
             var errorMessage = format(
                     "Command %s[%s] is a duplicate.",
@@ -110,14 +114,14 @@ final class IdempotencyGuard {
     }
 
     /**
-     * Checks that the event was not dispatched to the aggregate.
+     * Checks that the event was not dispatched to the entity.
      *
      * @param event
      *         an envelope with an event to check
      * @return duplicate event error if the event has been recently handled,
      *         {@code Optional.empty()} otherwise
      */
-    Optional<Error> check(EventEnvelope event) {
+    public Optional<Error> check(EventEnvelope event) {
         if (enabled && didHandleRecently(event)) {
             var errorMessage = format(
                     "Event %s[%s] is a duplicate.",
@@ -136,13 +140,13 @@ final class IdempotencyGuard {
     }
 
     /**
-     * Checks if the event was already handled by the aggregate recently.
+     * Checks if the event was already handled by the entity recently.
      *
      * <p>The check is performed by searching the {@code historyDepth} most recent
-     * events of the aggregate's history for an event caused by this event.
+     * events of the entity's history for an event caused by this event.
      *
      * <p>This functionality supports the ability to stop duplicate events from being dispatched
-     * to the aggregate.
+     * to the entity.
      *
      * @param event
      *         the event to check
@@ -160,19 +164,19 @@ final class IdempotencyGuard {
                                                   .messageId()
                                                   .asEventId()
                                                   .equals(eventId);
-        var found = aggregate.eventHistoryContains(
-                historyDepth, causedByEvent.and(originHasGivenId));
+        var found = any(entity.recentEventHistory().read(historyDepth),
+                        causedByEvent.and(originHasGivenId)::test);
         return found;
     }
 
     /**
-     * Checks if the command was already handled by the aggregate recently.
+     * Checks if the command was already handled by the entity recently.
      *
      * <p>The check is performed by searching the {@code historyDepth} most recent
-     * events of the aggregate's history for an event caused by this command.
+     * events of the entity's history for an event caused by this command.
      *
      * <p>This functionality supports the ability to stop duplicate commands from being dispatched
-     * to the aggregate.
+     * to the entity.
      *
      * @param command
      *         the command to check
@@ -190,8 +194,8 @@ final class IdempotencyGuard {
                                                   .messageId()
                                                   .asCommandId()
                                                   .equals(commandId);
-        var found = aggregate.eventHistoryContains(
-                historyDepth, causedByCommand.and(originHasGivenId));
+        var found = any(entity.recentEventHistory().read(historyDepth),
+                        causedByCommand.and(originHasGivenId)::test);
         return found;
     }
 }

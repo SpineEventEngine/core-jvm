@@ -24,25 +24,27 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.server.aggregate;
+package io.spine.server.entity;
 
 import com.google.common.collect.ImmutableList;
+import io.spine.annotation.Internal;
 import io.spine.core.Event;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The events produced by an aggregate during the current dispatch that are not yet stored.
+ * The events produced by an entity during the current dispatch that are not yet stored.
  *
- * <p>Since the event-sourcing cutover, an aggregate no longer replays events to rebuild its
+ * <p>Since the event-sourcing cutover, an entity no longer replays events to rebuild its
  * state, so this class no longer segments the events by snapshots — it is a plain, ordered list
  * of the events emitted by the current command or reaction. The framework
- * {@linkplain Aggregate#recordEvents(List) records} the produced events here after a successful
- * dispatch, stores them into the append-only journal alongside the latest state record,
- * and then {@link #commit() commits}.
+ * {@linkplain SignalDispatchingEntity#recordEvents(List) records} the produced events here after
+ * a successful dispatch, stores them into the append-only journal alongside the latest state
+ * record, and then {@link #commit() commits}.
  */
-final class UncommittedHistory {
+@Internal
+public final class UncommittedEventHistory {
 
     private final List<Event> events = new ArrayList<>();
 
@@ -55,7 +57,7 @@ final class UncommittedHistory {
      *         the events emitted by the current command handler or reactor
      * @return the events kept for journaling by this call, in the order of emission
      */
-    List<Event> record(Iterable<Event> produced) {
+    public List<Event> record(Iterable<Event> produced) {
         var kept = ImmutableList.<Event>builder();
         for (var event : produced) {
             if (!event.isRejection()) {
@@ -71,14 +73,14 @@ final class UncommittedHistory {
      *
      * <p>The returned list is empty when there are no uncommitted events.
      */
-    List<Event> get() {
+    public List<Event> get() {
         return ImmutableList.copyOf(events);
     }
 
     /**
      * Returns all uncommitted events.
      */
-    UncommittedEvents events() {
+    public UncommittedEvents events() {
         return UncommittedEvents.ofNone()
                                 .append(events);
     }
@@ -86,14 +88,14 @@ final class UncommittedHistory {
     /**
      * Tells if this history contains any uncommitted events.
      */
-    boolean hasEvents() {
+    public boolean hasEvents() {
         return !events.isEmpty();
     }
 
     /**
      * Marks the recorded events as stored and no longer uncommitted.
      */
-    void commit() {
+    public void commit() {
         events.clear();
     }
 }

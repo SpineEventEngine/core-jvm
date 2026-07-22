@@ -85,9 +85,9 @@ internal class StateHistoryTestRepository :
     fun journal(): EntityEventStorage<ProjectId> = eventStorage()
 
     /**
-     * Enables the idempotency guard for the aggregates of this repository.
+     * Enables the double-dispatch guard for the aggregates of this repository.
      */
-    fun enableGuard() = useIdempotencyGuard()
+    fun enableGuard() = useDoubleDispatchGuard()
 
     /**
      * Starts routing the writes of the aggregate with the given identifier

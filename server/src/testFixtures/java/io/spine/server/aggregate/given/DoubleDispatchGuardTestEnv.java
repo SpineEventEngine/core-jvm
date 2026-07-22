@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,16 +44,15 @@ import io.spine.testing.server.TestEventFactory;
 
 import static io.spine.base.Identifier.newUuid;
 
-public final class IdempotencyGuardTestEnv {
+public final class DoubleDispatchGuardTestEnv {
 
     private static final TestEventFactory eventFactory =
-            TestEventFactory.newInstance(IdempotencyGuardTestEnv.class);
+            TestEventFactory.newInstance(DoubleDispatchGuardTestEnv.class);
     private static final CommandFactory commandFactory =
-            new TestActorRequestFactory(IdempotencyGuardTestEnv.class).command();
-
+            new TestActorRequestFactory(DoubleDispatchGuardTestEnv.class).command();
 
     /** Prevents instantiation of this test environment. */
-    private IdempotencyGuardTestEnv() {
+    private DoubleDispatchGuardTestEnv() {
     }
 
     public static TenantId newTenantId() {

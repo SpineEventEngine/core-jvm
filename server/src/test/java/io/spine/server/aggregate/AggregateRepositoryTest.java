@@ -78,7 +78,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static io.spine.base.Time.currentTime;
 import static io.spine.grpc.StreamObservers.noOpObserver;
 import static io.spine.protobuf.Messages.isNotDefault;
-import static io.spine.server.aggregate.AggregateRepository.DEFAULT_HISTORY_DEPTH;
 import static io.spine.server.aggregate.given.repo.AggregateRepositoryTestEnv.context;
 import static io.spine.server.aggregate.given.repo.AggregateRepositoryTestEnv.givenAggregate;
 import static io.spine.server.aggregate.given.repo.AggregateRepositoryTestEnv.givenAggregateId;
@@ -88,6 +87,7 @@ import static io.spine.server.aggregate.given.repo.AggregateRepositoryTestEnv.re
 import static io.spine.server.aggregate.given.repo.AggregateRepositoryTestEnv.resetBoundedContext;
 import static io.spine.server.aggregate.given.repo.AggregateRepositoryTestEnv.resetRepository;
 import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
+import static io.spine.server.entity.SignalDispatchingEntity.DEFAULT_HISTORY_DEPTH;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -187,7 +187,7 @@ class AggregateRepositoryTest {
 
             var iterated = repository().iterator(a -> true).next();
 
-            var history = iterated.eventHistoryBackward(10);
+            var history = iterated.readEventsBackward(10);
             assertTrue(history.hasNext());
         }
 
@@ -239,21 +239,21 @@ class AggregateRepositoryTest {
     }
 
     @Nested
-    @DisplayName("have the idempotency guard")
-    class HaveIdempotencyGuard {
+    @DisplayName("have the double-dispatch guard")
+    class HaveDoubleDispatchGuard {
 
         @Test
         @DisplayName("turned off by default")
         void turnedOffByDefault() {
-            assertFalse(repository().idempotencyGuardEnabled());
+            assertFalse(repository().guardEnabled());
         }
 
         @Test
-        @DisplayName("turned on by `useIdempotencyGuard`")
+        @DisplayName("turned on by `useDoubleDispatchGuard`")
         void turnedOn() {
-            repository().useIdempotencyGuard();
+            repository().enableGuard();
 
-            assertTrue(repository().idempotencyGuardEnabled());
+            assertTrue(repository().guardEnabled());
         }
     }
 

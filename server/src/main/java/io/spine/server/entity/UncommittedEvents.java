@@ -24,17 +24,19 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.server.aggregate;
+package io.spine.server.entity;
 
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.Immutable;
+import io.spine.annotation.Internal;
 import io.spine.core.Event;
 
 /**
- * The list of uncommitted events of an {@link Aggregate}.
+ * The list of uncommitted events of a {@link SignalDispatchingEntity}.
  */
+@Internal
 @Immutable
-final class UncommittedEvents {
+public final class UncommittedEvents {
 
     private static final UncommittedEvents EMPTY = new UncommittedEvents(ImmutableList.of());
 
@@ -56,7 +58,7 @@ final class UncommittedEvents {
      *
      * @return {@code true} if the list is not empty, {@code false} otherwise
      */
-    boolean nonEmpty() {
+    public boolean nonEmpty() {
         return !events.isEmpty();
     }
 
@@ -65,7 +67,7 @@ final class UncommittedEvents {
      *
      * @return the list of uncommitted events
      */
-    ImmutableList<Event> list() {
+    public ImmutableList<Event> list() {
         return events;
     }
 

@@ -29,7 +29,6 @@ package io.spine.server.entity
 import io.spine.annotation.Internal
 import io.spine.annotation.VisibleForTesting
 import io.spine.base.EntityState
-import io.spine.core.Event
 import io.spine.core.Version
 import io.spine.validation.ConstraintViolation
 import io.spine.validation.ValidatingBuilder
@@ -37,7 +36,7 @@ import io.spine.validation.ValidationException
 import java.util.function.Consumer
 
 /**
- * A base for entities that perform transactions with [events][Event].
+ * A base for entities that perform transactions with [events][io.spine.core.Event].
  *
  * Defines a transaction-based mechanism for state, version, and lifecycle flags update.
  *
@@ -51,8 +50,6 @@ import java.util.function.Consumer
 @Suppress("TooManyFunctions") // The class is a base for entities, so it has many functions.
 public abstract class TransactionalEntity<I : Any, S : EntityState<I>, B : ValidatingBuilder<S>> :
     AbstractEntity<I, S> {
-
-    private val recentEventHistory = RecentEventHistory()
 
     /**
      * The flag that becomes `true` if the state of the entity has been changed
@@ -80,24 +77,6 @@ public abstract class TransactionalEntity<I : Any, S : EntityState<I>, B : Valid
      * @param id The ID for the new instance.
      */
     protected constructor(id: I) : super(id)
-
-    /**
-     * Obtains the recent history of events of this entity.
-     */
-    protected open fun recentEventHistory(): RecentEventHistory = recentEventHistory
-
-    /**
-     * Installs the loader serving the [recent event history][recentEventHistory]
-     * reads from the durable journal of this entity.
-     *
-     * Called by repositories when the entity is created or loaded, so that the recent
-     * history survives the instance lifecycle instead of being limited to the events
-     * committed by this very instance.
-     */
-    @Internal
-    public fun setEventHistoryLoader(loader: EventHistoryLoader) {
-        recentEventHistory.useLoader(loader)
-    }
 
     /**
      * A callback invoked before the transaction is committed.

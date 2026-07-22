@@ -35,6 +35,7 @@ import io.spine.server.delivery.Inbox;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.EntityRecord;
 import io.spine.server.entity.EventProducingRepository;
+import io.spine.server.entity.SignalDispatchingEntity;
 import io.spine.server.entity.SignalDispatchingRepository;
 import io.spine.server.entity.storage.EntityEventStorage;
 import io.spine.server.event.EventBus;
@@ -68,18 +69,19 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * journal. The repository keeps that latest state in its record storage and appends
  * the emitted events to a separate {@linkplain #eventStorage() event journal}
  * (an {@link EntityEventStorage}), kept append-only for traceability and for the opt-in
- * {@link IdempotencyGuard}.
+ * double-dispatch guard.
  *
  * <p>Three per-repository settings tune this behavior:
  * <ul>
- *     <li>{@link #useIdempotencyGuard()} — enables the history-backed {@link IdempotencyGuard},
+ *     <li>{@link #useDoubleDispatchGuard()} — enables the history-backed double-dispatch guard,
  *         which rejects a signal already seen among the last {@link #eventHistoryDepth()}
  *         dispatches — however long ago, including the earlier dispatches of the current
  *         delivery batch. It is <b>off by default</b> for performance — when enabled, every
  *         dispatch pays a bounded history read. This is a mechanism distinct from
  *         the delivery layer's time-windowed deduplication, not a replacement for it.
  *     <li>{@linkplain #eventHistoryDepth() eventHistoryDepth} — how many recent events
- *         the guard scans on each dispatch when enabled (default {@value #DEFAULT_HISTORY_DEPTH}).
+ *         the guard scans on each dispatch when enabled
+ *         (default {@value SignalDispatchingEntity#DEFAULT_HISTORY_DEPTH}).
  *     <li>{@link #recordStateHistory()} — records the state history of the aggregates
  *         on each dispatch. This is an opt-in feature shared by all entity repositories
  *         (see {@link io.spine.server.entity.AbstractEntityRepository}).
@@ -106,14 +108,8 @@ public abstract class AggregateRepository<I,
         extends SignalDispatchingRepository<I, A, S>
         implements EventProducingRepository {
 
-    /** The default {@link #eventHistoryDepth()} value. */
-    static final int DEFAULT_HISTORY_DEPTH = 100;
-
-    /** The window (in journal events) the opt-in {@link IdempotencyGuard} scans. */
-    private int eventHistoryDepth = DEFAULT_HISTORY_DEPTH;
-
-    /** Whether the opt-in {@link IdempotencyGuard} is enabled for this repository. */
-    private boolean idempotencyGuardEnabled = false;
+    /** The window (in journal events) the opt-in double-dispatch guard scans. */
+    private int eventHistoryDepth = SignalDispatchingEntity.DEFAULT_HISTORY_DEPTH;
 
     /**
      * The journal of the events emitted by the aggregates of this repository; created lazily
@@ -179,7 +175,7 @@ public abstract class AggregateRepository<I,
      *
      * <p>Also posts the {@linkplain io.spine.system.server.event.EntityCreated
      * entity-created} system event, and installs the history loaders and, when enabled,
-     * the idempotency guard on the created aggregate.
+     * the double-dispatch guard on the created aggregate.
      */
     @Override
     @OverridingMethodsMustInvokeSuper
@@ -191,7 +187,7 @@ public abstract class AggregateRepository<I,
     }
 
     /**
-     * Installs the event history loader and, when enabled, the idempotency guard
+     * Installs the event history loader and, when enabled, the double-dispatch guard
      * on a newly created aggregate.
      *
      * <p>The state history loader is installed by the base repository on the
@@ -208,8 +204,8 @@ public abstract class AggregateRepository<I,
         aggregate.setEventHistoryLoader(
                 (depth, startingFrom) ->
                         eventStorage().historyBackward(id, depth, startingFrom));
-        if (idempotencyGuardEnabled) {
-            aggregate.enableIdempotencyGuard(eventHistoryDepth);
+        if (doubleDispatchGuardEnabled()) {
+            aggregate.enableDoubleDispatchGuard(eventHistoryDepth);
         }
     }
 
@@ -246,7 +242,7 @@ public abstract class AggregateRepository<I,
         }
         // Journal the emitted events, then store the latest state. Under a batched delivery the
         // aggregate accumulates its events until `commitEvents()`, so the journal drops none.
-        var events = aggregate.uncommittedHistory().get();
+        var events = aggregate.uncommittedEventHistory().get();
         var journal = eventStorage();
         events.forEach(journal::write);
         super.doStore(aggregate);
@@ -339,9 +335,10 @@ public abstract class AggregateRepository<I,
 
     /**
      * Returns the number of the most recent events scanned by the opt-in
-     * {@link IdempotencyGuard} when it is enabled.
+     * double-dispatch guard when it is enabled.
      *
-     * @return a positive integer value; the default is {@value #DEFAULT_HISTORY_DEPTH}
+     * @return a positive integer value; the default is
+     *         {@value SignalDispatchingEntity#DEFAULT_HISTORY_DEPTH}
      */
     protected int eventHistoryDepth() {
         return this.eventHistoryDepth;
@@ -351,35 +348,11 @@ public abstract class AggregateRepository<I,
      * Sets the {@linkplain #eventHistoryDepth() event history depth} to the passed value.
      *
      * @param depth
-     *         a positive number of recent events the idempotency guard scans
+     *         a positive number of recent events the double-dispatch guard scans
      */
     protected void setEventHistoryDepth(int depth) {
         checkArgument(depth > 0);
         this.eventHistoryDepth = depth;
-    }
-
-    /**
-     * Enables the opt-in, history-backed {@link IdempotencyGuard} for the aggregates of
-     * this repository.
-     *
-     * <p>When enabled, each dispatch scans the last {@link #eventHistoryDepth()} events of
-     * the aggregate's recent history — including the events of the current delivery batch
-     * that have not reached the journal yet — and rejects a signal already seen among them,
-     * however long ago it was dispatched. This mechanism is distinct from the delivery
-     * layer's time-windowed deduplication. The guard is <b>off by default</b> for
-     * performance: it adds a bounded history read to every dispatch.
-     */
-    protected void useIdempotencyGuard() {
-        this.idempotencyGuardEnabled = true;
-    }
-
-    /**
-     * Tells whether the opt-in {@link IdempotencyGuard} is enabled for this repository.
-     *
-     * @return {@code false} by default
-     */
-    protected boolean idempotencyGuardEnabled() {
-        return idempotencyGuardEnabled;
     }
 
     /**
@@ -390,9 +363,10 @@ public abstract class AggregateRepository<I,
      * {@code createStorage()} uses for the aggregate state. A repository that overrides
      * {@code createStorage()} to serve the aggregate state from a custom
      * {@link io.spine.server.storage.StorageFactory} or backend should override this method as
-     * well, so the journal — feeding the {@link IdempotencyGuard} and the
-     * {@linkplain Aggregate#eventHistoryBackward(int) recent-history} reads — is served by the
-     * same backend as the state, rather than silently falling back to the default one.
+     * well, so the journal — feeding the double-dispatch guard and the
+     * {@linkplain SignalDispatchingEntity#eventHistoryBackward(int) recent-history}
+     * reads — is served by the same backend as the state, rather than silently falling
+     * back to the default one.
      *
      * @return a new event journal
      */
@@ -455,7 +429,7 @@ public abstract class AggregateRepository<I,
     /**
      * {@inheritDoc}
      *
-     * <p>Installs the history loaders and, when enabled, the idempotency guard on
+     * <p>Installs the history loaders and, when enabled, the double-dispatch guard on
      * the reconstructed aggregate.
      */
     @Override

@@ -104,7 +104,7 @@ public class AggregateTransaction<I,
      *
      * @param event the event to dispatch
      * @return the events generated from the reaction
-     * @see Aggregate#reactOn(EventEnvelope)
+     * @see Aggregate#dispatchEvent(EventEnvelope)
      */
     final DispatchOutcome dispatchEvent(EventEnvelope event) {
         Phase<I> phase = new EventDispatchingPhase<>(
@@ -120,7 +120,7 @@ public class AggregateTransaction<I,
     }
 
     private DispatchOutcome dispatch(Aggregate<I, S, B> aggregate, EventEnvelope event) {
-        return aggregate.reactOn(event);
+        return aggregate.dispatchEvent(event);
     }
 
     private VersionIncrement createVersionIncrement() {

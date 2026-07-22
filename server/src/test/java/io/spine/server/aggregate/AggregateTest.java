@@ -57,7 +57,6 @@ import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
 import io.spine.system.server.DiagnosticMonitor;
-import io.spine.test.aggregate.AggProject;
 import io.spine.test.aggregate.ProjectId;
 import io.spine.test.aggregate.Status;
 import io.spine.test.aggregate.command.AggAddTask;
@@ -96,7 +95,6 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.extensions.proto.ProtoTruth.assertThat;
 import static io.spine.grpc.StreamObservers.noOpObserver;
-import static io.spine.server.aggregate.AggregateRepository.DEFAULT_HISTORY_DEPTH;
 import static io.spine.server.aggregate.given.Given.EventMessage.projectCreated;
 import static io.spine.server.aggregate.given.Given.EventMessage.projectStarted;
 import static io.spine.server.aggregate.given.Given.EventMessage.taskAdded;
@@ -109,6 +107,7 @@ import static io.spine.server.aggregate.given.aggregate.AggregateTestEnv.newTena
 import static io.spine.server.aggregate.given.aggregate.AggregateTestEnv.reassignTask;
 import static io.spine.server.aggregate.given.dispatch.AggregateMessageDispatcher.dispatchCommand;
 import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
+import static io.spine.server.entity.SignalDispatchingEntity.DEFAULT_HISTORY_DEPTH;
 import static io.spine.server.tenant.TenantAwareRunner.with;
 import static io.spine.testing.server.Assertions.assertCommandClasses;
 import static io.spine.testing.server.Assertions.assertEventClasses;
@@ -424,7 +423,7 @@ public class AggregateTest {
                                AggProjectStarted.class);
         }
 
-        private Collection<EventClass> getEventClasses(Collection<Event> events) {
+        private static Collection<EventClass> getEventClasses(Collection<Event> events) {
             var result = events.stream()
                     .map(EventClass::of)
                     .collect(toList());
@@ -449,7 +448,7 @@ public class AggregateTest {
         @DisplayName("which are being committed")
         void beingCommittedByDefault() {
             aggregate().commitEvents();
-            assertFalse(aggregate.eventHistoryBackward(DEFAULT_HISTORY_DEPTH)
+            assertFalse(aggregate.readEventsBackward(DEFAULT_HISTORY_DEPTH)
                                  .hasNext());
         }
     }
@@ -590,7 +589,7 @@ public class AggregateTest {
             // replayed eagerly at load. Reading it therefore requires the tenant context (the read
             // is eager, so the returned iterator is safe to consume outside the context).
             history = with(tenantId).evaluate(
-                    () -> aggregate.eventHistoryBackward(DEFAULT_HISTORY_DEPTH));
+                    () -> aggregate.readEventsBackward(DEFAULT_HISTORY_DEPTH));
 
             assertNextCommandId().isEqualTo(startCommand.id());
             assertNextCommandId().isEqualTo(addTaskCommand2.id());
@@ -630,12 +629,12 @@ public class AggregateTest {
     }
 
     @Test
-    @DisplayName("run `IdempotencyGuard` when dispatching commands")
+    @DisplayName("run `DoubleDispatchGuard` when dispatching commands")
     void checkCommandsUponHistory() {
         var monitor = new DiagnosticMonitor();
         context.internalAccess()
                .registerEventDispatcher(monitor);
-        repository.useIdempotencyGuard();
+        repository.enableGuard();
         var createCommand = command(createProject);
         var cmd = CommandEnvelope.of(createCommand);
         var tenantId = newTenantId();
@@ -651,12 +650,12 @@ public class AggregateTest {
     }
 
     @Test
-    @DisplayName("run Idempotency guard when dispatching events")
+    @DisplayName("run `DoubleDispatchGuard` when dispatching events")
     void checkEventsUponHistory() {
         var monitor = new DiagnosticMonitor();
         context.internalAccess()
                .registerEventDispatcher(monitor);
-        repository.useIdempotencyGuard();
+        repository.enableGuard();
         var eventMessage = AggProjectDeleted.newBuilder()
                 .setProjectId(ID)
                 .build();

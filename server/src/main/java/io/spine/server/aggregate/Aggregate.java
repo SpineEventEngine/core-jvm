@@ -27,19 +27,17 @@
 package io.spine.server.aggregate;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.errorprone.annotations.InlineMe;
 import com.google.protobuf.Empty;
 import io.spine.annotation.Internal;
 import io.spine.annotation.VisibleForTesting;
 import io.spine.base.AggregateState;
-import io.spine.base.Identifier;
 import io.spine.core.Event;
-import io.spine.core.Version;
 import io.spine.server.aggregate.model.AggregateClass;
 import io.spine.server.command.AssigneeEntity;
 import io.spine.server.dispatch.DispatchOutcome;
-import io.spine.server.entity.EntityRecord;
 import io.spine.server.entity.RecentEventHistory;
-import io.spine.server.entity.RecentStateHistory;
+import io.spine.server.entity.SignalDispatchingEntity;
 import io.spine.server.entity.Transaction;
 import io.spine.server.entity.TransactionalEntity;
 import io.spine.server.event.EventReactor;
@@ -49,11 +47,8 @@ import io.spine.server.type.EventEnvelope;
 import io.spine.validation.ValidatingBuilder;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.function.Predicate;
 
-import static com.google.common.collect.Iterators.any;
-import static io.spine.protobuf.AnyPacker.pack;
 import static io.spine.server.Ignored.ignored;
 import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
 
@@ -69,7 +64,7 @@ import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
  * state is persisted directly: an aggregate loads from its latest
  * {@link io.spine.server.entity.EntityRecord EntityRecord} rather than by replaying its events.
  * The produced events form an append-only journal kept for traceability and for the opt-in
- * {@link IdempotencyGuard}.
+ * double-dispatch guard.
  *
  * <h2>Creating an aggregate class</h2>
  *
@@ -128,23 +123,8 @@ import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
 public abstract class Aggregate<I,
                                 S extends AggregateState<I>,
                                 B extends ValidatingBuilder<S>>
-        extends AssigneeEntity<I, S, B>
+        extends SignalDispatchingEntity<I, S, B>
         implements EventReactor {
-
-    /**
-     * The fixed number of the most recent journal events read by the deprecated parameterless
-     * {@linkplain #historyBackward() history accessors}.
-     *
-     * <p>Equal to {@code AggregateRepository.DEFAULT_HISTORY_DEPTH}.
-     */
-    private static final int DEFAULT_HISTORY_DEPTH = 100;
-
-    private final UncommittedHistory uncommittedHistory = new UncommittedHistory();
-
-    /**
-     * A guard for ensuring idempotency of messages dispatched by this aggregate.
-     */
-    private IdempotencyGuard idempotencyGuard;
 
     /**
      * Creates a new instance.
@@ -164,7 +144,6 @@ public abstract class Aggregate<I,
      */
     protected Aggregate() {
         super();
-        setIdempotencyGuard();
     }
 
     /**
@@ -187,22 +166,6 @@ public abstract class Aggregate<I,
      */
     protected Aggregate(I id) {
         super(id);
-        setIdempotencyGuard();
-    }
-
-    /**
-     * Creates and assigns the aggregate an {@link IdempotencyGuard idempotency guard}.
-     */
-    private void setIdempotencyGuard() {
-        idempotencyGuard = new IdempotencyGuard(this);
-    }
-
-    /**
-     * Enables the opt-in {@link IdempotencyGuard} for this aggregate, scanning up to
-     * {@code historyDepth} most recent events for a duplicate on each dispatch.
-     */
-    final void enableIdempotencyGuard(int historyDepth) {
-        idempotencyGuard.enable(historyDepth);
     }
 
     /**
@@ -255,7 +218,7 @@ public abstract class Aggregate<I,
      */
     @Override
     protected DispatchOutcome dispatchCommand(CommandEnvelope command) {
-        var error = idempotencyGuard.check(command);
+        var error = doubleDispatchGuard().check(command);
         if (error.isPresent()) {
             var outcome = DispatchOutcome.newBuilder()
                     .setPropagatedSignal(command.messageId())
@@ -280,8 +243,9 @@ public abstract class Aggregate<I,
      * @return a list of event messages that the aggregate produces in reaction to the event, or
      *         an empty list if the aggregate state does not change because of the event
      */
-    DispatchOutcome reactOn(EventEnvelope event) {
-        var error = idempotencyGuard.check(event);
+    @Override
+    protected DispatchOutcome dispatchEvent(EventEnvelope event) {
+        var error = doubleDispatchGuard().check(event);
         if (error.isPresent()) {
             var outcome = DispatchOutcome.newBuilder()
                     .setPropagatedSignal(event.messageId())
@@ -298,57 +262,6 @@ public abstract class Aggregate<I,
     @Internal
     public ImmutableSet<EventClass> producedEvents() {
         return modelClass().outgoingEvents();
-    }
-
-    /**
-     * Records the events produced by the current dispatch so that they are stored into the
-     * journal and made available as recent history.
-     *
-     * <p>Called by the framework after a command or reaction has been dispatched and its
-     * transaction committed. Rejection events are not journaled.
-     *
-     * <p>The journaled events also enter the {@linkplain #recentEventHistory() recent
-     * event history} right away, so the subsequent dispatches served by this instance —
-     * e.g., the later signals of a delivery batch — read them without waiting for
-     * the journal write, which may be deferred to the end of the batch.
-     *
-     * @param events
-     *         the events emitted by the current command handler or reactor
-     */
-    final void recordEvents(List<Event> events) {
-        var journaled = uncommittedHistory.record(events);
-        recentEventHistory().append(journaled);
-    }
-
-    /**
-     * Returns all uncommitted events.
-     *
-     * @return immutable view of all uncommitted events
-     */
-    @VisibleForTesting
-    UncommittedEvents getUncommittedEvents() {
-        return uncommittedHistory.events();
-    }
-
-    /**
-     * Tells if there are any uncommitted events.
-     */
-    boolean hasUncommittedEvents() {
-        return uncommittedHistory.hasEvents();
-    }
-
-    /**
-     * Returns the uncommitted events of this aggregate.
-     */
-    UncommittedHistory uncommittedHistory() {
-        return uncommittedHistory;
-    }
-
-    /**
-     * Marks the uncommitted events of this aggregate as committed and clears them.
-     */
-    final void commitEvents() {
-        uncommittedHistory.commit();
     }
 
     /**
@@ -374,48 +287,18 @@ public abstract class Aggregate<I,
     }
 
     /**
-     * Creates an iterator over up to {@code depth} most recent events of this aggregate's
-     * history, newest first.
-     *
-     * <p>Fewer events are returned if the history retains fewer. The events emitted by the
-     * current, not-yet-committed dispatch are excluded. The events committed by the earlier
-     * dispatches served by this instance — e.g., the preceding signals of a
-     * delivery batch — are included even while the deferred journal write has
-     * not persisted them yet.
-     *
-     * @param depth
-     *         the maximal number of the most recent events to return; must be positive
-     * @return new iterator instance
-     * @throws IllegalArgumentException
-     *         if the {@code depth} is not positive
-     */
-    protected final Iterator<Event> eventHistoryBackward(int depth) {
-        return recentEventHistory().read(depth);
-    }
-
-    /**
-     * Verifies if up to {@code depth} most recent events of this aggregate's history contain an
-     * event that satisfies the passed predicate.
-     *
-     * <p>The visibility caveats of {@link #eventHistoryBackward(int)} apply to this check.
-     *
-     * @param depth
-     *         the maximal number of the most recent events to inspect; must be positive
-     * @param predicate
-     *         the predicate to test the events against
-     */
-    protected final boolean eventHistoryContains(int depth, Predicate<Event> predicate) {
-        var iterator = eventHistoryBackward(depth);
-        return any(iterator, predicate::test);
-    }
-
-    /**
      * Creates an iterator of the aggregate event history with reverse traversal.
      *
      * @deprecated Please use {@link #eventHistoryBackward(int)} and state the history window
-     *         explicitly. This form reads the last {@value #DEFAULT_HISTORY_DEPTH} events.
+     *         explicitly. This form reads the last
+     *         {@value SignalDispatchingEntity#DEFAULT_HISTORY_DEPTH} events.
      */
     @Deprecated
+    @InlineMe(
+            replacement = "this.eventHistoryBackward(Aggregate.DEFAULT_HISTORY_DEPTH)",
+            imports = "io.spine.server.aggregate.Aggregate"
+    )
+    @SuppressWarnings("DuplicateStringLiteralInspection") // same `imports` as below.
     protected final Iterator<Event> historyBackward() {
         return eventHistoryBackward(DEFAULT_HISTORY_DEPTH);
     }
@@ -424,10 +307,15 @@ public abstract class Aggregate<I,
      * Verifies if the aggregate history contains an event that satisfies the passed predicate.
      *
      * @deprecated Please use {@link #eventHistoryContains(int, Predicate)} and state the history
-     *         window explicitly. This form inspects the last {@value #DEFAULT_HISTORY_DEPTH}
-     *         events.
+     *         window explicitly. This form inspects the last
+     *         {@value SignalDispatchingEntity#DEFAULT_HISTORY_DEPTH} events.
      */
     @Deprecated
+    @InlineMe(
+            replacement = "this.eventHistoryContains(Aggregate.DEFAULT_HISTORY_DEPTH, predicate)",
+            imports = "io.spine.server.aggregate.Aggregate"
+    )
+    @SuppressWarnings("DuplicateStringLiteralInspection") // same `imports` as above.
     protected final boolean historyContains(Predicate<Event> predicate) {
         return eventHistoryContains(DEFAULT_HISTORY_DEPTH, predicate);
     }

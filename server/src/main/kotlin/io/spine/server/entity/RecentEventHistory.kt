@@ -30,12 +30,11 @@ import io.spine.core.Event
 import io.spine.core.Version
 
 /**
- * The recent history of events of a [TransactionalEntity].
+ * The recent history of events of a [SignalDispatchingEntity].
  *
- * The events are read from the durable journal of the entity via the loader
- * [installed][TransactionalEntity.setEventHistoryLoader] by the repository
- * managing the entity, and cached for the lifetime of the entity
- * instance — see [RecentHistory].
+ * The events are read from the durable journal of the entity via a loader
+ * installed by the repository managing the entity, and cached for the lifetime
+ * of the entity instance — see [RecentHistory].
  *
  * An entity created outside a repository has no journal, so the reads
  * serve only the [appended][append] events, if any.
@@ -44,17 +43,14 @@ public class RecentEventHistory internal constructor() :
     RecentHistory<Event, Event, EventHistoryLoader>() {
 
     /**
-     * Clears the enrichments from the event before it enters the cache.
+     * Returns the event unchanged.
      *
-     * The durable journal stores every event enrichment-free — see
-     * `EntityEventStorage.write()`. Normalizing the same way here keeps
-     * a read consistent whether it is served from the cache or from
-     * the storage: an [appended][append] event does not carry enrichments
-     * that would vanish once the journal write flushes or the entity is
-     * reloaded. Clearing is idempotent, so an event loaded from the already
-     * enrichment-free journal is unaffected.
+     * An event carries no enrichments at this phase: they are attached later, when the
+     * event is posted for delivery. There is thus nothing to strip here, and the stored
+     * record already is the history item. Do not add normalization here without first
+     * re-verifying that events still reach [append] enrichment-free.
      */
-    override fun toItem(record: Event): Event = record.clearEnrichments()
+    override fun toItem(record: Event): Event = record
 
     override fun versionOf(record: Event): Version = record.context.version
 }
