@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -54,7 +54,7 @@ abstract class PmEndpoint<I,
 
     @Override
     protected boolean isModified(P processManager) {
-        var result = processManager.changed();
+        var result = processManager.changed() || processManager.hasUncommittedEvents();
         return result;
     }
 
@@ -101,6 +101,16 @@ abstract class PmEndpoint<I,
         PmTransaction<?, ?, ?> tx = repository().beginTransactionFor(processManager);
         var outcome = invokeDispatcher(processManager);
         tx.commitIfActive();
+        // Record the produced events as the process manager's uncommitted history right after
+        // the transaction commits (success only), so that the repository journals them on
+        // store. A rolled-back dispatch leaves nothing to record.
+        if (repository().eventHistoryEnabled()
+                && outcome.hasSuccess()
+                && outcome.getSuccess().hasEvents()) {
+            processManager.recordEvents(outcome.getSuccess()
+                                               .getProducedEvents()
+                                               .getEventList());
+        }
         return outcome;
     }
 }

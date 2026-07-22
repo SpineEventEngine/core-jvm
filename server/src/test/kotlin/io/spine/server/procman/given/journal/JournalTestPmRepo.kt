@@ -24,34 +24,40 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.server.entity
+package io.spine.server.procman.given.journal
 
-import io.spine.annotation.Internal
-import io.spine.core.Event
-import io.spine.core.Version
+import io.spine.server.entity.storage.EntityEventStorage
+import io.spine.server.procman.ProcessManagerRepository
+import io.spine.test.procman.ElephantProcess
+import io.spine.test.procman.ProjectId
 
 /**
- * Lazily loads up to a requested number of an entity's most recent journal
- * events, newest first.
- *
- * A repository installs a loader on each entity it creates or loads — via
- * [SignalDispatchingEntity.setEventHistoryLoader] — so that the
- * [recent event history reads][RecentEventHistory.read] are served from the
- * durable journal of the entity. See [SignalDispatchingRepository] for
- * the wiring.
+ * A test repository of [JournalTestProcman], configuring the event journaling
+ * and the double-dispatch guard as the specs require.
  */
-@Internal
-public fun interface EventHistoryLoader : HistoryLoader<Event> {
+internal class JournalTestPmRepo(
+    journaling: Boolean = true,
+    guard: Boolean = false
+) : ProcessManagerRepository<ProjectId, JournalTestProcman, ElephantProcess>() {
+
+    init {
+        if (journaling) {
+            recordEventHistory()
+        }
+        if (guard) {
+            useDoubleDispatchGuard()
+        }
+    }
 
     /**
-     * Loads up to [depth] most recent events of the entity's journal, newest first.
-     *
-     * When [startingFrom] is given, only the events with versions strictly
-     * lower than it are loaded. `null` starts from the newest event.
-     *
-     * @param depth The maximum number of the most recent events to load; positive.
-     * @param startingFrom If set, only the events with versions lower than this one are loaded.
-     * @return An iterator over the loaded events, newest first.
+     * Exposes the event journal to the tests.
      */
-    override fun load(depth: Int, startingFrom: Version?): Iterator<Event>
+    fun journal(): EntityEventStorage<ProjectId> = eventStorage()
+
+    /**
+     * Exposes the event-history depth setter to the tests.
+     */
+    fun depth(value: Int) {
+        setEventHistoryDepth(value)
+    }
 }

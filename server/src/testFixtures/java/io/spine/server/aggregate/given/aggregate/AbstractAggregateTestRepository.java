@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,5 +62,17 @@ public class AbstractAggregateTestRepository<I,
         var runner = TenantAwareRunner.with(tenantId);
         var result = runner.evaluate(() -> loadAggregate(id));
         return result;
+    }
+
+    /** Exposes the event-history depth to the tests. */
+    @Override
+    public int eventHistoryDepth() {
+        return super.eventHistoryDepth();
+    }
+
+    /** Exposes the event-history depth setter to the tests. */
+    @Override
+    public void setEventHistoryDepth(int depth) {
+        super.setEventHistoryDepth(depth);
     }
 }

@@ -35,6 +35,7 @@ import io.spine.server.Identity;
 import io.spine.server.aggregate.AggregateRepository;
 import io.spine.server.entity.EntityRecord;
 import io.spine.server.entity.EntityRecordChange;
+import io.spine.server.entity.storage.EntityEventStorage;
 import io.spine.server.route.EventRouting;
 import io.spine.test.aggregate.AggProject;
 import io.spine.test.aggregate.ProjectId;
@@ -94,5 +95,23 @@ public class ProjectAggregateRepository
     @VisibleForTesting
     public boolean guardEnabled() {
         return doubleDispatchGuardEnabled();
+    }
+
+    /** Exposes the event-history depth to the tests. */
+    @Override
+    public int eventHistoryDepth() {
+        return super.eventHistoryDepth();
+    }
+
+    /** Exposes the event-history depth setter to the tests. */
+    @Override
+    public void setEventHistoryDepth(int depth) {
+        super.setEventHistoryDepth(depth);
+    }
+
+    /** Exposes the event journal to the tests. */
+    @VisibleForTesting
+    public EntityEventStorage<ProjectId> journal() {
+        return eventStorage();
     }
 }
