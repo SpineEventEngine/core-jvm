@@ -47,8 +47,7 @@ import java.util.function.Predicate
  * a signal to the target entity, and the entity dispatches it to the matching receptor.
  *
  * Because such an entity emits events, it keeps the [recent history][recentEventHistory] of
- * them, served lazily from the entity's durable journal through the loader the
- * repository [installs][setEventHistoryLoader].
+ * them, served lazily from the entity's durable journal through a repository-installed loader.
  *
  * @param I The type of the entity identifiers.
  * @param S The type of the entity state.
