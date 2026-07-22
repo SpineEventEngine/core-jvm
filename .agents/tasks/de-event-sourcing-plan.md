@@ -626,6 +626,25 @@ by authoring a detailed task doc the way
 [`state-history-for-all-entities.md`](state-history-for-all-entities.md)
 opened Phase F. Needs Phase D (merged 2026-07-10) only.
 
+> **Implemented on `more-on-signal-dispatching-entities` (2026-07-22)** —
+> items 1–3, with item 4 satisfied by the `eventStorage()` move itself
+> (the truncate maintenance rides on the accessor). Detailed task:
+> [`event-history-for-process-managers.md`](event-history-for-process-managers.md).
+> Settled while implementing (product owner): `SignalDispatchingRepository`
+> re-binds `E` to `SignalDispatchingEntity` and `ProcessManager` re-parents
+> onto it, which turns the guard flag into enforceable shared behavior;
+> **`eventHistoryDepth` moved up too** — the "stays put" note in item 1
+> predated the guard going shared, and the depth is the guard's scan window;
+> the PM opt-in is `ProcessManagerRepository.recordEventHistory()`
+> (naming parallels `recordStateHistory()`); **guard-on + journal-off fails
+> fast at context registration** (2026-07-22) — the knobs stay orthogonal,
+> no implicit enabling; the journaling-off read fail-fast follows the
+> Phase F pattern — the loader is installed unconditionally and gates the
+> reads itself. Empirically confirmed while testing: a re-posted identical
+> command is dropped by the delivery layer before reaching the entity —
+> A5's "delivery owns primary dedup" — so the guard specs assert the
+> journal-backed detection on a freshly loaded instance.
+
 The entity layer has been ready since PR #1649/#1650: `RecentEventHistory`
 reads lazily through `EventHistoryLoader`, installed via
 `TransactionalEntity.setEventHistoryLoader`, and
