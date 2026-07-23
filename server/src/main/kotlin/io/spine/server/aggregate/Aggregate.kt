@@ -45,7 +45,6 @@ import java.util.function.Predicate
 /**
  * Abstract base for aggregates.
  *
- * An aggregate is the main building block of a business model.
  * Aggregates guarantee the consistency of data modifications in response to
  * commands they receive.
  *
