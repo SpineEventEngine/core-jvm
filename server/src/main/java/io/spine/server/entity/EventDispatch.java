@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -24,11 +24,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.server.event;
+package io.spine.server.entity;
 
 import io.spine.annotation.Internal;
 import io.spine.server.dispatch.DispatchOutcome;
-import io.spine.server.entity.TransactionalEntity;
 import io.spine.server.type.EventEnvelope;
 
 import java.util.function.BiFunction;
@@ -36,7 +35,7 @@ import java.util.function.BiFunction;
 /**
  * A dispatch of the event to the appropriate handler of an entity.
  *
- * <p>Unlike the {@link io.spine.server.command.DispatchCommand}, this class is a simple wrapper
+ * <p>Unlike the {@link DispatchCommand}, this class is a simple wrapper
  * around the {@link BiFunction} that performs an actual event dispatch.
  *
  * @param <I>

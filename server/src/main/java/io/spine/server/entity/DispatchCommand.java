@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -24,13 +24,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.server.command;
+package io.spine.server.entity;
 
 import io.spine.annotation.Internal;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.dispatch.DispatchOutcomeHandler;
 import io.spine.server.dispatch.Success;
-import io.spine.server.entity.EntityLifecycle;
 import io.spine.server.type.CommandEnvelope;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -39,7 +38,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * A command dispatch operation.
  *
  * <p>Dispatches the given {@linkplain CommandEnvelope command} to the given
- * {@linkplain AssigneeEntity entity} and triggers the {@link EntityLifecycle}.
+ * {@linkplain SignalDispatchingEntity entity} and triggers the {@link EntityLifecycle}.
  *
  * @param <I>
  *         the type of entity ID
@@ -48,11 +47,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public final class DispatchCommand<I> {
 
     private final EntityLifecycle lifecycle;
-    private final AssigneeEntity<I, ?, ?> entity;
+    private final SignalDispatchingEntity<I, ?, ?> entity;
     private final CommandEnvelope command;
 
     private DispatchCommand(EntityLifecycle lifecycle,
-                            AssigneeEntity<I, ?, ?> entity,
+                            SignalDispatchingEntity<I, ?, ?> entity,
                             CommandEnvelope command) {
         this.lifecycle = lifecycle;
         this.entity = entity;
@@ -60,7 +59,7 @@ public final class DispatchCommand<I> {
     }
 
     public static <I> DispatchCommand<I> operationFor(EntityLifecycle lifecycle,
-                                                      AssigneeEntity<I, ?, ?> entity,
+                                                      SignalDispatchingEntity<I, ?, ?> entity,
                                                       CommandEnvelope command) {
         checkNotNull(lifecycle);
         checkNotNull(entity);
@@ -72,7 +71,7 @@ public final class DispatchCommand<I> {
     /**
      * Performs the operation.
      *
-     * <p>First, the command is {@linkplain AssigneeEntity#dispatchCommand(CommandEnvelope)
+     * <p>First, the command is {@linkplain SignalDispatchingEntity#dispatchCommand(CommandEnvelope)
      * passed} to the entity.
      *
      * <p>Then, depending on the command handling result, either
@@ -83,6 +82,8 @@ public final class DispatchCommand<I> {
      * @return the produced events including the rejections thrown by the command assignee method
      */
     public DispatchOutcome perform() {
+        // The `protected` receptor is reachable only via the Java package-level
+        // slice of `protected`; this class must stay in the entity's package.
         return DispatchOutcomeHandler
                 .from(entity.dispatchCommand(command))
                 .onRejection(rejection -> lifecycle.onCommandRejected(command.id(), rejection))
@@ -96,7 +97,7 @@ public final class DispatchCommand<I> {
         }
     }
 
-    public AssigneeEntity<I, ?, ?> entity() {
+    public SignalDispatchingEntity<I, ?, ?> entity() {
         return entity;
     }
 

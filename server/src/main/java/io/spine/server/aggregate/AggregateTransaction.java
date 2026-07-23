@@ -30,14 +30,14 @@ import io.spine.annotation.Internal;
 import io.spine.annotation.VisibleForTesting;
 import io.spine.base.AggregateState;
 import io.spine.core.Version;
-import io.spine.server.command.DispatchCommand;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.CommandDispatchingPhase;
+import io.spine.server.entity.DispatchCommand;
+import io.spine.server.entity.EventDispatch;
 import io.spine.server.entity.EventDispatchingPhase;
 import io.spine.server.entity.Phase;
 import io.spine.server.entity.Transaction;
 import io.spine.server.entity.VersionIncrement;
-import io.spine.server.event.EventDispatch;
 import io.spine.server.type.EventEnvelope;
 import io.spine.validation.ValidatingBuilder;
 

@@ -34,7 +34,6 @@ import io.spine.annotation.VisibleForTesting;
 import io.spine.base.AggregateState;
 import io.spine.core.Event;
 import io.spine.server.aggregate.model.AggregateClass;
-import io.spine.server.command.AssigneeEntity;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.RecentEventHistory;
 import io.spine.server.entity.SignalDispatchingEntity;
@@ -82,7 +81,8 @@ import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
  * <h3>Handling commands and reacting to events</h3>
  *
  * <p>Command receptors of an {@code Aggregate} are defined in the same way as described in
- * {@link AssigneeEntity}; please also refer to {@link io.spine.server.command.Assign Assign}.
+ * {@link SignalDispatchingEntity}; please also refer to
+ * {@link io.spine.server.command.Assign Assign}.
  * An aggregate may additionally react to events with {@link io.spine.server.event.React @React}
  * methods. Event(s) returned by these receptors are posted to the
  * {@link io.spine.server.event.EventBus EventBus} automatically by {@link AggregateRepository}.

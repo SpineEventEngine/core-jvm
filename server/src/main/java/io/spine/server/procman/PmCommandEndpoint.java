@@ -31,7 +31,7 @@ import io.spine.server.delivery.CommandEndpoint;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.type.CommandEnvelope;
 
-import static io.spine.server.command.DispatchCommand.operationFor;
+import static io.spine.server.entity.DispatchCommand.operationFor;
 
 /**
  * Dispatches a command to process managers.
