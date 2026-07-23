@@ -306,3 +306,35 @@ seven `@JvmName` bridges of `AbstractEntity`:
      modifiers add nothing: the effective visibility is `internal` either
      way. `RoutingMap.kt` has the same pattern but predates this branch —
      left untouched.
+- **Transaction/dispatch machinery → Kotlin ✅ (2026-07-24):** converted
+  `AggregateTransaction` (→ `internal`), `PmTransaction`,
+  `EventPlayingTransaction`, `CommandDispatchingPhase`,
+  `EventDispatchingPhase`, `DispatchCommand`, `EventDispatch`. The phases,
+  `DispatchCommand`, and `EventDispatch` stay `public @Internal` — the
+  still-Java `PmTransaction`/`EventPlayingTransaction` collaborators
+  (`ProcessManagerMigration`, `ProjectionTransaction`, `TestTx`,
+  `TestPmTransaction`) construct or extend them. Two `internal` seams on
+  `SignalDispatchingEntity` — `dispatchCommandInTransaction`/
+  `dispatchEventInTransaction` — bridge the Kotlin transactions to the
+  entity's `protected` receptors (Kotlin `protected` grants no package
+  slice). `AggregateTransaction` reached full `internal` by redirecting its
+  two Java dependants through `TestTransaction` (`AggregateBuilder` →
+  `injectState`, `AggregateRepositoryTest` → `archive`/`delete`), deleting
+  the `TestAggregateTransaction` subclass and the public `start()` leak.
+  `PmTransaction` ctors became `public` because a Kotlin non-subclass
+  (`ProcessManagerRepository`, `PmTransactionSpec`) *and* Java collaborators
+  both construct it — the only visibility satisfying both.
+- **`ProjectionRepository` → Kotlin ✅ (2026-07-24):** stays `public` (a
+  user-facing base with many Java testFixtures subclasses); every
+  `protected`/`public`/`final` member shape preserved. `setupInbox` builds
+  via `ProjectionEndpoint.of()` (the ctor is now `internal`); a new
+  `internal findOrCreateProjection` seam exposes `protected findOrCreate`
+  to the Kotlin `ProjectionEndpoint`; `eventStore()`/`nullToDefault()` keep
+  `@JvmName` (+`@JvmStatic`) for the Java `ProjectionRepositoryTest`.
+- **PR review follow-ups (2026-07-24):** `ProjectionEndpoint` → `internal`
+  and `Projection.builder()` → `protected` (Copilot: unintended widenings);
+  the `deleted` aggregate-lookup test now uses `TestTransaction.delete`
+  (Copilot: it had only archived); `which`→`that` and KDoc widow reflows
+  (review-docs). `Entity.modelClass()` removal kept as the deliberate
+  Wave E3 change on a breaking major release (Copilot's compatibility note
+  does not apply to an `@Internal` member).
