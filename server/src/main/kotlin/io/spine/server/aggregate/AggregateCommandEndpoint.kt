@@ -28,7 +28,7 @@ package io.spine.server.aggregate
 
 import io.spine.server.delivery.CommandEndpoint
 import io.spine.server.dispatch.DispatchOutcome
-import io.spine.server.entity.DispatchCommand.operationFor
+import io.spine.server.entity.DispatchCommand.Companion.operationFor
 import io.spine.server.type.CommandEnvelope
 import io.spine.util.Exceptions.newIllegalStateException
 

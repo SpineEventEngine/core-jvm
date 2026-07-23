@@ -24,68 +24,43 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.server.entity;
+package io.spine.server.entity
 
-import io.spine.annotation.Internal;
-import io.spine.server.dispatch.DispatchOutcome;
-import io.spine.server.type.EventEnvelope;
-
-import java.util.function.BiFunction;
+import io.spine.annotation.Internal
+import io.spine.server.dispatch.DispatchOutcome
+import io.spine.server.type.EventEnvelope
 
 /**
  * A dispatch of the event to the appropriate handler of an entity.
  *
- * <p>Unlike the {@link DispatchCommand}, this class is a simple wrapper
- * around the {@link BiFunction} that performs an actual event dispatch.
+ * Unlike the [DispatchCommand], this class is a simple wrapper around the
+ * function that performs an actual event dispatch.
  *
- * @param <I>
- *         the type of entity ID
- * @param <E>
- *         the type of entity
+ * @param I The type of entity ID.
+ * @param E The type of entity.
+ * @param dispatchFunction The function that performs the dispatch operation.
+ * @param entity The entity to which the event is dispatched.
+ * @param event The dispatched event.
  */
 @Internal
-public final class EventDispatch<I, E extends TransactionalEntity<I, ?, ?>> {
-
-    private final BiFunction<E, EventEnvelope, DispatchOutcome> dispatchFunction;
-    private final E entity;
-    private final EventEnvelope event;
-
-    /**
-     * Creates a new {@code EventDispatch} from the given dispatch function.
-     *
-     * @param dispatchFunction
-     *         the {@code BiFunction} that performs a dispatch operation
-     * @param entity
-     *         the entity to which the event is dispatched
-     * @param event
-     *         the dispatched event
-     */
-    public EventDispatch(BiFunction<E, EventEnvelope, DispatchOutcome> dispatchFunction,
-                         E entity,
-                         EventEnvelope event) {
-        this.dispatchFunction = dispatchFunction;
-        this.entity = entity;
-        this.event = event;
-    }
+public class EventDispatch<I : Any, E : TransactionalEntity<I, *, *>>(
+    private val dispatchFunction: (E, EventEnvelope) -> DispatchOutcome,
+    private val entity: E,
+    private val event: EventEnvelope
+) {
 
     /**
      * Executes the dispatch operation, returning its result.
      */
-    public DispatchOutcome perform() {
-        return dispatchFunction.apply(entity, event);
-    }
+    public fun perform(): DispatchOutcome = dispatchFunction(entity, event)
 
     /**
      * Returns the entity to which the event is dispatched.
      */
-    public E entity() {
-        return entity;
-    }
+    public fun entity(): E = entity
 
     /**
      * Returns the dispatched event.
      */
-    public EventEnvelope event() {
-        return event;
-    }
+    public fun event(): EventEnvelope = event
 }

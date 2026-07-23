@@ -255,6 +255,23 @@ public abstract class SignalDispatchingEntity<I : Any,
     protected abstract fun dispatchEvent(event: EventEnvelope): DispatchOutcome
 
     /**
+     * Runs the [command dispatch][dispatchCommand] on behalf of the transaction machinery.
+     *
+     * A framework seam: the [DispatchCommand] operation and the transactions are not
+     * subclasses of the entity, so they cannot reach the `protected` receptor directly.
+     */
+    internal fun dispatchCommandInTransaction(command: CommandEnvelope): DispatchOutcome =
+        dispatchCommand(command)
+
+    /**
+     * Runs the [event dispatch][dispatchEvent] on behalf of the transaction machinery.
+     *
+     * See [dispatchCommandInTransaction] for the rationale.
+     */
+    internal fun dispatchEventInTransaction(event: EventEnvelope): DispatchOutcome =
+        dispatchEvent(event)
+
+    /**
      * Creates a `ValueMismatch` for the case of discovering a non-default value
      * when the default value was expected by a command.
      *

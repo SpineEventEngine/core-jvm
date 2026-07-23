@@ -24,51 +24,33 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.server.entity;
+package io.spine.server.entity
 
-import io.spine.annotation.Internal;
-import io.spine.core.Signal;
-import io.spine.core.SignalId;
-import io.spine.server.dispatch.DispatchOutcome;
+import io.spine.annotation.Internal
+import io.spine.core.Signal
+import io.spine.core.SignalId
+import io.spine.server.dispatch.DispatchOutcome
 
 /**
  * A phase that dispatched a command to the entity in transaction.
  *
- * @param <I>
- *         the type of entity ID
+ * @param I The type of entity ID.
+ * @param transaction The transaction the phase is propagated in.
+ * @param dispatch The command dispatch task performed by the phase.
+ * @param versionIncrement The strategy for advancing the entity version.
  */
 @Internal
-public final class CommandDispatchingPhase<I> extends Phase<I> {
+public class CommandDispatchingPhase<I : Any>(
+    transaction: Transaction<I, *, *, *>,
+    private val dispatch: DispatchCommand<I>,
+    versionIncrement: VersionIncrement
+) : Phase<I>(transaction, versionIncrement) {
 
-    private final DispatchCommand<I> dispatch;
+    override fun performDispatch(): DispatchOutcome = dispatch.perform()
 
-    public CommandDispatchingPhase(Transaction<I, ?, ?, ?> transaction,
-                                   DispatchCommand<I> dispatch,
-                                   VersionIncrement versionIncrement) {
-        super(transaction, versionIncrement);
-        this.dispatch = dispatch;
-    }
+    override fun entityId(): I = dispatch.entity().id()
 
-    @Override
-    protected DispatchOutcome performDispatch() {
-        return dispatch.perform();
-    }
+    override fun messageId(): SignalId = dispatch.command().id()
 
-    @Override
-    public I entityId() {
-        return dispatch.entity()
-                       .id();
-    }
-
-    @Override
-    public SignalId messageId() {
-        return dispatch.command()
-                       .id();
-    }
-
-    @Override
-    protected Signal<?, ?, ?> signal() {
-        return dispatch.command()
-                       .outerObject();
-    }
+    override fun signal(): Signal<*, *, *> = dispatch.command().outerObject()
 }
