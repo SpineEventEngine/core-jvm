@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,6 +79,14 @@ public class LastSignalMemo
 
     public LastSignalMemo(ProjectId id) {
         super(id);
+    }
+
+    /**
+     * Exposes the inherited command dispatching to the tests.
+     */
+    public io.spine.server.dispatch.DispatchOutcome doDispatchCommand(
+            io.spine.server.type.CommandEnvelope command) {
+        return dispatchCommand(command);
     }
 
     /** Updates the state with putting incoming message. */

@@ -375,11 +375,11 @@ internal class AggregateSpec {
 
     @Test
     fun `increment version upon state changing event applied`() {
-        val version = aggregate.version().number
+        val version = aggregate.versionNumber()
         // Dispatch two commands that cause events that modify aggregate state.
         aggregate.dispatchCommands(command(createProject), command(startProject))
 
-        aggregate.version().number shouldBe version + 2
+        aggregate.versionNumber() shouldBe version + 2
     }
 
     @Test
@@ -450,7 +450,7 @@ internal class AggregateSpec {
 
     @Test
     fun `not allow getting state builder from outside event applier`() {
-        shouldThrow<IllegalStateException> { IntAggregate(100).builder() }
+        shouldThrow<IllegalStateException> { IntAggregate(100).exposedBuilder() }
     }
 
     @Nested inner class
@@ -548,6 +548,11 @@ internal class AggregateSpec {
         val systemEvent = events[0]
         systemEvent.duplicateEvent shouldBe envelope.messageId()
     }
+
+    /**
+     * Obtains the current version number of the aggregate.
+     */
+    private fun Aggregate<*, *, *>.versionNumber(): Int = version().number
 
     private fun dispatch(tenant: TenantId, endpoint: () -> MessageEndpoint<ProjectId, *>) {
         with(tenant).run {

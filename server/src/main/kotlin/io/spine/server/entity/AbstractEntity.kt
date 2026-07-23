@@ -207,8 +207,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
     /**
      * Obtains the model class for this entity.
      */
-    @Internal
-    protected open fun thisClass(): EntityClass<*> {
+    internal open fun thisClass(): EntityClass<*> {
         _thisClass?.let { return it }
         return synchronized(this) {
             _thisClass ?: modelClass().also { _thisClass = it }
@@ -413,11 +412,6 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
     }
 
     /**
-     * Obtains the version number of the entity.
-     */
-    protected open fun versionNumber(): Int = version().number
-
-    /**
      * Updates the version of this entity with the passed value, validating it first.
      */
     internal fun updateVersion(newVersion: Version) {
@@ -425,7 +419,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
         if (_version == newVersion) {
             return
         }
-        val currentVersionNumber = versionNumber()
+        val currentVersionNumber = version().number
         val newVersionNumber = newVersion.number
         if (currentVersionNumber > newVersionNumber) {
             throw newIllegalArgumentException(

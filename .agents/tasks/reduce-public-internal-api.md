@@ -191,13 +191,43 @@ seven `@JvmName` bridges of `AbstractEntity`:
   bridged members); `DefaultConverterTest.java` → `DefaultConverterSpec.kt`;
   `ensureAccessToState()` deleted; the three unpinned `@JvmName`s dropped
   (module `clean` build per the incremental-staleness trap).
-- **Wave E2 (proposed):** `Aggregate.java` (324) + `AggregatePart.java`
-  (147) + `ProcessManager.java` (287) → Kotlin; then `thisClass()` →
-  `internal open`. These are public base classes end users extend from
-  Java — the conversion must keep the Java-facing surface stable, and
-  Java-bridge `XJavaSpec` coverage is warranted. Migrating
-  `AbstractEntityTest` and `RecordBasedRepositoryTest` (abstract Java test
-  base — mind the inherited-`@Nested`-not-discovered trap) frees the four
-  remaining bridges.
+- **Wave E2 ✅ (2026-07-23):** `Aggregate`, `AggregatePart`, and
+  `ProcessManager` → Kotlin; `AbstractEntity.thisClass()` → `internal
+  open`, dropping its `@Internal` (the four overrides — now all Kotlin —
+  inherit the visibility automatically). Settled while implementing:
+  - `ProcessManager.injectContext` (was package-private) → `internal` +
+    `@JvmName` for the Java `ProcessManagerRepository` caller;
+  - `select()` gained an explicit `checkNotNull(context)` — the
+    null-marked `QueryingClient` constructor exposed the Java original
+    passing a possibly-null context;
+  - the Java same-package callers of the `protected` `tx()` /
+    `dispatchCommand` / `dispatchEvent` overrides (the still-Java
+    endpoints `AggregateEventReactionEndpoint`, `PmCommandEndpoint`,
+    `PmEventEndpoint`, and `AggregateTransaction`) keep compiling via JVM
+    `ACC_PROTECTED` package access;
+  - Kotlin *test* callers lost that access: `AggregateSpec` switched
+    `versionNumber()` → the public `version().number` (8 sites) and goes
+    through new fixture bridges — `IntAggregate.exposedBuilder()`,
+    `LastSignalMemo.doDispatchCommand()` (for `ProcessManagerSpec`);
+  - the deprecated `historyBackward()`/`historyContains()` carry Kotlin
+    `@Deprecated(..., ReplaceWith(...))` instead of `@InlineMe`;
+  - `AbstractEntity.versionNumber()` is eliminated entirely (product owner):
+    the mismatch helpers and `updateVersion` read `version().number`
+    directly, and `AggregateSpec` carries a private `versionNumber()`
+    extension as the test-side convenience;
+  - the test-only `Aggregate.recentEventHistory()` re-export is removed
+    and the parent method sealed (no `open`) — its one production caller,
+    `DoubleDispatchGuard.java`, sits in the declaring package and keeps
+    JVM package access;
+  - `Aggregate.tx()` must KEEP its protected re-export override — removing
+    it breaks the still-Java `AggregateCommandEndpoint` and
+    `AggregateEventReactionEndpoint`, which reach the transaction through
+    the Java package slice of `protected` (a latent dependency an
+    up-to-date `compileJava` had masked); the override carries a
+    constraint comment and dies when those endpoints convert.
+  Migrating `AbstractEntityTest` and `RecordBasedRepositoryTest` (abstract
+  Java test base — mind the inherited-`@Nested`-not-discovered trap) to
+  free the four remaining `setState`/`updateState`/`setLifecycleFlags`
+  bridges remains a follow-up.
 - **Wave E3 (proposed, after E2):** remove `modelClass()` from the `Entity`
   interface; model-class access consolidates on the internal `thisClass()`.

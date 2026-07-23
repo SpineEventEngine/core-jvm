@@ -118,7 +118,7 @@ public abstract class SignalDispatchingEntity<I : Any,
     /**
      * Obtains the recent history of events of this entity.
      */
-    protected open fun recentEventHistory(): RecentEventHistory = recentEventHistory
+    protected fun recentEventHistory(): RecentEventHistory = recentEventHistory
 
     /**
      * Installs the loader serving the [recent event history][recentEventHistory]
@@ -268,7 +268,7 @@ public abstract class SignalDispatchingEntity<I : Any,
      * @return A new `ValueMismatch` instance.
      */
     protected fun expectedDefault(actual: Message, newValue: Message): ValueMismatch =
-        MessageMismatch.expectedDefault(actual, newValue, versionNumber())
+        MessageMismatch.expectedDefault(actual, newValue, version().number)
 
     /**
      * Creates a `ValueMismatch` for a command that wanted to *clear* a value,
@@ -278,7 +278,7 @@ public abstract class SignalDispatchingEntity<I : Any,
      * @return A new `ValueMismatch` instance.
      */
     protected fun expectedNotDefault(expected: Message): ValueMismatch =
-        MessageMismatch.expectedNotDefault(expected, versionNumber())
+        MessageMismatch.expectedNotDefault(expected, version().number)
 
     /**
      * Creates a `ValueMismatch` for a command that wanted to *change* a field value,
@@ -289,7 +289,7 @@ public abstract class SignalDispatchingEntity<I : Any,
      * @return A new `ValueMismatch` instance.
      */
     protected fun expectedNotDefault(expected: Message, newValue: Message): ValueMismatch =
-        MessageMismatch.expectedNotDefault(expected, newValue, versionNumber())
+        MessageMismatch.expectedNotDefault(expected, newValue, version().number)
 
     /**
      * Creates a `ValueMismatch` for the case of discovering a value different
@@ -305,7 +305,7 @@ public abstract class SignalDispatchingEntity<I : Any,
         actual: Message,
         newValue: Message
     ): ValueMismatch =
-        MessageMismatch.unexpectedValue(expected, actual, newValue, versionNumber())
+        MessageMismatch.unexpectedValue(expected, actual, newValue, version().number)
 
     /**
      * Creates a `ValueMismatch` for the case of discovering a non-empty value,
@@ -316,7 +316,7 @@ public abstract class SignalDispatchingEntity<I : Any,
      * @return A new `ValueMismatch` instance.
      */
     protected fun expectedEmpty(actual: String, newValue: String): ValueMismatch =
-        StringMismatch.expectedEmpty(actual, newValue, versionNumber())
+        StringMismatch.expectedEmpty(actual, newValue, version().number)
 
     /**
      * Creates a `ValueMismatch` for a command that wanted to clear a string value
@@ -326,7 +326,7 @@ public abstract class SignalDispatchingEntity<I : Any,
      * @return A new `ValueMismatch` instance.
      */
     protected fun expectedNotEmpty(expected: String): ValueMismatch =
-        StringMismatch.expectedNotEmpty(expected, versionNumber())
+        StringMismatch.expectedNotEmpty(expected, version().number)
 
     /**
      * Creates a `ValueMismatch` for the case of discovering a value
@@ -342,7 +342,7 @@ public abstract class SignalDispatchingEntity<I : Any,
         actual: String,
         newValue: String
     ): ValueMismatch =
-        StringMismatch.unexpectedValue(expected, actual, newValue, versionNumber())
+        StringMismatch.unexpectedValue(expected, actual, newValue, version().number)
 
     public companion object {
 
