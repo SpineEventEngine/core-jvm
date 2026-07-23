@@ -61,7 +61,7 @@ public final class DoubleDispatchGuard {
      *
      * <p>Off by default: deduplication is primarily the delivery layer's responsibility, and this
      * guard is an opt-in per-repository backstop (see
-     * {@link io.spine.server.aggregate.AggregateRepository#useDoubleDispatchGuard()}).
+     * {@link SignalDispatchingRepository#useDoubleDispatchGuard()}).
      */
     private boolean enabled = false;
 

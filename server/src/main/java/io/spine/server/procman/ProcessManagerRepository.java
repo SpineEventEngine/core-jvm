@@ -39,6 +39,7 @@ import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.entity.EntityLifecycleMonitor;
 import io.spine.server.entity.EntityRecord;
 import io.spine.server.entity.EventProducingRepository;
+import io.spine.server.entity.SignalDispatchingEntity;
 import io.spine.server.entity.SignalDispatchingRepository;
 import io.spine.server.entity.TransactionListener;
 import io.spine.server.event.EventBus;
@@ -63,6 +64,27 @@ import static io.spine.util.Exceptions.newIllegalStateException;
 /**
  * The abstract base for Process Managers repositories.
  *
+ * <p>Three per-repository settings tune the optional machinery:
+ * <ul>
+ *     <li>{@link #recordEventHistory()} — journals the events emitted by the process
+ *         managers into the per-entity {@linkplain #eventStorage() event journal}. It is
+ *         <b>off by default</b>: the emitted events are durable in the
+ *         {@link io.spine.server.event.EventStore EventStore} regardless, and the
+ *         per-entity journal is a deliberate diagnostics and history index. While the
+ *         journaling is off, reading the
+ *         {@linkplain SignalDispatchingEntity#eventHistoryBackward(int) event history} of
+ *         a managed process manager fails fast.
+ *     <li>{@link #useDoubleDispatchGuard()} — enables the history-backed double-dispatch
+ *         guard, which rejects a signal already seen among the last
+ *         {@link #eventHistoryDepth()} dispatches. It is <b>off by default</b>, and
+ *         requires the event journal it scans — enable it together with
+ *         {@link #recordEventHistory()}.
+ *     <li>{@link #recordStateHistory()} — records the state history of the process
+ *         managers on each dispatch. This is an opt-in feature shared by all entity
+ *         repositories (see {@link io.spine.server.entity.AbstractEntityRepository}).
+ *         It is <b>off by default</b>.
+ * </ul>
+ *
  * @param <I>
  *         the type of IDs of process managers
  * @param <P>
@@ -77,8 +99,41 @@ public abstract class ProcessManagerRepository<I,
         extends SignalDispatchingRepository<I, P, S>
         implements EventProducingRepository {
 
+    /** Whether this repository journals the events emitted by its process managers. */
+    private boolean eventHistoryEnabled = false;
+
     protected ProcessManagerRepository() {
         super();
+    }
+
+    /**
+     * Enables journaling the events emitted by the process managers of this repository.
+     *
+     * <p>Unlike aggregates, whose journal is written unconditionally, process managers
+     * journal their events on an opt-in basis: the emitted events are durable in the
+     * {@link io.spine.server.event.EventStore EventStore} once posted, and the per-entity
+     * journal is a deliberate diagnostics and history index. When the journaling is
+     * enabled, the repository appends the emitted events to the
+     * {@linkplain #eventStorage() journal} on each successful dispatch, and the process
+     * managers may consult their
+     * {@linkplain SignalDispatchingEntity#eventHistoryBackward(int) recent event history}.
+     *
+     * <p>The journal is also required by the {@linkplain #useDoubleDispatchGuard()
+     * double-dispatch guard}.
+     */
+    protected final void recordEventHistory() {
+        this.eventHistoryEnabled = true;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>For process managers, the journaling is opt-in and off by default — see
+     * {@link #recordEventHistory()}.
+     */
+    @Override
+    protected final boolean eventHistoryEnabled() {
+        return eventHistoryEnabled;
     }
 
     /**

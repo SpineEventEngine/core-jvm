@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
 
 package io.spine.server.aggregate.given.aggregate;
 
+import io.spine.annotation.VisibleForTesting;
 import io.spine.base.AggregateState;
 import io.spine.core.TenantId;
 import io.spine.server.aggregate.Aggregate;
@@ -62,5 +63,19 @@ public class AbstractAggregateTestRepository<I,
         var runner = TenantAwareRunner.with(tenantId);
         var result = runner.evaluate(() -> loadAggregate(id));
         return result;
+    }
+
+    /** Exposes the event-history depth to the tests. */
+    @Override
+    @VisibleForTesting
+    public int eventHistoryDepth() {
+        return super.eventHistoryDepth();
+    }
+
+    /** Exposes the event-history depth setter to the tests. */
+    @Override
+    @VisibleForTesting
+    public void setEventHistoryDepth(int depth) {
+        super.setEventHistoryDepth(depth);
     }
 }

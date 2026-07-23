@@ -44,13 +44,10 @@ import io.spine.server.type.CommandClass;
 import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
 import io.spine.server.type.SignalEnvelope;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static io.spine.option.EntityOption.Kind.AGGREGATE;
 import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
 import static io.spine.server.delivery.InboxLabel.HANDLE_COMMAND;
@@ -101,21 +98,11 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  *         the type of the state of aggregates managed by this repository
  * @see Aggregate
  */
-@SuppressWarnings("resource" /* Accessing `Closeable` properties. */)
 public abstract class AggregateRepository<I,
                                           A extends Aggregate<I, S, ?>,
                                           S extends AggregateState<I>>
         extends SignalDispatchingRepository<I, A, S>
         implements EventProducingRepository {
-
-    /** The window (in journal events) the opt-in double-dispatch guard scans. */
-    private int eventHistoryDepth = SignalDispatchingEntity.DEFAULT_HISTORY_DEPTH;
-
-    /**
-     * The journal of the events emitted by the aggregates of this repository; created lazily
-     * once the journal is first needed.
-     */
-    private @MonotonicNonNull EntityEventStorage<I> eventStorage;
 
     /** Creates a new instance. */
     protected AggregateRepository() {
@@ -174,39 +161,15 @@ public abstract class AggregateRepository<I,
      * {@inheritDoc}
      *
      * <p>Also posts the {@linkplain io.spine.system.server.event.EntityCreated
-     * entity-created} system event, and installs the history loaders and, when enabled,
-     * the double-dispatch guard on the created aggregate.
+     * entity-created} system event. The history loaders and, when enabled, the
+     * double-dispatch guard are installed by the parent repository classes.
      */
     @Override
     @OverridingMethodsMustInvokeSuper
     public A create(I id) {
         var aggregate = super.create(id);
         lifecycleOf(id).onEntityCreated(AGGREGATE);
-        setUpHistoryReading(aggregate, id);
         return aggregate;
-    }
-
-    /**
-     * Installs the event history loader and, when enabled, the double-dispatch guard
-     * on a newly created aggregate.
-     *
-     * <p>The state history loader is installed by the base repository on the
-     * {@linkplain #create(Object) creation} and
-     * {@linkplain #toEntity(EntityRecord) reconstruction} paths; both of those paths
-     * call this method for the event-side reading.
-     *
-     * @param aggregate
-     *         the newly created aggregate
-     * @param id
-     *         the identifier of the aggregate
-     */
-    final void setUpHistoryReading(A aggregate, I id) {
-        aggregate.setEventHistoryLoader(
-                (depth, startingFrom) ->
-                        eventStorage().historyBackward(id, depth, startingFrom));
-        if (doubleDispatchGuardEnabled()) {
-            aggregate.enableDoubleDispatchGuard(eventHistoryDepth);
-        }
     }
 
     /** Obtains class information of aggregates managed by this repository. */
@@ -222,9 +185,16 @@ public abstract class AggregateRepository<I,
     /**
      * {@inheritDoc}
      *
-     * <p>Journals the events the aggregate emitted, then writes its latest state — rather
-     * than delegating to {@link #store(io.spine.server.entity.Entity) store()}, which routes
-     * through the cache.
+     * <p>Always {@code true}: an aggregate repository journals the events emitted by
+     * its aggregates unconditionally.
+     */
+    @Override
+    protected final boolean eventHistoryEnabled() {
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
      *
      * @implSpec Skips an aggregate that was neither changed nor produced events. An
      *         overriding repository is expected to call {@code super}: writing an untouched
@@ -240,26 +210,7 @@ public abstract class AggregateRepository<I,
         if (!aggregate.changed() && !aggregate.hasUncommittedEvents()) {
             return;
         }
-        // Journal the emitted events, then store the latest state. Under a batched delivery the
-        // aggregate accumulates its events until `commitEvents()`, so the journal drops none.
-        var events = aggregate.uncommittedEventHistory().get();
-        var journal = eventStorage();
-        events.forEach(journal::write);
         super.doStore(aggregate);
-        aggregate.commitEvents();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>Stores each aggregate individually via
-     * {@link #store(io.spine.server.entity.Entity) store()}, so that the emitted events
-     * are journaled and an untouched instance is skipped — the bulk write of the parent
-     * class would bypass both.
-     */
-    @Override
-    public final void store(Collection<A> aggregates) {
-        aggregates.forEach(this::store);
     }
 
     /**
@@ -334,69 +285,6 @@ public abstract class AggregateRepository<I,
     }
 
     /**
-     * Returns the number of the most recent events scanned by the opt-in
-     * double-dispatch guard when it is enabled.
-     *
-     * @return a positive integer value; the default is
-     *         {@value SignalDispatchingEntity#DEFAULT_HISTORY_DEPTH}
-     */
-    protected int eventHistoryDepth() {
-        return this.eventHistoryDepth;
-    }
-
-    /**
-     * Sets the {@linkplain #eventHistoryDepth() event history depth} to the passed value.
-     *
-     * @param depth
-     *         a positive number of recent events the double-dispatch guard scans
-     */
-    protected void setEventHistoryDepth(int depth) {
-        checkArgument(depth > 0);
-        this.eventHistoryDepth = depth;
-    }
-
-    /**
-     * Creates the journal of the events emitted by the aggregates of this repository.
-     *
-     * <p>Mirrors {@link #createStorage()}: the default implementation uses the
-     * {@linkplain #defaultStorageFactory() default storage factory} — the same one the default
-     * {@code createStorage()} uses for the aggregate state. A repository that overrides
-     * {@code createStorage()} to serve the aggregate state from a custom
-     * {@link io.spine.server.storage.StorageFactory} or backend should override this method as
-     * well, so the journal — feeding the double-dispatch guard and the
-     * {@linkplain SignalDispatchingEntity#eventHistoryBackward(int) recent-history}
-     * reads — is served by the same backend as the state, rather than silently falling
-     * back to the default one.
-     *
-     * @return a new event journal
-     */
-    protected EntityEventStorage<I> createEventStorage() {
-        return defaultStorageFactory().createEntityEventStorage(context().spec(), entityClass());
-    }
-
-    /**
-     * Returns the journal of the events emitted by the aggregates of this repository,
-     * creating it lazily via {@link #createEventStorage()} on the first access.
-     *
-     * <p>Unlike the opt-in {@linkplain #stateHistory() state history}, the journal is always
-     * maintained, so this accessor has no fail-fast gate: it exposes the journal — e.g., for the
-     * {@linkplain EntityEventStorage#truncate(com.google.protobuf.Timestamp) time-based
-     * truncation} that bounds the journal growth as a periodic maintenance operation.
-     *
-     * <p>Synchronized for the same reason as {@link #stateHistoryStorage()}: unlike the main
-     * {@linkplain #storage() storage}, the journal is first touched when a signal is dispatched,
-     * possibly by concurrent workers.
-     *
-     * @return the event journal of this repository
-     */
-    protected final synchronized EntityEventStorage<I> eventStorage() {
-        if (eventStorage == null) {
-            eventStorage = createEventStorage();
-        }
-        return eventStorage;
-    }
-
-    /**
      * Loads or creates an aggregate by the passed ID.
      *
      * @param id
@@ -427,19 +315,6 @@ public abstract class AggregateRepository<I,
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * <p>Installs the history loaders and, when enabled, the double-dispatch guard on
-     * the reconstructed aggregate.
-     */
-    @Override
-    protected final A toEntity(EntityRecord record) {
-        var result = super.toEntity(record);
-        setUpHistoryReading(result, result.id());
-        return result;
-    }
-
-    /**
      * Loads an aggregate by the passed ID.
      *
      * <p>An aggregate will be loaded even if the
@@ -455,36 +330,5 @@ public abstract class AggregateRepository<I,
     @Override
     public Optional<A> find(I id) throws IllegalStateException {
         return load(id);
-    }
-
-    @OverridingMethodsMustInvokeSuper
-    @Override
-    public void close() {
-        // Release every owned resource even if one close fails: the first failure is kept as
-        // the primary exception and the later ones are attached to it as suppressed, so none of
-        // them is lost. `super.close()` is called directly (not via the helper) so that the
-        // `@OverridingMethodsMustInvokeSuper` check recognizes the super-call.
-        RuntimeException failure = null;
-        try {
-            super.close();
-        } catch (RuntimeException e) {
-            failure = e;
-        }
-        failure = attemptClose(failure, this::closeEventStorage);
-        if (failure != null) {
-            throw failure;
-        }
-    }
-
-    /**
-     * Closes the event journal if it was created.
-     *
-     * <p>Synchronized to pair with {@link #eventStorage()}: the journal may have been
-     * created by a dispatch worker, and the closing thread must observe that write.
-     */
-    private synchronized void closeEventStorage() {
-        if (eventStorage != null && eventStorage.isOpen()) {
-            eventStorage.close();
-        }
     }
 }

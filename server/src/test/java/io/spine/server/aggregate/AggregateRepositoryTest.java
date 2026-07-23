@@ -36,7 +36,6 @@ import io.spine.server.aggregate.given.repo.AnemicAggregateRepository;
 import io.spine.server.aggregate.given.repo.EventDiscardingAggregateRepository;
 import io.spine.server.aggregate.given.repo.FailingAggregateRepository;
 import io.spine.server.aggregate.given.repo.ProjectAggregate;
-import io.spine.server.aggregate.given.repo.ProjectAggregateRepository;
 import io.spine.server.aggregate.given.repo.ReactingAggregate;
 import io.spine.server.aggregate.given.repo.ReactingRepository;
 import io.spine.server.aggregate.given.repo.RejectingRepository;
@@ -47,7 +46,6 @@ import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
 import io.spine.system.server.DiagnosticMonitor;
-import io.spine.test.aggregate.AggProject;
 import io.spine.test.aggregate.ProjectId;
 import io.spine.test.aggregate.Task;
 import io.spine.test.aggregate.command.AggAddTask;
@@ -65,7 +63,6 @@ import io.spine.testing.server.TestEventFactory;
 import io.spine.testing.server.blackbox.BlackBox;
 import io.spine.testing.server.model.ModelTests;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -75,7 +72,6 @@ import java.util.List;
 import java.util.Set;
 
 import static com.google.common.truth.Truth.assertThat;
-import static io.spine.base.Time.currentTime;
 import static io.spine.grpc.StreamObservers.noOpObserver;
 import static io.spine.protobuf.Messages.isNotDefault;
 import static io.spine.server.aggregate.given.repo.AggregateRepositoryTestEnv.context;
@@ -173,7 +169,7 @@ class AggregateRepositoryTest {
 
             assertFound(firstId);
             assertFound(secondId);
-            var journal = repository().eventStorage();
+            var journal = repository().journal();
             assertTrue(journal.historyBackward(firstId, 1).hasNext());
             assertTrue(journal.historyBackward(secondId, 1).hasNext());
         }
@@ -191,7 +187,7 @@ class AggregateRepositoryTest {
             assertTrue(history.hasNext());
         }
 
-        private ProjectAggregate assertFound(ProjectId id) {
+        private static ProjectAggregate assertFound(ProjectId id) {
             var optional = repository().find(id);
             assertTrue(optional.isPresent());
             return optional.get();

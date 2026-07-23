@@ -34,9 +34,9 @@ import io.spine.base.ProcessManagerState;
 import io.spine.logging.WithLogging;
 import io.spine.server.BoundedContext;
 import io.spine.server.command.Assign;
-import io.spine.server.command.AssigneeEntity;
 import io.spine.server.command.Commander;
 import io.spine.server.dispatch.DispatchOutcome;
+import io.spine.server.entity.SignalDispatchingEntity;
 import io.spine.server.entity.Transaction;
 import io.spine.server.entity.TransactionalEntity;
 import io.spine.server.event.EventReactor;
@@ -65,6 +65,11 @@ import static java.lang.String.format;
  * <p>Event- and command-handling methods are invoked by the {@link ProcessManagerRepository}
  * that manages instances of a process manager class.
  *
+ * <p>When the repository {@linkplain ProcessManagerRepository#recordEventHistory() journals}
+ * the emitted events, a process manager may consult its recent event history via the
+ * inherited {@link #eventHistoryBackward(int)} and
+ * {@link #eventHistoryContains(int, java.util.function.Predicate)}.
+ *
  * <p>For more information on Process Managers, please see:
  * <ul>
  * <li>
@@ -88,7 +93,7 @@ import static java.lang.String.format;
 public abstract class ProcessManager<I,
                                      S extends ProcessManagerState<I>,
                                      B extends ValidatingBuilder<S>>
-        extends AssigneeEntity<I, S, B>
+        extends SignalDispatchingEntity<I, S, B>
         implements EventReactor,
                    Commander,
                    Querying,
@@ -204,6 +209,10 @@ public abstract class ProcessManager<I,
      */
     @Override
     protected DispatchOutcome dispatchCommand(CommandEnvelope command) {
+        var duplicate = detectDuplicate(command);
+        if (duplicate != null) {
+            return duplicate;
+        }
         ProcessManagerClass<?> thisClass = thisClass();
         var commandClass = command.messageClass();
 
@@ -243,7 +252,12 @@ public abstract class ProcessManager<I,
      *                 in response to the event.
      *         </ul>
      */
-    DispatchOutcome dispatchEvent(EventEnvelope event) {
+    @Override
+    protected DispatchOutcome dispatchEvent(EventEnvelope event) {
+        var duplicate = detectDuplicate(event);
+        if (duplicate != null) {
+            return duplicate;
+        }
         ProcessManagerClass<?> thisClass = thisClass();
         var eventClass = event.messageClass();
         var reactorMethod = thisClass.reactorOf(event);

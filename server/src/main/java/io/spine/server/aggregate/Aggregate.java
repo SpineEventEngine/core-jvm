@@ -218,18 +218,13 @@ public abstract class Aggregate<I,
      */
     @Override
     protected DispatchOutcome dispatchCommand(CommandEnvelope command) {
-        var error = doubleDispatchGuard().check(command);
-        if (error.isPresent()) {
-            var outcome = DispatchOutcome.newBuilder()
-                    .setPropagatedSignal(command.messageId())
-                    .setError(error.get())
-                    .build();
-            return outcome;
-        } else {
-            var method = thisClass().receptorOf(command);
-            var outcome = method.invoke(this, command);
-            return outcome;
+        var duplicate = detectDuplicate(command);
+        if (duplicate != null) {
+            return duplicate;
         }
+        var method = thisClass().receptorOf(command);
+        var outcome = method.invoke(this, command);
+        return outcome;
     }
 
     /**
@@ -245,13 +240,9 @@ public abstract class Aggregate<I,
      */
     @Override
     protected DispatchOutcome dispatchEvent(EventEnvelope event) {
-        var error = doubleDispatchGuard().check(event);
-        if (error.isPresent()) {
-            var outcome = DispatchOutcome.newBuilder()
-                    .setPropagatedSignal(event.messageId())
-                    .setError(error.get())
-                    .build();
-            return outcome;
+        var duplicate = detectDuplicate(event);
+        if (duplicate != null) {
+            return duplicate;
         }
         var method = thisClass().reactorOf(event);
         return method.map(reactorMethod -> reactorMethod.invoke(this, event))
