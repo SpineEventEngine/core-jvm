@@ -26,7 +26,6 @@
 
 package io.spine.server.entity
 
-import io.spine.annotation.Internal
 import io.spine.core.Event
 import io.spine.core.Version
 
@@ -40,8 +39,7 @@ import io.spine.core.Version
  *
  * See [SignalDispatchingRepository] for the wiring.
  */
-@Internal
-public fun interface EventHistoryLoader : HistoryLoader<Event> {
+internal fun interface EventHistoryLoader : HistoryLoader<Event> {
 
     /**
      * Loads up to [depth] most recent events of the entity's journal, newest first.

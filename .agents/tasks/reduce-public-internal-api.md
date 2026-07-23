@@ -65,9 +65,9 @@ so Kotlin `internal` is reachable for the whole set.
 
 Supporting `public` `@Internal` types with only in-module usage:
 `EventHistoryLoader`, `StateHistoryLoader`, `HistoryLoader` (Kotlin);
-`UncommittedEventHistory`, `UncommittedEvents` (Java). `DoubleDispatchGuard`
-stays public: the `protected doubleDispatchGuard()` accessor exposes it to
-external subclasses.
+`UncommittedEventHistory`, `UncommittedEvents` (Java); `DoubleDispatchGuard`
+(Java — converted last: its `protected doubleDispatchGuard()` accessor
+proved caller-less and was deleted rather than kept as a public window).
 
 ### Mechanics and traps (from `java-to-kotlin-visibility-traps` memory)
 
@@ -225,10 +225,31 @@ seven `@JvmName` bridges of `AbstractEntity`:
     the Java package slice of `protected` (a latent dependency an
     up-to-date `compileJava` had masked); the override carries a
     constraint comment and dies when those endpoints convert.
-  Migrating `AbstractEntityTest` and `RecordBasedRepositoryTest` (abstract
-  Java test base — mind the inherited-`@Nested`-not-discovered trap) to
-  free the four remaining `setState`/`updateState`/`setLifecycleFlags`
-  bridges remains a follow-up.
+- **Ledger close-out ✅ (2026-07-23):** the last four `@JvmName` bridges
+  (`setState`, `updateState` ×2, `setLifecycleFlags`) and the loader
+  interfaces are done — with two economies over the original plan:
+  1. `RecordBasedRepositoryTest` did NOT need the 571-line migration: it
+     already used the public `TestTransaction.archive/delete` path
+     everywhere except three sites, which were swapped in place
+     (`setEntityState` → `TestTransaction.injectState`; the two
+     `MarkRecords` flag flips → `archive`/`delete`).
+     `TransactionalEntityJavaSpec` seeds via `injectState` too and stays
+     the sanctioned Java-bridge suite. `AbstractEntityTest` →
+     `AbstractEntitySpec.kt`, dropping two cases the Kotlin language now
+     guarantees (the finality-by-reflection checks and the null-argument
+     NPE — enforced by `internal`-by-default finality and non-null
+     parameter types).
+  2. The `RecentHistory` generic-bound redesign proved unnecessary: with
+     `Aggregate`'s re-export already deleted, the last `protected`
+     accessors (`recentEventHistory` with a `@JvmName` for the Java
+     `DoubleDispatchGuard`, `recentStateHistory`) flipped `internal`, and
+     the WHOLE machinery went `internal` wholesale — `RecentHistory`,
+     `RecentEventHistory`, `RecentStateHistory`, `HistoryLoader`,
+     `EventHistoryLoader`, `StateHistoryLoader` — shedding the last
+     `@Internal` markers of the entity package's Kotlin machinery. The
+     user-facing history API is the entities' `protected`
+     `eventHistoryBackward`/`eventHistoryContains`/`stateAt`/
+     `stateHistoryBackward` only.
 - **Wave E3 ✅ (2026-07-23), extended while implementing (product owner):**
   1. `modelClass()` removed from the public `Entity` interface. It survives
      as an `internal open` factory hook on `AbstractEntity` (through which
@@ -258,3 +279,30 @@ seven `@JvmName` bridges of `AbstractEntity`:
      let BOTH `tx()` re-export overrides (`Aggregate`, `ProcessManager`)
      be deleted — IDEA's "redundant override" flag on the aggregate one
      is finally satisfied, for the right reason.
+- **`DoubleDispatchGuard` → Kotlin `internal` ✅ (2026-07-23):** the last
+  `public @Internal` class of the entity dispatch machinery.
+  1. `check()` returns idiomatic `Error?` instead of `Optional<Error>`, so
+     `detectDuplicate` sheds its `.getOrNull()`; the Guava
+     `Iterators.any`/`Predicate` combos became `asSequence().any {}`.
+  2. The `protected doubleDispatchGuard()` accessor had no callers at all
+     and was deleted (a `protected` member could not have exposed an
+     `internal` return type anyway).
+  3. The `@JvmName("recentEventHistory")` bridge dropped — the guard was
+     its last Java caller. Remaining `@JvmName`s in the module: only
+     `loadOrCreate` (`AggregateRoot.java`) and `Projection.apply`
+     (`ProjectionTransaction.java`).
+  4. `DoubleDispatchGuardTest.java` → `DoubleDispatchGuardSpec.kt` — forced
+     by the `Error?` return (the Truth `Optional` asserts would not
+     compile), aligned with the tests-first migration policy. Fixture
+     Javadoc (`IgTestAggregate`, `IgTestAggregateRepository`) re-pointed at
+     the spec.
+  5. Visibility-residue sweep over the now-`internal` classes (user):
+     redundant `internal constructor()` on `RecentHistory`/
+     `RecentEventHistory` removed; meaningless `public` on members of
+     `internal` types (`RecentHistory.read`, `HistoryLoader.load`, both
+     `stateAt`s) and redundant `internal` on their members
+     (`useLoader`, `append` ×2, `runTransactionFor`, four
+     `companion object`s) dropped. Inside an `internal` class both
+     modifiers add nothing: the effective visibility is `internal` either
+     way. `RoutingMap.kt` has the same pattern but predates this branch —
+     left untouched.

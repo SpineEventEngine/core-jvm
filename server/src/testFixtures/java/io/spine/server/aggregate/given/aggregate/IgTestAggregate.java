@@ -46,8 +46,7 @@ import static io.spine.server.aggregate.given.Given.EventMessage.projectCreated;
 import static io.spine.server.aggregate.given.Given.EventMessage.projectStarted;
 
 /**
- * An aggregate class for {@linkplain
- * io.spine.server.aggregate.DoubleDispatchGuardTest DoubleDispatchGuard tests}.
+ * An aggregate class for {@code DoubleDispatchGuardSpec}.
  */
 public class IgTestAggregate
         extends Aggregate<ProjectId, AggProject, AggProject.Builder> {

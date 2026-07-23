@@ -49,21 +49,21 @@ import io.spine.protobuf.AnyPacker
  *
  * @param S The type of the entity state.
  */
-public class RecentStateHistory<S : EntityState<*>> internal constructor() :
+internal class RecentStateHistory<S : EntityState<*>> :
     RecentHistory<EntityRecord, S, StateHistoryLoader>() {
 
     /**
-     * Returns the state the entity had at the given time, if the recorded
+     * Returns the state the entity had at the given time if the recorded
      * history retains it.
      *
      * `null` means the question cannot be answered from the retained
-     * window — the time either precedes the oldest retained record, or
+     * window — the time either precedes the oldest retained record or
      * predates the entity itself — or that the entity was created outside
      * a repository and has no recorded history at all.
      *
      * @param at The point in time to look at.
      */
-    public fun stateAt(at: Timestamp): S? =
+    fun stateAt(at: Timestamp): S? =
         loader()?.stateAt(at)
             ?.unpackState()
 

@@ -221,7 +221,6 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
     /**
      * Sets the entity state to the passed value.
      */
-    @JvmName("setState")
     internal fun setState(newState: S) {
         _state = newState
     }
@@ -244,7 +243,6 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      * @param state The new state to set.
      * @throws InvalidEntityStateException If the passed state is not [valid][validate].
      */
-    @JvmName("updateState")
     internal fun updateState(state: S) {
         validate(state)
         setState(state)
@@ -301,7 +299,6 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
     /**
      * Sets status for the entity.
      */
-    @JvmName("setLifecycleFlags")
     internal fun setLifecycleFlags(lifecycleFlags: LifecycleFlags) {
         if (lifecycleFlags != _lifecycleFlags) {
             _lifecycleFlags = lifecycleFlags
@@ -403,7 +400,6 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      * @throws IllegalArgumentException If the passed version has a number lower than
      *   the current version of the entity.
      */
-    @JvmName("updateState")
     internal fun updateState(state: S, version: Version) {
         updateState(state)
         updateVersion(version)
@@ -486,7 +482,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
     /**
      * Obtains the recent history of states of this entity.
      */
-    protected fun recentStateHistory(): RecentStateHistory<S> = recentStateHistory
+    internal fun recentStateHistory(): RecentStateHistory<S> = recentStateHistory
 
     /**
      * Installs the loader serving the [recent state history][recentStateHistory]

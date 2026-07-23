@@ -65,7 +65,7 @@ protected constructor(
         // Do nothing.
     }
 
-    internal companion object {
+    companion object {
 
         /**
          * Creates a new endpoint dispatching the given command to the process managers

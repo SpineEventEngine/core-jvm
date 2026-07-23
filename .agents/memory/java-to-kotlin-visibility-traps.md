@@ -107,6 +107,19 @@ Converting a Java class that has same-package collaborators to Kotlin changes wh
   verbatim silently changes the thrown type NPE→ISE. Preserve with `_id ?: throw NullPointerException(…)`
   (no `!!` — the skill forbids it). Non-null Kotlin *param* types keep their NPE via `Intrinsics`, so only
   explicit `checkNotNull` on fields/returns drifts.
+- **Locals and parameters shadow proto-DSL receiver properties, not the other way around**
+  (2026-07-23, `AbstractEntitySpec`): in `project { id = projectId }` with a ctor param `id` in
+  scope, the assignment target resolves to the *parameter* ("'val' cannot be reassigned"), because
+  Kotlin gives locals/params priority over implicit-receiver members. Qualify the DSL property
+  (`this.id = …`) or rename the outer local.
+- **Inside an `internal` class, member `public`/`internal` modifiers are no-ops — sweep them after
+  internalizing** (2026-07-23, `DoubleDispatchGuard`/recent-history sweep): the effective visibility is
+  `internal` either way, so `internal constructor()`, `internal fun`, `internal companion object`, and
+  explicit `public fun` are residue once a formerly-public class turns `internal`; drop them (an empty
+  redundant `()` primary ctor also trips detekt `EmptyDefaultConstructor`). The one observable
+  difference: an `internal` member's JVM name mangles (`foo$server`) while a public member of an
+  internal class stays unmangled — so keep `internal` (or add `@JvmName`) only if a same-module *Java*
+  caller still uses the member.
 
 **Why:** Discovered while converting `TransactionalEntity.java` (2026-07-06), `Transaction.java`
 (2026-07-07), and `AbstractEntity.java` (2026-07-17) to Kotlin. These are compile-/runtime-level facts,

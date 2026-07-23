@@ -76,7 +76,7 @@ internal abstract class AggregateEndpoint<I : Any,
      * [builder()][Aggregate.builder] within it, and the aggregate version advances by one
      * per dispatch.
      */
-    internal fun runTransactionFor(aggregate: A): DispatchOutcome {
+    fun runTransactionFor(aggregate: A): DispatchOutcome {
         val tx = startTransaction(aggregate)
         val outcome = invokeDispatcher(aggregate)
         tx.commitIfActive()

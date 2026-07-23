@@ -64,7 +64,7 @@ private constructor(
         entity.setLifecycleFlags(entityRecord.lifecycleFlags())
     }
 
-    internal companion object {
+    companion object {
 
         /**
          * Creates a converter which copies all the fields of the entity state.

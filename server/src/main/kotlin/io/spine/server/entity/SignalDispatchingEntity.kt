@@ -43,7 +43,6 @@ import io.spine.server.type.CommandEnvelope
 import io.spine.server.type.EventEnvelope
 import io.spine.validation.ValidatingBuilder
 import java.util.function.Predicate
-import kotlin.jvm.optionals.getOrNull
 
 /**
  * Abstract base for entities that dispatch signals — both commands and events —
@@ -56,8 +55,9 @@ import kotlin.jvm.optionals.getOrNull
  * This is the entity-level counterpart of [SignalDispatchingRepository]: the repository routes
  * a signal to the target entity, and the entity dispatches it to the matching receptor.
  *
- * Because such an entity emits events, it keeps the [recent history][recentEventHistory] of
- * them, served lazily from the entity's durable journal through a repository-installed loader.
+ * Because such an entity emits events, it keeps the recent history of them, served lazily
+ * from the entity's durable journal through a repository-installed loader — see
+ * [eventHistoryBackward] and [eventHistoryContains].
  *
  * ## Reporting value mismatches
  *
@@ -118,7 +118,7 @@ public abstract class SignalDispatchingEntity<I : Any,
     /**
      * Obtains the recent history of events of this entity.
      */
-    protected fun recentEventHistory(): RecentEventHistory = recentEventHistory
+    internal fun recentEventHistory(): RecentEventHistory = recentEventHistory
 
     /**
      * Installs the loader serving the [recent event history][recentEventHistory]
@@ -197,30 +197,25 @@ public abstract class SignalDispatchingEntity<I : Any,
     }
 
     /**
-     * Returns the guard against dispatching the same signal to this entity more than once.
-     */
-    protected fun doubleDispatchGuard(): DoubleDispatchGuard = doubleDispatchGuard
-
-    /**
-     * Checks the passed command against the [double-dispatch guard][doubleDispatchGuard].
+     * Checks the passed command against the double-dispatch guard.
      *
      * @param command The envelope with the command about to be dispatched.
      * @return The erroneous outcome to return instead of dispatching if the command was
      *   already dispatched to this entity, or `null` if the dispatch may proceed.
      */
     protected fun detectDuplicate(command: CommandEnvelope): DispatchOutcome? =
-        doubleDispatchGuard.check(command).getOrNull()
+        doubleDispatchGuard.check(command)
             ?.let { error -> duplicateOutcome(command.messageId(), error) }
 
     /**
-     * Checks the passed event against the [double-dispatch guard][doubleDispatchGuard].
+     * Checks the passed event against the double-dispatch guard.
      *
      * @param event The envelope with the event about to be dispatched.
      * @return The erroneous outcome to return instead of dispatching if the event was
      *   already dispatched to this entity, or `null` if the dispatch may proceed.
      */
     protected fun detectDuplicate(event: EventEnvelope): DispatchOutcome? =
-        doubleDispatchGuard.check(event).getOrNull()
+        doubleDispatchGuard.check(event)
             ?.let { error -> duplicateOutcome(event.messageId(), error) }
 
     private fun duplicateOutcome(signal: MessageId, error: Error): DispatchOutcome =

@@ -67,7 +67,7 @@ private constructor(private val events: ImmutableList<Event>) {
         return UncommittedEvents(newList)
     }
 
-    internal companion object {
+    companion object {
 
         private val EMPTY = UncommittedEvents(ImmutableList.of())
 
