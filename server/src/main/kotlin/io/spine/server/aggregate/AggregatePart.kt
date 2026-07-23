@@ -27,7 +27,6 @@
 package io.spine.server.aggregate
 
 import io.spine.annotation.Experimental
-import io.spine.annotation.Internal
 import io.spine.base.AggregateState
 import io.spine.reflect.GenericTypeIndex
 import io.spine.server.aggregate.model.AggregatePartClass
@@ -86,7 +85,6 @@ public abstract class AggregatePart<I : Any,
      */
     override fun thisClass(): AggregatePartClass<*> = super.thisClass() as AggregatePartClass<*>
 
-    @Internal
     @Suppress("DEPRECATION") // Calls into the deprecated `AggregatePartClass`.
     final override fun modelClass(): AggregatePartClass<*> =
         AggregatePartClass.asAggregatePartClass(javaClass)

@@ -26,7 +26,6 @@
 
 package io.spine.server.projection
 
-import io.spine.annotation.Internal
 import io.spine.base.Error
 import io.spine.base.ProjectionState
 import io.spine.core.Event
@@ -78,7 +77,6 @@ public abstract class Projection<I : Any,
 
     override fun thisClass(): ProjectionClass<*> = super.thisClass() as ProjectionClass<*>
 
-    @Internal
     final override fun modelClass(): ProjectionClass<*> = asProjectionClass(javaClass)
 
     /**

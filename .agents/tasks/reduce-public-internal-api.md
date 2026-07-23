@@ -229,5 +229,32 @@ seven `@JvmName` bridges of `AbstractEntity`:
   Java test base — mind the inherited-`@Nested`-not-discovered trap) to
   free the four remaining `setState`/`updateState`/`setLifecycleFlags`
   bridges remains a follow-up.
-- **Wave E3 (proposed, after E2):** remove `modelClass()` from the `Entity`
-  interface; model-class access consolidates on the internal `thisClass()`.
+- **Wave E3 ✅ (2026-07-23), extended while implementing (product owner):**
+  1. `modelClass()` removed from the public `Entity` interface. It survives
+     as an `internal open` factory hook on `AbstractEntity` (through which
+     `thisClass()` caches); the covariant overrides in the four entity base
+     classes turned `internal` with it, dropping their `@Internal` markers —
+     `AbstractEntity` and all four base classes now carry **zero**
+     `@Internal` annotations. `FilterTest` → `FilterSpec.kt` (the sole
+     caller through the interface; the Kotlin spec smart-casts to
+     `AbstractEntity` under friend visibility).
+  2. `ProcessManagerRepository` → Kotlin. The reverse trap handled with
+     `internal` bridges for the Kotlin endpoint (`findOrCreateProcess`,
+     `openTransactionFor`, and `isEventHistoryEnabled` on the base
+     repository); `beginTransactionFor` stays `protected open` (the Java
+     `TestPmRepository` fixture overrides it) and the `findOrCreate`
+     re-export stays (the Java `ProcessManagerRepositoryTest` uses the
+     package slice). `postCommands` became `internal`. The `@JvmName`
+     bridge on `ProcessManager.injectContext` dropped — its only Java
+     caller (`configure`) is Kotlin now.
+  3. The five remaining dispatch-path Java endpoints → Kotlin:
+     `AggregateCommandEndpoint`, `AggregateEventEndpoint`,
+     `AggregateEventReactionEndpoint` (package-private → `internal`),
+     `PmCommandEndpoint`, `PmEventEndpoint` (public `@Internal` →
+     `internal`; Kotlin forbids a public class exposing an internal
+     supertype, and their Java fixture subclasses compile against the
+     public bytecode). Their `tx()` access goes through the new
+     `internal` `TransactionalEntity.activeTransaction()` seam, which
+     let BOTH `tx()` re-export overrides (`Aggregate`, `ProcessManager`)
+     be deleted — IDEA's "redundant override" flag on the aggregate one
+     is finally satisfied, for the right reason.

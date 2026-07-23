@@ -337,6 +337,12 @@ public abstract class TransactionalEntity<I : Any, S : EntityState<I>, B : Valid
         ensureTransaction()
 
     /**
+     * Obtains the [active transaction][tx] on behalf of the framework's dispatching code.
+     */
+    internal fun activeTransaction(): Transaction<I, out TransactionalEntity<I, S, B>, S, B> =
+        tx()
+
+    /**
      * Determines if the state update cycle is currently active.
      *
      * @return `true` if it is active, `false` otherwise.

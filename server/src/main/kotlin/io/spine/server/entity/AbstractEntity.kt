@@ -30,7 +30,6 @@ import com.google.common.base.MoreObjects
 import com.google.common.collect.ImmutableList
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper
 import com.google.protobuf.Timestamp
-import io.spine.annotation.Internal
 import io.spine.annotation.VisibleForTesting
 import io.spine.base.EntityState
 import io.spine.base.Identifier
@@ -217,8 +216,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
     /**
      * Obtains the model class.
      */
-    @Internal
-    override fun modelClass(): EntityClass<*> = EntityClass.asEntityClass(javaClass)
+    internal open fun modelClass(): EntityClass<*> = EntityClass.asEntityClass(javaClass)
 
     /**
      * Sets the entity state to the passed value.

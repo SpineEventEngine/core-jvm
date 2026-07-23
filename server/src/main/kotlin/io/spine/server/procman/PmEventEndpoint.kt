@@ -24,52 +24,53 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.server.procman;
+package io.spine.server.procman
 
-import io.spine.annotation.Internal;
-import io.spine.server.delivery.EventEndpoint;
-import io.spine.server.dispatch.DispatchOutcome;
-import io.spine.server.type.EventEnvelope;
+import io.spine.server.delivery.EventEndpoint
+import io.spine.server.dispatch.DispatchOutcome
+import io.spine.server.type.EventEnvelope
 
 /**
  * Dispatches an event to reacting process managers.
  *
- * @param <I> the type of process manager IDs
- * @param <P> the type of process managers
+ * @param I The type of process manager IDs.
+ * @param P The type of process managers.
  */
-@SuppressWarnings("unchecked") // Operations on repository are logically checked.
-@Internal
-public class PmEventEndpoint<I, P extends ProcessManager<I, ?, ?>>
-        extends PmEndpoint<I, P, EventEnvelope>
-        implements EventEndpoint<I> {
+internal open class PmEventEndpoint<I : Any, P : ProcessManager<I, *, *>>
+protected constructor(
+    repository: ProcessManagerRepository<I, P, *>,
+    event: EventEnvelope
+) : PmEndpoint<I, P, EventEnvelope>(repository, event),
+    EventEndpoint<I> {
 
-    protected PmEventEndpoint(ProcessManagerRepository<I, P, ?> repository, EventEnvelope event) {
-        super(repository, event);
-    }
-
-    static <I, P extends ProcessManager<I, ?, ?>>
-    PmEventEndpoint<I, P> of(ProcessManagerRepository<I, P, ?> repository, EventEnvelope event) {
-        return new PmEventEndpoint<>(repository, event);
-    }
-
-    @Override
-    protected void afterDispatched(I entityId) {
+    override fun afterDispatched(entityId: I) {
         repository().lifecycleOf(entityId)
-                    .onDispatchEventToReactor(envelope().outerObject());
+            .onDispatchEventToReactor(envelope().outerObject())
     }
 
-    @Override
-    protected DispatchOutcome invokeDispatcher(P processManager) {
-        PmTransaction<I, ?, ?> tx = (PmTransaction<I, ?, ?>) processManager.tx();
-        return tx.dispatchEvent(envelope());
+    @Suppress("UNCHECKED_CAST") // The transaction wraps this process manager; the cast is safe.
+    override fun invokeDispatcher(processManager: P): DispatchOutcome {
+        val tx = processManager.activeTransaction() as PmTransaction<I, *, *>
+        return tx.dispatchEvent(envelope())
     }
 
     /**
      * Does nothing since a state of a process manager should not be necessarily
      * updated upon reacting on an event.
      */
-    @Override
-    protected void onEmptyResult(P pm) {
+    override fun onEmptyResult(pm: P) {
         // Do nothing.
+    }
+
+    internal companion object {
+
+        /**
+         * Creates a new endpoint dispatching the given event to the process managers
+         * of the given repository.
+         */
+        fun <I : Any, P : ProcessManager<I, *, *>> of(
+            repository: ProcessManagerRepository<I, P, *>,
+            event: EventEnvelope
+        ): PmEventEndpoint<I, P> = PmEventEndpoint(repository, event)
     }
 }

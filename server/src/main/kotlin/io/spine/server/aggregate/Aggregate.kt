@@ -35,8 +35,6 @@ import io.spine.server.aggregate.model.AggregateClass
 import io.spine.server.aggregate.model.AggregateClass.asAggregateClass
 import io.spine.server.dispatch.DispatchOutcome
 import io.spine.server.entity.SignalDispatchingEntity
-import io.spine.server.entity.Transaction
-import io.spine.server.entity.TransactionalEntity
 import io.spine.server.event.EventReactor
 import io.spine.server.type.CommandEnvelope
 import io.spine.server.type.EventClass
@@ -89,7 +87,7 @@ import java.util.function.Predicate
  * aggregate's pre-dispatch version.
  *
  * In Kotlin, a receptor can mutate the state more idiomatically through the builder DSL
- * inherited from [TransactionalEntity] rather
+ * inherited from [TransactionalEntity][io.spine.server.entity.TransactionalEntity] rather
  * than calling [builder()][builder] directly. Each method takes a lambda with the state
  * builder as its receiver:
  *  - `alter` applies the changes to the live builder;
@@ -150,16 +148,6 @@ public abstract class Aggregate<I : Any,
      */
     override fun thisClass(): AggregateClass<*> = super.thisClass() as AggregateClass<*>
 
-    /**
-     * Obtains the active transaction of this aggregate.
-     *
-     * The Java endpoints of this package reach the transaction through the Java
-     * package-level slice of `protected`; this override must stay until they move
-     * to Kotlin.
-     */
-    override fun tx(): Transaction<I, out TransactionalEntity<I, S, B>, S, B> = super.tx()
-
-    @Internal
     override fun modelClass(): AggregateClass<*> = asAggregateClass(javaClass)
 
     /**

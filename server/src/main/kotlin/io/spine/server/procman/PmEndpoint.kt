@@ -59,7 +59,7 @@ internal abstract class PmEndpoint<I : Any,
         super.repository() as ProcessManagerRepository<I, P, *>
 
     final override fun performDispatch(id: I): DispatchOutcome {
-        val manager = repository().findOrCreate(id)
+        val manager = repository().findOrCreateProcess(id)
         val outcome = runTransactionFor(manager)
         DispatchOutcomeHandler
             .from(outcome)
@@ -87,13 +87,13 @@ internal abstract class PmEndpoint<I : Any,
      * and commits.
      */
     protected open fun runTransactionFor(processManager: P): DispatchOutcome {
-        val tx: PmTransaction<*, *, *> = repository().beginTransactionFor(processManager)
+        val tx: PmTransaction<*, *, *> = repository().openTransactionFor(processManager)
         val outcome = invokeDispatcher(processManager)
         tx.commitIfActive()
         // Record the produced events as the process manager's uncommitted history right after
         // the transaction commits (success only), so that the repository journals them on
         // `store()`. A rolled-back dispatch leaves nothing to record.
-        if (repository().eventHistoryEnabled() &&
+        if (repository().isEventHistoryEnabled() &&
             outcome.hasSuccess() &&
             outcome.success.hasEvents()
         ) {

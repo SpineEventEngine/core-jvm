@@ -27,7 +27,6 @@
 package io.spine.server.procman
 
 import com.google.common.collect.ImmutableSet
-import io.spine.annotation.Internal
 import io.spine.annotation.VisibleForTesting
 import io.spine.base.EntityState
 import io.spine.base.ProcessManagerState
@@ -37,8 +36,6 @@ import io.spine.server.Ignored.ignored
 import io.spine.server.command.Commander
 import io.spine.server.dispatch.DispatchOutcome
 import io.spine.server.entity.SignalDispatchingEntity
-import io.spine.server.entity.Transaction
-import io.spine.server.entity.TransactionalEntity
 import io.spine.server.event.EventReactor
 import io.spine.server.procman.model.ProcessManagerClass
 import io.spine.server.procman.model.ProcessManagerClass.asProcessManagerClass
@@ -105,7 +102,6 @@ public abstract class ProcessManager<I : Any,
     /**
      * Assigns the passed bounded context to this process manager.
      */
-    @JvmName("injectContext") // Keeps the JVM name for the Java repository caller.
     internal fun injectContext(context: BoundedContext) {
         val current = this.context
         if (current != null) {
@@ -133,7 +129,6 @@ public abstract class ProcessManager<I : Any,
         return QueryingClient(context, type, toString())
     }
 
-    @Internal
     final override fun modelClass(): ProcessManagerClass<*> = asProcessManagerClass(javaClass)
 
     override fun thisClass(): ProcessManagerClass<*> =
@@ -156,13 +151,6 @@ public abstract class ProcessManager<I : Any,
      */
     @VisibleForTesting
     final override fun builder(): B = super.builder()
-
-    /**
-     * Obtains the active transaction of this process manager.
-     *
-     * The method is overridden to be accessible from the `procman` package.
-     */
-    override fun tx(): Transaction<I, out TransactionalEntity<I, S, B>, S, B> = super.tx()
 
     /**
      * Dispatches the command to the handling method.

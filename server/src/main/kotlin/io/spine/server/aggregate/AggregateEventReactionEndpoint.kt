@@ -24,27 +24,40 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.server.aggregate;
+package io.spine.server.aggregate
 
-import io.spine.server.delivery.EventEndpoint;
-import io.spine.server.type.EventEnvelope;
+import io.spine.server.dispatch.DispatchOutcome
+import io.spine.server.type.EventEnvelope
 
 /**
- * Abstract base for endpoints that dispatch events to aggregates.
+ * Dispatches an event to aggregates of the associated `AggregateRepository`.
  *
- * <p>An aggregate may receive an event if it {@linkplain io.spine.server.event.React reacts} to it,
- * or if it {@linkplain io.spine.server.aggregate.Apply#allowImport() imports} it.
+ * @param I The type of the aggregate IDs.
+ * @param A The type of the aggregates.
  *
- * @param <I>
- *         the type of the aggregate IDs
- * @param <A>
- *         the type of the aggregates
+ * @see io.spine.server.event.React
  */
-abstract class AggregateEventEndpoint<I, A extends Aggregate<I, ?, ?>>
-        extends AggregateEndpoint<I, A, EventEnvelope>
-        implements EventEndpoint<I> {
+internal class AggregateEventReactionEndpoint<I : Any, A : Aggregate<I, *, *>>(
+    repo: AggregateRepository<I, A, *>,
+    event: EventEnvelope
+) : AggregateEventEndpoint<I, A>(repo, event) {
 
-    AggregateEventEndpoint(AggregateRepository<I, A, ?> repository, EventEnvelope event) {
-        super(repository, event);
+    @Suppress("UNCHECKED_CAST") // The transaction wraps this aggregate; the cast is safe.
+    override fun invokeDispatcher(aggregate: A): DispatchOutcome {
+        val tx = aggregate.activeTransaction() as AggregateTransaction<I, *, *>
+        return tx.dispatchEvent(envelope())
+    }
+
+    override fun afterDispatched(entityId: I) {
+        repository().lifecycleOf(entityId)
+            .onDispatchEventToReactor(envelope().outerObject())
+    }
+
+    /**
+     * Does nothing since a state of an aggregate should not be necessarily
+     * updated upon reacting on an event.
+     */
+    override fun onEmptyResult(aggregate: A) {
+        // Do nothing.
     }
 }

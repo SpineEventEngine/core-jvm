@@ -275,6 +275,12 @@ protected constructor() :
     }
 
     /**
+     * Tells whether this repository maintains the event history, on behalf of
+     * the endpoints of the entity packages.
+     */
+    internal fun isEventHistoryEnabled(): Boolean = eventHistoryEnabled()
+
+    /**
      * Tells whether this repository maintains the event history — the journal of the
      * events emitted by its entities.
      *
