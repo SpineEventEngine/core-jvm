@@ -82,5 +82,5 @@ internal class AggregateTransactionSpec :
     // Note: the `advance version from event` case (adopting the event's own version) is not
     // applicable since the event-sourcing cutover — an `AggregateTransaction` now advances the
     // version sequentially (+1 per dispatch), exactly like a `ProcessManager`. Sequential
-    // version advancement is covered by `AggregateTest` (the `AdvanceVersion` cases).
+    // version advancement is covered by `AggregateSpec` (the `advance version` cases).
 }

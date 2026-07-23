@@ -24,78 +24,67 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.server.entity;
+package io.spine.server.entity
 
-import com.google.common.collect.ImmutableList;
-import io.spine.annotation.Internal;
-import io.spine.core.Event;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.google.common.collect.ImmutableList
+import io.spine.core.Event
 
 /**
  * The events produced by an entity during the current dispatch that are not yet stored.
  *
- * <p>Since the event-sourcing cutover, an entity no longer replays events to rebuild its
- * state, so this class no longer segments the events by snapshots — it is a plain, ordered list
- * of the events emitted by the current command or reaction. The framework records the produced
- * events here on the {@link SignalDispatchingEntity} after a successful dispatch, stores them
- * into the append-only journal alongside the latest state record, and then
- * {@link #commit() commits}.
+ * Since the event-sourcing cutover, an entity no longer replays events to rebuild its
+ * state, so this class no longer segments the events by snapshots — it is a plain, ordered
+ * list of the events emitted by the current command or reaction. The framework records the
+ * produced events here on the [SignalDispatchingEntity] after a successful dispatch, stores
+ * them into the append-only journal alongside the latest state record, and then
+ * [commits][commit].
  */
-@Internal
-public final class UncommittedEventHistory {
+internal class UncommittedEventHistory {
 
-    private final List<Event> events = new ArrayList<>();
+    private val events = mutableListOf<Event>()
 
     /**
      * Records the events produced during the current dispatch.
      *
-     * <p>Rejection events are not journaled and are ignored.
+     * Rejection events are not journaled and are ignored.
      *
-     * @param produced
-     *         the events emitted by the current command handler or reactor
-     * @return the events kept for journaling by this call, in the order of emission
+     * @param produced The events emitted by the current command handler or reactor.
+     * @return The events kept for journaling by this call, in the order of emission.
      */
-    public List<Event> record(Iterable<Event> produced) {
-        var kept = ImmutableList.<Event>builder();
-        for (var event : produced) {
-            if (!event.isRejection()) {
-                events.add(event);
-                kept.add(event);
+    fun record(produced: Iterable<Event>): List<Event> {
+        val kept = ImmutableList.builder<Event>()
+        for (event in produced) {
+            if (!event.isRejection) {
+                events.add(event)
+                kept.add(event)
             }
         }
-        return kept.build();
+        return kept.build()
     }
 
     /**
      * Obtains the uncommitted events as an immutable list.
      *
-     * <p>The returned list is empty when there are no uncommitted events.
+     * The returned list is empty when there are no uncommitted events.
      */
-    public List<Event> get() {
-        return ImmutableList.copyOf(events);
-    }
+    fun get(): List<Event> = ImmutableList.copyOf(events)
 
     /**
      * Returns all uncommitted events.
      */
-    public UncommittedEvents events() {
-        return UncommittedEvents.ofNone()
-                                .append(events);
-    }
+    fun events(): UncommittedEvents =
+        UncommittedEvents.ofNone()
+            .append(events)
 
     /**
      * Tells if this history contains any uncommitted events.
      */
-    public boolean hasEvents() {
-        return !events.isEmpty();
-    }
+    fun hasEvents(): Boolean = events.isNotEmpty()
 
     /**
      * Marks the recorded events as stored and no longer uncommitted.
      */
-    public void commit() {
-        events.clear();
+    fun commit() {
+        events.clear()
     }
 }

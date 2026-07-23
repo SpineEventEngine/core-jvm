@@ -114,10 +114,41 @@ external subclasses.
   `ProjectionTest`). **No Fir2Ir ICE:** the Kotlin spec calling the internal
   `changed()` through the Java `ProcessManager` intermediate compiled clean —
   the ICE needs the *subclass-inherited-call* shape, not a plain call.
-- **Wave D — follow-up, decide separately:** `AggregateRepository.java` →
-  Kotlin (334 lines, drops the Wave C `@JvmName`s); `UncommittedEventHistory`
-  → Kotlin `internal` class; `RecentHistory.append` → `internal`; decide
-  `UncommittedEvents` (Java test fixtures use it).
+- **Wave D ✅ (2026-07-23) — extended scope (product owner): convert the
+  remaining Java callers of the bridged members and migrate their test
+  suites** — the opening move of the broader tests-first Java→Kotlin
+  migration; the major production-code migration waits until after 2.0.0.
+  1. `AggregateRepository.java` → Kotlin. Two interop lessons:
+     `loadOrCreate` (was package-private) became `internal` +
+     `@JvmName` — the Java `AggregateRoot.partState()` still calls it;
+     the `dispatchTo(Set<I>, …)` override needs
+     `@JvmSuppressWildcards` — Kotlin emits `Set<? extends I>` for a
+     type-parameter argument, breaking the Java override chain
+     (`AggregatePartRepository`).
+  2. `Projection.java` + `ProjectionEndpoint.java` → Kotlin.
+     `playOn`/`of` became `internal` companion members (Kotlin callers
+     only); `Projection.apply` kept `internal` + `@JvmName` for the Java
+     `ProjectionTransaction` caller; `ProjectionRepository.setupInbox`
+     switched from `ProjectionEndpoint.of(...)` to the protected
+     constructor (Java same-package access).
+  3. `AggregateTest.java` → `AggregateSpec.kt` (dead
+     `generateProjectEvents()` dropped; the `aggregate()` cast-helper
+     obsolete — friend visibility reaches `internal` directly),
+     `ProjectionTest.java` → `ProjectionSpec.kt`. Javadoc references to
+     the old suite names reworded in the `given` fixtures.
+  4. All four `@JvmName` bridges dropped with their `@Internal` markers:
+     `changed()`, `hasUncommittedEvents()`, `getUncommittedEvents()`,
+     `commitEvents()` are now plain `internal`. `SignalDispatchingEntity`
+     carries **zero** `@Internal` annotations.
+  Follow-ups landed the same day: `getUncommittedEvents()` removed from
+  `SignalDispatchingEntity` outright — `AggregateSpec` reads the journal
+  through a private `uncommittedEvents()` extension over the `internal`
+  `uncommittedEventHistory()` accessor; `UncommittedEventHistory` →
+  Kotlin `internal` class (its only source-level references were the two
+  lines in `SignalDispatchingEntity.kt`).
+  Still deferred: `RecentHistory.append` → `internal`; the
+  `UncommittedEvents` visibility decision (Java test *fixtures* also use
+  it: `GivenAggregate`, `AggregateRepositoryTestEnv`).
 
 Java *test* suites (`AggregateTest`, `ProjectionTest`) stay Java per the
 parent plan; the `@JvmName` bridges keep them compiling.

@@ -28,8 +28,6 @@ package io.spine.server.entity
 
 import com.google.protobuf.Any as ProtoAny
 import com.google.protobuf.Message
-import io.spine.annotation.Internal
-import io.spine.annotation.VisibleForTesting
 import io.spine.base.EntityState
 import io.spine.base.Error
 import io.spine.base.Identifier
@@ -182,20 +180,8 @@ public abstract class SignalDispatchingEntity<I : Any,
     }
 
     /**
-     * Returns all uncommitted events.
-     *
-     * @return Immutable view of all uncommitted events.
-     */
-    @Internal
-    @VisibleForTesting
-    @JvmName("getUncommittedEvents") // Keeps the JVM name for the remaining Java test callers.
-    internal fun getUncommittedEvents(): UncommittedEvents = uncommittedEventHistory.events()
-
-    /**
      * Tells if there are any uncommitted events.
      */
-    @Internal
-    @JvmName("hasUncommittedEvents") // Keeps the JVM name for the remaining Java callers.
     internal fun hasUncommittedEvents(): Boolean = uncommittedEventHistory.hasEvents()
 
     /**
@@ -206,8 +192,6 @@ public abstract class SignalDispatchingEntity<I : Any,
     /**
      * Marks the uncommitted events of this entity as committed and clears them.
      */
-    @Internal
-    @JvmName("commitEvents") // Keeps the JVM name for the remaining Java test callers.
     internal fun commitEvents() {
         uncommittedEventHistory.commit()
     }

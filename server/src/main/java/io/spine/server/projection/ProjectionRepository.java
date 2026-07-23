@@ -162,7 +162,7 @@ public abstract class ProjectionRepository<I,
     @Override
     protected final void setupInbox(Inbox.Builder<I> builder) {
         builder.addEventEndpoint(InboxLabel.UPDATE_SUBSCRIBER,
-                                 e -> ProjectionEndpoint.of(this, e))
+                                 e -> new ProjectionEndpoint<>(this, e))
                .addEventEndpoint(InboxLabel.CATCH_UP,
                                  e -> CatchUpEndpoint.of(this, e));
     }

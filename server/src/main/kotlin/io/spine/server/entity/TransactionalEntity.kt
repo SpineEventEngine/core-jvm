@@ -108,8 +108,6 @@ public abstract class TransactionalEntity<I : Any, S : EntityState<I>, B : Valid
      *
      * @return `true` if the state or flags have been modified, `false` otherwise.
      */
-    @Internal
-    @JvmName("changed") // Keeps the JVM name for the remaining Java callers.
     internal fun changed(): Boolean {
         val lifecycleFlagsChanged = lifecycleFlagsChanged()
         val tx = transaction

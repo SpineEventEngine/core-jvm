@@ -89,6 +89,20 @@ Converting a Java class that has same-package collaborators to Kotlin changes wh
   `Transaction.kt` switched from `entity.defaultState()` to `entity.modelClass().defaultState()` (the
   public `EntityClass.defaultState()` that `IdField` already used). Only widen genuinely package-private
   members to `internal`.
+- **Dropping (or adding) `@JvmName` on an `internal` member can leave STALE same-module Kotlin
+  callers under incremental compilation** (2026-07-23, Wave D4): after removing
+  `@JvmName("changed")`, `PmEndpoint.class` still called the unmangled `changed()` →
+  `NoSuchMethodError` at runtime in `server-testlib` tests, while `:server:testClasses` compiled
+  "green". The incremental compiler does not treat the JvmName-attribute change as an ABI change
+  for all callers. Cure: `./gradlew :server:clean` and a full rebuild after any `@JvmName`
+  add/drop; treat a downstream `NoSuchMethodError` on a freshly renamed member as staleness, not
+  as a code bug.
+- **Kotlin emits wildcards for type-parameter generics in override positions — breaking Java
+  subclass chains** (2026-07-23, `AggregateRepository` conversion): an override of the Java
+  `dispatchTo(Set<I>, …)` declared with Kotlin `Set<I>` compiles to `Set<? extends I>` (declaration-
+  site variance + non-final type argument), and javac then rejects Java subclasses with "same
+  erasure, yet neither overrides the other". Fix: `ids: @JvmSuppressWildcards Set<I>`. Final type
+  arguments (`Iterable<Event>`) emit no wildcard — only type parameters and non-final classes do.
 - **Guava `checkNotNull` (NPE) ≠ Kotlin `checkNotNull` (ISE).** Converting `id() = checkNotNull(_id)`
   verbatim silently changes the thrown type NPE→ISE. Preserve with `_id ?: throw NullPointerException(…)`
   (no `!!` — the skill forbids it). Non-null Kotlin *param* types keep their NPE via `Intrinsics`, so only
