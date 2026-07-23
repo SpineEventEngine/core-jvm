@@ -164,3 +164,40 @@ after Wave C additionally the full `./gradlew build` (detekt: the converted
 repositories needed `TooManyFunctions` and `TooGenericExceptionCaught`
 suppressions). The branch already carries the breaking-change version bump
 (`.511 → .520`).
+
+## Step 3 — Wave E: the `AbstractEntity` internals
+
+Analysis (2026-07-23) of the three remaining `@Internal` functions and the
+seven `@JvmName` bridges of `AbstractEntity`:
+
+- `ensureAccessToState()` — a dead hook since the cutover relaxed state
+  access (zero overriders, zero external callers) → deleted in E1.
+- `thisClass()` — flips to `internal open` once its Java overriders
+  (`Aggregate`, `AggregatePart`, `ProcessManager`) are Kotlin (E2).
+- `modelClass()` — pinned by the public `Entity` *interface* member, not by
+  descendants; freeing it means removing the member from `Entity` and
+  consolidating on `thisClass()`; two callers to retarget
+  (`Transaction.kt:614`, `FilterTest.java:174`); zero cross-module callers
+  (E3).
+- The `@JvmName` bridges serve same-package Java *collaborators and tests*,
+  not descendants. Caller map: `updateVersion`, `incrementState`,
+  `setVersion` had none left → dropped in E1. Still pinned: `setState`
+  (`RecordBasedRepositoryTest`, `TransactionalEntityJavaSpec`),
+  `updateState` ×2 (`AbstractEntityTest`), `setLifecycleFlags`
+  (`RecordBasedRepositoryTest`).
+
+- **Wave E1 ✅ (2026-07-23):** `DefaultConverter.java` → Kotlin `internal`
+  class (its `injectState` was the last production Java caller of the
+  bridged members); `DefaultConverterTest.java` → `DefaultConverterSpec.kt`;
+  `ensureAccessToState()` deleted; the three unpinned `@JvmName`s dropped
+  (module `clean` build per the incremental-staleness trap).
+- **Wave E2 (proposed):** `Aggregate.java` (324) + `AggregatePart.java`
+  (147) + `ProcessManager.java` (287) → Kotlin; then `thisClass()` →
+  `internal open`. These are public base classes end users extend from
+  Java — the conversion must keep the Java-facing surface stable, and
+  Java-bridge `XJavaSpec` coverage is warranted. Migrating
+  `AbstractEntityTest` and `RecordBasedRepositoryTest` (abstract Java test
+  base — mind the inherited-`@Nested`-not-discovered trap) frees the four
+  remaining bridges.
+- **Wave E3 (proposed, after E2):** remove `modelClass()` from the `Entity`
+  interface; model-class access consolidates on the internal `thisClass()`.

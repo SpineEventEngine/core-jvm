@@ -198,28 +198,10 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      * @return The current state or default state value.
      */
     final override fun state(): S {
-        ensureAccessToState()
         _state?.let { return it }
         return synchronized(this) {
             _state ?: defaultState().also { _state = it }
         }
-    }
-
-    /**
-     * Ensures that the callee is allowed to access Entity's `state()` method.
-     *
-     * In case the access is prohibited, throws a `RuntimeException`.
-     *
-     * In some scenarios, the state of Entity may not be up-to-date,
-     * so descendants of `AbstractEntity` are able to put the corresponding restrictions
-     * on this method invocation.
-     *
-     * By default, this method performs no checks,
-     * thus allowing access to Entity's `state()` at any point in time.
-     */
-    @Internal
-    protected open fun ensureAccessToState() {
-        // Do nothing by default.
     }
 
     /**
@@ -435,7 +417,9 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      */
     protected open fun versionNumber(): Int = version().number
 
-    @JvmName("updateVersion")
+    /**
+     * Updates the version of this entity with the passed value, validating it first.
+     */
     internal fun updateVersion(newVersion: Version) {
         Validate.check(newVersion)
         if (_version == newVersion) {
@@ -464,12 +448,13 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      * @param newState A new state to set.
      */
     @VisibleForTesting
-    @JvmName("incrementState")
     internal fun incrementState(newState: S) {
         updateState(newState, incrementedVersion())
     }
 
-    @JvmName("setVersion")
+    /**
+     * Assigns the version to this entity as is, without validation.
+     */
     internal fun setVersion(version: Version) {
         _version = version
     }
