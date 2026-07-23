@@ -65,6 +65,7 @@ import io.spine.test.procman.event.pmTaskAdded
  * emit events while leaving the state unchanged, so the specs can tell the
  * stored-because-changed dispatches from the stored-because-emitted ones.
  */
+@Suppress("TooManyFunctions") // The fixture exposes many `protected` members to the specs.
 internal class JournalTestProcman :
     ProcessManager<ProjectId, ElephantProcess, ElephantProcess.Builder>() {
 
