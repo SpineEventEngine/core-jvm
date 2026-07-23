@@ -28,6 +28,7 @@ package io.spine.server.entity
 
 import com.google.common.testing.EqualsTester
 import com.google.protobuf.FieldMask
+import com.google.protobuf.fieldMask
 import io.kotest.matchers.shouldBe
 import io.spine.server.BoundedContextBuilder
 import io.spine.server.entity.DefaultConverter.Companion.forAllFields
@@ -62,23 +63,17 @@ internal class DefaultConverterSpec {
 
     @Test
     fun `create instance with 'FieldMask'`() {
-        val fieldMask = FieldMask.newBuilder()
-            .addPaths("foo.bar")
-            .build()
+        val mask = fieldMask { paths += "foo.bar" }
 
-        val withMasks = converter.withFieldMask(fieldMask)
+        val withMasks = converter.withFieldMask(mask)
 
-        withMasks.fieldMask() shouldBe fieldMask
+        withMasks.fieldMask() shouldBe mask
     }
 
     @Test
     fun `support equality`() {
         val sameFields = forAllFields(converter.entityStateType(), converter.entityFactory())
-        val masked = converter.withFieldMask(
-            FieldMask.newBuilder()
-                .addPaths("foo.bar")
-                .build()
-        )
+        val masked = converter.withFieldMask(fieldMask { paths += "foo.bar" })
         EqualsTester()
             .addEqualityGroup(converter, sameFields)
             .addEqualityGroup(masked)

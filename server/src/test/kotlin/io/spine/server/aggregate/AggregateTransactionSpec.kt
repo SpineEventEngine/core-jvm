@@ -36,6 +36,7 @@ import io.spine.server.entity.TransactionListener
 import io.spine.server.entity.TransactionTest
 import io.spine.server.entity.given.tx.AggregateState
 import io.spine.server.entity.given.tx.Id
+import io.spine.server.entity.given.tx.aggregateState
 import io.spine.server.entity.given.tx.TxAggregate
 import io.spine.server.type.EventEnvelope
 import org.junit.jupiter.api.DisplayName
@@ -62,10 +63,10 @@ internal class AggregateTransactionSpec :
     override fun createEntity(): AggEntity = TxAggregate(id())
 
     override fun newState(): AggregateState =
-        AggregateState.newBuilder()
-            .setId(id())
-            .setName("The new project name to set in tx")
-            .build()
+        aggregateState {
+            id = id()
+            name = "The new project name to set in tx"
+        }
 
     override fun checkEventReceived(entity: AggEntity, event: Event) {
         val aggregate = entity as TxAggregate

@@ -58,7 +58,7 @@ import io.spine.server.aggregate.given.dispatch.AggregateMessageDispatcher.dispa
 import io.spine.server.aggregate.given.thermometer.SafeThermometer
 import io.spine.server.aggregate.given.thermometer.SafeThermometerRepo
 import io.spine.server.aggregate.given.thermometer.ThermometerId
-import io.spine.server.aggregate.given.thermometer.event.TemperatureChanged
+import io.spine.server.aggregate.given.thermometer.event.temperatureChanged
 import io.spine.server.aggregate.given.thermometer.thermometer
 import io.spine.server.aggregate.model.AggregateClass.asAggregateClass
 import io.spine.server.delivery.MessageEndpoint
@@ -637,9 +637,7 @@ internal class AggregateSpec {
 
         @Test
         fun `not change the Aggregate state when there is no reaction on the event`() {
-            val booksOnFire = TemperatureChanged.newBuilder()
-                .setFahrenheit(451.0)
-                .build()
+            val booksOnFire = temperatureChanged { fahrenheit = 451.0 }
             context().receivesExternalEvent(booksOnFire)
                 .assertEntity(thermometerId, SafeThermometer::class.java)
                 .doesNotExist()
@@ -647,9 +645,7 @@ internal class AggregateSpec {
 
         @Test
         fun `save valid aggregate state on change`() {
-            val gettingWarmer = TemperatureChanged.newBuilder()
-                .setFahrenheit(72.0)
-                .build()
+            val gettingWarmer = temperatureChanged { fahrenheit = 72.0 }
             context().receivesExternalEvent(gettingWarmer)
             val expected = thermometer {
                 id = thermometerId

@@ -48,6 +48,7 @@ import io.spine.server.projection.given.NoDefaultOptionProjection
 import io.spine.server.projection.given.NoDefaultOptionProjection.ACCEPTED_VALUE
 import io.spine.server.projection.given.SavedString
 import io.spine.server.projection.given.SavingProjection
+import io.spine.server.projection.given.savedString
 import io.spine.server.projection.given.dispatch.ProjectionEventDispatcher.dispatch
 import io.spine.server.type.EventEnvelope
 import io.spine.server.type.given.GivenEvent
@@ -79,15 +80,15 @@ internal class ProjectionSpec {
 
     @BeforeEach
     fun setUp() {
-        val id = newUuid()
+        val stringId = newUuid()
         projection = Given.projectionOfClass(SavingProjection::class.java)
-            .withId(id)
+            .withId(stringId)
             .withVersion(1)
             .withState(
-                SavedString.newBuilder()
-                    .setId(id)
-                    .setValue("Initial state")
-                    .build()
+                savedString {
+                    id = stringId
+                    value = "Initial state"
+                }
             )
             .build()
     }
