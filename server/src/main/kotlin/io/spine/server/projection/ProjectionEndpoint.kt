@@ -59,7 +59,7 @@ protected constructor(
 
     override fun performDispatch(entityId: I): DispatchOutcome {
         val repository = repository()
-        val projection = repository.findOrCreate(entityId)
+        val projection = repository.findOrCreateProjection(entityId)
         val outcome = runTransactionFor(projection)
         store(projection)
         return outcome
