@@ -113,7 +113,7 @@ class UpdateGitHubPages : Plugin<Project> {
     }
 
     /**
-     * Registers `updateGitHubPages` task that performs no actual update, but prints
+     * Registers the `updateGitHubPages` task that performs no actual update, but prints
      * the message telling the update is skipped, since the project is in
      * its `SNAPSHOT` version.
      */

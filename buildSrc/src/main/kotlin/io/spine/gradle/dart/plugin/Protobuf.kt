@@ -32,7 +32,7 @@ import com.google.protobuf.gradle.remove
 import io.spine.dependency.lib.Protobuf
 
 /**
- * Applies `protobuf` plugin and configures `GenerateProtoTask` to work with a Dart module.
+ * Applies the `protobuf` plugin and configures `GenerateProtoTask` to work with a Dart module.
  *
  * @see DartPlugins
  */

@@ -47,7 +47,7 @@ import org.gradle.api.tasks.TaskContainer
  *      referencing to the new task, so that external tasks could depend on it. This reference
  *      should be documented.
  *  3. Implement an extension upon [DartTasks] to register the task.
- *  4. Call the resulted extension from `build.gradle.kts`.
+ *  4. Call the resulting extension from `build.gradle.kts`.
  *
  * Here's an example of `testDart()` extension:
  *

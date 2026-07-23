@@ -31,7 +31,7 @@ package io.spine.dependency.lib
 object Roaster {
 
     /**
-     * This is the last version build with Java 11.
+     * This is the last version built with Java 11.
      *
      * Starting from the version
      * [2.29.0.Final](https://github.com/forge/roaster/releases/tag/2.29.0.Final),

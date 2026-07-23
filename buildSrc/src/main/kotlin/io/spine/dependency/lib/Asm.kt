@@ -34,7 +34,7 @@ object Asm {
     const val lib = "$group:asm:$version"
 
     // We use the following artifacts only to force the versions
-    // of the dependencies which are transitive for us.
+    // of the dependencies that are transitive for us.
     //
     const val tree = "$group:asm-tree:$version"
     const val analysis = "$group:asm-analysis:$version"

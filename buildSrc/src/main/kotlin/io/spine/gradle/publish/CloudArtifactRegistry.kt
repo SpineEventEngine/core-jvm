@@ -37,7 +37,7 @@ import org.gradle.api.Project
  * The experimental Google Cloud Artifact Registry repository.
  *
  * In order to successfully publish into this repository, a service account key is needed.
- * The published must create a service account, grant it the permission to write into
+ * The publisher must create a service account, grant it the permission to write into
  * Artifact Registry, and generate a JSON key.
  * Then, the key must be placed somewhere on the file system and the environment variable
  * `GOOGLE_APPLICATION_CREDENTIALS` must be set to point at the key file.
@@ -47,7 +47,7 @@ import org.gradle.api.Project
  * automatically. We achieve the same goal by assembling the credentials manually. We do so
  * in order to fit the Google Cloud Artifact Registry repository into the standard frame of
  * the Maven [Repository]-s. Applying the plugin would take a substantial effort due to the fact
- * that both our publishing scripts and the Google's plugin use `afterEvaluate { }` hooks.
+ * that both our publishing scripts and Google's plugin use `afterEvaluate { }` hooks.
  * Ordering said hooks is a non-trivial operation and the result is usually quite fragile.
  * Thus, we choose to do this small piece of configuration manually.
  */

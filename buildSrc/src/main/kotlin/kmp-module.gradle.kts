@@ -107,9 +107,8 @@ fun Project.forceConfigurations() {
  *
  * Please note, this extension DOES NOT configure Kotlin for JVM.
  * It configures KMP, in which Kotlin for JVM is only one of
- * possible targets.
+ * the possible targets.
  */
-@Suppress("UNUSED_VARIABLE") // Avoid warnings for source set vars.
 kotlin {
     // Enables explicit API mode for any Kotlin sources within the module.
     explicitApi()
@@ -183,7 +182,7 @@ tasks {
 /**
  * Overrides the default location of Kotlin sources.
  *
- * The default configuration of Detekt assumes presence of Kotlin sources
+ * The default configuration of Detekt assumes the presence of Kotlin sources
  * in `src/main/kotlin`, which is not the case for KMP.
  */
 detekt {

@@ -39,7 +39,7 @@ enum class DependencyScope {
     system
 
     /**
-    `import` is also a scope, however, it can't be used outside the `<dependencyManagement>`
-    section, which is outside of the scope of this script
+    `import` is also a scope; however, it can't be used outside the `<dependencyManagement>`
+    section, which is outside of the scope of this script.
      **/
 }

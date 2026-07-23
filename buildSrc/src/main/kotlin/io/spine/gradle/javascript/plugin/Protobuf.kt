@@ -32,11 +32,11 @@ import com.google.protobuf.gradle.remove
 import io.spine.dependency.lib.Protobuf
 
 /**
- * Applies and configures `protobuf` plugin to work with a JavaScript module.
+ * Applies and configures the `protobuf` plugin to work with a JavaScript module.
  *
  * In particular, this method:
  *
- *  1. Specifies an executable for `protoc` compiler.
+ *  1. Specifies an executable for the `protoc` compiler.
  *  2. Configures `GenerateProtoTask`.
  *
  * @see JsPlugins

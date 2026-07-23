@@ -22,6 +22,6 @@ In order to add these templates, perform the following steps:
 
 1. Open the corresponding template: `Preferences -> Editor -> Live Templates -> User.todo`.
 2. Click on `Edit variables`.
-3. Set `USER` variable to your domain email address without `@teamdev.com` ending.  For example,
+3. Set `USER` variable to your domain email address without `@teamdev.com` ending. For example,
    for `jack.sparrow@teamdev.com` use the following expression `"jack.sparrow"`.
 4. Verify that the template generates expected comments: `// TODO:2022-11-03:jack.sparrow: <...>`.

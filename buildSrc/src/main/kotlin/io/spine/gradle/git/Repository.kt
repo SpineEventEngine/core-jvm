@@ -35,15 +35,15 @@ import org.gradle.api.Project
 /**
  * Interacts with a real Git repository.
  *
- * Clones the repository with the provided SSH URL in a temporal folder. Provides
- * functionality to configure a user, checkout branches, commit changes and push them
+ * Clones the repository with the provided SSH URL in a temporary folder. Provides
+ * functionality to configure a user, check out branches, commit changes and push them
  * to the remote repository.
  *
  * It is assumed that before using this class an appropriate SSH key that has
  * sufficient rights to perform described above operations was registered
  * in `ssh-agent`.
  *
- * NOTE: This class creates a temporal folder, so it holds resources. For the proper
+ * NOTE: This class creates a temporary folder, so it holds resources. For the proper
  * release of resources please use the provided functionality inside a `use` block or
  * call the `close` method manually.
  *
@@ -62,12 +62,12 @@ class Repository private constructor(
 ) : AutoCloseable {
 
     /**
-     * Path to the temporal folder for a clone of the underlying repository.
+     * Path to the temporary folder for a clone of the underlying repository.
      */
     val location = LazyTempPath("repoTemp")
 
     /**
-     * Clones the repository with [the SSH url][sshUrl] into the [temporal folder][location].
+     * Clones the repository with [the SSH url][sshUrl] into the [temporary folder][location].
      */
     private fun clone() {
         repoExecute("git", "clone", sshUrl, ".")
@@ -132,7 +132,7 @@ class Repository private constructor(
     /**
      * Tells whether the remote repository has a branch with the given [name].
      *
-     * Queries the fully-qualified ref `refs/heads/$name` rather than the bare
+     * Queries the fully qualified ref `refs/heads/$name` rather than the bare
      * [name]: `git ls-remote` treats a bare name as a tail glob and would also
      * match a namespaced branch such as `feature/$name`. Relies on `git ls-remote`
      * returning an empty output with a zero exit code when the branch is absent,
@@ -256,7 +256,7 @@ class Repository private constructor(
     companion object Factory {
 
         /**
-         * Clones the repository with the provided SSH URL in a temporal folder.
+         * Clones the repository with the provided SSH URL in a temporary folder.
          *
          * Configures the username and the email of the Git user.
          * See [configureUser] documentation for more information.
@@ -290,7 +290,7 @@ class Repository private constructor(
 }
 
 /**
- * Executes a given operation with retries using exponential backoff strategy.
+ * Executes a given operation with retries using an exponential backoff strategy.
  *
  * If the operation fails, it will be retried up to the specified number of times
  * with increasing delays between attempts.

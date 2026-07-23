@@ -29,9 +29,9 @@ import io.gitlab.arturbosch.detekt.Detekt
 /**
  * This script-plugin sets up Kotlin code analyzing with Detekt.
  *
- * After applying, Detekt is configured to use `${rootDir}/buildSrc/quality/detekt-config.yml` file.
+ * After applying, Detekt is configured to use the `${rootDir}/buildSrc/quality/detekt-config.yml` file.
  * Projects can append their own config files to override some parts of the default one or drop
- * it at all in a favor of their own one.
+ * it at all in favor of their own one.
  *
  * An example of appending a custom config file to the default one:
  *
@@ -49,7 +49,7 @@ import io.gitlab.arturbosch.detekt.Detekt
  * }
  * ```
  *
- * Also, it's possible to suppress Detekt findings using [baseline](https://detekt.dev/docs/introduction/baseline/)
+ * Also, it's possible to suppress Detekt findings using a [baseline](https://detekt.dev/docs/introduction/baseline/)
  * file instead of suppressions in source code.
  *
  * An example of passing a baseline file:

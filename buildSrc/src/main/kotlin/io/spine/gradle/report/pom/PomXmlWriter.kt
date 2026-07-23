@@ -73,7 +73,7 @@ internal constructor(
     /**
      * Obtains a string that contains project dependencies as XML.
      *
-     * <p>Obtained string also contains a closing project tag.
+     * <p>The obtained string also contains a closing project tag.
      */
     private fun projectDependencies(): String {
         val destination = StringWriter()

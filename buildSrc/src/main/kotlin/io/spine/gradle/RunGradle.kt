@@ -39,7 +39,7 @@ import org.gradle.internal.os.OperatingSystem
  * A Gradle task that runs another Gradle build.
  *
  * Launches Gradle wrapper under a given [directory] with the specified [taskNames] names.
- * The `clean` task is also run if current build includes a `clean` task.
+ * The `clean` task is also run if the current build includes a `clean` task.
  *
  * The build writes verbose log into `$directory/build/debug-out.txt`.
  * The error output is written into `$directory/build/error-out.txt`.

@@ -32,20 +32,20 @@ import org.gradle.kotlin.dsl.support.serviceOf
 import org.gradle.process.ExecOperations
 
 /**
- * Provides access to the current [JsEnvironment] and shortcuts for running `npm` tool.
+ * Provides access to the current [JsEnvironment] and shortcuts for running the `npm` tool.
  */
 open class JsContext(jsEnv: JsEnvironment, internal val project: Project)
     : JsEnvironment by jsEnv
 {
     /**
-     * Executes `npm` command in a separate process.
+     * Executes the `npm` command in a separate process.
      *
      * [JsEnvironment.projectDir] is used as a working directory.
      */
     fun npm(vararg args: String) = projectDir.npm(*args)
 
     /**
-     * Executes `npm` command in a separate process.
+     * Executes the `npm` command in a separate process.
      *
      * This [File] is used as a working directory.
      */

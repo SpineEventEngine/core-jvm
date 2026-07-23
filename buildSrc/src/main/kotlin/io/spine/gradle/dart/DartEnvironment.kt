@@ -116,7 +116,7 @@ interface DartEnvironment {
      * Before the [packageConfig], pub used to create this [packageIndex] file in the root
      * directory.
      *
-     * As for Dart 2.14,  `pub` still updates the deprecated file for backwards compatibility.
+     * As for Dart 2.14, `pub` still updates the deprecated file for backwards compatibility.
      *
      * Default value: "$projectDir/.packages".
      */
@@ -138,8 +138,8 @@ interface DartEnvironment {
  * Allows overriding [DartEnvironment]'s defaults.
  *
  * Please note, not all properties of the environment can be overridden. Properties that describe
- * `pub` tool's input/output files can NOT be overridden because `pub` itself doesn't allow to
- * specify them for its execution.
+ * the `pub` tool's input/output files can NOT be overridden because `pub` itself doesn't allow
+ * specifying them for its execution.
  *
  * The next properties could not be overridden:
  *

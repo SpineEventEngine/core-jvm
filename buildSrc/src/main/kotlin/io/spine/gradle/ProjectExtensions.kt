@@ -52,7 +52,7 @@ val Project.javaPluginExtension: JavaPluginExtension
     get() = extensions.getByType()
 
 /**
- * Obtains source set container of the Java project.
+ * Obtains the source set container of the Java project.
  */
 val Project.sourceSets: SourceSetContainer
     get() = javaPluginExtension.sourceSets
@@ -80,7 +80,7 @@ fun <T : Task> Project.getTask(name: String): T {
 }
 
 /**
- * Obtains Maven artifact ID of this [Project].
+ * Obtains the Maven artifact ID of this [Project].
  *
  * The property getter checks if [SpinePublishing] extension is configured upon this project.
  * If yes, it returns [SpinePublishing.artifactId] for the project.

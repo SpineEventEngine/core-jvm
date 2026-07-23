@@ -48,7 +48,7 @@ fun TaskContainer.javadocTask() = this.getByName("javadoc") as Javadoc
 /**
  * Javadoc processing settings.
  *
- * This type is named with `Config` suffix to avoid its confusion with the standard `Javadoc` type.
+ * This type is named with the `Config` suffix to avoid its confusion with the standard `Javadoc` type.
  */
 @Suppress("unused")
 object JavadocConfig {
@@ -90,21 +90,21 @@ object JavadocConfig {
      * This fixes navigation to classes through the search results.
      *
      * The issue appeared after migration to Java 11. When Javadoc is generated for a project
-     * that does not declare Java 9 modules, search results contain broken links with appended
+     * that does not declare Java 9 modules, search results contain broken links with an appended
      * `undefined` prefix to the URL. This `undefined` was meant to be a name of a Java 9 module.
      *
      * See: [Issue #334](https://github.com/SpineEventEngine/config/issues/334)
      */
     private fun discardJavaModulesInLinks(javadoc: Javadoc) {
 
-        // We ask `Javadoc` task to modify "search.js" and override a method, responsible for
+        // We ask the `Javadoc` task to modify "search.js" and override a method, responsible for
         // the formation of URL prefixes. We can't specify the option "--no-module-directories",
         // because it leads to discarding of all module prefixes in generated links.
         // That means links to the types from the standard library would not work,
         // as they are declared within modules since Java 9.
 
         val discardModulePrefix = """
-            
+
             getURLPrefix = function(ui) {
                 return "";
             };
@@ -125,7 +125,7 @@ object JavadocConfig {
     }
 
     /**
-     * Configures `javadoc` tool to avoid numerous warnings for missing `@param` tags.
+     * Configures the `javadoc` tool to avoid numerous warnings for missing `@param` tags.
      *
      * As suggested by Stephen Colebourne:
      *  [https://blog.joda.org/2014/02/turning-off-doclint-in-jdk-8-javadoc.html]

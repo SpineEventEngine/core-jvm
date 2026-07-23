@@ -88,9 +88,9 @@ fun DartTasks.build(configuration: DartTasks.() -> Unit = {}) {
 private val resolveDependenciesName = TaskName.of("resolveDependencies", Exec::class)
 
 /**
- * Locates `resolveDependencies` task in this [TaskContainer].
+ * Locates the `resolveDependencies` task in this [TaskContainer].
  *
- * The task fetches dependencies declared via `pubspec.yaml` using `pub get` command.
+ * The task fetches dependencies declared via `pubspec.yaml` using the `pub get` command.
  */
 val TaskContainer.resolveDependencies: TaskProvider<Exec>
     get() = named(resolveDependenciesName)
@@ -112,12 +112,12 @@ private fun DartTasks.resolveDependencies(): TaskProvider<Exec> =
 private val cleanPackageIndexName = TaskName.of("cleanPackageIndex", Delete::class)
 
 /**
- * Locates `cleanPackageIndex` task in this [TaskContainer].
+ * Locates the `cleanPackageIndex` task in this [TaskContainer].
  *
  * The task deletes the resolved module dependencies' index.
  *
- * The standard configuration file that contains index is `package_config.json`. For backwards
- * compatability `pub` still updates the deprecated `.packages` file. The task deletes both files.
+ * The standard configuration file that contains the index is `package_config.json`. For backwards
+ * compatibility `pub` still updates the deprecated `.packages` file. The task deletes both files.
  */
 val TaskContainer.cleanPackageIndex: TaskProvider<Delete>
     get() = named(cleanPackageIndexName)
@@ -137,7 +137,7 @@ private fun DartTasks.cleanPackageIndex(): TaskProvider<Delete> =
 private val testDartName = TaskName.of("testDart", Exec::class)
 
 /**
- * Locates `testDart` task in this [TaskContainer].
+ * Locates the `testDart` task in this [TaskContainer].
  *
  * The task runs Dart tests declared in the `./test` directory.
  */

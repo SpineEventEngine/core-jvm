@@ -42,7 +42,7 @@ import org.gradle.api.tasks.TaskContainer
  * Checks out the content of selected repositories into the specified [tempFolder].
  * The folder is created if it does not exist. By default, uses `./tmp` as a temp folder.
  *
- * Replaces the `config` and `buildSrc` folders in the checked out repository by the local versions
+ * Replaces the `config` and `buildSrc` folders in the checked-out repository by the local versions
  * of code. If the repository-under-test already contains its own `buildSrc` or `config` folders,
  * they are NOT overwritten, but rather renamed into `buildSrc-original` and `config-original`
  * accordingly. This allows further tracing if the build fails.
@@ -87,7 +87,7 @@ class ConfigTester(
     }
 
     /**
-     * Adds a test
+     * Adds a test.
      */
     fun addRepo(repo: URI, branch: Branch): ConfigTester {
         repos.add(GitRepository(repo, branch))

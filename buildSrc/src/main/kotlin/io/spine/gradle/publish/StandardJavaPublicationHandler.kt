@@ -102,7 +102,7 @@ class StandardJavaPublicationHandler private constructor(
      *  3. Gradle's metadata file that has the ".module" extension.
      *
      *  Metadata files contain information about a publication itself, its artifacts, and their
-     *  dependencies. Presence of ".pom" file is mandatory for publication to be consumed by
+     *  dependencies. The presence of ".pom" file is mandatory for publication to be consumed by
      *  `mvn` build tool itself or other build tools that understand Maven notation (Gradle, Ivy).
      *  The presence of ".module" is optional, but useful when a publication is consumed by Gradle.
      *

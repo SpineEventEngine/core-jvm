@@ -29,7 +29,7 @@ package io.spine.dependency.lib
 /**
  * Kotlin Coroutines.
  *
- * @see <a href="https://github.com/Kotlin/kotlinx.coroutines">GitHub projecet</a>
+ * @see <a href="https://github.com/Kotlin/kotlinx.coroutines">GitHub project</a>
  */
 @Suppress("unused", "ConstPropertyName")
 @Deprecated(
