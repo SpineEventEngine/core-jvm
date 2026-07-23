@@ -80,10 +80,10 @@ public abstract class Projection<I : Any,
     final override fun modelClass(): ProjectionClass<*> = asProjectionClass(javaClass)
 
     /**
-     * Obtains the builder of the projection state, exposing the inherited method
-     * to this package.
+     * Obtains the builder of the projection state, re-exposing the inherited
+     * method to the subscriber methods of this projection.
      */
-    final override fun builder(): B = super.builder()
+    protected final override fun builder(): B = super.builder()
 
     override fun missingTxMessage(): String =
         "Projection modification is not available this way. " +

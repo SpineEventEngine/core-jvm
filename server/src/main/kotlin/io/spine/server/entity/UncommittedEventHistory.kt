@@ -36,8 +36,7 @@ import io.spine.core.Event
  * state, so this class no longer segments the events by snapshots — it is a plain, ordered
  * list of the events emitted by the current command or reaction. The framework records the
  * produced events here on the [SignalDispatchingEntity] after a successful dispatch, stores
- * them into the append-only journal alongside the latest state record, and then
- * [commits][commit].
+ * them into the append-only journal alongside the latest state record, and then [commits][commit].
  */
 internal class UncommittedEventHistory {
 

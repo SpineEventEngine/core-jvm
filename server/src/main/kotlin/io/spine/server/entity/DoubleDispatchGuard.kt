@@ -36,8 +36,7 @@ import io.spine.server.type.CommandEnvelope
 import io.spine.server.type.EventEnvelope
 
 /**
- * This guard ensures that a signal was not yet dispatched to the
- * [entity][SignalDispatchingEntity].
+ * This guard ensures that a signal was not yet dispatched to the [entity][SignalDispatchingEntity].
  *
  * The check scans the entity's recent event history, which includes the events
  * committed by the earlier dispatches of the current delivery batch even before they

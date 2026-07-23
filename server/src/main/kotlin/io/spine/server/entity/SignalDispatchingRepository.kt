@@ -236,8 +236,8 @@ protected constructor() :
      * including the events of the current delivery batch that have not reached the journal
      * yet — and rejects a signal already seen among them, however long ago it was dispatched.
      * This mechanism is distinct from the delivery layer's time-windowed deduplication. The
-     * guard is **off by default** for performance: it adds a bounded history read to every
-     * dispatch.
+     * guard is **off by default** for performance: it adds a bounded history read
+     * to every dispatch.
      *
      * The guard scans the [event journal][eventStorage] of the entity, so it
      * requires the [journaling to be enabled][eventHistoryEnabled]: registering

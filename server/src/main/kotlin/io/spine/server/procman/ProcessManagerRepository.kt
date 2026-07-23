@@ -70,8 +70,7 @@ import io.spine.validation.ValidatingBuilder
  *  - [useDoubleDispatchGuard] — enables the history-backed double-dispatch
  *    guard, which rejects a signal already seen among the last
  *    [eventHistoryDepth] dispatches. It is **off by default**, and
- *    requires the event journal it scans — enable it together with
- *    [recordEventHistory].
+ *    requires the event journal it scans — enable it together with [recordEventHistory].
  *  - [recordStateHistory] — records the state history of the process
  *    managers on each dispatch. This is an opt-in feature shared by all entity
  *    repositories (see [io.spine.server.entity.AbstractEntityRepository]).
@@ -105,8 +104,7 @@ protected constructor() :
      * [journal][eventStorage] on each successful dispatch, and the process
      * managers may consult their recent event history.
      *
-     * The journal is also required by the
-     * [double-dispatch guard][useDoubleDispatchGuard].
+     * The journal is also required by the [double-dispatch guard][useDoubleDispatchGuard].
      */
     protected fun recordEventHistory() {
         eventHistoryEnabled = true
@@ -115,8 +113,7 @@ protected constructor() :
     /**
      * Tells whether this repository maintains the event history.
      *
-     * For process managers, the journaling is opt-in and off by default — see
-     * [recordEventHistory].
+     * For process managers, the journaling is opt-in and off by default — see [recordEventHistory].
      */
     final override fun eventHistoryEnabled(): Boolean = eventHistoryEnabled
 

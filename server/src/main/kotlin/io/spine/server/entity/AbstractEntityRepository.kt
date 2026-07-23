@@ -147,7 +147,7 @@ public abstract class AbstractEntityRepository<I : Any,
      * Obtains the storage directly, bypassing the fail-fast [stateHistory] accessor:
      * the decision to record is made by the single flag check in
      * [afterStore], so a concurrent
-     * [stopRecordingStateHistory] cannot fail a dispatch which has already
+     * [stopRecordingStateHistory] cannot fail a dispatch that has already
      * persisted its state.
      *
      * A failure to record the history fails the dispatch. Under a batched delivery,

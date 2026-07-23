@@ -67,7 +67,7 @@ private constructor(
     companion object {
 
         /**
-         * Creates a converter which copies all the fields of the entity state.
+         * Creates a converter that copies all the fields of the entity state.
          */
         fun <I : Any, E : AbstractEntity<I, S>, S : EntityState<I>> forAllFields(
             stateType: TypeUrl,
