@@ -279,7 +279,7 @@ class AggregateRepositoryTest {
         void deleted() {
             var aggregate = givenStoredAggregate();
 
-            TestTransaction.archive(aggregate);
+            TestTransaction.delete(aggregate);
 
             repository().store(aggregate);
 
