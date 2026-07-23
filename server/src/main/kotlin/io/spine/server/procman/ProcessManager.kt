@@ -61,11 +61,16 @@ import io.spine.validation.ValidatingBuilder
  * inherited [eventHistoryBackward] and [eventHistoryContains].
  *
  * For more information on Process Managers, please see:
- *  - [Process Manager Pattern](http://www.enterpriseintegrationpatterns.com/patterns/messaging/ProcessManager.html)
- *  - [Clarifying the Saga pattern](http://web.archive.org/web/20161205130022/http://kellabyte.com/2012/05/30/clarifying-the-saga-pattern/)
- *    — the difference between Process Manager and Saga
- *  - [Are Sagas and Workflows the same...](https://dzone.com/articles/are-sagas-and-workflows-same-t)
- *  - [CQRS Journey Guide: A Saga on Sagas](https://msdn.microsoft.com/en-us/library/jj591569.aspx)
+ *  - [Process Manager Pattern][pm-pattern]
+ *  - [Clarifying the Saga pattern][saga-pattern] — the difference between
+ *    Process Manager and Saga
+ *  - [Are Sagas and Workflows the same...][sagas-workflows]
+ *  - [CQRS Journey Guide: A Saga on Sagas][cqrs-journey]
+ *
+ * [pm-pattern]: http://www.enterpriseintegrationpatterns.com/patterns/messaging/ProcessManager.html
+ * [saga-pattern]: http://web.archive.org/web/20161205130022/http://kellabyte.com/2012/05/30/clarifying-the-saga-pattern/
+ * [sagas-workflows]: https://dzone.com/articles/are-sagas-and-workflows-same-t
+ * [cqrs-journey]: https://msdn.microsoft.com/en-us/library/jj591569.aspx
  *
  * @param I The type of the process manager IDs.
  * @param S The type of the process manager state.

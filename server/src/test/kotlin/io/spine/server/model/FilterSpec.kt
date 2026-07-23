@@ -49,6 +49,7 @@ import io.spine.server.storage.memory.InMemoryStorageFactory
 import io.spine.test.model.modProjectCreated
 import io.spine.testing.server.blackbox.BlackBox
 import io.spine.testing.server.model.ModelTests.dropAllModels
+import java.lang.reflect.InvocationTargetException
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -152,9 +153,13 @@ internal class FilterSpec {
         }
     }
 
-    @Suppress("DEPRECATION") // `Class.newInstance()` suffices for the fixtures.
     private fun triggerModelConstruction(modelClass: Class<*>) {
-        val instance = modelClass.newInstance()
+        val instance = try {
+            modelClass.getDeclaredConstructor().newInstance()
+        } catch (e: InvocationTargetException) {
+            // The model error thrown by the fixture constructor must surface as-is.
+            throw e.cause ?: e
+        }
         if (instance is AbstractEntity<*, *>) {
             instance.modelClass()
         }

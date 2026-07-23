@@ -54,6 +54,7 @@ internal abstract class PmEndpoint<I : Any,
         repository().store(processManager)
     }
 
+    // The repository of a process manager endpoint is always a `ProcessManagerRepository`.
     @Suppress("UNCHECKED_CAST")
     override fun repository(): ProcessManagerRepository<I, P, *> =
         super.repository() as ProcessManagerRepository<I, P, *>

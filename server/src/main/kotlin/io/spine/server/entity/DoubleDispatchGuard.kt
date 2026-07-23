@@ -69,7 +69,7 @@ internal class DoubleDispatchGuard(private val entity: SignalDispatchingEntity<*
      * duplicate on each dispatch.
      */
     fun enable(historyDepth: Int) {
-        require(historyDepth > 0)
+        require(historyDepth > 0) { "History depth must be positive. Got $historyDepth." }
         this.enabled = true
         this.historyDepth = historyDepth
     }

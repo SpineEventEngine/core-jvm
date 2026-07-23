@@ -27,7 +27,6 @@
 package io.spine.server.projection
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue
-import io.spine.annotation.Internal
 import io.spine.base.ProjectionState
 import io.spine.server.delivery.EventEndpoint
 import io.spine.server.dispatch.DispatchOutcome
@@ -44,16 +43,16 @@ import io.spine.server.type.EventEnvelope
  * @param P The type of projections.
  * @param S The type of projection states.
  */
-@Internal
-public open class ProjectionEndpoint<I : Any,
-                                     P : Projection<I, S, *>,
-                                     S : ProjectionState<I>>
+internal open class ProjectionEndpoint<I : Any,
+                                       P : Projection<I, S, *>,
+                                       S : ProjectionState<I>>
 protected constructor(
     repository: Repository<I, P>,
     event: EventEnvelope
 ) : EntityMessageEndpoint<I, P, EventEnvelope>(repository, event),
     EventEndpoint<I> {
 
+    // The repository of a projection endpoint is always a `ProjectionRepository`.
     @Suppress("UNCHECKED_CAST")
     override fun repository(): ProjectionRepository<I, P, *> =
         super.repository() as ProjectionRepository<I, P, *>
@@ -106,7 +105,7 @@ protected constructor(
         // Do nothing.
     }
 
-    public companion object {
+    companion object {
 
         /**
          * Creates a new endpoint dispatching the given event to the projections

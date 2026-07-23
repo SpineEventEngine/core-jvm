@@ -57,6 +57,7 @@ import io.spine.system.server.DiagnosticMonitor
 import io.spine.system.server.event.entityStateChanged
 import io.spine.test.projection.Project
 import io.spine.test.projection.ProjectId
+import io.spine.test.projection.copy
 import io.spine.test.projection.project
 import io.spine.test.projection.projectId
 import io.spine.test.projection.projectTaskNames
@@ -122,9 +123,7 @@ internal class ProjectionSpec {
             status = Project.Status.STARTED
             task.add(newTask)
         }
-        val previousAggState = aggregateState.toBuilder()
-            .setName("Old $projectName")
-            .build()
+        val previousAggState = aggregateState.copy { name = "Old $projectName" }
         val entityId = messageId {
             typeUrl = aggregateState.typeUrl().value()
             id = pack(projId)

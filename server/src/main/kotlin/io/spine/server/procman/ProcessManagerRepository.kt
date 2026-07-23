@@ -123,6 +123,7 @@ protected constructor() :
     /**
      * Obtains class information of process managers managed by this repository.
      */
+    // The model class of this repository is always a `ProcessManagerClass`.
     @Suppress("UNCHECKED_CAST")
     private fun processManagerClass(): ProcessManagerClass<P> =
         entityModelClass() as ProcessManagerClass<P>
@@ -249,6 +250,7 @@ protected constructor() :
     /**
      * Begins a transaction for modifying the given process manager.
      */
+    // A process manager of this repository always carries these type arguments.
     @Suppress("UNCHECKED_CAST")
     @VisibleForTesting
     protected open fun beginTransactionFor(manager: P): PmTransaction<*, *, *> {

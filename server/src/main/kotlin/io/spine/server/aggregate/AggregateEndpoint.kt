@@ -133,6 +133,7 @@ internal abstract class AggregateEndpoint<I : Any,
     final override fun isModified(aggregate: A): Boolean =
         aggregate.changed() || aggregate.hasUncommittedEvents()
 
+    // The repository of an aggregate endpoint is always an `AggregateRepository`.
     @Suppress("UNCHECKED_CAST")
     final override fun repository(): AggregateRepository<I, A, *> =
         super.repository() as AggregateRepository<I, A, *>

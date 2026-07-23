@@ -147,6 +147,7 @@ protected constructor() :
     }
 
     /** Obtains class information of aggregates managed by this repository. */
+    // The model class of an aggregate repository is always an `AggregateClass`.
     @Suppress("UNCHECKED_CAST")
     protected fun aggregateClass(): AggregateClass<A> = entityModelClass() as AggregateClass<A>
 

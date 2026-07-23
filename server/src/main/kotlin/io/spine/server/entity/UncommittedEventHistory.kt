@@ -67,7 +67,7 @@ internal class UncommittedEventHistory {
      *
      * The returned list is empty when there are no uncommitted events.
      */
-    fun get(): List<Event> = ImmutableList.copyOf(events)
+    fun list(): List<Event> = ImmutableList.copyOf(events)
 
     /**
      * Returns all uncommitted events.

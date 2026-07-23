@@ -270,7 +270,7 @@ protected constructor() :
      * @param depth A positive number of recent events the double-dispatch guard scans.
      */
     protected open fun setEventHistoryDepth(depth: Int) {
-        require(depth > 0)
+        require(depth > 0) { "Event history depth must be positive. Got $depth." }
         historyDepth = depth
     }
 
@@ -341,7 +341,7 @@ protected constructor() :
      */
     override fun doStore(entity: E) {
         if (eventHistoryEnabled()) {
-            val events = entity.uncommittedEventHistory().get()
+            val events = entity.uncommittedEventHistory().list()
             val journal = eventStorage()
             events.forEach { journal.write(it) }
         }
