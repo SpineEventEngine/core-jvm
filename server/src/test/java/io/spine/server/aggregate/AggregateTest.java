@@ -247,7 +247,7 @@ public class AggregateTest {
         }
 
         /**
-         * This is a most typical use-case with a single event returned in response to a command.
+         * This is the most typical use-case with a single event returned in response to a command.
          */
         @Test
         @DisplayName("by one upon handling command with single event and empty event applier")
