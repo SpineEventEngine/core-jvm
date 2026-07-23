@@ -26,7 +26,6 @@
 
 package io.spine.server.entity
 
-import io.spine.annotation.Internal
 import io.spine.core.Version
 
 /**
@@ -109,8 +108,7 @@ internal constructor() {
      *
      * See the batch overload of [append] for the contract.
      */
-    @Internal
-    public fun append(record: R) {
+    internal fun append(record: R) {
         append(listOf(record))
     }
 
@@ -134,8 +132,7 @@ internal constructor() {
      * an empty cache cannot be told from a legitimate one and is accepted;
      * the mismatch is bounded by the lifetime of the entity instance.
      */
-    @Internal
-    public fun append(records: Iterable<R>) {
+    internal fun append(records: Iterable<R>) {
         val group = records.map { cachedFrom(it) }
         if (group.isEmpty()) {
             return

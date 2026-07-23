@@ -146,12 +146,18 @@ external subclasses.
   `uncommittedEventHistory()` accessor; `UncommittedEventHistory` →
   Kotlin `internal` class (its only source-level references were the two
   lines in `SignalDispatchingEntity.kt`).
-  Still deferred: `RecentHistory.append` → `internal`; the
-  `UncommittedEvents` visibility decision (Java test *fixtures* also use
-  it: `GivenAggregate`, `AggregateRepositoryTestEnv`).
+  The last two items closed the list (2026-07-23): `RecentHistory.append`
+  (both overloads) → `internal`, dropping the file's last `@Internal`;
+  `UncommittedEvents` → Kotlin `internal` class — the suspected Java
+  fixture usage (`GivenAggregate`, `AggregateRepositoryTestEnv`) turned
+  out to be a method *named* `withUncommittedEvents`, not a reference to
+  the type, so nothing blocked the conversion.
 
-Java *test* suites (`AggregateTest`, `ProjectionTest`) stay Java per the
-parent plan; the `@JvmName` bridges keep them compiling.
+The parent plan's "existing Java test suites stay Java" rule was superseded
+for this task (product owner, 2026-07-23): `AggregateTest` and
+`ProjectionTest` migrated to Kotlin in Wave D as the opening move of the
+tests-first Java→Kotlin migration — which is exactly what let the `@JvmName`
+bridges on the entity members go.
 
 Verified per wave: `:server:test` (2012 tests green) + `:server:dokkaGenerate`;
 after Wave C additionally the full `./gradlew build` (detekt: the converted
