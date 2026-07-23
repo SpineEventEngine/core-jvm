@@ -501,7 +501,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      * The recent history of the states this entity went through.
      *
      * Served lazily from the durable storage through the loader installed by
-     * the repository via [setStateHistoryLoader]. An entity created outside a
+     * the repository. An entity created outside a
      * repository has no loader, so its history reads come back empty.
      */
     private val recentStateHistory = RecentStateHistory<S>()
@@ -520,8 +520,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      * the behavior of the installed loader: while the recording is off,
      * reading through it fails fast rather than serving an empty history.
      */
-    @Internal
-    public fun setStateHistoryLoader(loader: StateHistoryLoader) {
+    internal fun setStateHistoryLoader(loader: StateHistoryLoader) {
         recentStateHistory.useLoader(loader)
     }
 
@@ -534,8 +533,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      * subsequent reads served by this instance — e.g., during the later
      * dispatches of a delivery batch — come from memory.
      */
-    @Internal
-    public fun appendToStateHistory(record: EntityRecord) {
+    internal fun appendToStateHistory(record: EntityRecord) {
         recentStateHistory.append(record)
     }
 

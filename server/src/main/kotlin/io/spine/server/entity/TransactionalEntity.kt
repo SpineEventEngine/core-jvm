@@ -109,7 +109,8 @@ public abstract class TransactionalEntity<I : Any, S : EntityState<I>, B : Valid
      * @return `true` if the state or flags have been modified, `false` otherwise.
      */
     @Internal
-    public fun changed(): Boolean {
+    @JvmName("changed") // Keeps the JVM name for the remaining Java callers.
+    internal fun changed(): Boolean {
         val lifecycleFlagsChanged = lifecycleFlagsChanged()
         val tx = transaction
         val effectiveStateChanged = tx?.stateChanged ?: this.stateChanged
@@ -353,7 +354,6 @@ public abstract class TransactionalEntity<I : Any, S : EntityState<I>, B : Valid
      *
      * @throws IllegalStateException If the given transaction is wrapped around another entity.
      */
-    @Internal
     @JvmSynthetic // Hidden from Java: transaction control must stay within the framework's Kotlin.
     internal fun injectTransaction(tx: Transaction<I, out TransactionalEntity<I, S, B>, S, B>) {
         /*
@@ -370,7 +370,6 @@ public abstract class TransactionalEntity<I : Any, S : EntityState<I>, B : Valid
     /**
      * Releases the transaction that was modifying this entity.
      */
-    @Internal
     @JvmSynthetic // Hidden from Java: transaction control must stay within the framework's Kotlin.
     internal fun releaseTransaction() {
         this.transaction = null
@@ -384,7 +383,6 @@ public abstract class TransactionalEntity<I : Any, S : EntityState<I>, B : Valid
      * @return The instance of the transaction or `null` if the entity is not being modified.
      * @see tx
      */
-    @Internal
     @VisibleForTesting
     @JvmSynthetic // Hidden from Java: transaction control must stay within the framework's Kotlin.
     internal fun transaction(): Transaction<I, out TransactionalEntity<I, S, B>, S, B>? =
@@ -393,7 +391,6 @@ public abstract class TransactionalEntity<I : Any, S : EntityState<I>, B : Valid
     /**
      * Updates own `stateChanged` flag from the underlying transaction.
      */
-    @Internal
     @JvmSynthetic // Hidden from Java: transaction control must stay within the framework's Kotlin.
     internal fun updateStateChanged() {
         this.stateChanged = tx().stateChanged

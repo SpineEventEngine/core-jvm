@@ -65,6 +65,13 @@ Converting a Java class that has same-package collaborators to Kotlin changes wh
 - **JUnit does not discover `@Nested` classes inherited from an abstract superclass** (concrete-class
   `@Nested` run fine; inherited `@Test` methods run, inherited `@Nested` classes do not). An abstract
   test base (`TransactionTest`) must declare its cases as flat `@Test` methods, not `@Nested`.
+- **The Fir2Ir ICE also needs the *subclass-inherited-call* shape — a plain (non-subclass) call
+  compiles clean even through a Java link** (2026-07-23, `reduce-public-internal-api`):
+  `TransactionalEntitySpec` (test-module Kotlin, NOT a subclass) calls `internal @JvmName`
+  `changed()` on a receiver whose static type chain passes through the Java `ProcessManager`,
+  and `AggregateTest`-adjacent Kotlin fixtures likewise touch `internal` members — all compiled
+  with no ICE. So: internal member + Java intermediate is dangerous only when a test-module
+  Kotlin *subclass* calls it as inherited; external call sites are fine.
 - **The Fir2Ir ICE needs a Java link in the inheritance chain — an all-Kotlin chain does NOT ICE**
   (`AbstractEntity.java` → Kotlin, 2026-07-17). `Fixture : TransactionalEntity<…>()` (test-module
   Kotlin subclass) inherited-calls `internal setState`/`checkEntityState` through the now-all-Kotlin

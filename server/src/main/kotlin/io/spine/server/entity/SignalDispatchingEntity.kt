@@ -130,8 +130,7 @@ public abstract class SignalDispatchingEntity<I : Any,
      * history survives the instance lifecycle instead of being limited to the events
      * committed by this very instance.
      */
-    @Internal
-    public fun setEventHistoryLoader(loader: EventHistoryLoader) {
+    internal fun setEventHistoryLoader(loader: EventHistoryLoader) {
         recentEventHistory.useLoader(loader)
     }
 
@@ -177,8 +176,7 @@ public abstract class SignalDispatchingEntity<I : Any,
      *
      * @param events The events emitted by the current command handler or reactor.
      */
-    @Internal
-    public fun recordEvents(events: List<Event>) {
+    internal fun recordEvents(events: List<Event>) {
         val journaled = uncommittedEventHistory.record(events)
         recentEventHistory().append(journaled)
     }
@@ -190,25 +188,27 @@ public abstract class SignalDispatchingEntity<I : Any,
      */
     @Internal
     @VisibleForTesting
-    public fun getUncommittedEvents(): UncommittedEvents = uncommittedEventHistory.events()
+    @JvmName("getUncommittedEvents") // Keeps the JVM name for the remaining Java test callers.
+    internal fun getUncommittedEvents(): UncommittedEvents = uncommittedEventHistory.events()
 
     /**
      * Tells if there are any uncommitted events.
      */
     @Internal
-    public fun hasUncommittedEvents(): Boolean = uncommittedEventHistory.hasEvents()
+    @JvmName("hasUncommittedEvents") // Keeps the JVM name for the remaining Java callers.
+    internal fun hasUncommittedEvents(): Boolean = uncommittedEventHistory.hasEvents()
 
     /**
      * Returns the uncommitted events of this entity.
      */
-    @Internal
-    public fun uncommittedEventHistory(): UncommittedEventHistory = uncommittedEventHistory
+    internal fun uncommittedEventHistory(): UncommittedEventHistory = uncommittedEventHistory
 
     /**
      * Marks the uncommitted events of this entity as committed and clears them.
      */
     @Internal
-    public fun commitEvents() {
+    @JvmName("commitEvents") // Keeps the JVM name for the remaining Java test callers.
+    internal fun commitEvents() {
         uncommittedEventHistory.commit()
     }
 
@@ -249,8 +249,7 @@ public abstract class SignalDispatchingEntity<I : Any,
      * Enables the opt-in double-dispatch guard for this entity, scanning up to
      * [historyDepth] most recent events for a duplicate on each dispatch.
      */
-    @Internal
-    public fun enableDoubleDispatchGuard(historyDepth: Int) {
+    internal fun enableDoubleDispatchGuard(historyDepth: Int) {
         doubleDispatchGuard.enable(historyDepth)
     }
 

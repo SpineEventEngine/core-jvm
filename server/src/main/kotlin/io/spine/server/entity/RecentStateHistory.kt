@@ -35,7 +35,7 @@ import io.spine.protobuf.AnyPacker
  * The recent history of states of an [AbstractEntity].
  *
  * The states are read from the durable state history via the loader
- * [installed][AbstractEntity.setStateHistoryLoader] by the repository
+ * installed on the [AbstractEntity] by the repository
  * of the entity, and cached for the lifetime of the entity instance —
  * see [RecentHistory]. Records are unpacked into the entity state type
  * eagerly when appended and lazily when traversed from storage; a cached

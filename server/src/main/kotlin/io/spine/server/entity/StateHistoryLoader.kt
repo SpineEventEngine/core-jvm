@@ -33,8 +33,8 @@ import io.spine.core.Version
 /**
  * Loads the recorded state history of an entity from the durable storage.
  *
- * An instance is installed via [AbstractEntity.setStateHistoryLoader]
- * by the repository owning the entity — see
+ * An instance is installed on the [AbstractEntity] by the repository
+ * owning the entity — see
  * `AbstractEntityRepository.recordStateHistory()`. An entity created outside
  * a repository has no loader, and its state history reads come back empty.
  *

@@ -38,10 +38,10 @@ import java.util.List;
  *
  * <p>Since the event-sourcing cutover, an entity no longer replays events to rebuild its
  * state, so this class no longer segments the events by snapshots — it is a plain, ordered list
- * of the events emitted by the current command or reaction. The framework
- * {@linkplain SignalDispatchingEntity#recordEvents(List) records} the produced events here after
- * a successful dispatch, stores them into the append-only journal alongside the latest state
- * record, and then {@link #commit() commits}.
+ * of the events emitted by the current command or reaction. The framework records the produced
+ * events here on the {@link SignalDispatchingEntity} after a successful dispatch, stores them
+ * into the append-only journal alongside the latest state record, and then
+ * {@link #commit() commits}.
  */
 @Internal
 public final class UncommittedEventHistory {
