@@ -79,11 +79,11 @@ public enum OperatorEvaluator {
                         classNameOf(left), classNameOf(right)
                 );
             }
-            if (left instanceof Timestamp) {
-                return isAfter((Timestamp) left, (Timestamp) right);
+            if (left instanceof Timestamp timestamp) {
+                return isAfter(timestamp, (Timestamp) right);
             }
-            if (left instanceof Comparable<?>) {
-                return compare((Comparable<?>) left, (Comparable<?>) right);
+            if (left instanceof Comparable<?> comparable) {
+                return compare(comparable, (Comparable<?>) right);
             }
             throw new UnsupportedOperationException(format(
                     "Comparison operations are not supported for type `%s`.",
