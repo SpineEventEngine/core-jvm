@@ -24,23 +24,32 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.dependency.local
+package io.spine.server.procman
+
+import io.spine.base.ProcessManagerState
+import io.spine.server.DefaultRepository
+import io.spine.server.defaultRepositoryLogName
+import io.spine.server.procman.model.ProcessManagerClass
+import io.spine.server.procman.model.ProcessManagerClass.asProcessManagerClass
 
 /**
- * Spine Base module.
+ * Default implementation of `ProcessManagerRepository`.
  *
- * @see <a href="https://github.com/SpineEventEngine/base-libraries">spine-base-libraries</a>
+ * @param I The type of IDs of process managers.
+ * @param P The type of process managers.
+ * @param S The type of process manager state messages.
+ * @param cls The class of process managers managed by this repository.
+ * @see io.spine.server.DefaultRepository
  */
-@Suppress("ConstPropertyName", "unused")
-object Base {
-    const val version = "2.0.0-SNAPSHOT.426"
-    const val versionForBuildScript = "2.0.0-SNAPSHOT.426"
-    const val group = Spine.group
-    private const val prefix = "spine"
-    const val libModule = "$prefix-base"
-    const val lib = "$group:$libModule:$version"
-    const val libForBuildScript = "$group:$libModule:$versionForBuildScript"
-    const val annotations = "$group:$prefix-annotations:$version"
-    const val environment = "$group:$prefix-environment:$version"
-    const val format = "$group:$prefix-format:$version"
+internal class DefaultProcessManagerRepository<I : Any,
+                                               P : ProcessManager<I, S, *>,
+                                               S : ProcessManagerState<I>>(
+    cls: Class<P>
+) : ProcessManagerRepository<I, P, S>(), DefaultRepository {
+
+    private val modelClass: ProcessManagerClass<P> = asProcessManagerClass(cls)
+
+    override fun entityModelClass(): ProcessManagerClass<P> = modelClass
+
+    override fun toString(): String = defaultRepositoryLogName(entityModelClass())
 }

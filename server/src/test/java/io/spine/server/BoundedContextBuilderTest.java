@@ -153,6 +153,16 @@ class BoundedContextBuilderTest {
                 .isEqualTo(tenantIndex);
     }
 
+    @Test
+    @DisplayName("tell whether a `TenantIndex` was configured")
+    void hasTenantIndex() {
+        var builder = BoundedContextBuilder.assumingTests();
+        assertFalse(builder.hasTenantIndex());
+
+        builder.setTenantIndex(new StubTenantIndex());
+        assertTrue(builder.hasTenantIndex());
+    }
+
     /**
      * Stub implementation of {@code TenantIndex}.
      */

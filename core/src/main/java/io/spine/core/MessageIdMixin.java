@@ -106,15 +106,11 @@ interface MessageIdMixin extends MessageIdOrBuilder, FieldAwareMessage {
     @Override
     @Internal
     default Object readValue(Descriptors.FieldDescriptor field) {
-        switch (field.getIndex()) {
-            case 0:
-                return getId();
-            case 1:
-                return getTypeUrl();
-            case 2:
-                return getVersion();
-            default:
-                return getField(field);
-        }
+        return switch (field.getIndex()) {
+            case 0 -> getId();
+            case 1 -> getTypeUrl();
+            case 2 -> getVersion();
+            default -> getField(field);
+        };
     }
 }

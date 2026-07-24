@@ -61,8 +61,8 @@ public final class Commands {
      */
     public static CommandMessage ensureMessage(Message commandOrMessage) {
         checkNotNull(commandOrMessage);
-        if (commandOrMessage instanceof Command) {
-            return ((Command) commandOrMessage).enclosedMessage();
+        if (commandOrMessage instanceof Command command) {
+            return command.enclosedMessage();
         }
         var unpacked = (CommandMessage) ensureUnpacked(commandOrMessage);
         return unpacked;

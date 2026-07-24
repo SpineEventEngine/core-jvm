@@ -24,35 +24,43 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+@file:Suppress("DEPRECATION") // This repository serves the deprecated `AggregatePart` API.
+
 package io.spine.server.aggregate
 
 import io.spine.base.AggregateState
 import io.spine.server.DefaultRepository
-import io.spine.server.aggregate.model.AggregateClass
-import io.spine.server.aggregate.model.AggregateClass.asAggregateClass
+import io.spine.server.aggregate.model.AggregatePartClass
+import io.spine.server.aggregate.model.AggregatePartClass.asAggregatePartClass
 import io.spine.server.defaultRepositoryLogName
 
 /**
- * Default implementation of `AggregateRepository`.
+ * Default implementation of `AggregatePartRepository`.
  *
  * @param I The type of aggregate IDs.
- * @param A The type of the stored aggregate.
+ * @param A The type of the stored aggregate part.
  * @param S The type of aggregate state.
- * @param cls The class of aggregates managed by this repository.
+ * @param R The type of aggregate root.
+ * @param cls The class of aggregate parts managed by this repository.
  * @see io.spine.server.DefaultRepository
  */
-internal class DefaultAggregateRepository<I : Any,
-                                          A : Aggregate<I, S, *>,
-                                          S : AggregateState<I>>(
+@Deprecated(
+    "This API does not provide isolation for an invariant. " +
+        "To coordinate the work of several `Aggregate`s, please use a `ProcessManager` instead."
+)
+internal class DefaultAggregatePartRepository<I : Any,
+                                              A : AggregatePart<I, S, *, R>,
+                                              S : AggregateState<I>,
+                                              R : AggregateRoot<I>>(
     cls: Class<A>
-) : AggregateRepository<I, A, S>(), DefaultRepository {
+) : AggregatePartRepository<I, A, S, R>(), DefaultRepository {
 
-    private val modelClass: AggregateClass<A> = asAggregateClass(cls)
+    private val modelClass: AggregatePartClass<A> = asAggregatePartClass(cls)
 
     /**
-     * Obtains the class of aggregates managed by this repository.
+     * Obtains the class of aggregate parts managed by this repository.
      */
-    override fun entityModelClass(): AggregateClass<A> = modelClass
+    override fun entityModelClass(): AggregatePartClass<A> = modelClass
 
     override fun toString(): String = defaultRepositoryLogName(entityModelClass())
 }

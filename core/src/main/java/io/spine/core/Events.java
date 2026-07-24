@@ -77,8 +77,8 @@ public final class Events {
      */
     public static EventMessage ensureMessage(Message eventOrMessage) {
         checkNotNull(eventOrMessage);
-        if (eventOrMessage instanceof Event) {
-            return ((Event) eventOrMessage).enclosedMessage();
+        if (eventOrMessage instanceof Event event) {
+            return event.enclosedMessage();
         }
         var unpacked = ensureUnpacked(eventOrMessage);
         return (EventMessage) unpacked;

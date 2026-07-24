@@ -24,23 +24,32 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.dependency.local
+package io.spine.server.projection
+
+import io.spine.base.ProjectionState
+import io.spine.server.DefaultRepository
+import io.spine.server.defaultRepositoryLogName
+import io.spine.server.projection.model.ProjectionClass
+import io.spine.server.projection.model.ProjectionClass.asProjectionClass
 
 /**
- * Spine Base module.
+ * Default implementation of `ProjectionRepository`.
  *
- * @see <a href="https://github.com/SpineEventEngine/base-libraries">spine-base-libraries</a>
+ * @param I The type of IDs of projections.
+ * @param P The type of projections.
+ * @param S The type of projection state messages.
+ * @param cls The class of projections managed by this repository.
+ * @see io.spine.server.DefaultRepository
  */
-@Suppress("ConstPropertyName", "unused")
-object Base {
-    const val version = "2.0.0-SNAPSHOT.426"
-    const val versionForBuildScript = "2.0.0-SNAPSHOT.426"
-    const val group = Spine.group
-    private const val prefix = "spine"
-    const val libModule = "$prefix-base"
-    const val lib = "$group:$libModule:$version"
-    const val libForBuildScript = "$group:$libModule:$versionForBuildScript"
-    const val annotations = "$group:$prefix-annotations:$version"
-    const val environment = "$group:$prefix-environment:$version"
-    const val format = "$group:$prefix-format:$version"
+internal class DefaultProjectionRepository<I : Any,
+                                           P : Projection<I, S, *>,
+                                           S : ProjectionState<I>>(
+    cls: Class<P>
+) : ProjectionRepository<I, P, S>(), DefaultRepository {
+
+    private val modelClass: ProjectionClass<P> = asProjectionClass(cls)
+
+    override fun entityModelClass(): ProjectionClass<P> = modelClass
+
+    override fun toString(): String = defaultRepositoryLogName(entityModelClass())
 }
