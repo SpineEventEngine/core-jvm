@@ -64,14 +64,11 @@ interface CompositeMessageFilter<M extends Message> extends MessageFilter<M> {
         var filters = filters().stream();
         var operator = operator();
         Predicate<MessageFilter<M>> passesFilter = f -> f.test(message);
-        switch (operator) {
-            case ALL:
-                return filters.allMatch(passesFilter);
-            case EITHER:
-                return filters.anyMatch(passesFilter);
-            default:
-                throw newIllegalArgumentException(
-                        "Unknown composite filter operator `%s`.", operator);
-        }
+        return switch (operator) {
+            case ALL -> filters.allMatch(passesFilter);
+            case EITHER -> filters.anyMatch(passesFilter);
+            default -> throw newIllegalArgumentException(
+                    "Unknown composite filter operator `%s`.", operator);
+        };
     }
 }

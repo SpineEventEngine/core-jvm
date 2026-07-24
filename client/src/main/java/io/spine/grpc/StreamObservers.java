@@ -26,7 +26,6 @@
 
 package io.spine.grpc;
 
-import io.grpc.Metadata;
 import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
@@ -34,7 +33,6 @@ import io.spine.annotation.Internal;
 import io.spine.base.Error;
 import io.spine.core.Response;
 import io.spine.core.Responses;
-import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -113,15 +111,17 @@ public final class StreamObservers {
     @SuppressWarnings("ChainOfInstanceofChecks") // Only way to check an exact throwable type.
     public static Optional<Error> fromStreamError(Throwable throwable) {
         checkNotNull(throwable);
-        if (throwable instanceof StatusRuntimeException) {
-            @Nullable Metadata metadata = ((StatusRuntimeException) throwable).getTrailers();
+        if (throwable instanceof StatusRuntimeException statusRuntimeException) {
+            var metadata = statusRuntimeException.getTrailers();
             return metadata == null
                    ? Optional.empty()
                    : MetadataConverter.toError(metadata);
         }
-        if (throwable instanceof StatusException) {
-            var metadata = ((StatusException) throwable).getTrailers();
-            return MetadataConverter.toError(metadata);
+        if (throwable instanceof StatusException statusException) {
+            var metadata = statusException.getTrailers();
+            return metadata == null
+                ? Optional.empty()
+                : MetadataConverter.toError(metadata);
         }
         return Optional.empty();
     }
