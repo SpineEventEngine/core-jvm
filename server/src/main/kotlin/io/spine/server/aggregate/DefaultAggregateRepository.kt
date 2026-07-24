@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,53 +24,36 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.server.aggregate;
+package io.spine.server.aggregate
 
-import io.spine.annotation.Internal;
-import io.spine.base.AggregateState;
-import io.spine.server.DefaultRepository;
-import io.spine.server.aggregate.model.AggregateClass;
-
-import static io.spine.server.aggregate.model.AggregateClass.asAggregateClass;
+import io.spine.annotation.Internal
+import io.spine.base.AggregateState
+import io.spine.server.DefaultRepository
+import io.spine.server.aggregate.model.AggregateClass
+import io.spine.server.aggregate.model.AggregateClass.asAggregateClass
 
 /**
- * Default implementation of {@code AggregateRepository}.
+ * Default implementation of `AggregateRepository`.
  *
- * @param <I>
- *         the type of aggregate IDs
- * @param <A>
- *         the type of the stored aggregate part
- * @param <S>
- *         the type of aggregate state
+ * @param I The type of aggregate IDs.
+ * @param A The type of the stored aggregate part.
+ * @param S The type of aggregate state.
+ * @param cls The class of aggregates managed by this repository.
  * @see io.spine.server.DefaultRepository
  */
 @Internal
-public final class DefaultAggregateRepository<I,
-                                              A extends Aggregate<I, S, ?>,
-                                              S extends AggregateState<I>>
-        extends AggregateRepository<I, A, S>
-        implements DefaultRepository {
+public class DefaultAggregateRepository<I : Any,
+                                        A : Aggregate<I, S, *>,
+                                        S : AggregateState<I>>(
+    cls: Class<A>
+) : AggregateRepository<I, A, S>(), DefaultRepository {
 
-    private final AggregateClass<A> modelClass;
-
-    /**
-     * Creates a new repository for managing aggregates of the passed class.
-     */
-    public DefaultAggregateRepository(Class<A> cls) {
-        super();
-        this.modelClass = asAggregateClass(cls);
-    }
+    private val modelClass: AggregateClass<A> = asAggregateClass(cls)
 
     /**
      * Obtains the class of aggregates managed by this repository.
      */
-    @Override
-    public AggregateClass<A> entityModelClass() {
-        return modelClass;
-    }
+    override fun entityModelClass(): AggregateClass<A> = modelClass
 
-    @Override
-    public String toString() {
-        return logName();
-    }
+    override fun toString(): String = logName()
 }
