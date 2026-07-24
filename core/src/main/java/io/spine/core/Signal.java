@@ -146,8 +146,8 @@ public interface Signal<I extends SignalId,
     }
 
     /**
-     * Creates the builder for identity of the message, by supplying the ID and the type URL
-     * of the enclosed message.
+     * Creates the builder for the identity of the message by supplying
+     * the ID and the type URL of the enclosed message.
      */
     @Internal
     default MessageId.Builder identityBuilder() {
