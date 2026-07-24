@@ -53,9 +53,9 @@ internal class StateHistoryTestRepository :
     /**
      * Performs the write-through unless [deferWriteThrough] is set.
      */
-    override fun doStore(aggregate: HistoryReadingAggregate) {
+    override fun doStore(entity: HistoryReadingAggregate) {
         if (!deferWriteThrough) {
-            super.doStore(aggregate)
+            super.doStore(entity)
         }
     }
 
