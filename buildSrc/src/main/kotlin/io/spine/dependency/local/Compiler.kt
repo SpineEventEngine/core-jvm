@@ -55,7 +55,7 @@ import io.spine.dependency.Dependency
  */
 @Suppress(
     "unused" /* Some subprojects do not use the Compiler directly. */,
-    "ConstPropertyName" /* We use custom convention for artifact properties. */,
+    "ConstPropertyName" /* We use a custom convention for artifact properties. */,
     "MemberVisibilityCanBePrivate" /* The properties are used directly by other subprojects. */,
 )
 object Compiler : Dependency() {
@@ -64,7 +64,7 @@ object Compiler : Dependency() {
     const val pluginId = "io.spine.compiler"
 
     /**
-     * Identifies the Compiler as a `classpath` dependency under `buildScript` block.
+     * Identifies the Compiler as a `classpath` dependency under the `buildScript` block.
      */
     const val module = "io.spine.tools:compiler"
 

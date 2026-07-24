@@ -82,7 +82,7 @@ import org.gradle.kotlin.dsl.findByType
  * }
  * ```
  *
- * Please note, environment should be set up firstly to have the effect on the parts
+ * Please note, the environment should be set up firstly to have the effect on the parts
  * of the extension that use it.
  *
  * ### Tasks and Plugins
@@ -93,7 +93,7 @@ import org.gradle.kotlin.dsl.findByType
  * Then this extension is called in a project's `build.gradle.kts`.
  *
  * `DartTasks` and `DartPlugins` scopes extend [DartContext] that provides access
- * to the current [DartEnvironment] and shortcuts for running `pub` tool.
+ * to the current [DartEnvironment] and shortcuts for running the `pub` tool.
  *
  * Below is the simplest example of how to create a primitive `printPubVersion` task.
  *
@@ -169,7 +169,7 @@ open class DartExtension(project: Project) {
     /**
      * Overrides default values of [DartEnvironment].
      *
-     * Please note, environment should be set up firstly to have the effect on the parts
+     * Please note, the environment should be set up firstly to have the effect on the parts
      * of the extension that use it.
      */
     fun environment(overridings: ConfigurableDartEnvironment.() -> Unit) =

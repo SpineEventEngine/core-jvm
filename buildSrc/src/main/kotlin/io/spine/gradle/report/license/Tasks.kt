@@ -33,7 +33,7 @@ import org.gradle.api.tasks.TaskProvider
 /**
  * Locates `generateLicenseReport` in this [TaskContainer].
  *
- * The task generates a license report for a specific Gradle project. License report includes
+ * The task generates a license report for a specific Gradle project. The license report includes
  * information of all dependencies and their licenses.
  */
 val TaskContainer.generateLicenseReport: TaskProvider<Task>

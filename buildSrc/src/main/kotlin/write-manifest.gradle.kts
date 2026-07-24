@@ -81,7 +81,7 @@ val buildTimestampAttr = "Build-Timestamp"
 /**
  * The attributes we put into the JAR manifest.
  *
- * This map is shared between the [exposeManifestForTests] task and the action which
+ * This map is shared between the [exposeManifestForTests] task and the action that
  * customizes the [Jar] task below.
  */
 val manifestAttributes = mapOf(
@@ -99,7 +99,7 @@ val manifestAttributes = mapOf(
 /**
  * Creates a manifest file in `resources` so that it is available for the tests.
  *
- * This task does the same what does the block which configures the `tasks.jar` below.
+ * This task does the same as the block that configures the `tasks.jar` below.
  * We cannot use the manifest file created by the `Jar` task because it's not visible
  * when running tests. We cannot depend on the `Jar` from `resources` because it would
  * form a circular dependency.

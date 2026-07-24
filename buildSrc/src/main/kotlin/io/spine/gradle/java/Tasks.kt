@@ -32,7 +32,7 @@ import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.named
 
 /**
- * Locates `test` task in this [TaskContainer].
+ * Locates the `test` task in this [TaskContainer].
  *
  * Runs the unit tests using JUnit or TestNG.
  *

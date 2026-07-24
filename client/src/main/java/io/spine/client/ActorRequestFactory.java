@@ -36,6 +36,7 @@ import io.spine.core.TenantId;
 import io.spine.core.UserId;
 import io.spine.time.ZoneId;
 import io.spine.time.ZoneIds;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jspecify.annotations.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -217,8 +218,8 @@ public class ActorRequestFactory {
      */
     public static class Builder {
 
-        private UserId actor;
-        private ZoneId zoneId;
+        private @MonotonicNonNull UserId actor;
+        private @MonotonicNonNull ZoneId zoneId;
 
         private @Nullable TenantId tenantId;
 
@@ -256,7 +257,7 @@ public class ActorRequestFactory {
          * Obtains the zone ID set in the builder.
          *
          * @return the zone ID or {@code null} if the value was not set
-         * @deprecated This method returns {@code null}. Use {@link #getZoneId()} and {@link #hasZoneId()} instead.
+         * @deprecated Use {@link #getZoneId()} and {@link #hasZoneId()} instead.
          */
         @Deprecated
         public @Nullable ZoneId zoneId() {

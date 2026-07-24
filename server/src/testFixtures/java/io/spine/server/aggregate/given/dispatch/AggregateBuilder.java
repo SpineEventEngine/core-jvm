@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,9 +31,8 @@ import io.spine.annotation.VisibleForTesting;
 import io.spine.base.AggregateState;
 import io.spine.core.Version;
 import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.AggregateTransaction;
 import io.spine.server.entity.EntityBuilder;
-import io.spine.validation.ValidatingBuilder;
+import io.spine.server.entity.TestTransaction;
 
 /**
  * Utility class for building aggregates for tests.
@@ -64,24 +63,7 @@ public class AggregateBuilder<A extends Aggregate<I, S, ?>,
     }
 
     @Override
-    @SuppressWarnings({"unchecked", "rawtypes"})    /* To avoid massive generics hell. */
     protected void setState(A result, S state, Version version) {
-        var tx = new TestAggregateTransaction(result, state, version);
-        tx.commit();
-    }
-
-    /**
-     * A test-only implementation of an {@link AggregateTransaction} that sets the given
-     * {@code state} and {@code version} as a starting point for the transaction.
-     *
-     * @param <B> the type of a {@code ValidatingBuilder} for the aggregate state
-     */
-    private final class
-    TestAggregateTransaction<B extends ValidatingBuilder<S>>
-            extends AggregateTransaction<I, S, B> {
-
-        private TestAggregateTransaction(Aggregate<I, S, B> aggregate, S state, Version version) {
-            super(aggregate, state, version);
-        }
+        TestTransaction.injectState(result, state, version);
     }
 }

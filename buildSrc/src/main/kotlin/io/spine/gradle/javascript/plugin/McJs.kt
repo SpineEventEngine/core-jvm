@@ -32,7 +32,7 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.withGroovyBuilder
 
 /**
- * Applies `mc-js` plugin and specifies directories for generated code.
+ * Applies the `mc-js` plugin and specifies directories for generated code.
  *
  * @see JsPlugins
  */

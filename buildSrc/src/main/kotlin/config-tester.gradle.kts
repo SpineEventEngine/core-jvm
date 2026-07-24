@@ -37,7 +37,7 @@ val config: Path = Paths.get("./")
 // A temp folder to use to check out the sources of other repositories with the `ConfigTester`.
 val tempFolder = File("./tmp")
 
-// Creates a Gradle task which checks out and builds the selected Spine repositories
+// Creates a Gradle task that checks out and builds the selected Spine repositories
 // with the local version of `config` and `config/buildSrc`.
 ConfigTester(config, tasks, tempFolder)
     .addRepo(SpineRepos.baseTypes)  // Builds `base-types` at `master`.

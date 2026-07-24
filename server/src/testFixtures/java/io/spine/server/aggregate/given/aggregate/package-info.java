@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,7 @@
  */
 
 /**
- * Test environment classes for {@linkplain io.spine.server.aggregate.AggregateTest
- * Aggregate tests}.
+ * Test environment classes for {@code Aggregate} tests.
  */
 @NullMarked
 package io.spine.server.aggregate.given.aggregate;

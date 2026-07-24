@@ -30,7 +30,6 @@ import com.google.common.base.MoreObjects
 import com.google.common.collect.ImmutableList
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper
 import com.google.protobuf.Timestamp
-import io.spine.annotation.Internal
 import io.spine.annotation.VisibleForTesting
 import io.spine.base.EntityState
 import io.spine.base.Identifier
@@ -198,7 +197,6 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      * @return The current state or default state value.
      */
     final override fun state(): S {
-        ensureAccessToState()
         _state?.let { return it }
         return synchronized(this) {
             _state ?: defaultState().also { _state = it }
@@ -206,27 +204,9 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
     }
 
     /**
-     * Ensures that the callee is allowed to access Entity's `state()` method.
-     *
-     * In case the access is prohibited, throws a `RuntimeException`.
-     *
-     * In some scenarios, the state of Entity may not be up-to-date,
-     * so descendants of `AbstractEntity` are able to put the corresponding restrictions
-     * on this method invocation.
-     *
-     * By default, this method performs no checks,
-     * thus allowing access to Entity's `state()` at any point in time.
-     */
-    @Internal
-    protected open fun ensureAccessToState() {
-        // Do nothing by default.
-    }
-
-    /**
      * Obtains the model class for this entity.
      */
-    @Internal
-    protected open fun thisClass(): EntityClass<*> {
+    internal open fun thisClass(): EntityClass<*> {
         _thisClass?.let { return it }
         return synchronized(this) {
             _thisClass ?: modelClass().also { _thisClass = it }
@@ -236,13 +216,11 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
     /**
      * Obtains the model class.
      */
-    @Internal
-    override fun modelClass(): EntityClass<*> = EntityClass.asEntityClass(javaClass)
+    internal open fun modelClass(): EntityClass<*> = EntityClass.asEntityClass(javaClass)
 
     /**
      * Sets the entity state to the passed value.
      */
-    @JvmName("setState")
     internal fun setState(newState: S) {
         _state = newState
     }
@@ -265,7 +243,6 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      * @param state The new state to set.
      * @throws InvalidEntityStateException If the passed state is not [valid][validate].
      */
-    @JvmName("updateState")
     internal fun updateState(state: S) {
         validate(state)
         setState(state)
@@ -322,7 +299,6 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
     /**
      * Sets status for the entity.
      */
-    @JvmName("setLifecycleFlags")
     internal fun setLifecycleFlags(lifecycleFlags: LifecycleFlags) {
         if (lifecycleFlags != _lifecycleFlags) {
             _lifecycleFlags = lifecycleFlags
@@ -424,24 +400,20 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      * @throws IllegalArgumentException If the passed version has a number lower than
      *   the current version of the entity.
      */
-    @JvmName("updateState")
     internal fun updateState(state: S, version: Version) {
         updateState(state)
         updateVersion(version)
     }
 
     /**
-     * Obtains the version number of the entity.
+     * Updates the version of this entity with the passed value, validating it first.
      */
-    protected open fun versionNumber(): Int = version().number
-
-    @JvmName("updateVersion")
     internal fun updateVersion(newVersion: Version) {
         Validate.check(newVersion)
         if (_version == newVersion) {
             return
         }
-        val currentVersionNumber = versionNumber()
+        val currentVersionNumber = version().number
         val newVersionNumber = newVersion.number
         if (currentVersionNumber > newVersionNumber) {
             throw newIllegalArgumentException(
@@ -464,12 +436,13 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      * @param newState A new state to set.
      */
     @VisibleForTesting
-    @JvmName("incrementState")
     internal fun incrementState(newState: S) {
         updateState(newState, incrementedVersion())
     }
 
-    @JvmName("setVersion")
+    /**
+     * Assigns the version to this entity as is, without validation.
+     */
     internal fun setVersion(version: Version) {
         _version = version
     }
@@ -501,7 +474,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      * The recent history of the states this entity went through.
      *
      * Served lazily from the durable storage through the loader installed by
-     * the repository via [setStateHistoryLoader]. An entity created outside a
+     * the repository. An entity created outside a
      * repository has no loader, so its history reads come back empty.
      */
     private val recentStateHistory = RecentStateHistory<S>()
@@ -509,7 +482,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
     /**
      * Obtains the recent history of states of this entity.
      */
-    protected fun recentStateHistory(): RecentStateHistory<S> = recentStateHistory
+    internal fun recentStateHistory(): RecentStateHistory<S> = recentStateHistory
 
     /**
      * Installs the loader serving the [recent state history][recentStateHistory]
@@ -520,8 +493,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      * the behavior of the installed loader: while the recording is off,
      * reading through it fails fast rather than serving an empty history.
      */
-    @Internal
-    public fun setStateHistoryLoader(loader: StateHistoryLoader) {
+    internal fun setStateHistoryLoader(loader: StateHistoryLoader) {
         recentStateHistory.useLoader(loader)
     }
 
@@ -534,8 +506,7 @@ public abstract class AbstractEntity<I : Any, S : EntityState<I>> :
      * subsequent reads served by this instance — e.g., during the later
      * dispatches of a delivery batch — come from memory.
      */
-    @Internal
-    public fun appendToStateHistory(record: EntityRecord) {
+    internal fun appendToStateHistory(record: EntityRecord) {
         recentStateHistory.append(record)
     }
 

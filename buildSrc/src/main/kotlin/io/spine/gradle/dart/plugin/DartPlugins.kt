@@ -42,12 +42,12 @@ import org.gradle.api.tasks.TaskContainer
  *  2. [extensions].
  *  3. [tasks].
  *
- * Let's imagine one wants to apply and configure `FooBar` plugin. To do that, several steps
+ * Let's imagine one wants to apply and configure the `FooBar` plugin. To do that, several steps
  * should be completed:
  *
  *  1. Declare the corresponding extension function upon [DartContext] named after the plugin.
  *  2. Apply and configure the plugin inside that function.
- *  3. Call the resulted extension in your `build.gradle.kts` file.
+ *  3. Call the resulting extension in your `build.gradle.kts` file.
  *
  * Here's an example of `dart/plugin/FooBar.kt`:
  *

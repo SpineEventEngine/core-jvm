@@ -35,7 +35,7 @@ import org.gradle.kotlin.dsl.findByType
 
 /**
  * Configures [JsExtension] that facilitates configuration of Gradle tasks and plugins
- * to build JavaScripts projects.
+ * to build JavaScript projects.
  *
  * The whole structure of the extension looks as follows:
  *
@@ -83,7 +83,7 @@ import org.gradle.kotlin.dsl.findByType
  * }
  * ```
  *
- * Please note, environment should be set up firstly to have the effect on the parts
+ * Please note, the environment should be set up firstly to have the effect on the parts
  * of the extension that use it.
  *
  * ### Tasks and Plugins
@@ -94,7 +94,7 @@ import org.gradle.kotlin.dsl.findByType
  * Then this extension is called in a project's `build.gradle.kts`.
  *
  * `JsTasks` and `JsPlugins` scopes extend [JsContext] that provides access
- * to the current [JsEnvironment] and shortcuts for running `npm` tool.
+ * to the current [JsEnvironment] and shortcuts for running the `npm` tool.
  *
  * Below is the simplest example of how to create a primitive `printNpmVersion` task.
  *
@@ -173,7 +173,7 @@ open class JsExtension(internal val project: Project) {
     /**
      * Overrides default values of [JsEnvironment].
      *
-     * Please note, environment should be set up firstly to have the effect on the parts
+     * Please note, the environment should be set up firstly to have the effect on the parts
      * of the extension that use it.
      */
     fun environment(overridings: ConfigurableJsEnvironment.() -> Unit) =

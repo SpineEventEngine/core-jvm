@@ -41,6 +41,7 @@ import io.spine.server.aggregate.given.repo.ReactingRepository;
 import io.spine.server.aggregate.given.repo.RejectingRepository;
 import io.spine.server.aggregate.given.repo.RejectionReactingAggregate;
 import io.spine.server.aggregate.given.repo.RejectionReactingRepository;
+import io.spine.server.entity.TestTransaction;
 import io.spine.server.type.CommandClass;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventClass;
@@ -266,9 +267,7 @@ class AggregateRepositoryTest {
         void archived() {
             var aggregate = givenStoredAggregate();
 
-            AggregateTransaction<?, ?, ?> tx = AggregateTransaction.start(aggregate);
-            aggregate.archive();
-            tx.commit();
+            TestTransaction.archive(aggregate);
             repository().store(aggregate);
 
             assertTrue(repository().find(aggregate.id())
@@ -280,9 +279,7 @@ class AggregateRepositoryTest {
         void deleted() {
             var aggregate = givenStoredAggregate();
 
-            AggregateTransaction<?, ?, ?> tx = AggregateTransaction.start(aggregate);
-            aggregate.archive();
-            tx.commit();
+            TestTransaction.delete(aggregate);
 
             repository().store(aggregate);
 

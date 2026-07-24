@@ -26,7 +26,7 @@
 
 /**
  * This file provides extensions to `String` and `CharSequence` that wrap
- * analogues from standard Kotlin runtime.
+ * analogues from the standard Kotlin runtime.
  *
  * It helps in switching between versions of Gradle that have different versions of
  * the Kotlin runtime. Please see the bodies of the extension functions for details on

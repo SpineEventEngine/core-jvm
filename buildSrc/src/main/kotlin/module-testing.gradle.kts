@@ -79,7 +79,7 @@ private fun DependencyHandlerScope.forceJunitPlatform() {
 typealias Module = Project
 
 /**
- * Configure this module to run JUnit-based tests.
+ * Configures this module to run JUnit-based tests.
  */
 fun Module.setupTests() {
     tasks {

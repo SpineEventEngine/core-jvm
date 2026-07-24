@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -40,7 +40,6 @@ import io.spine.client.CompositeFilter;
 import io.spine.client.IdFilter;
 import io.spine.client.ResponseFormat;
 import io.spine.client.TargetFilters;
-import io.spine.server.entity.given.repository.GivenLifecycleFlags;
 import io.spine.testing.TestValues;
 import io.spine.testing.server.model.ModelTests;
 import io.spine.testing.server.tenant.TenantAwareTest;
@@ -115,10 +114,10 @@ class RecordBasedRepositoryTest<E extends AbstractEntity<I, S>, I, S extends Ent
     protected abstract I createId(int value);
 
     /**
-     * Sets the {@code package-local} {@link AbstractEntity#state() state} property of an entity.
+     * Sets the state of an entity by committing a test-only transaction.
      */
     protected void setEntityState(E entity, S state) {
-        entity.setState(state);
+        TestTransaction.injectState(asTxEntity(entity), state, entity.version());
     }
 
     @BeforeEach
@@ -488,7 +487,7 @@ class RecordBasedRepositoryTest<E extends AbstractEntity<I, S>, I, S extends Ent
 
             assertFound(id).isPresent();
 
-            entity.setLifecycleFlags(GivenLifecycleFlags.archived());
+            archive(asTxEntity(entity));
             storeEntity(entity);
 
             assertFound(id).isEmpty();
@@ -504,7 +503,7 @@ class RecordBasedRepositoryTest<E extends AbstractEntity<I, S>, I, S extends Ent
 
             assertFound(id).isPresent();
 
-            entity.setLifecycleFlags(GivenLifecycleFlags.deleted());
+            delete(asTxEntity(entity));
             storeEntity(entity);
 
             assertFound(id).isEmpty();

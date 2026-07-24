@@ -105,7 +105,7 @@ private val linkSpineWebModuleName = TaskName.of("linkSpineWebModule")
 /**
  * Locates `linkSpineWebModule` task in this [TaskContainer].
  *
- * The task installs unpublished artifact of `spine-web` library as a module dependency.
+ * The task installs an unpublished artifact of the `spine-web` library as a module dependency.
  *
  * Creates a symbolic link from globally-installed `spine-web` library to `node_modules` of
  * the current project.

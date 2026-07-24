@@ -172,7 +172,7 @@ private val publishJsName = TaskName.of("publishJs")
  * [publicationDirectory][io.spine.gradle.javascript.JsEnvironment.publicationDir]
  * using `npm publish`.
  *
- * Please note, in order to publish an NMP package, a valid
+ * Please note, in order to publish an NPM package, a valid
  * [npmAuthToken][io.spine.gradle.javascript.JsEnvironment.npmAuthToken] should be
  * set. If no token is set, a default dummy value is quite enough for the local development.
  *

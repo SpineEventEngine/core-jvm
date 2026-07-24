@@ -79,7 +79,7 @@ abstract class Dependency {
      * Forces all artifacts of this dependency using the given resolution strategy.
      *
      * @param project The project in which the artifacts are forced. Used for logging.
-     * @param cfg The configuration for which the artifacts are forced.  Used for logging.
+     * @param cfg The configuration for which the artifacts are forced. Used for logging.
      * @param rs The resolution strategy that forces the artifacts.
      */
     fun forceArtifacts(project: Project, cfg: Configuration, rs: ResolutionStrategy) {

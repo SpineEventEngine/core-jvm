@@ -57,7 +57,7 @@ import org.gradle.api.artifacts.ConfigurationContainer
  *
  *  In addition to forcing BOM-based dependencies,
  *  the plugin [forces][org.gradle.api.artifacts.ResolutionStrategy.force] the versions
- *  of [Kotlin.StdLib.artifacts] for all configurations because even through Kotlin
+ *  of [Kotlin.StdLib.artifacts] for all configurations because even though Kotlin
  *  artifacts are forced with BOM, the `variants` in the dependencies cannot be
  *  picked by Gradle.
  *

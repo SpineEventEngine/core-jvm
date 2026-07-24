@@ -65,6 +65,13 @@ Converting a Java class that has same-package collaborators to Kotlin changes wh
 - **JUnit does not discover `@Nested` classes inherited from an abstract superclass** (concrete-class
   `@Nested` run fine; inherited `@Test` methods run, inherited `@Nested` classes do not). An abstract
   test base (`TransactionTest`) must declare its cases as flat `@Test` methods, not `@Nested`.
+- **The Fir2Ir ICE also needs the *subclass-inherited-call* shape — a plain (non-subclass) call
+  compiles clean even through a Java link** (2026-07-23, `reduce-public-internal-api`):
+  `TransactionalEntitySpec` (test-module Kotlin, NOT a subclass) calls `internal @JvmName`
+  `changed()` on a receiver whose static type chain passes through the Java `ProcessManager`,
+  and `AggregateTest`-adjacent Kotlin fixtures likewise touch `internal` members — all compiled
+  with no ICE. So: internal member + Java intermediate is dangerous only when a test-module
+  Kotlin *subclass* calls it as inherited; external call sites are fine.
 - **The Fir2Ir ICE needs a Java link in the inheritance chain — an all-Kotlin chain does NOT ICE**
   (`AbstractEntity.java` → Kotlin, 2026-07-17). `Fixture : TransactionalEntity<…>()` (test-module
   Kotlin subclass) inherited-calls `internal setState`/`checkEntityState` through the now-all-Kotlin
@@ -82,10 +89,61 @@ Converting a Java class that has same-package collaborators to Kotlin changes wh
   `Transaction.kt` switched from `entity.defaultState()` to `entity.modelClass().defaultState()` (the
   public `EntityClass.defaultState()` that `IdField` already used). Only widen genuinely package-private
   members to `internal`.
+- **Dropping (or adding) `@JvmName` on an `internal` member can leave STALE same-module Kotlin
+  callers under incremental compilation** (2026-07-23, Wave D4): after removing
+  `@JvmName("changed")`, `PmEndpoint.class` still called the unmangled `changed()` →
+  `NoSuchMethodError` at runtime in `server-testlib` tests, while `:server:testClasses` compiled
+  "green". The incremental compiler does not treat the JvmName-attribute change as an ABI change
+  for all callers. Cure: `./gradlew :server:clean` and a full rebuild after any `@JvmName`
+  add/drop; treat a downstream `NoSuchMethodError` on a freshly renamed member as staleness, not
+  as a code bug.
+- **Kotlin emits wildcards for type-parameter generics in override positions — breaking Java
+  subclass chains** (2026-07-23, `AggregateRepository` conversion): an override of the Java
+  `dispatchTo(Set<I>, …)` declared with Kotlin `Set<I>` compiles to `Set<? extends I>` (declaration-
+  site variance + non-final type argument), and javac then rejects Java subclasses with "same
+  erasure, yet neither overrides the other". Fix: `ids: @JvmSuppressWildcards Set<I>`. Final type
+  arguments (`Iterable<Event>`) emit no wildcard — only type parameters and non-final classes do.
 - **Guava `checkNotNull` (NPE) ≠ Kotlin `checkNotNull` (ISE).** Converting `id() = checkNotNull(_id)`
   verbatim silently changes the thrown type NPE→ISE. Preserve with `_id ?: throw NullPointerException(…)`
   (no `!!` — the skill forbids it). Non-null Kotlin *param* types keep their NPE via `Intrinsics`, so only
   explicit `checkNotNull` on fields/returns drifts.
+- **Locals and parameters shadow proto-DSL receiver properties, not the other way around**
+  (2026-07-23, `AbstractEntitySpec`): in `project { id = projectId }` with a ctor param `id` in
+  scope, the assignment target resolves to the *parameter* ("'val' cannot be reassigned"), because
+  Kotlin gives locals/params priority over implicit-receiver members. Qualify the DSL property
+  (`this.id = …`) or rename the outer local.
+- **Inside an `internal` class, member `public`/`internal` modifiers are no-ops — sweep them after
+  internalizing** (2026-07-23, `DoubleDispatchGuard`/recent-history sweep): the effective visibility is
+  `internal` either way, so `internal constructor()`, `internal fun`, `internal companion object`, and
+  explicit `public fun` are residue once a formerly-public class turns `internal`; drop them (an empty
+  redundant `()` primary ctor also trips detekt `EmptyDefaultConstructor`). The one observable
+  difference: an `internal` member's JVM name mangles (`foo$server`) while a public member of an
+  internal class stays unmangled — so keep `internal` (or add `@JvmName`) only if a same-module *Java*
+  caller still uses the member.
+- **Kotlin honors Java's package/subclass access for `protected` and package-private members declared
+  in *Java*, but drops it the moment that member becomes Kotlin** (2026-07-24, transaction/dispatch and
+  `ProjectionRepository` conversions). Empirically, a Kotlin same-package non-subclass (e.g.
+  `ProcessManagerRepository.kt`, `PmTransactionSpec.kt`) *can* call a Java `protected` constructor, and a
+  Kotlin same-package class can call a Java package-private one (`Phase(...)`). Convert that Java class to
+  Kotlin and the same call site breaks: Kotlin-to-Kotlin `protected` is subclass-only, with no package
+  slice. Cures, per caller mix: add an `internal` **seam** (`SignalDispatchingEntity.dispatchCommand
+  InTransaction`/`dispatchEventInTransaction`, `ProjectionRepository.findOrCreateProjection`) for
+  same-module Kotlin non-subclass callers; make ctors `public` when a Java main/testFixtures collaborator
+  *and* a Kotlin non-subclass both construct it (`PmTransaction`); or redirect the Java caller through a
+  public utility (`AggregateBuilder`/`AggregateRepositoryTest` → `TestTransaction.injectState`/`archive`/
+  `delete`) so the class can go fully `internal` (`AggregateTransaction`).
+- **`import Class.companionFn` fails for a Kotlin companion `@JvmStatic` function — use
+  `import Class.Companion.companionFn`** (2026-07-24, `DispatchCommand.operationFor`). A Java `public static`
+  imported as `import …DispatchCommand.operationFor` compiles; after converting to a Kotlin companion
+  `@JvmStatic fun`, the same import is "unresolved reference". `@JvmStatic` fixes *Java* callers, not the
+  Kotlin static-import path. Fix the Kotlin import to `.Companion.operationFor` (or call
+  `DispatchCommand.operationFor(...)` unqualified).
+- **A Java method with a type parameter only in its *return* type can't be inferred at a Kotlin call
+  site** (2026-07-24, `StateClass.<P> Class<? extends EntityState<P>> typedValue()`). Java captured it from
+  the target (`routing.supports(c.typedValue())`); Kotlin reports "Cannot infer type for type parameter
+  'P'". Supply it explicitly — `it.typedValue<Any>()` (the bound is `EntityState<I : Any>`), or rewrite the
+  Java-Stream+Guava-collector chain into Kotlin collection ops (which also dodges `toImmutableList()`
+  collector-element inference).
 
 **Why:** Discovered while converting `TransactionalEntity.java` (2026-07-06), `Transaction.java`
 (2026-07-07), and `AbstractEntity.java` (2026-07-17) to Kotlin. These are compile-/runtime-level facts,

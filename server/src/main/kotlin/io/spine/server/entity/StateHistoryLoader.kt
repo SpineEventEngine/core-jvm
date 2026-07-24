@@ -27,21 +27,19 @@
 package io.spine.server.entity
 
 import com.google.protobuf.Timestamp
-import io.spine.annotation.Internal
 import io.spine.core.Version
 
 /**
  * Loads the recorded state history of an entity from the durable storage.
  *
- * An instance is installed via [AbstractEntity.setStateHistoryLoader]
- * by the repository owning the entity — see
+ * An instance is installed on the [AbstractEntity] by the repository
+ * owning the entity — see
  * `AbstractEntityRepository.recordStateHistory()`. An entity created outside
  * a repository has no loader, and its state history reads come back empty.
  *
  * @see io.spine.server.entity.storage.EntityStateHistoryStorage
  */
-@Internal
-public interface StateHistoryLoader : HistoryLoader<EntityRecord> {
+internal interface StateHistoryLoader : HistoryLoader<EntityRecord> {
 
     /**
      * Loads up to [depth] most recent state records of the entity,
@@ -61,5 +59,5 @@ public interface StateHistoryLoader : HistoryLoader<EntityRecord> {
      *
      * @param at The point in time to look at.
      */
-    public fun stateAt(at: Timestamp): EntityRecord?
+    fun stateAt(at: Timestamp): EntityRecord?
 }

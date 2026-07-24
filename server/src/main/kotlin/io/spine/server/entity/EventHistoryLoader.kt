@@ -26,7 +26,6 @@
 
 package io.spine.server.entity
 
-import io.spine.annotation.Internal
 import io.spine.core.Event
 import io.spine.core.Version
 
@@ -34,13 +33,13 @@ import io.spine.core.Version
  * Lazily loads up to a requested number of an entity's most recent journal
  * events, newest first.
  *
- * A repository installs a loader on each entity it creates or loads — via
- * [SignalDispatchingEntity.setEventHistoryLoader] — so that the
- * [recent event history reads][RecentEventHistory.read] are served from the
- * durable journal of the entity. See [SignalDispatchingRepository] for the wiring.
+ * A repository installs a loader on each [SignalDispatchingEntity] it creates
+ * or loads, so that the [recent event history reads][RecentEventHistory.read] are
+ * served from the durable journal of the entity.
+ *
+ * See [SignalDispatchingRepository] for the wiring.
  */
-@Internal
-public fun interface EventHistoryLoader : HistoryLoader<Event> {
+internal fun interface EventHistoryLoader : HistoryLoader<Event> {
 
     /**
      * Loads up to [depth] most recent events of the entity's journal, newest first.

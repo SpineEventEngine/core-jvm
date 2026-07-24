@@ -26,7 +26,6 @@
 
 package io.spine.server.entity
 
-import io.spine.annotation.Internal
 import io.spine.core.Version
 
 /**
@@ -48,17 +47,13 @@ import io.spine.core.Version
  * The instance is confined to the thread dispatching the signals of
  * the entity, as the entity itself is; the cache is not synchronized.
  *
- * The kinds of recent histories are fixed by the framework:
- * the constructor is `internal`.
- *
  * @param R The type of the records persisted in the durable storage.
  * @param T The type of the history items served to the entity.
  * @param L The type of the loader serving the reads.
  * @see RecentEventHistory
  * @see RecentStateHistory
  */
-public abstract class RecentHistory<R : Any, T : Any, L : HistoryLoader<R>>
-internal constructor() {
+internal abstract class RecentHistory<R : Any, T : Any, L : HistoryLoader<R>> {
 
     /**
      * If set, serves the reads from the durable storage of the entity.
@@ -93,7 +88,7 @@ internal constructor() {
      * history. The knowledge of its bottom is [reset][exhausted], though,
      * since the new storage window is yet to be discovered.
      */
-    internal fun useLoader(loader: L) {
+    fun useLoader(loader: L) {
         this.loader = loader
         exhausted = false
     }
@@ -109,8 +104,7 @@ internal constructor() {
      *
      * See the batch overload of [append] for the contract.
      */
-    @Internal
-    public fun append(record: R) {
+    fun append(record: R) {
         append(listOf(record))
     }
 
@@ -134,8 +128,7 @@ internal constructor() {
      * an empty cache cannot be told from a legitimate one and is accepted;
      * the mismatch is bounded by the lifetime of the entity instance.
      */
-    @Internal
-    public fun append(records: Iterable<R>) {
+    fun append(records: Iterable<R>) {
         val group = records.map { cachedFrom(it) }
         if (group.isEmpty()) {
             return
@@ -164,7 +157,7 @@ internal constructor() {
      * @return An iterator over the items, newest first.
      * @throws IllegalArgumentException If the [depth] is not positive.
      */
-    public fun read(depth: Int): Iterator<T> {
+    fun read(depth: Int): Iterator<T> {
         require(depth > 0) { "History depth must be positive. Got $depth." }
         val fromCache = cache.take(depth)
         val remaining = depth - fromCache.size

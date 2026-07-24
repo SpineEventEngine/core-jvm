@@ -26,7 +26,6 @@
 
 package io.spine.server.entity
 
-import io.spine.annotation.Internal
 import io.spine.core.Version
 
 /**
@@ -42,8 +41,7 @@ import io.spine.core.Version
  * @see EventHistoryLoader
  * @see StateHistoryLoader
  */
-@Internal
-public interface HistoryLoader<R : Any> {
+internal interface HistoryLoader<R : Any> {
 
     /**
      * Loads up to [depth] most recent items of the entity's history,
@@ -57,5 +55,5 @@ public interface HistoryLoader<R : Any> {
      * @param startingFrom If set, only the items with versions lower than this one are loaded.
      * @return An iterator over the loaded items, newest first.
      */
-    public fun load(depth: Int, startingFrom: Version?): Iterator<R>
+    fun load(depth: Int, startingFrom: Version?): Iterator<R>
 }

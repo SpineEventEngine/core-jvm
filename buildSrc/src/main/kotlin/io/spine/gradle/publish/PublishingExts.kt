@@ -124,7 +124,7 @@ internal val TaskContainer.publish: TaskProvider<Task>
  *  1. When this [Project] is not a root, makes `publish` task in a root project
  *     depend on a local `publish`.
  *  2. Makes local `publish` task verify that credentials are present for each
- *     of destination repositories.
+ *     of the destination repositories.
  */
 internal fun Project.configurePublishTask(destinations: Set<Repository>) {
     attachCredentialsVerification(destinations)
@@ -163,7 +163,7 @@ private fun TaskContainer.getOrCreatePublishTask(): TaskProvider<Task> =
 
 @Suppress(
     /* Several types of exceptions may be thrown,
-       and Kotlin does not have a multi-catch support yet. */
+       and Kotlin does not have multi-catch support yet. */
     "TooGenericExceptionCaught"
 )
 private fun TaskContainer.registerCheckCredentialsTask(

@@ -26,52 +26,77 @@
 
 package io.spine.server.entity
 
-import io.spine.annotation.Internal
-import io.spine.annotation.VisibleForTesting
+import com.google.protobuf.Any as ProtoAny
+import com.google.protobuf.Message
 import io.spine.base.EntityState
 import io.spine.base.Error
+import io.spine.base.Identifier
+import io.spine.change.MessageMismatch
+import io.spine.change.StringMismatch
+import io.spine.change.ValueMismatch
 import io.spine.core.Event
 import io.spine.core.MessageId
-import io.spine.server.command.AssigneeEntity
+import io.spine.server.command.Assignee
 import io.spine.server.dispatch.DispatchOutcome
 import io.spine.server.dispatch.dispatchOutcome
 import io.spine.server.type.CommandEnvelope
 import io.spine.server.type.EventEnvelope
 import io.spine.validation.ValidatingBuilder
 import java.util.function.Predicate
-import kotlin.jvm.optionals.getOrNull
 
 /**
  * Abstract base for entities that dispatch signals — both commands and events —
  * to their receptors.
  *
- * Extends [AssigneeEntity], which already dispatches commands to their `@Assign` receptors,
- * with the ability to dispatch events to the receptors reacting to them.
+ * Such an entity is an [Assignee]: commands are dispatched to the methods
+ * [assigned][io.spine.server.command.Assign] to handle them. Events are dispatched
+ * to the receptors reacting to them.
  *
  * This is the entity-level counterpart of [SignalDispatchingRepository]: the repository routes
  * a signal to the target entity, and the entity dispatches it to the matching receptor.
  *
- * Because such an entity emits events, it keeps the [recent history][recentEventHistory] of
- * them, served lazily from the entity's durable journal through a repository-installed loader.
+ * Because such an entity emits events, it keeps the recent history of them, served lazily
+ * from the entity's durable journal through a repository-installed loader — see
+ * [eventHistoryBackward] and [eventHistoryContains].
+ *
+ * ## Reporting value mismatches
+ *
+ * A command may carry an expectation about the current state of the entity — for example,
+ * the value a field is believed to hold before it is changed or cleared. When a command
+ * receptor discovers that the actual value differs from the expected one, it may report
+ * the discrepancy — typically as a part of a rejection — with a `ValueMismatch` created
+ * by one of the `expectedXxx`/`unexpectedXxx` helper methods.
+ *
+ * Each helper stamps the produced mismatch with the current version of this entity, telling
+ * the client which version of the state contradicted the expectation, so that the conflict
+ * can be resolved. The helpers belong to the `protected` API of this class because they
+ * exist for the receptor bodies of the subclasses: they read the version of this very
+ * entity, and have no use outside of its own signal-handling code.
  *
  * @param I The type of the entity identifiers.
  * @param S The type of the entity state.
  * @param B The type of the builders for the entity state.
  *
- * @see AssigneeEntity
+ * @see io.spine.server.command.Assign
  * @see SignalDispatchingRepository
  */
 @Suppress("TooManyFunctions") // This base for signal-dispatching entities has many functions.
 public abstract class SignalDispatchingEntity<I : Any,
                                               S : EntityState<I>,
                                               B : ValidatingBuilder<S>> :
-    AssigneeEntity<I, S, B> {
+    TransactionalEntity<I, S, B>,
+    Assignee {
 
     private val recentEventHistory = RecentEventHistory()
 
     private val doubleDispatchGuard = DoubleDispatchGuard(this)
 
     private val uncommittedEventHistory = UncommittedEventHistory()
+
+    /**
+     * Cached value of the ID in the form of an `Any` instance.
+     */
+    private val idAsAny: ProtoAny by lazy { Identifier.pack(id) }
 
     /**
      * Creates a new instance with the entity ID left unassigned.
@@ -88,10 +113,12 @@ public abstract class SignalDispatchingEntity<I : Any,
      */
     protected constructor(id: I) : super(id)
 
+    override fun producerId(): ProtoAny = idAsAny
+
     /**
      * Obtains the recent history of events of this entity.
      */
-    protected open fun recentEventHistory(): RecentEventHistory = recentEventHistory
+    internal fun recentEventHistory(): RecentEventHistory = recentEventHistory
 
     /**
      * Installs the loader serving the [recent event history][recentEventHistory]
@@ -101,8 +128,7 @@ public abstract class SignalDispatchingEntity<I : Any,
      * history survives the instance lifecycle instead of being limited to the events
      * committed by this very instance.
      */
-    @Internal
-    public fun setEventHistoryLoader(loader: EventHistoryLoader) {
+    internal fun setEventHistoryLoader(loader: EventHistoryLoader) {
         recentEventHistory.useLoader(loader)
     }
 
@@ -148,66 +174,48 @@ public abstract class SignalDispatchingEntity<I : Any,
      *
      * @param events The events emitted by the current command handler or reactor.
      */
-    @Internal
-    public fun recordEvents(events: List<Event>) {
+    internal fun recordEvents(events: List<Event>) {
         val journaled = uncommittedEventHistory.record(events)
         recentEventHistory().append(journaled)
     }
 
     /**
-     * Returns all uncommitted events.
-     *
-     * @return Immutable view of all uncommitted events.
-     */
-    @Internal
-    @VisibleForTesting
-    public fun getUncommittedEvents(): UncommittedEvents = uncommittedEventHistory.events()
-
-    /**
      * Tells if there are any uncommitted events.
      */
-    @Internal
-    public fun hasUncommittedEvents(): Boolean = uncommittedEventHistory.hasEvents()
+    internal fun hasUncommittedEvents(): Boolean = uncommittedEventHistory.hasEvents()
 
     /**
      * Returns the uncommitted events of this entity.
      */
-    @Internal
-    public fun uncommittedEventHistory(): UncommittedEventHistory = uncommittedEventHistory
+    internal fun uncommittedEventHistory(): UncommittedEventHistory = uncommittedEventHistory
 
     /**
      * Marks the uncommitted events of this entity as committed and clears them.
      */
-    @Internal
-    public fun commitEvents() {
+    internal fun commitEvents() {
         uncommittedEventHistory.commit()
     }
 
     /**
-     * Returns the guard against dispatching the same signal to this entity more than once.
-     */
-    protected fun doubleDispatchGuard(): DoubleDispatchGuard = doubleDispatchGuard
-
-    /**
-     * Checks the passed command against the [double-dispatch guard][doubleDispatchGuard].
+     * Checks the passed command against the double-dispatch guard.
      *
      * @param command The envelope with the command about to be dispatched.
-     * @return The erroneous outcome to return instead of dispatching, if the command was
+     * @return The erroneous outcome to return instead of dispatching if the command was
      *   already dispatched to this entity, or `null` if the dispatch may proceed.
      */
     protected fun detectDuplicate(command: CommandEnvelope): DispatchOutcome? =
-        doubleDispatchGuard.check(command).getOrNull()
+        doubleDispatchGuard.check(command)
             ?.let { error -> duplicateOutcome(command.messageId(), error) }
 
     /**
-     * Checks the passed event against the [double-dispatch guard][doubleDispatchGuard].
+     * Checks the passed event against the double-dispatch guard.
      *
      * @param event The envelope with the event about to be dispatched.
-     * @return The erroneous outcome to return instead of dispatching, if the event was
+     * @return The erroneous outcome to return instead of dispatching if the event was
      *   already dispatched to this entity, or `null` if the dispatch may proceed.
      */
     protected fun detectDuplicate(event: EventEnvelope): DispatchOutcome? =
-        doubleDispatchGuard.check(event).getOrNull()
+        doubleDispatchGuard.check(event)
             ?.let { error -> duplicateOutcome(event.messageId(), error) }
 
     private fun duplicateOutcome(signal: MessageId, error: Error): DispatchOutcome =
@@ -220,10 +228,20 @@ public abstract class SignalDispatchingEntity<I : Any,
      * Enables the opt-in double-dispatch guard for this entity, scanning up to
      * [historyDepth] most recent events for a duplicate on each dispatch.
      */
-    @Internal
-    public fun enableDoubleDispatchGuard(historyDepth: Int) {
+    internal fun enableDoubleDispatchGuard(historyDepth: Int) {
         doubleDispatchGuard.enable(historyDepth)
     }
+
+    /**
+     * Dispatches the given command to the receptor assigned to handle it.
+     *
+     * Handling a command results in emitting one or more events, or a rejection,
+     * described by the returned outcome.
+     *
+     * @param command The envelope with the command to dispatch.
+     * @return The outcome of dispatching the command.
+     */
+    protected abstract fun dispatchCommand(command: CommandEnvelope): DispatchOutcome
 
     /**
      * Dispatches the given event to the receptor reacting to it.
@@ -235,6 +253,108 @@ public abstract class SignalDispatchingEntity<I : Any,
      * @return The outcome of dispatching the event.
      */
     protected abstract fun dispatchEvent(event: EventEnvelope): DispatchOutcome
+
+    /**
+     * Runs the [command dispatch][dispatchCommand] on behalf of the transaction machinery.
+     *
+     * A framework seam: the [DispatchCommand] operation and the transactions are not
+     * subclasses of the entity, so they cannot reach the `protected` receptor directly.
+     */
+    internal fun dispatchCommandInTransaction(command: CommandEnvelope): DispatchOutcome =
+        dispatchCommand(command)
+
+    /**
+     * Runs the [event dispatch][dispatchEvent] on behalf of the transaction machinery.
+     *
+     * See [dispatchCommandInTransaction] for the rationale.
+     */
+    internal fun dispatchEventInTransaction(event: EventEnvelope): DispatchOutcome =
+        dispatchEvent(event)
+
+    /**
+     * Creates a `ValueMismatch` for the case of discovering a non-default value
+     * when the default value was expected by a command.
+     *
+     * @param actual The value discovered instead of the default value.
+     * @param newValue The new value requested in the command.
+     * @return A new `ValueMismatch` instance.
+     */
+    protected fun expectedDefault(actual: Message, newValue: Message): ValueMismatch =
+        MessageMismatch.expectedDefault(actual, newValue, version().number)
+
+    /**
+     * Creates a `ValueMismatch` for a command that wanted to *clear* a value,
+     * but discovered that the field already has the default value.
+     *
+     * @param expected The value of the field that the command wanted to clear.
+     * @return A new `ValueMismatch` instance.
+     */
+    protected fun expectedNotDefault(expected: Message): ValueMismatch =
+        MessageMismatch.expectedNotDefault(expected, version().number)
+
+    /**
+     * Creates a `ValueMismatch` for a command that wanted to *change* a field value,
+     * but discovered that the field has the default value.
+     *
+     * @param expected The value expected by the command.
+     * @param newValue The value the command wanted to set.
+     * @return A new `ValueMismatch` instance.
+     */
+    protected fun expectedNotDefault(expected: Message, newValue: Message): ValueMismatch =
+        MessageMismatch.expectedNotDefault(expected, newValue, version().number)
+
+    /**
+     * Creates a `ValueMismatch` for the case of discovering a value different
+     * from the one expected by a command.
+     *
+     * @param expected The value expected by the command.
+     * @param actual The value discovered instead of the expected value.
+     * @param newValue The new value requested in the command.
+     * @return A new `ValueMismatch` instance.
+     */
+    protected fun unexpectedValue(
+        expected: Message,
+        actual: Message,
+        newValue: Message
+    ): ValueMismatch =
+        MessageMismatch.unexpectedValue(expected, actual, newValue, version().number)
+
+    /**
+     * Creates a `ValueMismatch` for the case of discovering a non-empty value,
+     * when an empty string was expected by a command.
+     *
+     * @param actual The value discovered instead of the empty string.
+     * @param newValue The new value requested in the command.
+     * @return A new `ValueMismatch` instance.
+     */
+    protected fun expectedEmpty(actual: String, newValue: String): ValueMismatch =
+        StringMismatch.expectedEmpty(actual, newValue, version().number)
+
+    /**
+     * Creates a `ValueMismatch` for a command that wanted to clear a string value
+     * but discovered that the field is already empty.
+     *
+     * @param expected The value of the field that the command wanted to clear.
+     * @return A new `ValueMismatch` instance.
+     */
+    protected fun expectedNotEmpty(expected: String): ValueMismatch =
+        StringMismatch.expectedNotEmpty(expected, version().number)
+
+    /**
+     * Creates a `ValueMismatch` for the case of discovering a value
+     * different from the one expected by a command.
+     *
+     * @param expected The value expected by the command.
+     * @param actual The value discovered instead of the expected string.
+     * @param newValue The new value requested in the command.
+     * @return A new `ValueMismatch` instance.
+     */
+    protected fun unexpectedValue(
+        expected: String,
+        actual: String,
+        newValue: String
+    ): ValueMismatch =
+        StringMismatch.unexpectedValue(expected, actual, newValue, version().number)
 
     public companion object {
 

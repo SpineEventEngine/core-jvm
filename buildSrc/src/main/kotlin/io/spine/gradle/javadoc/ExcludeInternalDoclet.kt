@@ -52,7 +52,7 @@ class ExcludeInternalDoclet {
         private const val configurationName = "excludeInternalDoclet"
 
         /**
-         * The fully-qualified class name of the doclet.
+         * The fully qualified class name of the doclet.
          */
         const val className = "io.spine.tools.javadoc.ExcludeInternalDoclet"
 

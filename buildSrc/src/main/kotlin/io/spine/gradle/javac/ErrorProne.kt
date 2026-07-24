@@ -63,7 +63,7 @@ fun JavaCompile.configureErrorProne() {
 private object ErrorProneConfig {
 
     /**
-     * Command line options for the `Error Prone` compiler.
+     * Command-line options for the `Error Prone` compiler.
      */
     val ARGUMENTS = CommandLineArgumentProvider {
         listOf(

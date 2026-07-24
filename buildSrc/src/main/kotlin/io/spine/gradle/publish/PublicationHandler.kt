@@ -144,7 +144,7 @@ sealed class PublicationHandler(
      * artifact ID will be `spine-logging-jvm`.
      *
      * The Apache Software License 2.0 is set as the only license
-     * under which the published artifact is distributed via [LicenseSettings]
+     * under which the published artifact is distributed via [LicenseSettings].
      *
      * The source control management attributes are obtained from [DocumentationSettings].
      *

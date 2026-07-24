@@ -27,8 +27,8 @@
 package io.spine.dependency.lib
 
 /**
- * Spine used to log with SLF4J. Now we use Flogger. Whenever a choice comes up, we recommend to
- * use the latter.
+ * Spine used to log with SLF4J. Now we use Flogger. Whenever a choice comes up, we recommend
+ * using the latter.
  *
  * The primary purpose of having this dependency object is working in combination with
  * [Flogger.Runtime.slf4JBackend].

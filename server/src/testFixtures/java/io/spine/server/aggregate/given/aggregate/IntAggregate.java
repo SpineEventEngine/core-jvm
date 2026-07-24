@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
 
 package io.spine.server.aggregate.given.aggregate;
 
+import io.spine.annotation.VisibleForTesting;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.test.shared.IntIdAggregate;
 
@@ -35,5 +36,14 @@ import io.spine.server.test.shared.IntIdAggregate;
 public class IntAggregate extends Aggregate<Integer, IntIdAggregate, IntIdAggregate.Builder> {
     public IntAggregate(Integer id) {
         super(id);
+    }
+
+    /**
+     * Exposes the inherited builder access to the tests verifying
+     * the missing-transaction failure.
+     */
+    @VisibleForTesting
+    public IntIdAggregate.Builder exposedBuilder() {
+        return builder();
     }
 }

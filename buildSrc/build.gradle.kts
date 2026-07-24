@@ -132,7 +132,7 @@ val kotestJvmPluginVersion = "0.4.10"
 /**
  * @see [io.spine.dependency.test.Kover]
  */
-val koverVersion = "0.9.8"
+val koverVersion = "0.9.9"
 
 /**
  * The version of the Shadow Plugin.
@@ -222,7 +222,7 @@ dependOnBuildSrcJar()
 /**
  * Adds a dependency on a `buildSrc.jar`, iff:
  *  1) the `src` folder is missing, and
- *  2) `buildSrc.jar` is present in `buildSrc/` folder instead.
+ *  2) `buildSrc.jar` is present in the `buildSrc/` folder instead.
  *
  * This approach is used in the scope of integration testing.
  */
@@ -241,7 +241,7 @@ fun Project.dependOnBuildSrcJar() {
  * Includes the `implementation` dependency on `artifactregistry-auth-common`,
  * with the version defined in [googleAuthToolVersion].
  *
- * `artifactregistry-auth-common` has transitive dependency on Gson and Apache `commons-codec`.
+ * `artifactregistry-auth-common` has a transitive dependency on Gson and Apache `commons-codec`.
  * Gson from version `2.8.6` until `2.8.9` is vulnerable to Deserialization of Untrusted Data
  * (https://devhub.checkmarx.com/cve-details/CVE-2022-25647/).
  *

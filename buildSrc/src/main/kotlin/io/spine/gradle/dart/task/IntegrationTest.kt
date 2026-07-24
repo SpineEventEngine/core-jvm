@@ -37,11 +37,11 @@ import org.gradle.api.tasks.TaskProvider
 private val integrationTestName = TaskName.of("integrationTest", Exec::class)
 
 /**
- * Locates `integrationTest` task in this [TaskContainer].
+ * Locates the `integrationTest` task in this [TaskContainer].
  *
  * The task runs integration tests of the `spine-dart` library against a sample
- * Spine-based application. The tests are run in Chrome browser because they use `WebFirebaseClient`
- * that only works in web environment.
+ * Spine-based application. The tests are run in the Chrome browser because they use `WebFirebaseClient`
+ * that only works in a web environment.
  *
  * A sample Spine-based application is run from the `test-app` module before integration
  * tests start and is stopped as the tests complete.
@@ -50,7 +50,7 @@ val TaskContainer.integrationTest: TaskProvider<Exec>
     get() = named(integrationTestName)
 
 /**
- * Registers [TaskContainer.integrationTest] task.
+ * Registers the [TaskContainer.integrationTest] task.
  *
  * Please note, this task depends on [build] tasks. Therefore, building tasks should be applied in
  * the first place.

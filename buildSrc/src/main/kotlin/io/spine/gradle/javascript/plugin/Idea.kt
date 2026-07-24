@@ -30,7 +30,7 @@ import org.gradle.kotlin.dsl.configure
 import org.gradle.plugins.ide.idea.model.IdeaModel
 
 /**
- * Applies and configures `idea` plugin to work with a JavaScript module.
+ * Applies and configures the `idea` plugin to work with a JavaScript module.
  *
  * In particular, this method:
  *

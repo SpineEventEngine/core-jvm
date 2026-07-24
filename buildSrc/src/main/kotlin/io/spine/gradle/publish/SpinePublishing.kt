@@ -120,7 +120,7 @@ import org.gradle.kotlin.dsl.findByType
  * `spinePublishing` extension within `subprojectA` itself would lead to an exception.
  *
  * In Gradle, in order to publish something somewhere, one should create a publication. In each
- * of published modules, the extension will create a [publication][StandardJavaPublicationHandler]
+ * of the published modules, the extension will create a [publication][StandardJavaPublicationHandler]
  * named "mavenJava". All artifacts published by this extension belong to this publication.
  *
  * ## Published artifacts
@@ -365,7 +365,7 @@ open class SpinePublishing(private val project: Project) {
      *
      * Firstly, an instance of [PublicationHandler] is created for the project depending
      * on the nature of the publication process configured.
-     * Then, this the handler is scheduled to apply on [Project.afterEvaluate].
+     * Then, the handler is scheduled to apply on [Project.afterEvaluate].
      *
      * General rule of thumb is to avoid using [Project.afterEvaluate] of this closure,
      * as it configures a project when its configuration is considered completed.
@@ -379,7 +379,7 @@ open class SpinePublishing(private val project: Project) {
      * Let's suppose they are declared in a module's build file. It is a common practice.
      * But publishing of the module is configured from a root project's build file.
      * By the time when we need to specify them, we just don't know them.
-     * As the result, we have to use [Project.afterEvaluate] in order to guarantee that
+     * As a result, we have to use [Project.afterEvaluate] in order to guarantee that
      * the module will be configured by the time we configure publishing for it.
      */
     private fun Project.setUpPublishing(jarFlags: JarFlags) {
@@ -401,7 +401,7 @@ open class SpinePublishing(private val project: Project) {
      * If there is a local instance of [io.spine.gradle.publish.SpinePublishing] extension,
      * the [destinations] are obtained from this instance.
      * Otherwise, the function attempts to obtain it from a [parent project][Project.getParent].
-     * If there is no a parent project, an empty set is returned.
+     * If there is no parent project, an empty set is returned.
      *
      * The normal execution should end up at the root project of a multi-module project
      * if there are no custom destinations specified by the local extension.

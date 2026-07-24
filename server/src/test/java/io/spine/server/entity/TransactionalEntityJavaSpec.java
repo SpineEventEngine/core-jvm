@@ -94,7 +94,7 @@ class TransactionalEntityJavaSpec {
                 .setInStock(amount)
                 .build();
         var entity = new StockEntity(ID);
-        entity.setState(state);
+        TestTransaction.injectState(entity, state, entity.version());
         // Instantiating the stub transaction injects it into the `entity`.
         new StubTransaction<>(entity, /* active = */ true, /* stateChanged = */ false);
         return entity;

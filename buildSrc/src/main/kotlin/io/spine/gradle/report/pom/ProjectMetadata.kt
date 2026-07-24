@@ -72,30 +72,20 @@ internal constructor(
  *
  * The required information is first retrieved from the project.
  * And if a property is missing from the `project`, it is taken from the `extra` extension
- * of project's root project.
+ * of the project's root project.
  */
 internal fun Project.metadata(): ProjectMetadata {
-    val groupId: String by nonEmptyValue(group)
-    val artifactId: String by nonEmptyValue(name)
-    val version: String by project.nonEmptyValue(this.version)
+    val groupId = nonEmptyValue(group, "groupId")
+    val artifactId = nonEmptyValue(name, "artifactId")
+    val version = nonEmptyValue(this.version, "version")
     return ProjectMetadata(project, groupId, artifactId, version)
 }
 
-private fun Project.nonEmptyValue(prop: Any): NonEmptyValue {
-    return NonEmptyValue(prop.toString(), this)
-}
-
-private class NonEmptyValue(
-    private val defaultValue: String,
-    private val project: Project
-) {
-
-    @Suppress("UNCHECKED_CAST")
-    operator fun <T> getValue(receiver: Any?, property: KProperty<*>): T {
-        if (defaultValue.isNotEmpty()) {
-            return defaultValue as T
-        }
-        val result = project.rootProject.extra[property.name]
-        return result as T
-    }
-}
+/**
+ * Obtains the string form of the given [value].
+ *
+ * If that form is empty, falls back to the property named [key] in the `extra`
+ * properties of the root project, failing if it is absent or not a `String`.
+ */
+private fun Project.nonEmptyValue(value: Any, key: String): String =
+    value.toString().ifEmpty { rootProject.extra[key] as String }

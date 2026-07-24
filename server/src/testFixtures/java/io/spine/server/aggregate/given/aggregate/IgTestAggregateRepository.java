@@ -33,8 +33,7 @@ import io.spine.test.aggregate.event.AggProjectPaused;
 import io.spine.test.aggregate.event.AggTaskStarted;
 
 /**
- * Test environment repository for {@linkplain io.spine.server.aggregate.DoubleDispatchGuardTest
- * DoubleDispatchGuard tests}.
+ * Test environment repository for {@code DoubleDispatchGuardSpec}.
  */
 public final class IgTestAggregateRepository
         extends AbstractAggregateTestRepository<ProjectId, IgTestAggregate, AggProject> {

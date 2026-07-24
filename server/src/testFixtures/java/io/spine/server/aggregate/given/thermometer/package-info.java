@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +25,8 @@
  */
 
 /**
- * Test environment classes for the {@code Aggregate}
- * {@link io.spine.server.aggregate.AggregateTest.AllowValidatedAggregates AllowValidatedAggregates}
- * test.
+ * Test environment classes for the {@code AggregateSpec} cases covering
+ * the validation on the aggregate state.
  */
 @CheckReturnValue
 @NullMarked

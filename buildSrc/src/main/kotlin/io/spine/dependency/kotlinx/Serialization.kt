@@ -61,7 +61,7 @@ object Serialization {
     object GradlePlugin {
 
         /**
-         * The ID to be used with the `kotlin(shortId)` DSL under the`plugins { }` block.
+         * The ID to be used with the `kotlin(shortId)` DSL under the `plugins { }` block.
          */
         const val shortId = "plugin.serialization"
 

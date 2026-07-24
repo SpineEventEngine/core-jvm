@@ -198,11 +198,11 @@ fun TaskContainer.dokkaHtmlTask(): Task? = this.findByName("dokkaGeneratePublica
 fun TaskContainer.dokkaJavadocTask(): Task? = this.findByName("dokkaGeneratePublicationJavadoc")
 
 /**
- * Locates or creates `htmlDocsJar` task in this [Project].
+ * Locates or creates the `htmlDocsJar` task in this [Project].
  *
  * The output of this task is a `jar` archive. The archive contains the Dokka output, generated upon
- * Kotlin sources from `main` source set. Requires Dokka to be configured in the target project by
- * applying `dokka-setup` plugin.
+ * Kotlin sources from the `main` source set. Requires Dokka to be configured in the target project by
+ * applying the `dokka-setup` plugin.
  */
 fun Project.htmlDocsJar(): TaskProvider<Jar> = tasks.getOrCreate("htmlDocsJar") {
     group = SpineTaskGroup.name

@@ -53,7 +53,7 @@ spinePublishing {
     customPublishing = true
 }
 
-/** The ID of the far JAR artifact. */
+/** The ID of the fat JAR artifact. */
 private val projectArtifact = project.name.replace(":", "")
 
 publishing {
@@ -70,8 +70,10 @@ publishing {
     }
 }
 
-// Declare dependency explicitly to address the Gradle error.
-tasks.getByName("publishFatJarPublicationToMavenLocal") {
+/**
+ * Declare dependency explicitly to address the Gradle error.
+ */
+tasks.named("publishFatJarPublicationToMavenLocal") {
     dependsOn(tasks.shadowJar)
 }
 
