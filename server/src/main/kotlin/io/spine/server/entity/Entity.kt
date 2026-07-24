@@ -24,87 +24,73 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.server.entity;
+package io.spine.server.entity
 
-import io.spine.base.EntityState;
-import io.spine.base.Identifier;
-import io.spine.core.Version;
-import io.spine.reflect.GenericTypeIndex;
-import io.spine.string.Stringifiers;
+import io.spine.base.EntityState
+import io.spine.core.Version
+import io.spine.reflect.GenericTypeIndex
+import io.spine.string.Stringifiers
 
 /**
- * A server-side object with an {@link Identifier#checkSupported(Class) identity}.
+ * A server-side object with an [identity][io.spine.base.Identifier].
  *
- * <p>A state of an entity is defined as a Protobuf message.
+ * A state of an entity is defined as a Protobuf message.
  *
- * <p>Lifecycle flags determine if an entity is active.
- * An entity is considered to be active if the lifecycle flags are not set.
- * If an entity is {@linkplain #isArchived() archived} or {@linkplain #isDeleted() deleted},
- * then it’s regarded as inactive.
+ * Lifecycle flags determine if an entity is active. An entity is considered to be active if
+ * the lifecycle flags are not set. If an entity is [archived][isArchived] or
+ * [deleted][isDeleted], then it is regarded as inactive.
  *
- * @param <I>
- *         the type of the entity identifier
- * @param <S>
- *         the type of the entity state
+ * @param I The type of the entity identifier.
+ * @param S The type of the entity state.
  */
-public interface Entity<I, S extends EntityState<I>> extends WithLifecycle {
+public interface Entity<I : Any, S : EntityState<I>> : WithLifecycle {
 
     /**
      * Obtains the identifier of the entity.
      */
-    I id();
+    public fun id(): I
 
     /**
      * Obtains string representation of the entity identifier.
      *
-     * @apiNote The primary purpose of this method is to display the identifier in
-     *         human-readable form in debug and error messages.
+     * The primary purpose of this method is to display the identifier in
+     * human-readable form in debug and error messages.
      */
-    default String idAsString() {
-        return Stringifiers.toString(id());
-    }
+    public fun idAsString(): String = Stringifiers.toString(id())
 
     /**
      * Obtains the state of the entity.
      */
-    S state();
+    public fun state(): S
 
     /**
      * Tells whether lifecycle flags of the entity have been changed since its initialization.
      */
-    boolean lifecycleFlagsChanged();
+    public fun lifecycleFlagsChanged(): Boolean
 
     /**
      * Obtains the version of the entity.
      */
-    Version version();
+    public fun version(): Version
 
     /**
      * Enumeration of generic type parameters of this interface.
      */
-    enum GenericParameter implements GenericTypeIndex<Entity<?, ?>> {
+    public enum class GenericParameter(private val indexValue: Int) :
+        GenericTypeIndex<Entity<*, *>> {
 
         /**
-         * The index of the declaration of the generic parameter type {@code <I>} in
-         * the {@link Entity} interface.
+         * The index of the declaration of the generic parameter type `I` in
+         * the [Entity] interface.
          */
         ID(0),
 
         /**
-         * The index of the declaration of the generic parameter type {@code <S>}
-         * in the {@link Entity} interface.
+         * The index of the declaration of the generic parameter type `S`
+         * in the [Entity] interface.
          */
         STATE(1);
 
-        private final int index;
-
-        GenericParameter(int index) {
-            this.index = index;
-        }
-
-        @Override
-        public int index() {
-            return index;
-        }
+        override fun index(): Int = indexValue
     }
 }
