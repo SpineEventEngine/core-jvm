@@ -24,35 +24,32 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.server.aggregate
+package io.spine.server.procman
 
-import io.spine.base.AggregateState
+import io.spine.base.ProcessManagerState
 import io.spine.server.DefaultRepository
-import io.spine.server.aggregate.model.AggregateClass
-import io.spine.server.aggregate.model.AggregateClass.asAggregateClass
 import io.spine.server.defaultRepositoryLogName
+import io.spine.server.procman.model.ProcessManagerClass
+import io.spine.server.procman.model.ProcessManagerClass.asProcessManagerClass
 
 /**
- * Default implementation of `AggregateRepository`.
+ * Default implementation of `ProcessManagerRepository`.
  *
- * @param I The type of aggregate IDs.
- * @param A The type of the stored aggregate.
- * @param S The type of aggregate state.
- * @param cls The class of aggregates managed by this repository.
+ * @param I The type of IDs of process managers.
+ * @param P The type of process managers.
+ * @param S The type of process manager state messages.
+ * @param cls The class of process managers managed by this repository.
  * @see io.spine.server.DefaultRepository
  */
-internal class DefaultAggregateRepository<I : Any,
-                                          A : Aggregate<I, S, *>,
-                                          S : AggregateState<I>>(
-    cls: Class<A>
-) : AggregateRepository<I, A, S>(), DefaultRepository {
+internal class DefaultProcessManagerRepository<I : Any,
+                                               P : ProcessManager<I, S, *>,
+                                               S : ProcessManagerState<I>>(
+    cls: Class<P>
+) : ProcessManagerRepository<I, P, S>(), DefaultRepository {
 
-    private val modelClass: AggregateClass<A> = asAggregateClass(cls)
+    private val modelClass: ProcessManagerClass<P> = asProcessManagerClass(cls)
 
-    /**
-     * Obtains the class of aggregates managed by this repository.
-     */
-    override fun entityModelClass(): AggregateClass<A> = modelClass
+    override fun entityModelClass(): ProcessManagerClass<P> = modelClass
 
     override fun toString(): String = defaultRepositoryLogName(entityModelClass())
 }

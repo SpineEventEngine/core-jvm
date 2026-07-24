@@ -24,35 +24,32 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.server.aggregate
+package io.spine.server.projection
 
-import io.spine.base.AggregateState
+import io.spine.base.ProjectionState
 import io.spine.server.DefaultRepository
-import io.spine.server.aggregate.model.AggregateClass
-import io.spine.server.aggregate.model.AggregateClass.asAggregateClass
 import io.spine.server.defaultRepositoryLogName
+import io.spine.server.projection.model.ProjectionClass
+import io.spine.server.projection.model.ProjectionClass.asProjectionClass
 
 /**
- * Default implementation of `AggregateRepository`.
+ * Default implementation of `ProjectionRepository`.
  *
- * @param I The type of aggregate IDs.
- * @param A The type of the stored aggregate.
- * @param S The type of aggregate state.
- * @param cls The class of aggregates managed by this repository.
+ * @param I The type of IDs of projections.
+ * @param P The type of projections.
+ * @param S The type of projection state messages.
+ * @param cls The class of projections managed by this repository.
  * @see io.spine.server.DefaultRepository
  */
-internal class DefaultAggregateRepository<I : Any,
-                                          A : Aggregate<I, S, *>,
-                                          S : AggregateState<I>>(
-    cls: Class<A>
-) : AggregateRepository<I, A, S>(), DefaultRepository {
+internal class DefaultProjectionRepository<I : Any,
+                                           P : Projection<I, S, *>,
+                                           S : ProjectionState<I>>(
+    cls: Class<P>
+) : ProjectionRepository<I, P, S>(), DefaultRepository {
 
-    private val modelClass: AggregateClass<A> = asAggregateClass(cls)
+    private val modelClass: ProjectionClass<P> = asProjectionClass(cls)
 
-    /**
-     * Obtains the class of aggregates managed by this repository.
-     */
-    override fun entityModelClass(): AggregateClass<A> = modelClass
+    override fun entityModelClass(): ProjectionClass<P> = modelClass
 
     override fun toString(): String = defaultRepositoryLogName(entityModelClass())
 }
