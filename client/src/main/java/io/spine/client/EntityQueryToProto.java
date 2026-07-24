@@ -49,7 +49,6 @@ import static io.spine.client.OrderBy.Direction.ASCENDING;
 import static io.spine.client.OrderBy.Direction.DESCENDING;
 import static io.spine.query.Direction.ASC;
 import static io.spine.query.LogicalOperator.AND;
-import static io.spine.util.Exceptions.newIllegalStateException;
 
 /**
  * Transforms {@link io.spine.query.EntityQuery} instances to the Protobuf-based Query objects.
@@ -118,7 +117,6 @@ public final class EntityQueryToProto implements Function<EntityQuery<?, ?, ?>, 
         return builder.build();
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")  /* No call chaining here. */
     private static void addFieldMask(QueryBuilder builder, EntityQuery<?, ?, ?> query) {
         var originMask = query.mask();
         if (!originMask.equals(FieldMask.getDefaultInstance())) {
@@ -126,7 +124,6 @@ public final class EntityQueryToProto implements Function<EntityQuery<?, ?, ?>, 
         }
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")  /* No call chaining here. */
     private static void addLimit(QueryBuilder builder, EntityQuery<?, ?, ?> query) {
         var originLimit = query.limit();
         if (originLimit != null) {
@@ -134,7 +131,6 @@ public final class EntityQueryToProto implements Function<EntityQuery<?, ?, ?>, 
         }
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")  /* No call chaining here. */
     private static void addSorting(QueryBuilder builder, EntityQuery<?, ?, ?> query) {
         for (io.spine.query.SortBy<?, ?> sortBy : query.sorting()) {
             var columnName = sortBy.column()
@@ -188,30 +184,16 @@ public final class EntityQueryToProto implements Function<EntityQuery<?, ?, ?>, 
         var column = parameter.column();
         var colName = column.name();
 
-        Filter result;
-        switch (comparison) {
-            case EQUALS:
-                result = createFilter(colName, value, EQUAL);
-                break;
-            case GREATER_THAN:
-                result = createFilter(colName, value, GREATER_THAN);
-                break;
-            case GREATER_OR_EQUALS:
-                result = createFilter(colName, value, GREATER_OR_EQUAL);
-                break;
-            case LESS_THAN:
-                result = createFilter(colName, value, LESS_THAN);
-                break;
-            case LESS_OR_EQUALS:
-                result = createFilter(colName, value, LESS_OR_EQUAL);
-                break;
-            default:
-                throw newIllegalStateException("Unsupported comparison operator `%s`.", comparison);
-        }
+        var result = switch (comparison) {
+            case EQUALS -> createFilter(colName, value, EQUAL);
+            case GREATER_THAN -> createFilter(colName, value, GREATER_THAN);
+            case GREATER_OR_EQUALS -> createFilter(colName, value, GREATER_OR_EQUAL);
+            case LESS_THAN -> createFilter(colName, value, LESS_THAN);
+            case LESS_OR_EQUALS -> createFilter(colName, value, LESS_OR_EQUAL);
+        };
         return result;
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")  /* No call chaining here. */
     private static void addIds(QueryBuilder builder, Subject<?, ?> subject) {
         var ids = subject.id().values();
         if (!ids.isEmpty()) {
