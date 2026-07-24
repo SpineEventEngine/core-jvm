@@ -31,7 +31,7 @@ import io.spine.core.SignalId
 import io.spine.server.dispatch.DispatchOutcome
 
 /**
- * A phase that dispatched a command to the entity in transaction.
+ * A phase that dispatches a command to the entity in transaction.
  *
  * @param I The type of entity ID.
  * @param transaction The transaction the phase is propagated in.
