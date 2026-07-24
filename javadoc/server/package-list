@@ -153,6 +153,7 @@ $dokka.location:io.spine.server.transport/ChannelId.Builder///PointingToDeclarat
 $dokka.location:io.spine.server.transport/ChannelIdKt.Dsl///PointingToDeclaration/io/spine/server/transport/ChannelIdKt.Dsl.html
 $dokka.location:io.spine.server/BoundedContext.Probe///PointingToDeclaration/io/spine/server/BoundedContext.Probe.html
 $dokka.location:io.spine.server/CommandService.Builder///PointingToDeclaration/io/spine/server/CommandService.Builder.html
+$dokka.location:io.spine.server/DefaultRepository.Companion///PointingToDeclaration/io/spine/server/DefaultRepository.Companion.html
 $dokka.location:io.spine.server/EnvSetting.SettingOperation///PointingToDeclaration/io/spine/server/EnvSetting.SettingOperation.html
 $dokka.location:io.spine.server/GrpcContainer.Builder///PointingToDeclaration/io/spine/server/GrpcContainer.Builder.html
 $dokka.location:io.spine.server/GrpcContainer.ConfigureServer///PointingToDeclaration/io/spine/server/GrpcContainer.ConfigureServer.html
