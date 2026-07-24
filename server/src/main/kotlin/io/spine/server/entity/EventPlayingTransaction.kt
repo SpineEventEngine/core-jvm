@@ -43,7 +43,7 @@ import io.spine.validation.ValidatingBuilder
  * @param B The type of a `ValidatingBuilder` for the entity state.
  */
 @Internal
-public abstract class EventPlayingTransaction<I : Any,
+internal abstract class EventPlayingTransaction<I : Any,
                                               E : TransactionalEntity<I, S, B>,
                                               S : EntityState<I>,
                                               B : ValidatingBuilder<S>> :

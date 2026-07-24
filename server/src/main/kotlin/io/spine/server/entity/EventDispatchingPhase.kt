@@ -26,7 +26,6 @@
 
 package io.spine.server.entity
 
-import io.spine.annotation.Internal
 import io.spine.core.Signal
 import io.spine.core.SignalId
 import io.spine.server.dispatch.DispatchOutcome
@@ -40,8 +39,7 @@ import io.spine.server.dispatch.DispatchOutcome
  * @param dispatch The event dispatch task performed by the phase.
  * @param increment The strategy for advancing the entity version.
  */
-@Internal
-public class EventDispatchingPhase<I : Any, E : TransactionalEntity<I, *, *>>(
+internal class EventDispatchingPhase<I : Any, E : TransactionalEntity<I, *, *>>(
     transaction: Transaction<I, *, *, *>,
     private val dispatch: EventDispatch<I, E>,
     increment: VersionIncrement

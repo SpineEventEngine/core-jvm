@@ -26,7 +26,6 @@
 
 package io.spine.server.entity
 
-import io.spine.annotation.Internal
 import io.spine.server.dispatch.DispatchOutcome
 import io.spine.server.dispatch.DispatchOutcomeHandler
 import io.spine.server.dispatch.Success
@@ -40,8 +39,7 @@ import io.spine.server.type.CommandEnvelope
  *
  * @param I The type of entity ID.
  */
-@Internal
-public class DispatchCommand<I : Any> private constructor(
+internal class DispatchCommand<I : Any> private constructor(
     private val lifecycle: EntityLifecycle,
     private val entity: SignalDispatchingEntity<I, *, *>,
     private val command: CommandEnvelope
@@ -59,7 +57,7 @@ public class DispatchCommand<I : Any> private constructor(
      * @return The produced events, including the rejections thrown by the command
      *   assignee method.
      */
-    public fun perform(): DispatchOutcome =
+    fun perform(): DispatchOutcome =
         DispatchOutcomeHandler
             .from(entity.dispatchCommandInTransaction(command))
             .onRejection { rejection -> lifecycle.onCommandRejected(command.id(), rejection) }
@@ -72,11 +70,11 @@ public class DispatchCommand<I : Any> private constructor(
         }
     }
 
-    public fun entity(): SignalDispatchingEntity<I, *, *> = entity
+    fun entity(): SignalDispatchingEntity<I, *, *> = entity
 
-    public fun command(): CommandEnvelope = command
+    fun command(): CommandEnvelope = command
 
-    public companion object {
+    companion object {
 
         /**
          * Creates a new command dispatch operation.
@@ -85,8 +83,7 @@ public class DispatchCommand<I : Any> private constructor(
          * @param entity The entity to dispatch the command to.
          * @param command The command to dispatch.
          */
-        @JvmStatic
-        public fun <I : Any> operationFor(
+        fun <I : Any> operationFor(
             lifecycle: EntityLifecycle,
             entity: SignalDispatchingEntity<I, *, *>,
             command: CommandEnvelope

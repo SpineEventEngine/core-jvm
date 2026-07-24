@@ -26,7 +26,6 @@
 
 package io.spine.server.entity
 
-import io.spine.annotation.Internal
 import io.spine.server.dispatch.DispatchOutcome
 import io.spine.server.type.EventEnvelope
 
@@ -42,8 +41,7 @@ import io.spine.server.type.EventEnvelope
  * @param entity The entity to which the event is dispatched.
  * @param event The dispatched event.
  */
-@Internal
-public class EventDispatch<I : Any, E : TransactionalEntity<I, *, *>>(
+internal class EventDispatch<I : Any, E : TransactionalEntity<I, *, *>>(
     private val dispatchFunction: (E, EventEnvelope) -> DispatchOutcome,
     private val entity: E,
     private val event: EventEnvelope
@@ -52,15 +50,15 @@ public class EventDispatch<I : Any, E : TransactionalEntity<I, *, *>>(
     /**
      * Executes the dispatch operation, returning its result.
      */
-    public fun perform(): DispatchOutcome = dispatchFunction(entity, event)
+    fun perform(): DispatchOutcome = dispatchFunction(entity, event)
 
     /**
      * Returns the entity to which the event is dispatched.
      */
-    public fun entity(): E = entity
+    fun entity(): E = entity
 
     /**
      * Returns the dispatched event.
      */
-    public fun event(): EventEnvelope = event
+    fun event(): EventEnvelope = event
 }
