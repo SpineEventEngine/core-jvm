@@ -32,6 +32,8 @@ import io.spine.server.bc.given.ProjectProcessManager
 import io.spine.server.bc.given.ProjectReport
 import io.spine.server.entity.TestEntity
 import io.spine.system.server.given.entity.PersonNamePart
+import io.spine.testing.server.model.ModelTests.dropAllModels
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -40,14 +42,37 @@ import org.junit.jupiter.api.assertThrows
  */
 internal class DefaultRepositorySpec {
 
+    /**
+     * Clears the model before each test.
+     *
+     * The fixtures used below (an aggregate and a process manager) deliberately
+     * handle the same command, so modeling them in one shared model would clash.
+     */
+    @BeforeEach
+    fun dropModels() {
+        dropAllModels()
+    }
+
     @Test
-    fun `create a default repository for every kind of entity, with a readable 'toString'`() {
+    fun `create an aggregate repository with a readable 'toString'`() {
         DefaultRepository.of(ProjectAggregate::class.java).toString() shouldBe
             "DefaultRepository.of(ProjectAggregate.class)"
+    }
+
+    @Test
+    fun `create an aggregate part repository with a readable 'toString'`() {
         DefaultRepository.of(PersonNamePart::class.java).toString() shouldBe
             "DefaultRepository.of(PersonNamePart.class)"
+    }
+
+    @Test
+    fun `create a process manager repository with a readable 'toString'`() {
         DefaultRepository.of(ProjectProcessManager::class.java).toString() shouldBe
             "DefaultRepository.of(ProjectProcessManager.class)"
+    }
+
+    @Test
+    fun `create a projection repository with a readable 'toString'`() {
         DefaultRepository.of(ProjectReport::class.java).toString() shouldBe
             "DefaultRepository.of(ProjectReport.class)"
     }

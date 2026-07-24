@@ -59,15 +59,11 @@ interface OriginMixin extends OriginOrBuilder, FieldAwareMessage {
     @Override
     @Internal
     default Object readValue(Descriptors.FieldDescriptor field) {
-        switch (field.getIndex()) {
-            case 0:
-                return getMessage();
-            case 1:
-                return getGrandOrigin();
-            case 2:
-                return getActorContext();
-            default:
-                return getField(field);
-        }
+        return switch (field.getIndex()) {
+            case 0 -> getMessage();
+            case 1 -> getGrandOrigin();
+            case 2 -> getActorContext();
+            default -> getField(field);
+        };
     }
 }

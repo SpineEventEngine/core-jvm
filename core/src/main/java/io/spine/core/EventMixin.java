@@ -200,15 +200,11 @@ interface EventMixin
     @Override
     @Internal
     default Object readValue(Descriptors.FieldDescriptor field) {
-        switch (field.getIndex()) {
-            case 0:
-                return getId();
-            case 1:
-                return getMessage();
-            case 2:
-                return getContext();
-            default:
-                return getField(field);
-        }
+        return switch (field.getIndex()) {
+            case 0 -> getId();
+            case 1 -> getMessage();
+            case 2 -> getContext();
+            default -> getField(field);
+        };
     }
 }
