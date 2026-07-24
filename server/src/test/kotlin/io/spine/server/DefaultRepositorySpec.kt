@@ -26,7 +26,9 @@
 
 package io.spine.server
 
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.spine.server.bc.given.ProjectAggregate
 import io.spine.server.bc.given.ProjectProcessManager
 import io.spine.server.bc.given.ProjectReport
@@ -79,8 +81,10 @@ internal class DefaultRepositorySpec {
 
     @Test
     fun `reject an entity class that has no default repository`() {
-        assertThrows<IllegalArgumentException> {
+        val exception = assertThrows<IllegalArgumentException> {
             DefaultRepository.of(TestEntity::class.java)
         }
+        exception.message.shouldNotBeNull() shouldContain
+            "No default repository implementation available for the class"
     }
 }
