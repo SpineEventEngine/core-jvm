@@ -139,6 +139,25 @@ public final class GrpcContainer {
     }
 
     /**
+     * Obtains the port at which this container actually listens.
+     *
+     * <p>Unlike {@link #getPort()}, which returns the port <em>requested</em> when the container
+     * was built, this method returns the port the underlying gRPC server is bound to. The two
+     * differ when the container is built {@linkplain #atPort(int) at the port} {@code 0}, which
+     * asks the operating system to assign a free port at the time of binding.
+     *
+     * @return the port this container listens to
+     * @throws IllegalStateException
+     *         if this is an in-process container, or if the container was not started yet
+     *         or is already shut down
+     */
+    public int getBoundPort() {
+        checkState(hasPort(), "The container is exposed in-process, and has no port.");
+        checkState(grpcServer != null, SERVER_NOT_STARTED_MSG);
+        return grpcServer.getPort();
+    }
+
+    /**
      * Checks whether the server name has been configured.
      *
      * @return {@code true} if the server name was set, {@code false} otherwise
@@ -345,7 +364,7 @@ public final class GrpcContainer {
      */
     private ServerBuilder<?> createServerBuilder(@Nullable Executor executor) {
         var serverNameGiven = serverName != null;
-        @Nullable Integer port = serverNameGiven ? null : requireNonNull(this.port);
+        var port = serverNameGiven ? null : requireNonNull(this.port);
         var result = serverNameGiven
                      ? inProcessBuilder(serverName, executor)
                      : builderAtPort(requireNonNull(port), executor);
@@ -417,7 +436,7 @@ public final class GrpcContainer {
         }
 
         @FormatMethod
-        private void println(@FormatString String msgFormat, Object... arg) {
+        private static void println(@FormatString String msgFormat, Object... arg) {
             var msg = format(msgFormat, arg);
             System.err.println(msg);
         }

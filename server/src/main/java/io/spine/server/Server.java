@@ -67,6 +67,11 @@ public final class Server implements WithLogging {
 
     /**
      * Initiates creating a server exposed at the passed port.
+     *
+     * <p>Passing {@code 0} asks the operating system to assign a free port when the server
+     * {@linkplain #start() starts}. This is the recommended arrangement for tests, as it cannot
+     * fail with "address already in use" the way a fixed or randomly guessed port can. Obtain
+     * the assigned port via {@link #getBoundPort()} once the server is started.
      */
     public static Builder atPort(int port) {
         return new Builder(port, null);
@@ -100,7 +105,7 @@ public final class Server implements WithLogging {
         grpcContainer.addShutdownHook();
         var info = logger().atInfo();
         if (grpcContainer.hasPort()) {
-            var p = grpcContainer.getPort();
+            var p = grpcContainer.getBoundPort();
             info.log(() -> format("Server started, listening to the port %d.", p));
         }
         if (grpcContainer.hasServerName()) {
@@ -146,6 +151,22 @@ public final class Server implements WithLogging {
     @VisibleForTesting
     public void shutdownAndWait() {
         grpcContainer.shutdownNowAndWait();
+    }
+
+    /**
+     * Obtains the port at which this server actually listens.
+     *
+     * <p>When the server is created {@linkplain #atPort(int) at the port} {@code 0}, the actual
+     * port is assigned by the operating system upon {@linkplain #start() start}, and this method
+     * is the only way to learn it.
+     *
+     * @return the port this server listens to
+     * @throws IllegalStateException
+     *         if this is an {@linkplain #inProcess(String) in-process} server, or if the server
+     *         was not started yet or is already shut down
+     */
+    public int getBoundPort() {
+        return grpcContainer.getBoundPort();
     }
 
     /**
