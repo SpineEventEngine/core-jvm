@@ -72,7 +72,7 @@ object Compiler : Dependency() {
      * The version of the Compiler dependencies.
      */
     override val version: String
-    private const val fallbackVersion = "2.0.0-SNAPSHOT.063"
+    private const val fallbackVersion = "2.0.0-SNAPSHOT.065"
 
     /**
      * The distinct version of the Compiler used by other build tools.
@@ -81,7 +81,7 @@ object Compiler : Dependency() {
      * transitive dependencies, this is the version used to build the project itself.
      */
     val dogfoodingVersion: String
-    private const val fallbackDfVersion = "2.0.0-SNAPSHOT.063"
+    private const val fallbackDfVersion = "2.0.0-SNAPSHOT.065"
 
     /**
      * The artifact for the Compiler Gradle plugin.
@@ -114,9 +114,6 @@ object Compiler : Dependency() {
     val gradleApi
         get() = "$group:compiler-gradle-api:$version"
 
-    val cliApi
-        get() = "$group:compiler-cli-api:$version"
-
     val jvmModule = "$group:compiler-jvm"
 
     fun jvm(version: String): String =
@@ -125,8 +122,15 @@ object Compiler : Dependency() {
     val jvm
         get() = jvm(version)
 
+    /**
+     * The all-in-one ("fat") distribution of the Compiler command-line application.
+     *
+     * The artifact is named `compiler-cli-all` because it is published by
+     * the `cliFatJar` publication of the `:cli` module. Keep this name in sync with
+     * the `Artifacts.fatCli()` function of the `compiler-gradle-api` module.
+     */
     val fatCli
-        get() = "$group:compiler-fat-cli:$version"
+        get() = "$group:compiler-cli-all:$version"
 
     val testlib
         get() = "$group:compiler-testlib:$version"
@@ -138,7 +142,6 @@ object Compiler : Dependency() {
             params,
             protocPlugin,
             gradleApi,
-            cliApi,
             jvm,
             fatCli,
             testlib

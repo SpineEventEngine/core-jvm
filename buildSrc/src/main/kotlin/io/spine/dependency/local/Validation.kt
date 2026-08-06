@@ -36,7 +36,7 @@ object Validation {
     /**
      * The version of the Validation library artifacts.
      */
-    const val version = "2.0.0-SNAPSHOT.450"
+    const val version = "2.0.0-SNAPSHOT.462"
 
     const val group = Spine.toolsGroup
     private const val prefix = "validation"
@@ -61,8 +61,5 @@ object Validation {
 
     val javaBundle = javaBundle(version)
 
-    const val model = "$group:$prefix-model:$version"
-
-    const val configModule = "$group:$prefix-configuration"
     const val context = "$group:$prefix-context:$version"
 }

@@ -33,6 +33,8 @@ import io.spine.dependency.local.Spine
 import io.spine.gradle.SpineTaskGroup
 import io.spine.gradle.applyPlugin
 import io.spine.gradle.getTask
+import io.spine.gradle.report.license.Paths.outputFilename
+import io.spine.gradle.report.license.Paths.relativePath
 import java.io.File
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -75,6 +77,19 @@ object LicenseReporter {
     private const val mergeTaskName = "mergeAllLicenseReports"
 
     /**
+     * The reason for opting [projectTaskName] out of the build cache.
+     *
+     * The task only re-renders already resolved dependency metadata into a small
+     * Markdown file, so recomputing it is cheaper than a cache round trip.
+     * Gradle Doctor consistently reports such tasks as
+     * [slower from cache](https://runningcode.github.io/gradle-doctor/slower-from-cache/).
+     *
+     * Up-to-date checks still apply, so an unchanged project does not re-run the task.
+     */
+    private const val cacheOptOutReason =
+        "Rendering the license report is faster than fetching and unpacking a cache entry."
+
+    /**
      * Enables the generation of the license report for a single Gradle project.
      *
      * Registers `generateLicenseReport` task, which is later picked up
@@ -82,7 +97,7 @@ object LicenseReporter {
      */
     fun generateReportIn(project: Project) {
         project.applyPlugin(LicenseReportPlugin::class.java)
-        val reportOutputDir = project.layout.buildDirectory.dir(Paths.relativePath).get().asFile
+        val reportOutputDir = project.layout.buildDirectory.dir(relativePath).get().asFile
 
         with(project.the<LicenseReportExtension>()) {
             outputDir = reportOutputDir.absolutePath
@@ -94,21 +109,22 @@ object LicenseReporter {
             )
             configurations = ALL
 
-            renderers = arrayOf(MarkdownReportRenderer(Paths.outputFilename))
+            renderers = arrayOf(MarkdownReportRenderer(outputFilename))
         }
 
         // The rendered report embeds the project's Maven coordinates — including its
         // version — in the report header (see `Template.writeHeader`). The
-        // `generateLicenseReport` task is a `@CacheableTask` that keys its up-to-date check
-        // and build-cache entry on the resolved dependencies only, not on the project version.
-        // Without the version as an explicit input, a version-only change leaves the task
-        // `UP-TO-DATE` (or restorable from the build cache), so the report keeps the previous
-        // version while `pom.xml`, produced by an always-running task, is updated. Declaring
-        // the version as an input invalidates the cached output when it changes, so the report
-        // is regenerated. The value is read lazily so it reflects the version resolved at
-        // execution time, regardless of when `project.version` is assigned during configuration.
+        // `generateLicenseReport` task keys its up-to-date check on the resolved
+        // dependencies only, not on the project version. Without the version as an explicit
+        // input, a version-only change leaves the task `UP-TO-DATE`, so the report keeps the
+        // previous version while `pom.xml`, produced by an always-running task, is updated.
+        // Declaring the version as an input invalidates the output when it changes, so the
+        // report is regenerated. The value is read lazily so it reflects the version resolved
+        // at execution time, regardless of when `project.version` is assigned
+        // during configuration.
         project.tasks.generateLicenseReport.configure {
             inputs.property("projectVersion", project.provider { project.version.toString() })
+            outputs.doNotCacheIf(cacheOptOutReason) { true }
         }
     }
 
@@ -171,7 +187,7 @@ object LicenseReporter {
         val paths = sourceProjects
             .map {
                 val buildDir = it.layout.buildDirectory.asFile.get()
-                "$buildDir/${Paths.relativePath}/${Paths.outputFilename}"
+                "$buildDir/$relativePath/$outputFilename"
             }.filter {
                 val exists = File(it).exists()
                 if (!exists) {
@@ -181,7 +197,7 @@ object LicenseReporter {
             }
         println("Merging the license reports from all projects.")
         val mergedContent = paths.joinToString("\n\n\n") { (File(it)).readText() }
-        val output = Paths.outputFile(rootProject.rootDir, Paths.outputFilename)
+        val output = Paths.outputFile(rootProject.rootDir, outputFilename)
         output.parentFile.mkdirs()
         output.writeText(mergedContent)
     }

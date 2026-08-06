@@ -30,13 +30,6 @@ package io.spine.dependency.lib
 @Suppress("unused", "ConstPropertyName")
 object Roaster {
 
-    /**
-     * This is the last version built with Java 11.
-     *
-     * Starting from the version
-     * [2.29.0.Final](https://github.com/forge/roaster/releases/tag/2.29.0.Final),
-     * Roaster requires Java 17.
-     */
     private const val version = "2.31.0.Final"
 
     const val group = "org.jboss.forge.roaster"
