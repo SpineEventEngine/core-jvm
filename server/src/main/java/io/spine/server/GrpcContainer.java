@@ -50,7 +50,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static io.spine.server.GrpcContainer.ConfigureServer.doNothing;
 import static java.lang.String.format;
-import static java.util.Objects.requireNonNull;
 
 /**
  * Wrapping container for gRPC server.
@@ -380,12 +379,9 @@ public final class GrpcContainer {
      *         executor to configure for the created builder
      */
     private ServerBuilder<?> createServerBuilder(@Nullable Executor executor) {
-        var serverNameGiven = serverName != null;
-        var port = serverNameGiven ? null : requireNonNull(this.port);
-        var result = serverNameGiven
-                     ? inProcessBuilder(serverName, executor)
-                     : builderAtPort(requireNonNull(port), executor);
-        return result;
+        return hasServerName()
+               ? inProcessBuilder(getServerName(), executor)
+               : builderAtPort(getPort(), executor);
     }
 
     private static ServerBuilder<?> inProcessBuilder(String name, @Nullable Executor executor) {
@@ -396,7 +392,7 @@ public final class GrpcContainer {
         return builder;
     }
 
-    private static ServerBuilder<?> builderAtPort(Integer port, @Nullable Executor executor) {
+    private static ServerBuilder<?> builderAtPort(int port, @Nullable Executor executor) {
         var builder = ServerBuilder.forPort(port);
         builder = executor == null
                   ? builder
