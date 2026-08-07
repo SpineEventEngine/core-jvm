@@ -28,7 +28,7 @@ package io.spine.server.entity.storage;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.Any;
-import io.spine.annotation.Internal;
+import io.spine.annotation.SPI;
 import io.spine.base.EntityState;
 import io.spine.base.Identifier;
 import io.spine.client.ArchivedColumn;
@@ -61,6 +61,8 @@ import static java.util.Objects.requireNonNull;
  * {@link io.spine.option.OptionsProto#column (column)} Proto option, and the columns
  * storing lifecycle and version attributes of an {@code Entity}.
  *
+ * @apiNote Storage implementation vendors may use this class for obtaining {@code RecordSpec}
+ *         instances for their storage implementations.
  * @implNote Client-side API includes generic definitions of lifecycle and version columns
  *         (such as {@link ArchivedColumn}). However, their code cannot depend on the
  *         {@code Entity} type directly, as the {@code client} module has no dependency on
@@ -73,7 +75,7 @@ import static java.util.Objects.requireNonNull;
  *         Such an approach improves the scanning performance and preserves the types of generic
  *         parameters code-generated for each {@code EntityColumn}.
  */
-@Internal
+@SPI
 public final class SpecScanner {
 
     /**
@@ -157,7 +159,7 @@ public final class SpecScanner {
         accumulator.add(EntityRecordColumn.deleted);
         accumulator.add(EntityRecordColumn.version);
 
-        var result = new RecordSpec<I, EntityRecord>(
+        var result = new RecordSpec<>(
                 stateClass,
                 idClass,
                 EntityRecord.class,
@@ -173,8 +175,10 @@ public final class SpecScanner {
         return (Class<Object>) stateCol.type();
     }
 
-    @SuppressWarnings({"ReturnOfNull" /* By design. */,
-            "Immutable" /* Unpacker and state column are effectively immutable for given state. */})
+    @SuppressWarnings({
+            "ReturnOfNull", "DataFlowIssue" /* Returning `null` by design. */,
+            "Immutable" /* Unpacker and state column are effectively immutable for given state. */
+    })
     private static <I, S extends EntityState<I>>
     Getter<EntityRecord, Object> getter(Column<S, ?> stateColumn,
                                         MemoizingUnpacker<I, S> unpacker) {
@@ -264,7 +268,7 @@ public final class SpecScanner {
         }
 
         private synchronized S process(Any value) {
-            @Nullable S alreadyUnpacked = cache.get(value);
+            var alreadyUnpacked = cache.get(value);
             if (alreadyUnpacked != null) {
                 return alreadyUnpacked;
             }

@@ -39,7 +39,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.Optional;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -66,19 +65,18 @@ class TestClientTest {
     void setUpAll() throws IOException {
         var context = BoundedContext.singleTenant("Tennis")
                 .add(new GameRepository());
-        // Bind to a free ephemeral port chosen by the OS, rather than a fixed or randomly
-        // guessed one, so the test does not intermittently fail to bind an already-used
-        // port (notably under Windows).
-        var port = freePort();
+        // Bind to the port `0` so that the OS assigns a free port at the time of binding.
+        // Unlike a fixed or randomly guessed port, this cannot fail with "address already
+        // in use" (notably under Windows).
         server = Server
-                .atPort(port)
+                .atPort(0)
                 .add(context)
                 .build();
         server.start();
         var userId = UserId.newBuilder()
                 .setValue(TestClientTest.class.getSimpleName())
                 .build();
-        client = new TestClient(userId, "localhost", port);
+        client = new TestClient(userId, "localhost", server.getBoundPort());
     }
 
     @AfterEach
@@ -87,20 +85,6 @@ class TestClientTest {
             client.shutdown();
         }
         server.shutdownAndWait();
-    }
-
-    /**
-     * Obtains a currently free port from the operating system's ephemeral range.
-     *
-     * <p>Opening a {@link ServerSocket} on port {@code 0} lets the OS assign a port that is free
-     * at that moment; the socket is closed immediately, so the port is available for the gRPC
-     * server to bind. Unlike a fixed or randomly guessed port, this never selects a port already
-     * in use — the cause of the intermittent bind failures on CI.
-     */
-    private static int freePort() throws IOException {
-        try (var socket = new ServerSocket(0)) {
-            return socket.getLocalPort();
-        }
     }
 
     @Test

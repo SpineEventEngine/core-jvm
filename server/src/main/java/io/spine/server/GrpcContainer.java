@@ -50,7 +50,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static io.spine.server.GrpcContainer.ConfigureServer.doNothing;
 import static java.lang.String.format;
-import static java.util.Objects.requireNonNull;
 
 /**
  * Wrapping container for gRPC server.
@@ -139,6 +138,25 @@ public final class GrpcContainer {
     }
 
     /**
+     * Obtains the port at which this container actually listens.
+     *
+     * <p>Unlike {@link #getPort()}, which returns the port <em>requested</em> when the container
+     * was built, this method returns the port the underlying gRPC server is bound to. The two
+     * differ when the container is built {@linkplain #atPort(int) at the port} {@code 0}, which
+     * asks the operating system to assign a free port at the time of binding.
+     *
+     * @return the port this container listens to
+     * @throws IllegalStateException
+     *         if this is an in-process container, or if the container was not started yet
+     *         or is already shut down
+     */
+    public int getBoundPort() {
+        checkState(hasPort(), "The container is exposed in-process, and has no port.");
+        checkState(grpcServer != null, SERVER_NOT_STARTED_MSG);
+        return grpcServer.getPort();
+    }
+
+    /**
      * Checks whether the server name has been configured.
      *
      * @return {@code true} if the server name was set, {@code false} otherwise
@@ -154,7 +172,7 @@ public final class GrpcContainer {
      * @throws NullPointerException if the server name was not set (port-based container)
      */
     public String getServerName() {
-        return serverName;
+        return checkNotNull(serverName);
     }
 
     /**
@@ -188,8 +206,7 @@ public final class GrpcContainer {
      */
     public void start() throws IOException {
         checkNotStarted();
-        grpcServer = createGrpcServer(/* ...with a gRPC-default executor. */ null);
-        grpcServer.start();
+        grpcServer = startedServer(/* ...with a gRPC-default executor. */ null);
     }
 
     /**
@@ -203,8 +220,26 @@ public final class GrpcContainer {
     public void start(Executor executor) throws IOException {
         checkNotStarted();
         checkNotNull(executor, "Executor must not be `null`.");
-        grpcServer = createGrpcServer(executor);
-        grpcServer.start();
+        grpcServer = startedServer(executor);
+    }
+
+    /**
+     * Creates a gRPC server with the given executor and starts it.
+     *
+     * <p>The server is returned only after it starts successfully. This keeps a failed
+     * start from leaving this container in a half-started state, in which it would report
+     * itself as running, refuse a repeated {@link #start()}, and expose a server that
+     * listens to nothing.
+     *
+     * @param executor
+     *         executor to use for the gRPC server, or {@code null} for the gRPC default
+     * @throws IOException
+     *         if unable to bind
+     */
+    private Server startedServer(@Nullable Executor executor) throws IOException {
+        var server = createGrpcServer(executor);
+        server.start();
+        return server;
     }
 
     private void checkNotStarted() {
@@ -344,12 +379,9 @@ public final class GrpcContainer {
      *         executor to configure for the created builder
      */
     private ServerBuilder<?> createServerBuilder(@Nullable Executor executor) {
-        var serverNameGiven = serverName != null;
-        @Nullable Integer port = serverNameGiven ? null : requireNonNull(this.port);
-        var result = serverNameGiven
-                     ? inProcessBuilder(serverName, executor)
-                     : builderAtPort(requireNonNull(port), executor);
-        return result;
+        return hasServerName()
+               ? inProcessBuilder(getServerName(), executor)
+               : builderAtPort(getPort(), executor);
     }
 
     private static ServerBuilder<?> inProcessBuilder(String name, @Nullable Executor executor) {
@@ -360,7 +392,7 @@ public final class GrpcContainer {
         return builder;
     }
 
-    private static ServerBuilder<?> builderAtPort(Integer port, @Nullable Executor executor) {
+    private static ServerBuilder<?> builderAtPort(int port, @Nullable Executor executor) {
         var builder = ServerBuilder.forPort(port);
         builder = executor == null
                   ? builder
@@ -417,7 +449,7 @@ public final class GrpcContainer {
         }
 
         @FormatMethod
-        private void println(@FormatString String msgFormat, Object... arg) {
+        private static void println(@FormatString String msgFormat, Object... arg) {
             var msg = format(msgFormat, arg);
             System.err.println(msg);
         }

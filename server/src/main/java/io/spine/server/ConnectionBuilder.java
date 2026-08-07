@@ -108,7 +108,7 @@ public abstract class ConnectionBuilder {
      * @throws NullPointerException if the server name was not set (port-based connection)
      */
     public final String getServerName() {
-        return serverName;
+        return checkNotNull(serverName);
     }
 
     /**

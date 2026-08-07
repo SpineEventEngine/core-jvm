@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -62,7 +62,6 @@ class ClientEndToEndTest {
 
     @SuppressWarnings("DuplicateStringLiteralInspection")
     private static final String ADDRESS = "localhost";
-    private static final int PORT = 4242;
 
     private Client client;
     private Server server;
@@ -70,14 +69,17 @@ class ClientEndToEndTest {
 
     @BeforeEach
     void startAndConnect() throws IOException {
-        channel = forAddress(ADDRESS, PORT)
-                .usePlaintext()
-                .build();
-        server = atPort(PORT)
+        // Bind to the port `0` so that the OS assigns a free one, and connect to the port
+        // the server actually got. A fixed port makes the test fail intermittently when
+        // the port is taken by another process on the CI runner.
+        server = atPort(0)
                 .add(users())
                 .add(tasks())
                 .build();
         server.start();
+        channel = forAddress(ADDRESS, server.getBoundPort())
+                .usePlaintext()
+                .build();
         client = usingChannel(channel).build();
     }
 
