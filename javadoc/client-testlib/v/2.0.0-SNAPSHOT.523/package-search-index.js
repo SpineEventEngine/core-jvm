@@ -1,0 +1,1 @@
+var packageSearchIndex = [{"l":"io.spine.testing.client.grpc","url":"io/spine/testing/client/grpc/package-summary.html"}, {"l":"io.spine.testing.client","url":"io/spine/testing/client/package-summary.html"}, {"l":"io.spine.testing.client.command","url":"io/spine/testing/client/command/package-summary.html"}, {"l":"All packages","url":"index.html"}]
