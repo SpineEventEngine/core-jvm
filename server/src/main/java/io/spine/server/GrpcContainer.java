@@ -173,7 +173,7 @@ public final class GrpcContainer {
      * @throws NullPointerException if the server name was not set (port-based container)
      */
     public String getServerName() {
-        return serverName;
+        return checkNotNull(serverName);
     }
 
     /**
