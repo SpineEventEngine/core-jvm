@@ -109,14 +109,14 @@ class GrpcContainerTest {
     @Test
     @MuteLogging
     @DisplayName("configure underlying gRPC server")
-    void configureUnderlyingGrpcServer() {
+    void configureUnderlyingGrpcServer() throws IOException {
         var service = noOpCommandService();
         var container = GrpcContainer
                 .atPort(0)
                 .withServer((server) -> server.addService(service))
                 .build();
+        container.start();
         try {
-            container.start();
             var server = container.grpcServer();
             assertThat(server)
                     .isNotNull();
@@ -131,8 +131,6 @@ class GrpcContainerTest {
                     .getName();
             assertThat(actualName).contains(service.getClass()
                                                    .getSimpleName());
-        } catch (IOException e) {
-            fail(e);
         } finally {
             container.shutdown();
         }
