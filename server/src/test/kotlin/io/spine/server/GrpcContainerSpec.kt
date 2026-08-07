@@ -26,9 +26,12 @@
 
 package io.spine.server
 
+import io.grpc.Server as GrpcServer
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.spine.testing.TestValues.randomString
+import java.io.IOException
+import java.util.concurrent.TimeUnit
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -110,6 +113,62 @@ internal class GrpcContainerSpec {
                 builder.port
             }
         }
+    }
+
+    @Nested inner class
+    `when the underlying server fails to start` {
+
+        @Test
+        fun `stay in the not-started state`() {
+            val container = GrpcContainer.atPort(PORT).build()
+            container.injectServer(UnbindableGrpcServer())
+
+            shouldThrow<IOException> {
+                container.start()
+            }
+
+            container.isShutdown shouldBe true
+            shouldThrow<IllegalStateException> {
+                container.boundPort
+            }
+        }
+
+        /**
+         * A failed start must leave the container startable again — if it recorded the
+         * server anyway, this second attempt would fail the "started already" check
+         * instead of reaching the binding.
+         */
+        @Test
+        fun `allow starting again`() {
+            val container = GrpcContainer.atPort(PORT).build()
+            container.injectServer(UnbindableGrpcServer())
+
+            repeat(2) {
+                shouldThrow<IOException> {
+                    container.start()
+                }
+            }
+        }
+    }
+
+    /**
+     * A gRPC server which cannot start, imitating a port that fails to bind.
+     */
+    private class UnbindableGrpcServer : GrpcServer() {
+
+        override fun start(): GrpcServer = throw IOException("Cannot bind.")
+
+        override fun shutdown(): GrpcServer = this
+
+        override fun shutdownNow(): GrpcServer = this
+
+        override fun isShutdown(): Boolean = true
+
+        override fun isTerminated(): Boolean = true
+
+        override fun awaitTermination(timeout: Long, unit: TimeUnit): Boolean = true
+
+        override fun awaitTermination() = Unit
     }
 
     private companion object {

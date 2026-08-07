@@ -207,8 +207,7 @@ public final class GrpcContainer {
      */
     public void start() throws IOException {
         checkNotStarted();
-        grpcServer = createGrpcServer(/* ...with a gRPC-default executor. */ null);
-        grpcServer.start();
+        grpcServer = startedServer(/* ...with a gRPC-default executor. */ null);
     }
 
     /**
@@ -222,8 +221,26 @@ public final class GrpcContainer {
     public void start(Executor executor) throws IOException {
         checkNotStarted();
         checkNotNull(executor, "Executor must not be `null`.");
-        grpcServer = createGrpcServer(executor);
-        grpcServer.start();
+        grpcServer = startedServer(executor);
+    }
+
+    /**
+     * Creates a gRPC server with the given executor and starts it.
+     *
+     * <p>The server is returned only after it starts successfully. This keeps a failed
+     * start from leaving this container in a half-started state, in which it would report
+     * itself as running, refuse a repeated {@link #start()}, and expose a server that
+     * listens to nothing.
+     *
+     * @param executor
+     *         executor to use for the gRPC server, or {@code null} for the gRPC default
+     * @throws IOException
+     *         if unable to bind
+     */
+    private Server startedServer(@Nullable Executor executor) throws IOException {
+        var server = createGrpcServer(executor);
+        server.start();
+        return server;
     }
 
     private void checkNotStarted() {
