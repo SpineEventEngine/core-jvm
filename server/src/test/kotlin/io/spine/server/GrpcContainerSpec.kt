@@ -28,6 +28,7 @@ package io.spine.server
 
 import io.grpc.Server as GrpcServer
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.spine.testing.TestValues.randomString
 import java.io.IOException
@@ -55,6 +56,21 @@ internal class GrpcContainerSpec {
         fun `obtain the port`() {
             container.hasPort() shouldBe true
             container.port shouldBe PORT
+        }
+
+        /**
+         * The requested port and the bound one are two different things: the container is
+         * built at the port `0`, and the OS picks the real port when the server binds.
+         */
+        @Test
+        fun `obtain the bound port once started`() {
+            container.start()
+            try {
+                container.port shouldBe PORT
+                container.boundPort shouldBeGreaterThan 0
+            } finally {
+                container.shutdown()
+            }
         }
 
         @Test
