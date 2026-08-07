@@ -50,23 +50,22 @@ internal class GrpcContainerSpec {
     @Nested inner class
     `when exposed at a port` {
 
-        private val container = GrpcContainer.atPort(PORT).build()
+        private val container = GrpcContainer.atPort(ANY_FREE_PORT).build()
 
         @Test
         fun `obtain the port`() {
             container.hasPort() shouldBe true
-            container.port shouldBe PORT
+            container.port shouldBe ANY_FREE_PORT
         }
 
         /**
-         * The requested port and the bound one are two different things: the container is
-         * built at the port `0`, and the OS picks the real port when the server binds.
+         * The requested port and the bound one are two different things — see [ANY_FREE_PORT].
          */
         @Test
         fun `obtain the bound port once started`() {
             container.start()
             try {
-                container.port shouldBe PORT
+                container.port shouldBe ANY_FREE_PORT
                 container.boundPort shouldBeGreaterThan 0
             } finally {
                 container.shutdown()
@@ -112,7 +111,7 @@ internal class GrpcContainerSpec {
 
         @Test
         fun `prohibit obtaining the server name of a port-based builder`() {
-            val builder = GrpcContainer.atPort(PORT)
+            val builder = GrpcContainer.atPort(ANY_FREE_PORT)
 
             builder.hasServerName() shouldBe false
             shouldThrow<NullPointerException> {
@@ -136,7 +135,7 @@ internal class GrpcContainerSpec {
 
         @Test
         fun `stay in the not-started state`() {
-            val container = GrpcContainer.atPort(PORT).build()
+            val container = GrpcContainer.atPort(ANY_FREE_PORT).build()
             container.injectServer(UnbindableGrpcServer())
 
             shouldThrow<IOException> {
@@ -156,7 +155,7 @@ internal class GrpcContainerSpec {
          */
         @Test
         fun `allow starting again`() {
-            val container = GrpcContainer.atPort(PORT).build()
+            val container = GrpcContainer.atPort(ANY_FREE_PORT).build()
             container.injectServer(UnbindableGrpcServer())
 
             repeat(2) {
@@ -189,6 +188,14 @@ internal class GrpcContainerSpec {
 
     private companion object {
 
-        const val PORT = 0
+        /**
+         * Tells the operating system to pick a free port when the server binds.
+         *
+         * This is not a port number of its own. A container built with it keeps reporting
+         * `0` from [GrpcContainer.getPort] — that is the value it was *asked* for. The port
+         * actually taken is known only from [GrpcContainer.getBoundPort], and only once the
+         * container has started.
+         */
+        const val ANY_FREE_PORT = 0
     }
 }

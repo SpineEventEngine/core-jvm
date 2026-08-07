@@ -48,7 +48,7 @@ internal class ServerSpec {
     @Test
     @MuteLogging
     fun `allow registering custom gRPC services`() {
-        val server = Server.atPort(EPHEMERAL)
+        val server = Server.atPort(ANY_FREE_PORT)
             .add(users())
             .add(tasks())
             .include(StatusCheckService())
@@ -69,7 +69,7 @@ internal class ServerSpec {
 
     @Test
     fun `provide 'CommandService', 'QueryService', and 'SubscriptionService'`() {
-        val server = Server.atPort(EPHEMERAL)
+        val server = Server.atPort(ANY_FREE_PORT)
             .add(users())
             .add(tasks())
             .build()
@@ -82,7 +82,7 @@ internal class ServerSpec {
     @Test
     @MuteLogging
     fun `expose the port assigned by the operating system`() {
-        val server = Server.atPort(EPHEMERAL).build()
+        val server = Server.atPort(ANY_FREE_PORT).build()
         server.start()
         try {
             server.boundPort shouldBeGreaterThan 0
@@ -103,7 +103,7 @@ internal class ServerSpec {
         val servers = mutableListOf<Server>()
         try {
             repeat(2) {
-                servers.add(Server.atPort(EPHEMERAL).build().apply { start() })
+                servers.add(Server.atPort(ANY_FREE_PORT).build().apply { start() })
             }
             servers[0].boundPort shouldNotBe servers[1].boundPort
         } finally {
@@ -114,7 +114,7 @@ internal class ServerSpec {
     @Test
     @MuteLogging
     fun `prohibit obtaining the bound port before the start`() {
-        val server = Server.atPort(EPHEMERAL).build()
+        val server = Server.atPort(ANY_FREE_PORT).build()
 
         shouldThrow<IllegalStateException> {
             server.boundPort
@@ -136,8 +136,11 @@ internal class ServerSpec {
         const val ADDRESS = "localhost"
 
         /**
-         * Instructs the operating system to assign a free port when the server starts.
+         * Tells the operating system to pick a free port when the server binds.
+         *
+         * This is not a port number of its own — the port actually taken is known only
+         * from [Server.getBoundPort], and only once the server has started.
          */
-        const val EPHEMERAL = 0
+        const val ANY_FREE_PORT = 0
     }
 }
