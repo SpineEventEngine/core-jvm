@@ -76,10 +76,22 @@ protected constructor() :
         CommandRouting.newInstance(idClass())
     }
 
-    /** Whether the opt-in double-dispatch guard is enabled for this repository. */
+    /**
+     * Whether the opt-in double-dispatch guard is enabled for this repository.
+     *
+     * Volatile: read by dispatch workers, while the guard may be
+     * [enabled][useDoubleDispatchGuard] at runtime.
+     */
+    @Volatile
     private var guardEnabled = false
 
-    /** The window (in journal events) the opt-in double-dispatch guard scans. */
+    /**
+     * The window (in journal events) the opt-in double-dispatch guard scans.
+     *
+     * Volatile: read by dispatch workers, while the window may be
+     * [resized][setEventHistoryDepth] at runtime.
+     */
+    @Volatile
     private var historyDepth = SignalDispatchingEntity.DEFAULT_HISTORY_DEPTH
 
     /**
