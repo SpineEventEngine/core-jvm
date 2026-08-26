@@ -99,7 +99,7 @@ internal class DoubleDispatchGuardSpec {
 
         @Test
         fun `accept a command older than the recent-history window`() {
-            repository.setEventHistoryDepth(1)
+            repository.doSetEventHistoryDepth(1)
             val createCommand = command(createProject(projectId))
             post(createCommand)
             // Push the create command's event out of the depth-1 window with a newer command.
@@ -142,7 +142,7 @@ internal class DoubleDispatchGuardSpec {
         }
 
         private fun check(guard: DoubleDispatchGuard, command: Command): Error? {
-            guard.enable(repository.eventHistoryDepth())
+            guard.enable(repository.getEventHistoryDepth())
             val envelope = CommandEnvelope.of(command)
             return guard.check(envelope)
         }
@@ -171,7 +171,7 @@ internal class DoubleDispatchGuardSpec {
 
         @Test
         fun `accept an event older than the recent-history window`() {
-            repository.setEventHistoryDepth(1)
+            repository.doSetEventHistoryDepth(1)
             val taskEvent = event(taskStarted(projectId))
             post(taskEvent)
             // Push the reaction to the task event out of the depth-1 window with a newer event.
@@ -212,7 +212,7 @@ internal class DoubleDispatchGuardSpec {
         }
 
         private fun check(guard: DoubleDispatchGuard, event: Event): Error? {
-            guard.enable(repository.eventHistoryDepth())
+            guard.enable(repository.getEventHistoryDepth())
             val envelope = EventEnvelope.of(event)
             return guard.check(envelope)
         }
