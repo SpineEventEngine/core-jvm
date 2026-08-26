@@ -62,7 +62,11 @@ import io.spine.validation.ValidatingBuilder
             " To coordinate the work of several `Aggregate`s, please use a `ProcessManager`" +
             " instead."
 )
-@Suppress("DEPRECATION")
+@Suppress("DEPRECATION") /* Reason: this type is deprecated in favour of
+   `ProcessManager`, and its model class `AggregatePartClass` is deprecated in lockstep.
+   Neither has a replacement while `AggregatePart` itself exists, so the calls below
+   cannot be migrated away.
+*/
 public abstract class AggregatePart<I : Any,
                                     S : AggregateState<I>,
                                     B : ValidatingBuilder<S>,
