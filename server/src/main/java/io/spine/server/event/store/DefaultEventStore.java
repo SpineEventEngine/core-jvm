@@ -63,7 +63,7 @@ import static java.util.stream.Collectors.toSet;
  * the Bounded Context. The event stores of all contexts of an application store
  * records of the same type, so the group is what keeps the event log of each
  * context in its own physical storage — a table, a kind, and the like — in
- * a storage vendor which otherwise maps equal record specifications to one
+ * a storage vendor that otherwise maps equal record specifications to one
  * physical storage.
  */
 public final class DefaultEventStore extends MessageStorage<EventId, Event>

@@ -49,7 +49,7 @@ import org.junit.jupiter.api.Test
  * of all contexts store records of the same type, so the group, named
  * after the context, is what keeps the event log of each context in its
  * own physical storage. In-memory storages are isolated per instance and
- * cannot observe a shared table, hence the assertions capture the
+ * cannot observe a shared table; hence, the assertions capture the
  * identities at the vendor seam.
  */
 @DisplayName("Event stores of Bounded Contexts should")
