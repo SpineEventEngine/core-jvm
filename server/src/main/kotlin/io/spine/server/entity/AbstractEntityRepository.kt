@@ -53,7 +53,7 @@ public abstract class AbstractEntityRepository<I : Any,
     /**
      * Whether the opt-in state history recording is enabled for this repository.
      */
-    private var recordingEnabled = false
+    private var stateHistoryEnabled = false
 
     /** The storage of recent state records; created lazily once the history is first needed. */
     private var stateHistory: EntityStateHistoryStorage<I>? = null
@@ -208,7 +208,7 @@ public abstract class AbstractEntityRepository<I : Any,
      * @see stopRecordingStateHistory
      */
     protected fun recordStateHistory() {
-        recordingEnabled = true
+        stateHistoryEnabled = true
     }
 
     /**
@@ -217,7 +217,7 @@ public abstract class AbstractEntityRepository<I : Any,
      * @return `false` by default.
      * @see recordStateHistory
      */
-    protected fun stateHistoryEnabled(): Boolean = recordingEnabled
+    protected fun stateHistoryEnabled(): Boolean = stateHistoryEnabled
 
     /**
      * Stops recording the state history for the entities of this repository.
@@ -239,7 +239,7 @@ public abstract class AbstractEntityRepository<I : Any,
      * @see recordStateHistory
      */
     protected fun stopRecordingStateHistory() {
-        recordingEnabled = false
+        stateHistoryEnabled = false
     }
 
     /**
