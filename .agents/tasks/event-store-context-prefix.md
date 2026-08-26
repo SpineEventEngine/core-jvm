@@ -3,7 +3,11 @@
 ## Status
 
 Investigation complete; verified against `jdbc-storage` and `gcloud-jvm` (Datastore).
-Implementation not started.
+
+Step 1 (core-jvm) implemented: `StorageGroup.of(BoundedContextName)` added,
+`DefaultEventStore` passes the context-derived group; covered by
+`EventStoreIdentitySpec` and `StorageGroupSpec`. Steps 2–4 (`jdbc-storage`,
+`gcloud-jvm`) and the migration/release notes are pending.
 
 ## Problem
 

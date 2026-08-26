@@ -39,6 +39,7 @@ import io.spine.server.storage.MessageStorage;
 import io.spine.server.storage.RecordSpec;
 import io.spine.server.storage.RecordWithColumns;
 import io.spine.server.storage.StorageFactory;
+import io.spine.server.storage.StorageGroup;
 import io.spine.server.tenant.EventOperation;
 import io.spine.server.tenant.TenantAwareOperation;
 
@@ -57,6 +58,13 @@ import static java.util.stream.Collectors.toSet;
 
 /**
  * Default implementation of {@link EventStore}.
+ *
+ * <p>The underlying record storage belongs to a {@link StorageGroup} named after
+ * the Bounded Context. The event stores of all contexts of an application store
+ * records of the same type, so the group is what keeps the event log of each
+ * context in its own physical storage — a table, a kind, and the like — in
+ * a storage vendor which otherwise maps equal record specifications to one
+ * physical storage.
  */
 public final class DefaultEventStore extends MessageStorage<EventId, Event>
         implements EventStore, WithLogging {
@@ -72,7 +80,7 @@ public final class DefaultEventStore extends MessageStorage<EventId, Event>
      * Constructs a new instance.
      */
     public DefaultEventStore(ContextSpec context, StorageFactory factory) {
-        super(context, factory.createRecordStorage(context, spec()));
+        super(context, factory.createRecordStorage(context, spec(), groupOf(context)));
         this.log = new Log();
     }
 
@@ -80,6 +88,10 @@ public final class DefaultEventStore extends MessageStorage<EventId, Event>
         var spec = new RecordSpec<>(EventId.class, Event.class, Signal::id,
                                     EventColumn.definitions());
         return spec;
+    }
+
+    private static StorageGroup groupOf(ContextSpec context) {
+        return StorageGroup.of(context.name());
     }
 
     private static void ensureSameTenant(ImmutableList<Event> events) {
