@@ -83,6 +83,11 @@ public data class StorageGroup(public val name: String) {
          * records of the same type, so this group is what keeps the event
          * log of each context in its own physical storage.
          *
+         * The context name is taken verbatim. Mapping it to the name of
+         * a physical storage — including any normalization a vendor's
+         * naming rules require — is the vendor's concern, as described
+         * in the class documentation.
+         *
          * @param context The name of the Bounded Context served by the storage.
          */
         @JvmStatic
