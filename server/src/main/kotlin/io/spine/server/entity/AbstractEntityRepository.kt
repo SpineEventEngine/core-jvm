@@ -52,11 +52,7 @@ public abstract class AbstractEntityRepository<I : Any,
 
     /**
      * Whether the opt-in state history recording is enabled for this repository.
-     *
-     * Volatile: read by dispatch workers, while the recording may be
-     * [enabled][recordStateHistory] and [stopped][stopRecordingStateHistory] at runtime.
      */
-    @Volatile
     private var recordingEnabled = false
 
     /** The storage of recent state records; created lazily once the history is first needed. */
