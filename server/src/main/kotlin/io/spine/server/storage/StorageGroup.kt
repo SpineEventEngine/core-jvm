@@ -44,6 +44,12 @@ import io.spine.type.TypeName
  * A `StorageGroup` provides that distinction, so each group is allocated
  * its own physical storage — a table, a kind, and the like.
  *
+ * Distinct group names denote distinct physical storages. A vendor that
+ * normalizes the name to satisfy its own naming rules — for example,
+ * replacing the characters not allowed in SQL identifiers — must keep
+ * that mapping collision-free, so that no two group names resolve to
+ * one physical storage.
+ *
  * The [name] is assigned by the party creating the storage: a repository
  * names the per-entity histories after the entity state, and the event
  * store of a Bounded Context is named after the context — see the [of]

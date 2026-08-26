@@ -93,11 +93,26 @@ deriving a group from a context. `DefaultEventStore` calls it with `context.name
 the jdbc-storage Builder overload (step 3) uses the same helper, so the two sides
 can never drift apart in how the group name is spelled.
 
-### 2. jdbc-storage: sanitize group names for SQL
+### 2. jdbc-storage: collision-free group names in table names
 
-Context names are validated only as non-blank (`BoundedContextNames.checkValid`), so they
-may contain spaces, dashes, etc. `TableNames.of(recordType, group)` replaces only dots.
-Extend sanitization to replace any character outside `[A-Za-z0-9_]` with `_`.
+Context names are validated only as non-blank (`BoundedContextNames.checkValid`), so
+they may contain spaces, dots, dashes, etc. `TableNames.of(recordType, group)` replaces
+only dots with `_`, which both fails for other illegal characters and aliases distinct
+names: `Sales.EU` and `Sales_EU` collapse into one `Sales_EU_Event` table (flagged by
+the Codex review on PR #1673). The same aliasing already affects entity-state groups
+whose proto type names contain underscores.
+
+Make the mapping injective without renaming the common case. Names built solely of
+letters, digits, and dots — the vast majority: qualified proto type names without
+underscores, plain context names — keep today's dots-to-`_` mapping and their existing
+tables. A name containing `_` or any other character is exactly the class that can
+alias after that mapping; for those, replace illegal characters and append a short
+fixed-length digest of the raw name (with a distinguishing marker, e.g. `_h<hex>`).
+This renames the existing tables only of underscore-bearing proto type names — already
+ambiguous today — which the migration notes must call out. A full escape scheme
+(`_` → `__`, `.` → `_d`, ...) was considered and rejected: it renames every existing
+dotted-name table. Datastore (`gcloud-jvm`) needs none of this: kinds keep the raw
+name. `StorageGroup`'s KDoc now states the injective-mapping requirement for vendors.
 
 ### 3. jdbc-storage: custom-name API for context-grouped tables
 
