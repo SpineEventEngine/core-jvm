@@ -29,7 +29,6 @@ package io.spine.server.aggregate
 import io.spine.annotation.Experimental
 import io.spine.base.AggregateState
 import io.spine.reflect.GenericTypeIndex
-import io.spine.server.aggregate.model.AggregatePartClass
 import io.spine.validation.ValidatingBuilder
 
 /**
@@ -63,6 +62,7 @@ import io.spine.validation.ValidatingBuilder
             " To coordinate the work of several `Aggregate`s, please use a `ProcessManager`" +
             " instead."
 )
+@Suppress("DEPRECATION")
 public abstract class AggregatePart<I : Any,
                                     S : AggregateState<I>,
                                     B : ValidatingBuilder<S>,
@@ -83,11 +83,11 @@ public abstract class AggregatePart<I : Any,
     /**
      * Obtains model class for this aggregate part.
      */
-    override fun thisClass(): AggregatePartClass<*> = super.thisClass() as AggregatePartClass<*>
+    override fun thisClass(): io.spine.server.aggregate.model.AggregatePartClass<*> =
+        super.thisClass() as io.spine.server.aggregate.model.AggregatePartClass<*>
 
-    @Suppress("DEPRECATION") // Calls into the deprecated `AggregatePartClass`.
-    final override fun modelClass(): AggregatePartClass<*> =
-        AggregatePartClass.asAggregatePartClass(javaClass)
+    final override fun modelClass(): io.spine.server.aggregate.model.AggregatePartClass<*> =
+        io.spine.server.aggregate.model.AggregatePartClass.asAggregatePartClass(javaClass)
 
     /**
      * Obtains a state of another `AggregatePart` by its class.
