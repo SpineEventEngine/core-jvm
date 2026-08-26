@@ -36,7 +36,7 @@ import io.spine.dependency.Dependency
 object PalantirJavaFormat : Dependency() {
 
     override val group = "com.palantir.javaformat"
-    override val version = "2.91.0"
+    override val version = "2.97.0"
     override val modules: List<String> = listOf("$group:palantir-java-format")
 
     val lib = artifact(modules[0])

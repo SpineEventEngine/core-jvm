@@ -31,6 +31,7 @@ import io.spine.gradle.report.pom.PomFormatting.writeStart
 import java.io.File
 import java.io.FileWriter
 import java.io.StringWriter
+import org.gradle.api.Project
 
 /**
  * Writes the dependencies of a Gradle project and its subprojects as a `pom.xml` file.
@@ -38,10 +39,15 @@ import java.io.StringWriter
  * The resulting file is not usable for `maven` build tasks but serves as a description
  * of the first-level dependencies for each project or subproject.
  * Their transitive dependencies are not included in the result.
+ *
+ * The version of each dependency is taken from the map returned by
+ * [resolvedVersionsOf] for the project the dependency comes from.
+ * See the [dependencies] extension function for details.
  */
 internal class PomXmlWriter
 internal constructor(
-    private val projectMetadata: ProjectMetadata
+    private val projectMetadata: ProjectMetadata,
+    private val resolvedVersionsOf: (Project) -> Map<String, String>
 ) {
 
     /**
@@ -77,7 +83,7 @@ internal constructor(
      */
     private fun projectDependencies(): String {
         val destination = StringWriter()
-        val dependencyWriter = DependencyWriter.of(projectMetadata.project)
+        val dependencyWriter = DependencyWriter.of(projectMetadata.project, resolvedVersionsOf)
         dependencyWriter.writeXmlTo(destination)
         return destination.toString()
     }

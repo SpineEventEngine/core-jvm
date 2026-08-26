@@ -28,11 +28,13 @@ package io.spine.gradle.report.pom
 
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.ints.shouldBeLessThan
+import io.kotest.matchers.maps.shouldNotContainKey
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
 import java.io.File
 import java.io.StringWriter
+import java.util.SortedSet
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
@@ -68,6 +70,30 @@ internal class DependencyWriterSpec {
         configurations.maybeCreate(configuration)
         dependencies.add(configuration, notation)
     }
+
+    /**
+     * Collects the dependencies of this project and its subprojects, resolving
+     * their configurations in place.
+     *
+     * Feeds [resolvedVersions] of each project to the production collection code,
+     * mirroring what the per-project [ResolvedVersions] tasks provide in a real
+     * build. `ProjectBuilder`-based tests execute no tasks, so resolving the
+     * configurations of subprojects directly is safe here.
+     */
+    private fun Project.dependencies(): SortedSet<ScopedDependency> =
+        dependencies { it.resolvedVersions() }
+
+    /**
+     * Collects the dependencies of this project and its subprojects, taking the
+     * version of each dependency from the given [resolved] map instead of
+     * resolving any configurations.
+     *
+     * A project created with `ProjectBuilder` cannot resolve its configurations
+     * against real repositories, so the resolved versions are supplied directly.
+     * The keys are the `"group:name"` of the modules.
+     */
+    private fun Project.dependencies(resolved: Map<String, String>): SortedSet<ScopedDependency> =
+        dependencies { resolved }
 
     @Nested inner class
     `merge an artifact duplicated across modules` {
@@ -328,6 +354,30 @@ internal class DependencyWriterSpec {
             dependency.dependency().version shouldBe "1.0.40"
         }
 
+        /**
+         * A module failing to resolve — here, by being requested in two
+         * conflicting versions under `failOnVersionConflict()` — contributes
+         * no version instead of failing the collection: reading a resolution
+         * graph is lenient, recording the failure as an unresolved edge.
+         */
+        @Test
+        fun `contribute no version for a module failing to resolve`(@TempDir repoDir: File) {
+            val group = "io.spine.validation"
+            val name = "spine-validation-java-runtime"
+            publishPom(repoDir, group, name, "1.0.40")
+            publishPom(repoDir, group, name, "1.0.61")
+
+            val text = subproject("text")
+            text.addMavenRepository(repoDir)
+            val api = text.configurations.create("api")
+            api.isCanBeResolved = true
+            api.resolutionStrategy.failOnVersionConflict()
+            text.dependencies.add("api", "$group:$name:1.0.40")
+            text.dependencies.add("api", "$group:$name:1.0.61")
+
+            text.resolvedVersions() shouldNotContainKey "$group:$name"
+        }
+
         /** Writes a metadata-only Maven POM for the module under [repoDir]. */
         private fun publishPom(repoDir: File, group: String, name: String, version: String) {
             val dir = File(repoDir, "${group.replace('.', '/')}/$name/$version")
@@ -371,7 +421,7 @@ internal class DependencyWriterSpec {
         subproject("b-lib").declare("api", SPINE_BASE)
 
         val out = StringWriter()
-        DependencyWriter.of(rootProject).writeXmlTo(out)
+        DependencyWriter.of(rootProject) { it.resolvedVersions() }.writeXmlTo(out)
         val xml = out.toString()
 
         xml shouldContain "<artifactId>grpc-stub</artifactId>"
@@ -385,7 +435,7 @@ internal class DependencyWriterSpec {
         subproject("b-lib").declare("api", SPINE_BASE)
 
         val out = StringWriter()
-        DependencyWriter.of(rootProject).writeXmlTo(out)
+        DependencyWriter.of(rootProject) { it.resolvedVersions() }.writeXmlTo(out)
         val xml = out.toString()
 
         xml shouldContain "<artifactId>spine-base</artifactId>"
@@ -401,7 +451,7 @@ internal class DependencyWriterSpec {
         subproject("d-lib").declare("api", SPINE_BASE)
 
         val out = StringWriter()
-        DependencyWriter.of(rootProject).writeXmlTo(out)
+        DependencyWriter.of(rootProject) { it.resolvedVersions() }.writeXmlTo(out)
         val xml = out.toString()
 
         val compileAt = xml.indexOf("<scope>compile</scope>")

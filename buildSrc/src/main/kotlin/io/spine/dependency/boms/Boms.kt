@@ -28,7 +28,7 @@ package io.spine.dependency.boms
 
 import io.spine.dependency.DependencyWithBom
 import io.spine.dependency.kotlinx.Coroutines
-import io.spine.dependency.lib.Jackson
+import io.spine.dependency.lib.JacksonV2
 import io.spine.dependency.lib.Kotlin
 import io.spine.dependency.lib.Grpc
 import io.spine.dependency.test.JUnit
@@ -60,7 +60,7 @@ object Boms {
      * Technology-based BOMs.
      */
     object Optional {
-        val jackson = Jackson.bom
+        val jackson = JacksonV2.bom
         val grpc = Grpc.bom
     }
 }

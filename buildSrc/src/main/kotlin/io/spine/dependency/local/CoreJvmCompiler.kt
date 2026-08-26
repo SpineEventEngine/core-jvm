@@ -32,8 +32,8 @@ package io.spine.dependency.local
  * See [CoreJvm Compiler](https://github.com/SpineEventEngine/core-jvm-compiler).
  */
 @Suppress(
-    "MemberVisibilityCanBePrivate" /* `pluginLib()` is used by subprojects. */,
-    "ConstPropertyName",
+    "MemberVisibilityCanBePrivate" /* The properties are used directly by other subprojects. */,
+    "ConstPropertyName" /* We use a custom convention for artifact properties. */,
     "unused"
 )
 object CoreJvmCompiler {
@@ -46,12 +46,12 @@ object CoreJvmCompiler {
     /**
      * The version used in the build classpath.
      */
-    const val dogfoodingVersion = "2.0.0-SNAPSHOT.081"
+    const val dogfoodingVersion = "2.0.0-SNAPSHOT.091"
 
     /**
      * The version to be used for integration tests.
      */
-    const val version = "2.0.0-SNAPSHOT.081"
+    const val version = "2.0.0-SNAPSHOT.091"
 
     /**
      * The ID of the Gradle plugin.
@@ -59,22 +59,35 @@ object CoreJvmCompiler {
     const val pluginId = "io.spine.core-jvm"
 
     /**
-     * The library with the [dogfoodingVersion].
+     * The name of the published artifact with the CoreJvm Gradle Plugin.
+     *
+     * The POM of this artifact declares a runtime dependency on
+     * [the Compiler plugins][compilerPluginsArtifact].
      */
-    val pluginLib = pluginLib(dogfoodingVersion)
+    const val gradlePluginArtifact = "core-jvm-gradle-plugin"
 
     /**
-     * The name of the published fat JAR artifact.
+     * The name of the published artifact with the CoreJvm Compiler plugins.
      */
-    const val fatJarArtifact = "core-jvm-plugins"
+    const val compilerPluginsArtifact = "core-jvm-plugins"
 
     /**
-     * The library with the given [version].
+     * The CoreJvm Gradle Plugin library with the [dogfoodingVersion].
      */
-    fun pluginLib(version: String): String = "$group:core-jvm-plugins:$version"
+    val gradlePlugin: String = gradlePlugin(dogfoodingVersion)
 
     /**
-     * The artifact reference for forcing in configurations.
+     * The CoreJvm Gradle Plugin library with the given [version].
      */
-    val pluginsArtifact: String = pluginLib(version)
+    fun gradlePlugin(version: String): String = "$group:$gradlePluginArtifact:$version"
+
+    /**
+     * The library with the CoreJvm Compiler plugins with the [version].
+     */
+    val compilerPlugins: String = compilerPlugins(version)
+
+    /**
+     * The library with the CoreJvm Compiler plugins with the given [version].
+     */
+    fun compilerPlugins(version: String): String = "$group:$compilerPluginsArtifact:$version"
 }

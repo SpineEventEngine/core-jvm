@@ -61,6 +61,16 @@ import org.gradle.api.plugins.BasePlugin
  * them. If the project does not have these values, and they are not specified in the `ext`
  * block, the resulting `pom.xml` file is going to contain empty blocks,
  * e.g., `<groupId></groupId>`.
+ *
+ * The version reported for each dependency is the one selected by dependency
+ * resolution. A task of one project must not resolve the configurations of
+ * another, so `generatePom` does not resolve anything itself. Instead, a helper
+ * task named [ResolvedVersions.taskName] is registered for the project passed
+ * to [applyTo] and each of its subprojects. Every helper resolves only the
+ * configurations of its own project and stores the result under its build
+ * directory; `generatePom` depends on the helpers and merges their outputs.
+ * This keeps the generated file the same no matter which other tasks run in
+ * the same Gradle invocation.
  */
 @Suppress("unused")
 object PomGenerator {
@@ -83,15 +93,22 @@ object PomGenerator {
             plugin(BasePlugin::class.java)
         }
 
+        val collectors = project.allprojects.map { ResolvedVersions.registerTaskIn(it) }
+
         val task = project.tasks.register("generatePom") {
             group = SpineTaskGroup.name
             description = "Generates a `pom.xml` file describing project dependencies"
+            // Plain ordering on purpose: both the collectors and this task declare
+            // no inputs or outputs, so they always run. Do not replace this with
+            // input/output wiring — up-to-date skipping would reintroduce the
+            // stale-report bug this design cures.
+            dependsOn(collectors)
             doLast {
                 val pomFile = Paths.outputFile(project.rootDir, pomFilename)
                 pomFile.parentFile.mkdirs()
 
                 val projectData = project.metadata()
-                val writer = PomXmlWriter(projectData)
+                val writer = PomXmlWriter(projectData, ResolvedVersions::readFrom)
                 writer.writeTo(pomFile)
             }
 

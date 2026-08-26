@@ -47,8 +47,11 @@ repositories {
 /**
  * The version of Jackson used by `buildSrc`.
  *
- * Please keep this value in sync with [io.spine.dependency.lib.Jackson.version].
- * It is not a requirement but would be good in terms of consistency.
+ * This value is deliberately decoupled from [io.spine.dependency.lib.Jackson.version],
+ * which now points to Jackson 3.x. The `buildSrc` sources still use the Jackson 2.x API
+ * (`com.fasterxml.jackson.*`), so they must stay on a 2.x version until they are migrated
+ * to `tools.jackson.*`. Any maintained 2.x release will do — bump this only when `buildSrc`
+ * itself needs a fix from a later 2.x, not to track the newest one.
  */
 val jacksonVersion = "2.18.3"
 
@@ -210,11 +213,20 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:$junitVersion"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
+    testImplementation(gradleTestKit())
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.test {
     useJUnitPlatform()
+
+    // Functional tests run real Gradle builds via TestKit and inject the production
+    // classes of `buildSrc` into the build script classpath of those builds.
+    // The argument provider defers resolving the classpath to execution time.
+    val mainClasspath = sourceSets.main.get().runtimeClasspath
+    jvmArgumentProviders.add(CommandLineArgumentProvider {
+        listOf("-DbuildSrc.classpath=${mainClasspath.asPath}")
+    })
 }
 
 dependOnBuildSrcJar()
