@@ -59,7 +59,7 @@ internal class OtelTracingSpec {
     fun setUp() {
         spans = RecordingSpanProcessor()
         val factory = OtelTracerFactory(recordingOpenTelemetry(spans))
-        ServerEnvironment.`when`(Tests::class.java)
+        ServerEnvironment.under(Tests::class.java)
             .use(factory)
         context = AirportContext.builder().build()
     }

@@ -115,7 +115,7 @@ internal class FilterSpec {
             val delivery = Delivery.newBuilder()
                 .setInboxStorage(inboxStorage)
                 .build()
-            ServerEnvironment.`when`(Tests::class.java)
+            ServerEnvironment.under(Tests::class.java)
                 .use(delivery)
         }
 

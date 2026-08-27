@@ -77,12 +77,12 @@ class ServerEnvironmentTest {
                 .build();
         var environment = serverEnvironment;
         var defaultValue = environment.delivery();
-        ServerEnvironment.when(Tests.class)
+        ServerEnvironment.under(Tests.class)
                          .use(newDelivery);
         assertEquals(newDelivery, environment.delivery());
 
         // Restore the default value.
-        ServerEnvironment.when(Tests.class)
+        ServerEnvironment.under(Tests.class)
                          .use(defaultValue);
     }
 
@@ -185,7 +185,7 @@ class ServerEnvironmentTest {
         }
 
         private void testClosesEnv(Class<? extends EnvironmentType<?>> envType) throws Exception {
-            ServerEnvironment.when(envType)
+            ServerEnvironment.under(envType)
                              .use(storageFactory)
                              .use(transportFactory)
                              .use(tracerFactory);

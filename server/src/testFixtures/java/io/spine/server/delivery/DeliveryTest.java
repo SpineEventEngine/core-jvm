@@ -149,7 +149,7 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
         var newDelivery = Delivery.localWithStrategyAndWindow(strategy, Durations.ZERO);
         var memoizer = new ShardIndexMemoizer();
         newDelivery.subscribe(memoizer);
-        ServerEnvironment.when(Tests.class)
+        ServerEnvironment.under(Tests.class)
                          .use(newDelivery);
 
         var targets = manyTargets(7);
@@ -169,7 +169,7 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
         var delivery = Delivery.newBuilder()
                                     .setStrategy(UniformAcrossAllShards.forNumber(7))
                                     .build();
-        ServerEnvironment.when(Tests.class)
+        ServerEnvironment.under(Tests.class)
                          .use(delivery);
         List<DeliveryStats> deliveryStats = synchronizedList(new ArrayList<>());
         delivery.subscribe(msg -> {
@@ -202,7 +202,7 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
                 .setWorkRegistry(registry)
                 .setMonitor(monitor)
                 .build();
-        ServerEnvironment.when(Tests.class)
+        ServerEnvironment.under(Tests.class)
                          .use(delivery);
 
         var index = strategy.nonEmptyShard();
@@ -229,7 +229,7 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
                 .setWorkRegistry(registry)
                 .setMonitor(monitor)
                 .build();
-        ServerEnvironment.when(Tests.class)
+        ServerEnvironment.under(Tests.class)
                          .use(delivery);
 
         var index = strategy.nonEmptyShard();
@@ -255,7 +255,7 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
         var rawMessageMemoizer = new RawMessageMemoizer();
         delivery.subscribe(rawMessageMemoizer);
         delivery.subscribe(new LocalDispatchingObserver());
-        ServerEnvironment.when(Tests.class)
+        ServerEnvironment.under(Tests.class)
                          .use(delivery);
 
         var aTarget = singleTarget();
@@ -289,7 +289,7 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
         var newDelivery = Delivery.localWithStrategyAndWindow(strategy, Durations.fromDays(1));
         var memoizer = new RawMessageMemoizer();
         newDelivery.subscribe(memoizer);
-        ServerEnvironment.when(Tests.class)
+        ServerEnvironment.under(Tests.class)
                          .use(newDelivery);
 
         var targets = manyTargets(6);
@@ -323,7 +323,7 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
                 .build();
         deliverAfterPause(delivery);
 
-        ServerEnvironment.when(Tests.class)
+        ServerEnvironment.under(Tests.class)
                          .use(delivery);
         var targets = singleTarget();
         var simulator = new NastyClient(7, false);
@@ -381,7 +381,7 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
         TaskView.disableStrictMode();
         TaskView.clearCache();
         var directDelivery = Delivery.direct();
-        ServerEnvironment.when(Tests.class)
+        ServerEnvironment.under(Tests.class)
                          .use(directDelivery);
         try (var context = BlackBox.singleTenantWith(
                 TaskAggregate.class,

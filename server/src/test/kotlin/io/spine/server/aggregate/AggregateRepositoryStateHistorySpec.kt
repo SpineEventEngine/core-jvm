@@ -248,7 +248,7 @@ internal class AggregateRepositoryStateHistorySpec {
 
     @Test
     fun `fail the dispatch when the history append fails`() {
-        ServerEnvironment.`when`(Tests::class.java)
+        ServerEnvironment.under(Tests::class.java)
             .use(FailingHistoryFactory())
         val failingContext = BoundedContextBuilder.assumingTests().build()
         val failingRepository = StateHistoryTestRepository()
