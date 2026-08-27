@@ -1,0 +1,15 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+$dokka.location:io.spine.server.trace.otel////PointingToDeclaration/server-otel/io.spine.server.trace.otel/index.html
+$dokka.location:io.spine.server.trace.otel/ExperimentalOtelTracing///PointingToDeclaration/server-otel/io.spine.server.trace.otel/-experimental-otel-tracing/index.html
+$dokka.location:io.spine.server.trace.otel/OtelTracer///PointingToDeclaration/server-otel/io.spine.server.trace.otel/-otel-tracer/index.html
+$dokka.location:io.spine.server.trace.otel/OtelTracer/close/#/PointingToDeclaration/server-otel/io.spine.server.trace.otel/-otel-tracer/close.html
+$dokka.location:io.spine.server.trace.otel/OtelTracer/processedBy/#io.spine.core.MessageId#io.spine.system.server.EntityTypeName/PointingToDeclaration/server-otel/io.spine.server.trace.otel/-otel-tracer/processed-by.html
+$dokka.location:io.spine.server.trace.otel/OtelTracerFactory.Companion///PointingToDeclaration/server-otel/io.spine.server.trace.otel/-otel-tracer-factory/-companion/index.html
+$dokka.location:io.spine.server.trace.otel/OtelTracerFactory.Companion/DEFAULT_INSTRUMENTATION_SCOPE_NAME/#/PointingToDeclaration/server-otel/io.spine.server.trace.otel/-otel-tracer-factory/-companion/-d-e-f-a-u-l-t_-i-n-s-t-r-u-m-e-n-t-a-t-i-o-n_-s-c-o-p-e_-n-a-m-e.html
+$dokka.location:io.spine.server.trace.otel/OtelTracerFactory///PointingToDeclaration/server-otel/io.spine.server.trace.otel/-otel-tracer-factory/index.html
+$dokka.location:io.spine.server.trace.otel/OtelTracerFactory/OtelTracerFactory/#io.opentelemetry.kotlin.OpenTelemetry#kotlin.String/PointingToDeclaration/server-otel/io.spine.server.trace.otel/-otel-tracer-factory/-otel-tracer-factory.html
+$dokka.location:io.spine.server.trace.otel/OtelTracerFactory/close/#/PointingToDeclaration/server-otel/io.spine.server.trace.otel/-otel-tracer-factory/close.html
+$dokka.location:io.spine.server.trace.otel/OtelTracerFactory/isOpen/#/PointingToDeclaration/server-otel/io.spine.server.trace.otel/-otel-tracer-factory/is-open.html
+$dokka.location:io.spine.server.trace.otel/OtelTracerFactory/trace/#io.spine.server.ContextSpec#io.spine.core.Signal[*,*,*]/PointingToDeclaration/server-otel/io.spine.server.trace.otel/-otel-tracer-factory/trace.html
+io.spine.server.trace.otel
