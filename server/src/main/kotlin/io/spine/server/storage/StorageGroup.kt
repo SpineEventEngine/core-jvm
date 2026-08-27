@@ -27,6 +27,7 @@
 package io.spine.server.storage
 
 import io.spine.base.EntityState
+import io.spine.core.BoundedContextName
 import io.spine.server.entity.Entity
 import io.spine.server.entity.model.EntityClass
 import io.spine.type.TypeName
@@ -35,16 +36,25 @@ import io.spine.type.TypeName
  * A named group differentiating the record storages that hold records of
  * the same type.
  *
- * Several storages of a Bounded Context may store records of one type. For
- * example, the latest state of an entity and the history of its past states
- * are both stored as `EntityRecord`s. Without a further distinction, a storage
- * vendor mapping equal record specifications to one physical storage would
- * conflate them. A `StorageGroup` provides that distinction, so each group is
- * allocated its own physical storage — a table, a kind, and the like.
+ * Several storages may store records of one type. For example, the latest
+ * state of an entity and the history of its past states are both stored as
+ * `EntityRecord`s, and the event stores of all Bounded Contexts store
+ * `Event`s. Without a further distinction, a storage vendor mapping equal
+ * record specifications to one physical storage would conflate them.
+ * A `StorageGroup` provides that distinction, so each group is allocated
+ * its own physical storage — a table, a kind, and the like.
  *
- * The [name] is assigned by the repository creating the storage — typically
- * after the entity state, via [of]. Choosing the value is the repository's
- * decision; this type only carries it.
+ * Distinct group names denote distinct physical storages. A vendor that
+ * normalizes the name to satisfy its own naming rules — for example,
+ * replacing the characters not allowed in SQL identifiers — must keep
+ * that mapping collision-free, so that no two group names resolve to
+ * one physical storage.
+ *
+ * The [name] is assigned by the party creating the storage: a repository
+ * names the per-entity histories after the entity state, and the event
+ * store of a Bounded Context is named after the context — see the [of]
+ * overloads. Choosing the value is that party's decision; this type only
+ * carries it.
  *
  * @property name The name of the storage group.
  */
@@ -64,5 +74,24 @@ public data class StorageGroup(public val name: String) {
             val name = TypeName.of(stateClass).value()
             return StorageGroup(name)
         }
+
+        /**
+         * Creates a group for the event store of the Bounded Context with
+         * the given name.
+         *
+         * The event stores of all Bounded Contexts of an application store
+         * records of the same type, so this group is what keeps the event
+         * log of each context in its own physical storage.
+         *
+         * The context name is taken verbatim. Mapping it to the name of
+         * a physical storage — including any normalization a vendor's
+         * naming rules require — is the vendor's concern, as described
+         * in the class documentation.
+         *
+         * @param context The name of the Bounded Context served by the storage.
+         */
+        @JvmStatic
+        public fun of(context: BoundedContextName): StorageGroup =
+            StorageGroup(context.value)
     }
 }

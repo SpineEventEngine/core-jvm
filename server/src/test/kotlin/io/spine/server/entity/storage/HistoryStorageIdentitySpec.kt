@@ -57,7 +57,7 @@ import org.junit.jupiter.api.Test
  * different entity types stay apart, and the two histories of one entity
  * stay apart by their record type. The latest-state records of the entity
  * arrive at the same seam belonging to no group. In-memory storages are
- * isolated per instance and cannot observe a shared table, hence the
+ * isolated per instance and cannot observe a shared table; hence, the
  * assertions capture the groups and specifications at the vendor seam.
  */
 @DisplayName("Per-entity history storages should")

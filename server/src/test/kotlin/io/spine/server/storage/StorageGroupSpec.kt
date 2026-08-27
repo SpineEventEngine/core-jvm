@@ -24,7 +24,28 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * The version of this library.
- */
-extra.set("versionToPublish", "2.0.0-SNAPSHOT.540")
+package io.spine.server.storage
+
+import io.kotest.matchers.shouldBe
+import io.spine.core.BoundedContextNames.newName
+import io.spine.server.aggregate.given.aggregate.TestAggregate
+import io.spine.test.aggregate.AggProject
+import io.spine.testing.ClassTest
+import io.spine.type.TypeName
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
+
+@DisplayName("`StorageGroup` should")
+internal class StorageGroupSpec : ClassTest<StorageGroup>(StorageGroup::class.java) {
+
+    @Test
+    fun `create a group for an entity class, named after its state type`() {
+        StorageGroup.of(TestAggregate::class.java) shouldBe
+                StorageGroup(TypeName.of(AggProject::class.java).value())
+    }
+
+    @Test
+    fun `create a group for a Bounded Context, named after it`() {
+        StorageGroup.of(newName("Billing")) shouldBe StorageGroup("Billing")
+    }
+}
