@@ -42,17 +42,17 @@ buildscript {
             exclude(group = "io.spine", module = "spine-flogger-api")
             exclude(group = "io.spine", module = "spine-logging-backend")
             resolutionStrategy {
-                val jackson = io.spine.dependency.lib.Jackson
                 val cfg = this@all
                 val rs = this@resolutionStrategy
-                jackson.forceArtifacts(project, cfg, rs)
-                io.spine.dependency.lib.Jackson.DataType.forceArtifacts(project, cfg, rs)
-                io.spine.dependency.lib.Jackson.DataFormat.forceArtifacts(project, cfg, rs)
+                io.spine.dependency.lib.JacksonV2.Core.forceArtifacts(project, cfg, rs)
+                io.spine.dependency.lib.JacksonV2.DataType.forceArtifacts(project, cfg, rs)
+                io.spine.dependency.lib.JacksonV2.Junior.forceArtifacts(project, cfg, rs)
+                io.spine.dependency.lib.JacksonV2.Module.forceArtifacts(project, cfg, rs)
 
                 val logging = io.spine.dependency.local.Logging
                 force(
-                    jackson.annotations,
-                    jackson.bom,
+                    io.spine.dependency.lib.Jackson.annotations,
+                    io.spine.dependency.lib.Caffeine.lib,
                     io.spine.dependency.lib.Guava.lib,
                     io.spine.dependency.lib.Kotlin.bom,
                     io.spine.dependency.local.Base.annotations,
@@ -65,7 +65,6 @@ buildscript {
                     io.spine.dependency.local.Compiler.pluginLib,
                     io.spine.dependency.local.Compiler.gradleApi,
                     io.spine.dependency.local.Compiler.params,
-                    io.spine.dependency.local.ToolBase.lib,
                     io.spine.dependency.local.CoreJvm.server,
                     io.spine.dependency.local.Reflect.lib,
                     logging.lib,
@@ -82,7 +81,7 @@ buildscript {
         classpath(enforcedPlatform(io.spine.dependency.lib.Grpc.bom))
         classpath(enforcedPlatform(io.spine.dependency.kotlinx.Coroutines.bom))
         classpath(spineCompiler.pluginLib)
-        classpath(coreJvmCompiler.pluginLib)
+        classpath(coreJvmCompiler.gradlePlugin)
     }
 }
 

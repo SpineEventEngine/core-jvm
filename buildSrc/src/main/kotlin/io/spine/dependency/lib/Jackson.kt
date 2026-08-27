@@ -29,13 +29,35 @@ package io.spine.dependency.lib
 import io.spine.dependency.Dependency
 import io.spine.dependency.DependencyWithBom
 
-// https://github.com/FasterXML/jackson/wiki/Jackson-Releases
-@Suppress("unused")
+/**
+ * Jackson library dependencies.
+ *
+ * Jackson 3.x uses the `tools.jackson` group ID and the matching `tools.jackson.*`
+ * packages ([JSTEP-1](https://github.com/FasterXML/jackson-future-ideas/wiki/JSTEP-1)).
+ * The sole exception is `jackson-annotations`: Jackson 3.x keeps
+ * consuming the 2.x artifact, so both its coordinates and its
+ * `com.fasterxml.jackson.annotation` package stay unchanged.
+ *
+ * The Jackson 2.x artifacts, which some of our dependencies still consume,
+ * are declared by [JacksonV2].
+ *
+ * See:
+ *  - [Jackson Releases](https://github.com/FasterXML/jackson/wiki/Jackson-Releases)
+ *  - [Migrating to Jackson 3](https://github.com/FasterXML/jackson/blob/main/jackson3/MIGRATING_TO_JACKSON_3.md)
+ */
+@Suppress("unused", "ConstPropertyName")
 object Jackson : DependencyWithBom() {
-    override val group = "com.fasterxml.jackson"
-    override val version = "2.22.1"
+    override val group = "tools.jackson"
+    override val version = "3.2.1"
 
-    // https://github.com/FasterXML/jackson-annotations?tab=readme-ov-file#release-notes
+    /**
+     * The version of `jackson-annotations`, which Jackson 3.x deliberately keeps
+     * on the 2.x line.
+     *
+     * Must match the `jackson.version.annotations` property declared by the [JacksonV2.bom].
+     *
+     * See: https://github.com/FasterXML/jackson-annotations?tab=readme-ov-file#release-notes
+     */
     const val annotationsVersion = "2.22"
 
     // https://github.com/FasterXML/jackson-bom
@@ -54,19 +76,23 @@ object Jackson : DependencyWithBom() {
     val databind = "$coreGroup:jackson-databind"
 
     // https://github.com/FasterXML/jackson-annotations
-    val annotations = "$coreGroup:jackson-annotations:$annotationsVersion"
+    val annotations = "com.fasterxml.jackson.core:jackson-annotations:$annotationsVersion"
 
     // https://github.com/FasterXML/jackson-module-kotlin/releases
     val moduleKotlin = "$moduleGroup:jackson-module-kotlin"
 
-    // https://github.com/FasterXML/jackson-modules-java8
+    @Deprecated(
+        "The module was merged into `jackson-databind` in Jackson 3.0" +
+                " and is no longer published.",
+        ReplaceWith("Jackson.databind", "io.spine.dependency.lib.Jackson"),
+        level = DeprecationLevel.ERROR
+    )
     val moduleParameterNames = "$moduleGroup:jackson-module-parameter-names"
 
     override val modules = listOf(
         core,
         databind,
-        moduleKotlin,
-        moduleParameterNames
+        moduleKotlin
     )
 
     object DataFormat : Dependency() {
@@ -81,10 +107,13 @@ object Jackson : DependencyWithBom() {
         // https://github.com/FasterXML/jackson-dataformats-text/releases
         val yaml = "$group:$infix-yaml"
 
+        // https://github.com/FasterXML/jackson-dataformats-binary/tree/3.x/protobuf
+        val protobuf = "$group:$infix-protobuf"
+
         val xmlArtifact = "$xml:$version"
         val yamlArtifact = "$yaml:$version"
 
-        override val modules = listOf(xml, yaml)
+        override val modules = listOf(xml, yaml, protobuf)
     }
 
     object DataType : Dependency() {
@@ -93,38 +122,50 @@ object Jackson : DependencyWithBom() {
 
         private const val infix = "jackson-datatype"
 
-        // https://github.com/FasterXML/jackson-modules-java8
+        @Deprecated(
+            "The module was merged into `jackson-databind` in Jackson 3.0" +
+                    " and is no longer published.",
+            ReplaceWith("Jackson.databind", "io.spine.dependency.lib.Jackson"),
+            level = DeprecationLevel.ERROR
+        )
         val jdk8 = "$group:$infix-jdk8"
 
-        // https://github.com/FasterXML/jackson-modules-java8/tree/2.19/datetime
+        @Deprecated(
+            "The module was merged into `jackson-databind` in Jackson 3.0" +
+                    " and is no longer published.",
+            ReplaceWith("Jackson.databind", "io.spine.dependency.lib.Jackson"),
+            level = DeprecationLevel.ERROR
+        )
         val dateTime = "$group:$infix-jsr310"
 
-        // https://github.com/FasterXML/jackson-datatypes-collections/blob/2.19/guava
+        // https://github.com/FasterXML/jackson-datatypes-collections/tree/3.x/guava
         val guava = "$group:$infix-guava"
 
-        // https://github.com/FasterXML/jackson-dataformats-binary/tree/2.19/protobuf
+        @Deprecated(
+            "Protobuf support is a data format, not a data type." +
+                    " The `$infix-protobuf` artifact has never been published.",
+            ReplaceWith("Jackson.DataFormat.protobuf", "io.spine.dependency.lib.Jackson"),
+            level = DeprecationLevel.ERROR
+        )
         val protobuf = "$group:$infix-protobuf"
 
-        // https://github.com/FasterXML/jackson-datatypes-misc/tree/2.19/javax-money
+        // https://github.com/FasterXML/jackson-datatypes-misc/tree/3.x/javax-money
         val javaXMoney = "$group:$infix-javax-money"
 
-        // https://github.com/FasterXML/jackson-datatypes-misc/tree/2.19/moneta
-        val moneta = "$group:jackson-datatype-moneta"
+        // https://github.com/FasterXML/jackson-datatypes-misc/tree/3.x/moneta
+        val moneta = "$group:$infix-moneta"
 
         override val modules = listOf(
-            jdk8,
-            dateTime,
             guava,
-            protobuf,
             javaXMoney,
             moneta
         )
     }
 
-    // https://github.com/FasterXML/jackson-jr
+    // https://github.com/FasterXML/jackson-jr/tree/3.x
     object Junior : Dependency() {
         override val version = Jackson.version
-        override val group = "com.fasterxml.jackson.jr"
+        override val group = "$groupPrefix.jr"
 
         val objects = "$group:jackson-jr-objects"
 

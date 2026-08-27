@@ -207,7 +207,7 @@ class AggregateRepositoryTest {
         @Test
         @DisplayName("set to the default value initially")
         void setToDefault() {
-            assertEquals(DEFAULT_HISTORY_DEPTH, repository().eventHistoryDepth());
+            assertEquals(DEFAULT_HISTORY_DEPTH, repository().getEventHistoryDepth());
         }
 
         @Test
@@ -215,23 +215,23 @@ class AggregateRepositoryTest {
         void setToSpecifiedValue() {
             var newDepth = 1000;
 
-            repository().setEventHistoryDepth(newDepth);
+            repository().doSetEventHistoryDepth(newDepth);
 
-            assertEquals(newDepth, repository().eventHistoryDepth());
+            assertEquals(newDepth, repository().getEventHistoryDepth());
         }
 
         @Test
         @DisplayName("never set to a negative value")
         void notSetToNegative() {
             assertThrows(IllegalArgumentException.class,
-                         () -> repository().setEventHistoryDepth(-1));
+                         () -> repository().doSetEventHistoryDepth(-1));
         }
 
         @Test
         @DisplayName("never set to a zero value")
         void notSetToZero() {
             assertThrows(IllegalArgumentException.class,
-                         () -> repository().setEventHistoryDepth(0));
+                         () -> repository().doSetEventHistoryDepth(0));
         }
     }
 

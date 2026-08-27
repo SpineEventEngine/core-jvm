@@ -52,12 +52,8 @@ public abstract class AbstractEntityRepository<I : Any,
 
     /**
      * Whether the opt-in state history recording is enabled for this repository.
-     *
-     * Volatile: read by dispatch workers, while the recording may be
-     * [enabled][recordStateHistory] and [stopped][stopRecordingStateHistory] at runtime.
      */
-    @Volatile
-    private var recordingEnabled = false
+    private var stateHistoryEnabled = false
 
     /** The storage of recent state records; created lazily once the history is first needed. */
     private var stateHistory: EntityStateHistoryStorage<I>? = null
@@ -136,7 +132,7 @@ public abstract class AbstractEntityRepository<I : Any,
      * every intermediate version of the batch.
      */
     final override fun afterStore(entity: E) {
-        if (recordingEnabled) {
+        if (stateHistoryEnabled()) {
             appendStateHistory(entity)
         }
     }
@@ -211,8 +207,8 @@ public abstract class AbstractEntityRepository<I : Any,
      * @see stateHistory
      * @see stopRecordingStateHistory
      */
-    protected open fun recordStateHistory() {
-        recordingEnabled = true
+    protected fun recordStateHistory() {
+        stateHistoryEnabled = true
     }
 
     /**
@@ -221,7 +217,7 @@ public abstract class AbstractEntityRepository<I : Any,
      * @return `false` by default.
      * @see recordStateHistory
      */
-    protected open fun stateHistoryEnabled(): Boolean = recordingEnabled
+    protected fun stateHistoryEnabled(): Boolean = stateHistoryEnabled
 
     /**
      * Stops recording the state history for the entities of this repository.
@@ -242,8 +238,8 @@ public abstract class AbstractEntityRepository<I : Any,
      *
      * @see recordStateHistory
      */
-    protected open fun stopRecordingStateHistory() {
-        recordingEnabled = false
+    protected fun stopRecordingStateHistory() {
+        stateHistoryEnabled = false
     }
 
     /**
@@ -258,7 +254,7 @@ public abstract class AbstractEntityRepository<I : Any,
      *   [recorded][recordStateHistory] by this repository.
      */
     protected fun stateHistory(): EntityStateHistoryStorage<I> {
-        if (!recordingEnabled) {
+        if (!stateHistoryEnabled()) {
             throw newIllegalStateException(
                 "The state history is not recorded for the repository `%s`. " +
                         "Enable it by calling `recordStateHistory()`, " +

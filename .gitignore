@@ -59,6 +59,10 @@
 # indices, external-storage toggles) — so `.idea/*.xml` above keeps it ignored.
 # `./config/pull` (via `migrate`) untracks any copy an earlier pull committed.
 
+# `.idea/kotlinc.xml` is likewise NOT re-included. It records the Kotlin compiler
+# settings IDEA rewrites on its own (JVM target, bundled plugin version), so it
+# churns per machine and per IDE build — `.idea/*.xml` above keeps it ignored.
+
 # Do not ignore the following IDEA settings
 !.idea/codeStyleSettings.xml
 !.idea/codeStyles/

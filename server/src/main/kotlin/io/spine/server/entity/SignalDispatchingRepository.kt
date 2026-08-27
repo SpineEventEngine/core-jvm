@@ -262,14 +262,14 @@ protected constructor() :
      * @return A positive integer value; the default is
      *   [SignalDispatchingEntity.DEFAULT_HISTORY_DEPTH].
      */
-    protected open fun eventHistoryDepth(): Int = historyDepth
+    protected fun eventHistoryDepth(): Int = historyDepth
 
     /**
      * Sets the [event history depth][eventHistoryDepth] to the passed value.
      *
      * @param depth A positive number of recent events the double-dispatch guard scans.
      */
-    protected open fun setEventHistoryDepth(depth: Int) {
+    protected fun setEventHistoryDepth(depth: Int) {
         require(depth > 0) { "Event history depth must be positive. Got $depth." }
         historyDepth = depth
     }

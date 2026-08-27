@@ -32,9 +32,7 @@ import java.io.Writer
 import java.util.*
 import kotlin.reflect.full.isSubclassOf
 import org.gradle.api.Project
-import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
-import org.gradle.api.artifacts.result.ResolvedComponentResult
 import org.gradle.api.internal.artifacts.dependencies.AbstractExternalModuleDependency
 import org.gradle.kotlin.dsl.withGroovyBuilder
 
@@ -75,9 +73,16 @@ private constructor(
 
         /**
          * Creates the `DependencyWriter` for the passed [project].
+         *
+         * The version of each dependency is taken from the map returned by
+         * [resolvedVersionsOf] for the project the dependency comes from.
+         * See the [dependencies] extension function for details.
          */
-        fun of(project: Project): DependencyWriter {
-            return DependencyWriter(project.dependencies())
+        fun of(
+            project: Project,
+            resolvedVersionsOf: (Project) -> Map<String, String>
+        ): DependencyWriter {
+            return DependencyWriter(project.dependencies(resolvedVersionsOf))
         }
     }
 
@@ -112,36 +117,16 @@ private constructor(
 }
 
 /**
- * Returns the [scoped dependencies][ScopedDependency] of a Gradle project.
- *
- * The version of each dependency is the one selected by dependency resolution
- * for the project it comes from. See [resolvedVersions].
- */
-fun Project.dependencies(): SortedSet<ScopedDependency> =
-    collectScopedDependencies { it.resolvedVersions() }
-
-/**
- * Returns the [scoped dependencies][ScopedDependency] of a Gradle project, taking
- * the version of each dependency from the given [resolvedVersions] map instead of
- * resolving the project's own configurations.
- *
- * This overload exists for tests: a project created with `ProjectBuilder` cannot
- * resolve its configurations against real repositories, so the resolved versions
- * are supplied directly. The keys are the `"group:name"` of the modules.
- */
-internal fun Project.dependencies(
-    resolvedVersions: Map<String, String>
-): SortedSet<ScopedDependency> =
-    collectScopedDependencies { resolvedVersions }
-
-/**
  * Collects the [scoped dependencies][ScopedDependency] of this project and its
  * subprojects, deduplicates them, and returns them in the conventional Maven order.
  *
  * The version of each dependency is taken from the map returned by the supplied
- * `resolvedVersionsOf` function for the project the dependency comes from.
+ * [resolvedVersionsOf] function for the project the dependency comes from — normally
+ * the versions selected by dependency resolution, as [collected][ResolvedVersions]
+ * by the per-project tasks the [PomGenerator] registers. Tests supply the map
+ * directly, or resolve in place via [resolvedVersions].
  */
-private fun Project.collectScopedDependencies(
+internal fun Project.dependencies(
     resolvedVersionsOf: (Project) -> Map<String, String>
 ): SortedSet<ScopedDependency> {
     val dependencies = mutableSetOf<ModuleDependency>()
@@ -161,9 +146,10 @@ private fun Project.collectScopedDependencies(
  * Returns the external dependencies of the project from all the project configurations.
  *
  * The version of each returned dependency is taken from [resolvedVersions] by its
- * `"group:name"` key, falling back to the declared version when the module is on no
- * resolvable configuration — for example, a version managed by a BOM, which carries
- * no explicit version of its own.
+ * `"group:name"` key. When the module is absent from the map — i.e., it is on no
+ * resolvable configuration of the project, as with a version managed by a BOM, which
+ * carries no explicit version of its own — the declared version is what the build
+ * uses, so it is reported as the fallback.
  */
 private fun Project.depsFromAllConfigurations(
     resolvedVersions: Map<String, String>
@@ -184,46 +170,6 @@ private fun Project.depsFromAllConfigurations(
 }
 
 /**
- * Returns the versions selected by dependency resolution for this project, keyed
- * by the `"group:name"` of each module.
- *
- * The declared version of a dependency is what the build script *requested*, which
- * may differ from what the build *uses*: a `force(...)`, a platform/BOM constraint,
- * or Gradle's conflict resolution can all select another version. Reading the
- * resolution result captures the selected version, so the report describes the
- * dependencies actually on the classpath rather than the requested ones.
- *
- * Only resolvable configurations contribute. When a module resolves to different
- * versions across configurations, the newest one (by [VersionComparator]) is kept,
- * matching the deduplication applied afterwards. A configuration that fails to
- * resolve in isolation is skipped and logged, so the report never breaks the build.
- */
-private fun Project.resolvedVersions(): Map<String, String> {
-    // Resolving an individual configuration may fail for reasons unrelated to the
-    // report — missing repositories for a niche configuration, an unsatisfiable
-    // constraint, and the like. Such a configuration contributes no versions.
-    @Suppress("TooGenericExceptionCaught") // Any resolution failure is non-fatal here.
-    fun componentsOf(configuration: Configuration): Set<ResolvedComponentResult> =
-        try {
-            configuration.incoming.resolutionResult.allComponents
-        } catch (e: Exception) {
-            logger.info(
-                "Skipping configuration `${configuration.name}` " +
-                    "while collecting resolved dependency versions.",
-                e
-            )
-            emptySet()
-        }
-
-    return configurations
-        .filter { it.isCanBeResolved }
-        .flatMap { componentsOf(it) }
-        .mapNotNull { it.moduleVersion }
-        .groupBy { moduleKey(it.group, it.name) }
-        .mapValues { (_, versions) -> versions.maxOfWith(VersionComparator) { it.version } }
-}
-
-/**
  * Builds the `"group:name"` key under which a module's resolved version is recorded
  * and looked up.
  *
@@ -231,7 +177,7 @@ private fun Project.resolvedVersions(): Map<String, String> {
  * consistent with what [resolvedVersions] records and with the grouping done by
  * [deduplicate].
  */
-private fun moduleKey(group: String?, name: String): String = "$group:$name"
+internal fun moduleKey(group: String?, name: String): String = "$group:$name"
 
 /**
  * Tells whether the dependency is an external module dependency.
