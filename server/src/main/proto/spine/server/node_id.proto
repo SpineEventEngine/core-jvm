@@ -31,7 +31,7 @@ import "spine/options.proto";
 
 option (type_url_prefix) = "type.spine.io";
 option java_package = "io.spine.server";
-option java_outer_classname = "ServerEnvironmentProto";
+option java_outer_classname = "NodeIdProto";
 option java_multiple_files = true;
 
 // An identifier of a server node of the application.
