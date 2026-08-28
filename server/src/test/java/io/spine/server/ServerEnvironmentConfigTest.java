@@ -53,7 +53,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static com.google.common.truth.Truth.assertThat;
-import static io.spine.server.ServerEnvironment.when;
+import static io.spine.server.ServerEnvironment.under;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
@@ -78,7 +78,7 @@ class ServerEnvironmentConfigTest {
     @Test
     @DisplayName("its parts rejecting `null` arguments")
     void nullCheck() {
-        var configurator = when(Tests.class);
+        var configurator = under(Tests.class);
         new NullPointerTester().testAllPublicInstanceMethods(configurator);
     }
 
@@ -109,7 +109,7 @@ class ServerEnvironmentConfigTest {
             @DisplayName("return configured instance in Production")
             void productionValue() {
                 TransportFactory factory = new StubTransportFactory();
-                when(DefaultMode.class).use(factory);
+                under(DefaultMode.class).use(factory);
                 assertValue(factory);
             }
         }
@@ -122,7 +122,7 @@ class ServerEnvironmentConfigTest {
             @DisplayName("returning explicitly set value")
             void setExplicitly() {
                 TransportFactory factory = new StubTransportFactory();
-                when(Tests.class).use(factory);
+                under(Tests.class).use(factory);
                 assertValue(factory);
             }
             @Test
@@ -154,7 +154,7 @@ class ServerEnvironmentConfigTest {
             @DisplayName("returning a configured instance")
             void ok() {
                 var factory = InMemoryTransportFactory.newInstance();
-                when(Local.class).use(factory);
+                under(Local.class).use(factory);
                 assertValue(factory);
             }
         }
@@ -165,7 +165,7 @@ class ServerEnvironmentConfigTest {
             TransportFactory factory = new StubTransportFactory();
             var fn = new ReturnValue<>(factory);
 
-            when(Tests.class).useTransportFactory(fn);
+            under(Tests.class).useTransportFactory(fn);
 
             assertValue(factory);
             assertThat(fn.typePassed())
@@ -193,7 +193,7 @@ class ServerEnvironmentConfigTest {
 
         @AfterEach
         void restoreDelivery() {
-            when(currentType).use(currentDelivery);
+            under(currentType).use(currentDelivery);
         }
 
         @Test
@@ -207,7 +207,7 @@ class ServerEnvironmentConfigTest {
         @DisplayName("to a custom mechanism")
         void customValue() {
             var customDelivery = customDelivery();
-            when(currentType).use(customDelivery);
+            under(currentType).use(customDelivery);
 
             assertValue(customDelivery);
         }
@@ -217,7 +217,7 @@ class ServerEnvironmentConfigTest {
         void viaFn() {
             var valueFromFunction = customDelivery();
             var fn = new ReturnValue<>(valueFromFunction);
-            when(currentType).useDelivery(fn);
+            under(currentType).useDelivery(fn);
 
             assertValue(valueFromFunction);
             assertThat(fn.typePassed())
@@ -269,7 +269,7 @@ class ServerEnvironmentConfigTest {
             environment.setTo(DefaultMode.class);
 
             TracerFactory factory = new MemoizingTracerFactory();
-            when(DefaultMode.class).use(factory);
+            under(DefaultMode.class).use(factory);
 
             assertTracer(factory);
         }
@@ -278,7 +278,7 @@ class ServerEnvironmentConfigTest {
         @DisplayName("for the testing environment")
         void forTesting() {
             TracerFactory factory = new MemoizingTracerFactory();
-            when(Tests.class).use(factory);
+            under(Tests.class).use(factory);
 
             assertTracer(factory);
         }
@@ -289,7 +289,7 @@ class ServerEnvironmentConfigTest {
             environment.setTo(Local.class);
 
             TracerFactory factory = new MemoizingTracerFactory();
-            when(Local.class).use(factory);
+            under(Local.class).use(factory);
 
             assertTracer(factory);
         }
@@ -305,7 +305,7 @@ class ServerEnvironmentConfigTest {
             Local.disable();
 
             TracerFactory factory = new MemoizingTracerFactory();
-            when(Local.class).use(factory);
+            under(Local.class).use(factory);
 
             assertThat(serverEnvironment.tracing())
                   .isEmpty();
@@ -317,7 +317,7 @@ class ServerEnvironmentConfigTest {
             TracerFactory factory = new MemoizingTracerFactory();
             var fn = new ReturnValue<>(factory);
 
-            when(Tests.class).useTracerFactory(fn);
+            under(Tests.class).useTracerFactory(fn);
             assertTracer(factory);
             assertThat(fn.typePassed())
                     .isEqualTo(Tests.class);
@@ -357,7 +357,7 @@ class ServerEnvironmentConfigTest {
             @DisplayName("return configured `StorageFactory`")
             void productionFactory() {
                 StorageFactory factory = InMemoryStorageFactory.newInstance();
-                when(DefaultMode.class).use(factory);
+                under(DefaultMode.class).use(factory);
                 assertDelegateIs(factory);
             }
 
@@ -383,7 +383,7 @@ class ServerEnvironmentConfigTest {
             @DisplayName("wrapping `SystemAwareStorageFactory` over the passed instance")
             void getSet() {
                 StorageFactory factory = new MemoizingStorageFactory();
-                when(Tests.class).use(factory);
+                under(Tests.class).use(factory);
                 assertDelegateIs(factory);
             }
         }
@@ -408,7 +408,7 @@ class ServerEnvironmentConfigTest {
             @DisplayName("returning a configured wrapped instance")
             void returnConfiguredStorageFactory() {
                 var inMemory = InMemoryStorageFactory.newInstance();
-                when(Local.class).use(inMemory);
+                under(Local.class).use(inMemory);
 
                 assertDelegateIs(inMemory);
             }
@@ -420,7 +420,7 @@ class ServerEnvironmentConfigTest {
             StorageFactory factory = new MemoizingStorageFactory();
             var fn = new ReturnValue<>(factory);
 
-            when(Tests.class).useStorageFactory(fn);
+            under(Tests.class).useStorageFactory(fn);
 
             assertDelegateIs(factory);
             assertThat(fn.typePassed())

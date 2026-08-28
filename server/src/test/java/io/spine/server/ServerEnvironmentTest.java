@@ -43,12 +43,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static com.google.common.truth.Truth.assertThat;
-import static io.spine.server.DeploymentDetector.APP_ENGINE_ENVIRONMENT_DEVELOPMENT_VALUE;
-import static io.spine.server.DeploymentDetector.APP_ENGINE_ENVIRONMENT_PATH;
-import static io.spine.server.DeploymentDetector.APP_ENGINE_ENVIRONMENT_PRODUCTION_VALUE;
-import static io.spine.server.DeploymentType.APPENGINE_CLOUD;
-import static io.spine.server.DeploymentType.APPENGINE_EMULATOR;
-import static io.spine.server.DeploymentType.STANDALONE;
 import static io.spine.testing.Assertions.assertHasPrivateParameterlessCtor;
 import static io.spine.testing.DisplayNames.HAVE_PARAMETERLESS_CTOR;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -77,73 +71,13 @@ class ServerEnvironmentTest {
                 .build();
         var environment = serverEnvironment;
         var defaultValue = environment.delivery();
-        ServerEnvironment.when(Tests.class)
+        ServerEnvironment.under(Tests.class)
                          .use(newDelivery);
         assertEquals(newDelivery, environment.delivery());
 
         // Restore the default value.
-        ServerEnvironment.when(Tests.class)
+        ServerEnvironment.under(Tests.class)
                          .use(defaultValue);
-    }
-
-    @Test
-    @DisplayName("tell when not running without any specific server environment")
-    void tellIfStandalone() {
-        // Tests are not run by AppEngine by default.
-        assertEquals(STANDALONE, serverEnvironment.deploymentType());
-    }
-
-    @Nested
-    @DisplayName("when running on App Engine cloud infrastructure")
-    class OnProdAppEngine extends WithAppEngineEnvironment {
-
-        OnProdAppEngine() {
-            super(APP_ENGINE_ENVIRONMENT_PRODUCTION_VALUE);
-        }
-
-        @Test
-        @DisplayName("obtain App Engine environment GAE cloud infrastructure server environment")
-        void receivesCloudEnvironment() {
-            assertEquals(APPENGINE_CLOUD, serverEnvironment.deploymentType());
-        }
-
-        @Test
-        @DisplayName("cache the property value")
-        void cachesValue() {
-            assertEquals(APPENGINE_CLOUD, serverEnvironment.deploymentType());
-            setGaeEnvironment("Unrecognized Value");
-            assertEquals(APPENGINE_CLOUD, serverEnvironment.deploymentType());
-        }
-    }
-
-    @Nested
-    @DisplayName("when running on App Engine local server")
-    class OnDevAppEngine extends WithAppEngineEnvironment {
-
-        OnDevAppEngine() {
-            super(APP_ENGINE_ENVIRONMENT_DEVELOPMENT_VALUE);
-        }
-
-        @Test
-        @DisplayName("obtain App Engine environment GAE local dev server environment")
-        void receivesEmulatorEnvironment() {
-            assertEquals(APPENGINE_EMULATOR, serverEnvironment.deploymentType());
-        }
-    }
-
-    @Nested
-    @DisplayName("when running with invalid App Engine environment property")
-    class InvalidGaeEnvironment extends WithAppEngineEnvironment {
-
-        InvalidGaeEnvironment() {
-            super("InvalidGaeEnvironment");
-        }
-
-        @Test
-        @DisplayName("receive `STANDALONE` deployment type")
-        void receivesStandalone() {
-            assertEquals(STANDALONE, serverEnvironment.deploymentType());
-        }
     }
 
     @Nested
@@ -185,7 +119,7 @@ class ServerEnvironmentTest {
         }
 
         private void testClosesEnv(Class<? extends EnvironmentType<?>> envType) throws Exception {
-            ServerEnvironment.when(envType)
+            ServerEnvironment.under(envType)
                              .use(storageFactory)
                              .use(transportFactory)
                              .use(tracerFactory);
@@ -210,39 +144,4 @@ class ServerEnvironmentTest {
                                              .type());
     }
 
-    @SuppressWarnings({
-            "AccessOfSystemProperties" /* Testing the configuration loaded from System properties. */,
-            "AbstractClassWithoutAbstractMethods" /* A test base with setUp and tearDown. */
-    })
-    abstract class WithAppEngineEnvironment {
-
-        private final String targetEnvironment;
-
-        private String initialValue;
-
-        WithAppEngineEnvironment(String targetEnvironment) {
-            this.targetEnvironment = targetEnvironment;
-        }
-
-        @BeforeEach
-        void setUp() {
-            initialValue = System.getProperty(APP_ENGINE_ENVIRONMENT_PATH);
-            setGaeEnvironment(targetEnvironment);
-            serverEnvironment.reset();
-        }
-
-        @AfterEach
-        void tearDown() {
-            if (initialValue == null) {
-                System.clearProperty(APP_ENGINE_ENVIRONMENT_PATH);
-            } else {
-                setGaeEnvironment(initialValue);
-            }
-            serverEnvironment.reset();
-        }
-
-        void setGaeEnvironment(String value) {
-            System.setProperty(APP_ENGINE_ENVIRONMENT_PATH, value);
-        }
-    }
 }

@@ -50,7 +50,7 @@ public final class MirrorMigrationTestEnv {
                                       int expectedInProgress) {
 
         ServerEnvironment.instance().reset();
-        ServerEnvironment.when(Tests.class)
+        ServerEnvironment.under(Tests.class)
                          .use(PreparedStorageFactory.with(entityRecordStorage));
 
         var context = BlackBox.singleTenantWith(ParcelAgg.class);

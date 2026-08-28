@@ -68,7 +68,7 @@ public final class ReceptionFailureTestEnv {
                 .setMonitor(monitor)
                 .build();
         delivery.subscribe(new IgnoringObserver());
-        ServerEnvironment.when(Tests.class)
+        ServerEnvironment.under(Tests.class)
                          .use(delivery);
     }
 

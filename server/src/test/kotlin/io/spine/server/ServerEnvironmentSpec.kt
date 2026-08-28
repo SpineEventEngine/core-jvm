@@ -1,11 +1,11 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,35 +23,21 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-syntax = "proto3";
+package io.spine.server
 
-package spine.server;
+import io.kotest.matchers.shouldBe
+import io.spine.environment.Tests
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
 
-import "spine/options.proto";
+@DisplayName("`ServerEnvironment` should")
+internal class ServerEnvironmentSpec {
 
-option (type_url_prefix) = "type.spine.io";
-option java_package = "io.spine.server";
-option java_outer_classname = "ServerEnvironmentProto";
-option java_multiple_files = true;
+    @Test
+    @Suppress("DEPRECATION") /* The point of the test is to cover the deprecated method. */
+    fun `configure the passed type via the deprecated 'when'`() {
+        val configurator = ServerEnvironment.`when`(Tests::class.java)
 
-// A type of the environment system is deployed to.
-enum DeploymentType {
-
-    // Running in a standalone mode.
-    //
-    // The deployment is considered STANDALONE when no specific runtime is recognized. 
-    //
-    STANDALONE = 0;
-
-    // Running on an App Engine local development server.
-    APPENGINE_EMULATOR = 1;
-
-    // Running on an App Engine cloud infrastructure.
-    APPENGINE_CLOUD = 2;
-}
-
-// An identifier of a server node of the application.
-message NodeId {
-
-    string value = 1 [(required) = true];
+        configurator.type() shouldBe Tests::class.java
+    }
 }

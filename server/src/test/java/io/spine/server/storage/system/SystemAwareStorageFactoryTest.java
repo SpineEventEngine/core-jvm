@@ -69,7 +69,7 @@ class SystemAwareStorageFactoryTest {
 
         var serverEnv = ServerEnvironment.instance();
         StorageFactory productionStorage = new MemoizingStorageFactory();
-        ServerEnvironment.when(DefaultMode.class)
+        ServerEnvironment.under(DefaultMode.class)
                          .use(productionStorage);
         var storageFactory = serverEnv.storageFactory();
         assertThat(storageFactory)
@@ -87,7 +87,7 @@ class SystemAwareStorageFactoryTest {
     void wrapTestStorage() {
         var serverEnv = ServerEnvironment.instance();
         StorageFactory testStorage = InMemoryStorageFactory.newInstance();
-        ServerEnvironment.when(Tests.class)
+        ServerEnvironment.under(Tests.class)
                          .use(testStorage);
         var storageFactory = serverEnv.storageFactory();
         assertThat(storageFactory).isInstanceOf(SystemAwareStorageFactory.class);

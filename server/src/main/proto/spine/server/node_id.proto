@@ -1,11 +1,11 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2022, TeamDev. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * https://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -23,35 +23,19 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+syntax = "proto3";
 
-@file:JvmName("ServerEnvironmentExtensions")
+package spine.server;
 
-package io.spine.server
+import "spine/options.proto";
 
-import io.spine.environment.EnvironmentType
+option (type_url_prefix) = "type.spine.io";
+option java_package = "io.spine.server";
+option java_outer_classname = "NodeIdProto";
+option java_multiple_files = true;
 
-/**
- * Allows configuring [ServerEnvironment] features under various environments.
- *
- * Example of usage:
- * ```kotlin
- *     under<Production> {
- *         use(productionStorageFactory)
- *         use(memoizingTracerFactory)
- *     }
- *     under<Tests> {
- *         use(testingStorageFactory)
- *     }
- * ```
- *
- * ### API NOTE
- * This function is the Kotlin counterpart of [ServerEnvironment.under]. The reified
- * type parameter spares the caller a `::class.java` literal, and the block, having
- * the configurator as its receiver, groups several `use()` calls without repeating
- * the receiver on each of them.
- */
-public inline fun <reified E : EnvironmentType<*>>
-        under(block: ServerEnvironment.TypeConfigurator.() -> Unit) {
-    val configurator = ServerEnvironment.under(E::class.java)
-    configurator.block()
+// An identifier of a server node of the application.
+message NodeId {
+
+    string value = 1 [(required) = true];
 }

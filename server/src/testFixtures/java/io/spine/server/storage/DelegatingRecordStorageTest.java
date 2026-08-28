@@ -80,7 +80,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * {@code StorageFactory} implementation before this test suite:
  *
  * <pre>
- *     ServerEnvironment.when(Tests.class)
+ *     ServerEnvironment.under(Tests.class)
  *                      .useStorageFactory(myRealStorageFactory);
  * </pre>
  *

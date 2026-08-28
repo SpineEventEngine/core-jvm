@@ -55,6 +55,7 @@ import io.spine.server.aggregate.given.history.StateHistoryTestRepository
 import io.spine.server.event.AbstractEventSubscriber
 import io.spine.server.entity.EntityRecord
 import io.spine.server.tenant.TenantAwareRunner
+import io.spine.server.under
 import io.spine.test.aggregate.ProjectId
 import io.spine.test.aggregate.event.AggProjectCreated
 import io.spine.test.aggregate.event.aggProjectArchived
@@ -248,8 +249,9 @@ internal class AggregateRepositoryStateHistorySpec {
 
     @Test
     fun `fail the dispatch when the history append fails`() {
-        ServerEnvironment.`when`(Tests::class.java)
-            .use(FailingHistoryFactory())
+        under<Tests> {
+            use(FailingHistoryFactory())
+        }
         val failingContext = BoundedContextBuilder.assumingTests().build()
         val failingRepository = StateHistoryTestRepository()
         failingContext.internalAccess()

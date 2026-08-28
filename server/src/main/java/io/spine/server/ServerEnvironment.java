@@ -63,10 +63,10 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * For example:
  * <pre>
  *
- *     ServerEnvironment.when(Production.class)
+ *     ServerEnvironment.under(Production.class)
  *                      .use(productionStorageFactory)
  *                      .use(memoizingTracerFactory);
- *     ServerEnvironment.when(Tests.class)
+ *     ServerEnvironment.under(Tests.class)
  *                      .use(testingStorageFactory);
  * </pre>
  * A custom environment type may also be used:
@@ -76,7 +76,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  *         ...
  *     }
  *
- *     ServerEnvironment.when(Staging.class)
+ *     ServerEnvironment.under(Staging.class)
  *                      .use(inMemoryStorageFactory);
  * </pre>
  *
@@ -98,15 +98,6 @@ import static io.spine.util.Exceptions.newIllegalStateException;
 public final class ServerEnvironment implements Closeable {
 
     private static final ServerEnvironment INSTANCE = new ServerEnvironment();
-
-    /**
-     * The deployment detector is instantiated with a system {@link DeploymentDetector} and
-     * can be reassigned the value using {@link #configureDeployment(Supplier)}.
-     *
-     * <p>Values from this supplier are used to {@linkplain #deploymentType()
-     * get the deployment type}.
-     */
-    private Supplier<DeploymentType> deploymentDetector = DeploymentDetector.newInstance();
 
     /**
      * The identifier of the server instance running in scope of this application.
@@ -183,13 +174,6 @@ public final class ServerEnvironment implements Closeable {
     }
 
     /**
-     * The type of the environment application is deployed to.
-     */
-    public DeploymentType deploymentType() {
-        return deploymentDetector.get();
-    }
-
-    /**
      * Returns the delivery mechanism specific to this environment.
      *
      * <p>Unless {@linkplain TypeConfigurator#use(Delivery) updated manually}, returns
@@ -232,27 +216,6 @@ public final class ServerEnvironment implements Closeable {
      */
     public NodeId nodeId() {
         return nodeId;
-    }
-
-    /**
-     * Sets the default {@linkplain DeploymentType deployment type}
-     * {@linkplain Supplier supplier} that utilizes system properties.
-     */
-    private void resetDeploymentType() {
-        var supplier = DeploymentDetector.newInstance();
-        configureDeployment(supplier);
-    }
-
-    /**
-     * Makes the {@link #deploymentType()} return the values from the provided supplier.
-     *
-     * <p>When supplying your own deployment type in tests, remember to
-     * {@linkplain #reset() reset it} during tear down.
-     */
-    @VisibleForTesting
-    public void configureDeployment(Supplier<DeploymentType> supplier) {
-        checkNotNull(supplier);
-        deploymentDetector = supplier;
     }
 
     /**
@@ -326,7 +289,6 @@ public final class ServerEnvironment implements Closeable {
         delivery.reset();
         var currentEnv = environment().type();
         delivery.use(Delivery.local(), currentEnv);
-        resetDeploymentType();
     }
 
     /**
@@ -360,17 +322,28 @@ public final class ServerEnvironment implements Closeable {
     ) {
         try {
             setting.apply(Closeable::close);
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             throw newIllegalStateException(e, "Failed to close `%s`.", factoryName);
         }
     }
 
     /**
-     * Starts flowing API chain for configuring {@code ServerEnvironment} for the passed type.
+     * Starts a flowing API chain for configuring {@code ServerEnvironment} for the passed type.
      */
-    public static TypeConfigurator when(Class<? extends EnvironmentType<?>> type) {
+    public static TypeConfigurator under(Class<? extends EnvironmentType<?>> type) {
         checkNotNull(type);
         return new TypeConfigurator(type);
+    }
+
+    /**
+     * Starts a flowing API chain for configuring {@code ServerEnvironment} for the passed type.
+     *
+     * @deprecated Use {@link #under(Class)} instead. Unlike this method, {@code under()} does not
+     *         require backticks when called from Kotlin, where {@code when} is a keyword.
+     */
+    @Deprecated
+    public static TypeConfigurator when(Class<? extends EnvironmentType<?>> type) {
+        return under(type);
     }
 
     /**
@@ -410,7 +383,7 @@ public final class ServerEnvironment implements Closeable {
         /**
          * Assigns the specified {@code Delivery} for the selected environment.
          *
-         * @see #useDelivery(ServerEnvironment.Fn)
+         * @see #useDelivery(Fn)
          */
         @CanIgnoreReturnValue
         public TypeConfigurator use(Delivery delivery) {
@@ -440,7 +413,7 @@ public final class ServerEnvironment implements Closeable {
         /**
          * Assigns {@code TracerFactory} for the selected environment.
          *
-         * @see #useTracerFactory(ServerEnvironment.Fn)
+         * @see #useTracerFactory(Fn)
          */
         @CanIgnoreReturnValue
         public TypeConfigurator use(TracerFactory factory) {
@@ -470,7 +443,7 @@ public final class ServerEnvironment implements Closeable {
         /**
          * Assigns the specified transport factory for the selected environment.
          *
-         * @see #useTransportFactory(ServerEnvironment.Fn)
+         * @see #useTransportFactory(Fn)
          */
         @CanIgnoreReturnValue
         public TypeConfigurator use(TransportFactory factory) {
@@ -500,7 +473,7 @@ public final class ServerEnvironment implements Closeable {
         /**
          * Assigns the specified {@code StorageFactory} for the selected environment.
          *
-         * @see #useStorageFactory(ServerEnvironment.Fn)
+         * @see #useStorageFactory(Fn)
          */
         @CanIgnoreReturnValue
         public TypeConfigurator use(StorageFactory factory) {
@@ -534,7 +507,7 @@ public final class ServerEnvironment implements Closeable {
 
     /**
      * A function that accepts a class of {@link EnvironmentType} and returns
-     * a value {@link ServerEnvironment#when(Class) configured} in a {@code ServerEnvironment}.
+     * a value {@link ServerEnvironment#under(Class) configured} in a {@code ServerEnvironment}.
      *
      * @param <R> the type of the configured value
      */
@@ -584,7 +557,7 @@ public final class ServerEnvironment implements Closeable {
         private static IllegalStateException
         raise(String prefixFmt, Class<? extends EnvironmentType<?>> type, String featureParamName) {
             var typeName = type.getSimpleName();
-            var fmt = prefixFmt + " Please call `ServerEnvironment.when(%s.class).use(%s);`.";
+            var fmt = prefixFmt + " Please call `ServerEnvironment.under(%s.class).use(%s);`.";
             return newIllegalStateException(fmt, typeName, typeName, featureParamName);
         }
     }

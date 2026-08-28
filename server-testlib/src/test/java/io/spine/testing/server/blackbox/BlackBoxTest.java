@@ -277,7 +277,7 @@ abstract class BlackBoxTest<T extends BlackBox> {
          */
         @AfterEach
         void cleanInbox() {
-            ServerEnvironment.when(Tests.class)
+            ServerEnvironment.under(Tests.class)
                              .use(Delivery.local());
         }
 
@@ -315,7 +315,7 @@ abstract class BlackBoxTest<T extends BlackBox> {
          */
         @AfterEach
         void cleanInbox() {
-            ServerEnvironment.when(Tests.class)
+            ServerEnvironment.under(Tests.class)
                              .use(Delivery.local());
         }
 
@@ -348,7 +348,7 @@ abstract class BlackBoxTest<T extends BlackBox> {
          */
         @AfterEach
         void cleanInbox() {
-            ServerEnvironment.when(Tests.class)
+            ServerEnvironment.under(Tests.class)
                              .use(Delivery.local());
         }
 

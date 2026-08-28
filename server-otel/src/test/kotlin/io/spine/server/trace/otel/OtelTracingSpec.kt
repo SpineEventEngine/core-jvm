@@ -41,6 +41,7 @@ import io.spine.server.trace.given.TracingTestEnv.scheduleFlight
 import io.spine.server.trace.given.airport.AirportContext
 import io.spine.server.trace.otel.given.RecordingSpanProcessor
 import io.spine.server.trace.otel.given.recordingOpenTelemetry
+import io.spine.server.under
 import io.spine.testing.client.TestActorRequestFactory
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -59,8 +60,9 @@ internal class OtelTracingSpec {
     fun setUp() {
         spans = RecordingSpanProcessor()
         val factory = OtelTracerFactory(recordingOpenTelemetry(spans))
-        ServerEnvironment.`when`(Tests::class.java)
-            .use(factory)
+        under<Tests> {
+            use(factory)
+        }
         context = AirportContext.builder().build()
     }
 

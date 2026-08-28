@@ -46,6 +46,7 @@ import io.spine.server.model.given.filter.ProjectTasksSubscriber
 import io.spine.server.model.given.storage.ModelTestStorageFactory
 import io.spine.server.storage.StorageFactory
 import io.spine.server.storage.memory.InMemoryStorageFactory
+import io.spine.server.under
 import io.spine.test.model.modProjectCreated
 import io.spine.testing.server.blackbox.BlackBox
 import io.spine.testing.server.model.ModelTests.dropAllModels
@@ -115,8 +116,9 @@ internal class FilterSpec {
             val delivery = Delivery.newBuilder()
                 .setInboxStorage(inboxStorage)
                 .build()
-            ServerEnvironment.`when`(Tests::class.java)
-                .use(delivery)
+            under<Tests> {
+                use(delivery)
+            }
         }
 
         @AfterEach

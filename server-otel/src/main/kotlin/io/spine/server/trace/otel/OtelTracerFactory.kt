@@ -52,8 +52,9 @@ import io.spine.server.trace.TracerFactory
  * ```
  * @OptIn(ExperimentalOtelTracing::class)
  * fun configureTracing(openTelemetry: OpenTelemetry) {
- *     ServerEnvironment.`when`(Production::class.java)
- *         .use(OtelTracerFactory(openTelemetry))
+ *     under<Production> {
+ *         use(OtelTracerFactory(openTelemetry))
+ *     }
  * }
  * ```
  *

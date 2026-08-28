@@ -47,13 +47,13 @@ public abstract class AbstractDeliveryTest {
 
     @AfterEach
     public void tearDown() {
-        ServerEnvironment.when(Tests.class)
+        ServerEnvironment.under(Tests.class)
                          .use(originalDelivery);
     }
 
     static void changeShardCountTo(int shards) {
         var newDelivery = Delivery.localWithShardsAndWindow(shards, Durations.ZERO);
-        ServerEnvironment.when(Tests.class)
+        ServerEnvironment.under(Tests.class)
                          .use(newDelivery);
     }
 }
