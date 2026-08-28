@@ -100,15 +100,6 @@ public final class ServerEnvironment implements Closeable {
     private static final ServerEnvironment INSTANCE = new ServerEnvironment();
 
     /**
-     * The deployment detector is instantiated with a system {@link DeploymentDetector} and
-     * can be reassigned the value using {@link #configureDeployment(Supplier)}.
-     *
-     * <p>Values from this supplier are used to {@linkplain #deploymentType()
-     * get the deployment type}.
-     */
-    private Supplier<DeploymentType> deploymentDetector = DeploymentDetector.newInstance();
-
-    /**
      * The identifier of the server instance running in scope of this application.
      *
      * <p>It is currently impossible to set the node identifier directly.
@@ -183,13 +174,6 @@ public final class ServerEnvironment implements Closeable {
     }
 
     /**
-     * The type of the environment application is deployed to.
-     */
-    public DeploymentType deploymentType() {
-        return deploymentDetector.get();
-    }
-
-    /**
      * Returns the delivery mechanism specific to this environment.
      *
      * <p>Unless {@linkplain TypeConfigurator#use(Delivery) updated manually}, returns
@@ -232,27 +216,6 @@ public final class ServerEnvironment implements Closeable {
      */
     public NodeId nodeId() {
         return nodeId;
-    }
-
-    /**
-     * Sets the default {@linkplain DeploymentType deployment type}
-     * {@linkplain Supplier supplier} that utilizes system properties.
-     */
-    private void resetDeploymentType() {
-        var supplier = DeploymentDetector.newInstance();
-        configureDeployment(supplier);
-    }
-
-    /**
-     * Makes the {@link #deploymentType()} return the values from the provided supplier.
-     *
-     * <p>When supplying your own deployment type in tests, remember to
-     * {@linkplain #reset() reset it} during tear down.
-     */
-    @VisibleForTesting
-    public void configureDeployment(Supplier<DeploymentType> supplier) {
-        checkNotNull(supplier);
-        deploymentDetector = supplier;
     }
 
     /**
@@ -326,7 +289,6 @@ public final class ServerEnvironment implements Closeable {
         delivery.reset();
         var currentEnv = environment().type();
         delivery.use(Delivery.local(), currentEnv);
-        resetDeploymentType();
     }
 
     /**

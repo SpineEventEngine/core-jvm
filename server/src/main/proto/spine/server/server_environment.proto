@@ -34,22 +34,6 @@ option java_package = "io.spine.server";
 option java_outer_classname = "ServerEnvironmentProto";
 option java_multiple_files = true;
 
-// A type of the environment system is deployed to.
-enum DeploymentType {
-
-    // Running in a standalone mode.
-    //
-    // The deployment is considered STANDALONE when no specific runtime is recognized. 
-    //
-    STANDALONE = 0;
-
-    // Running on an App Engine local development server.
-    APPENGINE_EMULATOR = 1;
-
-    // Running on an App Engine cloud infrastructure.
-    APPENGINE_CLOUD = 2;
-}
-
 // An identifier of a server node of the application.
 message NodeId {
 
