@@ -40,7 +40,7 @@ import io.spine.dependency.Dependency
 )
 object Time : Dependency() {
     override val group = Spine.group
-    override val version = "2.0.0-SNAPSHOT.250"
+    override val version = "2.0.0-SNAPSHOT.251"
     private const val infix = "spine-time"
 
     fun lib(version: String): String = "$group:$infix:$version"
