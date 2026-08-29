@@ -32,6 +32,10 @@ import io.spine.dependency.lib.Guava
 import io.spine.dependency.lib.Jackson
 import io.spine.dependency.lib.Kotlin
 import io.spine.dependency.lib.KotlinPoet
+import io.spine.dependency.kotlinx.AtomicFu
+import io.spine.dependency.kotlinx.Coroutines
+import io.spine.dependency.lib.Caffeine
+import io.spine.dependency.lib.Protobuf
 import io.spine.dependency.local.Base
 import io.spine.dependency.local.BaseTypes
 import io.spine.dependency.local.Change
@@ -194,6 +198,13 @@ fun Module.forceConfigurations() {
                 Jackson.DataType.forceArtifacts(project, this@all, this@resolutionStrategy)
 
                 force(
+                    // Floor artifacts request the pre-refresh versions;
+                    // the Protobuf runtime must never be older than the
+                    // refreshed gencode.
+                    Coroutines.bom,
+                    AtomicFu.lib,
+                    Protobuf.javaLib,
+                    Caffeine.lib,
                     Base.annotations,
                     Base.environment,
                     Base.format,
