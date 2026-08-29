@@ -32,7 +32,7 @@ import io.spine.dependency.DependencyWithBom
 @Suppress("unused")
 object Grpc : DependencyWithBom() {
 
-    override val version = "1.81.0"
+    override val version = "1.83.1"
     override val group = "io.grpc"
     override val bom = "$group:grpc-bom:$version"
 

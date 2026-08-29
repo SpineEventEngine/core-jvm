@@ -33,6 +33,6 @@ package io.spine.dependency.lib
  */
 @Suppress("unused", "ConstPropertyName")
 object Okio {
-    private const val version = "3.17.0"
+    private const val version = "3.18.1"
     const val lib = "com.squareup.okio:okio:$version"
 }

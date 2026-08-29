@@ -35,6 +35,6 @@ package io.spine.dependency.storage
  */
 @Suppress("unused", "ConstPropertyName")
 object PostgreSql {
-    private const val version = "42.7.11"
+    private const val version = "42.7.13"
     const val connector = "org.postgresql:postgresql:$version"
 }

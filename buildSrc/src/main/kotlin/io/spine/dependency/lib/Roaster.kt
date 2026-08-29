@@ -30,7 +30,7 @@ package io.spine.dependency.lib
 @Suppress("unused", "ConstPropertyName")
 object Roaster {
 
-    private const val version = "2.31.0.Final"
+    private const val version = "2.31.1.Final"
 
     const val group = "org.jboss.forge.roaster"
     const val api = "$group:roaster-api:$version"

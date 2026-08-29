@@ -35,7 +35,7 @@ import io.spine.dependency.Dependency
  */
 object AtomicFu : Dependency() {
 
-    override val version: String = "0.29.0"
+    override val version: String = "0.33.0"
 
     override val group: String = KotlinX.group
 

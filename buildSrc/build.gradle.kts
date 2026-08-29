@@ -70,9 +70,9 @@ val googleAuthToolVersion = "2.1.5"
  *
  * https://github.com/jk1/Gradle-License-Report
  */
-val licenseReportVersion = "3.1.2"
+val licenseReportVersion = "3.1.4"
 
-val grGitVersion = "4.1.1"
+val grGitVersion = "5.3.3"
 
 /**
  * The version of the Kotlin Gradle plugin used by the build process.
@@ -80,7 +80,7 @@ val grGitVersion = "4.1.1"
  * This version may change from the [version of Kotlin][io.spine.dependency.lib.Kotlin.version]
  * used by the project.
  */
-val kotlinEmbeddedVersion = "2.3.21"
+val kotlinEmbeddedVersion = "2.4.10"
 
 /**
  * The version of Guava used in `buildSrc`.
@@ -88,7 +88,7 @@ val kotlinEmbeddedVersion = "2.3.21"
  * Always use the same version as the one specified in [io.spine.dependency.lib.Guava].
  * Otherwise, when testing Gradle plugins, clashes may occur.
  */
-val guavaVersion = "33.6.0-jre"
+val guavaVersion = "33.7.1-jre"
 
 /**
  * The version of ErrorProne Gradle plugin.
@@ -98,7 +98,7 @@ val guavaVersion = "33.6.0-jre"
  * @see <a href="https://github.com/tbroyer/gradle-errorprone-plugin/releases">
  *     Error Prone Gradle Plugin Releases</a>
  */
-val errorPronePluginVersion = "5.1.0"
+val errorPronePluginVersion = "5.1.1"
 
 /**
  * The version of Protobuf Gradle Plugin.
@@ -130,7 +130,7 @@ val detektVersion = "1.23.8"
 /**
  * @see [io.spine.dependency.test.Kotest]
  */
-val kotestJvmPluginVersion = "0.4.10"
+val kotestJvmPluginVersion = "0.4.11"
 
 /**
  * @see [io.spine.dependency.test.Kover]
@@ -142,21 +142,21 @@ val koverVersion = "0.9.9"
  *
  * @see <a href="https://github.com/GradleUp/shadow">Shadow Plugin releases</a>
  */
-val shadowVersion = "9.4.1"
+val shadowVersion = "9.6.1"
 
 /**
  * The version of JUnit used to test the build scripts.
  *
  * @see [io.spine.dependency.test.JUnit]
  */
-val junitVersion = "6.0.3"
+val junitVersion = "6.1.3"
 
 /**
  * The version of Kotest used to test the build scripts.
  *
  * @see [io.spine.dependency.test.Kotest]
  */
-val kotestVersion = "6.1.11"
+val kotestVersion = "6.2.4"
 
 configurations.all {
     resolutionStrategy {
@@ -198,7 +198,7 @@ dependencies {
         "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:$detektVersion",
         "io.kotest:kotest-gradle-plugin:$kotestJvmPluginVersion",
         // https://github.com/srikanth-lingala/zip4j
-        "net.lingala.zip4j:zip4j:2.10.0",
+        "net.lingala.zip4j:zip4j:2.11.6",
         "net.ltgt.gradle:gradle-errorprone-plugin:$errorPronePluginVersion",
         "org.ajoberstar.grgit:grgit-core:$grGitVersion",
         "org.jetbrains.dokka:dokka-base:$dokkaVersion",

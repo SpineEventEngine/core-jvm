@@ -35,21 +35,27 @@ import io.spine.dependency.DependencyWithBom
 object Kotlin : DependencyWithBom() {
 
     /**
-     * This is the version of Kotlin we use for writing code that does not
-     * depend on Gradle and the version of embedded Kotlin.
+     * This is the version of Kotlin we use for writing code that does not depend on Gradle.
      */
     @Suppress("MemberVisibilityCanBePrivate") // used directly from the outside.
-    const val runtimeVersion = "2.3.21"
+    const val runtimeVersion = "2.4.10"
 
     override val version = runtimeVersion
     override val group = "org.jetbrains.kotlin"
     override val bom = "$group:kotlin-bom:$runtimeVersion"
 
     /**
-     * This is the version of
-     * [Kotlin embedded into Gradle](https://docs.gradle.org/current/userguide/compatibility.html#kotlin).
+     * The version of the embeddable Kotlin compiler.
+     *
+     * This is the version of [Compiler.embeddable], the
+     * `org.jetbrains.kotlin:kotlin-compiler-embeddable` artifact that packages
+     * the compiler for use inside another application.
+     *
+     * Despite the name, it is not the version of Kotlin
+     * [embedded into Gradle](https://docs.gradle.org/current/userguide/compatibility.html#kotlin),
+     * which the Gradle version determines on its own.
      */
-    const val embeddedVersion = "2.3.21"
+    const val embeddedVersion = "2.4.10"
 
     /**
      * The version of the JetBrains annotations library, which is a transitive

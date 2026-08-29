@@ -33,7 +33,7 @@ package io.spine.dependency.lib
 )
 object Protobuf {
     const val group = "com.google.protobuf"
-    const val version = "4.35.0"
+    const val version = "4.36.0"
 
     /**
      * The Java library with Protobuf data types.

@@ -61,7 +61,7 @@ object ErrorProne {
          * When the plugin is used as a library (e.g., in tools), its version and the library
          * artifacts are of importance.
          */
-        const val version = "5.1.0"
+        const val version = "5.1.1"
         const val lib = "net.ltgt.gradle:gradle-errorprone-plugin:$version"
     }
 }

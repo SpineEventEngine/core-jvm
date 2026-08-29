@@ -37,12 +37,10 @@ package io.spine.dependency.lib
 object Plexus {
 
     /**
-     * This is the last version in the 3.x series.
-     *
-     * There's a major update to 4.x.
+     * The version from the 4.x series.
      *
      * @see <a href="https://github.com/codehaus-plexus/plexus-utils/releases/tag/plexus-utils-4.0.0">plexus-utils-4.0.0</a>
      */
-    private const val version = "4.0.3"
+    private const val version = "4.1.0"
     const val utils = "org.codehaus.plexus:plexus-utils:$version"
 }

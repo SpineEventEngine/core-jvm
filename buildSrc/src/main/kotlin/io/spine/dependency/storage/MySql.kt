@@ -36,6 +36,6 @@ package io.spine.dependency.storage
  */
 @Suppress("unused", "ConstPropertyName")
 object MySql {
-    private const val version = "9.7.0"
+    private const val version = "26.7.0"
     const val connector = "com.mysql:mysql-connector-j:$version"
 }
