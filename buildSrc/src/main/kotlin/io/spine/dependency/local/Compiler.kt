@@ -72,7 +72,7 @@ object Compiler : Dependency() {
      * The version of the Compiler dependencies.
      */
     override val version: String
-    private const val fallbackVersion = "2.0.0-SNAPSHOT.067"
+    private const val fallbackVersion = "2.0.0-SNAPSHOT.069"
 
     /**
      * The distinct version of the Compiler used by other build tools.
