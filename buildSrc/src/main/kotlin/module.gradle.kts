@@ -197,6 +197,7 @@ fun Module.forceConfigurations() {
                 JacksonV2.DataType.forceArtifacts(project, this@all, this@resolutionStrategy)
                 JacksonV2.DataFormat.forceArtifacts(project, this@all, this@resolutionStrategy)
                 JacksonV2.Module.forceArtifacts(project, this@all, this@resolutionStrategy)
+                JacksonV2.Junior.forceArtifacts(project, this@all, this@resolutionStrategy)
                 force(
                     // Floor artifacts request the pre-refresh versions;
                     // the Protobuf runtime must never be older than the
