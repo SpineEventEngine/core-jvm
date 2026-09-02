@@ -27,15 +27,15 @@
 import com.google.protobuf.gradle.GenerateProtoTask
 import io.spine.dependency.boms.BomsPlugin
 import io.spine.dependency.build.ErrorProne
-import io.spine.dependency.lib.Grpc
-import io.spine.dependency.lib.Guava
-import io.spine.dependency.lib.Jackson
-import io.spine.dependency.lib.Kotlin
-import io.spine.dependency.lib.KotlinPoet
 import io.spine.dependency.kotlinx.AtomicFu
 import io.spine.dependency.kotlinx.Coroutines
 import io.spine.dependency.lib.Caffeine
+import io.spine.dependency.lib.Grpc
+import io.spine.dependency.lib.Guava
+import io.spine.dependency.lib.Jackson
 import io.spine.dependency.lib.JacksonV2
+import io.spine.dependency.lib.Kotlin
+import io.spine.dependency.lib.KotlinPoet
 import io.spine.dependency.lib.Protobuf
 import io.spine.dependency.local.Base
 import io.spine.dependency.local.BaseTypes
@@ -189,11 +189,6 @@ fun Module.forceConfigurations() {
                 Grpc.forceArtifacts(project, this@all, this@resolutionStrategy)
                 force(Grpc.ProtocPlugin.artifact)
 
-                // Substitute the legacy artifact coordinates with the new `ToolBase.lib` alias.
-                dependencySubstitution {
-                    substitute(module("io.spine.tools:spine-tool-base")).using(module(ToolBase.lib))
-                }
-
                 Jackson.forceArtifacts(project, this@all, this@resolutionStrategy)
                 Jackson.DataFormat.forceArtifacts(project, this@all, this@resolutionStrategy)
                 Jackson.DataType.forceArtifacts(project, this@all, this@resolutionStrategy)
@@ -203,8 +198,6 @@ fun Module.forceConfigurations() {
                 JacksonV2.DataFormat.forceArtifacts(project, this@all, this@resolutionStrategy)
                 JacksonV2.Module.forceArtifacts(project, this@all, this@resolutionStrategy)
                 force(
-                    JacksonV2.bom,
-                    Jackson.bom,
                     // Floor artifacts request the pre-refresh versions;
                     // the Protobuf runtime must never be older than the
                     // refreshed gencode.
@@ -230,6 +223,7 @@ fun Module.forceConfigurations() {
                     JUnit.bom,
                     Jackson.annotations,
                     Jackson.bom,
+                    JacksonV2.bom,
                     Kotlin.bom,
                     KotlinPoet.lib,
                     Logging.grpcContext,
@@ -243,7 +237,6 @@ fun Module.forceConfigurations() {
                     ToolBase.intellijPlatform,
                     ToolBase.intellijPlatformJava,
                     ToolBase.jvmTools,
-                    ToolBase.lib,
                     ToolBase.pluginBase,
                     ToolBase.protobufSetupPlugins,
                     ToolBase.psiJava,
