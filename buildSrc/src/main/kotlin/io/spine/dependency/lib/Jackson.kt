@@ -48,7 +48,7 @@ import io.spine.dependency.DependencyWithBom
 @Suppress("unused", "ConstPropertyName")
 object Jackson : DependencyWithBom() {
     override val group = "tools.jackson"
-    override val version = "3.2.1"
+    override val version = "3.2.2"
 
     /**
      * The version of `jackson-annotations`, which Jackson 3.x deliberately keeps

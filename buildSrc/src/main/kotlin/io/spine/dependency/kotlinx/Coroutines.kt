@@ -35,7 +35,7 @@ import io.spine.dependency.DependencyWithBom
  */
 object Coroutines : DependencyWithBom() {
     override val group = KotlinX.group
-    override val version = "1.10.2"
+    override val version = "1.11.0"
 
     @Suppress("ConstPropertyName") // https://bit.ly/kotlin-prop-names
     const val infix = "kotlinx-coroutines"

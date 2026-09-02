@@ -48,11 +48,20 @@ buildscript {
                 io.spine.dependency.lib.JacksonV2.DataType.forceArtifacts(project, cfg, rs)
                 io.spine.dependency.lib.JacksonV2.Junior.forceArtifacts(project, cfg, rs)
                 io.spine.dependency.lib.JacksonV2.Module.forceArtifacts(project, cfg, rs)
+                io.spine.dependency.lib.JacksonV2.DataFormat.forceArtifacts(project, cfg, rs)
 
                 val logging = io.spine.dependency.local.Logging
                 force(
                     io.spine.dependency.lib.Jackson.annotations,
                     io.spine.dependency.lib.Caffeine.lib,
+                    // Floor artifacts request the pre-refresh versions;
+                    // the Protobuf runtime must never be older than the
+                    // refreshed gencode.
+                    io.spine.dependency.lib.Jackson.bom,
+                    io.spine.dependency.lib.JacksonV2.bom,
+                    io.spine.dependency.kotlinx.Coroutines.bom,
+                    io.spine.dependency.kotlinx.AtomicFu.lib,
+                    io.spine.dependency.lib.Protobuf.javaLib,
                     io.spine.dependency.lib.Guava.lib,
                     io.spine.dependency.lib.Kotlin.bom,
                     io.spine.dependency.local.Base.annotations,
