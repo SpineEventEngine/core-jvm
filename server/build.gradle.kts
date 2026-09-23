@@ -45,7 +45,7 @@ dependencies {
     api(Kotlin.reflect)
 
     // Gradle would align the gRPC versions via the platform `client` declares, but
-    // the published POM does not inherit that: it needs the BOM imported itself.
+    // the published POM does not inherit that, so this module imports the BOM itself.
     api(platform(Grpc.bom))
     api(Grpc.protobuf)
     api(Grpc.core)

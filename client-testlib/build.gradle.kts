@@ -39,5 +39,8 @@ dependencies {
     api(project(":core-testlib"))
     api(Time.lib)
 
+    // Gradle would align the gRPC version via the platform `client` declares, but
+    // the published POM does not inherit that, so this module imports the BOM itself.
+    implementation(platform(Grpc.bom))
     implementation(Grpc.protobuf)
 }
