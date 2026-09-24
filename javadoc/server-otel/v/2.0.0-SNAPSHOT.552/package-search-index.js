@@ -1,0 +1,1 @@
+var packageSearchIndex = [{"l":"io.spine.server.trace.otel","url":"io/spine/server/trace/otel/package-summary.html"}, {"l":"All packages","url":"index.html"}]
