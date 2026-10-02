@@ -44,6 +44,10 @@ buildscript {
             resolutionStrategy {
                 val cfg = this@all
                 val rs = this@resolutionStrategy
+                io.spine.dependency.lib.Jackson.forceArtifacts(project, cfg, rs)
+                io.spine.dependency.lib.Jackson.DataFormat.forceArtifacts(project, cfg, rs)
+                io.spine.dependency.lib.Jackson.DataType.forceArtifacts(project, cfg, rs)
+
                 io.spine.dependency.lib.JacksonV2.Core.forceArtifacts(project, cfg, rs)
                 io.spine.dependency.lib.JacksonV2.DataType.forceArtifacts(project, cfg, rs)
                 io.spine.dependency.lib.JacksonV2.Junior.forceArtifacts(project, cfg, rs)
