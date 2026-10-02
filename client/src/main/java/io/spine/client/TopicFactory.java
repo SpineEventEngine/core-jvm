@@ -75,19 +75,6 @@ public final class TopicFactory {
     /**
      * Creates a {@link Topic} for the specified {@link Target}.
      *
-     * @param target
-     *         a {@code Target} to create a topic for
-     * @return an instance of {@code Topic}
-     */
-    Topic composeTopic(Target target) {
-        checkNotNull(target, "Target must be specified to compose a Topic.");
-        var topic = builderForTarget(target).build();
-        return topic;
-    }
-
-    /**
-     * Creates a {@link Topic} for the specified {@link Target}.
-     *
      * <p>This method is intended for internal use only. To achieve the similar result, use
      * {@linkplain #allOf(Class)}.
      *

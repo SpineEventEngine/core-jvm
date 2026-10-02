@@ -47,7 +47,6 @@ import static io.spine.server.storage.given.GivenStorageProject.newState;
 import static io.spine.server.storage.given.DelegatingRecordStorageTestEnv.coupleOfDone;
 import static io.spine.server.storage.given.DelegatingRecordStorageTestEnv.dozenOfRecords;
 import static io.spine.server.storage.given.DelegatingRecordStorageTestEnv.idAndDueDate;
-import static io.spine.server.storage.given.DelegatingRecordStorageTestEnv.toIds;
 import static io.spine.test.storage.StgProject.Status.CREATED;
 import static io.spine.test.storage.StgProject.Status.DONE;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -153,7 +152,7 @@ public abstract class DelegatingRecordStorageTest
             var query = queryBuilder().withMask(idAndDueDate()).build();
             var iterator = storage().readAll(query);
             var actualResults = ImmutableList.copyOf(iterator);
-            assertThat(actualResults).containsAtLeastElementsIn(records);
+            assertThat(actualResults).containsExactlyElementsIn(records);
         }
 
         @Test
@@ -311,7 +310,6 @@ public abstract class DelegatingRecordStorageTest
 
             var iterator = storage().readAll(doneAndDueBeforeNow);
             var actual = ImmutableList.copyOf(iterator);
-            DelegatingRecordStorageTestEnv.assertHaveIds(actual, toIds(doneDueYesterday));
             assertThat(actual).containsExactlyElementsIn(doneDueYesterday);
         }
     }

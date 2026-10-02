@@ -63,7 +63,7 @@ public final class TopicBuilder extends TargetBuilder<Topic, TopicBuilder> {
     public Topic build() {
         var target = buildTarget();
         target.checkValid();
-        var topic = topicFactory.composeTopic(target);
+        var topic = topicFactory.forTarget(target);
         return topic;
     }
 

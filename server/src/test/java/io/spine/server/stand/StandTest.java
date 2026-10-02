@@ -275,8 +275,8 @@ class StandTest extends TenantAwareTest {
         }
 
         /**
-         * Sets the deprecated field mask to the format of the given query,
-         * as a client which still relies on field masks would do.
+         * Returns a copy of the given query with the deprecated field mask set in its format,
+         * as a client that still relies on field masks would do.
          */
         @SuppressWarnings("deprecation") // Setting the deprecated field to check it is ignored.
         private Query withFieldMask(Query query, FieldMask mask) {

@@ -20,6 +20,7 @@ import io.kotest.matchers.shouldBe
 import io.spine.server.ContextSpec
 import io.spine.server.ServerEnvironment
 import io.spine.server.storage.given.GivenStorageProject.messageSpec
+import io.spine.server.storage.given.GivenStorageProject.newId
 import io.spine.server.storage.given.GivenStorageProject.newState
 import io.spine.test.storage.StgProject
 import io.spine.test.storage.StgProjectId
@@ -30,10 +31,11 @@ import org.junit.jupiter.api.Test
 @DisplayName("`DelegatingRecordStorage` should")
 internal class DelegatingRecordStorageSpec {
 
+    private val context = ContextSpec.singleTenant(DelegatingRecordStorageSpec::class.java.name)
     private val idOnly = fieldMask { paths += "id" }
 
     @Test
-    @Suppress("DEPRECATION") // Checking that the deprecated API ignores the mask.
+    @Suppress("DEPRECATION") // Reason: verifies the deprecated no-op; delete with the API.
     fun `read a record ignoring the mask even if its delegate honors masks`() {
         val storage = storageOverMaskHonoringDelegate()
         val record = newState()
@@ -43,7 +45,7 @@ internal class DelegatingRecordStorageSpec {
     }
 
     @Test
-    @Suppress("DEPRECATION") // Checking that the deprecated API ignores the mask.
+    @Suppress("DEPRECATION") // Reason: verifies the deprecated no-op; delete with the API.
     fun `read records ignoring the mask even if its delegate honors masks`() {
         val storage = storageOverMaskHonoringDelegate()
         val record = newState()
@@ -52,19 +54,30 @@ internal class DelegatingRecordStorageSpec {
         storage.readAll(listOf(record.id), idOnly).asSequence().toList() shouldBe listOf(record)
     }
 
-    /**
-     * Creates a storage delegating to a storage which still honors field masks,
-     * as a storage built against the previous API may do.
-     */
-    @Suppress("OVERRIDE_DEPRECATION") // Mimicking a storage built against the previous API.
-    private fun storageOverMaskHonoringDelegate():
-            DelegatingRecordStorage<StgProjectId, StgProject> {
-        val context = ContextSpec.singleTenant(DelegatingRecordStorageSpec::class.java.name)
-        val inMemory = ServerEnvironment.instance()
+    @Test
+    @Suppress("DEPRECATION") // Reason: verifies the deprecated no-op; delete with the API.
+    fun `create queries ignoring the mask, as its delegate does`() {
+        val id = newId()
+        listOf(inMemoryStorage(), storageOverMaskHonoringDelegate()).forEach { storage ->
+            storage.toQuery(id, idOnly) shouldBe storage.toQuery(id)
+            storage.toQuery(listOf(id), idOnly) shouldBe storage.toQuery(listOf(id))
+        }
+    }
+
+    private fun inMemoryStorage(): RecordStorage<StgProjectId, StgProject> =
+        ServerEnvironment.instance()
             .storageFactory()
             .createRecordStorage(context, messageSpec())
+
+    /**
+     * Creates a storage delegating to a storage that still honors field masks,
+     * as a storage built against the previous API may do.
+     */
+    @Suppress("OVERRIDE_DEPRECATION") // Reason: mimics a storage built against the old API.
+    private fun storageOverMaskHonoringDelegate():
+            DelegatingRecordStorage<StgProjectId, StgProject> {
         val maskHonoring =
-            object : DelegatingRecordStorage<StgProjectId, StgProject>(context, inMemory) {
+            object : DelegatingRecordStorage<StgProjectId, StgProject>(context, inMemoryStorage()) {
                 override fun read(id: StgProjectId, mask: FieldMask): Optional<StgProject> =
                     Optional.empty()
 

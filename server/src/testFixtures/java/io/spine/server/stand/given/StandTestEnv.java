@@ -427,9 +427,9 @@ public final class StandTestEnv {
     /**
      * Observes the results of the query sent to read the {@link Project} entity states via Stand.
      *
-     * <p>Expects each of the returned states to contain all the fields set by
+     * <p>Expects each of the returned states to contain all the fields that
      * {@link #storeSampleProject(StandTestProjectionRepository, ProjectId, String, int)
-     * storeSampleProject(..)}.
+     * storeSampleProject(..)} sets.
      */
     public static final class AssertProjectQueryResults extends MemoizeQueryResponseObserver {
 

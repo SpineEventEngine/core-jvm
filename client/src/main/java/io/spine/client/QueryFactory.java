@@ -73,7 +73,7 @@ public final class QueryFactory {
      *         the IDs of interest of type {@link io.spine.base.Identifier#checkSupported(Class)
      *         which is supported as identifier}
      * @param maskPaths
-     *         the ignored property paths
+     *         the ignored mask paths
      * @return an instance of {@code Query} formed according to the passed parameters
      * @deprecated Field masks are no longer supported. The query results always contain
      *         all the fields. Please use {@link #byIds(Class, Set)} instead.
@@ -114,13 +114,13 @@ public final class QueryFactory {
     /**
      * Creates a {@link Query} to read all states of a certain entity.
      *
-     * <p>The mask paths are ignored. The query is the same as the one created by
-     * {@link #all(Class)}.
+     * <p>The mask paths are ignored. The query is the same as the one created
+     * by {@link #all(Class)}.
      *
      * @param entityClass
      *         the class of a target entity
      * @param maskPaths
-     *         the ignored property paths
+     *         the ignored mask paths
      * @return an instance of {@code Query} formed according to the passed parameters
      * @deprecated Field masks are no longer supported. The query results always contain
      *         all the fields. Please use {@link #all(Class)} instead.

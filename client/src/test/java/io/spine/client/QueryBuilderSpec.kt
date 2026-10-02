@@ -224,7 +224,7 @@ internal class QueryBuilderSpec {
         }
 
         @Test
-        @Suppress("DEPRECATION") // Checking that the deprecated API does nothing.
+        @Suppress("DEPRECATION") // Reason: verifies the deprecated no-op; delete with the API.
         fun `ignoring the field mask`() {
             val query = factory.select(TEST_ENTITY_TYPE)
                 .withMask("TestEntity.firstField")
@@ -384,7 +384,6 @@ internal class QueryBuilderSpec {
                 .limit(limit)
                 .build()
             query shouldNotBe null
-            val format = query.format
             val target = query.target
             target.includeAll shouldBe false
             val entityFilters = target.filters
@@ -422,6 +421,7 @@ internal class QueryBuilderSpec {
                 SECOND_FIELD,
                 DESCENDING
             )
+            val format = query.format
             format.getOrderBy(0) shouldBe expectedOrderBy
             format.limit shouldBe limit
         }

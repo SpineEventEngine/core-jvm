@@ -46,7 +46,7 @@ service SubscriptionService {
 
     // Creates the subscription to the particular read-side updates.
     //
-    // Topic defines the target of subscription.
+    // `Topic` defines the target of the subscription.
     //
     // NOTE: this method only creates a `Subscription` for the passed `Topic`.
     // To start listening for updates, please call `Activate(Subscription)`.

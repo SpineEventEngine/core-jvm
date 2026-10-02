@@ -22,10 +22,10 @@ import io.spine.test.storage.StgProject
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
-@Suppress("DEPRECATION") // Checking that the deprecated API does nothing.
 @DisplayName("`FieldMaskApplier` should")
 internal class FieldMaskApplierSpec {
 
+    @Suppress("DEPRECATION") // Reason: verifies the deprecated no-op; delete with the API.
     private val applier = FieldMaskApplier<StgProject>(fieldMask { paths += "id" })
 
     @Test

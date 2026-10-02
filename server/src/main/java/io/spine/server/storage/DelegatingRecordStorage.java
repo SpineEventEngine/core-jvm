@@ -100,8 +100,7 @@ public abstract class DelegatingRecordStorage<I, R extends Message> extends Reco
     /**
      * Reads the records by the passed identifiers ignoring the passed field mask.
      *
-     * @deprecated Field masks are no longer supported.
-     *         Please use {@link #readAll(Iterable)}.
+     * @deprecated Field masks are no longer supported. Please use {@link #readAll(Iterable)}.
      */
     @Deprecated
     @Override
@@ -182,8 +181,7 @@ public abstract class DelegatingRecordStorage<I, R extends Message> extends Reco
      * Creates a new query for the targets that have one of the passed identifiers
      * ignoring the passed field mask.
      *
-     * @deprecated Field masks are no longer supported.
-     *         Please use {@link #toQuery(Iterable)}.
+     * @deprecated Field masks are no longer supported. Please use {@link #toQuery(Iterable)}.
      */
     @Deprecated
     @Override

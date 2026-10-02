@@ -156,7 +156,8 @@ public abstract class RecordStorage<I, R extends Message> extends AbstractStorag
      * Reads all the message records according to the passed record identifiers.
      *
      * <p>The response contains only the records that were found.
-     * The passed field mask is ignored.
+     *
+     * <p>The passed field mask is ignored.
      *
      * @param ids
      *         the identifiers of the records to read
@@ -165,8 +166,7 @@ public abstract class RecordStorage<I, R extends Message> extends AbstractStorag
      * @return the iterator over the records
      * @throws IllegalStateException
      *         if the storage was closed before
-     * @deprecated Field masks are no longer supported.
-     *         Please use {@link #readAll(Iterable)}.
+     * @deprecated Field masks are no longer supported. Please use {@link #readAll(Iterable)}.
      */
     @Deprecated
     protected Iterator<R> readAll(Iterable<I> ids, FieldMask mask) {
@@ -283,8 +283,7 @@ public abstract class RecordStorage<I, R extends Message> extends AbstractStorag
      *
      * <p>The passed field mask is ignored.
      *
-     * @deprecated Field masks are no longer supported.
-     *         Please use {@link #toQuery(Iterable)}.
+     * @deprecated Field masks are no longer supported. Please use {@link #toQuery(Iterable)}.
      */
     @Deprecated
     protected RecordQuery<I, R> toQuery(Iterable<I> ids, FieldMask mask) {
@@ -324,6 +323,9 @@ public abstract class RecordStorage<I, R extends Message> extends AbstractStorag
 
     /**
      * Performs reading of the message records by executing the passed query.
+     *
+     * <p>Implementations must ignore the {@code RecordQuery.mask()} of the query, if set,
+     * and return the records as they are stored, as field masks are no longer supported.
      *
      * @param query
      *         the query to execute

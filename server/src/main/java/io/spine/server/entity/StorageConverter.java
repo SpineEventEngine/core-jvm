@@ -51,7 +51,7 @@ public abstract class StorageConverter<I, E extends Entity<I, S>, S extends Enti
      * @param entityStateType
      *         the type URL of the state of entities that this converter builds
      * @param factory
-     *         the factory which creates the entities
+     *         the factory that creates the entities
      */
     protected StorageConverter(TypeUrl entityStateType, EntityFactory<E> factory) {
         super();
@@ -65,7 +65,7 @@ public abstract class StorageConverter<I, E extends Entity<I, S>, S extends Enti
      * @param entityStateType
      *         the type URL of the state of entities that this converter builds
      * @param factory
-     *         the factory which creates the entities
+     *         the factory that creates the entities
      * @param fieldMask
      *         the ignored field mask
      * @deprecated Field masks are no longer supported.
@@ -96,10 +96,11 @@ public abstract class StorageConverter<I, E extends Entity<I, S>, S extends Enti
     /**
      * Returns the default instance of {@code FieldMask}.
      *
-     * <p>Formerly, obtained the field mask used by this converter to trim the state of entities.
+     * <p>Formerly, this method obtained the field mask used by this converter to trim
+     * the state of entities.
      *
-     * @deprecated Field masks are no longer supported.
-     *         The converter does not trim the state of entities.
+     * @deprecated Field masks are no longer supported. The converter does not trim
+     *         the state of entities. Please remove the calls and overrides.
      */
     @Deprecated
     protected FieldMask fieldMask() {
@@ -109,7 +110,8 @@ public abstract class StorageConverter<I, E extends Entity<I, S>, S extends Enti
     /**
      * Returns this converter.
      *
-     * <p>Formerly, created a copy of this converter modified with the passed field mask.
+     * <p>Formerly, this method created a copy of this converter modified with
+     * the passed field mask.
      *
      * @param fieldMask
      *         the ignored field mask

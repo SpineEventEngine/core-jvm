@@ -124,10 +124,10 @@ public class EntityRecordStorage<I, S extends EntityState<I>>
      * Reads the entity records by the passed record identifiers.
      *
      * <p>The results include the records of both active and non-active entities.
-     * The passed field mask is ignored.
      *
-     * @deprecated Field masks are no longer supported.
-     *         Please use {@link #readAll(Iterable)}.
+     * <p>The passed field mask is ignored.
+     *
+     * @deprecated Field masks are no longer supported. Please use {@link #readAll(Iterable)}.
      */
     @Deprecated
     @Override

@@ -380,7 +380,6 @@ class TopicBuilderTest {
             assertThat(actualValues)
                 .containsExactlyElementsIn(messageIds);
         }
-
     }
 
     @Test

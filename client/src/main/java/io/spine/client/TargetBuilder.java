@@ -31,8 +31,7 @@ import static java.util.Collections.singleton;
  * An abstract base for builders that create {@link com.google.protobuf.Message Message instances}
  * that have a {@link Target} as an attribute.
  *
- * <p>The {@link Target} matching the builder configuration is created with
- * {@link #buildTarget()}.
+ * <p>The {@link Target} matching the builder configuration is created with {@link #buildTarget()}.
  *
  * <p>The public API of this class is inspired by SQL syntax:
  * <pre>{@code
@@ -268,7 +267,7 @@ public abstract class TargetBuilder<T extends Message, B extends TargetBuilder<T
     /**
      * Does nothing.
      *
-     * <p>Formerly, set the entity fields to retrieve.
+     * <p>Formerly, this method set the entity fields to retrieve.
      *
      * @param fieldNames
      *         the ignored names of the fields
@@ -286,7 +285,7 @@ public abstract class TargetBuilder<T extends Message, B extends TargetBuilder<T
     /**
      * Does nothing.
      *
-     * <p>Formerly, set the entity fields to retrieve.
+     * <p>Formerly, this method set the entity fields to retrieve.
      *
      * @param fieldNames
      *         the ignored names of the fields

@@ -71,7 +71,6 @@ buildscript {
                     logging.lib,
                     logging.libJvm,
                     logging.grpcContext,
-                    io.spine.dependency.local.Time.lib,
                     io.spine.dependency.local.Validation.runtime,
                 )
             }

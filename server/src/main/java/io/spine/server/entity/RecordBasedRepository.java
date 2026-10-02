@@ -302,6 +302,7 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
      * @return all the entities in this repository with the IDs matching the given {@code Iterable}
      */
     public Iterator<E> loadAll(Iterable<I> ids) {
+        checkNotNull(ids);
         var storage = recordStorage();
         var records = storage.readAll(ids);
         var result = transform(records, this::toEntity);

@@ -39,7 +39,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * Transforms the given {@link EntityQuery} into a {@link RecordQuery}
  * over the {@link EntityRecord}s.
  *
- * <p>The field mask of the {@code EntityQuery} is not transferred, as field masks are
+ * <p>The field mask of the {@code EntityQuery} is not copied, as field masks are
  * no longer supported.
  *
  * @param <I>

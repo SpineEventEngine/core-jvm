@@ -21,7 +21,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.function.Function;
 
 /**
- * A {@link Function} which returns the passed storage record as-is.
+ * A {@link Function} that returns the passed storage record as-is.
  *
  * <p>Formerly, the function transformed the record by applying a {@link FieldMask} to it.
  *

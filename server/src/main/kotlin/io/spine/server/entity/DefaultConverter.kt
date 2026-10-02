@@ -23,9 +23,10 @@ import io.spine.type.TypeUrl
  * @param I The type of entity IDs.
  * @param E The type of entities.
  * @param S The type of entity states.
+ * @param stateType The type URL of the state of entities that this converter builds.
+ * @param factory The factory that creates the entities.
  */
-internal class DefaultConverter<I : Any, E : AbstractEntity<I, S>, S : EntityState<I>>
-private constructor(
+internal class DefaultConverter<I : Any, E : AbstractEntity<I, S>, S : EntityState<I>>(
     stateType: TypeUrl,
     factory: EntityFactory<E>
 ) : StorageConverter<I, E, S>(stateType, factory) {
@@ -45,17 +46,5 @@ private constructor(
     override fun injectState(entity: E, state: S, entityRecord: EntityRecord) {
         entity.updateState(state, entityRecord.version)
         entity.setLifecycleFlags(entityRecord.lifecycleFlags())
-    }
-
-    companion object {
-
-        /**
-         * Creates a converter that copies all the fields of the entity state.
-         */
-        fun <I : Any, E : AbstractEntity<I, S>, S : EntityState<I>> forAllFields(
-            stateType: TypeUrl,
-            factory: EntityFactory<E>
-        ): StorageConverter<I, E, S> =
-            DefaultConverter(stateType, factory)
     }
 }

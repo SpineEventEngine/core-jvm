@@ -167,8 +167,8 @@ FilteringRequest<M extends Message,
     /**
      * Does nothing.
      *
-     * <p>Formerly, instructed to populate only fields with the passed names in the results
-     * of the request.
+     * <p>Formerly, this method instructed the request to populate only the fields with
+     * the passed names in its results.
      *
      * @deprecated Field masks are no longer supported. The results always contain
      *         all the fields. Please remove the call.
@@ -183,8 +183,8 @@ FilteringRequest<M extends Message,
     /**
      * Does nothing.
      *
-     * <p>Formerly, instructed to populate only fields with the passed names in the results
-     * of the request.
+     * <p>Formerly, this method instructed the request to populate only the fields with
+     * the passed names in its results.
      *
      * @deprecated Field masks are no longer supported. The results always contain
      *         all the fields. Please remove the call.

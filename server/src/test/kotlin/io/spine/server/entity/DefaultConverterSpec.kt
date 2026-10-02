@@ -18,8 +18,8 @@ import com.google.common.testing.EqualsTester
 import com.google.protobuf.FieldMask
 import com.google.protobuf.fieldMask
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.spine.server.BoundedContextBuilder
-import io.spine.server.entity.DefaultConverter.Companion.forAllFields
 import io.spine.server.given.organizations.Organization
 import io.spine.server.given.organizations.OrganizationId
 import io.spine.server.given.organizations.organization
@@ -41,29 +41,50 @@ internal class DefaultConverterSpec {
             .register(repo)
 
         val stateType = repo.entityModelClass().stateTypeUrl()
-        converter = forAllFields(stateType, repo.entityFactory())
+        converter = DefaultConverter(stateType, repo.entityFactory())
     }
 
     @Test
-    @Suppress("DEPRECATION") // Checking that the deprecated API does nothing.
-    fun `create instance for all fields`() {
+    @Suppress("DEPRECATION") // Reason: verifies the deprecated no-op; delete with the API.
+    fun `have the default 'FieldMask'`() {
         converter.fieldMask() shouldBe FieldMask.getDefaultInstance()
     }
 
     @Test
-    @Suppress("DEPRECATION") // Checking that the deprecated API does nothing.
-    fun `ignore the 'FieldMask'`() {
+    @Suppress("DEPRECATION") // Reason: verifies the deprecated no-op; delete with the API.
+    fun `return itself when given a 'FieldMask'`() {
         val mask = fieldMask { paths += "foo.bar" }
 
-        val withMask = converter.withFieldMask(mask)
+        converter.withFieldMask(mask) shouldBeSameInstanceAs converter
+    }
 
-        withMask shouldBe converter
-        withMask.fieldMask() shouldBe FieldMask.getDefaultInstance()
+    @Test
+    @Suppress("DEPRECATION") // Reason: verifies the deprecated no-op; delete with the API.
+    fun `ignore the 'FieldMask' passed to the deprecated constructor`() {
+        val legacy = object : StorageConverter<OrganizationId, TestEntity, Organization>(
+            converter.entityStateType(),
+            converter.entityFactory(),
+            fieldMask { paths += "foo.bar" }
+        ) {
+            override fun updateBuilder(builder: EntityRecord.Builder, entity: TestEntity) = Unit
+
+            override fun injectState(
+                entity: TestEntity,
+                state: Organization,
+                entityRecord: EntityRecord
+            ) = Unit
+        }
+
+        legacy.fieldMask() shouldBe FieldMask.getDefaultInstance()
+        legacy shouldBe converter
     }
 
     @Test
     fun `support equality`() {
-        val sameFields = forAllFields(converter.entityStateType(), converter.entityFactory())
+        val sameFields = DefaultConverter<OrganizationId, TestEntity, Organization>(
+            converter.entityStateType(),
+            converter.entityFactory()
+        )
         EqualsTester()
             .addEqualityGroup(converter, sameFields)
             .testEquals()
