@@ -1,33 +1,20 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.client;
 
 import com.google.common.testing.NullPointerTester;
-import com.google.protobuf.FieldMask;
 import io.spine.testing.UtilityClassTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -46,29 +33,16 @@ class ResponseFormatsTest extends UtilityClassTest<ResponseFormats> {
     @Override
     protected void configure(NullPointerTester tester) {
         super.configure(tester);
-        tester.setDefault(FieldMask.class, FieldMask.getDefaultInstance())
-              .setDefault(OrderBy.class, OrderBy.getDefaultInstance());
+        tester.setDefault(OrderBy.class, OrderBy.getDefaultInstance());
     }
 
     @Test
     @DisplayName("create `ResponseFormat` with `OrderBy`")
     void createWithOrder() {
         var orderBy = orderBy();
-        var format = responseFormat(null, orderBy, null);
+        var format = responseFormat(orderBy, null);
 
-        assertThat(format.getFieldMask()).isEqualTo(FieldMask.getDefaultInstance());
         assertThat(format.getOrderByList()).containsExactly(orderBy);
-        assertThat(format.getLimit()).isEqualTo(0);
-    }
-
-    @Test
-    @DisplayName("create `ResponseFormat` with `FieldMask`")
-    void createWithFieldMast() {
-        var fieldMask = fieldMask();
-        var format = responseFormat(fieldMask, null, null);
-
-        assertThat(format.getFieldMask()).isEqualTo(fieldMask);
-        assertThat(format.getOrderByList()).isEmpty();
         assertThat(format.getLimit()).isEqualTo(0);
     }
 
@@ -80,18 +54,12 @@ class ResponseFormatsTest extends UtilityClassTest<ResponseFormats> {
         var acceptableValues = new int[]{2020, 17, 1};
         for (var value : inacceptableValues) {
             assertThrows(IllegalArgumentException.class,
-                         () -> responseFormat(null, null, value));
+                         () -> responseFormat(null, value));
         }
         for (var value : acceptableValues) {
-            var format = responseFormat(null, null, value);
+            var format = responseFormat(null, value);
             assertThat(format.getLimit()).isEqualTo(value);
         }
-    }
-
-    private static FieldMask fieldMask() {
-        return FieldMask.newBuilder()
-                        .addPaths("some_description")
-                        .build();
     }
 
     private static OrderBy orderBy() {

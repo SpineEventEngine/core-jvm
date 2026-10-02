@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.stand;
@@ -30,7 +18,6 @@ import com.google.protobuf.FieldMask;
 import io.spine.base.Identifier;
 import io.spine.client.ActorRequestFactory;
 import io.spine.client.Query;
-import io.spine.client.QueryResponse;
 import io.spine.client.Subscription;
 import io.spine.client.SubscriptionUpdate;
 import io.spine.client.SubscriptionValidationError;
@@ -61,7 +48,6 @@ import io.spine.test.integration.command.PlaceOrder;
 import io.spine.test.integration.event.OrderPlaced;
 import io.spine.test.projection.Project;
 import io.spine.test.projection.ProjectId;
-import io.spine.testing.logging.mute.MuteLogging;
 import io.spine.testing.server.tenant.TenantAwareTest;
 import io.spine.validation.ValidationError;
 import org.jspecify.annotations.Nullable;
@@ -106,9 +92,7 @@ import static io.spine.server.stand.given.StandTestEnv.setupExpectedFindAllBehav
 import static io.spine.server.stand.given.StandTestEnv.storeSampleProject;
 import static io.spine.server.stand.given.StandTestEnv.subscribeAndActivate;
 import static io.spine.server.stand.given.StandTestEnv.verifyObserver;
-import static io.spine.test.projection.Project.Status.UNDEFINED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -258,15 +242,8 @@ class StandTest extends TenantAwareTest {
         }
 
         @Test
-        @DisplayName("for projection batch read by IDs with field mask")
-        void forProjectionReadWithMask() {
-            checkReadingByIdAndMask(Project.Field.id()
-                                                 .getField(),
-                                    Project.Field.name()
-                                                 .getField());
-        }
-
-        private void checkReadingByIdAndMask(io.spine.base.Field... maskingFields) {
+        @DisplayName("for projection batch read by IDs ignoring the field mask")
+        void forProjectionReadIgnoringMask() {
             var repository = new StandTestProjectionRepository();
             var stand = createStand(repository);
 
@@ -281,21 +258,34 @@ class StandTest extends TenantAwareTest {
             }
 
             var queryFactory = requestFactory.query();
-            var builder =
-                    Project.query()
-                           .id().in(ids)
-                           .withMask(maskingFields);
-            @SuppressWarnings("OptionalGetWithoutIsPresent")    // The value just set above.
-            var fieldMask = builder.whichMask()
-                                   .get();
-            var query = builder.build(transformWith(queryFactory));
+            var query = Project.query()
+                               .id().in(ids)
+                               .build(transformWith(queryFactory));
+            var idAndName = FieldMask.newBuilder()
+                    .addPaths("id")
+                    .addPaths("name")
+                    .build();
 
             MemoizeQueryResponseObserver observer =
-                    new AssertProjectQueryResults(ids, projectVersion, fieldMask);
+                    new AssertProjectQueryResults(ids, projectVersion);
 
-            stand.execute(query, observer);
+            stand.execute(withFieldMask(query, idAndName), observer);
 
             verifyObserver(observer);
+        }
+
+        /**
+         * Sets the deprecated field mask to the format of the given query,
+         * as a client which still relies on field masks would do.
+         */
+        @SuppressWarnings("deprecation") // Setting the deprecated field to check it is ignored.
+        private Query withFieldMask(Query query, FieldMask mask) {
+            var format = query.getFormat()
+                              .toBuilder()
+                              .setFieldMask(mask);
+            return query.toBuilder()
+                        .setFormat(format)
+                        .build();
         }
     }
 
@@ -629,50 +619,6 @@ class StandTest extends TenantAwareTest {
         assertThat(actualFormat).isPresent();
         assertThat(actualFormat)
               .hasValue(query.getFormat());
-    }
-
-    @Test
-    @MuteLogging
-    @DisplayName("handle mistakes in query silently")
-    void handleMistakesInQuery() {
-        var repository = new StandTestProjectionRepository();
-        var stand = createStand(repository);
-        var projectVersion = storeSampleProject(repository);
-
-        var thirdField = Project.getDescriptor()
-                                .getFields()
-                                .get(2)
-                                .getFullName();
-        var queryFactory = requestFactory.query();
-
-        // FieldMask with invalid field paths.
-        var mask = FieldMask.newBuilder()
-                .addPaths("invalid_field_path_example")
-                .addPaths(thirdField)
-                .build();
-        var query = Project.query()
-                           .withMask(mask)
-                           .build(transformWith(queryFactory));
-        var observer = new MemoizeQueryResponseObserver() {
-            @Override
-            public void onNext(QueryResponse response) {
-                super.onNext(response);
-                assertFalse(response.isEmpty());
-
-                var project = (Project) response.state(0);
-
-                assertNotNull(project);
-                assertFalse(project.hasId());
-                assertThat(project.getName()).isEmpty();
-                assertEquals(UNDEFINED, project.getStatus());
-                assertThat(project.getTaskList()).isEmpty();
-
-                var version = response.version(0);
-                assertThat(version.getNumber()).isEqualTo(projectVersion);
-            }
-        };
-        stand.execute(query, observer);
-        verifyObserver(observer);
     }
 
     @Nested

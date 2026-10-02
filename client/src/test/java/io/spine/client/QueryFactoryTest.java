@@ -1,28 +1,17 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
+
 package io.spine.client;
 
 import io.spine.testing.core.given.GivenUserId;
@@ -34,16 +23,13 @@ import org.junit.jupiter.api.Test;
 
 import static io.spine.base.Identifier.newUuid;
 import static io.spine.client.given.QueryFactoryTestEnv.TEST_ENTITY_TYPE;
-import static io.spine.client.given.QueryFactoryTestEnv.checkFieldMaskEmpty;
 import static io.spine.client.given.QueryFactoryTestEnv.checkFiltersEmpty;
+import static io.spine.client.given.QueryFactoryTestEnv.checkFormatEmpty;
 import static io.spine.client.given.QueryFactoryTestEnv.checkIdQueriesEqual;
 import static io.spine.client.given.QueryFactoryTestEnv.checkTargetIsTestEntity;
-import static io.spine.client.given.QueryFactoryTestEnv.singleTestEntityPath;
 import static io.spine.client.given.QueryFactoryTestEnv.threeIds;
 import static io.spine.client.given.QueryFactoryTestEnv.threeRandomParts;
 import static io.spine.client.given.QueryFactoryTestEnv.verifyIdFilter;
-import static io.spine.client.given.QueryFactoryTestEnv.verifyMultiplePathsInQuery;
-import static io.spine.client.given.QueryFactoryTestEnv.verifySinglePathInQuery;
 import static java.util.Collections.emptySet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -82,7 +68,7 @@ class QueryFactoryTest {
             checkFiltersEmpty(readAllQuery);
             checkTargetIsTestEntity(readAllQuery);
 
-            checkFieldMaskEmpty(readAllQuery);
+            checkFormatEmpty(readAllQuery);
         }
 
         @Test
@@ -92,7 +78,7 @@ class QueryFactoryTest {
             var readByIdsQuery = factory.byIds(TEST_ENTITY_TYPE, testEntityIds);
             assertNotNull(readByIdsQuery);
 
-            checkFieldMaskEmpty(readByIdsQuery);
+            checkFormatEmpty(readByIdsQuery);
 
             var target = checkTargetIsTestEntity(readByIdsQuery);
 
@@ -100,63 +86,36 @@ class QueryFactoryTest {
         }
 
         @Test
-        @DisplayName("`read all` with single path mask")
-        void readAllWithSinglePath() {
-            var expectedEntityPath = singleTestEntityPath();
-            var readAllWithPathFilteringQuery = factory.allWithMask(TEST_ENTITY_TYPE,
-                                                                    expectedEntityPath);
-            assertNotNull(readAllWithPathFilteringQuery);
+        @DisplayName("`read all` ignoring the mask")
+        @SuppressWarnings("deprecation") // Checking that the deprecated API ignores the mask.
+        void readAllIgnoringMask() {
+            var readAllQuery = factory.allWithMask(TEST_ENTITY_TYPE, threeRandomParts());
+            assertNotNull(readAllQuery);
 
-            checkFiltersEmpty(readAllWithPathFilteringQuery);
-            checkTargetIsTestEntity(readAllWithPathFilteringQuery);
-            verifySinglePathInQuery(expectedEntityPath, readAllWithPathFilteringQuery);
+            checkFiltersEmpty(readAllQuery);
+            checkTargetIsTestEntity(readAllQuery);
+            checkFormatEmpty(readAllQuery);
         }
 
         @Test
-        @DisplayName("`read by IDs` with single path mask")
-        void readByIdsWitSinglePath() {
+        @DisplayName("`read by IDs` ignoring the mask")
+        @SuppressWarnings("deprecation") // Checking that the deprecated API ignores the mask.
+        void readByIdsIgnoringMask() {
             var testEntityIds = threeIds();
-            var expectedPath = singleTestEntityPath();
-            var readByIdsWithSinglePathQuery = factory.byIdsWithMask(TEST_ENTITY_TYPE,
-                                                                     testEntityIds, expectedPath);
-            assertNotNull(readByIdsWithSinglePathQuery);
+            var readByIdsQuery = factory.byIdsWithMask(TEST_ENTITY_TYPE,
+                                                       testEntityIds, threeRandomParts());
+            assertNotNull(readByIdsQuery);
 
-            var target = checkTargetIsTestEntity(readByIdsWithSinglePathQuery);
+            var target = checkTargetIsTestEntity(readByIdsQuery);
 
             verifyIdFilter(testEntityIds, target.getFilters());
-            verifySinglePathInQuery(expectedPath, readByIdsWithSinglePathQuery);
-        }
-
-        @Test
-        @DisplayName("`read all` with multiple paths mask")
-        void readAllWithMultiplePaths() {
-            var paths = threeRandomParts();
-            var readAllWithPathFilteringQuery = factory.allWithMask(TEST_ENTITY_TYPE, paths);
-            assertNotNull(readAllWithPathFilteringQuery);
-
-            checkFiltersEmpty(readAllWithPathFilteringQuery);
-            checkTargetIsTestEntity(readAllWithPathFilteringQuery);
-            verifyMultiplePathsInQuery(paths, readAllWithPathFilteringQuery);
-        }
-
-        @Test
-        @DisplayName("`read by IDs` with multiple paths mask")
-        void readByIdsWithMultiplePaths() {
-            var testEntityIds = threeIds();
-            var paths = threeRandomParts();
-            var readByIdsWithSinglePathQuery = factory.byIdsWithMask(TEST_ENTITY_TYPE,
-                                                                     testEntityIds, paths);
-            assertNotNull(readByIdsWithSinglePathQuery);
-
-            var target = checkTargetIsTestEntity(readByIdsWithSinglePathQuery);
-
-            verifyIdFilter(testEntityIds, target.getFilters());
-            verifyMultiplePathsInQuery(paths, readByIdsWithSinglePathQuery);
+            checkFormatEmpty(readByIdsQuery);
         }
     }
 
     @Test
     @DisplayName("fail to create query with mask when id list is empty")
+    @SuppressWarnings("deprecation") // The deprecated API keeps its argument checks.
     void failForEmptyIds() {
         assertThrows(IllegalArgumentException.class,
                      () -> factory.byIdsWithMask(TEST_ENTITY_TYPE, emptySet(), "", ""));
@@ -178,22 +137,6 @@ class QueryFactoryTest {
         }
 
         @Test
-        @DisplayName("by mask")
-        void byMaskConsistently() {
-            var field1 = "TestEntity.firstField";
-            var field2 = "TesEntity.barField";
-
-            var fromFactory = factory.allWithMask(TEST_ENTITY_TYPE, field1, field2);
-            var fromBuilder = factory.select(TEST_ENTITY_TYPE)
-                                     .withMask(field1, field2)
-                                     .build();
-            assertNotEquals(fromBuilder.getId(), fromFactory.getId());
-            var targetFromFactory = fromFactory.getTarget();
-            var targetFromBuilder = fromBuilder.getTarget();
-            assertEquals(targetFromFactory, targetFromBuilder);
-        }
-
-        @Test
         @DisplayName("`read all`")
         void readAllConsistently() {
             var fromFactory = factory.all(TEST_ENTITY_TYPE);
@@ -201,21 +144,6 @@ class QueryFactoryTest {
                                      .build();
             assertEquals(fromFactory.getTarget(), fromBuilder.getTarget());
             assertNotEquals(fromFactory.getId(), fromBuilder.getId());
-        }
-
-        @Test
-        @DisplayName("by IDs with mask")
-        void byIdsWithMaskConsistently() {
-            var field1 = "TestEntity.secondField";
-            var field2 = "TesEntity.fooField";
-
-            var ids = threeIds();
-            var fromFactory = factory.byIdsWithMask(TEST_ENTITY_TYPE, ids, field1, field2);
-            var fromBuilder = factory.select(TEST_ENTITY_TYPE)
-                                     .byId(ids)
-                                     .withMask(field1, field2)
-                                     .build();
-            checkIdQueriesEqual(fromFactory, fromBuilder);
         }
     }
 }

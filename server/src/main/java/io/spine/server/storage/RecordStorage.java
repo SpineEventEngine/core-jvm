@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.storage;
@@ -113,21 +101,23 @@ public abstract class RecordStorage<I, R extends Message> extends AbstractStorag
     }
 
     /**
-     * Reads the message record by the passed identifier and applies the given field mask to it.
+     * Reads the message record by the passed identifier.
+     *
+     * <p>The passed field mask is ignored.
      *
      * @param id
      *         the identifier of the message record to read
      * @param mask
-     *         the field mask to apply
-     * @return the record with the given identifier, after the field mask has been applied to it,
+     *         the ignored field mask
+     * @return the record with the given identifier,
      *         or {@code Optional.empty()} if no record is found by the ID
      * @throws IllegalStateException
      *         if the storage was closed before
+     * @deprecated Field masks are no longer supported. Please use {@link #read(Object)}.
      */
+    @Deprecated
     protected Optional<R> read(I id, FieldMask mask) {
-        checkNotClosed();
-        var query = toQuery(id, mask);
-        return readSingleRecord(query);
+        return read(id);
     }
 
     /**
@@ -163,23 +153,24 @@ public abstract class RecordStorage<I, R extends Message> extends AbstractStorag
     }
 
     /**
-     * Reads all the message records according to the passed record identifiers and returns
-     * each record applying the passed field mask.
+     * Reads all the message records according to the passed record identifiers.
      *
      * <p>The response contains only the records that were found.
+     * The passed field mask is ignored.
      *
      * @param ids
      *         the identifiers of the records to read
      * @param mask
-     *         the mask to apply to each record
+     *         the ignored field mask
      * @return the iterator over the records
      * @throws IllegalStateException
      *         if the storage was closed before
+     * @deprecated Field masks are no longer supported.
+     *         Please use {@link #readAll(Iterable)}.
      */
+    @Deprecated
     protected Iterator<R> readAll(Iterable<I> ids, FieldMask mask) {
-        checkNotClosed();
-        var query = toQuery(ids, mask);
-        return readAll(query);
+        return readAll(ids);
     }
 
     /**
@@ -269,11 +260,15 @@ public abstract class RecordStorage<I, R extends Message> extends AbstractStorag
     }
 
     /**
-     * Creates a new query for the target with the specified ID, which, if it exists, should be
-     * returned according to the specified field mask.
+     * Creates a new query that targets the single record with the specified ID.
+     *
+     * <p>The passed field mask is ignored.
+     *
+     * @deprecated Field masks are no longer supported. Please use {@link #toQuery(Object)}.
      */
+    @Deprecated
     protected RecordQuery<I, R> toQuery(I id, FieldMask mask) {
-        return queryBuilder().id().is(id).withMask(mask).build();
+        return toQuery(id);
     }
 
     /**
@@ -286,10 +281,14 @@ public abstract class RecordStorage<I, R extends Message> extends AbstractStorag
     /**
      * Creates a new query for the targets that have one of the passed identifiers.
      *
-     * <p>The results will contain only the fields specified by the given field mask.
+     * <p>The passed field mask is ignored.
+     *
+     * @deprecated Field masks are no longer supported.
+     *         Please use {@link #toQuery(Iterable)}.
      */
+    @Deprecated
     protected RecordQuery<I, R> toQuery(Iterable<I> ids, FieldMask mask) {
-        return queryBuilder().id().in(ids).withMask(mask).build();
+        return toQuery(ids);
     }
 
     /**
