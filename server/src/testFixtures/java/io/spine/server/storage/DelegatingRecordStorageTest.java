@@ -144,18 +144,6 @@ public abstract class DelegatingRecordStorageTest
         }
 
         @Test
-        @DisplayName("several records according to the query ignoring the `FieldMask` set")
-        void allIgnoringMask() {
-            var records = dozenOfRecords().values();
-            storage().writeBatch(records);
-
-            var query = queryBuilder().withMask(idAndDueDate()).build();
-            var iterator = storage().readAll(query);
-            var actualResults = ImmutableList.copyOf(iterator);
-            assertThat(actualResults).containsExactlyElementsIn(records);
-        }
-
-        @Test
         @DisplayName("several records according to the given limit and ordering")
         void allRecordsWithLimitAndOrdering() {
             var oldest = newState(newId(), DONE, add(currentTime(), fromMinutes(0)));
@@ -288,8 +276,8 @@ public abstract class DelegatingRecordStorageTest
         }
 
         @Test
-        @DisplayName("many records by several columns with the limit ignoring the field mask")
-        void manyRecordsBySeveralColumnsWithLimitIgnoringMask() {
+        @DisplayName("many records by several columns with the limit and descending ordering")
+        void manyRecordsBySeveralColumnsAndLimitDescending() {
             var now = currentTime();
 
             var doneDueYesterday = coupleOfDone(subtract(now, fromDays(1)));
@@ -303,7 +291,6 @@ public abstract class DelegatingRecordStorageTest
 
             var doneAndDueBeforeNow = queryDoneProjects()
                     .where(due_date).isLessThan(now)
-                    .withMask(idAndDueDate())
                     .sortDescendingBy(due_date)
                     .limit(2)
                     .build();

@@ -324,9 +324,6 @@ public abstract class RecordStorage<I, R extends Message> extends AbstractStorag
     /**
      * Performs reading of the message records by executing the passed query.
      *
-     * <p>Implementations must ignore the {@code RecordQuery.mask()} of the query, if set,
-     * and return the records as they are stored, as field masks are no longer supported.
-     *
      * @param query
      *         the query to execute
      * @return iterator over the matching message records
