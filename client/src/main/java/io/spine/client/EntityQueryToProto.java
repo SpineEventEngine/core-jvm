@@ -43,9 +43,6 @@ import static io.spine.query.LogicalOperator.AND;
  * <p>Such a transformation is required in order to transfer the {@code EntityQuery}
  * instances over the wire.
  *
- * <p>The field mask of an {@code EntityQuery} is not transferred, as field masks are
- * no longer supported.
- *
  * @see io.spine.query.EntityQueryBuilder#build(Function)
  */
 public final class EntityQueryToProto implements Function<EntityQuery<?, ?, ?>, Query> {
