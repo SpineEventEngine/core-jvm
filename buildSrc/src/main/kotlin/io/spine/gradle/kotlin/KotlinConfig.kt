@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.gradle.kotlin
@@ -52,6 +40,9 @@ fun KotlinJvmProjectExtension.applyJvmToolchain(version: String) =
 
 /**
  * Opts-in to experimental features that we use in our codebase.
+ *
+ * One flag is deliberately withheld rather than passed — see the comment on
+ * `-Xcontext-parameters` in the body.
  */
 @Suppress("unused")
 fun KotlinCommonCompilerOptions.setFreeCompilerArgs() {
@@ -69,11 +60,23 @@ fun KotlinCommonCompilerOptions.setFreeCompilerArgs() {
         // Native code cannot use the API anyway.
         optIns.add("kotlin.io.path.ExperimentalPathApi")
     }
+    // `-Xcontext-parameters` is deliberately absent. Context parameters are
+    // no longer experimental in the Kotlin version we pin, so at its default
+    // language version (2.4) the flag only produces
+    // "The argument '-Xcontext-parameters' is redundant for the current
+    // language version 2.4."
+    //
+    // Re-add it if Kotlin is ever downgraded below 2.4, or if a compilation
+    // this function configures pins a lower language version while using the
+    // feature. (Precompiled script plugins compile against the Kotlin that
+    // Gradle embeds and are not configured here.)
+    //
+    // Re-check these flags on a Kotlin bump: when the compiler reports one as
+    // redundant, drop it.
     freeCompilerArgs.addAll(
         listOf(
             "-Xskip-prerelease-check",
             "-Xexpect-actual-classes",
-            "-Xcontext-parameters",
             "-opt-in=" + optIns.joinToString(separator = ","),
         )
     )

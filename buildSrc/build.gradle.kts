@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -50,10 +38,19 @@ repositories {
  * This value is deliberately decoupled from [io.spine.dependency.lib.Jackson.version],
  * which now points to Jackson 3.x. The `buildSrc` sources still use the Jackson 2.x API
  * (`com.fasterxml.jackson.*`), so they must stay on a 2.x version until they are migrated
- * to `tools.jackson.*`. Any maintained 2.x release will do — bump this only when `buildSrc`
- * itself needs a fix from a later 2.x, not to track the newest one.
+ * to `tools.jackson.*`.
+ *
+ * The floor is set by the SPDX Gradle Plugin (see [spdxPluginVersion]). Its JSON store
+ * depends on `jackson-bom`, which aligns every Jackson 2.x module on the runtime classpath
+ * of `buildSrc` with the version it requires. A lower version here would compile `buildSrc`
+ * against one Jackson and run it against another. Raise this together with the plugin, or
+ * when `buildSrc` itself needs a fix from a later 2.x — not to track the newest one.
+ *
+ * Whatever the reason for a change, `jackson-core` and `jackson-databind` below `2.18.9`
+ * are exposed to published advisories, three of them rated `high` — `GHSA-r7wm-3cxj-wff9`,
+ * `GHSA-rmj7-2vxq-3g9f`, and `GHSA-j3rv-43j4-c7qm`.
  */
-val jacksonVersion = "2.18.3"
+val jacksonVersion = "2.22.0"
 
 /**
  * The version of Google Artifact Registry used by `buildSrc`.
@@ -145,6 +142,28 @@ val koverVersion = "0.9.9"
 val shadowVersion = "9.6.1"
 
 /**
+ * The version of the SPDX Gradle Plugin, which writes the SBOM published with each module.
+ *
+ * @see <a href="https://plugins.gradle.org/plugin/org.spdx.sbom">SPDX Gradle Plugin</a>
+ */
+val spdxPluginVersion = "0.12.0"
+
+/**
+ * The version of Plexus XML used by `buildSrc`, pinned to the line made for Maven 3.
+ *
+ * The Shadow plugin brings the 4.x line, made for Maven 4. It merges XML through
+ * `maven-xml`, which finds its `XmlService` via the context class loader of the current
+ * thread — a loader that does not see `buildSrc` on the threads Gradle runs tasks on.
+ * The SPDX Gradle Plugin (see [spdxPluginVersion]) builds effective POMs with the Maven 3
+ * model, which merges the plugin configuration of a POM with that of its parent. So with
+ * the 4.x line, the SBOM of a module fails for any dependency whose POM does that.
+ *
+ * The 3.x line implements the same API on its own. Shadow uses only its classic part,
+ * in `ComponentsXmlResourceTransformer`. Update this within the 3.x line only.
+ */
+val plexusXmlVersion = "3.1.0"
+
+/**
  * The version of JUnit used to test the build scripts.
  *
  * @see [io.spine.dependency.test.JUnit]
@@ -163,6 +182,7 @@ configurations.all {
         force(
             "com.google.guava:guava:${guavaVersion}",
             "com.google.protobuf:protobuf-gradle-plugin:$protobufPluginVersion",
+            "org.codehaus.plexus:plexus-xml:$plexusXmlVersion",
 
             // Force Kotlin lib versions avoiding using those bundled with Gradle.
             "org.jetbrains.kotlin:kotlin-stdlib:$kotlinEmbeddedVersion",
@@ -205,7 +225,8 @@ dependencies {
         "org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion",
         "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinEmbeddedVersion",
         "org.jetbrains.kotlin:kotlin-reflect:$kotlinEmbeddedVersion",
-        "org.jetbrains.kotlinx:kover-gradle-plugin:$koverVersion"
+        "org.jetbrains.kotlinx:kover-gradle-plugin:$koverVersion",
+        "org.spdx:spdx-gradle-plugin:$spdxPluginVersion"
     ).forEach {
         implementation(it)
     }

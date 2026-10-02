@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.gradle.publish
@@ -238,6 +226,54 @@ class SpinePublishingTest {
             val repos = subproject.invokePublishTo(extension)
             repos shouldHaveSize 1
             repos shouldContain repo
+        }
+
+        @Test
+        fun `from the parent project if the local extension does not set them`() {
+            val repo = Repository(
+                "parent-repo",
+                "https://example.com/release",
+                "https://example.com/snapshot"
+            )
+            // Root project has its extension named 'spinePublishing' from setUp.
+            extension.destinations = setOf(repo)
+
+            val subproject = ProjectBuilder.builder().withParent(project).withName("sub").build()
+            // Subproject opens its own extension, leaving `destinations` uninitialized.
+            val extensionName = SpinePublishing.extensionName
+            val subExtension =
+                subproject.extensions.create<SpinePublishing>(extensionName, subproject)
+
+            val repos = subproject.invokePublishTo(subExtension)
+            repos shouldHaveSize 1
+            repos shouldContain repo
+        }
+
+        @Test
+        fun `from the local extension even if called through the root one`() {
+            val rootRepo = Repository(
+                "root-repo",
+                "https://example.com/root/release",
+                "https://example.com/root/snapshot"
+            )
+            // Root project has its extension named 'spinePublishing' from setUp.
+            extension.destinations = setOf(rootRepo)
+
+            val subproject = ProjectBuilder.builder().withParent(project).withName("sub").build()
+            val subRepo = Repository(
+                "sub-repo",
+                "https://example.com/sub/release",
+                "https://example.com/sub/snapshot"
+            )
+            // Subproject opens its own extension with different destinations.
+            val extensionName = SpinePublishing.extensionName
+            val subExtension =
+                subproject.extensions.create<SpinePublishing>(extensionName, subproject)
+            subExtension.destinations = setOf(subRepo)
+
+            val repos = subproject.invokePublishTo(extension)
+            repos shouldHaveSize 1
+            repos shouldContain subRepo
         }
     }
 }
