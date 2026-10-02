@@ -84,7 +84,7 @@ public abstract class DelegatingRecordStorage<I, R extends Message> extends Reco
     @Deprecated
     @Override
     protected Optional<R> read(I id, FieldMask mask) {
-        return delegate.read(id, mask);
+        return read(id);
     }
 
     @Override
@@ -106,7 +106,7 @@ public abstract class DelegatingRecordStorage<I, R extends Message> extends Reco
     @Deprecated
     @Override
     protected Iterator<R> readAll(Iterable<I> ids, FieldMask mask) {
-        return delegate.readAll(ids, mask);
+        return readAll(ids);
     }
 
     @Override
@@ -170,7 +170,7 @@ public abstract class DelegatingRecordStorage<I, R extends Message> extends Reco
     @Deprecated
     @Override
     protected RecordQuery<I, R> toQuery(I id, FieldMask mask) {
-        return delegate.toQuery(id, mask);
+        return toQuery(id);
     }
 
     @Override
@@ -188,7 +188,7 @@ public abstract class DelegatingRecordStorage<I, R extends Message> extends Reco
     @Deprecated
     @Override
     protected RecordQuery<I, R> toQuery(Iterable<I> ids, FieldMask mask) {
-        return delegate.toQuery(ids, mask);
+        return toQuery(ids);
     }
 
     @Override
