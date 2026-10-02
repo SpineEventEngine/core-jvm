@@ -85,8 +85,14 @@ internal class DefaultConverterSpec {
             converter.entityStateType(),
             converter.entityFactory()
         )
+        val repoFactory = converter.entityFactory()
+        val otherFactory = DefaultConverter<OrganizationId, TestEntity, Organization>(
+            converter.entityStateType(),
+            object : EntityFactory<TestEntity> by repoFactory {}
+        )
         EqualsTester()
             .addEqualityGroup(converter, sameFields)
+            .addEqualityGroup(otherFactory)
             .testEquals()
     }
 

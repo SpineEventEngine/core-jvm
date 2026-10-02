@@ -14,7 +14,6 @@
 
 package io.spine.server.storage
 
-import com.google.protobuf.FieldMask
 import com.google.protobuf.fieldMask
 import io.kotest.matchers.shouldBe
 import io.spine.server.ContextSpec
@@ -28,16 +27,22 @@ import java.util.Optional
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
-@DisplayName("`DelegatingRecordStorage` should")
-internal class DelegatingRecordStorageSpec {
+@DisplayName("`RecordStorage` should")
+internal class RecordStorageSpec {
 
-    private val context = ContextSpec.singleTenant(DelegatingRecordStorageSpec::class.java.name)
     private val idOnly = fieldMask { paths += "id" }
+
+    private val storage: RecordStorage<StgProjectId, StgProject> =
+        ServerEnvironment.instance()
+            .storageFactory()
+            .createRecordStorage(
+                ContextSpec.singleTenant(RecordStorageSpec::class.java.name),
+                messageSpec()
+            )
 
     @Test
     @Suppress("DEPRECATION") // Reason: verifies the deprecated no-op; delete with the API.
-    fun `read a record ignoring the mask even if its delegate honors masks`() {
-        val storage = storageOverMaskHonoringDelegate()
+    fun `read a record ignoring the mask`() {
         val record = newState()
         storage.write(record.id, record)
 
@@ -46,8 +51,7 @@ internal class DelegatingRecordStorageSpec {
 
     @Test
     @Suppress("DEPRECATION") // Reason: verifies the deprecated no-op; delete with the API.
-    fun `read records ignoring the mask even if its delegate honors masks`() {
-        val storage = storageOverMaskHonoringDelegate()
+    fun `read records ignoring the mask`() {
         val record = newState()
         storage.write(record.id, record)
 
@@ -57,35 +61,9 @@ internal class DelegatingRecordStorageSpec {
     @Test
     @Suppress("DEPRECATION") // Reason: verifies the deprecated no-op; delete with the API.
     fun `create queries ignoring the mask`() {
-        val storage = storageOverMaskHonoringDelegate()
         val id = newId()
 
         storage.toQuery(id, idOnly) shouldBe storage.toQuery(id)
         storage.toQuery(listOf(id), idOnly) shouldBe storage.toQuery(listOf(id))
-    }
-
-    private fun inMemoryStorage(): RecordStorage<StgProjectId, StgProject> =
-        ServerEnvironment.instance()
-            .storageFactory()
-            .createRecordStorage(context, messageSpec())
-
-    /**
-     * Creates a storage delegating to a storage that still honors field masks,
-     * as a storage built against the previous API may do.
-     */
-    @Suppress("OVERRIDE_DEPRECATION") // Reason: mimics a storage built against the old API.
-    private fun storageOverMaskHonoringDelegate():
-            DelegatingRecordStorage<StgProjectId, StgProject> {
-        val maskHonoring =
-            object : DelegatingRecordStorage<StgProjectId, StgProject>(context, inMemoryStorage()) {
-                override fun read(id: StgProjectId, mask: FieldMask): Optional<StgProject> =
-                    Optional.empty()
-
-                override fun readAll(
-                    ids: Iterable<StgProjectId>,
-                    mask: FieldMask
-                ): Iterator<StgProject> = emptyList<StgProject>().iterator()
-            }
-        return object : DelegatingRecordStorage<StgProjectId, StgProject>(context, maskHonoring) {}
     }
 }
