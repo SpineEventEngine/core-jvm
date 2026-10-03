@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.storage;
@@ -56,11 +44,9 @@ import static io.spine.base.Time.currentTime;
 import static io.spine.server.storage.given.GivenStorageProject.StgProjectColumns.due_date;
 import static io.spine.server.storage.given.GivenStorageProject.StgProjectColumns.status;
 import static io.spine.server.storage.given.GivenStorageProject.newState;
-import static io.spine.server.storage.given.DelegatingRecordStorageTestEnv.assertOnlyIdAndDueDate;
 import static io.spine.server.storage.given.DelegatingRecordStorageTestEnv.coupleOfDone;
 import static io.spine.server.storage.given.DelegatingRecordStorageTestEnv.dozenOfRecords;
 import static io.spine.server.storage.given.DelegatingRecordStorageTestEnv.idAndDueDate;
-import static io.spine.server.storage.given.DelegatingRecordStorageTestEnv.toIds;
 import static io.spine.test.storage.StgProject.Status.CREATED;
 import static io.spine.test.storage.StgProject.Status.DONE;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -147,29 +133,14 @@ public abstract class DelegatingRecordStorageTest
     class Query {
 
         @Test
-        @DisplayName("a single record with the particular `FieldMask`")
-        void singleRecordWithMask() {
+        @DisplayName("a single record ignoring the `FieldMask`")
+        @SuppressWarnings("deprecation") // Checking that the deprecated API ignores the mask.
+        void singleRecordIgnoringMask() {
             var record = newState(newId());
             storage().write(record);
 
             var result = storage().read(record.getId(), idAndDueDate());
-            assertThat(result).isPresent();
-            var actual = result.get();
-            assertOnlyIdAndDueDate(actual);
-        }
-
-        @Test
-        @DisplayName("several records according to the query with the `FieldMask` set")
-        void allByMask() {
-            var records = dozenOfRecords().values();
-            storage().writeBatch(records);
-
-            var query = queryBuilder().withMask(idAndDueDate()).build();
-            var iterator = storage().readAll(query);
-            var actualResults = ImmutableList.copyOf(iterator);
-            for (var result : actualResults) {
-                assertOnlyIdAndDueDate(result);
-            }
+            assertThat(result).hasValue(record);
         }
 
         @Test
@@ -194,16 +165,15 @@ public abstract class DelegatingRecordStorageTest
         }
 
         @Test
-        @DisplayName("several records by their IDs and the `FieldMask`")
-        void allByIdsAndMask() {
+        @DisplayName("several records by their IDs ignoring the `FieldMask`")
+        @SuppressWarnings("deprecation") // Checking that the deprecated API ignores the mask.
+        void allByIdsIgnoringMask() {
             var recordMap = dozenOfRecords();
             storage().writeBatch(recordMap.values());
 
             var iterator = storage().readAll(recordMap.keySet(), idAndDueDate());
             var actualResults = ImmutableList.copyOf(iterator);
-            for (var result : actualResults) {
-                assertOnlyIdAndDueDate(result);
-            }
+            assertThat(actualResults).containsExactlyElementsIn(recordMap.values());
         }
 
         @Test
@@ -306,8 +276,8 @@ public abstract class DelegatingRecordStorageTest
         }
 
         @Test
-        @DisplayName("many records by several columns with the limit and the field mask")
-        void manyRecordsBySeveralColumnsWithLimitAndMask() {
+        @DisplayName("many records by several columns with the limit and descending ordering")
+        void manyRecordsBySeveralColumnsAndLimitDescending() {
             var now = currentTime();
 
             var doneDueYesterday = coupleOfDone(subtract(now, fromDays(1)));
@@ -321,18 +291,13 @@ public abstract class DelegatingRecordStorageTest
 
             var doneAndDueBeforeNow = queryDoneProjects()
                     .where(due_date).isLessThan(now)
-                    .withMask(idAndDueDate())
                     .sortDescendingBy(due_date)
                     .limit(2)
                     .build();
 
             var iterator = storage().readAll(doneAndDueBeforeNow);
             var actual = ImmutableList.copyOf(iterator);
-            DelegatingRecordStorageTestEnv.assertHaveIds(actual, toIds(doneDueYesterday));
-
-            for (var readResult : actual) {
-                assertOnlyIdAndDueDate(readResult);
-            }
+            assertThat(actual).containsExactlyElementsIn(doneDueYesterday);
         }
     }
 
@@ -434,6 +399,7 @@ public abstract class DelegatingRecordStorageTest
 
         @Test
         @DisplayName("`read(id, FieldMask)` method")
+        @SuppressWarnings("deprecation") // The deprecated API still checks the storage state.
         void readIdFieldMask() {
             assertISE(() -> storage().read(newId(), idAndDueDate()));
         }
@@ -460,6 +426,7 @@ public abstract class DelegatingRecordStorageTest
 
         @Test
         @DisplayName("`readAll(IDs, FieldMask)` method")
+        @SuppressWarnings("deprecation") // The deprecated API still checks the storage state.
         void readAllByIdsAndMask() {
             assertISE(() -> storage().readAll(ImmutableSet.of(newId()), idAndDueDate()));
         }

@@ -1,28 +1,17 @@
 /*
- * Copyright 2023, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
+
 package io.spine.client
 
 import com.google.common.testing.NullPointerTester
@@ -73,13 +62,13 @@ import com.google.protobuf.Any as AnyProto
 internal class QueryBuilderSpec {
 
     companion object {
-        
+
         private val ACTOR = GivenUserId.of(newUuid())
         private val ZONE_ID = ZoneIds.systemDefault()
 
         val TEST_ENTITY_TYPE: Class<out EntityState<*>> = TestEntity::class.java
         val TEST_ENTITY_TYPE_URL: TypeUrl = TypeUrl.of(TEST_ENTITY_TYPE)
-        
+
         const val SECOND_FIELD = "second_field"
         const val FIRST_FIELD = "first_field"
 
@@ -100,7 +89,7 @@ internal class QueryBuilderSpec {
     operator fun <T: Subject> T.invoke(assertions: T.() -> Unit): Unit = this.assertions()
 
     private lateinit var factory: QueryFactory
-    
+
     @BeforeEach
     fun createFactory() {
         factory = requestFactory().query()
@@ -108,7 +97,7 @@ internal class QueryBuilderSpec {
 
     @Nested
     internal inner class `check arguments and` {
-        
+
         @Test
         @DisplayName(DisplayNames.NOT_ACCEPT_NULLS)
         fun notAcceptNulls() {
@@ -136,12 +125,12 @@ internal class QueryBuilderSpec {
             val select = factory.select(TEST_ENTITY_TYPE)
                 .orderBy(FIRST_FIELD, ASCENDING)
                 .orderBy(FIRST_FIELD, DESCENDING)
-            
+
             assertThrows<IllegalArgumentException> {
-                select.orderBy(FIRST_FIELD, OD_UNKNOWN) 
+                select.orderBy(FIRST_FIELD, OD_UNKNOWN)
             }
             assertThrows<IllegalArgumentException> {
-                select.orderBy(FIRST_FIELD, UNRECOGNIZED) 
+                select.orderBy(FIRST_FIELD, UNRECOGNIZED)
             }
         }
     }
@@ -155,7 +144,6 @@ internal class QueryBuilderSpec {
             query shouldNotBe null
 
             with(query.format) {
-                hasFieldMask() shouldBe false
                 orderByCount shouldBe 0
                 limit shouldBe 0
             }
@@ -176,7 +164,6 @@ internal class QueryBuilderSpec {
             with(query.format) {
                 val expectedOrderBy = orderBy(FIRST_FIELD, ASCENDING)
 
-                hasFieldMask() shouldBe false
                 getOrderBy(0) shouldBe expectedOrderBy
                 limit shouldBe 0
             }
@@ -199,7 +186,6 @@ internal class QueryBuilderSpec {
             with(query.format) {
                 val expectedOrderBy = orderBy(SECOND_FIELD, DESCENDING)
 
-                hasFieldMask() shouldBe false
                 getOrderBy(0) shouldBe expectedOrderBy
                 limit shouldBe expectedLimit
             }
@@ -218,7 +204,6 @@ internal class QueryBuilderSpec {
                 .byId(id1, id2)
                 .build()
             query shouldNotBe null
-            query.format.hasFieldMask() shouldBe false
 
             val target = query.target
             target.includeAll shouldBe false
@@ -239,21 +224,14 @@ internal class QueryBuilderSpec {
         }
 
         @Test
-        fun `by field mask`() {
-            val fieldName = "TestEntity.firstField"
+        @Suppress("DEPRECATION") // Reason: verifies the deprecated no-op; delete with the API.
+        fun `ignoring the field mask`() {
             val query = factory.select(TEST_ENTITY_TYPE)
-                .withMask(fieldName)
+                .withMask("TestEntity.firstField")
+                .withMask(setOf("TestEntity.secondField"))
                 .build()
-            query shouldNotBe null
 
-            val format = query.format
-            format.hasFieldMask() shouldBe true
-
-            val mask = format.fieldMask
-            val fieldNames: Collection<String> = mask.pathsList
-            val assertFieldNames = assertThat(fieldNames)
-            assertFieldNames.hasSize(1)
-            assertFieldNames.contains(fieldName)
+            query.format shouldBe ResponseFormat.getDefaultInstance()
         }
 
         @Test
@@ -396,9 +374,7 @@ internal class QueryBuilderSpec {
             val columnValue1: Any = 42
             val columnName2 = "column2"
             val columnValue2: Any = randomId()
-            val fieldName = "TestEntity.secondField"
             val query = factory.select(TEST_ENTITY_TYPE)
-                .withMask(fieldName)
                 .byId(id1, id2)
                 .where(
                     eq(columnName1, columnValue1),
@@ -408,12 +384,6 @@ internal class QueryBuilderSpec {
                 .limit(limit)
                 .build()
             query shouldNotBe null
-            val format = query.format
-            val mask = format.fieldMask
-            val fieldNames: Collection<String> = mask.pathsList
-            val assertFieldNames = assertThat(fieldNames)
-            assertFieldNames.hasSize(1)
-            assertFieldNames.containsExactly(fieldName)
             val target = query.target
             target.includeAll shouldBe false
             val entityFilters = target.filters
@@ -451,6 +421,7 @@ internal class QueryBuilderSpec {
                 SECOND_FIELD,
                 DESCENDING
             )
+            val format = query.format
             format.getOrderBy(0) shouldBe expectedOrderBy
             format.limit shouldBe limit
         }
@@ -500,24 +471,6 @@ internal class QueryBuilderSpec {
         }
 
         @Test
-        fun `field mask`() {
-            val iterableFields: Iterable<String> = setOf("TestEntity.firstField")
-            val arrayFields = arrayOf("TestEntity.secondField")
-            val query = factory.select(TEST_ENTITY_TYPE)
-                .withMask(iterableFields)
-                .withMask(*arrayFields)
-                .build()
-            query shouldNotBe null
-
-            val mask = query.format.fieldMask
-            val maskFields: Collection<String> = mask.pathsList
-            assertThat(maskFields)
-                .hasSize(arrayFields.size)
-            assertThat(maskFields)
-                .containsAtLeastElementsIn(arrayFields)
-        }
-
-        @Test
         fun limit() {
             val expectedLimit = 10
             val query = factory.select(TEST_ENTITY_TYPE)
@@ -552,9 +505,7 @@ internal class QueryBuilderSpec {
         val columnValue1: Any = 42
         val columnName2 = "column2"
         val columnValue2: Message = randomId()
-        val fieldName = "TestEntity.secondField"
         val builder = factory.select(TEST_ENTITY_TYPE)
-            .withMask(fieldName)
             .byId(id1, id2)
             .where(
                 eq(columnName1, columnValue1),

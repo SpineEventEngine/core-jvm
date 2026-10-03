@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.entity;
@@ -307,23 +295,36 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
      * <p>If the IDs contain duplicates, the result may also contain duplicates
      * depending on a particular implementation.
      *
-     * <p>The resulting entity state must be valid in terms of {@code (required)},
-     * {@code (required_fields)}, and {@code (goes).with} options after the mask is applied.
-     * Otherwise, an {@link InvalidEntityStateException} is thrown.
-     *
      * <p>Note: The storage must be assigned before calling this method.
      *
      * @param ids
      *         entity IDs to search for
-     * @param fieldMask
-     *         the entity state fields to load
      * @return all the entities in this repository with the IDs matching the given {@code Iterable}
      */
-    public Iterator<E> loadAll(Iterable<I> ids, FieldMask fieldMask) {
+    public Iterator<E> loadAll(Iterable<I> ids) {
+        checkNotNull(ids);
         var storage = recordStorage();
-        var records = storage.readAll(ids, fieldMask);
+        var records = storage.readAll(ids);
         var result = transform(records, this::toEntity);
         return result;
+    }
+
+    /**
+     * Loads all the entities in this repository with IDs
+     * contained within the passed {@code ids} values.
+     *
+     * <p>The passed field mask is ignored.
+     *
+     * @param ids
+     *         entity IDs to search for
+     * @param fieldMask
+     *         the ignored field mask
+     * @return all the entities in this repository with the IDs matching the given {@code Iterable}
+     * @deprecated Field masks are no longer supported. Please use {@link #loadAll(Iterable)}.
+     */
+    @Deprecated
+    public Iterator<E> loadAll(Iterable<I> ids, FieldMask fieldMask) {
+        return loadAll(ids);
     }
 
     /**
@@ -335,8 +336,8 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
      *
      * <p>The order of the resulting entity states is defined by {@code ResponseFormat.order_by}.
      *
-     * <p>The resulting entity states have only the specified in {@code ResponseFormat.field_mask}
-     * fields. If the mask is empty, all the fields are retrieved.
+     * <p>The resulting entity states contain all the fields. The deprecated
+     * {@code ResponseFormat.field_mask} is ignored.
      *
      * @param format
      *         the expected format of the response
@@ -353,14 +354,13 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
     }
 
     /**
-     * Finds the entities passing the given filters and applies the given {@link FieldMask}
-     * to the results.
+     * Finds the entities passing the given filters.
      *
      * <p>A number of elements to retrieve can be limited to a certain number. The order of
      * the resulting entities is specified by the {@link OrderBy}.
      *
-     * <p>The field mask is applied according to
-     * <a href="https://goo.gl/tW5wIU">FieldMask specs</a>.
+     * <p>The states of the resulting entities contain all the fields. The deprecated
+     * {@code ResponseFormat.field_mask} is ignored.
      *
      * <p>The field paths in the entity column field filters are specified
      * to contain a single path member - the name of the entity column.

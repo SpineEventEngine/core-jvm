@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.gradle.publish
@@ -110,7 +98,7 @@ sealed class PublicationHandler(
     }
 
     /**
-     * Either handles publications already declared in the associated [project]
+     * Either handles the publications of the associated [project]
      * or creates new ones.
      */
     abstract fun handlePublications()
@@ -143,13 +131,8 @@ sealed class PublicationHandler(
      * current artifact ID is `logging-jvm` (set by the KMP plugin), the resulting
      * artifact ID will be `spine-logging-jvm`.
      *
-     * The Apache Software License 2.0 is set as the only license
-     * under which the published artifact is distributed via [LicenseSettings].
-     *
-     * The source control management attributes are obtained from [DocumentationSettings].
-     *
-     * @see LicenseSettings
-     * @see DocumentationSettings
+     * The attributes describing the project as a whole are set
+     * by [copyProjectWideAttributes].
      */
     protected fun MavenPublication.copyProjectAttributes() {
         groupId = project.group.toString()
@@ -173,6 +156,29 @@ sealed class PublicationHandler(
         }
         version = project.version.toString()
         pom.description.set(project.description)
+        copyProjectWideAttributes()
+    }
+
+    /**
+     * Sets the POM attributes of this [MavenPublication] that describe
+     * the [project] as a whole, rather than the published artifact.
+     *
+     * The inception year of Spine is taken from [InceptionYear].
+     *
+     * The Apache Software License 2.0 is set as the only license
+     * under which the published artifact is distributed via [LicenseSettings].
+     *
+     * The source control management attributes are obtained from [DocumentationSettings].
+     *
+     * Unlike [copyProjectAttributes], this function leaves the coordinates and
+     * the description of the publication intact. So, it also applies to a publication
+     * that identifies something other than the artifact of the project,
+     * such as a Gradle plugin marker.
+     *
+     * @see LicenseSettings
+     * @see DocumentationSettings
+     */
+    protected fun MavenPublication.copyProjectWideAttributes() {
         pom.inceptionYear.set(InceptionYear.value)
         pom.licenses {
             license {

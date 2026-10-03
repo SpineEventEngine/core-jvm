@@ -1,27 +1,15 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.storage;
@@ -29,7 +17,6 @@ package io.spine.server.storage;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import com.google.protobuf.FieldMask;
 import io.spine.base.EntityState;
 import io.spine.base.Identifier;
 import io.spine.client.ArchivedColumn;
@@ -62,7 +49,6 @@ import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.protobuf.util.FieldMaskUtil.fromFieldNumbers;
 import static io.spine.protobuf.AnyPacker.unpack;
-import static io.spine.protobuf.Messages.isDefault;
 import static io.spine.server.ContextSpec.singleTenant;
 import static io.spine.server.storage.given.EntityRecordStorageTestEnv.TestCounterEntity.PROJECT_VERSION_TIMESTAMP;
 import static io.spine.server.storage.given.EntityRecordStorageTestEnv.archive;
@@ -80,7 +66,6 @@ import static io.spine.test.storage.StgProject.Status.CANCELLED;
 import static io.spine.test.storage.StgProject.Status.CANCELLED_VALUE;
 import static io.spine.test.storage.StgProject.Status.DONE;
 import static io.spine.test.storage.StgProject.Status.DONE_VALUE;
-import static io.spine.testing.Assertions.assertMatchesMask;
 import static io.spine.testing.TestValues.nullRef;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.IntStream.range;
@@ -120,12 +105,8 @@ public class EntityRecordStorageTest
     @Test
     @DisplayName("retrieve empty iterator if storage is empty")
     void retrieveEmptyIterator() {
-        var nonEmptyFieldMask = FieldMask.newBuilder()
-                .addPaths("invalid-path")
-                .build();
         EntityRecordStorage<StgProjectId, ?> storage = storage();
         var query = storage.queryBuilder()
-                           .withMask(nonEmptyFieldMask)
                            .build();
         Iterator<?> empty = storage.readAll(query);
 
@@ -172,8 +153,9 @@ public class EntityRecordStorageTest
     class Read {
 
         @Test
-        @DisplayName("single record according to the specific field mask")
-        void singleRecord() {
+        @DisplayName("single record ignoring the field mask")
+        @SuppressWarnings("deprecation") // Checking that the deprecated API ignores the mask.
+        void singleRecordIgnoringMask() {
             var id = newId();
             var record = newStorageRecord(id);
             var storage = storage();
@@ -184,15 +166,13 @@ public class EntityRecordStorageTest
 
             var optional = storage.read(id, idMask);
             assertTrue(optional.isPresent());
-            var entityRecord = optional.get();
-
-            var unpacked = unpack(entityRecord.getState());
-            assertFalse(isDefault(unpacked));
+            assertThat(optional.get()).isEqualTo(record);
         }
 
         @Test
-        @DisplayName("multiple records according to the given field mask")
-        void multipleRecords() {
+        @DisplayName("multiple records ignoring the field mask")
+        @SuppressWarnings("deprecation") // Checking that the deprecated API ignores the mask.
+        void multipleRecordsIgnoringMask() {
             var storage = storage();
             var recordCount = 10;
             var ids =
@@ -208,10 +188,8 @@ public class EntityRecordStorageTest
             List<EntityRecord> actualRecords = ImmutableList.copyOf(iterator);
 
             assertThat(actualRecords).hasSize(halfSize);
-            for (var record : actualRecords) {
-                var state = unpack(record.getState());
-                assertMatchesMask(state, fieldMask);
-            }
+            var fullRecords = ImmutableList.copyOf(storage.readAll(halfOfIds));
+            assertThat(actualRecords).containsExactlyElementsIn(fullRecords);
         }
 
         @SuppressWarnings("rawtypes")

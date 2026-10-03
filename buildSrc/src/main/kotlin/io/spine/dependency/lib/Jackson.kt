@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.dependency.lib
@@ -48,7 +36,7 @@ import io.spine.dependency.DependencyWithBom
 @Suppress("unused", "ConstPropertyName")
 object Jackson : DependencyWithBom() {
     override val group = "tools.jackson"
-    override val version = "3.2.2"
+    override val version = "3.2.3"
 
     /**
      * The version of `jackson-annotations`, which Jackson 3.x deliberately keeps
@@ -72,14 +60,23 @@ object Jackson : DependencyWithBom() {
     // https://github.com/FasterXML/jackson-core
     val core = "$coreGroup:jackson-core"
 
+    /** Returns the coordinates of [core] with the [version]. */
+    fun core(): String = artifact(core)
+
     // https://github.com/FasterXML/jackson-databind
     val databind = "$coreGroup:jackson-databind"
+
+    /** Returns the coordinates of [databind] with the [version]. */
+    fun databind(): String = artifact(databind)
 
     // https://github.com/FasterXML/jackson-annotations
     val annotations = "com.fasterxml.jackson.core:jackson-annotations:$annotationsVersion"
 
     // https://github.com/FasterXML/jackson-module-kotlin/releases
     val moduleKotlin = "$moduleGroup:jackson-module-kotlin"
+
+    /** Returns the coordinates of [moduleKotlin] with the [version]. */
+    fun moduleKotlin(): String = artifact(moduleKotlin)
 
     @Deprecated(
         "The module was merged into `jackson-databind` in Jackson 3.0" +
@@ -104,11 +101,20 @@ object Jackson : DependencyWithBom() {
         // https://github.com/FasterXML/jackson-dataformat-xml/releases
         val xml = "$group:$infix-xml"
 
+        /** Returns the coordinates of [xml] with the [version]. */
+        fun xml(): String = artifact(xml)
+
         // https://github.com/FasterXML/jackson-dataformats-text/releases
         val yaml = "$group:$infix-yaml"
 
+        /** Returns the coordinates of [yaml] with the [version]. */
+        fun yaml(): String = artifact(yaml)
+
         // https://github.com/FasterXML/jackson-dataformats-binary/tree/3.x/protobuf
         val protobuf = "$group:$infix-protobuf"
+
+        /** Returns the coordinates of [protobuf] with the [version]. */
+        fun protobuf(): String = artifact(protobuf)
 
         val xmlArtifact = "$xml:$version"
         val yamlArtifact = "$yaml:$version"
@@ -141,6 +147,9 @@ object Jackson : DependencyWithBom() {
         // https://github.com/FasterXML/jackson-datatypes-collections/tree/3.x/guava
         val guava = "$group:$infix-guava"
 
+        /** Returns the coordinates of [guava] with the [version]. */
+        fun guava(): String = artifact(guava)
+
         @Deprecated(
             "Protobuf support is a data format, not a data type." +
                     " The `$infix-protobuf` artifact has never been published.",
@@ -152,8 +161,14 @@ object Jackson : DependencyWithBom() {
         // https://github.com/FasterXML/jackson-datatypes-misc/tree/3.x/javax-money
         val javaXMoney = "$group:$infix-javax-money"
 
+        /** Returns the coordinates of [javaXMoney] with the [version]. */
+        fun javaXMoney(): String = artifact(javaXMoney)
+
         // https://github.com/FasterXML/jackson-datatypes-misc/tree/3.x/moneta
         val moneta = "$group:$infix-moneta"
+
+        /** Returns the coordinates of [moneta] with the [version]. */
+        fun moneta(): String = artifact(moneta)
 
         override val modules = listOf(
             guava,

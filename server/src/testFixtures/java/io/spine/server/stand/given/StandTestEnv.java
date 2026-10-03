@@ -1,27 +1,15 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.stand.given;
@@ -34,7 +22,6 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.protobuf.Any;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Duration;
-import com.google.protobuf.FieldMask;
 import com.google.protobuf.Message;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
@@ -89,7 +76,6 @@ import static io.spine.grpc.StreamObservers.noOpObserver;
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.server.entity.given.Given.projectionOfClass;
 import static io.spine.test.projection.Project.Status.STARTED;
-import static io.spine.testing.Assertions.assertMatchesMask;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -440,12 +426,15 @@ public final class StandTestEnv {
 
     /**
      * Observes the results of the query sent to read the {@link Project} entity states via Stand.
+     *
+     * <p>Expects each of the returned states to contain all the fields that
+     * {@link #storeSampleProject(StandTestProjectionRepository, ProjectId, String, int)
+     * storeSampleProject(..)} sets.
      */
     public static final class AssertProjectQueryResults extends MemoizeQueryResponseObserver {
 
         private final ImmutableSet<ProjectId> ids;
         private final int projectVersion;
-        private final FieldMask fieldMask;
 
         /**
          * Creates a new version of this observer taking the expected values as parameters.
@@ -454,13 +443,10 @@ public final class StandTestEnv {
          *         the IDs of the projects which should be returned in the query results
          * @param version
          *         the version each of the {@code Project}s in the query results
-         * @param mask
-         *         the field mask to which each of the returned entity states is expected to conform
          */
-        public AssertProjectQueryResults(Set<ProjectId> ids, int version, FieldMask mask) {
+        public AssertProjectQueryResults(Set<ProjectId> ids, int version) {
             this.ids = ImmutableSet.copyOf(ids);
             projectVersion = version;
-            fieldMask = mask;
         }
 
         @Override
@@ -472,7 +458,9 @@ public final class StandTestEnv {
                 var state = stateWithVersion.getState();
                 var project = unpack(state, Project.class);
                 assertThat(project).isNotNull();
-                assertMatchesMask(project, fieldMask);
+                assertThat(ids).contains(project.getId());
+                assertThat(project.getName()).isNotEmpty();
+                assertThat(project.getStatus()).isEqualTo(STARTED);
 
                 var version = stateWithVersion.getVersion();
                 assertThat(version.getNumber())

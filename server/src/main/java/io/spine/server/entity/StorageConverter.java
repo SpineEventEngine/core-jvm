@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.entity;
@@ -56,15 +44,39 @@ public abstract class StorageConverter<I, E extends Entity<I, S>, S extends Enti
 
     private final TypeUrl entityStateType;
     private final EntityFactory<E> entityFactory;
-    private final FieldMask fieldMask;
 
+    /**
+     * Creates a new converter.
+     *
+     * @param entityStateType
+     *         the type URL of the state of entities that this converter builds
+     * @param factory
+     *         the factory that creates the entities
+     */
+    protected StorageConverter(TypeUrl entityStateType, EntityFactory<E> factory) {
+        super();
+        this.entityFactory = factory;
+        this.entityStateType = entityStateType;
+    }
+
+    /**
+     * Creates a new converter ignoring the passed field mask.
+     *
+     * @param entityStateType
+     *         the type URL of the state of entities that this converter builds
+     * @param factory
+     *         the factory that creates the entities
+     * @param fieldMask
+     *         the ignored field mask
+     * @deprecated Field masks are no longer supported.
+     *         Please use {@link #StorageConverter(TypeUrl, EntityFactory)}.
+     */
+    @Deprecated
     protected StorageConverter(TypeUrl entityStateType,
                                EntityFactory<E> factory,
                                FieldMask fieldMask) {
-        super();
-        this.fieldMask = checkNotNull(fieldMask);
-        this.entityFactory = factory;
-        this.entityStateType = entityStateType;
+        this(entityStateType, factory);
+        checkNotNull(fieldMask);
     }
 
     /**
@@ -82,17 +94,35 @@ public abstract class StorageConverter<I, E extends Entity<I, S>, S extends Enti
     }
 
     /**
-     * Obtains the field mask used by this converter to trim the state of entities before the state
-     * is {@linkplain #injectState(Entity, EntityState, EntityRecord) injected} into entities.
+     * Returns the default instance of {@code FieldMask}.
+     *
+     * <p>Formerly, this method obtained the field mask used by this converter to trim
+     * the state of entities.
+     *
+     * @deprecated Field masks are no longer supported. The converter does not trim
+     *         the state of entities. Please remove the calls and overrides.
      */
+    @Deprecated
     protected FieldMask fieldMask() {
-        return this.fieldMask;
+        return FieldMask.getDefaultInstance();
     }
 
     /**
-     * Creates a copy of this converter modified with the passed field mask.
+     * Returns this converter.
+     *
+     * <p>Formerly, this method created a copy of this converter modified with
+     * the passed field mask.
+     *
+     * @param fieldMask
+     *         the ignored field mask
+     * @return this converter
+     * @deprecated Field masks are no longer supported. Please remove the call.
      */
-    public abstract StorageConverter<I, E, S> withFieldMask(FieldMask fieldMask);
+    @Deprecated
+    public StorageConverter<I, E, S> withFieldMask(FieldMask fieldMask) {
+        checkNotNull(fieldMask);
+        return this;
+    }
 
     @Override
     protected EntityRecord doForward(E entity) {
@@ -135,8 +165,7 @@ public abstract class StorageConverter<I, E extends Entity<I, S>, S extends Enti
     @Override
     @SuppressWarnings({"unchecked", "ConstantValue"})
     protected E doBackward(EntityRecord entityRecord) {
-        var unpacked = (S) unpack(entityRecord.getState());
-        var state = FieldMasks.applyMask(fieldMask(), unpacked);
+        var state = (S) unpack(entityRecord.getState());
         var id = (I) Identifier.unpack(entityRecord.getEntityId());
         var entity = entityFactory.create(id);
         checkState(entity != null, "`EntityFactory` produced `null` entity.");
@@ -172,7 +201,7 @@ public abstract class StorageConverter<I, E extends Entity<I, S>, S extends Enti
 
     @Override
     public int hashCode() {
-        return Objects.hash(entityFactory, entityStateType, fieldMask);
+        return Objects.hash(entityFactory, entityStateType);
     }
 
     @Override
@@ -181,7 +210,6 @@ public abstract class StorageConverter<I, E extends Entity<I, S>, S extends Enti
                 ||
                 ((obj instanceof StorageConverter<?, ?, ?> other)
                         && Objects.equals(this.entityStateType, other.entityStateType)
-                        && Objects.equals(this.entityFactory, other.entityFactory)
-                        && Objects.equals(this.fieldMask, other.fieldMask));
+                        && Objects.equals(this.entityFactory, other.entityFactory));
     }
 }

@@ -1,37 +1,23 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.storage.memory;
 
 import com.google.common.collect.Iterators;
-import com.google.protobuf.FieldMask;
 import com.google.protobuf.Message;
 import io.spine.query.RecordQuery;
 import io.spine.query.Subject;
-import io.spine.server.storage.FieldMaskApplier;
 import io.spine.server.storage.RecordWithColumns;
 
 import java.util.HashMap;
@@ -41,11 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Maps.filterValues;
-import static io.spine.protobuf.AnyPacker.pack;
-import static io.spine.protobuf.AnyPacker.unpack;
-import static io.spine.server.entity.FieldMasks.applyMask;
 import static io.spine.server.storage.memory.RecordComparator.accordingTo;
 import static java.util.Collections.synchronizedMap;
 import static java.util.stream.Collectors.toList;
@@ -85,15 +67,6 @@ final class TenantRecords<I, R extends Message>
         records.put(id, record);
     }
 
-    /**
-     * Returns the message with the passed identifier and applies the given field mask to it.
-     *
-     * <p>If there is no such message stored, returns {@code Optional.empty()}.
-     */
-    public Optional<R> get(I id, FieldMask mask) {
-        return get(id).map(r -> new FieldMaskApplier<R>(mask).apply(r.record()));
-    }
-
     @Override
     public Optional<RecordWithColumns<I, R>> get(I id) {
         var record = records.get(id);
@@ -104,12 +77,15 @@ final class TenantRecords<I, R extends Message>
         return records.remove(id) != null;
     }
 
+    /**
+     * Reads the records matching the passed query.
+     *
+     * <p>The field mask of the query is ignored, as field masks are no longer supported.
+     */
     Iterator<R> readAll(RecordQuery<I, R> query) {
-        var fieldMask = query.mask();
         var records = findRecords(query);
         return records.stream()
                 .map(RecordWithColumns::record)
-                .map(new FieldMaskApplier<>(fieldMask))
                 .iterator();
     }
 

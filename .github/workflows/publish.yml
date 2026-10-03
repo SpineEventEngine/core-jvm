@@ -1,5 +1,28 @@
 name: Publish
 
+# A thin caller. The job body — checkout, credentials, the Gradle publication
+# and the attestation — is the reusable `publishing.yml` hosted by `config`,
+# which the `uses:` line below points at. Keeping the body out of this
+# repository is what makes the attestation's signer `config` rather than this
+# file (SLSA Build Level 3); the comments in `publishing.yml` explain the
+# mechanism.
+#
+# `CONFIG_COMMIT` is a placeholder, not a ref: `migrate` replaces it on every
+# `./config/pull` with the commit of `config` this repository pins as its
+# submodule, so the workflow steps and `buildSrc` always come from the same
+# commit. It is never edited by hand.
+#
+# The permission grant is the union of what the two called jobs declare — a
+# called workflow can keep or reduce what it is given, never raise it — and
+# `secrets: inherit` passes the repository secrets the decryption steps need.
+
+# Consumers verify an artifact against the branch it was published from
+# (`gh attestation verify --source-ref`), which means something only while a
+# ruleset protects that branch. Publishing from `v<major>.x` release branches
+# takes `'v*.x'` added to this trigger in the template in `config`, not in a
+# consumer's copy, which `./config/pull` overwrites. The template reaches every
+# repository that publishes, so first make each of their rulesets cover that
+# pattern, including the creation of such branches.
 on:
   push:
     branches: [master]
@@ -7,75 +30,11 @@ on:
 jobs:
   publish:
     name: Publish to Maven repositories
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          submodules: 'true'
-
-      - uses: actions/setup-java@v5
-        with:
-          java-version: 17
-          distribution: zulu
-
-      - uses: gradle/actions/setup-gradle@v6
-
-      - name: Decrypt CloudRepo credentials
-        run: ./config/scripts/decrypt.sh "$CLOUDREPO_CREDENTIALS_KEY" ./.github/keys/cloudrepo.properties.gpg ./cloudrepo.properties
-        env:
-          CLOUDREPO_CREDENTIALS_KEY: ${{ secrets.CLOUDREPO_CREDENTIALS_KEY }}
-
-      - name: Decrypt Git SSH credentials
-        run: ./config/scripts/decrypt.sh "$GIT_CREDENTIALS_KEY" ./.github/keys/deploy_key_rsa.gpg ./deploy_key_rsa
-        env:
-          GIT_CREDENTIALS_KEY: ${{ secrets.GIT_CREDENTIALS_KEY }}
-
-        # Make sure the SSH key is not "too visible". SSH agent will not accept it otherwise.
-      - name: Set file system permissions
-        run: chmod 400 ./deploy_key_rsa && chmod +x ./config/scripts/register-ssh-key.sh
-
-      - name: Decrypt GCS credentials
-        run: ./config/scripts/decrypt.sh "$GCS_CREDENTIALS_KEY" ./.github/keys/gcs-auth-key.json.gpg ./gcs-auth-key.json
-        env:
-          GCS_CREDENTIALS_KEY: ${{ secrets.GCS_CREDENTIALS_KEY }}
-
-      - name: Decrypt GCAR credentials
-        run: ./config/scripts/decrypt.sh "$MAVEN_PUBLISHER_KEY" ./.github/keys/maven-publisher.json.gpg ./maven-publisher.json
-        env:
-          MAVEN_PUBLISHER_KEY: ${{ secrets.MAVEN_PUBLISHER_KEY }}
-
-      - name: Decrypt Git SSH credentials
-        run: ./config/scripts/decrypt.sh "$GRADLE_PORTAL_CREDENTIALS_KEY" ./.github/keys/gradle-plugin-portal.secret.properties.gpg ./gradle-plugin-portal.secret.properties
-        env:
-          GRADLE_PORTAL_CREDENTIALS_KEY: ${{ secrets.GRADLE_PORTAL_CREDENTIALS_KEY }}
-
-      - name: Append Gradle properties
-        run: cat ./gradle-plugin-portal.secret.properties >> ./gradle.properties
-
-      - name: Publish artifacts to Maven
-        # Since we're in the `master` branch already, this means that tests of a PR passed.
-        # So, no need to run the tests again when publishing.
-        run: ./gradlew publish -x test --stacktrace
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          FORMAL_GIT_HUB_PAGES_AUTHOR: developers@spine.io
-          # https://docs.github.com/en/actions/reference/environment-variables
-          REPO_SLUG: ${{ github.repository }}    # e.g. SpineEventEngine/core-jvm
-          GOOGLE_APPLICATION_CREDENTIALS: ./maven-publisher.json
-          NPM_TOKEN: ${{ secrets.NPM_SECRET }}
-
-      # A failed publication on `master` is most often a version collision: a stale
-      # duplicate bump merged before `revalidate-versions.yml` could turn it red (the
-      # narrow auto-merge race). The artifact is safe — the registry rejects the
-      # overwrite — but the fix needs a human/agent, so make the failure loud and
-      # actionable instead of a quiet red run.
-      - name: Report a failed publication
-        if: failure()
-        shell: bash
-        run: |
-          echo "::error title=Publish failed::Publishing to Maven failed on the base branch. If this is a version collision, the version is already published (immutable). Bump 'version.gradle.kts' on the base branch (e.g. via a small PR) and re-run this workflow."
-          echo "Publish failed. If the cause is a version collision:"
-          echo "  1. Bump 'version.gradle.kts' on the base branch to the next free version."
-          echo "  2. Re-run this 'Publish' workflow."
-          echo "Stale duplicate bumps are normally caught before merge by 'revalidate-versions.yml'."
+    uses: SpineEventEngine/config/.github/workflows/publishing.yml@94a9e08b70625d251dc3ecc0b7241d557a4b9586
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+    secrets: inherit
