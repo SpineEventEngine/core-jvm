@@ -52,13 +52,11 @@ final class KeyLocks<K> {
      * Runs the passed action holding the lock of the passed key.
      */
     void run(K key, Runnable action) {
-        var lock = retain(key);
-        lock.lock();
+        var lock = acquire(key);
         try {
             action.run();
         } finally {
-            lock.unlock();
-            release(key);
+            release(key, lock);
         }
     }
 
@@ -68,13 +66,11 @@ final class KeyLocks<K> {
      * @return the result of the action
      */
     <T> T evaluate(K key, Supplier<T> action) {
-        var lock = retain(key);
-        lock.lock();
+        var lock = acquire(key);
         try {
             return action.get();
         } finally {
-            lock.unlock();
-            release(key);
+            release(key, lock);
         }
     }
 
@@ -89,29 +85,33 @@ final class KeyLocks<K> {
     }
 
     /**
-     * Obtains the lock of the passed key, creating the lock if it is not in use yet.
+     * Locks the lock of the passed key, waiting if another thread holds it.
      *
-     * <p>Counts the caller among the users of the lock, so that the lock is not disposed
-     * while the caller awaits or holds it. The caller must call {@link #release(Object)
-     * release()} when it no longer needs the lock.
+     * <p>The lock is created if it is not in use yet. The caller is counted among the users
+     * of the lock before it starts waiting, so that the lock is not disposed meanwhile.
+     *
+     * @return the lock, to be passed to {@code release()} when the caller is done
      */
-    private Lock retain(K key) {
+    @SuppressWarnings("LockAcquiredButNotSafelyReleased" /* Unlocked by `release()`. */)
+    private CountedLock acquire(K key) {
         var counted = locks.compute(key, (k, existing) -> {
             var result = existing != null ? existing : new CountedLock();
             result.users++;
             return result;
         });
-        return counted.lock;
+        counted.lock.lock();
+        return counted;
     }
 
     /**
-     * Records that the caller no longer uses the lock of the passed key, disposing the lock
-     * if no other call awaits or holds it.
+     * Unlocks the passed lock of the passed key, disposing the lock if no other call awaits
+     * or holds it.
      */
-    private void release(K key) {
-        locks.computeIfPresent(key, (k, counted) -> {
-            counted.users--;
-            return counted.users == 0 ? null : counted;
+    private void release(K key, CountedLock counted) {
+        counted.lock.unlock();
+        locks.computeIfPresent(key, (k, existing) -> {
+            existing.users--;
+            return existing.users == 0 ? null : existing;
         });
     }
 

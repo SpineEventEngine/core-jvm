@@ -90,9 +90,11 @@ A lock per key that exists only while a call holds or awaits it.
 - `ReentrantLock` keeps the reentrancy `synchronized` had, and does not pin
   a virtual thread's carrier during I/O on JDK 21–23 the way a monitor does.
 - Live locks ≤ calls in progress. Nothing to tune, nothing to leak.
-- `lock()` sits directly in front of the `try` whose `finally` unlocks, in
-  `run()` and in `evaluate()`. The counting lives apart, in `retain()` and
-  `release()`.
+- The lifecycle of a lock — count the caller, lock, unlock, discount the
+  caller — lives in `acquire()` and `release()`, which `run()` and `evaluate()`
+  share. `lock()` and `unlock()` therefore sit in different methods, and the IDEA
+  inspection asking for them to share one `try`/`finally` is suppressed on
+  `acquire()`.
 
 ### 2. `RepositoryCache` — same public API, same logic, narrower lock
 
