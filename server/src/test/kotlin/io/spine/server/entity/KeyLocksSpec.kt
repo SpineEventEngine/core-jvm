@@ -42,7 +42,7 @@ internal class KeyLocksSpec {
     fun `run actions on different keys in parallel`() {
         val gate = Gate()
         val holding = Worker { locks.run(A) { gate.pass() } }
-        gate.awaitReached()
+        gate.awaitReached(by = holding)
 
         Worker { locks.evaluate(B) { "done" } }.result() shouldBe "done"
 
@@ -61,7 +61,7 @@ internal class KeyLocksSpec {
                 gate.pass()
             }
         }
-        gate.awaitReached()
+        gate.awaitReached(by = first)
 
         val second = Worker { locks.run(A) { started.incrementAndGet() } }
         second.awaitBlocked()
@@ -95,7 +95,7 @@ internal class KeyLocksSpec {
     fun `keep a lock awaited by another thread`() {
         val firstGate = Gate()
         val first = Worker { locks.run(A) { firstGate.pass() } }
-        firstGate.awaitReached()
+        firstGate.awaitReached(by = first)
         val secondGate = Gate()
         val second = Worker { locks.run(A) { secondGate.pass() } }
         second.awaitBlocked()
@@ -103,7 +103,7 @@ internal class KeyLocksSpec {
         // The first thread leaves, and the second one takes over the lock.
         firstGate.open()
         first.result()
-        secondGate.awaitReached()
+        secondGate.awaitReached(by = second)
 
         // The third thread must wait for the second one.
         val thirdStarted = AtomicBoolean(false)

@@ -20,10 +20,13 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.FutureTask
 import java.util.concurrent.TimeUnit.SECONDS
 import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.TimeSource
 
 /**
  * Runs the given action in a thread of its own, giving a test access to the outcome
- * of the action and letting it wait until the thread stops at a lock.
+ * of the action and letting the test wait until the thread stops at a lock.
  *
  * The thread is started right away.
  *
@@ -35,7 +38,7 @@ internal class Worker<T>(action: () -> T) {
 
     private val task = FutureTask(action)
 
-    private val thread = Thread(task, "test-worker").apply {
+    private val thread = Thread(task, "test-worker-${created.incrementAndGet()}").apply {
         isDaemon = true
         start()
     }
@@ -52,15 +55,22 @@ internal class Worker<T>(action: () -> T) {
      * A thread awaiting a monitor is `BLOCKED`, and a thread awaiting
      * a `java.util.concurrent` lock is `WAITING`. A thread held at a [Gate] is neither:
      * it waits with a timeout. The state must persist over several probes, so that
-     * a brief stop at an unrelated lock — e.g., the one of a class loader — is not
+     * a brief stop at an unrelated lock — e.g., the lock of a class loader — is not
      * taken for the awaited one.
+     *
+     * If the action completes instead, fails right away — with the failure of the action,
+     * if there is one.
      */
     fun awaitBlocked() {
-        val deadline = System.nanoTime() + SECONDS.toNanos(WAIT_LIMIT_SECONDS)
+        val deadline = TimeSource.Monotonic.markNow() + WAIT_LIMIT_SECONDS.seconds
         var probes = 0
         while (probes < STEADY_PROBES) {
+            if (isDone) {
+                result()
+                error("The worker completed instead of stopping at a lock.")
+            }
             val state = thread.state
-            check(System.nanoTime() < deadline) {
+            check(deadline.hasNotPassedNow()) {
                 "The worker did not stop at a lock in time. Its state is `$state`."
             }
             probes = if (state == BLOCKED || state == WAITING) probes + 1 else 0
@@ -79,7 +89,9 @@ internal class Worker<T>(action: () -> T) {
         } catch (e: ExecutionException) {
             throw e.cause ?: e
         } catch (e: TimeoutException) {
-            throw IllegalStateException("The worker did not complete in time.", e)
+            throw IllegalStateException(
+                "The worker did not complete in time. Its state is `${thread.state}`.", e
+            )
         }
 
     private companion object {
@@ -89,6 +101,9 @@ internal class Worker<T>(action: () -> T) {
          */
         const val STEADY_PROBES = 20
 
-        const val PROBE_INTERVAL_MILLIS = 2L
+        /**
+         * The number of workers created so far, which gives the threads distinct names.
+         */
+        val created = AtomicInteger()
     }
 }

@@ -15,20 +15,29 @@
 package io.spine.server.entity.given.concurrency
 
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit.MILLISECONDS
 import java.util.concurrent.TimeUnit.SECONDS
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.TimeSource
 
 /**
- * The longest a test waits for something that is expected to happen, in seconds.
+ * The longest time, in seconds, that a test waits for something that is expected to happen.
  *
  * Only a failing test waits this long.
  */
 internal const val WAIT_LIMIT_SECONDS = 10L
 
 /**
+ * How often, in milliseconds, a test probes a [Worker] it is waiting for.
+ */
+internal const val PROBE_INTERVAL_MILLIS = 2L
+
+/**
  * A point in the code under test at which a thread stops until the test lets it go.
  *
- * The thread under test calls [pass]. The test calls [awaitReached] to learn that
- * the thread has arrived, does what it has to do while the thread is held, and then calls [open].
+ * The thread of a [Worker] calls [pass]. The test calls [awaitReached] to learn that
+ * the worker has arrived, does what it has to do while the worker is held, and then
+ * calls [open].
  */
 internal class Gate {
 
@@ -40,6 +49,9 @@ internal class Gate {
      * until the gate is [opened][open].
      *
      * Returns right away if the gate is already open.
+     *
+     * The thread waits with a timeout, so its state is `TIMED_WAITING`. This is how
+     * [Worker.awaitBlocked] tells a thread held at a gate from a thread stopped at a lock.
      */
     fun pass() {
         reached.countDown()
@@ -47,10 +59,23 @@ internal class Gate {
     }
 
     /**
-     * Waits until a thread arrives at the gate.
+     * Waits until the given worker arrives at the gate.
+     *
+     * If the worker completes without arriving, fails right away — with the failure
+     * of the worker, if there is one.
+     *
+     * @param by The worker expected at the gate.
      */
-    fun awaitReached() {
-        check(reached.await(WAIT_LIMIT_SECONDS, SECONDS)) { "No thread reached the gate in time." }
+    fun awaitReached(by: Worker<*>) {
+        val deadline = TimeSource.Monotonic.markNow() + WAIT_LIMIT_SECONDS.seconds
+        while (!reached.await(PROBE_INTERVAL_MILLIS, MILLISECONDS)) {
+            // A completed worker has made all its calls, so the count is final.
+            if (by.isDone && reached.count > 0) {
+                by.result()
+                error("The worker completed without reaching the gate.")
+            }
+            check(deadline.hasNotPassedNow()) { "The worker did not reach the gate in time." }
+        }
     }
 
     /**

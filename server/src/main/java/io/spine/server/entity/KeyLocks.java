@@ -34,8 +34,9 @@ import java.util.function.Supplier;
  * time, rather than by the number of keys passed to this object.
  *
  * <p>The locks are reentrant: an action may run another action on the same key. An action
- * may also run an action on a different key. As with any locks, two threads doing so for
- * each other's keys at the same time block each other forever.
+ * may also run an action on a different key. As with any locks, this can deadlock: if each
+ * of two threads holds the lock of one key and runs an action on the key locked by the
+ * other, both wait forever.
  *
  * @param <K>
  *         the type of keys

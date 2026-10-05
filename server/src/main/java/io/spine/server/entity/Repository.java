@@ -118,7 +118,7 @@ public abstract class Repository<I, E extends Entity<I, ?>>
     /**
      * Create a new entity instance with its default state.
      *
-     * <p>May be called concurrently for different identifiers.
+     * <p>May be called concurrently for different entities.
      *
      * @param id the id of the entity
      * @return new entity instance

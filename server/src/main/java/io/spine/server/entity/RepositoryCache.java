@@ -58,7 +58,7 @@ import static java.lang.String.format;
  *
  * <p>The operations on the same entity — that is, on the same identifier within the same
  * tenant — are mutually exclusive. The operations on different entities do not wait for
- * each other, even while the function loading or storing an entity is running.
+ * each other, even while the {@code Load} or {@code Store} function is running.
  *
  * @param <I>
  *         the type of {@code Entity} identifiers
