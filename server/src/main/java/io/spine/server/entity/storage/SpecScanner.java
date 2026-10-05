@@ -1,37 +1,28 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.entity.storage;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.errorprone.annotations.Immutable;
 import com.google.protobuf.Any;
+import com.google.protobuf.InvalidProtocolBufferException;
 import io.spine.annotation.SPI;
 import io.spine.base.EntityState;
 import io.spine.base.Identifier;
 import io.spine.client.ArchivedColumn;
+import io.spine.protobuf.Messages;
 import io.spine.query.Column;
 import io.spine.query.Column.Getter;
 import io.spine.query.EntityColumn;
@@ -41,15 +32,13 @@ import io.spine.server.entity.EntityRecord;
 import io.spine.server.entity.model.EntityClass;
 import io.spine.server.storage.RecordSpec;
 import io.spine.server.storage.RecordSpec.ExtractId;
+import io.spine.type.UnexpectedTypeException;
 import org.jspecify.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.util.Exceptions.newIllegalStateException;
 import static java.util.Objects.requireNonNull;
 
@@ -145,13 +134,12 @@ public final class SpecScanner {
         var stateClass = EntityClass.<S>stateClassOf(cls);
         Set<RecordColumn<EntityRecord, ?>> accumulator = new HashSet<>();
 
-        var unpacker = new MemoizingUnpacker<>(stateClass);
         var stateColumns = stateColumns(stateClass);
         for (var stateCol : stateColumns) {
             var columnName = stateCol.name();
             var columnType = castObject(stateCol);
             var recordColumn = new RecordColumn<>(columnName, columnType,
-                                                  getter(stateCol, unpacker));
+                                                  getter(stateCol, stateClass));
             accumulator.add(recordColumn);
         }
 
@@ -177,11 +165,11 @@ public final class SpecScanner {
 
     @SuppressWarnings({
             "ReturnOfNull", "DataFlowIssue" /* Returning `null` by design. */,
-            "Immutable" /* Unpacker and state column are effectively immutable for given state. */
+            "Immutable" /* `Column` is not annotated, though state-based columns are immutable. */
     })
     private static <I, S extends EntityState<I>>
-    Getter<EntityRecord, Object> getter(Column<S, ?> stateColumn,
-                                        MemoizingUnpacker<I, S> unpacker) {
+    Getter<EntityRecord, Object> getter(Column<S, ?> stateColumn, Class<S> stateClass) {
+        var unpacker = new StateUnpacker<>(stateClass);
         return r -> {
             var state = r.getState();
             if (state.equals(Any.getDefaultInstance())) {
@@ -189,7 +177,7 @@ public final class SpecScanner {
                 // if its visibility does not allow querying.
                 return null;
             }
-            var value = stateColumn.valueIn(unpacker.process(state));
+            var value = stateColumn.valueIn(unpacker.unpack(state));
             return requireNonNull(value);
         };
     }
@@ -246,35 +234,42 @@ public final class SpecScanner {
     }
 
     /**
-     * Unpacks Entity states from {@code Any} instances, caching the unpacked results.
+     * Unpacks the states of entities of one type from the {@code Any} instances
+     * held by the records of these entities.
      *
-     * <p>This routine is used as a scoped cache for on-the-fly unpacking Entity state
-     * from {@code EntityRecord}s, and then passing them on to other operations,
-     * such as determining the column values.
+     * <p>The values of the state-based columns of a record are read one by one, and each
+     * of the column getters needs the unpacked state. All of them read the same instance
+     * of {@code Any}, which is the {@code state} field of the record. This class asks that
+     * instance to unpack itself, because an {@code Any} remembers the message it unpacked.
+     * Hence, the state of a record is unpacked once, however many columns the record has.
+     * The unpacked message lives as long as the {@code Any} that remembers it.
      *
-     * @param <I>
-     *         type of entity identifier
+     * <p>This class keeps nothing between calls, which {@code @Immutable} enforces.
+     *
      * @param <S>
-     *         type of entity state
+     *         the type of the entity state
      */
-    private static final class MemoizingUnpacker<I, S extends EntityState<I>> {
+    @Immutable
+    private static final class StateUnpacker<S extends EntityState<?>> {
 
-        private final Class<S> stateCls;
+        private final S defaultState;
 
-        private final Map<Any, S> cache = new HashMap<>();
-
-        private MemoizingUnpacker(Class<S> cls) {
-            stateCls = cls;
+        private StateUnpacker(Class<S> stateClass) {
+            this.defaultState = Messages.getDefaultInstance(stateClass);
         }
 
-        private synchronized S process(Any value) {
-            var alreadyUnpacked = cache.get(value);
-            if (alreadyUnpacked != null) {
-                return alreadyUnpacked;
+        /**
+         * Unpacks the entity state from the passed {@code Any}.
+         *
+         * @throws UnexpectedTypeException
+         *         if the passed {@code Any} cannot be unpacked into the state type
+         */
+        private S unpack(Any packed) {
+            try {
+                return packed.unpackSameTypeAs(defaultState);
+            } catch (InvalidProtocolBufferException e) {
+                throw new UnexpectedTypeException(e);
             }
-            var state = unpack(value, stateCls);
-            cache.put(value, state);
-            return state;
         }
     }
 }
