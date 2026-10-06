@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.delivery;
@@ -37,6 +25,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.Streams.stream;
 import static io.spine.server.delivery.InboxColumn.inbox_shard;
 import static io.spine.server.delivery.InboxColumn.received_at;
@@ -54,6 +43,10 @@ import static java.util.stream.Collectors.toList;
  * <p>Typically, the storage instance is specific to the
  * {@linkplain io.spine.server.ServerEnvironment server environment} and is used across
  * {@code BoundedContext}s to store the delivered messages.
+ *
+ * <p>A {@link Delivery} serves all its shards with a single instance of this storage, so
+ * messages may be written and removed by several threads at once. Subclasses should not
+ * serialize that access, and the underlying record storage must be thread-safe.
  */
 @SPI
 public class InboxStorage extends MessageStorage<InboxMessageId, InboxMessage> {
@@ -89,7 +82,7 @@ public class InboxStorage extends MessageStorage<InboxMessageId, InboxMessage> {
      * <p>Overrides to expose this method to this package.
      */
     @Override
-    protected synchronized void write(InboxMessage message) {
+    protected void write(InboxMessage message) {
         super.write(message);
     }
 
@@ -99,7 +92,7 @@ public class InboxStorage extends MessageStorage<InboxMessageId, InboxMessage> {
      * <p>Overrides to expose this method to this package.
      */
     @Override
-    protected synchronized void writeBatch(Iterable<InboxMessage> messages) {
+    protected void writeBatch(Iterable<InboxMessage> messages) {
         super.writeBatch(messages);
     }
 
@@ -163,6 +156,39 @@ public class InboxStorage extends MessageStorage<InboxMessageId, InboxMessage> {
     }
 
     /**
+     * Reads the messages still to deliver in the given shard, which were received no later
+     * than the given time.
+     *
+     * <p>The older items go first. The items received at the same time are ordered
+     * by their version.
+     *
+     * <p>A {@link Delivery} reads a shard page by page, each next page holding the messages
+     * received after the last message of the previous page. This method finds the messages
+     * the pages have left behind: those stored only after a page with later messages was
+     * read, and those received at the same time as the last message of a full page.
+     *
+     * @param index
+     *         the shard index to look in
+     * @param receivedUpTo
+     *         the latest time, inclusive, at which the messages were received
+     * @return the messages found, the older ones first
+     */
+    public ImmutableList<InboxMessage> readToDeliver(ShardIndex index, Timestamp receivedUpTo) {
+        // Sorted as in `newestMessageToDeliver()`, so that a storage needing an index
+        // for such queries can serve both of them from one index. The older-first order
+        // is applied in memory, with no limit: normally, only a few messages are found.
+        var query =
+                queryBuilder().where(inbox_shard).is(index)
+                              .where(status).is(TO_DELIVER)
+                              .where(received_at).isLessOrEqualTo(receivedUpTo)
+                              .sortDescendingBy(received_at)
+                              .build();
+        var newestFirst = readAll(query);
+        return stream(newestFirst).sorted(InboxMessageComparator.chronologically)
+                                  .collect(toImmutableList());
+    }
+
+    /**
      * Removes the passed messages from the storage.
      *
      * <p>Does nothing for messages that aren't in the storage already.
@@ -170,7 +196,7 @@ public class InboxStorage extends MessageStorage<InboxMessageId, InboxMessage> {
      * @param messages
      *         the messages to remove
      */
-    synchronized void removeBatch(Iterable<InboxMessage> messages) {
+    void removeBatch(Iterable<InboxMessage> messages) {
         var toRemove = stream(messages).map(InboxMessage::getId)
                                        .collect(toList());
         deleteAll(toRemove);

@@ -1,34 +1,24 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.delivery;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.protobuf.Duration;
+import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Durations;
 import io.spine.annotation.Experimental;
 import io.spine.annotation.Internal;
@@ -150,6 +140,12 @@ import static java.util.Collections.synchronizedList;
  * The messages are grouped per-target and delivered in batches if possible. The maximum
  * number of the messages within a {@code DeliveryStage} can be
  * {@linkplain DeliveryBuilder#setPageSize(int) configured}.
+ *
+ * <p>The shard is read page by page. Each subsequent page holds the messages received after
+ * the last message of the previous page. Some messages may still be waiting: those received
+ * earlier but stored only after the previous page was read, and those received at the same
+ * time as its last message, if the page was full. Such messages are delivered before the next
+ * page, in stages of their own.
  *
  * <p>After each {@code DeliveryStage} it is possible to stop the delivery by
  * {@link DeliveryBuilder#setMonitor(DeliveryMonitor) supplying} a custom delivery monitor.
@@ -526,6 +522,7 @@ public final class Delivery implements WithLogging {
      * Runs the delivery for the shard, whose session is passed.
      *
      * <p>The messages are read page-by-page according to the {@link #pageSize page size} setting.
+     * Before each next page, the messages left behind by the previous pages are delivered.
      *
      * <p>After delivering each page of messages, a {@code DeliveryStage} is produced.
      * The configured {@link #monitor DeliveryMonitor} may stop the execution according to
@@ -555,6 +552,11 @@ public final class Delivery implements WithLogging {
                     catchUpJobs = refreshCatchUpJobs();
                 }
                 maybePage = currentPage.next();
+                if (!messages.isEmpty()) {
+                    var lastRead = messages.get(messages.size() - 1)
+                                           .getWhenReceived();
+                    shouldContinue = deliverLeftBehind(index, lastRead, catchUpJobs, stages);
+                }
             }
         }
 
@@ -562,6 +564,43 @@ public final class Delivery implements WithLogging {
                                            .map(DeliveryStage::getMessagesDelivered)
                                            .reduce(0, Integer::sum);
         return new RunResult(totalMessagesDelivered, !shouldContinue);
+    }
+
+    /**
+     * Delivers the messages the pages have left behind in the shard.
+     *
+     * <p>A message received no later than the last message of the page is in no next page.
+     * It is left behind if it was stored only after the page was read, or if it was received
+     * at the same time as the last message of a full page. Such messages are older than those
+     * of the next page, and so are delivered before them, in stages of at most a page.
+     *
+     * <p>Must be called after the next page is read. A message of that page stored after
+     * another message of the shard can only be read once that message is readable, too.
+     * So any message stored before a message of the next page is found here.
+     *
+     * @param index
+     *         the shard to deliver the messages from
+     * @param lastRead
+     *         the time of receiving of the last message of the page delivered last
+     * @param catchUpJobs
+     *         the catch-up jobs to deliver the messages with
+     * @param stages
+     *         the list to add the stages of delivery to
+     * @return {@code true} to continue the delivery, {@code false} if the monitor stops it
+     */
+    private boolean deliverLeftBehind(ShardIndex index,
+                                      Timestamp lastRead,
+                                      Iterable<CatchUp> catchUpJobs,
+                                      List<DeliveryStage> stages) {
+        var leftBehind = inboxStorage.readToDeliver(index, lastRead);
+        for (var portion : Lists.partition(leftBehind, pageSize)) {
+            var stage = deliverMessages(ImmutableList.copyOf(portion), index, catchUpJobs);
+            stages.add(stage);
+            if (!monitorTellsToContinueAfter(stage)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private ImmutableList<CatchUp> refreshCatchUpJobs() {
