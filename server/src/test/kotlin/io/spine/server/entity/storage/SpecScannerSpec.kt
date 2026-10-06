@@ -89,11 +89,11 @@ internal class SpecScannerSpec : UtilityClassTest<SpecScanner>(SpecScanner::clas
         private val spec = SpecScanner.scan(TaskViewProjection::class.java)
 
         /**
-         * Guards the reliance of `SpecScanner` on an `Any` instance remembering
-         * the message it unpacked.
+         * Guards the reliance of `SpecScanner` on `AnyPacker` returning the message
+         * that an `Any` instance has already unpacked.
          *
-         * Should a new version of Protobuf drop this behavior, the state of a record
-         * would be unpacked once per column, and only this test would tell.
+         * Should a new version of Base or Protobuf drop this behavior, the state of
+         * a record would be unpacked once per column, and only this test would tell.
          */
         @Test
         fun `reuses the unpacked state when reading the columns of the same record`() {

@@ -28,6 +28,8 @@ committed on the branch `claude/silly-turing-5524ea`. Not pushed.
 - [x] Reviews — see "Reviews"
 - [x] Version bump to `2.0.0-SNAPSHOT.562`, as the branch of [core-jvm#1678][issue-1678]
       uses `.561`; dependency reports regenerated
+- [x] Follow-up: `StateUnpacker` replaced with `AnyPacker.unpack()` of Base
+      `2.0.0-SNAPSHOT.460` — see "As implemented"
 - [ ] Pull request
 
 ## Problem
@@ -188,24 +190,28 @@ the mechanism `AnyPacker.unpack()` adopts in the `base-libraries` task
 
 There were two ways to get there.
 
-- **1a. Now, calling Protobuf directly — approved and implemented.**
-- **1b. After Base, through `AnyPacker`.** Not taken: the growth and the monitor would
-  have stayed until the Base release. It is now a one-line follow-up: once this
-  repository uses a Base version with the memoizing `AnyPacker.unpack()`,
-  `StateUnpacker` can be replaced with a call to it, with no change in behavior.
+- **1a. Now, calling Protobuf directly — approved and implemented first.**
+- **1b. After Base, through `AnyPacker`.** Not taken at first: the growth and
+  the monitor would have stayed until the Base release. Done as the follow-up once
+  Base `2.0.0-SNAPSHOT.460` shipped the memoizing `AnyPacker.unpack()`.
 
 ### As implemented
 
-Only `SpecScanner.java` changes. The private `MemoizingUnpacker` is replaced with the
-private `StateUnpacker`.
+Only `SpecScanner.java` changes, and almost only by removal.
 
-- `StateUnpacker` holds the default instance of the state and nothing else. It is
-  `@Immutable`, so ErrorProne rejects a cache field added to it later.
-- `StateUnpacker.unpack()` calls `packed.unpackSameTypeAs(defaultState)` and wraps
-  the checked `InvalidProtocolBufferException` in `UnexpectedTypeException`.
-  This is the body `AnyPacker.unpack()` gets in the `base-libraries` task.
-- A getter creates its unpacker when the getter itself is created. So `scan()` asks
-  for the default state only when the state declares columns.
+- `MemoizingUnpacker` is deleted.
+- The getter of a state-based column calls `AnyPacker.unpack(state, stateClass)`,
+  which `SpecScanner` already imported. Since Base `2.0.0-SNAPSHOT.460`, that method
+  delegates to `Any.unpackSameTypeAs()`, and the class Javadoc of `AnyPacker`
+  documents the memoization.
+- A two-line comment at the call says why the getters need no cache of their own.
+
+The first version, on Base `2.0.0-SNAPSHOT.450`, had a private `@Immutable`
+`StateUnpacker` with the body that `AnyPacker.unpack()` got in `.460`:
+`packed.unpackSameTypeAs(defaultState)`, wrapping the checked
+`InvalidProtocolBufferException` in `UnexpectedTypeException`. It was removed after
+the Base bump. With it went the compile-time guard against a cache field; the
+retention cases of the spec remain the guard.
 
 ## Behavior changes
 
@@ -226,12 +232,14 @@ private `StateUnpacker`.
 5. The type URL prefix is no longer compared when the columns are read; Protobuf
    matches by the type name. A state packed under another prefix now passes the
    getters (verified by running), as it always did for an entity without columns.
-   Reading such a record back still fails while this repository uses Base
-   `2.0.0-SNAPSHOT.450` (read in the sources, not run). `Repository.store()` always
-   packs with the right prefix, so only a hand-built record can be affected.
+   With Base `2.0.0-SNAPSHOT.450`, reading such a record back failed. With `.460` it
+   does not: `TypeUrl` splits at the last slash, `getMessageClass()` resolves the class
+   by the type name, and `AnyPacker.unpack(Any)` no longer compares the prefix either
+   (read in the sources, not run). `Repository.store()` always packs with the right
+   prefix, so only a hand-built record can be affected.
 
 Changes 4 and 5 are the ones decided for `AnyPacker.unpack()` in the `base-libraries`
-task, so the follow-up of option 1b changes nothing.
+task, so the switch to `AnyPacker` in the follow-up changed nothing.
 
 One theoretical exposure comes with change 3. `Any.unpackSameTypeAs()` and
 `Any.unpack()` throw when the `Any` already remembers a message of another Java class,
@@ -245,7 +253,9 @@ in this repository, `jdbc-storage`, `gcloud-jvm` or `validation` calls these met
 "Reproduction", and four more cases that pass against the unchanged class as well:
 
 - "reuses the unpacked state when reading the columns of the same record" is the only
-  case that notices if a new version of Protobuf stops remembering the message.
+  case that notices if a new version of Base or Protobuf stops remembering
+  the message. With the getters calling `AnyPacker`, its passing also proves that
+  the `AnyPacker` on the classpath memoizes: the one of `.450` did not.
 - "gives each of the concurrent readers the values of its own record": eight threads
   read 1,000 records each, twice in a row, for 100 rounds. The fix removes
   a `synchronized`, so this guards a later change that would share state again.
@@ -254,6 +264,8 @@ in this repository, `jdbc-storage`, `gcloud-jvm` or `validation` calls these met
   can fail.
 
 ## Verification
+
+### First version, with `StateUnpacker`, on Base `2.0.0-SNAPSHOT.450`
 
 - Against the unchanged class the spec fails in 4 of 13 cases, as listed under
   "Reproduction". The same four failed in every earlier run.
@@ -289,6 +301,21 @@ in this repository, `jdbc-storage`, `gcloud-jvm` or `validation` calls these met
   `:server:detekt`, `checkstyleMain`, `pmdMain` and both Dokka publications ran.
   ErrorProne reports nothing for `SpecScanner.java`.
 
+### Final version, calling `AnyPacker.unpack()`, on Base `2.0.0-SNAPSHOT.460`
+
+- `spine-base` resolves to `2.0.0-SNAPSHOT.460` for the tests of `server`
+  (`:server:dependencyInsight`).
+- The published `AnyPacker.unpack(Any, Class)` was read at the merge commit of
+  `base-libraries` PR #966: its body is the one `StateUnpacker` had.
+- Against the original class, under `.460`, the spec still fails the same four
+  retention cases with the same numbers: 999, 999, 1,000 and 1,000, and 1,000.
+- Against the final code, the spec passes, 13 of 13, in 20 consecutive runs with
+  the build cache off.
+- `./gradlew build dokkaGenerate --no-build-cache` is green. All seven test tasks
+  were executed: 2,634 tests, of which `server` has 2,057. `:server:detekt`,
+  `checkstyleMain`, `pmdMain` and both Dokka publications ran. ErrorProne reports
+  nothing for `SpecScanner.java`.
+
 ## Reviews
 
 **Before the implementation**, an independent agent was briefed to refute option 1a.
@@ -315,7 +342,7 @@ It found no code path that breaks. Its findings, and what was done:
 ## Considered and not done
 
 - **A comparison of the whole type URLs before unpacking**, as `AnyPacker` of Base
-  `2.0.0-SNAPSHOT.450` does. It was implemented on the first reviewer's finding, and
+  `2.0.0-SNAPSHOT.450` did. It was implemented on the first reviewer's finding, and
   it kept behavior changes 4 and 5 away. Then removed: it was not in the approved plan,
   and the `base-libraries` task decided the opposite for `AnyPacker` itself, so the
   check would have made the follow-up of option 1b change behavior again.
@@ -366,5 +393,8 @@ It found no code path that breaks. Its findings, and what was done:
 - 2026-10-05 — Committed: the version bump to `.562`, the fix with its spec, and the
   dependency reports. After the bump, `./gradlew build --no-build-cache` is green:
   all seven test tasks executed, 2,634 tests.
+- 2026-10-06 — Base bumped to `2.0.0-SNAPSHOT.460`, which ships the memoizing
+  `AnyPacker.unpack()`. `StateUnpacker` removed; the getters call `AnyPacker`.
+  Verified: the original class under `.460`, 20 runs, full build with Dokka.
 
 [issue-1678]: https://github.com/SpineEventEngine/core-jvm/issues/1678

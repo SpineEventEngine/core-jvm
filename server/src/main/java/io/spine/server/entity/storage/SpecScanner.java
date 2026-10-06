@@ -15,14 +15,11 @@
 package io.spine.server.entity.storage;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.errorprone.annotations.Immutable;
 import com.google.protobuf.Any;
-import com.google.protobuf.InvalidProtocolBufferException;
 import io.spine.annotation.SPI;
 import io.spine.base.EntityState;
 import io.spine.base.Identifier;
 import io.spine.client.ArchivedColumn;
-import io.spine.protobuf.Messages;
 import io.spine.query.Column;
 import io.spine.query.Column.Getter;
 import io.spine.query.EntityColumn;
@@ -32,13 +29,13 @@ import io.spine.server.entity.EntityRecord;
 import io.spine.server.entity.model.EntityClass;
 import io.spine.server.storage.RecordSpec;
 import io.spine.server.storage.RecordSpec.ExtractId;
-import io.spine.type.UnexpectedTypeException;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.util.Exceptions.newIllegalStateException;
 import static java.util.Objects.requireNonNull;
 
@@ -169,7 +166,6 @@ public final class SpecScanner {
     })
     private static <I, S extends EntityState<I>>
     Getter<EntityRecord, Object> getter(Column<S, ?> stateColumn, Class<S> stateClass) {
-        var unpacker = new StateUnpacker<>(stateClass);
         return r -> {
             var state = r.getState();
             if (state.equals(Any.getDefaultInstance())) {
@@ -177,7 +173,9 @@ public final class SpecScanner {
                 // if its visibility does not allow querying.
                 return null;
             }
-            var value = stateColumn.valueIn(unpacker.unpack(state));
+            // The `Any` remembers the unpacked state, so the other
+            // columns of the record do not parse it again.
+            var value = stateColumn.valueIn(unpack(state, stateClass));
             return requireNonNull(value);
         };
     }
@@ -231,45 +229,5 @@ public final class SpecScanner {
             }
         }
         return columnClass;
-    }
-
-    /**
-     * Unpacks the states of entities of one type from the {@code Any} instances
-     * held by the records of these entities.
-     *
-     * <p>The values of the state-based columns of a record are read one by one, and each
-     * of the column getters needs the unpacked state. All of them read the same instance
-     * of {@code Any}, which is the {@code state} field of the record. This class asks that
-     * instance to unpack itself, because an {@code Any} remembers the message it unpacked.
-     * Hence, the state of a record is unpacked once, however many columns the record has.
-     * The unpacked message lives as long as the {@code Any} that remembers it.
-     *
-     * <p>This class keeps nothing between calls, which {@code @Immutable} enforces.
-     *
-     * @param <S>
-     *         the type of the entity state
-     */
-    @Immutable
-    private static final class StateUnpacker<S extends EntityState<?>> {
-
-        private final S defaultState;
-
-        private StateUnpacker(Class<S> stateClass) {
-            this.defaultState = Messages.getDefaultInstance(stateClass);
-        }
-
-        /**
-         * Unpacks the entity state from the passed {@code Any}.
-         *
-         * @throws UnexpectedTypeException
-         *         if the passed {@code Any} cannot be unpacked into the state type
-         */
-        private S unpack(Any packed) {
-            try {
-                return packed.unpackSameTypeAs(defaultState);
-            } catch (InvalidProtocolBufferException e) {
-                throw new UnexpectedTypeException(e);
-            }
-        }
     }
 }
