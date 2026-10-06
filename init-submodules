@@ -49,7 +49,85 @@
 
 set -u
 
-root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+# Ignore an inherited `CDPATH`: it would redirect a relative `cd`, such as into
+# the `.git` that `git rev-parse --git-common-dir` prints in a main checkout,
+# and make `cd` print the directory it enters.
+unset CDPATH
+
+# Decode the JSON string escapes that a path can hold: `\\` (each backslash of a
+# Windows path), `\"`, and `\/`. Fail on any other escape, such as `\n`.
+json_unescape() {
+    local rest=$1 out="" next
+    while :; do
+        case $rest in
+            *\\*) ;;
+            *) printf '%s' "$out$rest"; return 0 ;;
+        esac
+        out=$out${rest%%\\*}
+        rest=${rest#*\\}
+        next=${rest%"${rest#?}"}
+        case $next in
+            \\ | \" | /) out=$out$next ;;
+            *) return 1 ;;
+        esac
+        rest=${rest#?}
+    done
+}
+
+# Act on the work tree the session is in. Claude Code runs this script as a
+# `SessionStart` hook and passes the hook input JSON on stdin. The `cwd` field
+# of that JSON is the session's working directory. In a worktree session, that
+# directory is inside the worktree, while this process and `$CLAUDE_PROJECT_DIR`
+# stay in the main checkout. Read stdin only when Claude Code started the script
+# (it exports `CLAUDE_PROJECT_DIR` to hooks) and stdin is not a terminal, so that
+# a manual run never waits for input.
+#
+# Parse the input with `jq` when it is installed. The bootstrap cannot require
+# `jq`, so without it a pattern match reads the first `cwd` member, and
+# `json_unescape` decodes it; a value it cannot decode falls back as described
+# below. Unlike `jq`, the pattern does not validate the rest of the input, which
+# Claude Code writes. Either way, the path must belong to the project, as checked
+# below.
+session_dir=""
+if [ -n "${CLAUDE_PROJECT_DIR:-}" ] && [ ! -t 0 ]; then
+    if command -v jq >/dev/null 2>&1; then
+        session_dir=$(jq -r '.cwd // empty' 2>/dev/null) || session_dir=""
+    else
+        input=$(cat)
+        cwd_pattern='"cwd"[[:space:]]*:[[:space:]]*"(([^"\\]|\\.)*)"'
+        if [[ $input =~ $cwd_pattern ]]; then
+            session_dir=$(json_unescape "${BASH_REMATCH[1]}") || session_dir=""
+        fi
+    fi
+fi
+
+# The physical path of the Git directory that a repository's main checkout and
+# linked worktrees share; empty outside a work tree. Each `git` result is checked
+# before use, because `cd ""` succeeds.
+common_git_dir() {
+    (cd "$1" && top=$(git rev-parse --show-toplevel) && cd "$top" \
+        && common=$(git rev-parse --git-common-dir) && cd "$common" && pwd -P) 2>/dev/null
+}
+
+# From the session directory, climb out of any submodule (`config`,
+# `.agents/shared`) to the first work tree of the project's own repository — its
+# main checkout or a linked worktree. Anything else (no `cwd`, one that does not
+# resolve, an unrelated repository) falls back to the current directory, as
+# before: this script changes repository configuration, so it must not act on a
+# repository the project does not own.
+root=""
+if [ -n "$session_dir" ]; then
+    project=$(common_git_dir "$CLAUDE_PROJECT_DIR")
+    tree=$(git -C "$session_dir" rev-parse --show-toplevel 2>/dev/null)
+    while [ -n "$tree" ] && [ -n "$project" ]; do
+        if [ "$(common_git_dir "$tree")" = "$project" ]; then
+            root=$tree
+            break
+        fi
+        tree=$(git -C "$tree" rev-parse --show-superproject-working-tree 2>/dev/null)
+    done
+fi
+[ -n "$root" ] || root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
 cd "$root" || exit 0
 
 # Nothing to do in a repo without submodules.

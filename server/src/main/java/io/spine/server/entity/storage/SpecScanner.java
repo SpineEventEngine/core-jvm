@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.entity.storage;
@@ -43,9 +31,7 @@ import io.spine.server.storage.RecordSpec;
 import io.spine.server.storage.RecordSpec.ExtractId;
 import org.jspecify.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -145,13 +131,12 @@ public final class SpecScanner {
         var stateClass = EntityClass.<S>stateClassOf(cls);
         Set<RecordColumn<EntityRecord, ?>> accumulator = new HashSet<>();
 
-        var unpacker = new MemoizingUnpacker<>(stateClass);
         var stateColumns = stateColumns(stateClass);
         for (var stateCol : stateColumns) {
             var columnName = stateCol.name();
             var columnType = castObject(stateCol);
             var recordColumn = new RecordColumn<>(columnName, columnType,
-                                                  getter(stateCol, unpacker));
+                                                  getter(stateCol, stateClass));
             accumulator.add(recordColumn);
         }
 
@@ -177,11 +162,10 @@ public final class SpecScanner {
 
     @SuppressWarnings({
             "ReturnOfNull", "DataFlowIssue" /* Returning `null` by design. */,
-            "Immutable" /* Unpacker and state column are effectively immutable for given state. */
+            "Immutable" /* `Column` is not annotated, though state-based columns are immutable. */
     })
     private static <I, S extends EntityState<I>>
-    Getter<EntityRecord, Object> getter(Column<S, ?> stateColumn,
-                                        MemoizingUnpacker<I, S> unpacker) {
+    Getter<EntityRecord, Object> getter(Column<S, ?> stateColumn, Class<S> stateClass) {
         return r -> {
             var state = r.getState();
             if (state.equals(Any.getDefaultInstance())) {
@@ -189,7 +173,9 @@ public final class SpecScanner {
                 // if its visibility does not allow querying.
                 return null;
             }
-            var value = stateColumn.valueIn(unpacker.process(state));
+            // The `Any` remembers the unpacked state, so the other
+            // columns of the record do not parse it again.
+            var value = stateColumn.valueIn(unpack(state, stateClass));
             return requireNonNull(value);
         };
     }
@@ -243,38 +229,5 @@ public final class SpecScanner {
             }
         }
         return columnClass;
-    }
-
-    /**
-     * Unpacks Entity states from {@code Any} instances, caching the unpacked results.
-     *
-     * <p>This routine is used as a scoped cache for on-the-fly unpacking Entity state
-     * from {@code EntityRecord}s, and then passing them on to other operations,
-     * such as determining the column values.
-     *
-     * @param <I>
-     *         type of entity identifier
-     * @param <S>
-     *         type of entity state
-     */
-    private static final class MemoizingUnpacker<I, S extends EntityState<I>> {
-
-        private final Class<S> stateCls;
-
-        private final Map<Any, S> cache = new HashMap<>();
-
-        private MemoizingUnpacker(Class<S> cls) {
-            stateCls = cls;
-        }
-
-        private synchronized S process(Any value) {
-            var alreadyUnpacked = cache.get(value);
-            if (alreadyUnpacked != null) {
-                return alreadyUnpacked;
-            }
-            var state = unpack(value, stateCls);
-            cache.put(value, state);
-            return state;
-        }
     }
 }
