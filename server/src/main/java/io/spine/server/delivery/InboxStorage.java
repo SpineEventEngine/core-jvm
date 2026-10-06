@@ -156,16 +156,19 @@ public class InboxStorage extends MessageStorage<InboxMessageId, InboxMessage> {
     }
 
     /**
-     * Reads the messages still to deliver in the given shard, which were received no later
-     * than the given time.
+     * Reads the messages in the given shard that are still to deliver and were received
+     * no later than the given time.
      *
-     * <p>The older items go first. The items received at the same time are ordered
+     * <p>The older messages go first. Messages received at the same time are ordered
      * by their version.
      *
      * <p>A {@link Delivery} reads a shard page by page, each next page holding the messages
      * received after the last message of the previous page. This method finds the messages
      * the pages have left behind: those stored only after a page with later messages was
      * read, and those received at the same time as the last message of a full page.
+     *
+     * <p>A subclass that reads the messages from elsewhere than the underlying record storage
+     * must override this method as well.
      *
      * @param index
      *         the shard index to look in

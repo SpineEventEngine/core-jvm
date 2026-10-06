@@ -142,10 +142,10 @@ import static java.util.Collections.synchronizedList;
  * {@linkplain DeliveryBuilder#setPageSize(int) configured}.
  *
  * <p>The shard is read page by page. Each subsequent page holds the messages received after
- * the last message of the previous page. Some messages may still be waiting: those received
- * earlier but stored only after the previous page was read, and those received at the same
- * time as its last message, if the page was full. Such messages are delivered before the next
- * page, in stages of their own.
+ * the last message of the previous page. Some messages may be left behind by a page: those
+ * received before its last message but stored only after the page was read, and those received
+ * at the same time as its last message, if the page was full. Such messages are delivered
+ * before the next page, in stages of their own.
  *
  * <p>After each {@code DeliveryStage} it is possible to stop the delivery by
  * {@link DeliveryBuilder#setMonitor(DeliveryMonitor) supplying} a custom delivery monitor.
@@ -522,7 +522,8 @@ public final class Delivery implements WithLogging {
      * Runs the delivery for the shard, whose session is passed.
      *
      * <p>The messages are read page-by-page according to the {@link #pageSize page size} setting.
-     * Before each next page, the messages left behind by the previous pages are delivered.
+     * After each page, the messages left behind by the pages so far are delivered, before
+     * the next page, if any.
      *
      * <p>After delivering each page of messages, a {@code DeliveryStage} is produced.
      * The configured {@link #monitor DeliveryMonitor} may stop the execution according to

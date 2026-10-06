@@ -16,7 +16,6 @@ package io.spine.server.delivery
 
 import com.google.common.collect.ImmutableList
 import com.google.protobuf.Duration
-import com.google.protobuf.Message
 import com.google.protobuf.Timestamp
 import com.google.protobuf.util.Durations.fromMillis
 import com.google.protobuf.util.Durations.fromSeconds
@@ -25,25 +24,18 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.spine.base.Time
 import io.spine.environment.Tests
-import io.spine.server.ContextSpec
 import io.spine.server.ServerEnvironment
 import io.spine.server.delivery.CatchUpStatus.FINALIZING
 import io.spine.server.delivery.CatchUpStatus.IN_PROGRESS
 import io.spine.server.delivery.InboxLabel.UPDATE_SUBSCRIBER
 import io.spine.server.delivery.InboxMessageStatus.TO_CATCH_UP
+import io.spine.server.delivery.given.GatedStorageFactory
 import io.spine.server.delivery.given.TestCatchUpJobs.catchUpJob
 import io.spine.server.dispatch.DispatchOutcome
 import io.spine.server.dispatch.DispatchOutcomes.successfulOutcome
 import io.spine.server.entity.Repository
 import io.spine.server.entity.given.concurrency.Gate
 import io.spine.server.entity.given.concurrency.Worker
-import io.spine.server.storage.DelegatingRecordStorage
-import io.spine.server.storage.RecordSpec
-import io.spine.server.storage.RecordStorage
-import io.spine.server.storage.RecordWithColumns
-import io.spine.server.storage.StorageFactory
-import io.spine.server.storage.StorageGroup
-import io.spine.server.storage.memory.InMemoryStorageFactory
 import io.spine.server.type.EventEnvelope
 import io.spine.test.delivery.Calc
 import io.spine.test.delivery.PositiveNumberEmitted
@@ -109,6 +101,10 @@ internal class DeliverySpec : AbstractDeliveryTest() {
          * The write of the first message is held at a gate inside the record storage.
          * As `InboxStorage` takes no lock, a message of another target is stored and
          * read meanwhile.
+         *
+         * The message of the other target is stored by a worker, so that a lock taken
+         * by `InboxStorage` fails the case within the wait limit, reporting the thread
+         * blocked by it.
          */
         @Test
         fun `if storing it takes longer than storing a later message`() {
@@ -124,7 +120,7 @@ internal class DeliverySpec : AbstractDeliveryTest() {
             try {
                 gate.awaitReached(by = producer)
                 setClock(20)
-                inbox.deliver("Y", 1)
+                Worker { inbox.deliver("Y", 1) }.result()
                 monitor.afterNextStage {
                     setClock(30)
                     gate.open()
@@ -319,7 +315,10 @@ internal class DeliverySpec : AbstractDeliveryTest() {
     }
 
     /**
-     * Creates an `Inbox` which records the events it delivers into [received].
+     * Creates an `Inbox` that records the events it delivers into [received].
+     *
+     * The inbox registers with, and stores through, the `Delivery` of the server
+     * environment, so the given delivery must be the one set by [useDelivery].
      */
     private fun newInbox(delivery: Delivery): Inbox<String> =
         delivery.newInbox<String>(TypeUrl.of(Calc::class.java))
@@ -365,7 +364,7 @@ internal class DeliverySpec : AbstractDeliveryTest() {
  * @property factory The factory of the record storage, which can hold a write.
  */
 private class StubInboxStorage(
-    private val factory: HoldingStorageFactory = HoldingStorageFactory()
+    private val factory: GatedStorageFactory = GatedStorageFactory()
 ) : InboxStorage(factory, false) {
 
     private val afterSearch = AtomicReference<(() -> Unit)?>()
@@ -393,58 +392,6 @@ private class StubInboxStorage(
         val found = super.readToDeliver(index, receivedUpTo)
         afterSearch.getAndSet(null)?.invoke()
         return found
-    }
-}
-
-/**
- * Creates in-memory record storages which hold the next write of a record at a [Gate].
- */
-private class HoldingStorageFactory : StorageFactory {
-
-    private val delegate = InMemoryStorageFactory.newInstance()
-    private val nextWrite = AtomicReference<Gate?>()
-
-    /**
-     * Makes the next write of a record pass the given gate.
-     */
-    fun holdNextWrite(gate: Gate) {
-        nextWrite.set(gate)
-    }
-
-    override fun <I : Any, R : Message> createRecordStorage(
-        context: ContextSpec,
-        recordSpec: RecordSpec<I, R>,
-        group: StorageGroup?
-    ): RecordStorage<I, R> {
-        val records = delegate.createRecordStorage(context, recordSpec, group)
-        return HoldingRecords(context, delegate = records, nextWrite = nextWrite)
-    }
-
-    override fun isOpen(): Boolean = delegate.isOpen
-
-    override fun close() = delegate.close()
-}
-
-/**
- * A record storage which makes the calling thread pass the gate set for the next write,
- * if any, before writing a record.
- *
- * @param I The type of the record identifiers.
- * @param R The type of the stored records.
- *
- * @param context The specification of the context in which the storage is used.
- * @param delegate The storage doing the actual work.
- * @property nextWrite The gate for the next write to pass.
- */
-private class HoldingRecords<I : Any, R : Message>(
-    context: ContextSpec,
-    delegate: RecordStorage<I, R>,
-    private val nextWrite: AtomicReference<Gate?>
-) : DelegatingRecordStorage<I, R>(context, delegate) {
-
-    override fun write(record: RecordWithColumns<I, R>) {
-        nextWrite.getAndSet(null)?.pass()
-        super.write(record)
     }
 }
 
