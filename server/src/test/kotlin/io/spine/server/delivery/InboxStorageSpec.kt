@@ -21,8 +21,8 @@ import io.kotest.matchers.optional.shouldBePresent
 import io.kotest.matchers.shouldBe
 import io.spine.server.ContextSpec
 import io.spine.server.delivery.given.TestInboxMessages.toDeliver
-import io.spine.server.delivery.given.concurrency.Gate
-import io.spine.server.delivery.given.concurrency.Worker
+import io.spine.server.entity.given.concurrency.Gate
+import io.spine.server.entity.given.concurrency.Worker
 import io.spine.server.storage.DelegatingRecordStorage
 import io.spine.server.storage.RecordSpec
 import io.spine.server.storage.RecordStorage

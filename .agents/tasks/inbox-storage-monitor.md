@@ -229,10 +229,9 @@ limits the two give up at the same moment, and a case behind a monitor fails wit
 `expected:<false> but was:<true>` instead of "The worker did not complete in time." —
 seen in the first round of the mutation runs.
 
-`Gate` and `Worker` are private to the spec file for now. They are cut-down twins of
-the helpers in `io.spine.server.entity.given.concurrency`, which come with the fix
-for issue #1678 and are not on `master` yet. A `TODO` marks the swap, and says that
-the hold limit has to move to the `Gate` there.
+The specs use `Gate` and `Worker` of `io.spine.server.entity.given.concurrency`, which
+came with the fix for issue #1678 (PR #1680). Until that was merged, the specs had copies
+of their own. The hold limit moved into the shared `Gate` with the merge.
 
 `GatedStorageFactory` stubs the record storage, following the pattern of
 `FailingHistoryFactory`: the in-memory storage wrapped in a `DelegatingRecordStorage`
@@ -375,8 +374,9 @@ index — inferred from Datastore's index rules, not run against Datastore.
 - `InboxStorageTest` (Java, the contract the storages of the vendors run) — one case for
   `readToDeliver()`, ties by version included. Added to the existing suite, as that is
   the one place the Datastore and JDBC builds run.
-- `Gate` and `Worker` moved from `InboxStorageSpec` to
-  `server/src/test/kotlin/io/spine/server/delivery/given/concurrency/`, with the `TODO`.
+- After merging `master`, both specs use the shared `Gate` and `Worker` of
+  `io.spine.server.entity.given.concurrency`, which now hold a thread for twice as long
+  as a test waits. The copies of the specs are removed.
 
 ### Verification
 
@@ -480,8 +480,9 @@ Read on the default branches at GitHub on 2026-10-05.
   of the singleton. A probe in the scratch copy wrote 3 messages and found 3 records.
   So `Delivery.direct()` appears to retain every dispatched signal. The path
   through `Delivery` was read, not run.
-- `Gate.pass()` and `Worker.result()` of the issue #1678 helpers share one limit, with
-  the effect described under "Tests".
+- `Gate.pass()` and `Worker.result()` of the issue #1678 helpers shared one limit, with
+  the effect described under "Tests". Fixed with the merge: the shared `Gate` holds for
+  twice the wait limit.
 - Found by the independent reviewer:
   - The page cursor and the stamping of messages — investigated and reproduced, see
     "Delivery order".

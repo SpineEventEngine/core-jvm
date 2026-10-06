@@ -32,11 +32,11 @@ import io.spine.server.delivery.CatchUpStatus.IN_PROGRESS
 import io.spine.server.delivery.InboxLabel.UPDATE_SUBSCRIBER
 import io.spine.server.delivery.InboxMessageStatus.TO_CATCH_UP
 import io.spine.server.delivery.given.TestCatchUpJobs.catchUpJob
-import io.spine.server.delivery.given.concurrency.Gate
-import io.spine.server.delivery.given.concurrency.Worker
 import io.spine.server.dispatch.DispatchOutcome
 import io.spine.server.dispatch.DispatchOutcomes.successfulOutcome
 import io.spine.server.entity.Repository
+import io.spine.server.entity.given.concurrency.Gate
+import io.spine.server.entity.given.concurrency.Worker
 import io.spine.server.storage.DelegatingRecordStorage
 import io.spine.server.storage.RecordSpec
 import io.spine.server.storage.RecordStorage

@@ -33,6 +33,15 @@ internal const val WAIT_LIMIT_SECONDS = 10L
 internal const val PROBE_INTERVAL_MILLIS = 2L
 
 /**
+ * The longest time, in seconds, that a thread is held at a [Gate].
+ *
+ * Exceeds the [wait limit][WAIT_LIMIT_SECONDS], so that a test waiting for a thread
+ * stuck behind the held one fails because of that thread, and not because the gate
+ * gave up first.
+ */
+private const val HOLD_LIMIT_SECONDS = 2 * WAIT_LIMIT_SECONDS
+
+/**
  * A point in the code under test at which a thread stops until the test lets it go.
  *
  * The thread of a [Worker] calls [pass]. The test calls [awaitReached] to learn that
@@ -55,7 +64,7 @@ internal class Gate {
      */
     fun pass() {
         reached.countDown()
-        check(opened.await(WAIT_LIMIT_SECONDS, SECONDS)) { "The gate was not opened in time." }
+        check(opened.await(HOLD_LIMIT_SECONDS, SECONDS)) { "The gate was not opened in time." }
     }
 
     /**
