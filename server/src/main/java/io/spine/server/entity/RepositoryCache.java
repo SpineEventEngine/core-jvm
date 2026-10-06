@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.entity;
@@ -30,10 +18,9 @@ import io.spine.annotation.Internal;
 import io.spine.logging.WithLogging;
 import io.spine.server.tenant.IdInTenant;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -69,6 +56,10 @@ import static java.lang.String.format;
  * <p>The users of this class should keep the number of the simultaneously cached entities
  * reasonable due to a potentially huge significant memory footprint.
  *
+ * <p>The operations on the same entity — that is, on the same identifier within the same
+ * tenant — are mutually exclusive. The operations on different entities do not wait for
+ * each other, even while an entity is being loaded or stored.
+ *
  * @param <I>
  *         the type of {@code Entity} identifiers
  * @param <E>
@@ -77,8 +68,13 @@ import static java.lang.String.format;
 @Internal
 public final class RepositoryCache<I, E extends Entity<I, ?>> implements WithLogging {
 
-    private final Map<IdInTenant<I>, E> cache = new HashMap<>();
-    private final Set<IdInTenant<I>> idsToCache = new HashSet<>();
+    private final Map<IdInTenant<I>, E> cache = new ConcurrentHashMap<>();
+    private final Set<IdInTenant<I>> idsToCache = ConcurrentHashMap.newKeySet();
+
+    /**
+     * The locks that make the operations on the same entity mutually exclusive.
+     */
+    private final KeyLocks<IdInTenant<I>> locks = new KeyLocks<>();
 
     private final boolean multitenant;
     private final Load<I, E> loadFn;
@@ -104,18 +100,23 @@ public final class RepositoryCache<I, E extends Entity<I, ?>> implements WithLog
      *         the identifier of the entity to load
      * @return loaded entity
      */
-    public synchronized E load(I id) {
+    public E load(I id) {
         var idInTenant = idInTenant(id);
-        if (!idsToCache.contains(idInTenant)) {
-            return loadFn.apply(idInTenant.value());
-        }
-
-        if (!cache.containsKey(idInTenant)) {
+        return locks.evaluate(idInTenant, () -> {
+            if (!idsToCache.contains(idInTenant)) {
+                return loadFn.apply(idInTenant.value());
+            }
+            var cached = cache.get(idInTenant);
+            if (cached != null) {
+                return cached;
+            }
+            // Do not turn this into `computeIfAbsent()`. The map would then run the load
+            // function itself: holding up other entities for as long as the function runs,
+            // and possibly failing if the function comes back to this cache.
             var entity = loadFn.apply(idInTenant.value());
             cache.put(idInTenant, entity);
             return entity;
-        }
-        return cache.get(idInTenant);
+        });
     }
 
     /**
@@ -128,8 +129,9 @@ public final class RepositoryCache<I, E extends Entity<I, ?>> implements WithLog
      * @param id
      *         an identifier of the entity to cache
      */
-    public synchronized void startCaching(I id) {
-        idsToCache.add(idInTenant(id));
+    public void startCaching(I id) {
+        var idInTenant = idInTenant(id);
+        locks.run(idInTenant, () -> idsToCache.add(idInTenant));
     }
 
     /**
@@ -140,11 +142,28 @@ public final class RepositoryCache<I, E extends Entity<I, ?>> implements WithLog
      * {@linkplain RepositoryCache#RepositoryCache(boolean, Load, Store) pre-configured}
      * {@code Store} function.
      *
+     * <p>The caching stops even if the entity was never loaded, or if storing it fails. In the
+     * latter case, the failure is propagated to the caller.
+     *
      * @param id
      *         an identifier of the entity to cache
      */
-    public synchronized void stopCaching(I id) {
+    public void stopCaching(I id) {
         var idInTenant = idInTenant(id);
+        locks.run(idInTenant, () -> {
+            try {
+                flush(idInTenant);
+            } finally {
+                cache.remove(idInTenant);
+                idsToCache.remove(idInTenant);
+            }
+        });
+    }
+
+    /**
+     * Stores the cached entity with the passed identifier if the entity was loaded.
+     */
+    private void flush(IdInTenant<I> idInTenant) {
         var entity = cache.get(idInTenant);
         if (entity == null) {
             logger().atWarning().log(() -> format(
@@ -156,8 +175,6 @@ public final class RepositoryCache<I, E extends Entity<I, ?>> implements WithLog
             return;
         }
         storeFn.accept(entity);
-        cache.remove(idInTenant);
-        idsToCache.remove(idInTenant);
     }
 
     private IdInTenant<I> idInTenant(I id) {
@@ -178,14 +195,16 @@ public final class RepositoryCache<I, E extends Entity<I, ?>> implements WithLog
      * @param entity
      *         the entity to store
      */
-    public synchronized void store(E entity) {
+    public void store(E entity) {
         var id = entity.id();
         var idInTenant = idInTenant(id);
-        if (idsToCache.contains(idInTenant)) {
-            cache.put(idInTenant, entity);
-        } else {
-            storeFn.accept(entity);
-        }
+        locks.run(idInTenant, () -> {
+            if (idsToCache.contains(idInTenant)) {
+                cache.put(idInTenant, entity);
+            } else {
+                storeFn.accept(entity);
+            }
+        });
     }
 
     /**
