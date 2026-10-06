@@ -1,14 +1,17 @@
-# `InboxStorage`: no monitor during storage I/O, and no message left behind by the pages
+# `InboxStorage`: no monitor during storage I/O
 
 Related: [SpineEventEngine/core-jvm#1678][issue-1678] — the same class of problem,
 in `RepositoryCache`. There is no issue for this one yet.
 
-Two changes shipped together: removing the monitor of `InboxStorage`, and fixing the page
-cursor of `Delivery` — see "Fix of the page cursor".
+PR #1682 removes the monitor of `InboxStorage`. It also carried a fix of the page cursor
+of `Delivery`. The fix was **withdrawn on 2026-10-06** — see "Withdrawal of the cursor fix".
+The sections written before are kept as the record of what was tried; the version, specs
+and reports they mention have changed since — see "What was reverted".
 
 ## Status
 
-Both plans approved on 2026-10-05. Implemented in the working tree; not committed.
+Both plans approved on 2026-10-05. The cursor fix was withdrawn on 2026-10-06, by
+the owner's decision; the monitor removal stays.
 
 - [x] Code and history read — see "What the code says"
 - [x] Reproduction: `InboxStorageSpec`, 3 cases, passed against the unchanged class
@@ -33,6 +36,9 @@ Both plans approved on 2026-10-05. Implemented in the working tree; not committe
 - [x] Commits, pushed; PR #1682 opened after `pre-pr` passed
 - [x] Second review round, by the `pre-pr` reviewers: the should-fixes applied in one
       follow-up commit
+- [x] Third round: six bot threads and @armiol's questions. Re-analyzed late writes on
+      `master` across nodes: delivered later, never lost. The cursor fix withdrawn;
+      the version back to `2.0.0-SNAPSHOT.563`, as the change is no longer breaking
 
 ## Problem
 
@@ -358,13 +364,12 @@ This step is called the *look-back* below.
 - The look-back is in `Delivery`, not in `InboxPage`: the `delivery` repository pages with
   its own copy of `InboxPage`, which `Delivery` drives the same way.
 
-The new SPI method `InboxStorage.readToDeliver(ShardIndex, Timestamp)` runs the query:
-the shard, `TO_DELIVER`, `received_at <=` the given time, sorted by `received_at`
-descending, then sorted in memory, older first and ties by version. The descending sort is
-the one of
-`newestMessageToDeliver()`, so a Datastore deployment can serve both from one composite
-index — inferred from Datastore's index rules, not run against Datastore.
-`NoOpInboxStorage` returns an empty list.
+The new SPI method `InboxStorage.readToDeliver(ShardIndex, Timestamp, int)` runs the query:
+the shard, `TO_DELIVER`, `received_at <=` the given time, sorted by `received_at`, then
+`version`, as the pages are, and limited. `Delivery` reads a page at a time until a page
+comes back short. `NoOpInboxStorage` returns an empty list. (The first version read all
+of them at once, sorted descending to share `newestMessageToDeliver()`'s index; review
+round 3 bounded it.)
 
 ### Tests
 
@@ -417,11 +422,16 @@ Repeated after the reviews, on the final sources.
 
 - **`delivery`:** `RemoteInboxStorage` inherits the default `readToDeliver()`, which ends in
   `RemoteRecordStorage.readAllRecords()` and throws. Before it moves to this core version,
-  it needs a new RPC and an override. It is pinned to core `.523`, so nothing breaks before.
-- **`gcloud-jvm`:** its published inbox indexes (`datastore/config/*.yaml`) are already out
-  of date: they cover neither `readAll()` nor `newestMessageToDeliver()`. The new query
-  should need no index of its own.
-- **`jdbc-storage`:** nothing; the contract case runs there on upgrade.
+  it needs a new RPC, with the limit, and an override. It is pinned to core `.523`, so
+  nothing breaks before.
+- **`gcloud-jvm`:** its published inbox indexes (`datastore/config/*.yaml`, last changed
+  2020-03-04) predate the 2.0 columns: they name `when_received` and `of_total_inbox_shards`,
+  and cover neither `readAll()` nor `newestMessageToDeliver()`. The bounded query needs
+  a composite index on `inbox_shard`, `status`, `received_at`, `version` — inferred from
+  the index rules, not run against Datastore. Datastore stores timestamps to the
+  microsecond; the emulated nanoseconds of `Time` are whole microseconds, so nothing is lost.
+- **`jdbc-storage`:** nothing; the contract cases run there on upgrade. Timestamps are
+  stored as nanoseconds in a `BIGINT`.
 
 ### Still open
 
@@ -433,18 +443,93 @@ Repeated after the reviews, on the final sources.
   a replayed copy delivered earlier, through the cache of the delivered messages. A live
   message delivered in one stage and its replayed copy in a later one are both delivered.
   This already happens when the two fall on different pages. The look-back adds a case:
-  a live message left behind while its replayed copy is on the next page. Read, not
-  reproduced; found by the review of the fix.
+  a live message left behind while its replayed copy is on the next page. Reproduced in
+  review round 3 (B, B0); a follow-up issue.
 
 ### Behavior changes of the fix
 
-1. A message is no longer delivered after the later messages of its target because it
-   was stored late, or because a page ended among messages received at the same time.
-2. A `DeliveryMonitor` sees more stages: one per portion of the messages left behind.
+1. A message stored before the messages of its target received later are read is
+   delivered before them, also when a page was read in between, or when a page ended
+   among messages received at the same time. The order of messages sent at the same
+   time is not defined.
+2. A `DeliveryMonitor` sees more stages: one per page of the messages left behind.
    Worth a line in the release notes.
-3. `InboxStorage` has a new SPI method, `readToDeliver()`. Storages with their own reading,
-   like `RemoteInboxStorage` of the `delivery` repository, have to implement it. This is
-   why the version is `.570`.
+3. `InboxStorage` has a new SPI method, `readToDeliver(ShardIndex, Timestamp, int)`.
+   Storages with their own reading, like `RemoteInboxStorage` of the `delivery`
+   repository, have to implement it. This is why the version is `.570`.
+4. The conveyors of a run deduplicate against the kept messages the run has read.
+
+## Withdrawal of the cursor fix
+
+On 2026-10-06, six bot threads on PR #1682 (Codex 4197105067, 4197105082; Copilot
+4197132356, 4197132474, 4197324300, 4197399935) and five questions from @armiol
+([comment][armiol-questions]) led to a re-analysis. The owner ruled:
+
+1. The `synchronized` removal is proven; it stays.
+2. Tests that fill the inbox storage with same-timestamp messages are misleading and must
+   not be written again — see `.agents/memory/feedback_delivery_order_is_eventual.md`.
+3. Signals emitted on different nodes may be delivered out of order; only a global
+   consensus could prevent it. Entities are designed for eventual consistency, and each
+   is modified on one node at a time. Only the loss of a late-written signal would need
+   a fix, made on the code of `master`.
+
+### Late writes on `master`: delivered later, not lost
+
+Read in the code of `master`:
+
+- Every write notifies the shard observers once the message is stored:
+  `NotifyingWriter.write()` → `DeliveryDispatchListener.notifyOf()`. For a multicast
+  signal, the notification waits until `Bus.doPost()` completes the dispatch, which it
+  reports in `finally`.
+- Every run reads the shard from its start; the page cursor lives only within a run.
+- `deliverMessagesFrom()` repeats the run while the run delivers anything. After releasing
+  the shard, it notifies once more if `newestMessageToDeliver()` finds a message to deliver.
+- A notification that finds the shard held by another node is dropped by the default
+  `DeliveryMonitor`. The holder then finds the message: its write completed before the
+  notification, which came before the holder released the shard and called
+  `newestMessageToDeliver()`.
+
+So a late write changes only the order of delivery. The cursor fix addressed exactly that,
+plus equal stamps, which one JVM does not produce: the `StackOverflowError` attributed to
+them came from a frozen clock in a test.
+
+### What was reverted
+
+`Delivery`, `NoOpInboxStorage`, `Conveyor` and `InboxStorageTest` are as on `master` again;
+`InboxStorage.readToDeliver()` and `DeliverySpec` are gone. Not committed from the third
+round: a bounded look-back, a deduplication set per run, and their specs. What stays:
+`InboxStorage` without the monitor, its Javadoc, `InboxStorageSpec`, and the shared
+`Gate`, `Worker` and `GatedStorageFactory`. The version is `2.0.0-SNAPSHOT.563`: without
+the new SPI method, the change is not breaking, and feature branches are not published.
+
+### The questions of @armiol
+
+1. **One `InboxStorage` per `Delivery`.** Each repository gets its inbox from the
+   `Delivery` of the `ServerEnvironment` (`Repository.initInbox()`), and
+   `Delivery.newInbox()` gives each inbox a new `NotifyingWriter` over one storage, made
+   once in `DeliveryBuilder.build()`. The writers are per repository; the storage, and
+   the monitor, per JVM. The PR description said a thread waited for "the storage I/O of
+   another shard"; it waited for any write or flush.
+2. **No `synchronized` with N nodes** — counted as proven by the owner.
+3. **`Time`.** `IncrementalNanos` adds 1 µs per call and resets in each millisecond, so
+   1,000 distinct values per millisecond within one JVM. Datastore keeps microseconds,
+   JDBC nanoseconds.
+4. **The `StackOverflowError`** was reproduced with a frozen clock — an artifact.
+5. **A message stored late** is delivered later, as above. Withdrawn.
+
+### Found along the way — out of scope
+
+- A second catch-up of a projection also matches the old `COMPLETED` job. `completedWith()`
+  queues the replay, `inProgress()` removes it from the conveyor, and it is dispatched all
+  the same; `markDelivered()` then throws an NPE in `mutableMessage()` before the flush,
+  so the replay is dispatched again on every run. Read by a design review, not run.
+- While a catch-up is `COMPLETED`, a live message and its replayed copy on different
+  pages are both dispatched (reproduced on `master` with pages of one message).
+- A copy of a message kept for the deduplication window, on a later page than the
+  original, is dispatched again if this node's cache does not hold the original, e.g.
+  when another node delivered it. Shown by a withdrawn case with two `Delivery`
+  instances over one storage, and the deduplication set of the third round disabled;
+  that case reads the shard as `master` does, but it was not run on `master` itself.
 
 ## Other repositories
 
@@ -504,3 +589,4 @@ Read on the default branches at GitHub on 2026-10-05.
     break. Its only caller found is a test.
 
 [issue-1678]: https://github.com/SpineEventEngine/core-jvm/issues/1678
+[armiol-questions]: https://github.com/SpineEventEngine/core-jvm/pull/1682#issuecomment-6020915324

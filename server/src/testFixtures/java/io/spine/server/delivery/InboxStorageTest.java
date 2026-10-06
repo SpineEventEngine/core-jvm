@@ -1,15 +1,27 @@
 /*
- * Copyright 2026 CodeMatters, Lda.
+ * Copyright 2026, TeamDev. All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
- * except in compliance with the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific language governing permissions
- * and limitations under the License.
+ * Redistribution and use in source and/or binary forms, with or without
+ * modification, must retain the above copyright notice and the following
+ * disclaimer.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 package io.spine.server.delivery;
@@ -39,16 +51,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.util.concurrent.Uninterruptibles.sleepUninterruptibly;
-import static com.google.protobuf.util.Durations.fromSeconds;
-import static com.google.protobuf.util.Timestamps.add;
-import static com.google.protobuf.util.Timestamps.subtract;
 import static io.spine.base.Time.currentTime;
 import static io.spine.server.delivery.DeliveryStrategy.newIndex;
 import static io.spine.server.delivery.InboxIds.newSignalId;
 import static io.spine.server.delivery.InboxMessageStatus.DELIVERED;
-import static io.spine.server.delivery.InboxMessageStatus.TO_CATCH_UP;
 import static io.spine.server.delivery.InboxMessageStatus.TO_DELIVER;
-import static io.spine.server.delivery.given.TestInboxMessages.copyWithStatus;
 import static io.spine.server.delivery.given.TestInboxMessages.toDeliver;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -172,39 +179,6 @@ public abstract class InboxStorageTest
         storage.removeBatch(messages);
 
         checkEmpty(storage, index);
-    }
-
-    @Test
-    @DisplayName("read the messages to deliver received no later than the given time, oldest first")
-    void readMessagesToDeliverUpToTime() {
-        var shard = 5;
-        var shardCount = 7;
-        var now = currentTime();
-        var oldest = generate(shard, shardCount, subtract(now, fromSeconds(3)));
-        var older = withVersion(generate(shard, shardCount, subtract(now, fromSeconds(2))), 1);
-        var olderOfHigherVersion = withVersion(
-                generate(shard, shardCount, older.getWhenReceived()), 2);
-        var atTheTime = generate(shard, shardCount, now);
-        var later = generate(shard, shardCount, add(now, fromSeconds(1)));
-        var delivered = copyWithStatus(generate(shard, shardCount, older.getWhenReceived()),
-                                       DELIVERED);
-        var toCatchUp = copyWithStatus(generate(shard, shardCount, older.getWhenReceived()),
-                                       TO_CATCH_UP);
-        var inOtherShard = generate(shard + 1, shardCount, older.getWhenReceived());
-        var storage = storage();
-        storage.writeBatch(ImmutableList.of(later, atTheTime, olderOfHigherVersion, delivered,
-                                            toCatchUp, older, inOtherShard, oldest));
-
-        var found = storage.readToDeliver(newIndex(shard, shardCount), now);
-
-        assertThat(found).containsExactly(oldest, older, olderOfHigherVersion, atTheTime)
-                         .inOrder();
-    }
-
-    private static InboxMessage withVersion(InboxMessage message, int version) {
-        return message.toBuilder()
-                      .setVersion(version)
-                      .build();
     }
 
     @Test

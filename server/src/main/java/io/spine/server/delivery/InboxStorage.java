@@ -25,7 +25,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.Streams.stream;
 import static io.spine.server.delivery.InboxColumn.inbox_shard;
 import static io.spine.server.delivery.InboxColumn.received_at;
@@ -153,42 +152,6 @@ public class InboxStorage extends MessageStorage<InboxMessageId, InboxMessage> {
         Optional<InboxMessage> result = iterator.hasNext() ? Optional.of(iterator.next())
                                                            : Optional.empty();
         return result;
-    }
-
-    /**
-     * Reads the messages in the given shard that are still to deliver and were received
-     * no later than the given time.
-     *
-     * <p>The older messages go first. Messages received at the same time are ordered
-     * by their version.
-     *
-     * <p>A {@link Delivery} reads a shard page by page, each next page holding the messages
-     * received after the last message of the previous page. This method finds the messages
-     * the pages have left behind: those stored only after a page with later messages was
-     * read, and those received at the same time as the last message of a full page.
-     *
-     * <p>A subclass that reads the messages from elsewhere than the underlying record storage
-     * must override this method as well.
-     *
-     * @param index
-     *         the shard index to look in
-     * @param receivedUpTo
-     *         the latest time, inclusive, at which the messages were received
-     * @return the messages found, the older ones first
-     */
-    public ImmutableList<InboxMessage> readToDeliver(ShardIndex index, Timestamp receivedUpTo) {
-        // Sorted as in `newestMessageToDeliver()`, so that a storage needing an index
-        // for such queries can serve both of them from one index. The older-first order
-        // is applied in memory, with no limit: normally, only a few messages are found.
-        var query =
-                queryBuilder().where(inbox_shard).is(index)
-                              .where(status).is(TO_DELIVER)
-                              .where(received_at).isLessOrEqualTo(receivedUpTo)
-                              .sortDescendingBy(received_at)
-                              .build();
-        var newestFirst = readAll(query);
-        return stream(newestFirst).sorted(InboxMessageComparator.chronologically)
-                                  .collect(toImmutableList());
     }
 
     /**
