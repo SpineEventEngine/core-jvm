@@ -25,20 +25,18 @@ import io.spine.server.storage.StorageFactory
 import io.spine.server.storage.StorageGroup
 import io.spine.server.storage.memory.InMemoryStorageFactory
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicReference
 
 /**
  * Creates in-memory record storages that can hold a thread at a [Gate].
  *
  * A thread writing or deleting a record selected by a test stops inside the record
  * storage — where a real storage does its I/O — until the gate opens. A test selects
- * the record by its ID with [hold], or the next record written with [holdNextWrite].
+ * the record by its ID with [hold].
  */
 internal class GatedStorageFactory : StorageFactory {
 
     private val delegate = InMemoryStorageFactory.newInstance()
     private val gates = ConcurrentHashMap<Any, Gate>()
-    private val nextWrite = AtomicReference<Gate?>()
 
     /**
      * Makes the record storages hold, at the given gate, the operations through
@@ -50,20 +48,13 @@ internal class GatedStorageFactory : StorageFactory {
         gates[id] = gate
     }
 
-    /**
-     * Makes the next write of a single record pass the given gate, whatever the record.
-     */
-    fun holdNextWrite(gate: Gate) {
-        nextWrite.set(gate)
-    }
-
     override fun <I : Any, R : Message> createRecordStorage(
         context: ContextSpec,
         recordSpec: RecordSpec<I, R>,
         group: StorageGroup?
     ): RecordStorage<I, R> {
         val records = delegate.createRecordStorage(context, recordSpec, group)
-        return GatedRecords(context, delegate = records, gates = gates, nextWrite = nextWrite)
+        return GatedRecords(context, delegate = records, gates = gates)
     }
 
     override fun isOpen(): Boolean = delegate.isOpen
@@ -74,10 +65,8 @@ internal class GatedStorageFactory : StorageFactory {
 /**
  * A record storage that makes the calling thread pass the gate of a record
  * in `write(RecordWithColumns)`, `writeAll()` and `deleteAll()` — the three methods
- * through which an `InboxStorage` writes and removes its messages.
- *
- * Before writing a single record, the thread also passes the gate set for the next
- * write, if any. The other methods go straight to the delegate.
+ * through which an `InboxStorage` writes and removes its messages. The other methods
+ * go straight to the delegate.
  *
  * @param I The type of the record identifiers.
  * @param R The type of the stored records.
@@ -86,17 +75,14 @@ internal class GatedStorageFactory : StorageFactory {
  * @param delegate The storage doing the actual work.
  * @property gates The gates by the identifiers of the records. A record without
  *   a gate is written and deleted right away.
- * @property nextWrite The gate for the next write of a single record to pass.
  */
 private class GatedRecords<I : Any, R : Message>(
     context: ContextSpec,
     delegate: RecordStorage<I, R>,
-    private val gates: Map<Any, Gate>,
-    private val nextWrite: AtomicReference<Gate?>
+    private val gates: Map<Any, Gate>
 ) : DelegatingRecordStorage<I, R>(context, delegate) {
 
     override fun write(record: RecordWithColumns<I, R>) {
-        nextWrite.getAndSet(null)?.pass()
         passGateOf(record.id())
         super.write(record)
     }
