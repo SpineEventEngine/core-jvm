@@ -174,13 +174,15 @@ import static java.util.stream.Collectors.toSet;
  * See {@link CatchUpStation} for more details.
  *
  * <p>The historical data pushed by the catch-up is dispatched through a number of shards,
- * each processed by the {@code Delivery} independently of each other. Starting to dispatch
- * the events from a shard, {@code Delivery} reads the details of the catch-up processes.
- * By interpreting the status of each catch-up, {@code Delivery} decides on the actions to apply
- * to the historical events. For instance, once a catch-up is {@code COMPLETED}, the events still
- * held for it are delivered: the last historical events and the live events paused while
+ * each processed by the {@code Delivery} independently of each other. Each time {@code Delivery}
+ * reads a batch of messages to deliver from a shard, it reads the details of the catch-up
+ * processes. By interpreting the status of each catch-up, {@code Delivery} decides on the actions
+ * to apply to the historical events. For instance, once a catch-up is {@code COMPLETED}, the events
+ * still held for it are delivered: the last historical events and the live events paused while
  * the catch-up was finalizing. Within each batch read from a shard, these events are
- * deduplicated and sorted chronologically before the delivery.
+ * deduplicated and sorted chronologically before the delivery. If a delivery run sees
+ * a catch-up change its status, it ends, and the next run starts from the beginning of
+ * the shard, so these events are delivered before the messages that follow them in the shard.
  *
  * <p>Before moving to the catch-up completion, it is required to make sure every historical event
  * has been seen and dispatched by the {@code Delivery}. So if the catch-up process is moved
@@ -191,7 +193,7 @@ import static java.util.stream.Collectors.toSet;
  * potentially by different application nodes. Therefore, in order to switch to the
  * {@code COMPLETED} status, a catch-up process must ensure that <b>each</b> shard was processed
  * by the {@code Delivery} that witnessed the catch-up process in its {@code FINALIZING} state.
- * Such evidence would mean that this {@code Delivery} run is at the point in time by which
+ * Such evidence would mean that the {@code Delivery} has reached the point in time by which
  * three things already happened:
  *
  * <ol type="a">

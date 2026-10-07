@@ -1,32 +1,21 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.delivery;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.protobuf.Duration;
 import com.google.protobuf.util.Durations;
@@ -44,6 +33,7 @@ import io.spine.server.delivery.memory.InMemoryShardedWorkRegistry;
 import io.spine.server.projection.ProjectionRepository;
 import io.spine.string.Stringifiers;
 import io.spine.type.TypeUrl;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +41,8 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
+import static io.spine.server.delivery.InboxMessageStatus.DELIVERED;
 import static java.lang.String.format;
 import static java.util.Collections.synchronizedList;
 
@@ -446,7 +438,9 @@ public final class Delivery implements WithLogging {
      *
      * <p>After all the pages are read, the delivery process is launched again for the same shard.
      * It is required in order to handle the messages that may have been put to the same shard
-     * as an outcome of the first-wave messages.
+     * as an outcome of the first-wave messages. The process is also launched again if
+     * the statuses of the catch-up jobs change while the pages are being delivered, so that
+     * the messages held under the previous status are delivered before the later ones.
      *
      * <p>Once the shard has no more messages to deliver, the delivery process ends, releasing
      * the lock for the respective {@code ShardIndex}.
@@ -531,6 +525,10 @@ public final class Delivery implements WithLogging {
      * The configured {@link #monitor DeliveryMonitor} may stop the execution according to
      * the monitored {@code DeliveryStage}.
      *
+     * <p>Each page is delivered according to the catch-up jobs read after the page.
+     * If the statuses of the jobs differ from those in the previous read, the run ends
+     * without delivering the page. See {@link CatchUpJobsOfRun} for the details.
+     *
      * @return the results of the run
      */
     private RunResult runDelivery(ShardSessionRecord session) {
@@ -541,19 +539,20 @@ public final class Delivery implements WithLogging {
 
         var shouldContinue = true;
         List<DeliveryStage> stages = new ArrayList<>();
-        Iterable<CatchUp> catchUpJobs = refreshCatchUpJobs();
+        var jobsOfRun = new CatchUpJobsOfRun();
         while (shouldContinue && maybePage.isPresent()) {
             var currentPage = maybePage.get();
             var messages = currentPage.contents();
             if (!messages.isEmpty()) {
-                var stage = deliverMessages(messages, index, catchUpJobs);
+                var jobs = jobsOfRun.readFor(messages);
+                if (jobsOfRun.changed()) {
+                    break;
+                }
+                var stage = deliverMessages(messages, index, jobs);
                 stages.add(stage);
                 shouldContinue = monitorTellsToContinueAfter(stage);
             }
             if (shouldContinue) {
-                if(messages.size() < pageSize) {
-                    catchUpJobs = refreshCatchUpJobs();
-                }
                 maybePage = currentPage.next();
             }
         }
@@ -561,11 +560,7 @@ public final class Delivery implements WithLogging {
         int totalMessagesDelivered = stages.stream()
                                            .map(DeliveryStage::getMessagesDelivered)
                                            .reduce(0, Integer::sum);
-        return new RunResult(totalMessagesDelivered, !shouldContinue);
-    }
-
-    private ImmutableList<CatchUp> refreshCatchUpJobs() {
-        return ImmutableList.copyOf(catchUpStorage.readAll());
+        return new RunResult(totalMessagesDelivered, !shouldContinue, jobsOfRun.changed());
     }
 
     private DeliveryStage deliverMessages(ImmutableList<InboxMessage> messages,
@@ -808,5 +803,59 @@ public final class Delivery implements WithLogging {
         return multitenant ?
                ContextSpec.multitenant(name) :
                ContextSpec.singleTenant(name);
+    }
+
+    /**
+     * The catch-up jobs, according to which a delivery run delivers its pages.
+     *
+     * <p>The jobs are read anew for each page, after the page is read. A catch-up process
+     * stores the status of its job before it sends the messages that an older status would
+     * mishandle. Read after the page, the jobs reflect each status stored before
+     * the messages of the page were written.
+     *
+     * <p>A page that holds only {@linkplain InboxMessageStatus#DELIVERED delivered} messages,
+     * kept for the deduplication, has nothing to deliver. It goes through the stations with
+     * no jobs, which saves a read.
+     *
+     * <p>The messages held under a status of a job, such as those paused while the job is
+     * {@linkplain CatchUpStatus#FINALIZING finalizing}, stay behind the page cursor. If
+     * the statuses change in the middle of a run, the later pages would overtake them.
+     * Therefore, once the statuses differ from those of the previous read, the run ends
+     * without delivering the page, and the next run reads the shard from its start.
+     */
+    private final class CatchUpJobsOfRun {
+
+        private @Nullable ImmutableMap<CatchUpId, CatchUpStatus> statuses;
+        private boolean changed;
+
+        /**
+         * Reads the jobs to deliver the given messages of a page with.
+         *
+         * @param messages
+         *         the messages of the page
+         * @return the jobs, or no jobs if all the messages are delivered
+         */
+        private ImmutableList<CatchUp> readFor(ImmutableList<InboxMessage> messages) {
+            var hasUndelivered = messages.stream()
+                                         .anyMatch(message -> message.getStatus() != DELIVERED);
+            if (!hasUndelivered) {
+                return ImmutableList.of();
+            }
+            var jobs = ImmutableList.copyOf(catchUpStorage.readAll());
+            var current = jobs.stream()
+                              .collect(toImmutableMap(CatchUp::getId, CatchUp::getStatus));
+            if (statuses != null && !statuses.equals(current)) {
+                changed = true;
+            }
+            statuses = current;
+            return jobs;
+        }
+
+        /**
+         * Tells whether the statuses of the jobs differed between any two reads of the run.
+         */
+        private boolean changed() {
+            return changed;
+        }
     }
 }
