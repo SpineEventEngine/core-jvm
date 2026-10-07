@@ -14,6 +14,7 @@
 
 package io.spine.server.delivery
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
@@ -22,6 +23,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.spine.base.Time.currentTime
 import io.spine.server.delivery.CatchUpStatus.COMPLETED
+import io.spine.server.delivery.CatchUpStatus.CUS_UNDEFINED
 import io.spine.server.delivery.CatchUpStatus.FINALIZING
 import io.spine.server.delivery.CatchUpStatus.IN_PROGRESS
 import io.spine.server.delivery.CatchUpStatus.STARTED
@@ -34,6 +36,7 @@ import io.spine.server.delivery.given.TestInboxMessages.catchingUp
 import io.spine.server.delivery.given.TestInboxMessages.copyWithStatus
 import io.spine.server.delivery.given.TestInboxMessages.toDeliver
 import io.spine.testing.server.TestEventFactory
+import io.spine.validation.NonValidated
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -149,11 +152,32 @@ internal class CatchUpStationSpec {
         delivered.hasKeepUntil() shouldBe true
     }
 
+    @ParameterizedTest(name = COMPLETED_JOB_READ)
+    @EnumSource(JobOrder::class)
+    fun `fail if the job chosen for a message has no definite status`(
+        order: JobOrder
+    ) {
+        val conveyor = conveyorWith(catchingUp(TARGET, type))
+        val jobs = order.arrange(completedJob(), jobWithoutStatus())
+
+        shouldThrow<IllegalStateException> {
+            CatchUpStation(action, jobs).process(conveyor)
+        }
+    }
+
     /**
      * Creates a job of catching up [TARGET].
      */
     private fun job(status: CatchUpStatus): CatchUp =
         catchUpJob(type, status, currentTime(), listOf<Any>(TARGET))
+
+    /**
+     * Creates a job of catching up [TARGET] without a status, which a valid job must have.
+     */
+    private fun jobWithoutStatus(): @NonValidated CatchUp =
+        job(IN_PROGRESS).toBuilder()
+            .setStatus(CUS_UNDEFINED)
+            .buildPartial()
 
     /**
      * Creates a completed job of catching up all the instances.
