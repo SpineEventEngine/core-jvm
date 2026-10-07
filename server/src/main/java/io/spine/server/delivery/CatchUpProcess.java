@@ -178,8 +178,9 @@ import static java.util.stream.Collectors.toSet;
  * the events from a shard, {@code Delivery} reads the details of the catch-up processes.
  * By interpreting the status of each catch-up, {@code Delivery} decides on the actions to apply
  * to the historical events. For instance, once a catch-up is {@code COMPLETED}, the events still
- * held for it are deduplicated and delivered in their chronological order. These are the last
- * historical events and the live events paused while the catch-up was finalizing.
+ * held for it are delivered: the last historical events and the live events paused while
+ * the catch-up was finalizing. Within each batch read from a shard, these events are
+ * deduplicated and sorted chronologically before the delivery.
  *
  * <p>Before moving to the catch-up completion, it is required to make sure every historical event
  * has been seen and dispatched by the {@code Delivery}. So if the catch-up process is moved
