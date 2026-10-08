@@ -350,8 +350,8 @@ public final class CatchUpProcess<I>
      *
      *      <li>The identifiers of the catch-up targets are defined. They are set according to
      *      the actual IDs of the projections to which the {@code CatchUpStarted} has been
-     *      dispatched. It is important to know the target IDs, since their state has to be reset
-     *      to default before the dispatching of the first historical event.
+     *      dispatched. It is important to know the target IDs, since their state has to be
+     *      deleted before the dispatching of the first historical event.
      *
      *      <li>The number of the projection instances to catch-up is remembered. The process
      *      then waits for {@link EntityPreparedForCatchUp} events to arrive for each of

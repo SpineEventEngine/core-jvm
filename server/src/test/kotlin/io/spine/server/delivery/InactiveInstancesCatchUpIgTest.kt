@@ -198,7 +198,9 @@ internal class InactiveInstancesCatchUpIgTest : AbstractDeliveryTest() {
      * then stores the projection back.
      */
     private fun changeStored(id: String, change: (CounterView) -> Unit) {
-        val projection = repository.find(id).get()
+        val projection = checkNotNull(repository.find(id).getOrNull()) {
+            "The projection `$id` is not stored."
+        }
         change(projection)
         repository.store(projection)
     }

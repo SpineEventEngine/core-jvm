@@ -277,9 +277,9 @@ public abstract class ProjectionRepository<I : Any,
      *
      * At the beginning of the process, each of the entities is deleted from the storage, to be
      * rebuilt from the replayed events. So an entity that none of these events reaches is no
-     * longer stored after the catch-up. A catch-up of all the entities resets every stored one,
-     * including those archived or deleted. Such an entity comes back active, unless
-     * the replayed events archive or delete it again.
+     * longer stored after the catch-up. Archived and deleted entities are caught up too:
+     * a catch-up of all includes every stored one. An archived or deleted entity comes back
+     * active, unless the replayed events archive or delete it again.
      *
      * During this process, the entities receive continuous updates to their state. After the
      * catch-up is completed, the framework automatically resumes the dispatching of ongoing live
@@ -320,8 +320,7 @@ public abstract class ProjectionRepository<I : Any,
     }
 
     /**
-     * Starts the catch-up of all entities in this repository, archived and deleted
-     * ones included.
+     * Starts the catch-up of all entities in this repository, including archived and deleted ones.
      *
      * This is a shortcut method for [catchUp(since, null)][catchUp].
      *
@@ -350,7 +349,8 @@ public abstract class ProjectionRepository<I : Any,
      * A [CatchUpSignal] is not routed. It is sent to the restricted targets or, with no
      * restriction, to every stored projection instance, the archived and deleted ones included.
      * Handling a signal may affect the lifecycle of the instances it reaches; e.g., the start
-     * of a catch-up deletes their state. So the caller must know which instances those are.
+     * of a catch-up deletes their state. The returned identifiers tell the caller which
+     * instances were affected.
      *
      * @param event The event to dispatch.
      * @param restrictToIds Optional set of the target identifiers to which the dispatching must
@@ -382,7 +382,9 @@ public abstract class ProjectionRepository<I : Any,
      * Returns the identifiers of all the stored projection instances,
      * the archived and deleted ones included.
      *
-     * Unlike [index], which lists the active instances only.
+     * Unlike [index], which lists only the active instances, this reads the storage with
+     * an unconstrained query. The record storage adds no lifecycle filter to such a query
+     * passed to `index(query)`, though it does for `readAll(query)`.
      */
     private fun storedIds(): Set<I> {
         val storage = recordStorage()
