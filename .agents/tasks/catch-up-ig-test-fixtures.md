@@ -19,9 +19,9 @@ test count.
 
 ## Context
 
-The branch starts at `4fd47fc82e4`, the head of `catch-up-all-resets-inactive` (#1688,
-open, approved), since `InactiveInstancesCatchUpIgTest` comes from it. The PR targets that
-branch and is retargeted to `master` once #1688 merges.
+The branch starts at `4fd47fc82e4`, the head of `catch-up-all-resets-inactive` (#1688),
+since `InactiveInstancesCatchUpIgTest` comes from it. #1688 merged before the PR was opened
+(`21ee29e28d5`, with the same tree), so the PR, [#1689][pr-1689], targets `master`.
 
 All three tests are in `server/src/test/kotlin/io/spine/server/delivery/` and extended
 `AbstractDeliveryTest`. Each defined its own copy of:
@@ -131,3 +131,5 @@ executed 2115 tests again, all passed; `:server:detekt` and `:server:dokkaGenera
   `undelivered()`, and the turbulence pause from the base; its watchdog and hooked
   observer stay in that test.
 - On merge, delete this file and the follow-up entries it closes in the two task files.
+
+[pr-1689]: https://github.com/SpineEventEngine/core-jvm/pull/1689
