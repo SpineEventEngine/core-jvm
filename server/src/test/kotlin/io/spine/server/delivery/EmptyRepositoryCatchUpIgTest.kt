@@ -22,26 +22,17 @@ import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.spine.base.Time.currentTime
-import io.spine.environment.Tests
 import io.spine.server.BoundedContextBuilder
-import io.spine.server.ServerEnvironment
 import io.spine.server.delivery.CatchUpStatus.COMPLETED
-import io.spine.server.delivery.InboxMessageStatus.TO_CATCH_UP
-import io.spine.server.delivery.InboxMessageStatus.TO_DELIVER
 import io.spine.server.delivery.event.LiveEventsPickedUp
-import io.spine.server.delivery.given.CounterView
 import io.spine.server.event.AbstractEventReactor
 import io.spine.server.event.React
-import io.spine.server.under
 import io.spine.test.delivery.NumberAdded
 import io.spine.test.delivery.numberAdded
 import io.spine.testing.SlowTest
 import io.spine.testing.server.TestEventFactory
 import io.spine.testing.server.blackbox.BlackBox
 import io.spine.type.TypeUrl
-import java.util.concurrent.CopyOnWriteArrayList
-import kotlin.jvm.optionals.getOrNull
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -56,23 +47,7 @@ import org.junit.jupiter.params.provider.ValueSource
  */
 @SlowTest
 @DisplayName("`catchUpAll()` of a projection with no stored instances should")
-internal class EmptyRepositoryCatchUpIgTest : AbstractDeliveryTest() {
-
-    private val repository = CounterView.Repository()
-
-    /**
-     * What failed during the delivery: the delivery runs and the receptors.
-     */
-    private val failures = CopyOnWriteArrayList<String>()
-
-    /**
-     * Restores the default weight of an event, which `CounterView` keeps in a static field,
-     * and other suites leave changed.
-     */
-    @BeforeEach
-    fun weighEachEventOne() {
-        CounterView.changeWeightTo(1)
-    }
+internal class EmptyRepositoryCatchUpIgTest : AbstractCatchUpIgTest() {
 
     @ParameterizedTest(name = WITH_SHARDS)
     @ValueSource(ints = [1, 3])
@@ -88,7 +63,7 @@ internal class EmptyRepositoryCatchUpIgTest : AbstractDeliveryTest() {
             assertSoftly {
                 failures.shouldBeEmpty()
                 jobStatuses() shouldBe listOf(COMPLETED)
-                totals() shouldBe mapOf(
+                totals(FIRST, SECOND, THIRD) shouldBe mapOf(
                     FIRST to EVENTS_PER_TARGET + 1,
                     SECOND to EVENTS_PER_TARGET,
                     THIRD to 1
@@ -109,7 +84,8 @@ internal class EmptyRepositoryCatchUpIgTest : AbstractDeliveryTest() {
             assertSoftly {
                 failures.shouldBeEmpty()
                 jobStatuses() shouldBe listOf(COMPLETED)
-                totals() shouldBe mapOf(FIRST to null, SECOND to null, THIRD to 1)
+                totals(FIRST, SECOND, THIRD) shouldBe
+                        mapOf(FIRST to null, SECOND to null, THIRD to 1)
                 undelivered().shouldBeEmpty()
             }
         }
@@ -129,7 +105,7 @@ internal class EmptyRepositoryCatchUpIgTest : AbstractDeliveryTest() {
             assertSoftly {
                 failures.shouldBeEmpty()
                 jobStatuses() shouldBe listOf(COMPLETED)
-                totals() shouldBe mapOf(
+                totals(FIRST, SECOND, THIRD) shouldBe mapOf(
                     FIRST to EVENTS_PER_TARGET,
                     SECOND to EVENTS_PER_TARGET,
                     THIRD to 1
@@ -137,31 +113,6 @@ internal class EmptyRepositoryCatchUpIgTest : AbstractDeliveryTest() {
                 undelivered().shouldBeEmpty()
             }
         }
-    }
-
-    /**
-     * Installs a `Delivery` that uses the given strategy, delivers synchronously
-     * through `LocalDispatchingObserver`, and records each failure.
-     *
-     * Otherwise, a failure would go unnoticed: `Delivery` only logs what a shard observer
-     * throws, and `DeliveryMonitor` marks a message failed by its receptor as delivered.
-     */
-    private fun useDelivery(strategy: DeliveryStrategy) {
-        val delivery = Delivery.newBuilder()
-            .setStrategy(strategy)
-            .setDeduplicationWindow(Durations.ZERO)
-            .setMonitor(FailureRecorder())
-            .build()
-        val dispatching = LocalDispatchingObserver()
-        delivery.subscribe { message ->
-            try {
-                dispatching.onMessage(message)
-            } catch (e: Exception) {
-                failures.add("Delivery run: $e")
-                throw e
-            }
-        }
-        under<Tests> { use(delivery) }
     }
 
     /**
@@ -178,42 +129,6 @@ internal class EmptyRepositoryCatchUpIgTest : AbstractDeliveryTest() {
             val message = numberAdded { calculatorId = target }
             val stamp = add(tenMinutesAgo, Durations.fromSeconds(seconds.toLong()))
             context.append(factory.createEvent(message, null, stamp))
-        }
-    }
-
-    private fun jobStatuses(): List<CatchUpStatus> =
-        ServerEnvironment.instance()
-            .delivery()
-            .catchUpStorage()
-            .readByType(CounterView.projectionType())
-            .asSequence()
-            .map { it.status }
-            .toList()
-
-    /**
-     * Returns the totals of the projections, or `null` for those that are not stored.
-     */
-    private fun totals(): Map<String, Int?> =
-        listOf(FIRST, SECOND, THIRD).associateWith { id ->
-            repository.find(id).getOrNull()?.state()?.total
-        }
-
-    /**
-     * Returns the messages that are still to be delivered, either live or for a catch-up.
-     */
-    private fun undelivered(): List<InboxMessage> =
-        InboxContents.get().values.flatten().filter {
-            it.status == TO_DELIVER || it.status == TO_CATCH_UP
-        }
-
-    /**
-     * Records the receptor failures, which `Delivery` does not throw.
-     */
-    private inner class FailureRecorder : DeliveryMonitor() {
-
-        override fun onReceptionFailure(reception: FailedReception): FailedReception.Action {
-            failures.add("Receptor: ${reception.error().message}")
-            return super.onReceptionFailure(reception)
         }
     }
 
