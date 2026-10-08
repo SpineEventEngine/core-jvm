@@ -61,6 +61,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Supplier;
+import java.util.stream.IntStream;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.protobuf.util.Durations.fromMillis;
@@ -116,22 +117,21 @@ import static java.util.stream.Collectors.toSet;
  *     <li>A {@link CatchUpStarted} event is emitted. The target projection repository listens to
  *     this event and kills the state of the matching entities.
  *
- *     <li>The status of the catch-up process is set to {@link CatchUpStatus#IN_PROGRESS
- *     IN_PROGRESS}.
+ *     <li>The status of the catch-up process is set to {@link CatchUpStatus#STARTED STARTED}.
  * </ol>
  *
  * <h3>{@linkplain CatchUpStatus#STARTED STARTED}</h3>
  *
- * <p>The process is created in this status upon receiving the {@code CatchUpRequested} event.
- * The further actions include:
+ * <p>In this status, the process waits until each projection instance that received
+ * the start signal has deleted its state and reported that it is ready. Then the process
+ * moves to {@link CatchUpStatus#IN_PROGRESS IN_PROGRESS} and performs the first read
+ * from the event history.
  *
- * <ol>
- *     <li>A {@link CatchUpStarted} event is emitted. The target projection repository listens to
- *     this event and kills the state of the matching entities.
- *
- *     <li>The status of the catch-up process is set to {@link CatchUpStatus#IN_PROGRESS
- *     IN_PROGRESS}.
- * </ol>
+ * <p>If no instance receives the start signal, there is nothing to wait for. This happens
+ * when a catch-up of all the instances finds none of them active, for example, when it
+ * builds a newly introduced projection type from the event history. The process then reads
+ * the history at once. As it cannot tell which shards the instances to be built belong to,
+ * it treats every shard as affected by the catch-up. See the {@code FINALIZING} status below.
  *
  * <h3>{@link CatchUpStatus#IN_PROGRESS IN_PROGRESS}</h3>
  *
@@ -332,7 +332,8 @@ public final class CatchUpProcess<I>
     }
 
     /**
-     * Moves the process from {@code Not Started} to {@code STARTED} state.
+     * Moves the process from {@code Not Started} to {@code STARTED} state, or on to
+     * {@code IN_PROGRESS} when there is no instance to wait for.
      *
      * <p>Several important things happen at this stage:
      * <ol>
@@ -355,11 +356,18 @@ public final class CatchUpProcess<I>
      *      the instances before reading the events from the history.
      * </ol>
      *
-     * <p>The event handler returns {@code Nothing}, as the results of its work are dispatched
+     * <p>If the {@code CatchUpStarted} event reaches no instance, the process does not wait.
+     * It treats every shard as affected by the catch-up, moves to {@code IN_PROGRESS}, and
+     * performs the first read from the event history right away, emitting either
+     * {@code HistoryEventsRecalled} or {@code HistoryFullyRecalled}. See the class-level
+     * documentation for the reasons.
+     *
+     * <p>Otherwise, the handler emits nothing, as the results of its work are dispatched
      * directly to the inboxes of the catching-up projections.
      */
     @React
-    NoReaction handle(CatchUpRequested e, EventContext ctx) {
+    EitherOf3<HistoryEventsRecalled, HistoryFullyRecalled, NoReaction>
+    handle(CatchUpRequested e, EventContext ctx) {
         var id = e.getId();
 
         var request = e.getRequest();
@@ -373,7 +381,11 @@ public final class CatchUpProcess<I>
         flushState();
 
         dispatchCatchUpStarted(started, ctx);
-        return noReaction();
+        if (builder().getInstancesToClear() > 0) {
+            return EitherOf3.withC(noReaction());
+        }
+        recordAllShardsAsAffected();
+        return startRecalling();
     }
 
     private void dispatchCatchUpStarted(CatchUpStarted started, EventContext ctx) {
@@ -402,14 +414,21 @@ public final class CatchUpProcess<I>
         if (leftToClear > 0) {
             return EitherOf3.withC(noReaction());
         }
+        return startRecalling();
+    }
+
+    /**
+     * Moves the process to {@code IN_PROGRESS} and performs the first read
+     * from the event history.
+     */
+    private EitherOf3<HistoryEventsRecalled, HistoryFullyRecalled, NoReaction> startRecalling() {
         builder().setStatus(IN_PROGRESS);
 
         var result = recallMoreEvents();
         if (result.hasA()) {
             return EitherOf3.withA(result.getA());
-        } else {
-            return EitherOf3.withB(result.getB());
         }
+        return EitherOf3.withB(result.getB());
     }
 
     /**
@@ -653,6 +672,28 @@ public final class CatchUpProcess<I>
         var totalShards = delivery.shardCount();
         builder().clearAffectedShard()
                  .addAllAffectedShard(newValue)
+                 .setTotalShards(totalShards);
+    }
+
+    /**
+     * Records every shard as affected by this catch-up.
+     *
+     * <p>Used when no instance receives the start signal, so the shards of the instances
+     * to be built are unknown.
+     *
+     * <p>At the end of the catch-up, each affected shard is processed twice: before
+     * the completion and after it. The latter run delivers the live events that
+     * the {@code Delivery} held back in the shard while the catch-up was finalizing.
+     */
+    private void recordAllShardsAsAffected() {
+        var totalShards = ServerEnvironment.instance()
+                                           .delivery()
+                                           .shardCount();
+        var allShards = IntStream.range(0, totalShards)
+                                 .boxed()
+                                 .collect(toList());
+        builder().clearAffectedShard()
+                 .addAllAffectedShard(allShards)
                  .setTotalShards(totalShards);
     }
 

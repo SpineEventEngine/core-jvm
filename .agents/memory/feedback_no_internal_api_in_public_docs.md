@@ -22,6 +22,10 @@ point the reference breaks.
   `{@code Load}`, then — to make clear what the names referred to — as `{@link Load}`.
   Both were rejected. The accepted text names no API: "even while an entity is being
   loaded or stored".
+- 2026-10-06. A rewritten section of the class Javadoc of the public `CatchUpProcess`
+  named the `CatchUpStarted` and `EntityPreparedForCatchUp` events. They are generated
+  from `catch_up_events.proto`, which declares `option (internal_all) = true`, so they
+  are `@Internal`. Two reviewers caught it; the accepted text says "the start signal".
 
 **How to apply:**
 
@@ -30,6 +34,9 @@ point the reference breaks.
   `[DoubleDispatchGuard]`.
 - Before writing a link or a type name in a doc comment, check the annotation of the
   target *and of the class enclosing it*.
+- For a type generated from Protobuf, there is no source to check: look in its `.proto`
+  for the file option `(internal_all) = true` and the message option
+  `(internal_type) = true`. Either makes the generated type `@Internal`.
 - Do not treat the Javadoc of an `@Internal` class as exempt. The class is still
   `public`, its documentation is still published, and the second case above was in
   such a Javadoc.
