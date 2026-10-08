@@ -143,6 +143,10 @@ class IncrementGuard : Plugin<Project> {
             group = SpineTaskGroup.name
             description = "Verifies that the project version was incremented before publishing"
             repository = CloudArtifactRegistry.repository
+            rootDir.set(target.rootDir)
+            // Resolved lazily: the group and the artifact prefix may still be
+            // configured after the task is created.
+            artifactPath.set(target.provider { target.artifactPath() })
             onlyIf {
                 mustVerify(shouldCheckVersion(), Build.ci, it.publishesToMavenLocal())
             }
@@ -196,3 +200,30 @@ class IncrementGuard : Plugin<Project> {
  */
 private fun Task.publishesToMavenLocal(): Boolean =
     IncrementGuard.localPublishPlanned(project.gradle.taskGraph.allTasks, project)
+
+/**
+ * Obtains the path to the artifact of this project in a Maven repository,
+ * such as `io/spine/spine-base`.
+ */
+private fun Project.artifactPath(): String {
+    val group = this.group as String
+    val name = "${artifactPrefix()}${this.name}"
+
+    val pathElements = ArrayList(group.split('.'))
+    pathElements.add(name)
+    val path = pathElements.joinToString(separator = "/")
+    return path
+}
+
+/**
+ * Returns the artifact prefix used for the publishing of this project.
+ *
+ * All current Spine modules should be using `SpinePublishing`.
+ * Therefore, the corresponding extension should be present in the root project.
+ * Without it, the [default prefix][SpinePublishing.DEFAULT_PREFIX] is used.
+ */
+private fun Project.artifactPrefix(): String {
+    val ext = rootProject.extensions.findByType(SpinePublishing::class.java)
+    val result = ext?.artifactPrefix ?: SpinePublishing.DEFAULT_PREFIX
+    return result
+}

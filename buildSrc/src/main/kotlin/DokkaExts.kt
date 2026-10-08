@@ -12,7 +12,7 @@
  * and limitations under the License.
  */
 
-import io.spine.dependency.build.Dokka
+import io.spine.dependency.local.DokkaTools
 import io.spine.gradle.SpineTaskGroup
 import io.spine.gradle.publish.getOrCreate
 import java.io.File
@@ -38,7 +38,7 @@ import org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters
  *     Custom Dokka Plugins</a>
  */
 fun DependencyHandlerScope.useDokkaWithSpineExtensions() {
-    dokkaPlugin(Dokka.SpineExtensions.lib)
+    dokkaPlugin(DokkaTools.extensions)
 }
 
 private fun DependencyHandler.dokkaPlugin(dependencyNotation: Any): Dependency? =

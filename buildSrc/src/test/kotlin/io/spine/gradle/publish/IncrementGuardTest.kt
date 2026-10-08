@@ -24,6 +24,7 @@ import io.spine.gradle.publish.IncrementGuard.Companion.shouldCompareToBase
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.publish.maven.tasks.PublishToMavenLocal
+import org.gradle.kotlin.dsl.create
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -188,6 +189,54 @@ class IncrementGuardTest {
             check.dependencyNames() shouldNotContain IncrementGuard.taskName
         }
     }
+
+    @Nested
+    inner class `configure 'checkVersionIncrement' with` {
+
+        @Test
+        fun `the root directory of the build`() {
+            val root = ProjectBuilder.builder().build()
+            val sub = ProjectBuilder.builder().withParent(root).withName("sub").build()
+            sub.pluginManager.apply(IncrementGuard::class.java)
+
+            sub.checkVersionTask().rootDir.get().asFile shouldBe root.rootDir
+        }
+
+        @Test
+        fun `the artifact path under the default prefix`() {
+            val project = ProjectBuilder.builder().withName("base").build()
+            project.group = "io.spine"
+            project.pluginManager.apply(IncrementGuard::class.java)
+
+            project.checkVersionTask().artifactPath.get() shouldBe "io/spine/spine-base"
+        }
+
+        @Test
+        fun `the artifact path under the prefix set later in the root project`() {
+            val root = ProjectBuilder.builder().build()
+            val sub = ProjectBuilder.builder().withParent(root).withName("core").build()
+            sub.group = "io.spine"
+            sub.pluginManager.apply(IncrementGuard::class.java)
+            val task = sub.checkVersionTask()
+            val publishing = root.extensions.create<SpinePublishing>(
+                SpinePublishing.extensionName,
+                root
+            )
+            publishing.artifactPrefix = "custom-"
+
+            task.artifactPath.get() shouldBe "io/spine/custom-core"
+        }
+
+        @Test
+        fun `the artifact path under the group set after the task is created`() {
+            val project = ProjectBuilder.builder().withName("base").build()
+            project.pluginManager.apply(IncrementGuard::class.java)
+            val task = project.checkVersionTask()
+            project.group = "io.spine"
+
+            task.artifactPath.get() shouldBe "io/spine/spine-base"
+        }
+    }
 }
 
 /**
@@ -202,6 +251,12 @@ private fun guardedProject(): Project {
     project.pluginManager.apply(IncrementGuard::class.java)
     return project
 }
+
+/**
+ * Obtains the [CheckVersionIncrement] task that [IncrementGuard] registered in this project.
+ */
+private fun Project.checkVersionTask(): CheckVersionIncrement =
+    tasks.named(IncrementGuard.taskName, CheckVersionIncrement::class.java).get()
 
 /**
  * Obtains the names of the tasks this task directly depends on.

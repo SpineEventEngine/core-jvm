@@ -21,7 +21,7 @@ package io.spine.dependency.local
  */
 @Suppress("ConstPropertyName")
 object Reflect {
-    const val version = "2.0.0-SNAPSHOT.200"
+    const val version = "2.0.0-SNAPSHOT.201"
     const val group = Spine.group
     const val artifact = "spine-reflect"
     const val lib = "$group:$artifact:$version"

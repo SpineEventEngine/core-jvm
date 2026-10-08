@@ -20,8 +20,10 @@ import io.spine.gradle.repo.Repository
 import java.net.URI
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
-import org.gradle.api.Project
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 
 /**
@@ -39,8 +41,12 @@ import org.gradle.api.tasks.TaskAction
  *     repository, so a publication cannot overwrite an immutable artifact.
  *
  * The two checks are complementary; neither subsumes the other.
+ *
+ * The task action must not access [project][org.gradle.api.Task.getProject], which Gradle
+ * deprecates at execution time. Therefore, [version] is captured when the task is created,
+ * and [IncrementGuard] sets [rootDir] and [artifactPath] when it registers the task.
  */
-open class CheckVersionIncrement : DefaultTask() {
+abstract class CheckVersionIncrement : DefaultTask() {
 
     /**
      * The Maven repository in which to look for published artifacts.
@@ -53,6 +59,22 @@ open class CheckVersionIncrement : DefaultTask() {
 
     @Input
     val version: String = project.version as String
+
+    /**
+     * The root directory of the build, which holds `version.gradle.kts`.
+     *
+     * Only its location matters — the task reads `version.gradle.kts` and runs `git` there.
+     * Hence, it is not an [input directory][org.gradle.api.tasks.InputDirectory], which
+     * would fingerprint the whole build tree.
+     */
+    @get:Internal
+    abstract val rootDir: DirectoryProperty
+
+    /**
+     * The path to the project artifact in a Maven repository, such as `io/spine/spine-base`.
+     */
+    @get:Input
+    abstract val artifactPath: Property<String>
 
     @TaskAction
     fun checkVersion() {
@@ -132,7 +154,8 @@ open class CheckVersionIncrement : DefaultTask() {
      * [VersionGradleFile.contentInBase] when the base ref itself cannot be resolved.
      */
     private fun baseVersionToCompare(baseRef: String): String? {
-        val headContent = VersionGradleFile.contentUnder(project.rootDir)
+        val root = rootDir.get().asFile
+        val headContent = VersionGradleFile.contentUnder(root)
         val key = headContent?.let { VersionGradleFile.keyForValue(it, version) }
         if (key == null) {
             logger.warn(
@@ -141,7 +164,7 @@ open class CheckVersionIncrement : DefaultTask() {
             )
             return null
         }
-        val baseContent = VersionGradleFile.contentInBase(project.rootDir, baseRef)
+        val baseContent = VersionGradleFile.contentInBase(root, baseRef)
         val baseVersion = baseContent?.let { VersionGradleFile.valueForKey(it, key) }
         if (baseVersion == null) {
             logger.info(
@@ -160,7 +183,7 @@ open class CheckVersionIncrement : DefaultTask() {
      * may not be overwritten.
      */
     private fun checkNotPublished() {
-        val artifact = "${project.artifactPath()}/${MavenMetadata.FILE_NAME}"
+        val artifact = "${artifactPath.get()}/${MavenMetadata.FILE_NAME}"
         val snapshots = repository.target(snapshots = true)
         checkInRepo(snapshots, artifact)
 
@@ -189,30 +212,5 @@ open class CheckVersionIncrement : DefaultTask() {
     private fun fetch(repository: String, artifact: String): MavenMetadata? {
         val url = URI.create("$repository/$artifact").toURL()
         return MavenMetadata.fetchAndParse(url)
-    }
-
-    private fun Project.artifactPath(): String {
-        val group = this.group as String
-        val name = "${artifactPrefix()}${this.name}"
-
-        val pathElements = ArrayList(group.split('.'))
-        pathElements.add(name)
-        val path = pathElements.joinToString(separator = "/")
-        return path
-    }
-
-    /**
-     * Returns the artifact prefix used for the publishing of this project.
-     *
-     * All current Spine modules should be using `SpinePublishing`.
-     * Therefore, the corresponding extension should be present in the root project.
-     * However, just in case, we define the "standard" prefix here as well.
-     *
-     * This value MUST be the same as defined by the defaults in `SpinePublishing`.
-     */
-    private fun Project.artifactPrefix(): String {
-        val ext = rootProject.extensions.findByType(SpinePublishing::class.java)
-        val result = ext?.artifactPrefix ?: SpinePublishing.DEFAULT_PREFIX
-        return result
     }
 }
