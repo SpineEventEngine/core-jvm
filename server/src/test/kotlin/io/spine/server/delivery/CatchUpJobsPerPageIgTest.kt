@@ -21,6 +21,7 @@ import com.google.protobuf.util.Timestamps.subtract
 import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.optional.shouldBePresent
 import io.kotest.matchers.shouldBe
 import io.spine.base.EventMessage
 import io.spine.base.Identifier
@@ -63,19 +64,20 @@ import org.junit.jupiter.api.Timeout.ThreadMode.SEPARATE_THREAD
 
 /**
  * Tests that a delivery run delivers each page of a shard according to the catch-up jobs
- * read after the page, and starts over once the statuses of the jobs change.
+ * read after the page, and that the delivery starts over once the statuses of the jobs
+ * change.
  *
- * Reading the jobs once per run, or only after a page that is not full, would leave
- * the full pages that follow to an outdated status of a job: a catch-up would never
- * complete, or a live event would be applied twice or lost.
+ * Reading the jobs once per run, or only after a page that is not full, would deliver
+ * the full pages that follow according to an outdated status of a job: a catch-up would
+ * never complete, or a live event would be applied twice or lost.
  *
  * Each case uses a single shard. Hooks stand for concurrent writers: the shard observer
  * posts live events as certain messages are written, and the storage of the jobs changes
  * a job right after it is read. The changes happen while a delivery run is in progress.
  *
- * The cases run in a separate thread, so that a timeout fails a case, which a livelocked
- * run would not notice. The timed-out thread is left running, though, so the watchdog of
- * this class is the main guard against a livelock.
+ * The cases run in a separate thread, so that a timeout fails a case even when
+ * a livelocked run never reacts to it. The timed-out thread is left running, though,
+ * so the watchdog of this class is the main guard against a livelock.
  */
 @SlowTest
 @Timeout(value = 60, unit = SECONDS, threadMode = SEPARATE_THREAD)
@@ -234,10 +236,13 @@ internal class CatchUpJobsPerPageIgTest : AbstractDeliveryTest() {
             }
             val readsBefore = storage.reads.get()
 
-            TenantAwareRunner.with(TenantId.getDefaultInstance()).run {
+            val stats = TenantAwareRunner.with(TenantId.getDefaultInstance()).evaluate {
                 delivery.deliverMessagesFrom(SHARD)
             }
 
+            withClue("The run over the delivered messages") {
+                stats.shouldBePresent()
+            }
             withClue("The reads of the jobs by a run over the delivered messages") {
                 storage.reads.get() - readsBefore shouldBe 0
             }

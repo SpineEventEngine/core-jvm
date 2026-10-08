@@ -346,7 +346,8 @@ Outcomes in scratch copies of the branch:
 - The probe, 14 cases, passes with the fix; it is deleted from the worktree.
 
 A sixth case pins the skipped read: a run over a shard of delivered messages, kept for
-deduplication, reads no jobs. `RunResultSpec` covers `shouldRunAgain()` in four cases.
+deduplication, reads no jobs, and the run must happen. `RunResultSpec` covers
+`shouldRunAgain()` in five cases, through named arguments.
 
 ## Verification
 
@@ -376,6 +377,11 @@ deduplication, reads no jobs. `RunResultSpec` covers `shouldRunAgain()` in four 
     "no station acts on such messages according to a job" replaced, see "Landing";
     the two sentences of `CatchUpProcess`; "held under", "the statuses of the catch-up jobs",
     "the previous read"; the KDoc of the test states the contract instead of the history.
+  - Pre-PR round, on the committed branch: `review-docs` approved; `spine-code-review` and
+    `kotlin-engineer` approved with changes. Applied on 2026-10-08, with the user's
+    consent: a case for a stopped run whose jobs changed; named arguments for `RunResult`
+    in its spec, through a helper; the sixth case asserts that the run happened; doc
+    nits, `previous`, and prose instead of a link to the `@Internal` `InboxMessageStatus`.
 
 ## Landing
 

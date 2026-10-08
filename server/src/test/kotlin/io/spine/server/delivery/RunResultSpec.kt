@@ -23,21 +23,35 @@ internal class RunResultSpec {
 
     @Test
     fun `require another run after delivering messages`() {
-        RunResult(1, false, false).shouldRunAgain() shouldBe true
+        runResult(delivered = 1).shouldRunAgain() shouldBe true
     }
 
     @Test
     fun `require another run if the catch-up jobs changed, even with nothing delivered`() {
-        RunResult(0, false, true).shouldRunAgain() shouldBe true
+        runResult(jobsChanged = true).shouldRunAgain() shouldBe true
     }
 
     @Test
     fun `not require another run if the monitor stopped the run`() {
-        RunResult(1, true, false).shouldRunAgain() shouldBe false
+        runResult(delivered = 1, stoppedByMonitor = true).shouldRunAgain() shouldBe false
+    }
+
+    @Test
+    fun `not require another run if the monitor stopped the run, even if the jobs changed`() {
+        runResult(stoppedByMonitor = true, jobsChanged = true).shouldRunAgain() shouldBe false
     }
 
     @Test
     fun `not require another run if nothing was delivered and the jobs did not change`() {
-        RunResult(0, false, false).shouldRunAgain() shouldBe false
+        runResult().shouldRunAgain() shouldBe false
     }
+
+    /**
+     * Creates a result, naming the arguments that the Java constructor takes by position.
+     */
+    private fun runResult(
+        delivered: Int = 0,
+        stoppedByMonitor: Boolean = false,
+        jobsChanged: Boolean = false
+    ) = RunResult(delivered, stoppedByMonitor, jobsChanged)
 }

@@ -526,7 +526,7 @@ public final class Delivery implements WithLogging {
      * the monitored {@code DeliveryStage}.
      *
      * <p>Each page is delivered according to the catch-up jobs read after the page.
-     * If the statuses of the jobs differ from those in the previous read, the run ends
+     * If the statuses of the jobs differ from those of the previous read, the run ends
      * without delivering the page. See {@link CatchUpJobsOfRun} for the details.
      *
      * @return the results of the run
@@ -813,23 +813,24 @@ public final class Delivery implements WithLogging {
      * mishandle. Read after the page, the jobs reflect each status stored before
      * the messages of the page were written.
      *
-     * <p>A page that holds only {@linkplain InboxMessageStatus#DELIVERED delivered} messages,
-     * kept for the deduplication, has nothing to deliver. It goes through the stations with
-     * no jobs, which saves a read.
+     * <p>A page that holds only delivered messages, kept for the deduplication, has nothing
+     * to deliver. It goes through the stations with no jobs, which saves a read.
      *
      * <p>The messages held under a status of a job, such as those paused while the job is
-     * {@linkplain CatchUpStatus#FINALIZING finalizing}, stay behind the page cursor. If
+     * {@linkplain CatchUpStatus#FINALIZING finalizing}, stay in the pages already read. If
      * the statuses change in the middle of a run, the later pages would overtake them.
-     * Therefore, once the statuses differ from those of the previous read, the run ends
-     * without delivering the page, and the next run reads the shard from its start.
+     * Therefore, once the jobs or their statuses differ from those of the previous read,
+     * the run ends without delivering the page, and the next run reads the shard from
+     * its start.
      */
     private final class CatchUpJobsOfRun {
 
-        private @Nullable ImmutableMap<CatchUpId, CatchUpStatus> statuses;
+        private @Nullable ImmutableMap<CatchUpId, CatchUpStatus> previous;
         private boolean changed;
 
         /**
-         * Reads the jobs to deliver the given messages of a page with.
+         * Reads the jobs for delivering the messages of a page, and notes whether their
+         * statuses differ from those of the previous read.
          *
          * @param messages
          *         the messages of the page
@@ -844,15 +845,15 @@ public final class Delivery implements WithLogging {
             var jobs = ImmutableList.copyOf(catchUpStorage.readAll());
             var current = jobs.stream()
                               .collect(toImmutableMap(CatchUp::getId, CatchUp::getStatus));
-            if (statuses != null && !statuses.equals(current)) {
+            if (previous != null && !previous.equals(current)) {
                 changed = true;
             }
-            statuses = current;
+            previous = current;
             return jobs;
         }
 
         /**
-         * Tells whether the statuses of the jobs differed between any two reads of the run.
+         * Tells whether the jobs or their statuses differed between any two reads of the run.
          */
         private boolean changed() {
             return changed;

@@ -45,8 +45,8 @@ class RunResult {
      * Tells if another run is required.
      *
      * <p>Another run is required if the finished one delivered messages or ended because
-     * the statuses of the catch-up jobs changed, unless the {@code DeliveryMonitor} stopped
-     * the execution.
+     * the statuses of the catch-up jobs changed, unless the {@code DeliveryMonitor}
+     * stopped the run.
      */
     boolean shouldRunAgain() {
         return !stoppedByMonitor && (deliveredMsgCount > 0 || catchUpJobsChanged);
