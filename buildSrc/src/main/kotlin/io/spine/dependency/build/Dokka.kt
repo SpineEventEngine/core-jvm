@@ -14,8 +14,6 @@
 
 package io.spine.dependency.build
 
-import io.spine.dependency.local.Spine
-
 // https://github.com/Kotlin/dokka
 @Suppress("unused", "ConstPropertyName")
 object Dokka {
@@ -56,25 +54,5 @@ object Dokka {
      */
     object KotlinAsJavaPlugin {
         const val lib = "$group:kotlin-as-java-plugin:$version"
-    }
-
-    /**
-     * Custom Dokka plugins developed for Spine-specific needs like excluding by
-     * `@Internal` annotation.
-     *
-     * @see <a href="https://github.com/SpineEventEngine/dokka-tools/tree/master/dokka-extensions">
-     *     Custom Dokka Plugins</a>
-     */
-    object SpineExtensions {
-        private const val group = Spine.toolsGroup
-
-        const val version = "2.0.0-SNAPSHOT.9"
-
-        /**
-         * The artifact dropped its `spine-` prefix in `2.0.0-SNAPSHOT.9`, to
-         * match the other tool artifacts. Earlier versions are published as
-         * `spine-dokka-extensions`.
-         */
-        const val lib = "$group:dokka-extensions:$version"
     }
 }
