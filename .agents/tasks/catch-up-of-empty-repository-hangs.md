@@ -35,7 +35,11 @@ Issue: none filed. Suspected by reading; also listed under "Noticed along the wa
 - [x] Commits, authorized on 2026-10-07: the fix; the merge of `claude/dazzling-noyce-92ab0c`,
       the branch of [core-jvm#1683][pr-1683], on which this PR stacks; the version bump to
       `.565`, as #1683 takes `.564`; the dependency reports
-- [ ] Pull request, based on `claude/dazzling-noyce-92ab0c`: #1683 merges first
+- [x] Pull request [core-jvm#1684][pr-1684], opened on `claude/dazzling-noyce-92ab0c`.
+      #1683 merged first (`d2c7f1978a4`, 2026-10-08), and GitHub retargeted #1684 to
+      `master`. Its final version chooses the job of a message through an index,
+      `CatchUpJobs`, by the same rule; `master` with this branch merged in passes
+      `:server:test`, 2110 tests, 0 failed, executed without the build cache
 
 ## Problem
 
@@ -77,10 +81,15 @@ Read at `7b64d415975`. Paths are under `server/src/main/`.
 - **No new catch-up.** `CatchUpStarter.checkNotActive()` (:134) counts any job not
   `COMPLETED` as active; with no targets, it intersects any request
   (`hasIntersections()` :146).
-- **Unnoticed by tests.** `CatchUpTest.AllowCatchUp.onEmptyEventStore()` and
-  `ifPreviousCatchUpCompleted()` (`server/src/testFixtures/.../CatchUpTest.java` :161–181)
-  start exactly this catch-up and assert nothing; `tearDown()` clears all jobs. The only
-  asserting catch-up-all test, `testCatchUpAll()`, stores all its instances first.
+- **Unnoticed by tests.** `CatchUpTest.AllowCatchUp.onEmptyEventStore()` checks that
+  a catch-up may start when the event store is empty, and `ifPreviousCatchUpCompleted()`
+  that it may start after a completed one (`server/src/testFixtures/.../CatchUpTest.java`
+  :161–181). Neither repository ever received an event, so neither has stored instances,
+  and the catch-up of all that each starts takes the path of this defect. For
+  `onEmptyEventStore()`, a run on `master` at `d2c7f1978a4` confirms it: the job stays
+  `STARTED`, with `instancesToClear` 0 and no affected shard. Both tests check only that
+  `catchUpAll()` does not throw, and `tearDown()` clears all jobs. The only asserting
+  catch-up-all test, `testCatchUpAll()`, stores all its instances first.
 
 ## Reproduction
 
@@ -335,6 +344,12 @@ without conflicts, and the PR of this branch targets it.
 - Then let `CatchUpTest.AllowCatchUp` assert that its catch-ups complete — see "Plan",
   step 3.
 
+With #1683 merged, its review records a follow-up: while any job is `FINALIZING`, each
+`ShardProcessingRequested` carries a copy of every job, target IDs included. A catch-up
+whose start signal reached nobody requests every shard, so it emits one such event per
+shard, twice, rather than one per shard it affects. Stamping only the job named in the
+event, as that follow-up proposes, bounds this too.
+
 ## Noticed along the way
 
 By reading only, not run; all pre-existing and out of scope.
@@ -362,3 +377,4 @@ By reading only, not run; all pre-existing and out of scope.
   Spotted by the planning agent, confirmed by reading; offered as a separate task.
 
 [pr-1683]: https://github.com/SpineEventEngine/core-jvm/pull/1683
+[pr-1684]: https://github.com/SpineEventEngine/core-jvm/pull/1684
