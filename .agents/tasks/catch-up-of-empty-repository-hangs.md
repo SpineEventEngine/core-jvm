@@ -32,13 +32,13 @@ Issue: none filed. Suspected by reading; also listed under "Noticed along the wa
       the version at `.565`: `./gradlew clean build dokkaGenerate` passes, `:server:test`
       ran 2107 tests, the specs of both fixes included, 0 failed in all modules
 - [x] Reviews — see "Reviews"
-- [x] Commits, authorized on 2026-10-07: the fix; the merge of `claude/dazzling-noyce-92ab0c`,
-      the branch of [core-jvm#1683][pr-1683], on which this PR stacks; the version bump to
-      `.565`, as #1683 takes `.564`; the dependency reports
+- [x] Commits, authorized on 2026-10-07: the fix, on top of the branch of
+      [core-jvm#1683][pr-1683]; the version bump to `.565`, as #1683 takes `.564`;
+      the dependency reports. After #1683 was merged, the branch was rebased onto `master`
 - [x] Pull request [core-jvm#1684][pr-1684], opened on `claude/dazzling-noyce-92ab0c`.
       #1683 merged first (`d2c7f1978a4`, 2026-10-08), and GitHub retargeted #1684 to
       `master`. Its final version chooses the job of a message through an index,
-      `CatchUpJobs`, by the same rule; `master` with this branch merged in passes
+      `CatchUpJobs`, by the same rule. On top of it, the tree of this branch passes
       `:server:test`, 2110 tests, 0 failed, executed without the build cache
 
 ## Problem
@@ -315,8 +315,8 @@ event; nothing thrown.
 
 Before this fix, a repeated catch-up was already reachable through any repository with
 stored instances, so the fix opens no new kind of exposure. Still, the owner chose to
-merge [core-jvm#1683][pr-1683] first: this branch merges its branch, which merged
-without conflicts, and the PR of this branch targets it.
+merge [core-jvm#1683][pr-1683] first. This branch was built on top of the branch of
+#1683, without conflicts, and then rebased onto `master` once #1683 was merged.
 
 ## Reviews
 
