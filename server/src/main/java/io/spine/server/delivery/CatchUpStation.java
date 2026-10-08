@@ -1,32 +1,19 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.delivery;
 
-import com.google.common.collect.ImmutableList;
 import com.google.protobuf.Duration;
 import com.google.protobuf.util.Durations;
 import io.spine.server.delivery.event.CatchUpStarted;
@@ -51,7 +38,7 @@ final class CatchUpStation extends Station {
     private static final Comparator<InboxMessage> COMPARATOR = new CatchUpMessageComparator();
 
     private final DeliveryAction action;
-    private final Iterable<CatchUp> jobs;
+    private final CatchUpJobs jobs;
 
     /**
      * Creates a new instance of this station.
@@ -59,12 +46,12 @@ final class CatchUpStation extends Station {
      * @param action
      *         the action on how to deliver the messages to their targets
      * @param jobs
-     *         current list of {@code CatchUp} jobs
+     *         current {@code CatchUp} jobs of any status
      */
-    CatchUpStation(DeliveryAction action, Iterable<CatchUp> jobs) {
+    CatchUpStation(DeliveryAction action, CatchUpJobs jobs) {
         super();
         this.action = action;
-        this.jobs = ImmutableList.copyOf(jobs);
+        this.jobs = jobs;
     }
 
     /**
@@ -119,9 +106,11 @@ final class CatchUpStation extends Station {
 
     /**
      * Filters the messages in {@link InboxMessageStatus#TO_CATCH_UP TO_CATCH_UP} status,
-     * by matching them to the ongoing {@code CatchUp} jobs.
+     * by matching them to the {@code CatchUp} jobs.
      *
-     * <p>Depending on the {@linkplain CatchUp#getStatus() status} of each job and the status
+     * <p>Each message is processed by at most one job,
+     * {@linkplain CatchUpJobs#jobFor(InboxMessage) chosen} among the jobs it matches.
+     * Depending on the {@linkplain CatchUp#getStatus() status} of the job and the status
      * of the message, the latter may be accepted for dispatching.
      *
      * <p>Duplicated messages are removed from the passed conveyor.
@@ -132,18 +121,18 @@ final class CatchUpStation extends Station {
     private static class JobFilter {
 
         private final Map<DispatchingId, InboxMessage> dispatchToCatchUp = new HashMap<>();
-        private final Iterable<CatchUp> jobs;
+        private final CatchUpJobs jobs;
         private final Conveyor conveyor;
 
         /**
          * Creates a new filter.
          *
          * @param jobs
-         *         the ongoing {@code CatchUp} jobs
+         *         the {@code CatchUp} jobs of any status
          * @param conveyor
          *         the conveyor containing the messages to filter
          */
-        private JobFilter(Iterable<CatchUp> jobs, Conveyor conveyor) {
+        private JobFilter(CatchUpJobs jobs, Conveyor conveyor) {
             this.jobs = jobs;
             this.conveyor = conveyor;
         }
@@ -281,29 +270,28 @@ final class CatchUpStation extends Station {
         }
 
         /**
-         * Filters the message according to the status of each matching job.
+         * Filters the message according to the status of the job chosen for it.
          *
          * @param message
          *         the message to run through the filter
          */
         private void accept(InboxMessage message) {
-            for (var job : jobs) {
-                if (!job.matches(message)) {
-                    continue;
-                }
-                var jobStatus = job.getStatus();
+            var job = jobs.jobFor(message);
+            if (job == null) {
+                return;
+            }
+            var jobStatus = job.getStatus();
 
-                switch (jobStatus) {
-                    case STARTED -> started(message);
-                    case IN_PROGRESS -> inProgress(message);
-                    case FINALIZING -> finalizingWith(message);
-                    case COMPLETED -> completedWith(message);
-                    case CUS_UNDEFINED, UNRECOGNIZED -> throw newIllegalStateException(
-                            "The catch-up job must have a definite status: `%s`.", job
-                    );
-                    default -> {
-                        // Skip the message.
-                    }
+            switch (jobStatus) {
+                case STARTED -> started(message);
+                case IN_PROGRESS -> inProgress(message);
+                case FINALIZING -> finalizingWith(message);
+                case COMPLETED -> completedWith(message);
+                case CUS_UNDEFINED, UNRECOGNIZED -> throw newIllegalStateException(
+                        "The catch-up job must have a definite status: `%s`.", job
+                );
+                default -> {
+                    // Skip the message.
                 }
             }
         }

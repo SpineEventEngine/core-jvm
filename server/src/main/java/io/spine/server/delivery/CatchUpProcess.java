@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.delivery;
@@ -187,15 +175,17 @@ import static java.util.stream.Collectors.toSet;
  *
  * <p>The historical data pushed by the catch-up is dispatched through a number of shards,
  * each processed by the {@code Delivery} independently of each other. Starting to dispatch
- * the events from a shard, {@code Delivery} reads the details of the ongoing catch-up processes.
+ * the events from a shard, {@code Delivery} reads the details of the catch-up processes.
  * By interpreting the status of each catch-up, {@code Delivery} decides on the actions to apply
- * to the historical events. For instance, the historical events dispatched from a catch-up that
- * is already {@code COMPLETED} are considered junk and are immediately deleted.
+ * to the historical events. For instance, once a catch-up is {@code COMPLETED}, the events still
+ * held for it are delivered: the last historical events and the live events paused while
+ * the catch-up was finalizing. Within each batch read from a shard, these events are
+ * deduplicated and sorted chronologically before the delivery.
  *
  * <p>Before moving to the catch-up completion, it is required to make sure every historical event
  * has been seen and dispatched by the {@code Delivery}. So if the catch-up process is moved
- * to the {@code COMPLETED} state too early, some historical events will get stuck in limbo, and
- * will eventually be deleted.
+ * to the {@code COMPLETED} state too early, some historical events may reach the projections
+ * after the live events that followed them.
  *
  * <p>It's important to understand that different shards may be processed at different speeds and
  * potentially by different application nodes. Therefore, in order to switch to the
@@ -506,12 +496,16 @@ public final class CatchUpProcess<I>
      * of the potentially omitted live events in each of the shards affected in this
      * catch-up process.
      *
-     * <p>The {@code Delivery} is equipped with a {@link MaintenanceStation}, which
+     * <p>The {@code Delivery} is equipped with a {@link MaintenanceStation}. While any catch-up
+     * is {@code FINALIZING}, the station stamps each {@code ShardProcessingRequested} event with
+     * the catch-up jobs as the {@code Delivery} sees them. The stamp comes back to this process
+     * in the {@link ShardProcessed} event.
      *
-     * <p>The main goal of such a trick is to ensure that all shards do not contain any
-     * of the historical events, and each of the shards is in {@code FINALIZING} status. Otherwise,
-     * moving to the {@code COMPLETED} status right away would kill these historical events
-     * as irrelevant.
+     * <p>The main goal of such a trick is to ensure that each of the affected shards was
+     * processed by a {@code Delivery} that saw this catch-up {@code FINALIZING}, and so held
+     * its historical events along with the live ones. Otherwise, moving to the {@code COMPLETED}
+     * status right away could let some historical events reach the projections after the live
+     * events that followed them.
      *
      * <p>See the {@link ShardMaintenanceProcess} that handles each of the emitted requests
      * for the shard processing.
