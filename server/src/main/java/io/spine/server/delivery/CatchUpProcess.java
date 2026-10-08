@@ -115,7 +115,8 @@ import static java.util.stream.Collectors.toSet;
  *
  * <ol>
  *     <li>A {@link CatchUpStarted} event is emitted. The target projection repository listens to
- *     this event and kills the state of the matching entities.
+ *     this event and kills the state of the matching entities. For a catch-up of all
+ *     the instances, these are all the stored ones, archived and deleted included.
  *
  *     <li>The status of the catch-up process is set to {@link CatchUpStatus#STARTED STARTED}.
  * </ol>
@@ -128,7 +129,7 @@ import static java.util.stream.Collectors.toSet;
  * from the event history.
  *
  * <p>If no instance receives the start signal, there is nothing to wait for. This happens
- * when a catch-up of all the instances finds none of them active, for example, when it
+ * when a catch-up of all the instances finds none of them stored, for example, when it
  * builds a newly introduced projection type from the event history. The process then reads
  * the history at once. As it cannot tell which shards the instances to be built belong to,
  * it treats every shard as affected by the catch-up. See the {@code FINALIZING} status below.
@@ -344,7 +345,8 @@ public final class CatchUpProcess<I>
      *      interval as exclusive.
      *
      *      <li>A {@link CatchUpStarted} event is dispatched directly to the inboxes of the
-     *      catching-up targets based on the original catch-up request.
+     *      catching-up targets based on the original catch-up request. A request with no
+     *      targets selects every stored instance, whatever its lifecycle flags.
      *
      *      <li>The identifiers of the catch-up targets are defined. They are set according to
      *      the actual IDs of the projections to which the {@code CatchUpStarted} has been
@@ -390,8 +392,7 @@ public final class CatchUpProcess<I>
 
     private void dispatchCatchUpStarted(CatchUpStarted started, EventContext ctx) {
         var event = wrapAsEvent(started, ctx);
-        var ids = targetsForCatchUpSignals(builder().getRequest());
-        var targetIds = dispatchAll(ImmutableList.of(event), ids);
+        var targetIds = dispatchAll(ImmutableList.of(event));
         builder().setInstancesToClear(targetIds.size());
     }
 
@@ -609,15 +610,6 @@ public final class CatchUpProcess<I>
         flushState();
         var completed = catchUpCompleted(id);
         return completed;
-    }
-
-    private Set<I> targetsForCatchUpSignals(CatchUp.Request request) {
-        Set<I> ids;
-        var rawTargets = request.getTargetList();
-        ids = rawTargets.isEmpty()
-              ? ImmutableSet.copyOf(repository().index())
-              : unpack(rawTargets);
-        return ids;
     }
 
     private Event wrapAsEvent(EventMessage event, EventContext context) {
@@ -875,7 +867,8 @@ public final class CatchUpProcess<I>
          * of entity identifiers to dispatch the event to.
          *
          * <p>If no particular IDs are specified, the event will be dispatched according to the
-         * repository routing rules.
+         * repository routing rules. A {@link CatchUpSignal} is not routed: it goes to every
+         * stored entity, whatever its lifecycle flags.
          *
          * @param event
          *         event to dispatch

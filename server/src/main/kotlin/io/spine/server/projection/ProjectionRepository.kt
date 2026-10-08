@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.projection
@@ -287,7 +275,11 @@ public abstract class ProjectionRepository<I : Any,
      * Repeats the dispatching of the events from the event log to the requested entities
      * since the specified time.
      *
-     * At the beginning of the process the state of each of the entities is set to the default.
+     * At the beginning of the process, each of the entities is deleted from the storage, to be
+     * rebuilt from the replayed events. So an entity that none of these events reaches is no
+     * longer stored after the catch-up. A catch-up of all the entities resets every stored one,
+     * including those archived or deleted. Such an entity comes back active, unless
+     * the replayed events archive or delete it again.
      *
      * During this process, the entities receive continuous updates to their state. After the
      * catch-up is completed, the framework automatically resumes the dispatching of ongoing live
@@ -328,7 +320,8 @@ public abstract class ProjectionRepository<I : Any,
     }
 
     /**
-     * Starts the catch-up of all entities in this repository.
+     * Starts the catch-up of all entities in this repository, archived and deleted
+     * ones included.
      *
      * This is a shortcut method for [catchUp(since, null)][catchUp].
      *
@@ -354,22 +347,22 @@ public abstract class ProjectionRepository<I : Any,
      * They regulate the lifecycle of the catch-up and are handled by the [CatchUpEndpoint]
      * exposed by this repository.
      *
-     * Please note that the [CatchUpSignal]s are dispatched to the selected targets only and
-     * cannot be dispatched to all the repository instances. The reason is that handling of
-     * `CatchUpSignal`s may affect the lifecycle state of the projection instances. E.g. the
-     * callee must know to what targets it is sending the "delete state" signal.
+     * A [CatchUpSignal] is not routed. It is sent to the restricted targets or, with no
+     * restriction, to every stored projection instance, the archived and deleted ones included.
+     * Handling a signal may affect the lifecycle of the instances it reaches; e.g., the start
+     * of a catch-up deletes their state. So the caller must know which instances those are.
      *
      * @param event The event to dispatch.
      * @param restrictToIds Optional set of the target identifiers to which the dispatching must
-     *   be restricted; if `null`, no restrictions are applied and the event should be dispatched
-     *   as per the routing schema.
+     *   be restricted; if `null`, no restrictions are applied: an event is dispatched as per
+     *   the routing schema, and a [CatchUpSignal] to every stored instance.
      * @return The set of the entity identifiers that actually received the dispatched event.
      * @see CatchUpEndpoint
      */
     private fun sendToCatchingUp(event: Event, restrictToIds: Set<I>?): Set<I> {
         val envelope = EventEnvelope.of(event)
         val catchUpTargets: Set<I> = if (envelope.message() is CatchUpSignal) {
-            restrictToIds ?: ImmutableSet.copyOf(index())
+            restrictToIds ?: storedIds()
         } else {
             val routedTargets = route(envelope)
             if (restrictToIds == null) {
@@ -383,6 +376,18 @@ public abstract class ProjectionRepository<I : Any,
             inbox.send(envelope).toCatchUp(target)
         }
         return catchUpTargets
+    }
+
+    /**
+     * Returns the identifiers of all the stored projection instances,
+     * the archived and deleted ones included.
+     *
+     * Unlike [index], which lists the active instances only.
+     */
+    private fun storedIds(): Set<I> {
+        val storage = recordStorage()
+        val everyRecord = storage.queryBuilder().build()
+        return ImmutableSet.copyOf(storage.index(everyRecord))
     }
 
     public companion object {
