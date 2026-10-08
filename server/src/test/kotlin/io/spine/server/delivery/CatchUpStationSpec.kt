@@ -67,7 +67,7 @@ internal class CatchUpStationSpec {
         val conveyor = conveyorWith(replayed, live)
         val jobs = order.arrange(completedJob(), job(IN_PROGRESS))
 
-        val result = CatchUpStation(action, jobs).process(conveyor)
+        val result = stationFor(jobs).process(conveyor)
 
         result.deliveredCount() shouldBe 1
         result.errors().hasErrors() shouldBe false
@@ -87,7 +87,7 @@ internal class CatchUpStationSpec {
         val conveyor = conveyorWith(replayed, live)
         val jobs = order.arrange(completedJob(), job(FINALIZING))
 
-        val result = CatchUpStation(action, jobs).process(conveyor)
+        val result = stationFor(jobs).process(conveyor)
 
         result.deliveredCount() shouldBe 0
         action.passedMessages().shouldBeNull()
@@ -105,7 +105,7 @@ internal class CatchUpStationSpec {
         val conveyor = conveyorWith(signal)
         val jobs = order.arrange(completedJob(), started)
 
-        val result = CatchUpStation(action, jobs).process(conveyor)
+        val result = stationFor(jobs).process(conveyor)
 
         result.deliveredCount() shouldBe 1
         result.errors().hasErrors() shouldBe false
@@ -123,7 +123,7 @@ internal class CatchUpStationSpec {
         val conveyor = conveyorWith(replayed)
         val jobs = order.arrange(completedJob(), job(IN_PROGRESS))
 
-        val result = CatchUpStation(action, jobs).process(conveyor)
+        val result = stationFor(jobs).process(conveyor)
 
         result.deliveredCount() shouldBe 1
         action.passedMessages().shouldNotBeNull() shouldContainExactly listOf(replayed)
@@ -140,7 +140,7 @@ internal class CatchUpStationSpec {
         val conveyor = conveyorWith(replayed)
         val jobs = listOf(completedJob(), completedJob())
 
-        val result = CatchUpStation(action, jobs).process(conveyor)
+        val result = stationFor(jobs).process(conveyor)
 
         result.deliveredCount() shouldBe 1
         result.errors().hasErrors() shouldBe false
@@ -161,7 +161,7 @@ internal class CatchUpStationSpec {
         val jobs = order.arrange(completedJob(), jobWithoutStatus())
 
         shouldThrow<IllegalStateException> {
-            CatchUpStation(action, jobs).process(conveyor)
+            stationFor(jobs).process(conveyor)
         }
     }
 
@@ -184,6 +184,9 @@ internal class CatchUpStationSpec {
      */
     private fun completedJob(): CatchUp =
         catchUpJob(type, COMPLETED, currentTime(), null)
+
+    private fun stationFor(jobs: List<CatchUp>): CatchUpStation =
+        CatchUpStation(action, CatchUpJobs.of(jobs))
 
     private fun conveyorWith(vararg messages: InboxMessage): Conveyor =
         Conveyor(messages.toList(), DeliveredMessagesCache())
