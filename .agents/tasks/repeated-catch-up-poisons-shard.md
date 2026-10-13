@@ -32,7 +32,10 @@ reproduced on `master` at `3159f7c1cc3`.
 - [x] Version bump to `2.0.0-SNAPSHOT.564`, dependency reports. `./gradlew build` on
       the merged base passes: all modules tested, `:server:test` ran 2100 tests, 0 failed
 - [x] Stale Javadoc of `CatchUpProcess` corrected, on the user's request
-- [ ] Pull request
+- [x] Pull request [core-jvm#1683][pr-1683]
+- [x] First review round: Copilot's ordering remark, the Codecov gap — see "Reviews"
+- [x] The maintainer's review: a job index instead of the scan of all jobs per message,
+      and a plainer description — plan approved on 2026-10-08, see "Review by armiol"
 
 ## Problem
 
@@ -209,10 +212,14 @@ Run against the unfixed code: 11 tests, 9 failed, 2 passed.
 
 ## As implemented
 
-- `CatchUpStation.JobFilter.accept()` processes a message by the job of `jobFor()`:
-  the first matching job in any status but `COMPLETED`, otherwise the first matching
-  `COMPLETED` one, otherwise none. The Javadoc of the constructor parameters, of
-  `JobFilter` and of `accept()` no longer says "ongoing" or "each matching job".
+- `CatchUpStation.JobFilter.accept()` processes a message by the job that
+  `CatchUpJobs.jobFor()` chooses: a matching job in any status but `COMPLETED`,
+  otherwise a matching `COMPLETED` one, otherwise none. The first version did the same
+  with a loop over all jobs per message, which master had too; see "Review by armiol".
+- `CatchUpJobs` (new, package-private): the jobs read from the storage, indexed by
+  projection type for the jobs of all instances, and by type and packed instance ID for
+  the others, with the precedence applied while indexing. `Delivery.refreshCatchUpJobs()`
+  builds it once per read of the jobs; the station needs two lookups per message.
 - The stale Javadoc of `CatchUpProcess`, added to this change on the user's request
   (2026-10-06):
   - the class doc said that the events of a `COMPLETED` catch-up are "considered junk and
@@ -252,6 +259,30 @@ Run against the unfixed code: 11 tests, 9 failed, 2 passed.
     asks; the duplicated name of the parameterized tests moved to a constant;
     `under<Tests> { }` instead of `ServerEnvironment.under()`;
   - deferred: the version bump to `.564`, which waits for the authorization to commit.
+- First round on the PR (2026-10-07):
+  - Copilot: the new Javadoc of `CatchUpProcess` promised a global chronological order,
+    while `CatchUpStation` orders and deduplicates within one batch. Qualified;
+  - Codecov: the two uncovered patch lines were the `switch` of `accept()`, moved by the
+    fix. Covered by a case with a job without a status;
+  - Codex: no findings.
+
+### Review by armiol
+
+Changes requested on 2026-10-07: "For each accepted `InboxMessage`, a cycle over all jobs
+is performed", while a catch-up processes hundreds of thousands to millions of messages;
+and the description should explain the issue in a plainer, longer way.
+
+- The scan was not new: on master, `accept()` loops over all jobs per message, and
+  `matches()` scans the target IDs of each. It runs on every message of every page,
+  live ones included, and the jobs only accumulate. The first version kept it.
+- Now `CatchUpJobs` makes the choice two lookups per message, built once per read of
+  the jobs, which costs the same order as reading them. Building it per page was
+  rejected: with a catch-up of 100,000 IDs, it would cost about 200 million inserts
+  per million messages.
+- A design check before the plan confirmed that the index matches exactly the jobs
+  that `matches()` does: the same `String` and `Any` equality. `CatchUpJobsSpec` checks
+  it over every subset of a pool of jobs, in both orders.
+- The PR description was rewritten around an example, with a sequence diagram.
 
 ## Behavior change beyond the fix
 
@@ -289,5 +320,13 @@ of their own.
 - **Needs a plan of its own:** the double application of the paused messages of the old
   job — see "Behavior change beyond the fix". The starter would have to treat that job
   as active until its last `ShardProcessingRequested` is processed.
+- **Small follow-up:** while any job is `FINALIZING`, `UpdateShardProcessingEvents` stamps
+  every job, with all its target IDs, into each `ShardProcessingRequested`, and the copy
+  is persisted and carried into `ShardProcessed`. Its only reader,
+  `CatchUpProcess.findJob()`, needs one job. Stamping only the job named in the event
+  would bound the size.
+- **Small follow-up:** `CatchUpProcess.dispatchAll()` unpacks all the target IDs again on
+  every round of reading the history.
 
 [pr-1682]: https://github.com/SpineEventEngine/core-jvm/pull/1682
+[pr-1683]: https://github.com/SpineEventEngine/core-jvm/pull/1683

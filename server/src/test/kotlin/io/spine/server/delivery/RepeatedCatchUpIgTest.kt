@@ -15,24 +15,14 @@
 package io.spine.server.delivery
 
 import com.google.protobuf.Timestamp
-import com.google.protobuf.util.Durations
-import com.google.protobuf.util.Timestamps.subtract
 import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
-import io.spine.base.Time.currentTime
-import io.spine.environment.Tests
 import io.spine.server.delivery.CatchUpStatus.COMPLETED
-import io.spine.server.delivery.InboxMessageStatus.TO_CATCH_UP
-import io.spine.server.delivery.InboxMessageStatus.TO_DELIVER
 import io.spine.server.delivery.given.CounterView
-import io.spine.server.under
 import io.spine.test.delivery.numberAdded
 import io.spine.testing.SlowTest
 import io.spine.testing.server.blackbox.BlackBox
-import java.util.concurrent.CopyOnWriteArrayList
-import kotlin.jvm.optionals.getOrNull
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -45,45 +35,17 @@ import org.junit.jupiter.api.Test
  */
 @SlowTest
 @DisplayName("Repeated catch-up of a projection should")
-internal class RepeatedCatchUpIgTest : AbstractDeliveryTest() {
+internal class RepeatedCatchUpIgTest : AbstractCatchUpIgTest() {
 
-    private val repository = CounterView.Repository()
-    private val failures = CopyOnWriteArrayList<Throwable>()
-    private val delivery = Delivery.newBuilder()
-        .setStrategy(UniformAcrossAllShards.singleShard())
-        .setDeduplicationWindow(Durations.ZERO)
-        .build()
-
-    /**
-     * Uses a single-shard `Delivery`, which delivers synchronously through
-     * `LocalDispatchingObserver`, and records what each delivery run throws.
-     *
-     * Otherwise, a failed run would go unnoticed: `Delivery` logs the failure
-     * of a shard observer and goes on.
-     */
     @BeforeEach
-    fun useRecordingDelivery() {
-        val dispatching = LocalDispatchingObserver()
-        delivery.subscribe { message ->
-            try {
-                dispatching.onMessage(message)
-            } catch (e: RuntimeException) {
-                failures.add(e)
-                throw e
-            }
-        }
-        under<Tests> { use(delivery) }
-    }
-
-    @AfterEach
-    fun resetWeight() {
-        CounterView.changeWeightTo(1)
+    fun useSingleShard() {
+        useDelivery(UniformAcrossAllShards.singleShard())
     }
 
     @Test
     fun `replay the history once and complete`() {
         BlackBox.singleTenantWith(repository).use { context ->
-            val since = emitHistory(context)
+            val since = emitHistory(context, EVENTS_PER_TARGET, FIRST, SECOND)
             catchUpAllFirstTime(since)
 
             CounterView.changeWeightTo(100)
@@ -103,7 +65,7 @@ internal class RepeatedCatchUpIgTest : AbstractDeliveryTest() {
     @Test
     fun `not hold back the live events of the instances it does not catch up`() {
         BlackBox.singleTenantWith(repository).use { context ->
-            val since = emitHistory(context)
+            val since = emitHistory(context, EVENTS_PER_TARGET, FIRST, SECOND)
             catchUpAllFirstTime(since)
 
             CounterView.changeWeightTo(100)
@@ -120,27 +82,6 @@ internal class RepeatedCatchUpIgTest : AbstractDeliveryTest() {
     }
 
     /**
-     * Emits [EVENTS_PER_TARGET] events to each of [FIRST] and [SECOND], weighing 1 each.
-     *
-     * Each event is posted live, so it gets a timestamp of its own. Then the function waits
-     * until the events are older than the turbulence period of a catch-up. That way,
-     * a catch-up replays them while `IN_PROGRESS`, rather than all at once while `FINALIZING`.
-     *
-     * @return The time since when to catch up, which precedes the events.
-     */
-    private fun emitHistory(context: BlackBox): Timestamp {
-        CounterView.changeWeightTo(1)
-        val since = subtract(currentTime(), Durations.fromMinutes(1))
-        repeat(EVENTS_PER_TARGET) {
-            listOf(FIRST, SECOND).forEach { id ->
-                context.receivesEvent(numberAdded { calculatorId = id; value = 0 })
-            }
-        }
-        Thread.sleep(PAST_TURBULENCE_MILLIS)
-        return since
-    }
-
-    /**
      * Catches up all the instances, weighing each event 10, and checks the outcome.
      */
     private fun catchUpAllFirstTime(since: Timestamp) {
@@ -153,39 +94,10 @@ internal class RepeatedCatchUpIgTest : AbstractDeliveryTest() {
         }
     }
 
-    private fun jobStatuses(): List<CatchUpStatus> =
-        delivery.catchUpStorage()
-            .readByType(CounterView.projectionType())
-            .asSequence()
-            .map { it.status }
-            .toList()
-
-    /**
-     * Returns the totals of the projections with the given IDs,
-     * or `null` for those that do not exist.
-     */
-    private fun totals(vararg ids: String): Map<String, Int?> =
-        ids.associateWith { id ->
-            repository.find(id).getOrNull()?.state()?.total
-        }
-
-    /**
-     * Returns the messages that are still to be delivered, either live or for a catch-up.
-     */
-    private fun undelivered(): List<InboxMessage> =
-        InboxContents.get().values.flatten().filter {
-            it.status == TO_DELIVER || it.status == TO_CATCH_UP
-        }
-
     private companion object {
         const val FIRST = "first"
         const val SECOND = "second"
         const val THIRD = "third"
         const val EVENTS_PER_TARGET = 10
-
-        /**
-         * Exceeds the 500 ms turbulence period of a catch-up.
-         */
-        const val PAST_TURBULENCE_MILLIS = 1_000L
     }
 }

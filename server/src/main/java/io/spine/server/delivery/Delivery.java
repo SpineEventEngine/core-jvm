@@ -233,6 +233,11 @@ public final class Delivery implements WithLogging {
             BoundedContextNames.newName("__System_Delivery__");
 
     /**
+     * No catch-up jobs, for a page that has nothing to deliver.
+     */
+    private static final CatchUpJobs NO_CATCH_UP_JOBS = CatchUpJobs.of(ImmutableList.of());
+
+    /**
      * The strategy of assigning a shard index for a message that is delivered to a particular
      * target.
      */
@@ -565,7 +570,7 @@ public final class Delivery implements WithLogging {
 
     private DeliveryStage deliverMessages(ImmutableList<InboxMessage> messages,
                                           ShardIndex index,
-                                          Iterable<CatchUp> catchUpJobs) {
+                                          CatchUpJobs catchUpJobs) {
         var conveyor = new Conveyor(messages, deliveredMessagesCache);
         DeliveryAction action = new GroupByTargetAndDeliver(deliveries, monitor, conveyor);
         List<Station> stations = conveyorStationsFor(catchUpJobs, action);
@@ -597,7 +602,7 @@ public final class Delivery implements WithLogging {
         return newStage(index, deliveredInBatch);
     }
 
-    private ImmutableList<Station> conveyorStationsFor(Iterable<CatchUp> catchUpJobs,
+    private ImmutableList<Station> conveyorStationsFor(CatchUpJobs catchUpJobs,
                                                        DeliveryAction action) {
         return ImmutableList.of(
                 new MaintenanceStation(deliveryInfoWith(catchUpJobs)),
@@ -607,9 +612,9 @@ public final class Delivery implements WithLogging {
         );
     }
 
-    private static DeliveryRunInfo deliveryInfoWith(Iterable<CatchUp> catchUpJobs) {
+    private static DeliveryRunInfo deliveryInfoWith(CatchUpJobs catchUpJobs) {
         return DeliveryRunInfo.newBuilder()
-                              .addAllCatchUpJob(catchUpJobs)
+                              .addAllCatchUpJob(catchUpJobs.all())
                               .build();
     }
 
@@ -822,34 +827,41 @@ public final class Delivery implements WithLogging {
      * Therefore, once the jobs or their statuses differ from those of the previous read,
      * the run ends without delivering the page, and the next run reads the shard from
      * its start.
+     *
+     * <p>So, a read that does not end the run has the same jobs in the same statuses as
+     * the first read of the run. The jobs are indexed once, at the first read, and the later
+     * reads are only compared with it.
      */
     private final class CatchUpJobsOfRun {
 
-        private @Nullable ImmutableMap<CatchUpId, CatchUpStatus> previous;
+        private @Nullable CatchUpJobs indexed;
+        private @Nullable ImmutableMap<CatchUpId, CatchUpStatus> statuses;
         private boolean changed;
 
         /**
-         * Reads the jobs for delivering the messages of a page, and notes whether their
-         * statuses differ from those of the previous read.
+         * Reads the jobs for delivering the messages of a page, and notes whether they or
+         * their statuses differ from those of the first read of the run.
          *
          * @param messages
          *         the messages of the page
          * @return the jobs, or no jobs if all the messages are delivered
          */
-        private ImmutableList<CatchUp> readFor(ImmutableList<InboxMessage> messages) {
+        private CatchUpJobs readFor(ImmutableList<InboxMessage> messages) {
             var hasUndelivered = messages.stream()
                                          .anyMatch(message -> message.getStatus() != DELIVERED);
             if (!hasUndelivered) {
-                return ImmutableList.of();
+                return NO_CATCH_UP_JOBS;
             }
             var jobs = ImmutableList.copyOf(catchUpStorage.readAll());
             var current = jobs.stream()
                               .collect(toImmutableMap(CatchUp::getId, CatchUp::getStatus));
-            if (previous != null && !previous.equals(current)) {
+            if (indexed == null) {
+                indexed = CatchUpJobs.of(jobs);
+                statuses = current;
+            } else if (!current.equals(statuses)) {
                 changed = true;
             }
-            previous = current;
-            return jobs;
+            return indexed;
         }
 
         /**

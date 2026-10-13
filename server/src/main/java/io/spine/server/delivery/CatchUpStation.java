@@ -14,11 +14,9 @@
 
 package io.spine.server.delivery;
 
-import com.google.common.collect.ImmutableList;
 import com.google.protobuf.Duration;
 import com.google.protobuf.util.Durations;
 import io.spine.server.delivery.event.CatchUpStarted;
-import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,7 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.spine.server.delivery.CatchUpStatus.COMPLETED;
 import static io.spine.server.delivery.InboxMessageStatus.TO_CATCH_UP;
 import static io.spine.server.delivery.InboxMessageStatus.TO_DELIVER;
 import static io.spine.util.Exceptions.newIllegalStateException;
@@ -41,7 +38,7 @@ final class CatchUpStation extends Station {
     private static final Comparator<InboxMessage> COMPARATOR = new CatchUpMessageComparator();
 
     private final DeliveryAction action;
-    private final Iterable<CatchUp> jobs;
+    private final CatchUpJobs jobs;
 
     /**
      * Creates a new instance of this station.
@@ -49,12 +46,12 @@ final class CatchUpStation extends Station {
      * @param action
      *         the action on how to deliver the messages to their targets
      * @param jobs
-     *         current list of {@code CatchUp} jobs of any status
+     *         current {@code CatchUp} jobs of any status
      */
-    CatchUpStation(DeliveryAction action, Iterable<CatchUp> jobs) {
+    CatchUpStation(DeliveryAction action, CatchUpJobs jobs) {
         super();
         this.action = action;
-        this.jobs = ImmutableList.copyOf(jobs);
+        this.jobs = jobs;
     }
 
     /**
@@ -112,9 +109,9 @@ final class CatchUpStation extends Station {
      * by matching them to the {@code CatchUp} jobs.
      *
      * <p>Each message is processed by at most one job,
-     * {@linkplain #jobFor(InboxMessage) chosen} among the jobs it matches. Depending on
-     * the {@linkplain CatchUp#getStatus() status} of the job and the status of the message,
-     * the latter may be accepted for dispatching.
+     * {@linkplain CatchUpJobs#jobFor(InboxMessage) chosen} among the jobs it matches.
+     * Depending on the {@linkplain CatchUp#getStatus() status} of the job and the status
+     * of the message, the latter may be accepted for dispatching.
      *
      * <p>Duplicated messages are removed from the passed conveyor.
      *
@@ -124,7 +121,7 @@ final class CatchUpStation extends Station {
     private static class JobFilter {
 
         private final Map<DispatchingId, InboxMessage> dispatchToCatchUp = new HashMap<>();
-        private final Iterable<CatchUp> jobs;
+        private final CatchUpJobs jobs;
         private final Conveyor conveyor;
 
         /**
@@ -135,7 +132,7 @@ final class CatchUpStation extends Station {
          * @param conveyor
          *         the conveyor containing the messages to filter
          */
-        private JobFilter(Iterable<CatchUp> jobs, Conveyor conveyor) {
+        private JobFilter(CatchUpJobs jobs, Conveyor conveyor) {
             this.jobs = jobs;
             this.conveyor = conveyor;
         }
@@ -279,7 +276,7 @@ final class CatchUpStation extends Station {
          *         the message to run through the filter
          */
         private void accept(InboxMessage message) {
-            var job = jobFor(message);
+            var job = jobs.jobFor(message);
             if (job == null) {
                 return;
             }
@@ -297,39 +294,6 @@ final class CatchUpStation extends Station {
                     // Skip the message.
                 }
             }
-        }
-
-        /**
-         * Chooses the job to process the passed message.
-         *
-         * <p>The jobs of the completed catch-ups stay in the storage. So, once the same
-         * projection instances are caught up again, a message may match both a completed job
-         * and the new one. Processed by both, the message would be accepted for dispatching
-         * by one job and removed from the conveyor by the other.
-         *
-         * <p>Therefore, a job in any status but {@link CatchUpStatus#COMPLETED COMPLETED}
-         * takes precedence. It is the newest of the matching jobs, because a catch-up cannot
-         * be started for the instances that are still catching up. Otherwise, any of
-         * the completed jobs is chosen, since they all process a message alike.
-         *
-         * @param message
-         *         the message to choose the job for
-         * @return the chosen job, or {@code null} if no job matches the message
-         */
-        private @Nullable CatchUp jobFor(InboxMessage message) {
-            CatchUp completed = null;
-            for (var job : jobs) {
-                if (!job.matches(message)) {
-                    continue;
-                }
-                if (job.getStatus() != COMPLETED) {
-                    return job;
-                }
-                if (completed == null) {
-                    completed = job;
-                }
-            }
-            return completed;
         }
     }
 }
