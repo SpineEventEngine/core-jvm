@@ -25,11 +25,17 @@ import io.spine.server.under
 import io.spine.test.delivery.numberAdded
 import io.spine.testing.server.blackbox.BlackBox
 import kotlin.jvm.optionals.getOrNull
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
 @DisplayName("`Delivery` should")
 internal class DeliverySpec : AbstractDeliveryTest() {
+
+    @AfterEach
+    fun restoreDefaultWeight() {
+        CounterView.changeWeightTo(1)
+    }
 
     @Test
     fun `stop delivering a shard once the monitor tells to`() {
@@ -40,6 +46,8 @@ internal class DeliverySpec : AbstractDeliveryTest() {
             .setMonitor(StopAfterEachPage())
             .build()
         under<Tests> { use(delivery) }
+        // The weight is static, and `CatchUpTest` leaves it at 100.
+        CounterView.changeWeightTo(1)
         val repository = CounterView.Repository()
         BlackBox.singleTenantWith(repository).use { box ->
             repeat(MESSAGES) {
