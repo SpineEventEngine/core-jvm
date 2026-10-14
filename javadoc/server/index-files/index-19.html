@@ -648,7 +648,7 @@ var pathtoroot = "../";
                 
 
             </dt>
-            <dd>Returns <code>ShardProcessingSession</code> if this outcome indicates that the shard is successfully picked up, or empty <code>Optional</code> otherwise.</dd>
+            <dd>Returns an <code>Optional</code> containing the <code>ShardSessionRecord</code> if this outcome indicates that the shard was successfully picked up, or an empty <code>Optional</code> otherwise.</dd>
 
         
             <dt>
@@ -4333,19 +4333,6 @@ See `io.spine.server.migration.mirror.MirrorMigration` for details.
                 
                 <span class="memberNameLink">
                 
-                    <a href="../io/spine/server/delivery/ShardProcessingSession.html#shardIndex()">shardIndex()</a>
-                
-                </span> - function in io.spine.server.delivery.<a href=../io/spine/server/delivery/ShardProcessingSession.html>ShardProcessingSession</a>
-                
-
-            </dt>
-            <dd>Returns the index of the shard, to which this session relates.</dd>
-
-        
-            <dt>
-                
-                <span class="memberNameLink">
-                
                     <a href="../io/spine/server/delivery/ShardObserver.html">ShardObserver</a>
                 
                 </span> - class in io.spine.server.delivery
@@ -4353,19 +4340,6 @@ See `io.spine.server.migration.mirror.MirrorMigration` for details.
 
             </dt>
             <dd>An abstract base for observers of the updates made to the contents of shards.</dd>
-
-        
-            <dt>
-                
-                <span class="memberNameLink">
-                
-                    <a href="../io/spine/server/delivery/ShardProcessingSession.html">ShardProcessingSession</a>
-                
-                </span> - class in io.spine.server.delivery
-                
-
-            </dt>
-            <dd>The session of processing the messages, which reside in a shard.</dd>
 
         
             <dt>
