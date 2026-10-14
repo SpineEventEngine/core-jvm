@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>SignalDispatchingRepository</title>
+    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
+        <script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+      if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      } else {
+        const savedDarkMode = JSON.parse(storage)
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      }
+    </script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../../ui-kit/ui-kit.min.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/safe-local-storage_blocking.js"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../ui-kit/ui-kit.min.js" defer="defer"></script>
+<link href="../../../images/logo-icon.svg">
+<link href="../../../styles/custom-styles.css" rel="Stylesheet">
+</head>
+<body>
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+            <a class="library-name--link" href="../../../index.html" tabindex="1">
+                    server
+            </a>
+        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle"
+                type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">
+2.0.0-SNAPSHOT.570        </div>
+        <div class="navigation-controls">
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector jvm-like" data-active="" aria-pressed="true"
+                        data-filter=":server/main">jvm</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
+                        data-role="dropdown-toggle"
+                        aria-controls="platform-tags-listbox"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-label="Toggle source sets"
+                ></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option jvm-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":server/main"
+                                       data-filter=":server/main"/>
+                                <span class="checkbox--icon"></span>
+                                jvm
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </ul>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
+                    type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
+        </div>
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config='{"defaultSize": 280, "minSize": 200, "maxSize": 400}'>
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list"
+                    data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
+                            <span>
+                                    server
+                            </span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
+<div class="main-content" data-page-type="classlike" id="content" pageIds="server::io.spine.server.entity/SignalDispatchingRepository///PointingToDeclaration//332232451">
+  <div class="breadcrumbs"><a href="../../../index.html">server</a><span class="delimiter">/</span><a href="../index.html">io.spine.server.entity</a><span class="delimiter">/</span><span class="current">SignalDispatchingRepository</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>Signal</span><wbr></wbr><span>Dispatching</span><wbr></wbr><span><span>Repository</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">class </span><a href="index.html">SignalDispatchingRepository</a><span class="token operator">&lt;</span><a href="index.html">I</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token punctuation">, </span><a href="index.html">E</a><span class="token operator"> : </span><a href="../-signal-dispatching-entity/index.html">SignalDispatchingEntity</a><span class="token operator">&lt;</span><a href="index.html">I</a><span class="token punctuation">, </span><a href="index.html">S</a><span class="token punctuation">, </span><span class="token operator">*</span><span class="token operator">&gt;</span><span class="token punctuation">, </span><a href="index.html">S</a><span class="token operator"> : </span><span data-unresolved-link="io.spine.base/EntityState///PointingToDeclaration/">EntityState</span><span class="token operator">&lt;</span><a href="index.html">I</a><span class="token operator">&gt;</span><span class="token operator">&gt;</span> : <a href="../-event-dispatching-repository/index.html">EventDispatchingRepository</a><span class="token operator">&lt;</span><a href="index.html">I</a><span class="token punctuation">, </span><a href="index.html">E</a><span class="token punctuation">, </span><a href="index.html">S</a><span class="token operator">&gt; </span>, <span data-unresolved-link="io.spine.server.commandbus/CommandDispatcherDelegate///PointingToDeclaration/">CommandDispatcherDelegate</span><span class="source-link-wrapper"><span class="source-link" data-element-type="source-link">(<a href="https://github.com/SpineEventEngine/core-jvm/tree/master/server/src/main/kotlin/io/spine/server/entity/SignalDispatchingRepository.kt#L67">source</a>)</span></span></div><p class="paragraph">Abstract base for repositories that dispatch signals — both events and commands — to the entities they manage.</p><p class="paragraph">The entities of such a repository emit events. The repository appends the emitted events to the per-entity <a href="event-storage.html">event journal</a>, kept append-only for traceability. The journal serves the <a href="../-signal-dispatching-entity/event-history-backward.html">recent-history reads</a> and the opt-in double-dispatch guard. Whether the journal is written is determined by <a href="event-history-enabled.html">eventHistoryEnabled</a>: the journaling is unconditional for aggregates and opt-in for process managers.</p><p class="paragraph">Two per-repository settings tune the machinery:</p><ul><li><p class="paragraph"><a href="use-double-dispatch-guard.html">useDoubleDispatchGuard</a> — enables the history-backed double-dispatch     guard, which rejects a signal already seen among the last     <a href="event-history-depth.html">eventHistoryDepth</a> dispatches;</p></li><li><p class="paragraph"><a href="event-history-depth.html">eventHistoryDepth</a> — how many recent events the guard scans on each     dispatch when enabled.</p></li></ul><h4 class="tableheader">Type Parameters</h4><div class="table"><div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span><span>I</span></span></u></div></span></div><div><div class="title"><p class="paragraph">The type of the entity identifiers.</p></div></div></div></div><div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span><span>E</span></span></u></div></span></div><div><div class="title"><p class="paragraph">The type of managed entities.</p></div></div></div></div><div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span><span>S</span></span></u></div></span></div><div><div class="title"><p class="paragraph">The type of the entity state.</p></div></div></div></div></div><h4 class="tableheader">Inheritors</h4><div class="table"><div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../io.spine.server.procman/-process-manager-repository/index.html">ProcessManagerRepository</a></div></span></div><div></div></div></div><div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../io.spine.server.aggregate/-aggregate-repository/index.html">AggregateRepository</a></div></span></div><div></div></div></div></div></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="CONSTRUCTOR">
+        <h2 class="tableheader">Constructors</h2>
+        <div class="table"><a data-name="-1475856308%2FConstructors%2F332232451" anchor-label="SignalDispatchingRepository" id="-1475856308%2FConstructors%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-togglable="CONSTRUCTOR" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-signal-dispatching-repository.html"><span>Signal</span><wbr></wbr><span>Dispatching</span><wbr></wbr><span><span>Repository</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1475856308%2FConstructors%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">protected </span><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="FUNCTION">
+        <h2 class="tableheader">Functions</h2>
+        <div class="table"><a data-name="656129918%2FFunctions%2F332232451" anchor-label="close" id="656129918%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="close.html"><span><span>close</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="656129918%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.errorprone.annotations/OverridingMethodsMustInvokeSuper///PointingToDeclaration/"><span class="token annotation builtin">OverridingMethodsMustInvokeSuper</span></span></div></div><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="close.html"><span class="token function">close</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Closes this repository, also closing the state history storage if it was created.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="636590741%2FFunctions%2F332232451" anchor-label="create" id="636590741%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="create.html"><span><span>create</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="636590741%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.errorprone.annotations/OverridingMethodsMustInvokeSuper///PointingToDeclaration/"><span class="token annotation builtin">OverridingMethodsMustInvokeSuper</span></span></div></div><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="create.html"><span class="token function">create</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">id<span class="token operator">: </span><a href="index.html">I</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">E</a></div><div class="brief "><p class="paragraph">Creates an entity with the given ID, installing the event history loader and, when enabled, the double-dispatch guard on it.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-878616921%2FFunctions%2F332232451" anchor-label="createEventStorage" id="-878616921%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="create-event-storage.html"><span>create</span><wbr></wbr><span>Event</span><wbr></wbr><span><span>Storage</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-878616921%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">protected </span><span class="token keyword">open </span><span class="token keyword">fun </span><a href="create-event-storage.html"><span class="token function">createEventStorage</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../io.spine.server.entity.storage/-entity-event-storage/index.html">EntityEventStorage</a><span class="token operator">&lt;</span><a href="index.html">I</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Creates the journal of the events emitted by the entities of this repository.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1772439386%2FFunctions%2F332232451" anchor-label="dispatchCommand" id="-1772439386%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="dispatch-command.html"><span>dispatch</span><wbr></wbr><span><span>Command</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1772439386%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">override </span><span class="token keyword">fun </span><a href="dispatch-command.html"><span class="token function">dispatchCommand</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">command<span class="token operator">: </span><a href="../../io.spine.server.type/-command-envelope/index.html">CommandEnvelope</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.spine.server.dispatch/DispatchOutcome///PointingToDeclaration/">DispatchOutcome</span></div><div class="brief "><p class="paragraph">Dispatches the command to a corresponding entity.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="872222518%2FFunctions%2F332232451" anchor-label="doStore" id="872222518%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="do-store.html"><span>do</span><wbr></wbr><span><span>Store</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="872222518%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">protected </span><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="do-store.html"><span class="token function">doStore</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">entity<span class="token operator">: </span><a href="index.html">E</a></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">When the <a href="event-history-enabled.html">journaling is enabled</a>, writes the events the entity emitted to the <a href="event-storage.html">journal</a> before storing its latest state, and marks them committed after. Under a batched delivery the entity accumulates its events until <code class="lang-kotlin">commitEvents()</code>, so the journal drops none.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1509904541%2FFunctions%2F332232451" anchor-label="doubleDispatchGuardEnabled" id="1509904541%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="double-dispatch-guard-enabled.html"><span>double</span><wbr></wbr><span>Dispatch</span><wbr></wbr><span>Guard</span><wbr></wbr><span><span>Enabled</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1509904541%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">protected </span><span class="token keyword">open </span><span class="token keyword">fun </span><a href="double-dispatch-guard-enabled.html"><span class="token function">doubleDispatchGuardEnabled</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div><div class="brief "><p class="paragraph">Tells whether the opt-in double-dispatch guard is enabled for this repository.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1307329843%2FFunctions%2F332232451" anchor-label="eventHistoryDepth" id="-1307329843%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="event-history-depth.html"><span>event</span><wbr></wbr><span>History</span><wbr></wbr><span><span>Depth</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1307329843%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">protected </span><span class="token keyword">fun </span><a href="event-history-depth.html"><span class="token function">eventHistoryDepth</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a></div><div class="brief "><p class="paragraph">Returns the number of the most recent events scanned by the opt-in double-dispatch guard when it is enabled.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-13528241%2FFunctions%2F332232451" anchor-label="eventHistoryEnabled" id="-13528241%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="event-history-enabled.html"><span>event</span><wbr></wbr><span>History</span><wbr></wbr><span><span>Enabled</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-13528241%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">protected </span><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="event-history-enabled.html"><span class="token function">eventHistoryEnabled</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div><div class="brief "><p class="paragraph">Tells whether this repository maintains the event history — the journal of the events emitted by its entities.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="789085059%2FFunctions%2F332232451" anchor-label="eventStorage" id="789085059%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="event-storage.html"><span>event</span><wbr></wbr><span><span>Storage</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="789085059%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.jvm/-synchronized/index.html"><span class="token annotation builtin">Synchronized</span></a></div></div><span class="token keyword">protected </span><span class="token keyword">fun </span><a href="event-storage.html"><span class="token function">eventStorage</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../io.spine.server.entity.storage/-entity-event-storage/index.html">EntityEventStorage</a><span class="token operator">&lt;</span><a href="index.html">I</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Returns the journal of the events emitted by the entities of this repository, creating it lazily via <a href="create-event-storage.html">createEventStorage</a> on the first access.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1490850257%2FFunctions%2F332232451" anchor-label="registerWith" id="1490850257%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="register-with.html"><span>register</span><wbr></wbr><span><span>With</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1490850257%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.errorprone.annotations/OverridingMethodsMustInvokeSuper///PointingToDeclaration/"><span class="token annotation builtin">OverridingMethodsMustInvokeSuper</span></span></div></div><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="register-with.html"><span class="token function">registerWith</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">context<span class="token operator">: </span><a href="../../io.spine.server/-bounded-context/index.html">BoundedContext</a></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Registers with the <code class="lang-kotlin">CommandBus</code> for dispatching commands (via a <span data-unresolved-link="io.spine.server.commandbus/DelegatingCommandDispatcher///PointingToDeclaration/">delegating dispatcher</span>), and sets up the routing of the commands.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="917383451%2FFunctions%2F332232451" anchor-label="setEventHistoryDepth" id="917383451%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-event-history-depth.html"><span>set</span><wbr></wbr><span>Event</span><wbr></wbr><span>History</span><wbr></wbr><span><span>Depth</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="917383451%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">protected </span><span class="token keyword">fun </span><a href="set-event-history-depth.html"><span class="token function">setEventHistoryDepth</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">depth<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Sets the <a href="event-history-depth.html">event history depth</a> to the passed value.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="62028951%2FFunctions%2F332232451" anchor-label="setupCommandRouting" id="62028951%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="setup-command-routing.html"><span>setup</span><wbr></wbr><span>Command</span><wbr></wbr><span><span>Routing</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="62028951%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">protected </span><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="setup-command-routing.html"><span class="token function">setupCommandRouting</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">routing<span class="token operator">: </span><a href="../../io.spine.server.route/-command-routing/index.html">CommandRouting</a><span class="token operator">&lt;</span><a href="index.html">I</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">A callback for derived classes to customize routing schema for commands.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1371216497%2FFunctions%2F332232451" anchor-label="store" id="1371216497%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="store.html"><span><span>store</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1371216497%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">override </span><span class="token keyword">fun </span><a href="store.html"><span class="token function">store</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">entities<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-collection/index.html">Collection</a><span class="token operator">&lt;</span><a href="index.html">E</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Stores each entity individually via the single-entity <a href="store.html">store</a>, so that the emitted events are journaled — the bulk write of the parent class would bypass the journaling.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="528325333%2FFunctions%2F332232451" anchor-label="toEntity" id="528325333%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="to-entity.html"><span>to</span><wbr></wbr><span><span>Entity</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="528325333%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="com.google.errorprone.annotations/OverridingMethodsMustInvokeSuper///PointingToDeclaration/"><span class="token annotation builtin">OverridingMethodsMustInvokeSuper</span></span></div></div><span class="token keyword">protected </span><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="to-entity.html"><span class="token function">toEntity</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">record<span class="token operator">: </span><a href="../-entity-record/index.html">EntityRecord</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">E</a></div><div class="brief "><p class="paragraph">Reconstructs an entity from the given record, installing the event history loader and, when enabled, the double-dispatch guard on it.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1529406319%2FFunctions%2F332232451" anchor-label="useDoubleDispatchGuard" id="-1529406319%2FFunctions%2F332232451" data-filterable-set=":server/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":server/main" data-filterable-set=":server/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="use-double-dispatch-guard.html"><span>use</span><wbr></wbr><span>Double</span><wbr></wbr><span>Dispatch</span><wbr></wbr><span><span>Guard</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1529406319%2FFunctions%2F332232451"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":server/main"><div class="symbol monospace"><span class="token keyword">protected </span><span class="token keyword">open </span><span class="token keyword">fun </span><a href="use-double-dispatch-guard.html"><span class="token function">useDoubleDispatchGuard</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Enables the opt-in, history-backed double-dispatch guard for the entities of this repository.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    <div class="footer">
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>Copyright 2026 CodeMatters, Lda.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

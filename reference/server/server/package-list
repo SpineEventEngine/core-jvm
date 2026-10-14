@@ -1191,10 +1191,6 @@ $dokka.location:io.spine.server.delivery/RuntimeFailure/exception/#/PointingToDe
 $dokka.location:io.spine.server.delivery/RuntimeFailure/propagate/#/PointingToDeclaration/server/io.spine.server.delivery/-runtime-failure/propagate.html
 $dokka.location:io.spine.server.delivery/ShardObserver///PointingToDeclaration/server/io.spine.server.delivery/-shard-observer/index.html
 $dokka.location:io.spine.server.delivery/ShardObserver/onMessage/#io.spine.server.delivery.InboxMessage/PointingToDeclaration/server/io.spine.server.delivery/-shard-observer/on-message.html
-$dokka.location:io.spine.server.delivery/ShardProcessingSession///PointingToDeclaration/server/io.spine.server.delivery/-shard-processing-session/index.html
-$dokka.location:io.spine.server.delivery/ShardProcessingSession/ShardProcessingSession/#io.spine.server.delivery.ShardSessionRecord/PointingToDeclaration/server/io.spine.server.delivery/-shard-processing-session/-shard-processing-session.html
-$dokka.location:io.spine.server.delivery/ShardProcessingSession/complete/#/PointingToDeclaration/server/io.spine.server.delivery/-shard-processing-session/complete.html
-$dokka.location:io.spine.server.delivery/ShardProcessingSession/shardIndex/#/PointingToDeclaration/server/io.spine.server.delivery/-shard-processing-session/shard-index.html
 $dokka.location:io.spine.server.delivery/ShardedWorkRegistry///PointingToDeclaration/server/io.spine.server.delivery/-sharded-work-registry/index.html
 $dokka.location:io.spine.server.delivery/ShardedWorkRegistry/pickUp/#io.spine.server.delivery.ShardIndex#io.spine.server.NodeId/PointingToDeclaration/server/io.spine.server.delivery/-sharded-work-registry/pick-up.html
 $dokka.location:io.spine.server.delivery/ShardedWorkRegistry/release/#io.spine.server.delivery.ShardSessionRecord/PointingToDeclaration/server/io.spine.server.delivery/-sharded-work-registry/release.html
