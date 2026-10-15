@@ -21,7 +21,7 @@ package io.spine.dependency.local
  */
 @Suppress("ConstPropertyName", "unused")
 object Base {
-    const val version = "2.0.0-SNAPSHOT.460"
+    const val version = "2.0.0-SNAPSHOT.461"
     const val versionForBuildScript = "2.0.0-SNAPSHOT.460"
     const val group = Spine.group
     private const val prefix = "spine"
