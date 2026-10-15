@@ -25,10 +25,19 @@ object CheckStyle {
     /**
      * The version to be used in the project.
      *
-     * `10.12.1` is the last version in `10.12.0`, which does not introduce
-     * capability conflict over `google-collections` with Guava.
+     * `12.3.1` is the last release that runs on Java 17, which our builds use
+     * to run Checkstyle. `13.0.0` and later require Java 21.
+     *
+     * `12.3.1` depends on Doxia, which Checkstyle uses only to generate its own
+     * website. Through Doxia, it brings two versions each of `commons-lang3` and
+     * `httpcore`. `forceVersions()` enables `failOnVersionConflict()` in the
+     * `checkstyle` configuration too, so Gradle would reject the graph.
+     * [CheckStyleConfig][io.spine.gradle.checkstyle.CheckStyleConfig] therefore
+     * excludes the `org.apache.maven.doxia` group from the `checkstyle` configuration.
+     * Releases from `13.11.0` on no longer depend on Doxia, so the exclusion can go
+     * once we run Checkstyle on Java 21.
      *
      * @see <a href="https://checkstyle.sourceforge.io/releasenotes.html">Checkstyle</a>
      */
-    const val version = "10.12.1"
+    const val version = "12.3.1"
 }

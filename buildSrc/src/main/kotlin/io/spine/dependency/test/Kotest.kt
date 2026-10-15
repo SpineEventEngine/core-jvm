@@ -23,7 +23,7 @@ package io.spine.dependency.test
  */
 @Suppress("unused", "ConstPropertyName")
 object Kotest {
-    const val version = "6.2.4"
+    const val version = "6.2.5"
     const val group = "io.kotest"
     const val gradlePluginId = "io.kotest"
     const val assertions = "$group:kotest-assertions-core:$version"

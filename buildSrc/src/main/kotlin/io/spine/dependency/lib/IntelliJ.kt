@@ -31,6 +31,9 @@ object IntelliJ {
      * This is the version used by Kotlin compiler `1.9.21`.
      * Advance this version with caution because it may break the setup of
      * IntelliJ platform standalone execution.
+     *
+     * This version also keeps [BouncyCastle.libPkcsJdk15] on the `-jdk15on`
+     * artifacts. Revisit that pin when changing this version.
      */
     const val version = "213.7172.53"
 

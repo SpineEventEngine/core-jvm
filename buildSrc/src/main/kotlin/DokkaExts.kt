@@ -14,6 +14,7 @@
 
 import io.spine.dependency.local.DokkaTools
 import io.spine.gradle.SpineTaskGroup
+import io.spine.gradle.github.pages.TaskName
 import io.spine.gradle.publish.getOrCreate
 import java.io.File
 import java.time.LocalDate
@@ -21,14 +22,20 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.dsl.DependencyHandler
+import org.gradle.api.execution.TaskExecutionGraph
+import org.gradle.api.publish.maven.tasks.PublishToMavenLocal
+import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.DependencyHandlerScope
+import org.gradle.kotlin.dsl.property
+import org.gradle.kotlin.dsl.withType
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 import org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters
+import org.jetbrains.dokka.gradle.tasks.DokkaBaseTask
 
 /**
  * To exclude pieces of code annotated with `@Internal` from the documentation
@@ -205,17 +212,126 @@ fun Project.htmlDocsJar(): TaskProvider<Jar> = tasks.getOrCreate("htmlDocsJar") 
 
 /**
  * Tells if this task belongs to the execution graph that contains
- * the `publish` and `dokkaGenerate` tasks.
+ * the `publish` or `dokkaGenerate` tasks.
  *
  * This predicate could be useful for disabling publishing tasks
  * when doing, e.g., `publishToMavenLocal` for the purpose of the
  * integration tests that (of course) do not test the documentation
  * generation process and its results.
+ *
+ * The predicate reaches the task graph through [Task.getProject]. Called from an `onlyIf`
+ * spec or a task action, it does so at execution time, which Gradle deprecates and
+ * the configuration cache does not support. Also, the predicate holds whenever the graph
+ * contains a Dokka task, since Dokka 2.x names its tasks `dokkaGenerate…`.
+ * [skipDokkaWhenPublishingToMavenLocal] avoids both problems.
  */
+@Deprecated(message = "Please use `Project.skipDokkaWhenPublishingToMavenLocal()` instead.")
 fun Task.isInPublishingGraph(): Boolean =
     project.gradle.taskGraph.allTasks.any {
         it.name == "publish" || it.name.contains("dokkaGenerate")
     }
+
+/**
+ * Configures the Dokka tasks of this project to be skipped in a build that publishes
+ * to Maven Local only.
+ *
+ * Such a build usually feeds integration tests, which need the published code,
+ * but not its documentation. So the Dokka tasks are skipped when the execution graph
+ * contains a [PublishToMavenLocal] task and no task that ships the documentation
+ * elsewhere: `publish`, a [PublishToMavenRepository] task, or `updateGitHubPages`.
+ * They still run if a task named on the command line selects a documentation task of
+ * the graph: one that has `dokka` in its name, ignoring case, or a documentation JAR,
+ * `javadocJar` or `htmlDocsJar`. The name may be the full one, e.g., `dokkaGenerate`,
+ * or a camel-case abbreviation, e.g., `dGPJ` for `dokkaGeneratePublicationJavadoc`.
+ * Without task names, a documentation request cannot be ruled out, so the tasks run too.
+ * This is the case of an included build, as Gradle does not pass it the tasks named
+ * on the command line.
+ *
+ * Any other build runs the Dokka tasks in its graph. When the tasks are skipped,
+ * the documentation JARs they feed, such as `javadocJar`, contain only a manifest,
+ * or the output of an earlier Dokka run.
+ *
+ * The `onlyIf` spec added to the tasks is evaluated at execution time, when it must not
+ * call [Task.getProject] to reach the task graph: Gradle deprecates that, and
+ * the configuration cache does not support it. So the graph is scanned at configuration
+ * time, once it is ready, and the spec reads the result from a property, which
+ * a configuration cache entry stores along with the tasks.
+ */
+fun Project.skipDokkaWhenPublishingToMavenLocal() {
+    // The project path is dropped, so that, e.g., `:dokka-extensions:build`
+    // is not taken for a Dokka request.
+    val requestedNames = gradle.startParameter.taskNames
+        .map { it.substringAfterLast(':') }
+        .filter { it.isNotEmpty() }
+    val docsNeeded = objects.property<Boolean>()
+    gradle.taskGraph.whenReady {
+        val docsRequested = requestedNames.isEmpty() || selectsDocsTask(requestedNames)
+        docsNeeded.set(docsRequested || !publishesToMavenLocalOnly())
+    }
+    tasks.withType<DokkaBaseTask>().configureEach {
+        onlyIf("documentation is needed beyond Maven Local") { docsNeeded.get() }
+    }
+}
+
+/**
+ * The names of the lifecycle tasks that ship the documentation beyond Maven Local.
+ */
+private val docsShippingTaskNames = setOf("publish", TaskName.updateGitHubPages)
+
+/**
+ * Tells if this graph publishes to Maven Local and does not contain a task that ships
+ * the documentation elsewhere.
+ */
+private fun TaskExecutionGraph.publishesToMavenLocalOnly(): Boolean {
+    val tasks = allTasks
+    return tasks.any { it is PublishToMavenLocal }
+            && tasks.none { it is PublishToMavenRepository || it.name in docsShippingTaskNames }
+}
+
+/**
+ * The names of the tasks that pack the documentation into JARs.
+ */
+private val docsJarTaskNames = setOf("javadocJar", "htmlDocsJar")
+
+/**
+ * Tells if any of the given names, taken from the command line, selects
+ * a documentation task of this graph.
+ *
+ * A documentation task is one that has `dokka` in its name, ignoring case,
+ * or a documentation JAR. The command line keeps a task name as typed, so the name
+ * may be a camel-case abbreviation that Gradle resolves, e.g., `dGPJ`
+ * for `dokkaGeneratePublicationJavadoc`.
+ */
+private fun TaskExecutionGraph.selectsDocsTask(names: List<String>): Boolean {
+    val docsTaskNames = allTasks.map { it.name }.filter {
+        it.contains("dokka", ignoreCase = true) || it in docsJarTaskNames
+    }
+    return names.any { name ->
+        val pattern = abbreviationPattern(name)
+        docsTaskNames.any { pattern.containsMatchIn(it) }
+    }
+}
+
+/**
+ * Creates the pattern for the task names that the given camel-case abbreviation selects.
+ *
+ * Follows the matching of Gradle: each word of the abbreviation starts a word of
+ * the task name, in the same order, and the task name may go on after the last one.
+ * Unlike Gradle, which prefers exact and case-sensitive matches, the pattern
+ * ignores case, so it may select more tasks, never fewer.
+ */
+private fun abbreviationPattern(abbreviation: String): Regex {
+    val words = abbreviation.split(wordStart).filter { it.isNotEmpty() }
+    val pattern = words.joinToString(separator = "[\\p{javaLowerCase}\\p{Digit}]*", prefix = "^") {
+        Regex.escape(it)
+    }
+    return Regex(pattern, RegexOption.IGNORE_CASE)
+}
+
+/**
+ * Matches the position before an upper-case letter, where a word of a camel-case name starts.
+ */
+private val wordStart = Regex("(?=\\p{javaUpperCase})")
 
 /**
  * Disables Dokka and Javadoc tasks in this `Project`.

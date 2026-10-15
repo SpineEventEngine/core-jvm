@@ -19,5 +19,5 @@ package io.spine.dependency.build
 // https://github.com/pmd/pmd/releases
 @Suppress("unused", "ConstPropertyName")
 object Pmd {
-    const val version = "7.27.0"
+    const val version = "7.28.0"
 }
