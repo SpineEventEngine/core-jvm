@@ -124,6 +124,18 @@ allprojects {
     apply(from = "$rootDir/version.gradle.kts")
     group = "io.spine"
     version = extra["versionToPublish"]!!
+
+    // The published Compiler CLI up to `2.0.0-SNAPSHOT.069` bundles the classes of
+    // the Protobuf 4.36.0 runtime, which fail the refreshed 4.36.2 gencode of the
+    // Validation renderers. Launch the wave's `.070` instead. Drop this rule once
+    // `config` pins Compiler `.070`.
+    configurations.matching { it.name == "spineCompilerRawArtifact" }.configureEach {
+        resolutionStrategy.eachDependency {
+            if (requested.group == "io.spine.tools" && requested.name == "compiler-cli-all") {
+                useVersion("2.0.0-SNAPSHOT.070")
+            }
+        }
+    }
 }
 
 KoverConfig.applyTo(rootProject)
