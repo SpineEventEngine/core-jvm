@@ -68,6 +68,7 @@ buildscript {
                     io.spine.dependency.local.Compiler.params,
                     io.spine.dependency.local.CoreJvm.server,
                     io.spine.dependency.local.Reflect.lib,
+                    "io.spine.tools:protobuf-setup-plugins:2.0.0-SNAPSHOT.426",
                     logging.lib,
                     logging.libJvm,
                     logging.grpcContext,
