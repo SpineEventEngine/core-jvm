@@ -42,6 +42,8 @@ import static io.spine.server.delivery.CatchUpStatus.COMPLETED;
  */
 final class CatchUpJobs {
 
+    private static final CatchUpJobs NONE = new CatchUpJobs(ImmutableList.of());
+
     private final ImmutableList<CatchUp> all;
 
     /**
@@ -90,6 +92,13 @@ final class CatchUpJobs {
      */
     static CatchUpJobs of(Iterable<CatchUp> jobs) {
         return new CatchUpJobs(ImmutableList.copyOf(jobs));
+    }
+
+    /**
+     * Returns no jobs.
+     */
+    static CatchUpJobs none() {
+        return NONE;
     }
 
     /**

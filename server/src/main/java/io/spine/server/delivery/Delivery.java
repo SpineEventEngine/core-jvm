@@ -15,7 +15,6 @@
 package io.spine.server.delivery;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.protobuf.Duration;
 import com.google.protobuf.util.Durations;
@@ -33,7 +32,6 @@ import io.spine.server.delivery.memory.InMemoryShardedWorkRegistry;
 import io.spine.server.projection.ProjectionRepository;
 import io.spine.string.Stringifiers;
 import io.spine.type.TypeUrl;
-import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +39,6 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static io.spine.server.delivery.InboxMessageStatus.DELIVERED;
 import static java.lang.String.format;
 import static java.util.Collections.synchronizedList;
@@ -231,11 +228,6 @@ public final class Delivery implements WithLogging {
      */
     private static final BoundedContextName SYSTEM_DELIVERY =
             BoundedContextNames.newName("__System_Delivery__");
-
-    /**
-     * No catch-up jobs, for a page that has nothing to deliver.
-     */
-    private static final CatchUpJobs NO_CATCH_UP_JOBS = CatchUpJobs.of(ImmutableList.of());
 
     /**
      * The strategy of assigning a shard index for a message that is delivered to a particular
@@ -530,9 +522,20 @@ public final class Delivery implements WithLogging {
      * The configured {@link #monitor DeliveryMonitor} may stop the execution according to
      * the monitored {@code DeliveryStage}.
      *
-     * <p>Each page is delivered according to the catch-up jobs read after the page.
-     * If the statuses of the jobs differ from those of the previous read, the run ends
-     * without delivering the page. See {@link CatchUpJobsOfRun} for the details.
+     * <p>Each page is delivered according to the catch-up jobs read anew after the page is
+     * read. A catch-up process stores the status of its job before it sends the messages that
+     * an older status would mishandle. Read after the page, the jobs reflect each status stored
+     * before the messages of the page were written. A page that holds only delivered messages,
+     * kept for the deduplication, has nothing to deliver. It goes through the stations with
+     * no jobs, which saves a read.
+     *
+     * <p>The messages held under a status of a job, such as those paused while the job is
+     * {@linkplain CatchUpStatus#FINALIZING finalizing}, stay in the pages already read. If
+     * the statuses changed in the middle of a run, the later pages would overtake them.
+     * Therefore, once the jobs or their statuses differ from those of the first read of
+     * the run, the run ends without delivering the page, and the next run reads the shard
+     * from its start. Until then, the jobs of the first read stand for all the later ones,
+     * so they are indexed once per run.
      *
      * @return the results of the run
      */
@@ -544,13 +547,13 @@ public final class Delivery implements WithLogging {
 
         var shouldContinue = true;
         List<DeliveryStage> stages = new ArrayList<>();
-        var jobsOfRun = new CatchUpJobsOfRun();
+        var baseline = new CatchUpBaseline();
         while (shouldContinue && maybePage.isPresent()) {
             var currentPage = maybePage.get();
             var messages = currentPage.contents();
             if (!messages.isEmpty()) {
-                var jobs = jobsOfRun.readFor(messages);
-                if (jobsOfRun.changed()) {
+                var jobs = catchUpJobsFor(messages, baseline);
+                if (baseline.changed()) {
                     break;
                 }
                 var stage = deliverMessages(messages, index, jobs);
@@ -565,7 +568,22 @@ public final class Delivery implements WithLogging {
         int totalMessagesDelivered = stages.stream()
                                            .map(DeliveryStage::getMessagesDelivered)
                                            .reduce(0, Integer::sum);
-        return new RunResult(totalMessagesDelivered, !shouldContinue, jobsOfRun.changed());
+        return new RunResult(totalMessagesDelivered, !shouldContinue, baseline.changed());
+    }
+
+    /**
+     * Reads the catch-up jobs and compares them with the passed baseline, unless all
+     * the passed messages of a page are delivered.
+     *
+     * @return the jobs of the baseline, or no jobs if all the messages are delivered
+     */
+    private CatchUpJobs catchUpJobsFor(ImmutableList<InboxMessage> messages,
+                                       CatchUpBaseline baseline) {
+        var hasUndelivered = messages.stream()
+                                     .anyMatch(message -> message.getStatus() != DELIVERED);
+        return hasUndelivered
+               ? baseline.compare(catchUpStorage.readAll())
+               : CatchUpJobs.none();
     }
 
     private DeliveryStage deliverMessages(ImmutableList<InboxMessage> messages,
@@ -808,67 +826,5 @@ public final class Delivery implements WithLogging {
         return multitenant ?
                ContextSpec.multitenant(name) :
                ContextSpec.singleTenant(name);
-    }
-
-    /**
-     * The catch-up jobs, according to which a delivery run delivers its pages.
-     *
-     * <p>The jobs are read anew for each page, after the page is read. A catch-up process
-     * stores the status of its job before it sends the messages that an older status would
-     * mishandle. Read after the page, the jobs reflect each status stored before
-     * the messages of the page were written.
-     *
-     * <p>A page that holds only delivered messages, kept for the deduplication, has nothing
-     * to deliver. It goes through the stations with no jobs, which saves a read.
-     *
-     * <p>The messages held under a status of a job, such as those paused while the job is
-     * {@linkplain CatchUpStatus#FINALIZING finalizing}, stay in the pages already read. If
-     * the statuses change in the middle of a run, the later pages would overtake them.
-     * Therefore, once the jobs or their statuses differ from those of the previous read,
-     * the run ends without delivering the page, and the next run reads the shard from
-     * its start.
-     *
-     * <p>So, a read that does not end the run has the same jobs in the same statuses as
-     * the first read of the run. The jobs are indexed once, at the first read, and the later
-     * reads are only compared with it.
-     */
-    private final class CatchUpJobsOfRun {
-
-        private @Nullable CatchUpJobs indexed;
-        private @Nullable ImmutableMap<CatchUpId, CatchUpStatus> statuses;
-        private boolean changed;
-
-        /**
-         * Reads the jobs for delivering the messages of a page, and notes whether they or
-         * their statuses differ from those of the first read of the run.
-         *
-         * @param messages
-         *         the messages of the page
-         * @return the jobs, or no jobs if all the messages are delivered
-         */
-        private CatchUpJobs readFor(ImmutableList<InboxMessage> messages) {
-            var hasUndelivered = messages.stream()
-                                         .anyMatch(message -> message.getStatus() != DELIVERED);
-            if (!hasUndelivered) {
-                return NO_CATCH_UP_JOBS;
-            }
-            var jobs = ImmutableList.copyOf(catchUpStorage.readAll());
-            var current = jobs.stream()
-                              .collect(toImmutableMap(CatchUp::getId, CatchUp::getStatus));
-            if (indexed == null) {
-                indexed = CatchUpJobs.of(jobs);
-                statuses = current;
-            } else if (!current.equals(statuses)) {
-                changed = true;
-            }
-            return indexed;
-        }
-
-        /**
-         * Tells whether the jobs or their statuses differed between any two reads of the run.
-         */
-        private boolean changed() {
-            return changed;
-        }
     }
 }

@@ -384,6 +384,17 @@ deduplication, reads no jobs, and the run must happen. `RunResultSpec` covers
     consent: a case for a stopped run whose jobs changed; named arguments for `RunResult`
     in its spec, through a helper; the sixth case asserts that the run happened; doc
     nits, `previous`, and prose instead of a link to the `@Internal` `InboxMessageStatus`.
+  - PR review by armiol, applied on 2026-10-16:
+    - `CatchUpJobsOfRun` left `Delivery` as `CatchUpBaseline`, a class of its own. It no
+      longer reads the jobs: `Delivery` reads them and passes them in, so the class only
+      indexes the first jobs and compares the later ones with them. The reasons for reading
+      after the page, for skipping pages of delivered messages and for re-running moved to
+      the Javadoc of `runDelivery()`, which decides on those.
+    - `CatchUpJobs.none()` replaces `CatchUpJobs.of(ImmutableList.of())`.
+    - The copy of the jobs: `CatchUpStorage.readAll()` returns an `Iterator`, read once.
+      The first read of a run still copies it, as the index keeps a list; a later read
+      collects only the statuses, with no copy.
+    - New: `CatchUpBaselineSpec`, 6 cases; a case for `none()` in `CatchUpJobsSpec`.
 
 ## Landing
 
