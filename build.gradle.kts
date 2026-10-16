@@ -139,7 +139,8 @@ allprojects {
 
     // Compiler CLI `2.0.0-SNAPSHOT.069` (pinned by `config`) bundles the Protobuf 4.36.0
     // runtime, on which the 4.36.2 gencode of the Validation renderers refuses to load.
-    // Launch CLI `.074`, built against 4.36.2, instead.
+    // Launch CLI `.074` instead. It bundles no Protobuf runtime: its POM declares one,
+    // which `spineCompilerRawArtifact` resolves transitively and the build forces to 4.36.2.
     // Drop this rule once `config` pins Compiler `.074` or later.
     configurations.named { it == "spineCompilerRawArtifact" }.configureEach {
         resolutionStrategy.eachDependency {
