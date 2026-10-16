@@ -39,6 +39,7 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static io.spine.server.delivery.InboxMessageStatus.DELIVERED;
 import static java.lang.String.format;
 import static java.util.Collections.synchronizedList;
 
@@ -434,7 +435,9 @@ public final class Delivery implements WithLogging {
      *
      * <p>After all the pages are read, the delivery process is launched again for the same shard.
      * It is required in order to handle the messages that may have been put to the same shard
-     * as an outcome of the first-wave messages.
+     * as an outcome of the first-wave messages. The process is also launched again if
+     * the statuses of the catch-up jobs change while the pages are being delivered, so that
+     * the messages held under the previous status are delivered before the later ones.
      *
      * <p>Once the shard has no more messages to deliver, the delivery process ends, releasing
      * the lock for the respective {@code ShardIndex}.
@@ -519,6 +522,21 @@ public final class Delivery implements WithLogging {
      * The configured {@link #monitor DeliveryMonitor} may stop the execution according to
      * the monitored {@code DeliveryStage}.
      *
+     * <p>Each page is delivered according to the catch-up jobs read anew after the page is
+     * read. A catch-up process stores the status of its job before it sends the messages that
+     * an older status would mishandle. Read after the page, the jobs reflect each status stored
+     * before the messages of the page were written. A page that holds only delivered messages,
+     * kept for the deduplication, has nothing to deliver. It goes through the stations with
+     * no jobs, which saves a read.
+     *
+     * <p>The messages held under a status of a job, such as those paused while the job is
+     * {@linkplain CatchUpStatus#FINALIZING finalizing}, stay in the pages already read. If
+     * the statuses changed in the middle of a run, the later pages would overtake them.
+     * Therefore, once the jobs or their statuses differ from those of the first read of
+     * the run, the run ends without delivering the page, and the next run reads the shard
+     * from its start. Until then, the jobs of the first read stand for all the later ones,
+     * so they are indexed once per run.
+     *
      * @return the results of the run
      */
     private RunResult runDelivery(ShardSessionRecord session) {
@@ -529,19 +547,20 @@ public final class Delivery implements WithLogging {
 
         var shouldContinue = true;
         List<DeliveryStage> stages = new ArrayList<>();
-        var catchUpJobs = refreshCatchUpJobs();
+        var baseline = new CatchUpBaseline();
         while (shouldContinue && maybePage.isPresent()) {
             var currentPage = maybePage.get();
             var messages = currentPage.contents();
             if (!messages.isEmpty()) {
-                var stage = deliverMessages(messages, index, catchUpJobs);
+                var jobs = catchUpJobsFor(messages, baseline);
+                if (baseline.changed()) {
+                    break;
+                }
+                var stage = deliverMessages(messages, index, jobs);
                 stages.add(stage);
                 shouldContinue = monitorTellsToContinueAfter(stage);
             }
             if (shouldContinue) {
-                if(messages.size() < pageSize) {
-                    catchUpJobs = refreshCatchUpJobs();
-                }
                 maybePage = currentPage.next();
             }
         }
@@ -549,17 +568,22 @@ public final class Delivery implements WithLogging {
         int totalMessagesDelivered = stages.stream()
                                            .map(DeliveryStage::getMessagesDelivered)
                                            .reduce(0, Integer::sum);
-        return new RunResult(totalMessagesDelivered, !shouldContinue);
+        return new RunResult(totalMessagesDelivered, !shouldContinue, baseline.changed());
     }
 
     /**
-     * Reads the catch-up jobs from the storage and indexes them.
+     * Reads the catch-up jobs and compares them with the passed baseline, unless all
+     * the passed messages of a page are delivered.
      *
-     * <p>The index is built once per read, so that each message of the shard is matched
-     * to its job in constant time.
+     * @return the jobs of the baseline, or no jobs if all the messages are delivered
      */
-    private CatchUpJobs refreshCatchUpJobs() {
-        return CatchUpJobs.of(ImmutableList.copyOf(catchUpStorage.readAll()));
+    private CatchUpJobs catchUpJobsFor(ImmutableList<InboxMessage> messages,
+                                       CatchUpBaseline baseline) {
+        var hasUndelivered = messages.stream()
+                                     .anyMatch(message -> message.getStatus() != DELIVERED);
+        return hasUndelivered
+               ? baseline.compare(catchUpStorage.readAll())
+               : CatchUpJobs.none();
     }
 
     private DeliveryStage deliverMessages(ImmutableList<InboxMessage> messages,

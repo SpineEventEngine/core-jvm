@@ -15,6 +15,7 @@
 package io.spine.server.delivery
 
 import io.kotest.assertions.withClue
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.nulls.shouldBeNull
@@ -71,6 +72,14 @@ internal class CatchUpJobsSpec {
     @Test
     fun `return all the jobs in their order`() {
         CatchUpJobs.of(pool).all() shouldContainExactly pool
+    }
+
+    @Test
+    fun `choose no job, if there are none`() {
+        val none = CatchUpJobs.none()
+
+        none.all().shouldBeEmpty()
+        messages.forEach { none.jobFor(it).shouldBeNull() }
     }
 
     @Test
