@@ -139,15 +139,15 @@ allprojects {
 
     // Compiler CLI `2.0.0-SNAPSHOT.069` (pinned by `config`) bundles the Protobuf 4.36.0
     // runtime, on which the 4.36.2 gencode of the Validation renderers refuses to load.
-    // Launch CLI `.072`, built against 4.36.2, instead.
-    // Drop this rule once `config` pins Compiler `.072` or later.
+    // Launch CLI `.074`, built against 4.36.2, instead.
+    // Drop this rule once `config` pins Compiler `.074` or later.
     configurations.named { it == "spineCompilerRawArtifact" }.configureEach {
         resolutionStrategy.eachDependency {
             if (requested.group == "io.spine.tools" &&
                 requested.name == "compiler-cli-all" &&
                 requested.version == "2.0.0-SNAPSHOT.069"
             ) {
-                useVersion("2.0.0-SNAPSHOT.072")
+                useVersion("2.0.0-SNAPSHOT.074")
                 because("Compiler CLI `.069` bundles the Protobuf 4.36.0 runtime")
             }
         }
