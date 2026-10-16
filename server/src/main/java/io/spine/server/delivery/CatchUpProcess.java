@@ -78,6 +78,7 @@ import static io.spine.server.delivery.CatchUpMessages.toFilters;
 import static io.spine.server.delivery.CatchUpStatus.COMPLETED;
 import static io.spine.server.delivery.CatchUpStatus.FINALIZING;
 import static io.spine.server.delivery.CatchUpStatus.IN_PROGRESS;
+import static io.spine.server.delivery.CatchUpStatus.STARTED;
 import static io.spine.server.delivery.DeliveryStrategy.newIndex;
 import static io.spine.server.route.EventRoute.noTargets;
 import static java.util.stream.Collectors.toList;
@@ -381,7 +382,7 @@ public final class CatchUpProcess<I>
         builder().setWhenLastRead(withWindow)
                  .setRequest(request);
         var started = started(id);
-        builder().setStatus(CatchUpStatus.STARTED);
+        builder().setStatus(STARTED);
         flushState();
 
         dispatchCatchUpStarted(started, ctx);
@@ -408,10 +409,18 @@ public final class CatchUpProcess<I>
      * <p>If the history has been read fully (i.e. until the start of the {@linkplain Turbulence
      * turbulence period}), emits a {@code HistoryFullyRecalled} event. Otherwise, emits
      * {@code HistoryEventsRecalled} by which it triggers the next round of history reading.
+     *
+     * <p>The reports are counted only while the process is {@code STARTED}, that is, until
+     * the count reaches zero. A later report, such as one delivered again after a failure,
+     * is ignored. Counting it would start another round of history reading, and some events
+     * could reach the instances twice.
      */
     @React
     EitherOf3<HistoryEventsRecalled, HistoryFullyRecalled, NoReaction>
     handle(EntityPreparedForCatchUp event) {
+        if (builder().getStatus() != STARTED) {
+            return EitherOf3.withC(noReaction());
+        }
         var leftToClear = builder().getInstancesToClear() - 1;
         builder().setInstancesToClear(leftToClear);
         if (leftToClear > 0) {
