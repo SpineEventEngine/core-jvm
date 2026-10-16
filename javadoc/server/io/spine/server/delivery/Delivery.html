@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en"><head>
-    <title>Delivery 2.0.0-SNAPSHOT.570 API </title>
+    <title>Delivery 2.0.0-SNAPSHOT.571 API </title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="dc.created" content="2020-03-25">
     <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
@@ -477,7 +477,7 @@ InMemoryStorageFactory</code> is used.</p></div>
                                     <li class="blockList">
                                         <h4>deliverMessagesFrom</h4>
                                         <pre class="methodSignature">@CanIgnoreReturnValue() <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html>Optional</a>&lt;<a href=DeliveryStats.html>DeliveryStats</a>&gt; <a href=Delivery.html#deliverMessagesFrom(io.spine.server.delivery.ShardIndex)>deliverMessagesFrom</a>(ShardIndex index)</pre>
-                                        <div class="block"><p>Delivers the messages put into the shard with the passed index to their targets. </p><p>At a given moment of time, exactly one application node may serve messages from a particular shard. Therefore, in scope of this delivery, an approach based on pessimistic locking per-<code>ShardIndex</code> is applied. </p><p>In case the given shard is already processed by some node, this method does nothing and returns <code>Optional.empty()</code>. </p><p>The content of the shard is read and delivered on a page-by-page basis. The runtime exceptions occurring while a page is being delivered are accumulated and then the first exception is rethrown, if any. </p><p>After all the pages are read, the delivery process is launched again for the same shard. It is required in order to handle the messages that may have been put to the same shard as an outcome of the first-wave messages. </p><p>Once the shard has no more messages to deliver, the delivery process ends, releasing the lock for the respective <code>ShardIndex</code>.</p></div>
+                                        <div class="block"><p>Delivers the messages put into the shard with the passed index to their targets. </p><p>At a given moment of time, exactly one application node may serve messages from a particular shard. Therefore, in scope of this delivery, an approach based on pessimistic locking per-<code>ShardIndex</code> is applied. </p><p>In case the given shard is already processed by some node, this method does nothing and returns <code>Optional.empty()</code>. </p><p>The content of the shard is read and delivered on a page-by-page basis. The runtime exceptions occurring while a page is being delivered are accumulated and then the first exception is rethrown, if any. </p><p>After all the pages are read, the delivery process is launched again for the same shard. It is required in order to handle the messages that may have been put to the same shard as an outcome of the first-wave messages. The process is also launched again if the statuses of the catch-up jobs change while the pages are being delivered, so that the messages held under the previous status are delivered before the later ones. </p><p>Once the shard has no more messages to deliver, the delivery process ends, releasing the lock for the respective <code>ShardIndex</code>.</p></div>
 
                                         <dl>
 
