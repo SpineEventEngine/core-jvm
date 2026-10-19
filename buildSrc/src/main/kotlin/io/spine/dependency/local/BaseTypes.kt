@@ -21,7 +21,7 @@ package io.spine.dependency.local
  */
 @Suppress("ConstPropertyName")
 object BaseTypes {
-    const val version = "2.0.0-SNAPSHOT.226"
+    const val version = "2.0.0-SNAPSHOT.227"
     const val group = Spine.group
     const val artifact = "spine-base-types"
     const val lib = "$group:$artifact:$version"
