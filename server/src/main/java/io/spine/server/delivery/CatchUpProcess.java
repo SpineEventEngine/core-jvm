@@ -109,8 +109,8 @@ import static java.util.stream.Collectors.toSet;
  * up until {@code now - 500 ms}.
  *
  * <p>In its lifecycle, the process moves through several statuses, and only forward.
- * A signal that comes once the process has moved past the step the signal starts, such as
- * one delivered again after a failure, is ignored.
+ * A signal that would move the process back, such as one delivered again after a failure,
+ * is ignored.
  *
  * <h3>{@linkplain CatchUpStatus#CUS_UNDEFINED Not started}</h3>
  *
@@ -461,8 +461,8 @@ public final class CatchUpProcess<I>
      *
      * <p>Acts only while the process is {@code IN_PROGRESS}. A signal that comes in any other
      * status, such as one delivered again after the process has moved on, is ignored. Reading
-     * the history then would dispatch the events that came after the catch-up, and those
-     * could reach the instances twice.
+     * the history in that case would dispatch the events that came after the catch-up, and
+     * those could reach the instances twice.
      */
     @React
     EitherOf3<HistoryEventsRecalled, HistoryFullyRecalled, NoReaction>
@@ -493,8 +493,8 @@ public final class CatchUpProcess<I>
      * <p>If there were no events read, the history is considered fully recalled. The process
      * will still have to deal with the event potentially emitted during the turbulence.
      *
-     * <p>Never returns {@code NoReaction}: the result type is the one of the handlers that
-     * return the result.
+     * <p>Never returns {@code NoReaction}; the return type only matches that of the handlers,
+     * which pass this result on.
      */
     private EitherOf3<HistoryEventsRecalled, HistoryFullyRecalled, NoReaction> recallMoreEvents() {
         var id = builder().getId();
@@ -521,8 +521,9 @@ public final class CatchUpProcess<I>
      * <p>Emits a {@code LiveEventsPickedUp} event, which is dispatched to this process
      * in the next round.
      *
-     * <p>A signal that comes once the process is {@code COMPLETED}, such as one delivered
-     * again after a failure, is ignored. Finalizing the process once more would read
+     * <p>A signal that comes in any status but {@code IN_PROGRESS} and {@code FINALIZING},
+     * such as one delivered again once the process is {@code COMPLETED}, is ignored.
+     * Finalizing the process once more would read
      * the events that came after the catch-up, and those could reach the instances twice.
      * While the process is {@code FINALIZING}, the finalization runs again: the status is
      * stored before the finalization, so a failure in between leaves it to be completed.

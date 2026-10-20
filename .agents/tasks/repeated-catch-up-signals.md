@@ -49,7 +49,7 @@ ignores a `COMPLETED` job and adds a shard to `finalized_shard` at most once.
 
 The test side: `AbstractCatchUpIgTest.useDelivery()` (#1689) accepted only a strategy. So
 `DuplicateEntityPreparedIgTest` (#1692) and `CatchUpJobsPerPageIgTest` (#1686) each kept their
-own repository, failure list, watchdog, `emitHistory()`, `totals()` and `undelivered()`.
+own repository, failure list, watchdog, `emitHistory()`, `totals()`, and `undelivered()`.
 
 ## As implemented
 
@@ -149,13 +149,18 @@ an inbox, the reports, the status trail, `instances_to_clear`, the number of fin
 - [x] Reviews on the strict version: `review-docs`, `kotlin-engineer`, and
       `spine-code-review` approved with changes; applied, the crash-safety finding included.
       `spine-code-review` re-checked the crash-safe guards: approved.
+- [x] Pre-PR reviews of the committed branch: `spine-code-review` approved; `kotlin-engineer`
+      and `review-docs` approved with changes — a named argument and wording, applied.
 - IntelliJ IDEA inspections were not run.
 
 ## Coordination
 
-- PR #1693 (a `CatchUpStation` guard, branch of worktree `nostalgic-tesla-e45bb5`) is open
-  at `.573`. If it merges first, this branch bumps to `.574`. Overlap: at most an append to
-  `.agents/memory/MEMORY.md`.
+- PR #1693 (a `CatchUpStation` guard) is open at `.573`, and #1694 (the routing of
+  catch-up messages to the process of their repository) at `.574`; this branch is at `.575`.
+  Overlap with #1693: at most an append to `.agents/memory/MEMORY.md`. #1694 also edits
+  `CatchUpProcess` (routing, `canDispatch()`), not these handlers; a trial three-way merge
+  is clean. Whichever of #1694 and this branch lands second merges `master` and runs
+  `:server:test` again.
 - Its new `KeptStartSignalIgTest` keeps its own holding executor, recording storages, and
   failure recorder. Once both land, it can move onto `useDelivery(strategy, observer,
   configure)`.

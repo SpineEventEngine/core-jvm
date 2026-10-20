@@ -157,12 +157,13 @@ internal class RepeatedCatchUpSignalIgTest : AbstractCatchUpIgTest() {
 
         /**
          * The repeat starts a second chain of history reads, which runs alongside the first
-         * one while the catch-up is in progress. The chains take turns, because the handlers
+         * one while the catch-up is in progress. The chains take turns because the handlers
          * of a job run one at a time, and each read starts after the last event read, so
          * no event is read twice.
          *
-         * Each chain ends with `HistoryFullyRecalled` while the catch-up is still in
-         * progress, so the finalization runs twice, which is harmless.
+         * Each chain ends with a `HistoryFullyRecalled` emitted while the catch-up is in
+         * progress. The second one finds it finalizing and runs the finalization again,
+         * which is harmless.
          */
         @Test
         fun `complete once if it comes while the catch-up is in progress`() {
@@ -232,8 +233,8 @@ internal class RepeatedCatchUpSignalIgTest : AbstractCatchUpIgTest() {
                 }
                 systemEvents.release()
 
-                val totals = mapOf(FIRST to 100, SECOND to 100)
-                assertCompletedOnce(job, totals, reportsPerTarget = 2)
+                val expectedTotals = mapOf(FIRST to 100, SECOND to 100)
+                assertCompletedOnce(job, expectedTotals, reportsPerTarget = 2)
             }
         }
 
@@ -269,7 +270,8 @@ internal class RepeatedCatchUpSignalIgTest : AbstractCatchUpIgTest() {
     ) {
         blackBox(OnFirstSignal(signal, action)).use { box ->
             val job = catchUpTwoTargets(emitHistory(box, EVENTS_PER_TARGET, FIRST, SECOND))
-            assertCompletedOnce(job, mapOf(FIRST to 100, SECOND to 100), finalizations)
+            val expectedTotals = mapOf(FIRST to 100, SECOND to 100)
+            assertCompletedOnce(job, expectedTotals, finalizations = finalizations)
         }
     }
 
@@ -296,7 +298,7 @@ internal class RepeatedCatchUpSignalIgTest : AbstractCatchUpIgTest() {
     }
 
     /**
-     * Asserts that the test repeated exactly one signal, and that signal reached an inbox;
+     * Asserts that the test repeated exactly one signal and that the signal reached an inbox;
      * that the reports are the given number per target, plus the repeated ones; that
      * the given job went through each status once and ran the finalization the given number
      * of times; that the targets ended with the given totals; and that nothing is left
@@ -332,6 +334,12 @@ internal class RepeatedCatchUpSignalIgTest : AbstractCatchUpIgTest() {
         }
     }
 
+    /**
+     * Creates a `BlackBox` with the [repository] and the given dispatchers, which posts
+     * the system events through [systemEvents].
+     *
+     * Also sets the [context], to which [postAgain] posts.
+     */
     private fun blackBox(vararg dispatchers: EventDispatcher): BlackBox {
         val builder = BoundedContext.singleTenant("RepeatedCatchUpSignal")
             .add(repository)

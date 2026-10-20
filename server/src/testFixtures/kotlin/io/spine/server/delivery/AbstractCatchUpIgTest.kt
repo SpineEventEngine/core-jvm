@@ -92,9 +92,10 @@ abstract class AbstractCatchUpIgTest : AbstractDeliveryTest() {
      *   `LocalDispatchingObserver` by default.
      * @param configure Sets other properties of the delivery, such as its storages,
      *   the size of a page, or the deduplication window, which is zero by default.
-     *   The monitor is set after this function runs, so it cannot replace the watchdog.
-     *   It takes the builder as a parameter, not as a receiver: the getters of the builder
-     *   would hide the properties of a test with the same names, such as a storage.
+     *   The monitor is set after this function runs, so the function cannot replace
+     *   the watchdog. The function takes the builder as a parameter, not as a receiver:
+     *   as a receiver, the builder's getters would hide the test's own properties of
+     *   the same names, such as a storage.
      * @return The installed `Delivery`.
      */
     protected fun useDelivery(
