@@ -138,6 +138,20 @@ internal class CatchUpStationSpec {
 
     @ParameterizedTest(name = COMPLETED_JOB_READ)
     @EnumSource(JobOrder::class)
+    fun `remove a live message, if the job matching it is started`(order: JobOrder) {
+        val live = toDeliver(TARGET, type)
+        val conveyor = conveyorWith(live)
+        val jobs = order.arrange(completedJob(), job(STARTED))
+
+        val result = stationFor(jobs).process(conveyor)
+
+        result.deliveredCount() shouldBe 0
+        action.passedMessages().shouldBeNull()
+        conveyor.removals().asSequence().toList() shouldContainExactly listOf(live)
+    }
+
+    @ParameterizedTest(name = COMPLETED_JOB_READ)
+    @EnumSource(JobOrder::class)
     fun `follow the completed job, if the job in progress does not match the message`(
         order: JobOrder
     ) {
