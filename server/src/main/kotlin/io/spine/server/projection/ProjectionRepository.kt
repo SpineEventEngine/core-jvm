@@ -298,7 +298,11 @@ public abstract class ProjectionRepository<I : Any,
      * Repeats the dispatching of the events from the event log to the requested entities
      * since the specified time.
      *
-     * At the beginning of the process the state of each of the entities is set to the default.
+     * At the beginning of the process, each of the entities is deleted from the storage, to be
+     * rebuilt from the replayed events. So an entity that none of these events reaches is no
+     * longer stored after the catch-up. Archived and deleted entities are caught up too:
+     * a catch-up of all includes every stored one. An archived or deleted entity comes back
+     * active, unless the replayed events archive or delete it again.
      *
      * During this process, the entities receive continuous updates to their state. After the
      * catch-up is completed, the framework automatically resumes the dispatching of ongoing live
@@ -342,7 +346,7 @@ public abstract class ProjectionRepository<I : Any,
     }
 
     /**
-     * Starts the catch-up of all entities in this repository.
+     * Starts the catch-up of all entities in this repository, including archived and deleted ones.
      *
      * This is a shortcut method for [catchUp(since, null)][catchUp].
      *
@@ -368,22 +372,23 @@ public abstract class ProjectionRepository<I : Any,
      * They regulate the lifecycle of the catch-up and are handled by the [CatchUpEndpoint]
      * exposed by this repository.
      *
-     * Please note that the [CatchUpSignal]s are dispatched to the selected targets only and
-     * cannot be dispatched to all the repository instances. The reason is that handling of
-     * `CatchUpSignal`s may affect the lifecycle state of the projection instances. E.g. the
-     * callee must know to what targets it is sending the "delete state" signal.
+     * A [CatchUpSignal] is not routed. It is sent to the restricted targets or, with no
+     * restriction, to every stored projection instance, the archived and deleted ones included.
+     * Handling a signal may affect the lifecycle of the instances it reaches; e.g., the start
+     * of a catch-up deletes their state. The returned identifiers tell the caller which
+     * instances were affected.
      *
      * @param event The event to dispatch.
      * @param restrictToIds Optional set of the target identifiers to which the dispatching must
-     *   be restricted; if `null`, no restrictions are applied and the event should be dispatched
-     *   as per the routing schema.
+     *   be restricted; if `null`, no restrictions are applied: an event is dispatched as per
+     *   the routing schema, and a [CatchUpSignal] to every stored instance.
      * @return The set of the entity identifiers that actually received the dispatched event.
      * @see CatchUpEndpoint
      */
     private fun sendToCatchingUp(event: Event, restrictToIds: Set<I>?): Set<I> {
         val envelope = EventEnvelope.of(event)
         val catchUpTargets: Set<I> = if (envelope.message() is CatchUpSignal) {
-            restrictToIds ?: ImmutableSet.copyOf(index())
+            restrictToIds ?: storedIds()
         } else {
             val routedTargets = route(envelope)
             if (restrictToIds == null) {
@@ -397,6 +402,20 @@ public abstract class ProjectionRepository<I : Any,
             inbox.send(envelope).toCatchUp(target)
         }
         return catchUpTargets
+    }
+
+    /**
+     * Returns the identifiers of all the stored projection instances,
+     * the archived and deleted ones included.
+     *
+     * Unlike [index], which lists only the active instances, this reads the storage with
+     * an unconstrained query. The record storage adds no lifecycle filter to such a query
+     * passed to `index(query)`, though it does for `readAll(query)`.
+     */
+    private fun storedIds(): Set<I> {
+        val storage = recordStorage()
+        val everyRecord = storage.queryBuilder().build()
+        return ImmutableSet.copyOf(storage.index(everyRecord))
     }
 
     public companion object {
