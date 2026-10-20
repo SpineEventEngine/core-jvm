@@ -384,7 +384,7 @@ public final class CatchUpProcess<I>
     handle(CatchUpRequested e, EventContext ctx) {
         var status = builder().getStatus();
         if (status != CUS_UNDEFINED && status != STARTED) {
-            return emitNothing();
+            return emitNoReaction();
         }
         var id = e.getId();
 
@@ -400,7 +400,7 @@ public final class CatchUpProcess<I>
 
         dispatchCatchUpStarted(started, ctx);
         if (builder().getInstancesToClear() > 0) {
-            return emitNothing();
+            return emitNoReaction();
         }
         recordAllShardsAsAffected();
         return startRecalling();
@@ -432,12 +432,12 @@ public final class CatchUpProcess<I>
     EitherOf3<HistoryEventsRecalled, HistoryFullyRecalled, NoReaction>
     handle(EntityPreparedForCatchUp event) {
         if (builder().getStatus() != STARTED) {
-            return emitNothing();
+            return emitNoReaction();
         }
         var leftToClear = builder().getInstancesToClear() - 1;
         builder().setInstancesToClear(leftToClear);
         if (leftToClear > 0) {
-            return emitNothing();
+            return emitNoReaction();
         }
         return startRecalling();
     }
@@ -468,7 +468,7 @@ public final class CatchUpProcess<I>
     EitherOf3<HistoryEventsRecalled, HistoryFullyRecalled, NoReaction>
     handle(HistoryEventsRecalled event) {
         if (builder().getStatus() != IN_PROGRESS) {
-            return emitNothing();
+            return emitNoReaction();
         }
         return recallMoreEvents();
     }
@@ -598,7 +598,7 @@ public final class CatchUpProcess<I>
     EitherOf3<CatchUpCompleted, ShardProcessingRequested, NoReaction> handle(ShardProcessed event) {
         var builder = builder();
         if (builder.getStatus() == COMPLETED) {
-            return emitNothing();
+            return emitNoReaction();
         }
 
         var id = builder.getId();
@@ -615,7 +615,7 @@ public final class CatchUpProcess<I>
                     var completed = completeProcess(builder.getId());
                     return EitherOf3.withA(completed);
                 }
-                return emitNothing();
+                return emitNoReaction();
             }
         }
         var stillRequested = shardProcessingRequested(id, event.getIndex());
@@ -656,7 +656,7 @@ public final class CatchUpProcess<I>
     }
 
     /**
-     * Returns the outcome of a handler that emits nothing in this case.
+     * Returns the outcome of a handler that emits {@code NoReaction} in this case.
      *
      * @param <A>
      *         the type of the first event the handler may emit
@@ -664,7 +664,7 @@ public final class CatchUpProcess<I>
      *         the type of the second event the handler may emit
      */
     private <A extends EventMessage, B extends EventMessage>
-    EitherOf3<A, B, NoReaction> emitNothing() {
+    EitherOf3<A, B, NoReaction> emitNoReaction() {
         return EitherOf3.withC(noReaction());
     }
 
