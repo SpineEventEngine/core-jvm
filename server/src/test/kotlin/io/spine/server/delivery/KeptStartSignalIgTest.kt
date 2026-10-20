@@ -30,6 +30,11 @@ import io.spine.server.delivery.CatchUpStatus.COMPLETED
 import io.spine.server.delivery.InboxMessageStatus.DELIVERED
 import io.spine.server.delivery.InboxMessageStatus.TO_CATCH_UP
 import io.spine.server.delivery.InboxMessageStatus.TO_DELIVER
+import io.spine.server.delivery.KeptStartSignalTestEnv.EVENTS_PER_TARGET
+import io.spine.server.delivery.KeptStartSignalTestEnv.PAST_KEEPING_MILLIS
+import io.spine.server.delivery.KeptStartSignalTestEnv.PAST_TURBULENCE_MILLIS
+import io.spine.server.delivery.KeptStartSignalTestEnv.TARGETS
+import io.spine.server.delivery.KeptStartSignalTestEnv.THIRD
 import io.spine.server.delivery.event.CatchUpStarted
 import io.spine.server.delivery.event.EntityPreparedForCatchUp
 import io.spine.server.delivery.given.CounterView
@@ -173,21 +178,27 @@ internal class KeptStartSignalIgTest : AbstractDeliveryTest() {
         }
 }
 
-private const val FIRST = "first"
-private const val SECOND = "second"
-private const val THIRD = "third"
-private val TARGETS = setOf(FIRST, SECOND)
-private const val EVENTS_PER_TARGET = 10
-
 /**
- * Exceeds the 500 ms turbulence period of a catch-up.
+ * The constants of [KeptStartSignalIgTest].
  */
-private const val PAST_TURBULENCE_MILLIS = 1_000L
+private object KeptStartSignalTestEnv {
 
-/**
- * Exceeds the 1 s for which a completed job keeps a message it delivers.
- */
-private const val PAST_KEEPING_MILLIS = 1_200L
+    const val FIRST = "first"
+    const val SECOND = "second"
+    const val THIRD = "third"
+    val TARGETS = setOf(FIRST, SECOND)
+    const val EVENTS_PER_TARGET = 10
+
+    /**
+     * Exceeds the 500 ms turbulence period of a catch-up.
+     */
+    const val PAST_TURBULENCE_MILLIS = 1_000L
+
+    /**
+     * Exceeds the 1 s for which a completed job keeps a message it delivers.
+     */
+    const val PAST_KEEPING_MILLIS = 1_200L
+}
 
 /**
  * Emits [EVENTS_PER_TARGET] events to each of the [TARGETS], weighing 1 each.
