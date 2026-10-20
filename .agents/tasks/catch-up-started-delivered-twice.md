@@ -19,7 +19,8 @@ there as "separate session, reproduction first".
 - [x] Reproduced on `81c6387bb97` with a lagging catch-up storage — see "Reproduction"
 - [x] Fix and tests — see "Change"
 - [x] Verification and reviews — see "Verification"
-- [ ] Version bump, dependency reports, PR — only when authorized
+- [x] Version `2.0.0-SNAPSHOT.573`, dependency reports, PR #1693 — on 2026-10-20
+- [x] Review of the PR — see "After the PR was opened"
 
 ## Problem
 
@@ -61,9 +62,9 @@ system events posted in parallel through an executor that runs each task in the 
 or holds it. The catch-up storage can freeze what `readAll()` returns, while the writes and the
 reads by ID go through.
 
-J1 completes. Then, with the query frozen and the system events held, J2 starts for the same targets:
-J1 delivers and keeps J2's two start signals (the precondition, asserted). Then the query is
-unfrozen and the reports released.
+J1 completes. Then, with the query frozen and the system events held, J2 starts for the same
+targets: J1 delivers and keeps J2's two start signals (the precondition, asserted). Then the
+query is unfrozen and the reports released.
 
 Without the guard, at `81c6387bb97`: the precondition held, and each target reported twice —
 `["first", "first", "second", "second"]` instead of `["first", "second"]`. The job still
@@ -81,13 +82,20 @@ ignored the rest, which came after the job left `STARTED`.
 - The Javadoc of `completedWith()` said the messages are kept only if a deduplication window
   is set; the code keeps them for `HOW_LONG_TO_KEEP` in any case, and the new Javadoc relies
   on that. Corrected.
-- `CatchUpStationSpec`: J1 `COMPLETED`, J2 `STARTED`, J2's start signal `DELIVERED` with
-  `keep_until`, both orders of the jobs → nothing dispatched, the message stays as it is.
+- `CatchUpStationSpec`, two cases, each in both orders of a `COMPLETED` and a `STARTED` job:
+  - J2's start signal `DELIVERED` with `keep_until` → nothing dispatched, the message stays
+    as it is;
+  - a live message of a `STARTED` job → removed, not dispatched. It takes the branch of the
+    guard for a message without an event.
 - `KeptStartSignalIgTest`: one report per target, J2 `COMPLETED` with the counter at 0,
   1000 per target, nothing left to deliver, no failures; once `keep_until` passes, a run
-  leaves no start signal in the inbox. Standalone on `AbstractDeliveryTest`, as
-  `AbstractCatchUpIgTest.useDelivery()` takes no storages yet; it can move onto the base once
-  `repeated-catch-up-signals` extends it.
+  leaves no start signal in the inbox. The suite keeps its state, the lifecycle methods, the
+  test, and the helpers that read its state (`blackBox()`, `totals()`); the constants, the
+  other helpers, and the fixtures — the recording inbox storage, the lagging catch-up storage,
+  the failure recorder and the holding executor — are file-private, at the file level.
+  Standalone on `AbstractDeliveryTest`, as `AbstractCatchUpIgTest.useDelivery()` takes no
+  storages on `master`; #1695 adds `observer` and `configure` to it, and this suite can move
+  onto the base once that lands.
 
 ## Verification
 
@@ -103,13 +111,23 @@ ignored the rest, which came after the job left `STARTED`.
 - [x] Reviews — `spine-code-review` and `review-docs` approved with changes, `kotlin-engineer`
       approved. Applied: the Javadoc names the `DELIVERED` status, `if (dispatched)`, the
       `completedWith()` Javadoc, wording of the test and of this file, stdlib types in the
-      lagging storage, a clue on the job state. Deferred:
-  - the version bump and the dependency reports, until a commit is authorized;
-  - sharing `RecordingInboxStorage` and `HoldingExecutor` with `DuplicateEntityPreparedIgTest`,
-    which `repeated-catch-up-signals` is renaming and moving onto `AbstractCatchUpIgTest`;
-    this test can follow once that lands.
-  - Not applied: a bare `Timestamps.add` import in `CatchUpStationSpec`, as a bare `add(...)`
-    inside `copy { }` reads like adding to a collection.
+      lagging storage, a clue on the job state. Deferred: sharing the fixtures with
+      `DuplicateEntityPreparedIgTest`, which #1695 renames and moves onto
+      `AbstractCatchUpIgTest`. Not applied: a bare `Timestamps.add` import in
+      `CatchUpStationSpec`, as a bare `add(...)` inside `copy { }` reads like adding to
+      a collection.
+- [x] After the bump: `./gradlew build dokkaGenerate` passed; pre-PR PASS, with all three
+      reviewers approving the final diff.
+
+## After the PR was opened
+
+- Codecov: the guard's line was partly covered — no test passed a message without an event
+  through `started()`. The second case of `CatchUpStationSpec` covers it; Kover reports all
+  four branches of the line covered. `CatchUpStationSpec` runs 15 cases.
+- On the owner's request, the fixtures and the helpers that do not read the state of
+  `KeptStartSignalIgTest` moved to the file level.
+- The open PRs carry distinct versions: #1693 `.573`, #1694 `.574`, #1695 `.575`. If a PR
+  with a later version merges first, this one is bumped above it.
 
 ## Noticed along the way
 
