@@ -15,237 +15,332 @@
 package io.spine.server.delivery
 
 import com.google.protobuf.Timestamp
-import com.google.protobuf.util.Durations
-import com.google.protobuf.util.Timestamps.subtract
 import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.spine.base.EventMessage
 import io.spine.base.Identifier
-import io.spine.base.Time.currentTime
+import io.spine.core.EventId
 import io.spine.core.MessageId
-import io.spine.environment.Tests
 import io.spine.server.BoundedContext
+import io.spine.server.delivery.CatchUpMessages.fullyRecalled
+import io.spine.server.delivery.CatchUpMessages.recalled
 import io.spine.server.delivery.CatchUpStatus.COMPLETED
 import io.spine.server.delivery.CatchUpStatus.FINALIZING
 import io.spine.server.delivery.CatchUpStatus.IN_PROGRESS
 import io.spine.server.delivery.CatchUpStatus.STARTED
-import io.spine.server.delivery.InboxMessageStatus.TO_CATCH_UP
-import io.spine.server.delivery.InboxMessageStatus.TO_DELIVER
+import io.spine.server.delivery.event.CatchUpRequested
 import io.spine.server.delivery.event.EntityPreparedForCatchUp
 import io.spine.server.delivery.event.HistoryEventsRecalled
-import io.spine.server.delivery.event.HistoryFullyRecalled
 import io.spine.server.delivery.event.LiveEventsPickedUp
 import io.spine.server.delivery.event.ShardProcessingRequested
+import io.spine.server.delivery.event.catchUpRequested
 import io.spine.server.delivery.given.CounterView
 import io.spine.server.event.AbstractEventReactor
 import io.spine.server.event.EventDispatcher
 import io.spine.server.event.NoReaction
 import io.spine.server.event.React
 import io.spine.server.storage.memory.InMemoryStorageFactory
-import io.spine.server.under
 import io.spine.test.delivery.numberAdded
 import io.spine.testing.SlowTest
 import io.spine.testing.server.blackbox.BlackBox
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit.SECONDS
-import kotlin.jvm.optionals.getOrNull
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.TimeSource
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Timeout
 import org.junit.jupiter.api.Timeout.ThreadMode.SEPARATE_THREAD
 
 /**
- * Tests a catch-up that receives `EntityPreparedForCatchUp` once more for an instance
- * that has already reported.
+ * Tests a catch-up that receives one of its signals once more.
  *
- * The repeated report is posted the way `CatchUpEndpoint` posts the first one: as a system
- * event of the target projection. It is a new event with an ID of its own, so the
- * deduplication of `Delivery` does not drop it. Parallel posting of system events is
- * enabled, as in production, but its executor runs each task in the calling thread or holds
- * the task until it is released.
+ * A signal can come again after a crash: the delivery is at-least-once, and the in-memory
+ * cache of the delivered messages does not survive the crash.
+ *
+ * Each repeat is a new event with the message of the original, so the deduplication of
+ * `Delivery` does not drop it. A report of an instance is posted the way `CatchUpEndpoint`
+ * posts the first one: as a system event of the target projection. Any other signal is
+ * posted the way `CatchUpStarter` posts `CatchUpRequested`.
+ *
+ * Parallel posting of system events is enabled, as in production, but its executor runs
+ * each task in the calling thread or holds the task until it is released.
  */
 @SlowTest
 @Timeout(value = 60, unit = SECONDS, threadMode = SEPARATE_THREAD)
-@DisplayName("Catch-up, given a repeated `EntityPreparedForCatchUp`, should")
-internal class DuplicateEntityPreparedIgTest : AbstractDeliveryTest() {
+@DisplayName("Catch-up, given a repeated signal, should")
+internal class RepeatedCatchUpSignalIgTest : AbstractCatchUpIgTest() {
 
-    private val repository = CounterView.Repository()
-    private val failures = CopyOnWriteArrayList<String>()
     private val inboxStorage = RecordingInboxStorage()
     private val catchUpStorage = RecordingCatchUpStorage()
     private val systemEvents = HoldingExecutor()
-    private val watchdog = Watchdog(failures)
 
     /**
-     * Uses a single-shard `Delivery` that delivers synchronously through
-     * `LocalDispatchingObserver` until the watchdog stops it.
-     *
-     * Records each failure. Otherwise, a failure would go unnoticed: `Delivery` only logs
-     * what a shard observer throws, and `DeliveryMonitor` marks a message as delivered even
-     * if its receptor failed.
+     * The instances that [reportAgain] reported once more.
+     */
+    private val repeatedReports = mutableListOf<String>()
+
+    /**
+     * The IDs of the events that [postAgain] posted to repeat the other signals.
+     */
+    private val repeatedSignals = mutableListOf<EventId>()
+
+    private lateinit var context: BoundedContext
+
+    /**
+     * Uses a single-shard `Delivery` that records each message sent to an inbox and each
+     * state of a catch-up job.
      */
     @BeforeEach
     fun useRecordingDelivery() {
-        val delivery = Delivery.newBuilder()
-            .setStrategy(UniformAcrossAllShards.singleShard())
-            .setDeduplicationWindow(Durations.ZERO)
-            .setInboxStorage(inboxStorage)
-            .setCatchUpStorage(catchUpStorage)
-            .setMonitor(watchdog)
-            .build()
-        val dispatching = LocalDispatchingObserver()
-        delivery.subscribe { message ->
-            if (watchdog.timeIsUp()) {
-                return@subscribe
-            }
-            try {
-                dispatching.onMessage(message)
-            } catch (e: Exception) {
-                failures.add("Delivery run: $e")
-                throw e
+        useDelivery(UniformAcrossAllShards.singleShard()) { builder ->
+            builder.setInboxStorage(inboxStorage)
+                .setCatchUpStorage(catchUpStorage)
+        }
+    }
+
+    @Nested inner class
+    `'EntityPreparedForCatchUp'` {
+
+        @Test
+        fun `complete once if an instance reports twice before another one reports`() {
+            blackBox().use { box ->
+                val since = emitHistory(box, EVENTS_PER_TARGET, FIRST, SECOND)
+                systemEvents.hold()
+                val job = catchUpTwoTargets(since)
+                withClue("The reports held: one per target") {
+                    systemEvents.heldCount shouldBe 2
+                }
+
+                // One instance reports twice before the report of the other one is released.
+                // The repeat is counted, so the catch-up goes on without the other report,
+                // which then comes too late and must be ignored.
+                systemEvents.releaseFirst()
+                val reported = inboxStorage.reportsOf(job).single()
+                systemEvents.withoutHolding {
+                    reportAgain(reported, job)
+                }
+                systemEvents.release()
+
+                assertCompletedOnce(job, mapOf(FIRST to 100, SECOND to 100))
             }
         }
-        under<Tests> { use(delivery) }
+
+        @Test
+        fun `ignore it while the catch-up is in progress`() {
+            assertCompletedOnceIfRepeatedOn(HistoryEventsRecalled::class.java) { job ->
+                reportAgain(FIRST, job)
+            }
+        }
+
+        @Test
+        fun `ignore it while the catch-up is finalizing`() {
+            assertCompletedOnceIfRepeatedOn(LiveEventsPickedUp::class.java) { job ->
+                reportAgain(FIRST, job)
+            }
+        }
+
+        @Test
+        fun `ignore it once the catch-up is completed`() {
+            assertCompletedOnceIfRepeatedAfterwards { job -> reportAgain(FIRST, job) }
+        }
+    }
+
+    @Nested inner class
+    `'HistoryEventsRecalled'` {
+
+        /**
+         * The repeat starts a second chain of history reads, which runs alongside the first
+         * one while the catch-up is in progress. The chains take turns, because the handlers
+         * of a job run one at a time, and each read starts after the last event read, so
+         * no event is read twice.
+         *
+         * Each chain ends with `HistoryFullyRecalled` while the catch-up is still in
+         * progress, so the finalization runs twice, which is harmless.
+         */
+        @Test
+        fun `complete once if it comes while the catch-up is in progress`() {
+            assertCompletedOnceIfRepeatedOn(
+                HistoryEventsRecalled::class.java,
+                finalizations = 2
+            ) { job ->
+                postAgain(recalled(job))
+            }
+        }
+
+        @Test
+        fun `ignore it while the catch-up is finalizing`() {
+            assertCompletedOnceIfRepeatedOn(LiveEventsPickedUp::class.java) { job ->
+                postAgain(recalled(job))
+            }
+        }
+
+        @Test
+        fun `ignore it once the catch-up is completed`() {
+            assertCompletedOnceIfRepeatedAfterwards { job -> postAgain(recalled(job)) }
+        }
+    }
+
+    @Nested inner class
+    `'HistoryFullyRecalled'` {
+
+        /**
+         * The catch-up stores its `FINALIZING` status before it runs the finalization.
+         * So the signal delivered again after a failure in between must run it again, and
+         * running it once more is harmless.
+         */
+        @Test
+        fun `run the finalization again while the catch-up is finalizing`() {
+            assertCompletedOnceIfRepeatedOn(
+                LiveEventsPickedUp::class.java,
+                finalizations = 2
+            ) { job ->
+                postAgain(fullyRecalled(job))
+            }
+        }
+
+        @Test
+        fun `ignore it once the catch-up is completed`() {
+            assertCompletedOnceIfRepeatedAfterwards { job -> postAgain(fullyRecalled(job)) }
+        }
+    }
+
+    @Nested inner class
+    `'CatchUpRequested'` {
+
+        /**
+         * The catch-up stores its `STARTED` status before it sends the start signals.
+         * So the request delivered again after a failure in between must send them again.
+         * Each target is then reset and reports once more.
+         */
+        @Test
+        fun `send the start signals again while the catch-up is started`() {
+            blackBox().use { box ->
+                val since = emitHistory(box, EVENTS_PER_TARGET, FIRST, SECOND)
+                systemEvents.hold()
+                val job = catchUpTwoTargets(since)
+
+                postAgain(requestOf(job))
+                withClue("The reports held: two per target") {
+                    systemEvents.heldCount shouldBe 4
+                }
+                systemEvents.release()
+
+                val totals = mapOf(FIRST to 100, SECOND to 100)
+                assertCompletedOnce(job, totals, reportsPerTarget = 2)
+            }
+        }
+
+        @Test
+        fun `ignore it while the catch-up is in progress`() {
+            assertCompletedOnceIfRepeatedOn(HistoryEventsRecalled::class.java) { job ->
+                postAgain(requestOf(job))
+            }
+        }
+
+        @Test
+        fun `ignore it while the catch-up is finalizing`() {
+            assertCompletedOnceIfRepeatedOn(LiveEventsPickedUp::class.java) { job ->
+                postAgain(requestOf(job))
+            }
+        }
+
+        @Test
+        fun `ignore it once the catch-up is completed`() {
+            assertCompletedOnceIfRepeatedAfterwards { job -> postAgain(requestOf(job)) }
+        }
     }
 
     /**
-     * Restores the default weight of an event, which `CounterView` keeps in a static field
-     * for the whole JVM.
+     * Catches up [FIRST] and [SECOND], calling the given action on the first catch-up signal
+     * of the given type, and asserts that the catch-up completed once, running
+     * the finalization the given number of times.
      */
-    @AfterEach
-    fun resetWeight() {
-        CounterView.changeWeightTo(1)
-    }
-
-    @Test
-    fun `complete once if an instance reports twice before another one reports`() {
-        blackBox().use { box ->
-            val since = emitHistory(box)
-            systemEvents.hold()
-            val job = catchUpTwoTargets(since)
-            withClue("The reports held: one per target") {
-                systemEvents.heldCount shouldBe 2
-            }
-
-            // One instance reports twice before the report of the other one is released.
-            // The repeat is counted, so the catch-up goes on without the other report, which
-            // then comes too late and must be ignored.
-            systemEvents.releaseFirst()
-            val reported = inboxStorage.reportsOf(job).single()
-            systemEvents.withoutHolding {
-                repository.lifecycleOf(reported).onEntityPreparedForCatchUp(job)
-            }
-            systemEvents.release()
-
-            assertCompletedOnce(job, reported, mapOf(FIRST to 100, SECOND to 100))
+    private fun assertCompletedOnceIfRepeatedOn(
+        signal: Class<out CatchUpSignal>,
+        finalizations: Int = 1,
+        action: (CatchUpId) -> Unit
+    ) {
+        blackBox(OnFirstSignal(signal, action)).use { box ->
+            val job = catchUpTwoTargets(emitHistory(box, EVENTS_PER_TARGET, FIRST, SECOND))
+            assertCompletedOnce(job, mapOf(FIRST to 100, SECOND to 100), finalizations)
         }
     }
 
-    @Test
-    fun `ignore it while the catch-up is in progress`() {
-        assertIgnoredIfRepeatedOn(HistoryEventsRecalled::class.java)
-    }
-
-    @Test
-    fun `ignore it while the catch-up is finalizing`() {
-        assertIgnoredIfRepeatedOn(LiveEventsPickedUp::class.java)
-    }
-
-    @Test
-    fun `ignore it once the catch-up is completed`() {
+    /**
+     * Catches up [FIRST] and [SECOND], posts a live event to [FIRST], and calls the given
+     * action once the event is older than the turbulence period.
+     *
+     * Asserts that the catch-up completed once and the live event was applied once.
+     */
+    private fun assertCompletedOnceIfRepeatedAfterwards(action: (CatchUpId) -> Unit) {
         blackBox().use { box ->
-            val since = emitHistory(box)
-            val job = catchUpTwoTargets(since)
+            val job = catchUpTwoTargets(emitHistory(box, EVENTS_PER_TARGET, FIRST, SECOND))
 
             // A live event after the catch-up, older than the turbulence period by the time
-            // the repeated report comes. Another round started by that report would apply it
+            // the signal comes again. Another round started by the repeat would apply it
             // twice.
             box.receivesEvent(numberAdded { calculatorId = FIRST })
-            Thread.sleep(PAST_TURBULENCE_MILLIS)
+            waitPastTurbulence()
 
-            repository.lifecycleOf(FIRST).onEntityPreparedForCatchUp(job)
+            action(job)
 
-            assertCompletedOnce(job, FIRST, mapOf(FIRST to 110, SECOND to 100))
+            assertCompletedOnce(job, mapOf(FIRST to 110, SECOND to 100))
         }
     }
 
     /**
-     * Catches up [FIRST] and [SECOND], with [FIRST] reporting once more on the first catch-up
-     * signal of the given type, and asserts that the repeated report changed nothing.
-     */
-    private fun assertIgnoredIfRepeatedOn(signal: Class<out CatchUpSignal>) {
-        val reportAgain = OnFirstSignal(signal) { job ->
-            repository.lifecycleOf(FIRST).onEntityPreparedForCatchUp(job)
-        }
-        blackBox(reportAgain).use { box ->
-            val job = catchUpTwoTargets(emitHistory(box))
-            assertCompletedOnce(job, FIRST, mapOf(FIRST to 100, SECOND to 100))
-        }
-    }
-
-    /**
-     * Asserts that each target reported, and the `repeated` one once more; that the given job
-     * went through each status once and read the history once; that the targets ended with
-     * the given totals; and that nothing is left to deliver.
+     * Asserts that the test repeated exactly one signal, and that signal reached an inbox;
+     * that the reports are the given number per target, plus the repeated ones; that
+     * the given job went through each status once and ran the finalization the given number
+     * of times; that the targets ended with the given totals; and that nothing is left
+     * to deliver.
      */
     private fun assertCompletedOnce(
         job: CatchUpId,
-        repeated: String,
-        expectedTotals: Map<String, Int>
+        expectedTotals: Map<String, Int>,
+        finalizations: Int = 1,
+        reportsPerTarget: Int = 1
     ) {
+        val expectedReports =
+            List(reportsPerTarget) { listOf(FIRST, SECOND) }.flatten() + repeatedReports
         assertSoftly {
             failures.shouldBeEmpty()
-            withClue("The reports: one per target and the repeated one") {
-                inboxStorage.reportsOf(job).sorted() shouldBe
-                        listOf(FIRST, SECOND, repeated).sorted()
+            withClue("The signals repeated by the test") {
+                repeatedReports.size + repeatedSignals.size shouldBe 1
+            }
+            withClue("The repeated signals sent to an inbox") {
+                inboxStorage.eventIds() shouldContainAll repeatedSignals
+            }
+            withClue("The reports: $reportsPerTarget per target and the repeated ones") {
+                inboxStorage.reportsOf(job) shouldContainExactlyInAnyOrder expectedReports
             }
             statusTrail(job) shouldBe listOf(STARTED, IN_PROGRESS, FINALIZING, COMPLETED)
             lastState(job).instancesToClear shouldBe 0
-            withClue("`HistoryFullyRecalled` events, with ${shardRequests(job)} shard requests") {
+            withClue("The finalizations, with ${shardRequests(job)} shard requests") {
                 inboxStorage.signalsOf(job)
-                    .filterIsInstance<HistoryFullyRecalled>() shouldHaveSize 1
+                    .filterIsInstance<LiveEventsPickedUp>() shouldHaveSize finalizations
             }
-            totals() shouldBe expectedTotals
+            totals(FIRST, SECOND) shouldBe expectedTotals
             undelivered().shouldBeEmpty()
         }
     }
 
     private fun blackBox(vararg dispatchers: EventDispatcher): BlackBox {
-        val builder = BoundedContext.singleTenant("DuplicateEntityPrepared")
+        val builder = BoundedContext.singleTenant("RepeatedCatchUpSignal")
             .add(repository)
         dispatchers.forEach { builder.addEventDispatcher(it) }
         builder.systemSettings()
             .enableParallelPosting()
             .useCustomPostingExecutor(systemEvents)
-        return BlackBox.from(builder)
-    }
-
-    /**
-     * Emits [EVENTS_PER_TARGET] events to each of [FIRST] and [SECOND], weighing 1 each.
-     *
-     * Each event is posted live, so it gets a timestamp of its own. Then the function waits
-     * until the events are older than the turbulence period of a catch-up.
-     *
-     * @return The time to start the catch-up from, which precedes the events.
-     */
-    private fun emitHistory(box: BlackBox): Timestamp {
-        CounterView.changeWeightTo(1)
-        val since = subtract(currentTime(), Durations.fromMinutes(1))
-        repeat(EVENTS_PER_TARGET) {
-            listOf(FIRST, SECOND).forEach { id ->
-                box.receivesEvent(numberAdded { calculatorId = id })
-            }
-        }
-        Thread.sleep(PAST_TURBULENCE_MILLIS)
-        return since
+        context = builder.build()
+        return BlackBox.from(context)
     }
 
     /**
@@ -256,6 +351,34 @@ internal class DuplicateEntityPreparedIgTest : AbstractDeliveryTest() {
     private fun catchUpTwoTargets(since: Timestamp): CatchUpId {
         CounterView.changeWeightTo(10)
         return repository.catchUp(since, setOf(FIRST, SECOND))
+    }
+
+    /**
+     * Reports the given instance prepared for the given job once more, the way
+     * `CatchUpEndpoint` reports it, and records the instance in [repeatedReports].
+     */
+    private fun reportAgain(instance: String, job: CatchUpId) {
+        repeatedReports.add(instance)
+        repository.lifecycleOf(instance).onEntityPreparedForCatchUp(job)
+    }
+
+    /**
+     * Posts the given signal once more as a new event, the way `CatchUpStarter` makes
+     * and posts `CatchUpRequested`, and records the event ID in [repeatedSignals].
+     */
+    private fun postAgain(signal: CatchUpSignal) {
+        val factory = CatchUpEventFactory(CounterView.projectionType(), /* multitenant = */ false)
+        val event = factory.createEvent(signal)
+        repeatedSignals.add(event.id)
+        context.eventBus().post(event)
+    }
+
+    /**
+     * Returns the `CatchUpRequested` that started the given job.
+     */
+    private fun requestOf(job: CatchUpId): CatchUpRequested = catchUpRequested {
+        id = job
+        request = lastState(job).request
     }
 
     /**
@@ -277,29 +400,13 @@ internal class DuplicateEntityPreparedIgTest : AbstractDeliveryTest() {
             .count { it.process == job }
 
     /**
-     * Returns the totals of [FIRST] and [SECOND], or `null` for one that does not exist.
-     */
-    private fun totals(): Map<String, Int?> =
-        listOf(FIRST, SECOND).associateWith { id ->
-            repository.find(id).getOrNull()?.state()?.total
-        }
-
-    /**
-     * Returns the messages that are still to be delivered, either live or for a catch-up.
-     */
-    private fun undelivered(): List<InboxMessage> =
-        InboxContents.get().values.flatten().filter {
-            it.status == TO_DELIVER || it.status == TO_CATCH_UP
-        }
-
-    /**
      * Records each message sent to an inbox.
      *
      * A message sent is stored on its own. A delivery run stores the messages it has
      * processed in a batch, which is not recorded.
      */
     private class RecordingInboxStorage :
-        InboxStorage(InMemoryStorageFactory.newInstance(), false) {
+        InboxStorage(InMemoryStorageFactory.newInstance(), /* multitenant = */ false) {
 
         private val sent = CopyOnWriteArrayList<InboxMessage>()
 
@@ -307,6 +414,12 @@ internal class DuplicateEntityPreparedIgTest : AbstractDeliveryTest() {
             sent.add(message)
             super.write(message)
         }
+
+        /**
+         * Returns the IDs of the events sent to any inbox.
+         */
+        fun eventIds(): List<EventId> =
+            sent.filter { it.hasEvent() }.map { it.event.id }
 
         /**
          * Returns the events sent to any inbox.
@@ -334,7 +447,7 @@ internal class DuplicateEntityPreparedIgTest : AbstractDeliveryTest() {
      * Records each state of a catch-up job written to the storage.
      */
     private class RecordingCatchUpStorage :
-        CatchUpStorage(InMemoryStorageFactory.newInstance(), false) {
+        CatchUpStorage(InMemoryStorageFactory.newInstance(), /* multitenant = */ false) {
 
         private val writes = CopyOnWriteArrayList<CatchUp>()
 
@@ -344,35 +457,6 @@ internal class DuplicateEntityPreparedIgTest : AbstractDeliveryTest() {
         }
 
         fun writesOf(job: CatchUpId): List<CatchUp> = writes.filter { it.id == job }
-    }
-
-    /**
-     * Stops the delivery once the time is up, and records the receptor failures, which
-     * `Delivery` does not throw.
-     */
-    private class Watchdog(
-        private val failures: CopyOnWriteArrayList<String>
-    ) : DeliveryMonitor() {
-
-        private val deadline = TimeSource.Monotonic.markNow() + WATCHDOG_SECONDS.seconds
-
-        /**
-         * Tells whether the time is up, recording it as a failure if so.
-         */
-        fun timeIsUp(): Boolean {
-            val up = deadline.hasPassedNow()
-            if (up) {
-                failures.addIfAbsent("Stopped by the watchdog.")
-            }
-            return up
-        }
-
-        override fun shouldContinueAfter(stage: DeliveryStage): Boolean = !timeIsUp()
-
-        override fun onReceptionFailure(reception: FailedReception): FailedReception.Action {
-            failures.add("Receptor: ${reception.error().message}")
-            return super.onReceptionFailure(reception)
-        }
     }
 
     /**
@@ -472,17 +556,5 @@ internal class DuplicateEntityPreparedIgTest : AbstractDeliveryTest() {
         const val FIRST = "first"
         const val SECOND = "second"
         const val EVENTS_PER_TARGET = 10
-
-        /**
-         * Exceeds the 500 ms turbulence period of a catch-up.
-         */
-        const val PAST_TURBULENCE_MILLIS = 1_000L
-
-        /**
-         * The time after which the watchdog stops a delivery that does not end.
-         *
-         * It is well within the timeout of a test.
-         */
-        const val WATCHDOG_SECONDS = 30
     }
 }

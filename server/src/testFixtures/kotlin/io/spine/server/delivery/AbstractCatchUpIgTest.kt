@@ -26,8 +26,11 @@ import io.spine.server.delivery.given.CounterView
 import io.spine.server.under
 import io.spine.test.delivery.numberAdded
 import io.spine.testing.server.blackbox.BlackBox
+import io.spine.type.TypeUrl
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.jvm.optionals.getOrNull
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.TimeSource
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 
@@ -49,7 +52,8 @@ abstract class AbstractCatchUpIgTest : AbstractDeliveryTest() {
     private val recordedFailures = CopyOnWriteArrayList<String>()
 
     /**
-     * The recorded failures of the delivery runs and of the receptors.
+     * The recorded failures of the delivery runs and of the receptors, and the stop of
+     * the delivery by the watchdog, if any.
      */
     protected val failures: List<String>
         get() = recordedFailures
@@ -69,38 +73,69 @@ abstract class AbstractCatchUpIgTest : AbstractDeliveryTest() {
 
     /**
      * Installs a `Delivery` that uses the given strategy, delivers synchronously
-     * through `LocalDispatchingObserver`, and records each failure in [failures].
+     * through the given observer, and records each failure in [failures].
      *
      * Without this recording, a failure would go unnoticed: `Delivery` only logs what
      * a shard observer throws, and `DeliveryMonitor` marks a message as delivered even when
      * its receptor failed.
+     *
+     * The monitor of the `Delivery` is a watchdog. Once 30 seconds have passed since this
+     * call, it stops each delivery run, and the observer is no longer called. The stop is
+     * recorded in [failures]. So a delivery that does not end, such as a livelock, is stopped
+     * well before the test times out.
+     *
+     * Call it before creating a `BlackBox`: a projection repository binds its catch-up to
+     * the `Delivery` in use when it is registered.
+     *
+     * @param strategy The strategy of the delivery.
+     * @param observer The observer that delivers each message sent to an inbox,
+     *   `LocalDispatchingObserver` by default.
+     * @param configure Sets other properties of the delivery, such as its storages,
+     *   the size of a page, or the deduplication window, which is zero by default.
+     *   The monitor is set after this function runs, so it cannot replace the watchdog.
+     *   It takes the builder as a parameter, not as a receiver: the getters of the builder
+     *   would hide the properties of a test with the same names, such as a storage.
+     * @return The installed `Delivery`.
      */
-    protected fun useDelivery(strategy: DeliveryStrategy) {
-        val delivery = Delivery.newBuilder()
+    protected fun useDelivery(
+        strategy: DeliveryStrategy,
+        observer: ShardObserver = LocalDispatchingObserver(),
+        configure: (DeliveryBuilder) -> Unit = {}
+    ): Delivery {
+        val watchdog = Watchdog()
+        val builder = Delivery.newBuilder()
             .setStrategy(strategy)
             .setDeduplicationWindow(Durations.ZERO)
-            .setMonitor(FailureRecorder())
+        configure(builder)
+        val delivery = builder
+            .setMonitor(watchdog)
             .build()
-        val dispatching = LocalDispatchingObserver()
         delivery.subscribe { message ->
+            if (watchdog.timeIsUp()) {
+                return@subscribe
+            }
             try {
-                dispatching.onMessage(message)
+                observer.onMessage(message)
             } catch (e: Exception) {
                 recordedFailures.add("Delivery run: $e")
                 throw e
             }
         }
         under<Tests> { use(delivery) }
+        return delivery
     }
 
     /**
-     * Returns the statuses of the catch-up jobs of the `CounterView` projections.
+     * Returns the statuses of the catch-up jobs of the projections with the given state type,
+     * those of `CounterView` by default.
      */
-    protected fun jobStatuses(): List<CatchUpStatus> =
+    protected fun jobStatuses(
+        stateType: TypeUrl = CounterView.projectionType()
+    ): List<CatchUpStatus> =
         ServerEnvironment.instance()
             .delivery()
             .catchUpStorage()
-            .readByType(CounterView.projectionType())
+            .readByType(stateType)
             .asSequence()
             .map { it.status }
             .toList()
@@ -118,9 +153,12 @@ abstract class AbstractCatchUpIgTest : AbstractDeliveryTest() {
      * Returns the messages that are still to be delivered, either live or for a catch-up.
      */
     protected fun undelivered(): List<InboxMessage> =
-        InboxContents.get().values.flatten().filter {
-            it.status == TO_DELIVER || it.status == TO_CATCH_UP
-        }
+        inboxContents().filter { it.status == TO_DELIVER || it.status == TO_CATCH_UP }
+
+    /**
+     * Returns the messages of all the inboxes.
+     */
+    protected fun inboxContents(): List<InboxMessage> = InboxContents.get().values.flatten()
 
     /**
      * Emits [eventsPerTarget] events to each of the projections with the given [ids].
@@ -142,25 +180,59 @@ abstract class AbstractCatchUpIgTest : AbstractDeliveryTest() {
                 context.receivesEvent(numberAdded { calculatorId = id })
             }
         }
-        Thread.sleep(PAST_TURBULENCE_MILLIS)
+        waitPastTurbulence()
         return since
     }
 
     /**
-     * Records the receptor failures, which `Delivery` does not throw.
+     * Waits until the events posted so far are older than the turbulence period of a catch-up.
      */
-    private inner class FailureRecorder : DeliveryMonitor() {
+    protected fun waitPastTurbulence() {
+        Thread.sleep(PAST_TURBULENCE_MILLIS)
+    }
+
+    /**
+     * Records the receptor failures, which `Delivery` does not throw, and stops
+     * the delivery once 30 seconds have passed since the watchdog was created.
+     */
+    private inner class Watchdog : DeliveryMonitor() {
+
+        private val deadline = TimeSource.Monotonic.markNow() + WATCHDOG_SECONDS.seconds
+
+        /**
+         * Tells whether the time is up, recording it as a failure if so.
+         */
+        fun timeIsUp(): Boolean {
+            val up = deadline.hasPassedNow()
+            if (up) {
+                recordedFailures.addIfAbsent(STOPPED_BY_WATCHDOG)
+            }
+            return up
+        }
+
+        override fun shouldContinueAfter(stage: DeliveryStage): Boolean = !timeIsUp()
 
         override fun onReceptionFailure(reception: FailedReception): FailedReception.Action {
-            recordedFailures.add("Receptor: ${reception.error().message}")
+            val error = reception.error()
+            recordedFailures.add("Receptor: ${error.type}: ${error.message}")
             return super.onReceptionFailure(reception)
         }
     }
 
     private companion object {
+
         /**
          * A pause longer than the 500 ms turbulence period of a catch-up.
          */
         const val PAST_TURBULENCE_MILLIS = 1_000L
+
+        /**
+         * The time after which the watchdog stops a delivery that does not end.
+         *
+         * It is well within the timeout of a test.
+         */
+        const val WATCHDOG_SECONDS = 30
+
+        const val STOPPED_BY_WATCHDOG = "Stopped by the watchdog."
     }
 }
