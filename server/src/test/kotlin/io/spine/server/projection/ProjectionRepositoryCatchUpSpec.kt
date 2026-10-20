@@ -18,6 +18,7 @@ import com.google.protobuf.util.Durations.fromMinutes
 import com.google.protobuf.util.Timestamps.add
 import com.google.protobuf.util.Timestamps.subtract
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.string.shouldContain
 import io.spine.base.Time.currentTime
 import io.spine.server.BoundedContext
 import io.spine.server.BoundedContextBuilder
@@ -67,8 +68,9 @@ internal class ProjectionRepositoryCatchUpSpec {
     fun `reject a catch-up of a repository not registered in a Bounded Context`() {
         val unregistered = TestProjectionRepository()
         val past = subtract(currentTime(), fromMinutes(1))
-        shouldThrow<IllegalStateException> {
+        val error = shouldThrow<IllegalStateException> {
             unregistered.catchUp(past, null)
         }
+        error.message shouldContain "is not registered in a Bounded Context"
     }
 }

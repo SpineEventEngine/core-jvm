@@ -264,6 +264,24 @@ internal class SeveralRepositoriesCatchUpIgTest : AbstractDeliveryTest() {
         }
     }
 
+    @Test
+    fun `pass a catch-up process only the signals of its own projection type`() {
+        useDelivery(shards = 1, dispatchOnWrite = false)
+        BlackBox.singleTenantWith(first, second).use {
+            val firstJob = jobOf(FirstTally.type.value())
+            val secondJob = jobOf(SecondTally.type.value())
+            val firstProcess = CatchUpProcess.processOf(firstJob)
+            val secondProcess = CatchUpProcess.processOf(secondJob)
+
+            assertSoftly {
+                firstProcess.canDispatch(signalOf(firstJob)) shouldBe true
+                firstProcess.canDispatch(signalOf(secondJob)) shouldBe false
+                secondProcess.canDispatch(signalOf(secondJob)) shouldBe true
+                secondProcess.canDispatch(signalOf(firstJob)) shouldBe false
+            }
+        }
+    }
+
     /**
      * Posts a request without delivering it, and checks how many times it is stored.
      */
@@ -345,9 +363,10 @@ internal class SeveralRepositoriesCatchUpIgTest : AbstractDeliveryTest() {
     }
 
     /**
-     * Makes the `Delivery` know the second repository, as the repository does when it is
-     * registered, but registers the repository nowhere. So, it has no catch-up process
-     * to serve the job.
+     * Makes the `Delivery` aware of the second repository, as the repository does when
+     * it is registered, but registers the repository nowhere. Thus, the repository has no
+     * registered catch-up process to serve the job. The signal is left in the inbox
+     * through [leaveSignalOf].
      */
     @Test
     fun `fail the reception of a catch-up signal of a repository not registered yet`() {
@@ -396,17 +415,25 @@ internal class SeveralRepositoriesCatchUpIgTest : AbstractDeliveryTest() {
     }
 
     /**
-     * Stores a signal of the job with the given ID in the inbox of the catch-up processes,
-     * as if an earlier run of the application had left it there.
+     * Stores a signal of the job with the given ID in the inbox shared by the catch-up
+     * processes, as if an earlier run of the application had left it there.
      *
      * Bypasses the event bus, which passes each catch-up process only the signals of its own
-     * jobs. Instead, the process of the first repository routes the signal to the inbox.
+     * jobs. Instead, a catch-up process routes the signal to the inbox directly. Any process
+     * would do; that of the first repository is used, as each case registers it.
      */
     private fun leaveSignalOf(job: CatchUpId) {
-        val signal = TestEventFactory.newInstance(javaClass)
-            .createEvent(historyEventsRecalled { id = job })
         CatchUpProcess.processOf(jobOf(FirstTally.type.value()))
-            .dispatch(EventEnvelope.of(signal))
+            .dispatch(signalOf(job))
+    }
+
+    /**
+     * Creates a signal of the catch-up job with the given ID.
+     */
+    private fun signalOf(job: CatchUpId): EventEnvelope {
+        val event = TestEventFactory.newInstance(javaClass)
+            .createEvent(historyEventsRecalled { id = job })
+        return EventEnvelope.of(event)
     }
 
     private fun catchUpTheOnlyRepository(context: BlackBox) {

@@ -237,8 +237,8 @@ import static java.util.stream.Collectors.toSet;
  *
  *      <li>Each {@link ShardProcessingRequested} event triggers the {@code Delivery} to read
  *      and dispatch the signals from a specific shard. Being sent, these events are dispatched
- *      to a special system {@link ShardMaintenanceProcess} serving as a handler. By reacting
- *      to a {@code ShardProcessingRequested}, the latter maintenance process emits
+ *      to the {@link ShardMaintenanceProcess} of this catch-up process, serving as a handler.
+ *      By reacting to a {@code ShardProcessingRequested}, the latter maintenance process emits
  *      a {@link ShardProcessed} event, telling that the {@code Delivery} has worked its way
  *      through the messages present in this shard.
  *
@@ -838,9 +838,9 @@ public final class CatchUpProcess<I>
     /**
      * {@inheritDoc}
      *
-     * <p>Ensures that the passed signal is an instance of the supported types, and belongs
-     * to a catch-up of the projections of this process. So, a Bounded Context with several
-     * catch-up processes stores each signal once.
+     * <p>Ensures that the passed signal is an instance of the supported types and belongs to
+     * a catch-up of the projection type served by this process. Thus, a Bounded Context
+     * with several catch-up processes stores each signal once.
      */
     @Override
     public boolean canDispatch(EventEnvelope envelope) {
