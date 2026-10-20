@@ -30,8 +30,10 @@ import io.spine.server.type.EventEnvelope;
 import io.spine.type.TypeUrl;
 import io.spine.validation.ValidatingBuilder;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static io.spine.server.dispatch.DispatchOutcomes.sentToInbox;
 import static io.spine.util.Exceptions.newIllegalStateException;
@@ -52,8 +54,17 @@ import static java.lang.String.format;
 public abstract class AbstractStatefulReactor<I, S extends Message, B extends ValidatingBuilder<S>>
         extends AbstractEventReactor {
 
+    /**
+     * The locks held while dispatching an event to a target, one per state type.
+     *
+     * <p>All the reactors of a state type share the lock. So, the lock stays the same when
+     * a reactor created later takes over the delivery of the events of the type, while
+     * an earlier delivery is still in progress.
+     */
+    private static final Map<TypeUrl, Object> endpointLocks = new ConcurrentHashMap<>();
+
     private final Inbox<I> inbox;
-    private final Object endpointLock = new Object();
+    private final Object endpointLock;
 
     private B builder;
 
@@ -69,6 +80,7 @@ public abstract class AbstractStatefulReactor<I, S extends Message, B extends Va
      */
     protected AbstractStatefulReactor(TypeUrl stateType) {
         super();
+        this.endpointLock = endpointLocks.computeIfAbsent(stateType, type -> new Object());
         var delivery = ServerEnvironment.instance()
                                         .delivery();
         this.inbox = configureInbox(delivery, stateType);
@@ -183,15 +195,14 @@ public abstract class AbstractStatefulReactor<I, S extends Message, B extends Va
          * Dispatches the wrapped event to the specified target through the reactor
          * {@linkplain #reactorFor(Object) serving} that target.
          *
-         * @implNote Holds the lock of the reactor this endpoint belongs to, so that a single
-         *         thread at a time dispatches the events delivered through that reactor.
-         *         This prevents concurrent modifications when running locally in
-         *         a multi-threading mode. The lock is not the one of the serving reactor:
-         *         a reactor may deliver the events of other shards synchronously while it
-         *         holds the lock, and the locks of several serving reactors, taken in such
-         *         nested deliveries, could deadlock. As the {@code Delivery} delivers all
-         *         the events of a state type through one reactor, they are serialized by
-         *         one lock, once all the reactors of the type are created.
+         * @implNote Holds the lock shared by all the reactors of the state type, so that
+         *         a single thread at a time dispatches the events of the type, whichever
+         *         reactor delivers them. This prevents concurrent modifications when running
+         *         locally in a multi-threading mode, also while a reactor created later
+         *         takes over the delivery from an earlier one. A lock per serving reactor
+         *         would not do: a reactor may deliver the events of other shards
+         *         synchronously while it holds the lock, and the locks of several serving
+         *         reactors, taken in such nested deliveries, could deadlock.
          */
         @Override
         public DispatchOutcome dispatchTo(I targetId) {
