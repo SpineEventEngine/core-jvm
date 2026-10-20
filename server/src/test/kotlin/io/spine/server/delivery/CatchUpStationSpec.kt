@@ -14,6 +14,8 @@
 
 package io.spine.server.delivery
 
+import com.google.protobuf.util.Durations.fromSeconds
+import com.google.protobuf.util.Timestamps
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -112,6 +114,26 @@ internal class CatchUpStationSpec {
         action.passedMessages().shouldNotBeNull() shouldContainExactly listOf(signal)
         // Not kept for longer, which only the completed job does.
         conveyor.toList() shouldContainExactly listOf(copyWithStatus(signal, DELIVERED))
+    }
+
+    @ParameterizedTest(name = COMPLETED_JOB_READ)
+    @EnumSource(JobOrder::class)
+    fun `not dispatch the start signal again, if a completed job delivered and kept it`(
+        order: JobOrder
+    ) {
+        val started = job(STARTED)
+        val kept = startSignal(started).copy {
+            status = DELIVERED
+            keepUntil = Timestamps.add(currentTime(), fromSeconds(1))
+        }
+        val conveyor = conveyorWith(kept)
+        val jobs = order.arrange(completedJob(), started)
+
+        val result = stationFor(jobs).process(conveyor)
+
+        result.deliveredCount() shouldBe 0
+        action.passedMessages().shouldBeNull()
+        conveyor.toList() shouldContainExactly listOf(kept)
     }
 
     @ParameterizedTest(name = COMPLETED_JOB_READ)

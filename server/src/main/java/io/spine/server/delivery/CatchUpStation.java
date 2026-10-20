@@ -155,15 +155,19 @@ final class CatchUpStation extends Station {
          * <p>All the matched live messages (i.e. in {@link InboxMessageStatus#TO_DELIVER TO_DELIVER}
          * status) are ignored and removed from the conveyor.
          *
-         * <p>The matched messages in {@link InboxMessageStatus#TO_CATCH_UP TO_CATCH_UP} status
-         * are not yet dispatched to their targets.
+         * <p>The {@link CatchUpStarted} signal in {@link InboxMessageStatus#TO_CATCH_UP
+         * TO_CATCH_UP} status is accepted for dispatching. The other matched messages
+         * in {@code TO_CATCH_UP} status are not yet dispatched to their targets.
+         *
+         * <p>The matched messages in {@code DELIVERED} status, such as a start signal kept
+         * by a completed job, are left as they are.
          *
          * @param message
          *         the message to process
          */
         private void started(InboxMessage message) {
             var dispatched = dispatchAsCatchUpSignal(message, CatchUpStarted.class);
-            if(dispatched) {
+            if (dispatched) {
                 return;
             }
             if (message.getStatus() == TO_DELIVER) {
@@ -171,9 +175,28 @@ final class CatchUpStation extends Station {
             }
         }
 
+        /**
+         * Accepts the passed message for dispatching if it is a catch-up signal of the given
+         * type in {@link InboxMessageStatus#TO_CATCH_UP TO_CATCH_UP} status.
+         *
+         * <p>A catch-up signal is always sent to its targets in {@code TO_CATCH_UP} status.
+         * A signal in {@code DELIVERED} status has already been dispatched and is only kept
+         * in the inbox for longer. Such a copy meets the {@code STARTED} job of its own
+         * catch-up if the jobs read by an earlier delivery run lagged behind the storage:
+         * the job was not among them, so a completed job matching the same targets dispatched
+         * the signal and kept it. Dispatching the copy again would reset its target and make
+         * it report twice.
+         *
+         * @param message
+         *         the message to accept
+         * @param signalType
+         *         the type of the catch-up signal to accept
+         * @return {@code true} if the message is accepted for dispatching,
+         *         {@code false} otherwise
+         */
         private boolean dispatchAsCatchUpSignal(InboxMessage message,
                                                 Class<? extends CatchUpSignal> signalType) {
-            if(message.hasEvent()) {
+            if (message.hasEvent() && message.getStatus() == TO_CATCH_UP) {
                 var event = message.getEvent();
                 var eventType = event.enclosedMessage().getClass();
                 if (eventType.equals(signalType)) {
@@ -243,13 +266,11 @@ final class CatchUpStation extends Station {
          * replayed event history and potentially some "paused" live events. So, all the matching
          * messages in {@code TO_CATCH_UP} status are accepted to be dispatched to their targets.
          *
-         * <p>If the deduplication window is
-         * {@linkplain DeliveryBuilder#setDeduplicationWindow(Duration) set in the system},
-         * the messages accepted for delivery are
+         * <p>The messages accepted for delivery are
          * {@linkplain Conveyor#keepForLonger(InboxMessage, Duration) set to be kept} in their
-         * inboxes for the duration, corresponding to the width of the window. In this way, they
-         * will not be removed after being delivered and will be available as a source
-         * for the deduplication.
+         * inboxes for {@code HOW_LONG_TO_KEEP}, whether or not a deduplication window is set.
+         * In this way, they are not removed right after being delivered and are available
+         * as a source for the deduplication.
          *
          * @param message
          *         the message to process
