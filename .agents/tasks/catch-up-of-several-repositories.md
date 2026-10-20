@@ -1,8 +1,7 @@
 # Catch-up when several repositories share the `Delivery`
 
-Related branches, which edit the same classes:
-`claude/funny-shannon-456685` (catch-up of an empty repository) and
-`claude/dazzling-noyce-92ab0c` (repeated catch-ups). See "Coordination".
+Related work, now merged: `claude/funny-shannon-456685` (catch-up of an empty repository)
+and `claude/dazzling-noyce-92ab0c` (repeated catch-ups). See "Coordination".
 
 ## Status
 
@@ -14,12 +13,16 @@ Related branches, which edit the same classes:
 - [x] Plan approved on 2026-10-06
 - [x] Fix — see "Plan"
 - [x] Tests extended — see "Tests"
-- [x] Mutation checks: breaking any of 5 guards of the fix fails a case — see "What was run"
+- [x] Mutation checks: breaking any of 6 guards of the fix fails a case — see "What was run"
 - [x] Verification: `./gradlew clean build dokkaGenerate` is green — see "What was run"
-- [x] Version `2.0.0-SNAPSHOT.565`; the dependency reports regenerated
 - [x] Reviews by `review-docs`, `kotlin-engineer` and `spine-code-review`: no must-fix;
       the valid findings applied, then the build re-run
-- [ ] Commit, push, PR — waiting for the owner's authorization
+- [x] 2026-10-20, at the owner's request: the projection type filter of
+      `CatchUpProcess.canDispatch()` restored — see step 7 of "Plan"
+- [x] `master` (`81c6387bb97`, `.572`) merged; no conflicts
+- [x] Version `2.0.0-SNAPSHOT.574` (#1693 holds `.573`); the dependency reports regenerated
+- [x] Pre-PR checks passed
+- [ ] PR opened
 
 ## Problem
 
@@ -142,6 +145,17 @@ maintenance request is the maintenance process of that same catch-up process.
 6. **`delivery.proto`**: the comment of `ShardMaintenance` no longer says it is
    represented in each of the Bounded Contexts. A proto change, so verification
    runs `clean`.
+7. **`CatchUpProcess.canDispatch()`** accepts only the signals of the jobs of its own
+   projection type, as it did before commit `638a43fb900` (2021). That commit dropped
+   the filter, as the process created last had to take the signals of every job. With
+   the routing above, a job's signals are posted in the context of its own process, so
+   the filter is safe again. Without it, a context with N projection repositories stores
+   N copies of each signal and relies on deduplication to drop N − 1 of them. Copies
+   read in later runs are caught only by the per-node `DeliveredMessagesCache` of 1,000
+   entries, since the deduplication window is zero by default. A second
+   `CatchUpRequested` would restart the job, and a second `EntityPreparedForCatchUp`
+   could start the history read before every instance is cleared (inferred from
+   the code, not run).
 
 Considered and rejected:
 
@@ -153,18 +167,25 @@ Considered and rejected:
 
 ## Tests
 
-`SeveralRepositoriesCatchUpIgTest`, 20 cases. Each of the first 8 runs with 1 and 3 shards;
+`SeveralRepositoriesCatchUpIgTest`, 22 cases. Each of the first 8 runs with 1 and 3 shards;
 several shards produce several maintenance requests per job.
 
 - The 6 cases of the reproduction.
 - Both repositories of one context caught up, one after the other.
 - The signals of a catch-up are posted only in the context of its repository: a witness
   reactor in each context records `ShardProcessed` and `CatchUpCompleted`.
-- A shard maintenance request is stored once in a context of several repositories.
+- A catch-up signal, and a shard maintenance request, are each stored once in a context
+  of several repositories.
+- A catch-up process accepts only the signals of the jobs of its own projection type.
 - Failed receptions, with the other messages of the run delivered:
   - a catch-up signal of a projection type no repository serves;
   - a catch-up signal of a repository known to the `Delivery`, but not registered yet;
   - a shard maintenance request of a closed repository.
+
+  With the filter of step 7, the event bus no longer stores the signal of a job that no
+  process in the context serves. So the first two cases store the signal directly,
+  through the process of another repository, as if an earlier run of the application had
+  left it there.
 
 Elsewhere:
 
@@ -176,49 +197,44 @@ Elsewhere:
 ## What was run
 
 Mutation checks. Each mutation broke one guard of the fix, the spec ran, and the file was
-restored from a copy:
+restored from a copy. The counts are of the spec at the time of each run:
 
 | Mutation | Failed cases |
 |---|---|
 | `CatchUpProcess.reactorFor()` returns `this` | 11 of 19 |
 | the shard maintenance endpoint reacts on itself | 3: the witness case, the closed repository |
-| no projection type filter in `ShardMaintenanceProcess.canDispatch()` | 1: stored once |
+| no projection type filter in `ShardMaintenanceProcess.canDispatch()` | 1: the request stored once |
 | `processOf()` ignores a closed repository | 1: the closed repository |
 | the endpoint lets the hook's exception through | 1: the unknown projection type |
+| no projection type filter in `CatchUpProcess.canDispatch()` (2026-10-20) | 1 of 21: the signal stored once |
 
-Verification, with Corretto 17, after the reviews:
+Verification, with Corretto 17, on the PR head after the merge of `master` and the reviews:
 
-- `./gradlew clean build dokkaGenerate`: green. 2689 tests in 7 modules, 0 failures; the one
-  skipped test is `@Disabled` on `master` too. `:server:test` executed, not restored from
-  the cache.
-- Kover: the 64 executable lines this change adds or modifies in `server` are all covered.
-  The only partial branch is the `instanceof` guard of
-  `ShardMaintenanceProcess.canDispatch()`, which is unreachable: the dispatcher receives
-  shard processing requests only.
+- `./gradlew clean build dokkaGenerate`: green. 2740 tests in 7 modules, 0 failures; the one
+  skipped test is `@Disabled` on `master` too. `:server:test` ran 2163 tests, executed rather
+  than restored from the cache.
+- Kover: the 70 executable lines this branch adds or modifies in `server` are all covered.
+  Two branches are partial, both unreachable guards: `!jobs.isEmpty()` in
+  `CatchUpProcess.canDispatch()`, and the `instanceof` check in
+  `ShardMaintenanceProcess.canDispatch()`. Each dispatcher is registered only for
+  the event classes the guard checks.
+- The pre-PR reviewers (`spine-code-review`, `kotlin-engineer`, `review-docs`) found no
+  must-fix item; the valid findings are applied.
 
 ## Coordination
 
-- `CatchUpProcess.java` is edited on all three branches. Here, only the fields and
-  the constructor (lines ~291–305) and `registerWith()` (~313–321) change, and the new
-  members are added near `route()` (~782). The other branches edit
-  `handle(CatchUpRequested)`, `handle(EntityPreparedForCatchUp)`, the class Javadoc
-  and the area after `recordAffectedShards()`. The copyright header is rewritten
-  the same way on all three.
+- `CatchUpProcess.java` was edited on all three branches, in disjoint places, so
+  the merge of `master` went in without conflicts.
 - `CatchUpStation.java` is not touched here.
 - `funny-shannon` reads the history right away when no instance is caught up; after this
   fix, that read runs on the job's own process too.
-- Version: `master` is at `.563`, and `dazzling-noyce` bumps to `.564`. This branch is at
-  `.565`, and bumps again if a sibling merges a greater or equal version first.
+- `dazzling-noyce` (#1683) and `funny-shannon` (#1684) are merged; `master` was merged
+  into this branch on 2026-10-20, without conflicts.
+- Version: `master` is at `.572`, and the open #1693 holds `.573`. This branch is at
+  `.574`, and bumps again if a PR with a greater or equal version merges first.
 
 ## Observations, not in this change
 
-- Each `CatchUpProcess` of a context stores every catch-up signal posted there. With N
-  projection repositories, that is N copies of a signal, and N − 1 are dropped as
-  duplicates. Before commit `638a43fb900` (2021), `canDispatch()` accepted only
-  the signals of the process's own projection type; that commit dropped the filter, as
-  the process created last had to take every job. With the routing of this change,
-  the filter would be safe again. Left out: the duplication was not reproduced as
-  a failure.
 - A persistent storage may keep the `STARTED` jobs and the stranded `CatchUpStarted`
   signals of this defect after the upgrade. The signals sit in the inbox of the other
   projection type, so a later catch-up of that type would match and dispatch them.
