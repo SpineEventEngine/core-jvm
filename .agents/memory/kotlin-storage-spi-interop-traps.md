@@ -25,15 +25,15 @@ the planned `ProcessManager` journaling PR will meet both again.
      a member of an outer receiver (the enclosing class, its companion, an outer `with`,
      `apply` or `alter` block) or a top-level declaration. Inside a class with
      a `seconds` property, `timestamp { this.seconds = seconds }` assigns the builder's
-     own default back to it. Qualify the outer name (`this@Outer.seconds`), or bind it
-     to a local before the block.
+     own `seconds` to itself, because the right-hand side is the builder's property, not
+     the class's. Qualify the outer member (`this@Outer.seconds`) or the top-level name
+     (`pkg.seconds`), or bind either to a local before the block.
 
-   An earlier version of this item said the opposite: that a parameter is shadowed.
-   Two checks disproved it. A throwaway spec found that a parameter wins (see
-   `.agents/tasks/spec-scanner-state-retention.md`). On 2026-10-07, a probe compiled
-   with `kotlinc` 2.3.21 against a protoc-generated DSL (`protobuf-kotlin` 4.36.0)
-   confirmed it: a function or lambda parameter wins, while a property of the enclosing
-   class and a top-level property are both shadowed.
+   Verified twice, so do not revert to the opposite rule, which an earlier version of this
+   item stated. A throwaway spec for the `SpecScanner` fix found that a parameter wins.
+   On 2026-10-07, a probe compiled with `kotlinc` 2.3.21 against a protoc-generated DSL
+   (`protobuf-kotlin` 4.36.0) confirmed that finding: a function or lambda parameter wins,
+   while a property of the enclosing class and a top-level property are both shadowed.
 
 **Why:** both fail (1) or corrupt data (2) without any warning at the call site.
 
