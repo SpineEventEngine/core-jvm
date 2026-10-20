@@ -78,8 +78,9 @@ internal class KeptStartSignalIgTest : AbstractDeliveryTest() {
      * Uses a single-shard `Delivery` that delivers synchronously through
      * `LocalDispatchingObserver`, and records each failure.
      *
-     * Otherwise, a failure would go unnoticed: `Delivery` only logs what a shard observer
-     * throws, and `DeliveryMonitor` marks a message as delivered even if its receptor failed.
+     * Without the recording, a failure would go unnoticed: `Delivery` only logs what a shard
+     * observer throws, and the default `DeliveryMonitor` marks a message as delivered even if
+     * its receptor failed.
      */
     @BeforeEach
     fun useRecordingDelivery() {
@@ -164,70 +165,68 @@ internal class KeptStartSignalIgTest : AbstractDeliveryTest() {
     }
 
     /**
-     * Emits [EVENTS_PER_TARGET] events to each of the [TARGETS], weighing 1 each.
-     *
-     * Each event is posted live, so it gets a timestamp of its own. Then the function waits
-     * until the events are older than the turbulence period of a catch-up.
-     *
-     * @param box The black box to post the events to.
-     * @return The time to start the catch-up from, which precedes the events.
-     */
-    private fun emitHistory(box: BlackBox): Timestamp {
-        CounterView.changeWeightTo(1)
-        val since = subtract(currentTime(), Durations.fromMinutes(1))
-        repeat(EVENTS_PER_TARGET) {
-            TARGETS.forEach { id ->
-                box.receivesEvent(numberAdded { calculatorId = id })
-            }
-        }
-        Thread.sleep(PAST_TURBULENCE_MILLIS)
-        return since
-    }
-
-    /**
-     * Returns the start signals of the given job in the inbox.
-     */
-    private fun startSignalsOf(job: CatchUpId): List<InboxMessage> =
-        inboxContents().filter {
-            it.hasEvent() && (it.event.enclosedMessage() as? CatchUpStarted)?.id == job
-        }
-
-    /**
      * Returns the totals of the [TARGETS], or `null` for one that does not exist.
      */
     private fun totals(): Map<String, Int?> =
         TARGETS.associateWith { id ->
             repository.find(id).getOrNull()?.state()?.total
         }
-
-    /**
-     * Returns the messages that are still to be delivered, either live or for a catch-up.
-     */
-    private fun undelivered(): List<InboxMessage> =
-        inboxContents().filter {
-            it.status == TO_DELIVER || it.status == TO_CATCH_UP
-        }
-
-    private fun inboxContents(): List<InboxMessage> = InboxContents.get().values.flatten()
-
-    private companion object {
-        const val FIRST = "first"
-        const val SECOND = "second"
-        const val THIRD = "third"
-        val TARGETS = setOf(FIRST, SECOND)
-        const val EVENTS_PER_TARGET = 10
-
-        /**
-         * Exceeds the 500 ms turbulence period of a catch-up.
-         */
-        const val PAST_TURBULENCE_MILLIS = 1_000L
-
-        /**
-         * Exceeds the 1 s for which a completed job keeps a message it delivers.
-         */
-        const val PAST_KEEPING_MILLIS = 1_200L
-    }
 }
+
+private const val FIRST = "first"
+private const val SECOND = "second"
+private const val THIRD = "third"
+private val TARGETS = setOf(FIRST, SECOND)
+private const val EVENTS_PER_TARGET = 10
+
+/**
+ * Exceeds the 500 ms turbulence period of a catch-up.
+ */
+private const val PAST_TURBULENCE_MILLIS = 1_000L
+
+/**
+ * Exceeds the 1 s for which a completed job keeps a message it delivers.
+ */
+private const val PAST_KEEPING_MILLIS = 1_200L
+
+/**
+ * Emits [EVENTS_PER_TARGET] events to each of the [TARGETS], weighing 1 each.
+ *
+ * Each event is posted live, so it gets a timestamp of its own. Then the function waits
+ * until the events are older than the turbulence period of a catch-up.
+ *
+ * @param box The black box to post the events to.
+ * @return The time to start the catch-up from, which precedes the events.
+ */
+private fun emitHistory(box: BlackBox): Timestamp {
+    CounterView.changeWeightTo(1)
+    val since = subtract(currentTime(), Durations.fromMinutes(1))
+    repeat(EVENTS_PER_TARGET) {
+        TARGETS.forEach { id ->
+            box.receivesEvent(numberAdded { calculatorId = id })
+        }
+    }
+    Thread.sleep(PAST_TURBULENCE_MILLIS)
+    return since
+}
+
+/**
+ * Returns the start signals of the given job in the inbox.
+ */
+private fun startSignalsOf(job: CatchUpId): List<InboxMessage> =
+    inboxContents().filter {
+        it.hasEvent() && (it.event.enclosedMessage() as? CatchUpStarted)?.id == job
+    }
+
+/**
+ * Returns the messages that are still to be delivered, either live or for a catch-up.
+ */
+private fun undelivered(): List<InboxMessage> =
+    inboxContents().filter {
+        it.status == TO_DELIVER || it.status == TO_CATCH_UP
+    }
+
+private fun inboxContents(): List<InboxMessage> = InboxContents.get().values.flatten()
 
 /**
  * Records each message sent to an inbox.
@@ -284,7 +283,7 @@ private class LaggingCatchUpStorage :
  * Records the receptor failures, which `Delivery` does not rethrow.
  */
 private class FailureRecorder(
-    private val failures: CopyOnWriteArrayList<String>
+    private val failures: MutableList<String>
 ) : DeliveryMonitor() {
 
     override fun onReceptionFailure(reception: FailedReception): FailedReception.Action {
