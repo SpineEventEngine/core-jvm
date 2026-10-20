@@ -24,6 +24,7 @@ import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.spine.base.EventMessage
 import io.spine.base.Identifier
 import io.spine.base.Time.currentTime
 import io.spine.environment.Tests
@@ -264,6 +265,10 @@ internal class SeveralRepositoriesCatchUpIgTest : AbstractDeliveryTest() {
         }
     }
 
+    /**
+     * Checks the filters of the catch-up processes and of their shard maintenance processes,
+     * including an event that is not a signal of a catch-up at all.
+     */
     @Test
     fun `pass a catch-up process only the signals of its own projection type`() {
         useDelivery(shards = 1, dispatchOnWrite = false)
@@ -278,6 +283,10 @@ internal class SeveralRepositoriesCatchUpIgTest : AbstractDeliveryTest() {
                 firstProcess.canDispatch(signalOf(secondJob)) shouldBe false
                 secondProcess.canDispatch(signalOf(secondJob)) shouldBe true
                 secondProcess.canDispatch(signalOf(firstJob)) shouldBe false
+
+                val notSignal = eventOf(numberAdded { calculatorId = ALPHA })
+                firstProcess.canDispatch(notSignal) shouldBe false
+                firstProcess.maintenance().canDispatch(notSignal) shouldBe false
             }
         }
     }
@@ -430,9 +439,12 @@ internal class SeveralRepositoriesCatchUpIgTest : AbstractDeliveryTest() {
     /**
      * Creates a signal of the catch-up job with the given ID.
      */
-    private fun signalOf(job: CatchUpId): EventEnvelope {
+    private fun signalOf(job: CatchUpId): EventEnvelope =
+        eventOf(historyEventsRecalled { id = job })
+
+    private fun eventOf(message: EventMessage): EventEnvelope {
         val event = TestEventFactory.newInstance(javaClass)
-            .createEvent(historyEventsRecalled { id = job })
+            .createEvent(message)
         return EventEnvelope.of(event)
     }
 
