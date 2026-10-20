@@ -1,33 +1,24 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.event;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.Message;
+import io.spine.annotation.Internal;
+import io.spine.base.Errors;
+import io.spine.base.Identifier;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.delivery.Delivery;
 import io.spine.server.delivery.Inbox;
@@ -44,6 +35,7 @@ import java.util.Set;
 
 import static io.spine.server.dispatch.DispatchOutcomes.sentToInbox;
 import static io.spine.util.Exceptions.newIllegalStateException;
+import static java.lang.String.format;
 
 /**
  * An abstract base for {@link AbstractEventReactor}s that have state and require
@@ -138,6 +130,47 @@ public abstract class AbstractStatefulReactor<I, S extends Message, B extends Va
      */
     protected abstract ImmutableSet<I> route(EventEnvelope event);
 
+    /**
+     * Obtains the reactor that receives the events sent to the target with the given ID.
+     *
+     * <p>If several reactors of the same state type exist, the {@code Delivery} delivers
+     * the events of all of them through the reactor created last. A descendant that has
+     * several instances overrides this method to return the instance serving the target.
+     *
+     * <p>Returns this reactor by default.
+     *
+     * @param targetId
+     *         the ID of the target
+     * @return the reactor serving the target
+     * @throws IllegalStateException
+     *         if no reactor serves the target; the event is not dispatched in that case,
+     *         and the {@code DeliveryMonitor} is notified of a failed reception
+     */
+    @Internal
+    protected AbstractStatefulReactor<I, S, B> reactorFor(I targetId) {
+        return this;
+    }
+
+    /**
+     * Loads the state of the target into the builder, dispatches the event to this reactor,
+     * and stores the changes made to the builder.
+     */
+    private DispatchOutcome receive(EventEnvelope envelope, I targetId) {
+        loadIntoBuilder(targetId);
+        var outcome = super.dispatch(envelope);
+        flushState();
+        return outcome;
+    }
+
+    @SuppressWarnings("unchecked") // `B` is the builder of `S`, as this class declares.
+    private void loadIntoBuilder(I id) {
+        var existingState = load(id);
+        builder = existingState.isPresent()
+                  ? (B) existingState.get()
+                                     .toBuilder()
+                  : newStateBuilderWith(id);
+    }
+
     private final class EventEndpoint implements MessageEndpoint<I, EventEnvelope> {
 
         private final EventEnvelope envelope;
@@ -147,20 +180,42 @@ public abstract class AbstractStatefulReactor<I, S extends Message, B extends Va
         }
 
         /**
-         * Loads the state of the builder, dispatches the wrapped event to the specified target
-         * and updates the storage with the changes made to the builder.
+         * Dispatches the wrapped event to the specified target through the reactor
+         * {@linkplain #reactorFor(Object) serving} that target.
          *
-         * @implNote Can only be executed by a single thread at a time to avoid any
-         *         concurrent modifications when running locally in a multi-threading mode
+         * @implNote Holds the lock of the reactor this endpoint belongs to, so that a single
+         *         thread at a time dispatches the events delivered through that reactor.
+         *         This prevents concurrent modifications when running locally in
+         *         a multi-threading mode. The lock is not the one of the serving reactor:
+         *         a reactor may deliver the events of other shards synchronously while it
+         *         holds the lock, and the locks of several serving reactors, taken in such
+         *         nested deliveries, could deadlock. As the {@code Delivery} delivers all
+         *         the events of a state type through one reactor, they are serialized by
+         *         one lock, once all the reactors of the type are created.
          */
         @Override
         public DispatchOutcome dispatchTo(I targetId) {
             synchronized (endpointLock) {
-                loadIntoBuilder(targetId);
-                var outcome = AbstractStatefulReactor.super.dispatch(envelope);
-                flushState();
-                return outcome;
+                AbstractStatefulReactor<I, S, B> reactor;
+                try {
+                    reactor = reactorFor(targetId);
+                } catch (IllegalStateException e) {
+                    return noReactorFor(targetId, e);
+                }
+                return reactor.receive(envelope, targetId);
             }
+        }
+
+        private DispatchOutcome noReactorFor(I targetId, IllegalStateException cause) {
+            logger().atWarning().withCause(cause).log(() -> format(
+                    "Cannot dispatch the event `%s` to the target `%s`.",
+                    envelope.messageClass(), Identifier.toString(targetId)));
+            var outcome = DispatchOutcome
+                    .newBuilder()
+                    .setPropagatedSignal(envelope.messageId())
+                    .setError(Errors.fromThrowable(cause))
+                    .build();
+            return outcome;
         }
 
         /**
@@ -182,16 +237,6 @@ public abstract class AbstractStatefulReactor<I, S extends Message, B extends Va
         @Override
         public Repository<I, ?> repository() throws IllegalStateException {
             throw newIllegalStateException("`%s` has no repository.", getClass());
-        }
-
-        @SuppressWarnings("unchecked")
-        private void loadIntoBuilder(I id) {
-            var existingState = load(id);
-            AbstractStatefulReactor.this.builder =
-                    existingState.isPresent()
-                    ? (B) existingState.get()
-                                       .toBuilder()
-                    : newStateBuilderWith(id);
         }
     }
 }

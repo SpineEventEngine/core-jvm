@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.projection
@@ -102,7 +90,13 @@ public abstract class ProjectionRepository<I : Any,
                                            S : ProjectionState<I>> :
     EventDispatchingRepository<I, P, S>() {
 
-    private lateinit var catchUpProcess: CatchUpProcess<I>
+    /**
+     * The process catching up the projections of this repository.
+     *
+     * Is `null` until the process is registered in the Bounded Context of this repository.
+     */
+    @Volatile
+    private var catchUpProcess: CatchUpProcess<I>? = null
 
     /**
      * If projections of this repository are [subscribed][io.spine.core.Subscribe] to
@@ -126,13 +120,30 @@ public abstract class ProjectionRepository<I : Any,
     /**
      * Initializes the catch-up process for the instances of this repository and registers it
      * as an event dispatcher in the same Bounded Context as the repository itself.
+     *
+     * The process is [available][catchUpProcess] only once the context has registered it.
+     * The process itself dispatches the events it emits in reaction to a message. So,
+     * reactions emitted before the registration would find no dispatcher in the context.
      */
     private fun initCatchUp(context: BoundedContext) {
         val delivery = ServerEnvironment.instance().delivery()
         val builder = delivery.newCatchUpProcess(this)
-        catchUpProcess = builder.setDispatchOp(::sendToCatchingUp).build()
-        context.internalAccess().registerEventDispatcher(catchUpProcess)
+        val process = builder.setDispatchOp(::sendToCatchingUp).build()
+        context.internalAccess().registerEventDispatcher(process)
+        catchUpProcess = process
     }
+
+    /**
+     * Obtains the process catching up the projections of this repository.
+     *
+     * The `Delivery` passes the messages of a catch-up of this repository to this process.
+     *
+     * @return The process, or `null` if the process is not registered in
+     *   the Bounded Context of this repository yet.
+     */
+    @Internal
+    @JvmName("catchUpProcess")
+    internal fun catchUpProcess(): CatchUpProcess<I>? = catchUpProcess
 
     /**
      * Adds the endpoints updating the subscribing projections and catching them up.
@@ -313,8 +324,11 @@ public abstract class ProjectionRepository<I : Any,
     public fun catchUp(since: Timestamp, ids: Set<I>?): CatchUpId {
         checkCatchUpTargets(ids)
         checkCatchUpStartTime(since)
+        val process = checkNotNull(catchUpProcess) {
+            "The repository `$this` is not registered in a Bounded Context."
+        }
         return withCurrentTenant(context().isMultitenant)
-            .evaluate { catchUpProcess.startCatchUp(since, ids) }
+            .evaluate { process.startCatchUp(since, ids) }
     }
 
     private fun checkCatchUpTargets(ids: Set<I>?) {

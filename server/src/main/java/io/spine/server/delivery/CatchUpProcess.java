@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.delivery;
@@ -91,6 +79,7 @@ import static io.spine.server.delivery.CatchUpStatus.FINALIZING;
 import static io.spine.server.delivery.CatchUpStatus.IN_PROGRESS;
 import static io.spine.server.delivery.DeliveryStrategy.newIndex;
 import static io.spine.server.route.EventRoute.noTargets;
+import static io.spine.util.Exceptions.newIllegalStateException;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
@@ -292,6 +281,7 @@ public final class CatchUpProcess<I>
     private final CatchUpStorage storage;
     private final CatchUpStarter.Builder<I> starterTemplate;
     private final Limit queryLimit;
+    private final ShardMaintenanceProcess maintenance;
 
     private @MonotonicNonNull CatchUpStarter<I> catchUpStarter;
     private @MonotonicNonNull Supplier<EventStore> eventStore;
@@ -301,7 +291,11 @@ public final class CatchUpProcess<I>
         this.dispatchOperation = builder.getDispatchOp();
         this.storage = builder.getStorage();
         this.queryLimit = limitOf(builder.getPageSize());
-        this.starterTemplate = CatchUpStarter.newBuilder(builder.getRepository(), this.storage);
+        var repository = builder.getRepository();
+        this.starterTemplate = CatchUpStarter.newBuilder(repository, this.storage);
+        var delivery = ServerEnvironment.instance()
+                                        .delivery();
+        this.maintenance = new ShardMaintenanceProcess(delivery, repository.entityStateType());
     }
 
     @Internal
@@ -310,6 +304,12 @@ public final class CatchUpProcess<I>
         return new CatchUpProcessBuilder<>(repo);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Also registers, in the same context, the process maintaining the shards for
+     * the catch-ups performed by this process.
+     */
     @Override
     @Internal
     public void registerWith(BoundedContext context) {
@@ -318,6 +318,8 @@ public final class CatchUpProcess<I>
                                        .eventStore();
         this.catchUpStarter = starterTemplate.withContext(context)
                                              .build();
+        context.internalAccess()
+               .registerEventDispatcher(maintenance);
     }
 
     /**
@@ -738,6 +740,17 @@ public final class CatchUpProcess<I>
      */
     private ProjectionRepository<I, ?, ?> repository() {
         var id = builder().getId();
+        return repositoryOf(id);
+    }
+
+    /**
+     * Loads the repository of the projections caught up by the catch-up job with
+     * the given ID from the {@link CatchUpRepositories} cache.
+     *
+     * @throws IllegalStateException
+     *         if there is no repository of the job's projection type in the cache
+     */
+    private static <I> ProjectionRepository<I, ?, ?> repositoryOf(CatchUpId id) {
         var projectionType = TypeUrl.parse(id.getProjectionType());
         ProjectionRepository<I, ?, ?> result = CatchUpRepositories.cache()
                                                                   .get(projectionType);
@@ -798,6 +811,53 @@ public final class CatchUpProcess<I>
     private static ImmutableSet<CatchUpId> routeCatchUpSignal(EventMessage message) {
         var signal = (CatchUpSignal) message;
         return ImmutableSet.of(signal.getId());
+    }
+
+    /**
+     * Returns the catch-up process of the repository whose projections are caught up by
+     * the catch-up job with the given ID.
+     *
+     * <p>Each projection repository has a catch-up process of its own. Thus, the job runs on
+     * the process of its own repository and posts its events in the Bounded Context of that
+     * repository.
+     *
+     * @param id
+     *         the ID of the catch-up job
+     * @return the catch-up process of the repository
+     * @throws IllegalStateException
+     *         if there is no open repository of the job's projection type that has
+     *         its catch-up process registered
+     */
+    @Override
+    @Internal
+    protected CatchUpProcess<?> reactorFor(CatchUpId id) {
+        return processOf(id);
+    }
+
+    /**
+     * Obtains the process catching up the projections of the type that the catch-up job
+     * with the given ID is for.
+     *
+     * @throws IllegalStateException
+     *         if there is no open repository of that projection type that has
+     *         its catch-up process registered
+     */
+    static CatchUpProcess<?> processOf(CatchUpId id) {
+        ProjectionRepository<?, ?, ?> repository = repositoryOf(id);
+        var process = repository.catchUpProcess();
+        if (process == null || !repository.isOpen()) {
+            throw newIllegalStateException(
+                    "There is no catch-up process for the projections of type `%s`.",
+                    id.getProjectionType());
+        }
+        return process;
+    }
+
+    /**
+     * Returns the process maintaining the shards for the catch-ups of this process.
+     */
+    ShardMaintenanceProcess maintenance() {
+        return maintenance;
     }
 
     @Override
