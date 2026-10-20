@@ -289,6 +289,11 @@ public final class CatchUpProcess<I>
     private final Limit queryLimit;
     private final ShardMaintenanceProcess maintenance;
 
+    /**
+     * The type URL of the projections caught up by this process.
+     */
+    private final String projectionType;
+
     private @MonotonicNonNull CatchUpStarter<I> catchUpStarter;
     private @MonotonicNonNull Supplier<EventStore> eventStore;
 
@@ -298,10 +303,12 @@ public final class CatchUpProcess<I>
         this.storage = builder.getStorage();
         this.queryLimit = limitOf(builder.getPageSize());
         var repository = builder.getRepository();
+        var stateType = repository.entityStateType();
+        this.projectionType = stateType.value();
         this.starterTemplate = CatchUpStarter.newBuilder(repository, this.storage);
         var delivery = ServerEnvironment.instance()
                                         .delivery();
-        this.maintenance = new ShardMaintenanceProcess(delivery, repository.entityStateType());
+        this.maintenance = new ShardMaintenanceProcess(delivery, stateType);
     }
 
     @Internal
@@ -831,13 +838,16 @@ public final class CatchUpProcess<I>
     /**
      * {@inheritDoc}
      *
-     * <p>Ensures that the passed signal is an instance of the supported types.
+     * <p>Ensures that the passed signal is an instance of the supported types, and belongs
+     * to a catch-up of the projections of this process. So, a Bounded Context with several
+     * catch-up processes stores each signal once.
      */
     @Override
     public boolean canDispatch(EventEnvelope envelope) {
-        var message = envelope.message();
-        return message instanceof CatchUpSignal
-                || message instanceof ShardProcessed;
+        var jobs = route(envelope);
+        return !jobs.isEmpty()
+                && jobs.stream()
+                       .allMatch(job -> projectionType.equals(job.getProjectionType()));
     }
 
     @SuppressWarnings("ChainOfInstanceofChecks")    // Handling two distinct cases.

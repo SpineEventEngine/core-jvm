@@ -43,9 +43,11 @@ import io.spine.server.delivery.given.SecondTallyRepository
 import io.spine.server.event.AbstractEventReactor
 import io.spine.server.event.NoReaction
 import io.spine.server.event.React
+import io.spine.server.type.EventEnvelope
 import io.spine.server.under
 import io.spine.test.delivery.numberAdded
 import io.spine.testing.SlowTest
+import io.spine.testing.server.TestEventFactory
 import io.spine.testing.server.blackbox.BlackBox
 import io.spine.type.TypeUrl
 import java.util.concurrent.CopyOnWriteArrayList
@@ -250,6 +252,19 @@ internal class SeveralRepositoriesCatchUpIgTest : AbstractDeliveryTest() {
     }
 
     /**
+     * Posts a signal without delivering it, and checks how many times it is stored.
+     */
+    @Test
+    fun `store a catch-up signal once, in a context of several repositories`() {
+        useDelivery(shards = 1, dispatchOnWrite = false)
+        BlackBox.singleTenantWith(first, second).use { context ->
+            context.receivesEvent(historyEventsRecalled { id = jobOf(FirstTally.type.value()) })
+
+            undelivered() shouldHaveSize 1
+        }
+    }
+
+    /**
      * Posts a request without delivering it, and checks how many times it is stored.
      */
     @Test
@@ -288,14 +303,14 @@ internal class SeveralRepositoriesCatchUpIgTest : AbstractDeliveryTest() {
     }
 
     /**
-     * Delivers a signal of a catch-up of an unknown projection type together with
-     * a live event in a single run.
+     * Leaves a signal of a catch-up of an unknown projection type in the inbox, and
+     * delivers it together with a live event in a single run.
      */
     @Test
     fun `fail the reception of a catch-up signal that no process serves`() {
         useDelivery(shards = 1, dispatchOnWrite = false)
         BlackBox.singleTenantWith(first).use { context ->
-            context.receivesEvent(historyEventsRecalled { id = jobOf(UNKNOWN_PROJECTION_TYPE) })
+            leaveSignalOf(jobOf(UNKNOWN_PROJECTION_TYPE))
             context.receivesEvent(numberAdded { calculatorId = ALPHA })
 
             delivery.deliverMessagesFrom(theOnlyShard())
@@ -338,8 +353,8 @@ internal class SeveralRepositoriesCatchUpIgTest : AbstractDeliveryTest() {
     fun `fail the reception of a catch-up signal of a repository not registered yet`() {
         useDelivery(shards = 1, dispatchOnWrite = false)
         delivery.newCatchUpProcess(second)
-        BlackBox.singleTenantWith(first).use { context ->
-            context.receivesEvent(historyEventsRecalled { id = jobOf(SecondTally.type.value()) })
+        BlackBox.singleTenantWith(first).use {
+            leaveSignalOf(jobOf(SecondTally.type.value()))
 
             delivery.deliverMessagesFrom(theOnlyShard())
 
@@ -371,13 +386,27 @@ internal class SeveralRepositoriesCatchUpIgTest : AbstractDeliveryTest() {
             delivery.subscribe { message ->
                 try {
                     dispatching.onMessage(message)
-                } catch (e: RuntimeException) {
+                } catch (e: Exception) {
                     failures.add("Delivery run: $e")
                     throw e
                 }
             }
         }
         under<Tests> { use(delivery) }
+    }
+
+    /**
+     * Stores a signal of the job with the given ID in the inbox of the catch-up processes,
+     * as if an earlier run of the application had left it there.
+     *
+     * Bypasses the event bus, which passes each catch-up process only the signals of its own
+     * jobs. Instead, the process of the first repository routes the signal to the inbox.
+     */
+    private fun leaveSignalOf(job: CatchUpId) {
+        val signal = TestEventFactory.newInstance(javaClass)
+            .createEvent(historyEventsRecalled { id = job })
+        CatchUpProcess.processOf(jobOf(FirstTally.type.value()))
+            .dispatch(EventEnvelope.of(signal))
     }
 
     private fun catchUpTheOnlyRepository(context: BlackBox) {
