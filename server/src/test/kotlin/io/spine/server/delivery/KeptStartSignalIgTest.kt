@@ -210,105 +210,6 @@ internal class KeptStartSignalIgTest : AbstractDeliveryTest() {
 
     private fun inboxContents(): List<InboxMessage> = InboxContents.get().values.flatten()
 
-    /**
-     * Records each message sent to an inbox.
-     *
-     * A message sent to an inbox is written on its own. A delivery run writes the messages
-     * it has processed in a batch, which is not recorded.
-     */
-    private class RecordingInboxStorage :
-        InboxStorage(InMemoryStorageFactory.newInstance(), false) {
-
-        private val sent = CopyOnWriteArrayList<InboxMessage>()
-
-        override fun write(message: InboxMessage) {
-            sent.add(message)
-            super.write(message)
-        }
-
-        /**
-         * Returns the IDs of the instances that reported being prepared for the given job,
-         * in the order of the reports.
-         */
-        fun reportsOf(job: CatchUpId): List<String> =
-            sent.filter { it.hasEvent() }
-                .map { it.event.enclosedMessage() }
-                .filterIsInstance<EntityPreparedForCatchUp>()
-                .filter { it.id == job }
-                .map { Identifier.unpack(it.instanceId, MessageId::class.java) }
-                .map { Identifier.unpack(it.id, String::class.java) }
-    }
-
-    /**
-     * A catch-up storage whose `readAll()` may lag behind its writes.
-     *
-     * Once frozen, `readAll()` returns the jobs stored at that moment, until unfrozen.
-     * The other reads and the writes go through.
-     */
-    private class LaggingCatchUpStorage :
-        CatchUpStorage(InMemoryStorageFactory.newInstance(), false) {
-
-        private var frozen: List<CatchUp>? = null
-
-        fun freezeQueries() {
-            frozen = super.readAll().asSequence().toList()
-        }
-
-        fun unfreezeQueries() {
-            frozen = null
-        }
-
-        override fun readAll(): Iterator<CatchUp> = frozen?.iterator() ?: super.readAll()
-    }
-
-    /**
-     * Records the receptor failures, which `Delivery` does not rethrow.
-     */
-    private class FailureRecorder(
-        private val failures: CopyOnWriteArrayList<String>
-    ) : DeliveryMonitor() {
-
-        override fun onReceptionFailure(reception: FailedReception): FailedReception.Action {
-            failures.add("Receptor: ${reception.error().message}")
-            return super.onReceptionFailure(reception)
-        }
-    }
-
-    /**
-     * Runs each task in the calling thread or, while holding, keeps it until released.
-     *
-     * Holding emulates an executor that posts the system events after the delivery run ends.
-     *
-     * All the calls come from the test thread, so the executor needs no synchronization.
-     */
-    private class HoldingExecutor : Executor {
-
-        private val held = ArrayDeque<Runnable>()
-        private var holding = false
-
-        fun hold() {
-            holding = true
-        }
-
-        /**
-         * Runs the held tasks, and each task to come, in the calling thread.
-         */
-        fun release() {
-            holding = false
-            while (held.isNotEmpty()) {
-                held.removeFirst().run()
-            }
-        }
-
-        override fun execute(task: Runnable) {
-            if (holding) {
-                held.addLast(task)
-            } else {
-                task.run()
-            }
-        }
-    }
-
     private companion object {
         const val FIRST = "first"
         const val SECOND = "second"
@@ -325,5 +226,104 @@ internal class KeptStartSignalIgTest : AbstractDeliveryTest() {
          * Exceeds the 1 s for which a completed job keeps a message it delivers.
          */
         const val PAST_KEEPING_MILLIS = 1_200L
+    }
+}
+
+/**
+ * Records each message sent to an inbox.
+ *
+ * A message sent to an inbox is written on its own. A delivery run writes the messages
+ * it has processed in a batch, which is not recorded.
+ */
+private class RecordingInboxStorage :
+    InboxStorage(InMemoryStorageFactory.newInstance(), false) {
+
+    private val sent = CopyOnWriteArrayList<InboxMessage>()
+
+    override fun write(message: InboxMessage) {
+        sent.add(message)
+        super.write(message)
+    }
+
+    /**
+     * Returns the IDs of the instances that reported being prepared for the given job,
+     * in the order of the reports.
+     */
+    fun reportsOf(job: CatchUpId): List<String> =
+        sent.filter { it.hasEvent() }
+            .map { it.event.enclosedMessage() }
+            .filterIsInstance<EntityPreparedForCatchUp>()
+            .filter { it.id == job }
+            .map { Identifier.unpack(it.instanceId, MessageId::class.java) }
+            .map { Identifier.unpack(it.id, String::class.java) }
+}
+
+/**
+ * A catch-up storage whose `readAll()` may lag behind its writes.
+ *
+ * Once frozen, `readAll()` returns the jobs stored at that moment, until unfrozen.
+ * The other reads and the writes go through.
+ */
+private class LaggingCatchUpStorage :
+    CatchUpStorage(InMemoryStorageFactory.newInstance(), false) {
+
+    private var frozen: List<CatchUp>? = null
+
+    fun freezeQueries() {
+        frozen = super.readAll().asSequence().toList()
+    }
+
+    fun unfreezeQueries() {
+        frozen = null
+    }
+
+    override fun readAll(): Iterator<CatchUp> = frozen?.iterator() ?: super.readAll()
+}
+
+/**
+ * Records the receptor failures, which `Delivery` does not rethrow.
+ */
+private class FailureRecorder(
+    private val failures: CopyOnWriteArrayList<String>
+) : DeliveryMonitor() {
+
+    override fun onReceptionFailure(reception: FailedReception): FailedReception.Action {
+        failures.add("Receptor: ${reception.error().message}")
+        return super.onReceptionFailure(reception)
+    }
+}
+
+/**
+ * Runs each task in the calling thread or, while holding, keeps it until released.
+ *
+ * Holding emulates an executor that posts the system events after the delivery run ends.
+ *
+ * All the calls come from the test thread, so the executor needs no synchronization.
+ */
+private class HoldingExecutor : Executor {
+
+    private val held = ArrayDeque<Runnable>()
+    private var holding = false
+
+    fun hold() {
+        holding = true
+    }
+
+    /**
+     * Runs the held tasks, and each task to come, in the calling thread.
+     */
+    fun release() {
+        holding = false
+        while (held.isNotEmpty()) {
+            held.removeFirst().run()
+        }
+    }
+
+    override fun execute(task: Runnable) {
+        if (holding) {
+            held.addLast(task)
+        } else {
+            task.run()
+        }
     }
 }
