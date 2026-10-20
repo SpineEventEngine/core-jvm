@@ -22,7 +22,10 @@ and `claude/dazzling-noyce-92ab0c` (repeated catch-ups). See "Coordination".
 - [x] `master` (`81c6387bb97`, `.572`) merged; no conflicts
 - [x] Version `2.0.0-SNAPSHOT.574` (#1693 holds `.573`); the dependency reports regenerated
 - [x] Pre-PR checks passed
-- [ ] PR opened
+- [x] PR #1694 opened on 2026-10-20
+- [x] Bot review of #1694: the endpoint lock shared by the reactors of a state type —
+      see step 1 of "Plan"; the orphan maintenance requests left as they are — see
+      "Observations"
 
 ## Problem
 
@@ -110,10 +113,13 @@ maintenance request is the maintenance process of that same catch-up process.
 1. **`AbstractStatefulReactor`** (`server/.../event/AbstractStatefulReactor.java`).
    - An `@Internal` protected hook, `reactorFor(I targetId)`. Returns `this` by default,
      and may throw `IllegalStateException` when no reactor serves the target.
-   - `EventEndpoint.dispatchTo()` keeps holding its own `endpointLock`. With one inbox per
-     state type, that stays one lock for all catch-up messages, as now. A lock per owner
-     could deadlock: a receptor delivers nested runs of other shards synchronously while
-     it holds the lock.
+   - `EventEndpoint.dispatchTo()` holds a lock shared by all the reactors of the state type,
+     kept in a static map by the type. A lock per endpoint was not stable: a reactor
+     created during an in-flight delivery takes over the endpoint, so the old and the new
+     endpoint dispatched to the same serving reactor at once, under different locks, and
+     overwrote each other's builder (found by the Codex and Copilot reviews of #1694).
+     A lock per serving reactor could deadlock: a receptor delivers nested runs of other
+     shards synchronously while it holds the lock.
    - Under the lock, it loads the state, reacts and flushes on the reactor the hook
      returns. The body moves to a private method of the reactor, with `loadIntoBuilder()`.
    - If the hook throws, the endpoint returns an error outcome and logs a warning, as
@@ -190,7 +196,8 @@ several shards produce several maintenance requests per job.
 Elsewhere:
 
 - `AbstractStatefulReactorSpec` (new): the default `reactorFor()` dispatches to the reactor
-  itself.
+  itself; and the events of a state type are dispatched one at a time while a newer
+  reactor takes over the delivery of an in-flight one (two shards, a held handler).
 - `ProjectionRepositoryCatchUpSpec`: a catch-up of a repository not registered in
   a Bounded Context is rejected.
 
@@ -207,6 +214,7 @@ restored from a copy. The counts are of the spec at the time of each run:
 | `processOf()` ignores a closed repository | 1: the closed repository |
 | the endpoint lets the hook's exception through | 1: the unknown projection type |
 | no projection type filter in `CatchUpProcess.canDispatch()` (2026-10-20) | 1 of 21: the signal stored once |
+| a lock per endpoint, not per state type (2026-10-20) | the take-over case: 2 events at once, one total lost |
 
 Verification, with Corretto 17, on the PR head after the merge of `master` and the reviews:
 
@@ -241,4 +249,8 @@ Verification, with Corretto 17, on the PR head after the merge of `master` and t
   This is inferred from `CatchUpStation`, not run. It needs a release note.
 - Leftover `ShardMaintenance` messages in a JVM without projection repositories now fail
   their page: no inbox serves that type any more, and `InboxDeliveries.get()` throws
-  outside the `try` of `GroupByTargetAndDeliver.executeFor()`.
+  outside the `try` of `GroupByTargetAndDeliver.executeFor()`. Copilot asked, on #1694, to
+  keep such requests receivable. Left as is: leftover `CatchUp` messages fail the same way
+  on `master`, as do the messages of any inbox type without a receiver. How to treat
+  the orphan messages of an inbox is a decision for the whole delivery, so it is left to
+  the owner.
