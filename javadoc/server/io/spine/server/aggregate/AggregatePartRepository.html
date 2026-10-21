@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en"><head>
-    <title>AggregatePartRepository 2.0.0-SNAPSHOT.573 API </title>
+    <title>AggregatePartRepository 2.0.0-SNAPSHOT.575 API </title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="dc.created" content="2020-03-25">
     <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
@@ -478,7 +478,7 @@ extends <a href=AggregateRepository.html>AggregateRepository</a>&lt;<a href=Aggr
                                     <li class="blockList">
                                         <h4>registerWith</h4>
                                         <pre class="methodSignature">@OverridingMethodsMustInvokeSuper() void <a href=AggregatePartRepository.html#registerWith(io.spine.server.BoundedContext)>registerWith</a>(<a href=../BoundedContext.html>BoundedContext</a> context)</pre>
-                                        <div class="block"><p><p>Registers with the <code>CommandBus</code> for dispatching commands (via a delegating dispatcher), and sets up the routing of the commands.</p><p>Before any of that, verifies that the configuration of this repository is consistent — e.g., that the <a href=../procman/ProcessManagerRepository.html#useDoubleDispatchGuard()>double-dispatch guard</a>, if enabled, has the <a href=../entity/SignalDispatchingRepository.html#eventHistoryEnabled()>event journal</a> it scans. The check precedes the registration side effects, so a misconfigured repository is never left subscribed to the buses of the context.</p></p><p>Registers itself with the <a href=AggregateRootDirectory.html>AggregateRootDirectory</a> of the context.</p></div>
+                                        <div class="block"><p><p>Registers with the <code>CommandBus</code> for dispatching commands (via a delegating dispatcher), and sets up the routing of the commands.</p><p>Before any of that, verifies that the configuration of this repository is consistent — e.g., that the <a href=AggregateRepository.html#useDoubleDispatchGuard()>double-dispatch guard</a>, if enabled, has the <a href=../entity/SignalDispatchingRepository.html#eventHistoryEnabled()>event journal</a> it scans. The check precedes the registration side effects, so a misconfigured repository is never left subscribed to the buses of the context.</p></p><p>Registers itself with the <a href=AggregateRootDirectory.html>AggregateRootDirectory</a> of the context.</p></div>
 
                                         <dl>
 

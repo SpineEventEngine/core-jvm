@@ -108,6 +108,30 @@ var pathtoroot = "../../../../";
     <div class="typeSummary">
 
 <table>
+<caption><span>Annotation Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Annotation</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=React.html>React</a></th><td class="colLast">Marks a method of an entity as one that may modify the state of the entity in response to some domain event.</td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
 <caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Class</th>
@@ -115,67 +139,67 @@ var pathtoroot = "../../../../";
 </tr>
 <tbody>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=UnsupportedEventException.html>UnsupportedEventException</a></th><td class="colLast">Exception that is thrown when unsupported event is obtained or if there is no class for the given Protobuf event message.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventException.html>EventException</a></th><td class="colLast">A base for exceptions related to events.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AbstractStatefulReactor.html>AbstractStatefulReactor</a></th><td class="colLast">An abstract base for <a href=AbstractEventReactor.html>AbstractEventReactor</a>s that have state and require <a href=../delivery/Delivery.html>delivering</a> the messages through an Inbox.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=UnsupportedEventException.html>UnsupportedEventException</a></th><td class="colLast">Exception that is thrown when unsupported event is obtained or if there is no class for the given Protobuf event message.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AbstractStatefulReactor.html>AbstractStatefulReactor</a></th><td class="colLast">An abstract base for <a href=AbstractEventReactor.html>AbstractEventReactor</a>s that have state and require <a href=../delivery/Delivery.html>delivering</a> the messages through an Inbox.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AbstractEventReactor.html>AbstractEventReactor</a></th><td class="colLast">An abstract base for all classes that may produce events in response to other events.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=InvalidEventException.html>InvalidEventException</a></th><td class="colLast">The exception for reporting invalid events.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventFactory.html>EventFactory</a></th><td class="colLast">Produces events.</td></tr>
 
     <tr class="altColor"><th class="colFirst" scope="row"><a href=EventEnricher.Builder.html>Builder</a></th><td class="colLast">The builder for <a href=EventEnricher.html>EventEnricher</a>.</td></tr>
 
     <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventEnricher.html>EventEnricher</a></th><td class="colLast">Enriches events after they are stored, and before they are dispatched.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=InvalidEventException.html>InvalidEventException</a></th><td class="colLast">The exception for reporting invalid events.</td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AbstractEventSubscriber.html>AbstractEventSubscriber</a></th><td class="colLast">The abstract base for objects that can be subscribed to receive events from EventBus.</td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventFactory.html>EventFactory</a></th><td class="colLast">Produces events.</td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AbstractEventReactor.html>AbstractEventReactor</a></th><td class="colLast">An abstract base for all classes that may produce events in response to other events.</td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventException.html>EventException</a></th><td class="colLast">A base for exceptions related to events.</td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventStreamQueryProto.html>EventStreamQueryProto</a></th><td class="colLast"></td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=NoReactionProto.html>NoReactionProto</a></th><td class="colLast"></td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventStreamQuery.Limit.Builder.html>Builder</a></th><td class="colLast"><pre><code>Definition of the query `LIMIT`.
-
-Sets the maximum number of events to return from an `EventStore`.
-</code></pre> Protobuf type <code>spine.server.event.EventStreamQuery.Limit</code></td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventStreamQuery.Limit.html>Limit</a></th><td class="colLast"><pre><code>Definition of the query `LIMIT`.
-
-Sets the maximum number of events to return from an `EventStore`.
-</code></pre> Protobuf type <code>spine.server.event.EventStreamQuery.Limit</code></td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventStreamQuery.Builder.html>Builder</a></th><td class="colLast"><pre><code>A query for events in an `EventStore`.
-
-If the query is empty, all the events are loaded.
-</code></pre> Protobuf type <code>spine.server.event.EventStreamQuery</code></td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventStreamQuery.html>EventStreamQuery</a></th><td class="colLast"><pre><code>A query for events in an `EventStore`.
-
-If the query is empty, all the events are loaded.
-</code></pre> Protobuf type <code>spine.server.event.EventStreamQuery</code></td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventFilter.Builder.html>Builder</a></th><td class="colLast"><pre><code>Filters `Event`s by:
-1. the type of the event message,
-2. aggregate ID,
-3. event message field values,
-4. values stored in the `event_context` field of the event.
-
-The time of the event is filtered by `before` and `after` attributes of `EventStreamQuery`.
-</code></pre> Protobuf type <code>spine.server.event.EventFilter</code></td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventFilter.html>EventFilter</a></th><td class="colLast"><pre><code>Filters `Event`s by:
-1. the type of the event message,
-2. aggregate ID,
-3. event message field values,
-4. values stored in the `event_context` field of the event.
-
-The time of the event is filtered by `before` and `after` attributes of `EventStreamQuery`.
-</code></pre> Protobuf type <code>spine.server.event.EventFilter</code></td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AbstractEventSubscriber.html>AbstractEventSubscriber</a></th><td class="colLast">The abstract base for objects that can be subscribed to receive events from EventBus.</td></tr>
 
     <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventFilterProto.html>EventFilterProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventStreamQuery.Limit.Builder.html>Builder</a></th><td class="colLast"><pre><code>Definition of the query `LIMIT`.
+
+Sets the maximum number of events to return from an `EventStore`.
+</code></pre> Protobuf type <code>spine.server.event.EventStreamQuery.Limit</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventStreamQuery.Limit.html>Limit</a></th><td class="colLast"><pre><code>Definition of the query `LIMIT`.
+
+Sets the maximum number of events to return from an `EventStore`.
+</code></pre> Protobuf type <code>spine.server.event.EventStreamQuery.Limit</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventStreamQuery.Builder.html>Builder</a></th><td class="colLast"><pre><code>A query for events in an `EventStore`.
+
+If the query is empty, all the events are loaded.
+</code></pre> Protobuf type <code>spine.server.event.EventStreamQuery</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventStreamQuery.html>EventStreamQuery</a></th><td class="colLast"><pre><code>A query for events in an `EventStore`.
+
+If the query is empty, all the events are loaded.
+</code></pre> Protobuf type <code>spine.server.event.EventStreamQuery</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventStreamQueryProto.html>EventStreamQueryProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=NoReactionProto.html>NoReactionProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventFilter.Builder.html>Builder</a></th><td class="colLast"><pre><code>Filters `Event`s by:
+1. the type of the event message,
+2. aggregate ID,
+3. event message field values,
+4. values stored in the `event_context` field of the event.
+
+The time of the event is filtered by `before` and `after` attributes of `EventStreamQuery`.
+</code></pre> Protobuf type <code>spine.server.event.EventFilter</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventFilter.html>EventFilter</a></th><td class="colLast"><pre><code>Filters `Event`s by:
+1. the type of the event message,
+2. aggregate ID,
+3. event message field values,
+4. values stored in the `event_context` field of the event.
+
+The time of the event is filtered by `before` and `after` attributes of `EventStreamQuery`.
+</code></pre> Protobuf type <code>spine.server.event.EventFilter</code></td></tr>
 
     <tr class="altColor"><th class="colFirst" scope="row"><a href=NoReaction.Builder.html>Builder</a></th><td class="colLast"><pre><code>An empty event.
 
@@ -231,49 +255,25 @@ An applier for a `NoReaction` event is never called.
 </tr>
 <tbody>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventStore.html>EventStore</a></th><td class="colLast">A store of all events in a Bounded Context.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventReactor.html>EventReactor</a></th><td class="colLast">Declares methods that receive events, <a href=React.html>possibly generating</a> other events in response.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventSubscriber.html>EventSubscriber</a></th><td class="colLast">Declares one or more methods, subscribed to events.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventStore.html>EventStore</a></th><td class="colLast">A store of all events in a Bounded Context.</td></tr>
 
     <tr class="altColor"><th class="colFirst" scope="row"><a href=EventDispatcher.html>EventDispatcher</a></th><td class="colLast"><code>EventDispatcher</code> delivers events to <a href=EventReceiver.html>receiving</a> objects.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventReactor.html>EventReactor</a></th><td class="colLast">Declares methods that receive events, <a href=React.html>possibly generating</a> other events in response.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventReceiver.html>EventReceiver</a></th><td class="colLast">Common interface for objects receiving events.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventReceiver.html>EventReceiver</a></th><td class="colLast">Common interface for objects receiving events.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventSubscriber.html>EventSubscriber</a></th><td class="colLast">Declares one or more methods, subscribed to events.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=NoReactionOrBuilder.html>NoReactionOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventStreamQuery.LimitOrBuilder.html>LimitOrBuilder</a></th><td class="colLast"></td></tr>
 
     <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventStreamQueryOrBuilder.html>EventStreamQueryOrBuilder</a></th><td class="colLast"></td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=NoReactionOrBuilder.html>NoReactionOrBuilder</a></th><td class="colLast"></td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventStreamQuery.LimitOrBuilder.html>LimitOrBuilder</a></th><td class="colLast"></td></tr>
 
     <tr class="altColor"><th class="colFirst" scope="row"><a href=EventFilterOrBuilder.html>EventFilterOrBuilder</a></th><td class="colLast"></td></tr>
 
     <tr class="rowColor"><th class="colFirst" scope="row"><a href=Whenever.html>Whenever</a></th><td class="colLast">An interface common to classes that produce zero or more messages in response to an incoming event.</td></tr>
-</tbody>
-</table>
-
-    </div>
-
-                </li>
-                
-                <li class="blockList">
-                    
-                    
-                    
-                    
-                    
-    <div class="typeSummary">
-
-<table>
-<caption><span>Annotation Summary</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Annotation</th>
-<th class="colLast" scope="col">Description</th>
-</tr>
-<tbody>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=React.html>React</a></th><td class="colLast">Marks a method of an entity as one that may modify the state of the entity in response to some domain event.</td></tr>
 </tbody>
 </table>
 

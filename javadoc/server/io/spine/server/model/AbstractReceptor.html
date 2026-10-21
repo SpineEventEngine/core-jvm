@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en"><head>
-    <title>AbstractReceptor 2.0.0-SNAPSHOT.573 API </title>
+    <title>AbstractReceptor 2.0.0-SNAPSHOT.575 API </title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="dc.created" content="2020-03-25">
     <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
@@ -257,15 +257,15 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                         <tr id="i0" class="altColor">
                                             <td class="colFirst"><code>final void</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../event/model/EventReceptor.html#discoverAttributes()>discoverAttributes</a>() </code>
+                                            <th class="colSecond" scope="row"><code><a href=../command/model/CommandSubstituter.html#discoverAttributes()>discoverAttributes</a>() </code>
                                             </th>
-                                            <td class="colLast">Initializes attributes by obtaining values via functions provided by <a href=../event/model/EventReceptor.html#attributeSuppliers()>attributeSuppliers</a>.</td>
+                                            <td class="colLast">Initializes attributes by obtaining values via functions provided by <a href=../command/model/CommandSubstituter.html#attributeSuppliers()>attributeSuppliers</a>.</td>
                                         </tr>
                                         
                                         <tr id="i1" class="rowColor">
                                             <td class="colFirst"><code><a href=ArgumentFilter.html>ArgumentFilter</a></code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../event/model/EventReceptor.html#createFilter()>createFilter</a>() </code>
+                                            <th class="colSecond" scope="row"><code><a href=../command/model/CommandingReaction.html#createFilter()>createFilter</a>() </code>
                                             </th>
                                             <td class="colLast">Creates the filter for messages handled by this method.</td>
                                         </tr>
@@ -273,7 +273,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                         <tr id="i2" class="altColor">
                                             <td class="colFirst"><code>final <a href=ArgumentFilter.html>ArgumentFilter</a></code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../event/model/EventReceptor.html#filter()>filter</a>() </code>
+                                            <th class="colSecond" scope="row"><code><a href=../command/model/CommandSubstituter.html#filter()>filter</a>() </code>
                                             </th>
                                             <td class="colLast">Obtains the filter to apply to the messages received by this method.</td>
                                         </tr>
@@ -281,7 +281,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                         <tr id="i3" class="rowColor">
                                             <td class="colFirst"><code>static <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/reflect/Method.html>Method</a></code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../event/model/EventReceptor.html#checkNotFiltered(java.lang.reflect.Method,java.lang.String)>checkNotFiltered</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/reflect/Method.html>Method</a> method, <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> label) </code>
+                                            <th class="colSecond" scope="row"><code><a href=../command/model/CommandSubstituter.html#checkNotFiltered(java.lang.reflect.Method,java.lang.String)>checkNotFiltered</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/reflect/Method.html>Method</a> method, <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> label) </code>
                                             </th>
                                             <td class="colLast"></td>
                                         </tr>
@@ -289,7 +289,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                         <tr id="i4" class="altColor">
                                             <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html>Set</a>&lt;<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html>Function</a>&lt;<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/reflect/Method.html>Method</a>, <a href=Attribute.html>Attribute</a>&lt;out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt;&gt;&gt;</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../event/model/EventReceptor.html#attributeSuppliers()>attributeSuppliers</a>() </code>
+                                            <th class="colSecond" scope="row"><code><a href=../command/model/CommandSubstituter.html#attributeSuppliers()>attributeSuppliers</a>() </code>
                                             </th>
                                             <td class="colLast">Obtains a set of functions for getting <a href=Attribute.html>method attributes</a> by a <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/reflect/Method.html>raw method</a> value.</td>
                                         </tr>
@@ -297,15 +297,15 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                         <tr id="i5" class="rowColor">
                                             <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;out <a href=AbstractReceptor.html>M</a>&gt;</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../event/model/EventReceptor.html#rawMessageClass()>rawMessageClass</a>() </code>
+                                            <th class="colSecond" scope="row"><code><a href=../command/model/CommandSubstituter.html#rawMessageClass()>rawMessageClass</a>() </code>
                                             </th>
                                             <td class="colLast"></td>
                                         </tr>
                                         
                                         <tr id="i6" class="altColor">
-                                            <td class="colFirst"><code>static &lt;M extends Message&gt; <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;<a href=../event/model/EventReceptor.html#firstParamType(java.lang.reflect.Method)>M</a>&gt;</code>
+                                            <td class="colFirst"><code>static &lt;M extends Message&gt; <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;<a href=../command/model/CommandSubstituter.html#firstParamType(java.lang.reflect.Method)>M</a>&gt;</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../event/model/EventReceptor.html#firstParamType(java.lang.reflect.Method)>firstParamType</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/reflect/Method.html>Method</a> receptor) </code>
+                                            <th class="colSecond" scope="row"><code><a href=../command/model/CommandSubstituter.html#firstParamType(java.lang.reflect.Method)>firstParamType</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/reflect/Method.html>Method</a> receptor) </code>
                                             </th>
                                             <td class="colLast">Returns the class of the first parameter of the passed receptor.</td>
                                         </tr>
@@ -313,7 +313,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                         <tr id="i7" class="rowColor">
                                             <td class="colFirst"><code>final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/reflect/Method.html>Method</a></code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../event/model/EventReceptor.html#rawMethod()>rawMethod</a>() </code>
+                                            <th class="colSecond" scope="row"><code><a href=../command/model/CommandSubstituter.html#rawMethod()>rawMethod</a>() </code>
                                             </th>
                                             <td class="colLast">Obtains the handling method.</td>
                                         </tr>
@@ -321,7 +321,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                         <tr id="i8" class="altColor">
                                             <td class="colFirst"><code><a href=ParameterSpec.html>ParameterSpec</a>&lt;<a href=AbstractReceptor.html>E</a>&gt;</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../event/model/EventReactorMethod.html#parameterSpec()>parameterSpec</a>() </code>
+                                            <th class="colSecond" scope="row"><code><a href=../command/model/CommandSubstituter.html#parameterSpec()>parameterSpec</a>() </code>
                                             </th>
                                             <td class="colLast">Obtains the specification of parameters for this method.</td>
                                         </tr>
@@ -329,7 +329,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                         <tr id="i9" class="rowColor">
                                             <td class="colFirst"><code>final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html>Set</a>&lt;<a href=AbstractReceptor.html>R</a>&gt;</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../event/model/EventReceptor.html#producedMessages()>producedMessages</a>() </code>
+                                            <th class="colSecond" scope="row"><code><a href=../command/model/CommandSubstituter.html#producedMessages()>producedMessages</a>() </code>
                                             </th>
                                             <td class="colLast">Retrieves the message classes produced by this receptor.</td>
                                         </tr>
@@ -337,7 +337,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                         <tr id="i10" class="altColor">
                                             <td class="colFirst"><code>final boolean</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../event/model/EventReceptor.html#isPublic()>isPublic</a>() </code>
+                                            <th class="colSecond" scope="row"><code><a href=../command/model/CommandSubstituter.html#isPublic()>isPublic</a>() </code>
                                             </th>
                                             <td class="colLast">Returns <code>true</code> if the method is declared <code>public</code>, <code>false</code> otherwise.</td>
                                         </tr>
@@ -345,7 +345,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                         <tr id="i11" class="rowColor">
                                             <td class="colFirst"><code>final boolean</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../event/model/EventReceptor.html#isPrivate()>isPrivate</a>() </code>
+                                            <th class="colSecond" scope="row"><code><a href=../command/model/CommandSubstituter.html#isPrivate()>isPrivate</a>() </code>
                                             </th>
                                             <td class="colLast">Returns <code>true</code> if the method is declared <code>private</code>, <code>false</code> otherwise.</td>
                                         </tr>
@@ -353,7 +353,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                         <tr id="i12" class="altColor">
                                             <td class="colFirst"><code>final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html>Set</a>&lt;<a href=Attribute.html>Attribute</a>&lt;out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt;&gt;</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../event/model/EventReceptor.html#attributes()>attributes</a>() </code>
+                                            <th class="colSecond" scope="row"><code><a href=../command/model/CommandSubstituter.html#attributes()>attributes</a>() </code>
                                             </th>
                                             <td class="colLast">Obtains the set of method attributes configured for this method.</td>
                                         </tr>
@@ -361,7 +361,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                         <tr id="i13" class="rowColor">
                                             <td class="colFirst"><code>DispatchOutcome</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../event/model/EventReceptor.html#invoke(T,E)>invoke</a>(<a href=AbstractReceptor.html>T</a> target, <a href=AbstractReceptor.html>E</a> envelope) </code>
+                                            <th class="colSecond" scope="row"><code><a href=../command/model/CommandSubstituter.html#invoke(T,E)>invoke</a>(<a href=AbstractReceptor.html>T</a> target, <a href=AbstractReceptor.html>E</a> envelope) </code>
                                             </th>
                                             <td class="colLast">Feeds the given <code>envelope</code> to the given <code>target</code> and returns the outcome.</td>
                                         </tr>
@@ -369,7 +369,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                         <tr id="i14" class="altColor">
                                             <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html>Optional</a>&lt;Success&gt;</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../event/model/EventReceptor.html#handleRejection(T,E,io.spine.base.RejectionThrowable)>handleRejection</a>(<a href=AbstractReceptor.html>T</a> target, <a href=AbstractReceptor.html>E</a> origin, RejectionThrowable throwable) </code>
+                                            <th class="colSecond" scope="row"><code><a href=../command/model/CommandSubstituter.html#handleRejection(T,E,io.spine.base.RejectionThrowable)>handleRejection</a>(<a href=AbstractReceptor.html>T</a> target, <a href=AbstractReceptor.html>E</a> origin, RejectionThrowable throwable) </code>
                                             </th>
                                             <td class="colLast"></td>
                                         </tr>
@@ -377,7 +377,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                         <tr id="i15" class="rowColor">
                                             <td class="colFirst"><code>void</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../event/model/EventReactorMethod.html#checkAttributesMatch(E)>checkAttributesMatch</a>(<a href=AbstractReceptor.html>E</a> envelope) </code>
+                                            <th class="colSecond" scope="row"><code><a href=../command/model/CommandSubstituter.html#checkAttributesMatch(E)>checkAttributesMatch</a>(<a href=AbstractReceptor.html>E</a> envelope) </code>
                                             </th>
                                             <td class="colLast">A callback to check the passed envelope matches the annotation attributes of the method.</td>
                                         </tr>
@@ -385,7 +385,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                         <tr id="i16" class="altColor">
                                             <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a></code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../event/model/EventReceptor.html#getFullName()>getFullName</a>() </code>
+                                            <th class="colSecond" scope="row"><code><a href=../command/model/CommandSubstituter.html#getFullName()>getFullName</a>() </code>
                                             </th>
                                             <td class="colLast">Returns a full name of the handler method.</td>
                                         </tr>
@@ -393,7 +393,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                         <tr id="i17" class="rowColor">
                                             <td class="colFirst"><code><a href=MethodParams.html>MethodParams</a></code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../aggregate/model/Applier.html#params()>params</a>() </code>
+                                            <th class="colSecond" scope="row"><code><a href=../command/model/CommandSubstituter.html#params()>params</a>() </code>
                                             </th>
                                             <td class="colLast">Obtains parameters of the method.</td>
                                         </tr>
@@ -401,7 +401,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                         <tr id="i18" class="altColor">
                                             <td class="colFirst"><code>int</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../event/model/EventReceptor.html#hashCode()>hashCode</a>() </code>
+                                            <th class="colSecond" scope="row"><code><a href=../command/model/CommandSubstituter.html#hashCode()>hashCode</a>() </code>
                                             </th>
                                             <td class="colLast"></td>
                                         </tr>
@@ -409,7 +409,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                         <tr id="i19" class="rowColor">
                                             <td class="colFirst"><code>boolean</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../event/model/EventReceptor.html#equals(Object)>equals</a>(@Nullable() <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a> obj) </code>
+                                            <th class="colSecond" scope="row"><code><a href=../command/model/CommandSubstituter.html#equals(Object)>equals</a>(@Nullable() <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a> obj) </code>
                                             </th>
                                             <td class="colLast"></td>
                                         </tr>
@@ -417,7 +417,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                         <tr id="i20" class="altColor">
                                             <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a></code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../event/model/EventReceptor.html#toString()>toString</a>() </code>
+                                            <th class="colSecond" scope="row"><code><a href=../command/model/CommandSubstituter.html#toString()>toString</a>() </code>
                                             </th>
                                             <td class="colLast">Obtains the full name of the handler method.</td>
                                         </tr>
@@ -503,8 +503,8 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                           >
                                     <li class="blockList">
                                         <h4>discoverAttributes</h4>
-                                        <pre class="methodSignature"> final void <a href=../event/model/EventReceptor.html#discoverAttributes()>discoverAttributes</a>()</pre>
-                                        <div class="block"><p>Initializes attributes by obtaining values via functions provided by <a href=../event/model/EventReceptor.html#attributeSuppliers()>attributeSuppliers</a>.</p></div>
+                                        <pre class="methodSignature"> final void <a href=../command/model/CommandSubstituter.html#discoverAttributes()>discoverAttributes</a>()</pre>
+                                        <div class="block"><p>Initializes attributes by obtaining values via functions provided by <a href=../command/model/CommandSubstituter.html#attributeSuppliers()>attributeSuppliers</a>.</p></div>
 
                                         <dl>
 
@@ -526,7 +526,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                           >
                                     <li class="blockList">
                                         <h4>createFilter</h4>
-                                        <pre class="methodSignature"> <a href=ArgumentFilter.html>ArgumentFilter</a> <a href=../event/model/EventReceptor.html#createFilter()>createFilter</a>()</pre>
+                                        <pre class="methodSignature"> <a href=ArgumentFilter.html>ArgumentFilter</a> <a href=../command/model/CommandingReaction.html#createFilter()>createFilter</a>()</pre>
                                         <div class="block"><p>Creates the filter for messages handled by this method. </p><p>If this method cannot have <code>@Where</code> filters but still defines one, a <a href=ModelError.html>ModelError</a> is thrown.</p></div>
 
                                         <dl>
@@ -549,7 +549,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                           >
                                     <li class="blockList">
                                         <h4>filter</h4>
-                                        <pre class="methodSignature"> final <a href=ArgumentFilter.html>ArgumentFilter</a> <a href=../event/model/EventReceptor.html#filter()>filter</a>()</pre>
+                                        <pre class="methodSignature"> final <a href=ArgumentFilter.html>ArgumentFilter</a> <a href=../command/model/CommandSubstituter.html#filter()>filter</a>()</pre>
                                         <div class="block"><p>Obtains the filter to apply to the messages received by this method.</p></div>
 
                                         <dl>
@@ -572,7 +572,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                           >
                                     <li class="blockList">
                                         <h4>checkNotFiltered</h4>
-                                        <pre class="methodSignature"> static <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/reflect/Method.html>Method</a> <a href=../event/model/EventReceptor.html#checkNotFiltered(java.lang.reflect.Method,java.lang.String)>checkNotFiltered</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/reflect/Method.html>Method</a> method, <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> label)</pre>
+                                        <pre class="methodSignature"> static <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/reflect/Method.html>Method</a> <a href=../command/model/CommandSubstituter.html#checkNotFiltered(java.lang.reflect.Method,java.lang.String)>checkNotFiltered</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/reflect/Method.html>Method</a> method, <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> label)</pre>
                                         <div class="block"></div>
 
                                         <dl>
@@ -595,7 +595,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                           >
                                     <li class="blockList">
                                         <h4>attributeSuppliers</h4>
-                                        <pre class="methodSignature">@OverridingMethodsMustInvokeSuper() <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html>Set</a>&lt;<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html>Function</a>&lt;<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/reflect/Method.html>Method</a>, <a href=Attribute.html>Attribute</a>&lt;out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt;&gt;&gt; <a href=../event/model/EventReceptor.html#attributeSuppliers()>attributeSuppliers</a>()</pre>
+                                        <pre class="methodSignature">@OverridingMethodsMustInvokeSuper() <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html>Set</a>&lt;<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html>Function</a>&lt;<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/reflect/Method.html>Method</a>, <a href=Attribute.html>Attribute</a>&lt;out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt;&gt;&gt; <a href=../command/model/CommandSubstituter.html#attributeSuppliers()>attributeSuppliers</a>()</pre>
                                         <div class="block"><p>Obtains a set of functions for getting <a href=Attribute.html>method attributes</a> by a <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/reflect/Method.html>raw method</a> value. </p><p>Default implementation returns a one-element set for obtaining ExternalAttribute. </p><p>Overriding classes must return a set that is a union of the set provided by this method and the one needed by the overriding class.</p></div>
 
                                         <dl>
@@ -618,7 +618,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                           >
                                     <li class="blockList">
                                         <h4>rawMessageClass</h4>
-                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;out <a href=AbstractReceptor.html>M</a>&gt; <a href=../event/model/EventReceptor.html#rawMessageClass()>rawMessageClass</a>()</pre>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;out <a href=AbstractReceptor.html>M</a>&gt; <a href=../command/model/CommandSubstituter.html#rawMessageClass()>rawMessageClass</a>()</pre>
                                         <div class="block"></div>
 
                                         <dl>
@@ -641,7 +641,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                           >
                                     <li class="blockList">
                                         <h4>firstParamType</h4>
-                                        <pre class="methodSignature"> static &lt;M extends Message&gt; <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;<a href=../event/model/EventReceptor.html#firstParamType(java.lang.reflect.Method)>M</a>&gt; <a href=../event/model/EventReceptor.html#firstParamType(java.lang.reflect.Method)>firstParamType</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/reflect/Method.html>Method</a> receptor)</pre>
+                                        <pre class="methodSignature"> static &lt;M extends Message&gt; <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;<a href=../command/model/CommandSubstituter.html#firstParamType(java.lang.reflect.Method)>M</a>&gt; <a href=../command/model/CommandSubstituter.html#firstParamType(java.lang.reflect.Method)>firstParamType</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/reflect/Method.html>Method</a> receptor)</pre>
                                         <div class="block"><p>Returns the class of the first parameter of the passed receptor. </p><p>It is expected that the first parameter of the passed method is always of a class implementing Message.</p></div>
 
                                         <dl>
@@ -671,7 +671,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                           >
                                     <li class="blockList">
                                         <h4>rawMethod</h4>
-                                        <pre class="methodSignature"> final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/reflect/Method.html>Method</a> <a href=../event/model/EventReceptor.html#rawMethod()>rawMethod</a>()</pre>
+                                        <pre class="methodSignature"> final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/reflect/Method.html>Method</a> <a href=../command/model/CommandSubstituter.html#rawMethod()>rawMethod</a>()</pre>
                                         <div class="block"><p>Obtains the handling method.</p></div>
 
                                         <dl>
@@ -694,7 +694,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                           >
                                     <li class="blockList">
                                         <h4>parameterSpec</h4>
-                                        <pre class="methodSignature"> <a href=ParameterSpec.html>ParameterSpec</a>&lt;<a href=AbstractReceptor.html>E</a>&gt; <a href=../event/model/EventReactorMethod.html#parameterSpec()>parameterSpec</a>()</pre>
+                                        <pre class="methodSignature"> <a href=ParameterSpec.html>ParameterSpec</a>&lt;<a href=AbstractReceptor.html>E</a>&gt; <a href=../command/model/CommandSubstituter.html#parameterSpec()>parameterSpec</a>()</pre>
                                         <div class="block"><p>Obtains the specification of parameters for this method.</p></div>
 
                                         <dl>
@@ -717,7 +717,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                           >
                                     <li class="blockList">
                                         <h4>producedMessages</h4>
-                                        <pre class="methodSignature"> final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html>Set</a>&lt;<a href=AbstractReceptor.html>R</a>&gt; <a href=../event/model/EventReceptor.html#producedMessages()>producedMessages</a>()</pre>
+                                        <pre class="methodSignature"> final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html>Set</a>&lt;<a href=AbstractReceptor.html>R</a>&gt; <a href=../command/model/CommandSubstituter.html#producedMessages()>producedMessages</a>()</pre>
                                         <div class="block"><p>Retrieves the message classes produced by this receptor.</p></div>
 
                                         <dl>
@@ -740,7 +740,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                           >
                                     <li class="blockList">
                                         <h4>isPublic</h4>
-                                        <pre class="methodSignature"> final boolean <a href=../event/model/EventReceptor.html#isPublic()>isPublic</a>()</pre>
+                                        <pre class="methodSignature"> final boolean <a href=../command/model/CommandSubstituter.html#isPublic()>isPublic</a>()</pre>
                                         <div class="block"><p>Returns <code>true</code> if the method is declared <code>public</code>, <code>false</code> otherwise.</p></div>
 
                                         <dl>
@@ -763,7 +763,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                           >
                                     <li class="blockList">
                                         <h4>isPrivate</h4>
-                                        <pre class="methodSignature"> final boolean <a href=../event/model/EventReceptor.html#isPrivate()>isPrivate</a>()</pre>
+                                        <pre class="methodSignature"> final boolean <a href=../command/model/CommandSubstituter.html#isPrivate()>isPrivate</a>()</pre>
                                         <div class="block"><p>Returns <code>true</code> if the method is declared <code>private</code>, <code>false</code> otherwise.</p></div>
 
                                         <dl>
@@ -786,7 +786,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                           >
                                     <li class="blockList">
                                         <h4>attributes</h4>
-                                        <pre class="methodSignature"> final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html>Set</a>&lt;<a href=Attribute.html>Attribute</a>&lt;out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt;&gt; <a href=../event/model/EventReceptor.html#attributes()>attributes</a>()</pre>
+                                        <pre class="methodSignature"> final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html>Set</a>&lt;<a href=Attribute.html>Attribute</a>&lt;out <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>&gt;&gt; <a href=../command/model/CommandSubstituter.html#attributes()>attributes</a>()</pre>
                                         <div class="block"><p>Obtains the set of method attributes configured for this method.</p></div>
 
                                         <dl>
@@ -809,7 +809,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                           >
                                     <li class="blockList">
                                         <h4>invoke</h4>
-                                        <pre class="methodSignature"> DispatchOutcome <a href=../event/model/EventReceptor.html#invoke(T,E)>invoke</a>(<a href=AbstractReceptor.html>T</a> target, <a href=AbstractReceptor.html>E</a> envelope)</pre>
+                                        <pre class="methodSignature"> DispatchOutcome <a href=../command/model/CommandSubstituter.html#invoke(T,E)>invoke</a>(<a href=AbstractReceptor.html>T</a> target, <a href=AbstractReceptor.html>E</a> envelope)</pre>
                                         <div class="block"><p>Feeds the given <code>envelope</code> to the given <code>target</code> and returns the outcome. </p><p>If the target method throws Mistake, dispatching terminates with rethrowing it. </p><p>Other types of exceptions are converted to io.spine.base.Error and returned inside the DispatchOutcome.</p><p>Implementation Note: The result of this method is not validated, as its fields in fact consist of the parts, such as wrapped <code>Command</code>s and <code>Event</code>s that are validated upon their creation. Such an approach allows improving the overall performance of the signal propagation.</p></div>
 
                                         <dl>
@@ -832,7 +832,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                           >
                                     <li class="blockList">
                                         <h4>handleRejection</h4>
-                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html>Optional</a>&lt;Success&gt; <a href=../event/model/EventReceptor.html#handleRejection(T,E,io.spine.base.RejectionThrowable)>handleRejection</a>(<a href=AbstractReceptor.html>T</a> target, <a href=AbstractReceptor.html>E</a> origin, RejectionThrowable throwable)</pre>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html>Optional</a>&lt;Success&gt; <a href=../command/model/CommandSubstituter.html#handleRejection(T,E,io.spine.base.RejectionThrowable)>handleRejection</a>(<a href=AbstractReceptor.html>T</a> target, <a href=AbstractReceptor.html>E</a> origin, RejectionThrowable throwable)</pre>
                                         <div class="block"></div>
 
                                         <dl>
@@ -855,7 +855,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                           >
                                     <li class="blockList">
                                         <h4>checkAttributesMatch</h4>
-                                        <pre class="methodSignature"> void <a href=../event/model/EventReactorMethod.html#checkAttributesMatch(E)>checkAttributesMatch</a>(<a href=AbstractReceptor.html>E</a> envelope)</pre>
+                                        <pre class="methodSignature"> void <a href=../command/model/CommandSubstituter.html#checkAttributesMatch(E)>checkAttributesMatch</a>(<a href=AbstractReceptor.html>E</a> envelope)</pre>
                                         <div class="block"><p>A callback to check the passed envelope matches the annotation attributes of the method. </p><p>The default implementation does nothing. Descending classes may override for checking the match.</p></div>
 
                                         <dl>
@@ -885,7 +885,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                           >
                                     <li class="blockList">
                                         <h4>getFullName</h4>
-                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> <a href=../event/model/EventReceptor.html#getFullName()>getFullName</a>()</pre>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> <a href=../command/model/CommandSubstituter.html#getFullName()>getFullName</a>()</pre>
                                         <div class="block"><p>Returns a full name of the handler method. </p><p>The full name consists of a fully qualified class name of the target object and the method name separated with a dot character.</p></div>
 
                                         <dl>
@@ -911,7 +911,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                           >
                                     <li class="blockList">
                                         <h4>params</h4>
-                                        <pre class="methodSignature"> <a href=MethodParams.html>MethodParams</a> <a href=../aggregate/model/Applier.html#params()>params</a>()</pre>
+                                        <pre class="methodSignature"> <a href=MethodParams.html>MethodParams</a> <a href=../command/model/CommandSubstituter.html#params()>params</a>()</pre>
                                         <div class="block"><p>Obtains parameters of the method.</p></div>
 
                                         <dl>
@@ -934,7 +934,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                           >
                                     <li class="blockList">
                                         <h4>hashCode</h4>
-                                        <pre class="methodSignature"> int <a href=../event/model/EventReceptor.html#hashCode()>hashCode</a>()</pre>
+                                        <pre class="methodSignature"> int <a href=../command/model/CommandSubstituter.html#hashCode()>hashCode</a>()</pre>
                                         <div class="block"></div>
 
                                         <dl>
@@ -957,7 +957,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                           >
                                     <li class="blockList">
                                         <h4>equals</h4>
-                                        <pre class="methodSignature"> boolean <a href=../event/model/EventReceptor.html#equals(Object)>equals</a>(@Nullable() <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a> obj)</pre>
+                                        <pre class="methodSignature"> boolean <a href=../command/model/CommandSubstituter.html#equals(Object)>equals</a>(@Nullable() <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a> obj)</pre>
                                         <div class="block"></div>
 
                                         <dl>
@@ -980,7 +980,7 @@ public abstract class <span class="typeNameLabel"><a href=AbstractReceptor.html>
                                           >
                                     <li class="blockList">
                                         <h4>toString</h4>
-                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> <a href=../event/model/EventReceptor.html#toString()>toString</a>()</pre>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> <a href=../command/model/CommandSubstituter.html#toString()>toString</a>()</pre>
                                         <div class="block"><p>Obtains the full name of the handler method.</p></div>
 
                                         <dl>

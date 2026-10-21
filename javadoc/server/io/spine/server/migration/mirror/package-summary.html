@@ -115,29 +115,29 @@ var pathtoroot = "../../../../../";
 </tr>
 <tbody>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=MirrorMigrationMonitor.html>MirrorMigrationMonitor</a></th><td class="colLast">Directs and oversees the process of <a href=MirrorMigration.html>MirrorMigration</a>.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=MirrorStorage.html>MirrorStorage</a></th><td class="colLast">A contract for storages of legacy <a href=../../../system/server/Mirror.html>Mirror</a> projections.</td></tr>
 
     <tr class="rowColor"><th class="colFirst" scope="row"><a href=MirrorMigration.html>MirrorMigration</a></th><td class="colLast">Migrates <a href=../../../system/server/Mirror.html>Mirror</a> projections to <code>EntityRecord</code> with columns.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=MirrorStorage.html>MirrorStorage</a></th><td class="colLast">A contract for storages of legacy <a href=../../../system/server/Mirror.html>Mirror</a> projections.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=MirrorMigrationMonitor.html>MirrorMigrationMonitor</a></th><td class="colLast">Directs and oversees the process of <a href=MirrorMigration.html>MirrorMigration</a>.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=MirrorsMigrated.Builder.html>Builder</a></th><td class="colLast"><pre><code>A number of `Mirror` projections, which were migrated
+in a single request during the process of `MirrorMigration`.
+
+The batch size for the migration is dictated by a `MirrorMigrationMonitor`. Hence, the value
+of this message is usually equal to the batch size. Only the last request is expected to
+return less or zero, indicating no records left to migrate.
+</code></pre> Protobuf type <code>spine.server.migration.mirror.MirrorsMigrated</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=MirrorsMigrated.html>MirrorsMigrated</a></th><td class="colLast"><pre><code>A number of `Mirror` projections, which were migrated
+in a single request during the process of `MirrorMigration`.
+
+The batch size for the migration is dictated by a `MirrorMigrationMonitor`. Hence, the value
+of this message is usually equal to the batch size. Only the last request is expected to
+return less or zero, indicating no records left to migrate.
+</code></pre> Protobuf type <code>spine.server.migration.mirror.MirrorsMigrated</code></td></tr>
 
     <tr class="rowColor"><th class="colFirst" scope="row"><a href=MirrorMigrationProto.html>MirrorMigrationProto</a></th><td class="colLast"></td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=MirrorsMigrated.Builder.html>Builder</a></th><td class="colLast"><pre><code>A number of `Mirror` projections, which were migrated
-in a single request during the process of `MirrorMigration`.
-
-The batch size for the migration is dictated by a `MirrorMigrationMonitor`. Hence, the value
-of this message is usually equal to the batch size. Only the last request is expected to
-return less or zero, indicating no records left to migrate.
-</code></pre> Protobuf type <code>spine.server.migration.mirror.MirrorsMigrated</code></td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=MirrorsMigrated.html>MirrorsMigrated</a></th><td class="colLast"><pre><code>A number of `Mirror` projections, which were migrated
-in a single request during the process of `MirrorMigration`.
-
-The batch size for the migration is dictated by a `MirrorMigrationMonitor`. Hence, the value
-of this message is usually equal to the batch size. Only the last request is expected to
-return less or zero, indicating no records left to migrate.
-</code></pre> Protobuf type <code>spine.server.migration.mirror.MirrorsMigrated</code></td></tr>
 </tbody>
 </table>
 

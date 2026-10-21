@@ -108,22 +108,34 @@ var pathtoroot = "../../../../";
     <div class="typeSummary">
 
 <table>
-<caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
-<th class="colFirst" scope="col">Interface</th>
+<th class="colFirst" scope="col">Class</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tbody>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=Storage.html>Storage</a></th><td class="colLast">The base interface for storages.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=MessageStorage.html>MessageStorage</a></th><td class="colLast">A storage that allows persisting the Messages as storage records.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=RecordSpec.ExtractId.html>ExtractId</a></th><td class="colLast">A method object to extract the value of a record identifier given an instance of a record.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AbstractStorage.html>AbstractStorage</a></th><td class="colLast">Abstract base for storages.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=StorageFactory.html>StorageFactory</a></th><td class="colLast">A factory for creating storages used by repositories, <a href=../event/EventStore.html>EventStore</a> and <a href=../delivery/Delivery.html>io.spine.server.delivery.Delivery</a>.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=RecordWithColumns.html>RecordWithColumns</a></th><td class="colLast">A value of some message record along with the values of its columns.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ColumnMapping.html>ColumnMapping</a></th><td class="colLast">The value mapping rules of record columns.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=QueryConverter.html>QueryConverter</a></th><td class="colLast">Converts the queries defined in Protobuf into the language of <code>io.spine.query</code> package.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=ColumnTypeMapping.html>ColumnTypeMapping</a></th><td class="colLast">A persistence strategy of an entity column.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=DelegatingRecordStorage.html>DelegatingRecordStorage</a></th><td class="colLast">A <a href=RecordStorage.html>RecordStorage</a> that delegates all of its operations to another instance of <code>RecordStorage</code>.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AbstractColumnMapping.html>AbstractColumnMapping</a></th><td class="colLast">The base implementation of mapping rules for the column values of a stored record.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=RecordStorage.html>RecordStorage</a></th><td class="colLast">An abstract base for storage implementations, which store the Protobuf messages as records.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=DefaultColumnMapping.html>DefaultColumnMapping</a></th><td class="colLast">A default column mapping that stores all values &quot;as-is&quot;.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=RecordSpec.html>RecordSpec</a></th><td class="colLast">Defines the specification of a record in a storage.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=FieldMaskApplier.html>FieldMaskApplier</a></th><td class="colLast">A <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html>Function</a> that returns the passed storage record as-is.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=StorageGroup.html>StorageGroup</a></th><td class="colLast">A named group differentiating the record storages that hold records of the same type.</td></tr>
 </tbody>
 </table>
 
@@ -140,34 +152,22 @@ var pathtoroot = "../../../../";
     <div class="typeSummary">
 
 <table>
-<caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
-<th class="colFirst" scope="col">Class</th>
+<th class="colFirst" scope="col">Interface</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tbody>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=DefaultColumnMapping.html>DefaultColumnMapping</a></th><td class="colLast">A default column mapping that stores all values &quot;as-is&quot;.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ColumnTypeMapping.html>ColumnTypeMapping</a></th><td class="colLast">A persistence strategy of an entity column.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=RecordWithColumns.html>RecordWithColumns</a></th><td class="colLast">A value of some message record along with the values of its columns.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=StorageFactory.html>StorageFactory</a></th><td class="colLast">A factory for creating storages used by repositories, <a href=../event/EventStore.html>EventStore</a> and <a href=../delivery/Delivery.html>io.spine.server.delivery.Delivery</a>.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=QueryConverter.html>QueryConverter</a></th><td class="colLast">Converts the queries defined in Protobuf into the language of <code>io.spine.query</code> package.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ColumnMapping.html>ColumnMapping</a></th><td class="colLast">The value mapping rules of record columns.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AbstractColumnMapping.html>AbstractColumnMapping</a></th><td class="colLast">The base implementation of mapping rules for the column values of a stored record.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Storage.html>Storage</a></th><td class="colLast">The base interface for storages.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=RecordSpec.html>RecordSpec</a></th><td class="colLast">Defines the specification of a record in a storage.</td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=RecordStorage.html>RecordStorage</a></th><td class="colLast">An abstract base for storage implementations, which store the Protobuf messages as records.</td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=DelegatingRecordStorage.html>DelegatingRecordStorage</a></th><td class="colLast">A <a href=RecordStorage.html>RecordStorage</a> that delegates all of its operations to another instance of <code>RecordStorage</code>.</td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=FieldMaskApplier.html>FieldMaskApplier</a></th><td class="colLast">A <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html>Function</a> that returns the passed storage record as-is.</td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=AbstractStorage.html>AbstractStorage</a></th><td class="colLast">Abstract base for storages.</td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=MessageStorage.html>MessageStorage</a></th><td class="colLast">A storage that allows persisting the Messages as storage records.</td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=StorageGroup.html>StorageGroup</a></th><td class="colLast">A named group differentiating the record storages that hold records of the same type.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=RecordSpec.ExtractId.html>ExtractId</a></th><td class="colLast">A method object to extract the value of a record identifier given an instance of a record.</td></tr>
 </tbody>
 </table>
 

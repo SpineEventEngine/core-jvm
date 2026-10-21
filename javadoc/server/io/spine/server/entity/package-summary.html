@@ -108,88 +108,30 @@ var pathtoroot = "../../../../";
     <div class="typeSummary">
 
 <table>
-<caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
-<th class="colFirst" scope="col">Class</th>
+<th class="colFirst" scope="col">Interface</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tbody>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventWhiteList.html>EventWhiteList</a></th><td class="colLast">An <a href=EventFilter.html>EventFilter</a> that allows only events of given types.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EntityFactory.html>EntityFactory</a></th><td class="colLast">Base interface for objects that can create entities.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Repository.html>Repository</a></th><td class="colLast">Abstract base class for repositories.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=WithLifecycle.html>WithLifecycle</a></th><td class="colLast">Something with <a href=LifecycleFlags.html>LifecycleFlags</a>.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=Migration.html>Migration</a></th><td class="colLast">A stored <a href=Entity.html>Entity</a> transformation done to account for the domain model changes.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventProducingRepository.html>EventProducingRepository</a></th><td class="colLast">Operations common for repositories that can post to <a href=../aggregate/AggregatePartRepository.html#eventBus()>EventBus</a>.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventDispatchingRepository.html>EventDispatchingRepository</a></th><td class="colLast">Abstract base for repositories that deliver events to entities they manage.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventFilter.html>EventFilter</a></th><td class="colLast">A filter accepting Events posted by a <a href=Repository.html>Repository</a>.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=RecordBasedRepository.html>RecordBasedRepository</a></th><td class="colLast">The base class for repositories that store entities as records.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EntityRecordChangeOrBuilder.html>EntityRecordChangeOrBuilder</a></th><td class="colLast"></td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventFieldFilter.Builder.html>Builder</a></th><td class="colLast">A builder for the <code>EventFieldFilter</code> instances.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=LifecycleFlagsOrBuilder.html>LifecycleFlagsOrBuilder</a></th><td class="colLast"></td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventFieldFilter.html>EventFieldFilter</a></th><td class="colLast">An <a href=EventFilter.html>EventFilter</a> that allows all the events but trims some of their message fields.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EntityStateKeyOrBuilder.html>EntityStateKeyOrBuilder</a></th><td class="colLast"></td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=StorageConverter.html>StorageConverter</a></th><td class="colLast">An abstract base for converters of entities into <a href=EntityRecord.html>EntityRecord</a>.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EntityRecordOrBuilder.html>EntityRecordOrBuilder</a></th><td class="colLast"></td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=InvalidEntityStateException.html>InvalidEntityStateException</a></th><td class="colLast">Signals that an entity state does not pass validation.</td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=DefaultEntityFactory.html>DefaultEntityFactory</a></th><td class="colLast">Default implementation of entity factory that creates entities by invoking constructor that accepts entity ID.</td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=CompositeEventFilter.Builder.html>Builder</a></th><td class="colLast">A builder for the <code>CompositeEventFilter</code> instances.</td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CompositeEventFilter.html>CompositeEventFilter</a></th><td class="colLast">An <a href=EventFilter.html>EventFilter</a> that composes several other filters.</td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventBlackList.html>EventBlackList</a></th><td class="colLast">An <a href=EventFilter.html>EventFilter</a> that allows any events except for the events of given types.</td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=FieldMasks.html>FieldMasks</a></th><td class="colLast">A utility class for creating instances of <code>FieldMask</code> and processing them against instances of Message.</td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=EntityStateKey.Builder.html>Builder</a></th><td class="colLast"><pre><code>Identifies a stored state of an entity: the entity and the version
-at which the state became current.
-
-Serves as the record key of the entity state history, so writing the state
-of the same entity at the same version again overwrites one record instead
-of creating a duplicate.
-</code></pre> Protobuf type <code>spine.server.entity.EntityStateKey</code></td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EntityStateKey.html>EntityStateKey</a></th><td class="colLast"><pre><code>Identifies a stored state of an entity: the entity and the version
-at which the state became current.
-
-Serves as the record key of the entity state history, so writing the state
-of the same entity at the same version again overwrites one record instead
-of creating a duplicate.
-</code></pre> Protobuf type <code>spine.server.entity.EntityStateKey</code></td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=EntityRecordChange.Builder.html>Builder</a></th><td class="colLast"><pre><code>The change in the state of an entity.
-</code></pre> Protobuf type <code>spine.server.entity.EntityRecordChange</code></td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EntityRecordChange.html>EntityRecordChange</a></th><td class="colLast"><pre><code>The change in the state of an entity.
-</code></pre> Protobuf type <code>spine.server.entity.EntityRecordChange</code></td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=EntityRecord.Builder.html>Builder</a></th><td class="colLast"><pre><code>The record for passing information about an entity.
-</code></pre> Protobuf type <code>spine.server.entity.EntityRecord</code></td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EntityRecord.html>EntityRecord</a></th><td class="colLast"><pre><code>The record for passing information about an entity.
-</code></pre> Protobuf type <code>spine.server.entity.EntityRecord</code></td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=StateKeyProto.html>StateKeyProto</a></th><td class="colLast"></td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=LifecycleFlags.Builder.html>Builder</a></th><td class="colLast"><pre><code>The lifecycle flags of an entity.
-</code></pre> Protobuf type <code>spine.server.entity.LifecycleFlags</code></td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=LifecycleFlags.html>LifecycleFlags</a></th><td class="colLast"><pre><code>The lifecycle flags of an entity.
-</code></pre> Protobuf type <code>spine.server.entity.LifecycleFlags</code></td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EntityProto.html>EntityProto</a></th><td class="colLast"></td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=AbstractEntity.html>AbstractEntity</a></th><td class="colLast">Abstract base for entities.</td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AbstractEntityRepository.html>AbstractEntityRepository</a></th><td class="colLast">Implementation of <a href=RecordBasedRepository.html>RecordBasedRepository</a> that manages entities derived from <a href=AbstractEntity.html>AbstractEntity</a>.</td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=SignalDispatchingEntity.html>SignalDispatchingEntity</a></th><td class="colLast">Abstract base for entities that dispatch signals — both commands and events — to their receptors.</td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=SignalDispatchingRepository.html>SignalDispatchingRepository</a></th><td class="colLast">Abstract base for repositories that dispatch signals — both events and commands — to the entities they manage.</td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=TransactionalEntity.html>TransactionalEntity</a></th><td class="colLast">A base for entities that perform transactions with events.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Entity.html>Entity</a></th><td class="colLast">A server-side object with an identity.</td></tr>
 </tbody>
 </table>
 
@@ -206,30 +148,88 @@ of creating a duplicate.
     <div class="typeSummary">
 
 <table>
-<caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
-<th class="colFirst" scope="col">Interface</th>
+<th class="colFirst" scope="col">Class</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tbody>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=WithLifecycle.html>WithLifecycle</a></th><td class="colLast">Something with <a href=LifecycleFlags.html>LifecycleFlags</a>.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=DefaultEntityFactory.html>DefaultEntityFactory</a></th><td class="colLast">Default implementation of entity factory that creates entities by invoking constructor that accepts entity ID.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventProducingRepository.html>EventProducingRepository</a></th><td class="colLast">Operations common for repositories that can post to <a href=../aggregate/AggregatePartRepository.html#eventBus()>EventBus</a>.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventFieldFilter.Builder.html>Builder</a></th><td class="colLast">A builder for the <code>EventFieldFilter</code> instances.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=EntityFactory.html>EntityFactory</a></th><td class="colLast">Base interface for objects that can create entities.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventFieldFilter.html>EventFieldFilter</a></th><td class="colLast">An <a href=EventFilter.html>EventFilter</a> that allows all the events but trims some of their message fields.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventFilter.html>EventFilter</a></th><td class="colLast">A filter accepting Events posted by a <a href=Repository.html>Repository</a>.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=InvalidEntityStateException.html>InvalidEntityStateException</a></th><td class="colLast">Signals that an entity state does not pass validation.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=EntityRecordChangeOrBuilder.html>EntityRecordChangeOrBuilder</a></th><td class="colLast"></td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=FieldMasks.html>FieldMasks</a></th><td class="colLast">A utility class for creating instances of <code>FieldMask</code> and processing them against instances of Message.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EntityRecordOrBuilder.html>EntityRecordOrBuilder</a></th><td class="colLast"></td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=RecordBasedRepository.html>RecordBasedRepository</a></th><td class="colLast">The base class for repositories that store entities as records.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=LifecycleFlagsOrBuilder.html>LifecycleFlagsOrBuilder</a></th><td class="colLast"></td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventDispatchingRepository.html>EventDispatchingRepository</a></th><td class="colLast">Abstract base for repositories that deliver events to entities they manage.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EntityStateKeyOrBuilder.html>EntityStateKeyOrBuilder</a></th><td class="colLast"></td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CompositeEventFilter.Builder.html>Builder</a></th><td class="colLast">A builder for the <code>CompositeEventFilter</code> instances.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=Entity.html>Entity</a></th><td class="colLast">A server-side object with an identity.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CompositeEventFilter.html>CompositeEventFilter</a></th><td class="colLast">An <a href=EventFilter.html>EventFilter</a> that composes several other filters.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Migration.html>Migration</a></th><td class="colLast">A stored <a href=Entity.html>Entity</a> transformation done to account for the domain model changes.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventWhiteList.html>EventWhiteList</a></th><td class="colLast">An <a href=EventFilter.html>EventFilter</a> that allows only events of given types.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=StorageConverter.html>StorageConverter</a></th><td class="colLast">An abstract base for converters of entities into <a href=EntityRecord.html>EntityRecord</a>.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventBlackList.html>EventBlackList</a></th><td class="colLast">An <a href=EventFilter.html>EventFilter</a> that allows any events except for the events of given types.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Repository.html>Repository</a></th><td class="colLast">Abstract base class for repositories.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=LifecycleFlags.Builder.html>Builder</a></th><td class="colLast"><pre><code>The lifecycle flags of an entity.
+</code></pre> Protobuf type <code>spine.server.entity.LifecycleFlags</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=LifecycleFlags.html>LifecycleFlags</a></th><td class="colLast"><pre><code>The lifecycle flags of an entity.
+</code></pre> Protobuf type <code>spine.server.entity.LifecycleFlags</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EntityRecord.Builder.html>Builder</a></th><td class="colLast"><pre><code>The record for passing information about an entity.
+</code></pre> Protobuf type <code>spine.server.entity.EntityRecord</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EntityRecord.html>EntityRecord</a></th><td class="colLast"><pre><code>The record for passing information about an entity.
+</code></pre> Protobuf type <code>spine.server.entity.EntityRecord</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=StateKeyProto.html>StateKeyProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EntityStateKey.Builder.html>Builder</a></th><td class="colLast"><pre><code>Identifies a stored state of an entity: the entity and the version
+at which the state became current.
+
+Serves as the record key of the entity state history, so writing the state
+of the same entity at the same version again overwrites one record instead
+of creating a duplicate.
+</code></pre> Protobuf type <code>spine.server.entity.EntityStateKey</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EntityStateKey.html>EntityStateKey</a></th><td class="colLast"><pre><code>Identifies a stored state of an entity: the entity and the version
+at which the state became current.
+
+Serves as the record key of the entity state history, so writing the state
+of the same entity at the same version again overwrites one record instead
+of creating a duplicate.
+</code></pre> Protobuf type <code>spine.server.entity.EntityStateKey</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EntityProto.html>EntityProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EntityRecordChange.Builder.html>Builder</a></th><td class="colLast"><pre><code>The change in the state of an entity.
+</code></pre> Protobuf type <code>spine.server.entity.EntityRecordChange</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EntityRecordChange.html>EntityRecordChange</a></th><td class="colLast"><pre><code>The change in the state of an entity.
+</code></pre> Protobuf type <code>spine.server.entity.EntityRecordChange</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AbstractEntity.html>AbstractEntity</a></th><td class="colLast">Abstract base for entities.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AbstractEntityRepository.html>AbstractEntityRepository</a></th><td class="colLast">Implementation of <a href=RecordBasedRepository.html>RecordBasedRepository</a> that manages entities derived from <a href=AbstractEntity.html>AbstractEntity</a>.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=SignalDispatchingEntity.html>SignalDispatchingEntity</a></th><td class="colLast">Abstract base for entities that dispatch signals — both commands and events — to their receptors.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=SignalDispatchingRepository.html>SignalDispatchingRepository</a></th><td class="colLast">Abstract base for repositories that dispatch signals — both events and commands — to the entities they manage.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=TransactionalEntity.html>TransactionalEntity</a></th><td class="colLast">A base for entities that perform transactions with events.</td></tr>
 </tbody>
 </table>
 

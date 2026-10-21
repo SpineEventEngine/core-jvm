@@ -1,0 +1,1338 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en"><head>
+    <title>AbstractEntity 2.0.0-SNAPSHOT.575 API </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="dc.created" content="2020-03-25">
+    <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../dokka-javadoc-stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../jquery/jquery-ui.css" title="Style">
+    <script type="text/javascript" src="../../../../jquery/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-migrate-3.4.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
+
+    <script type="text/javascript" src="../../../../search.js"></script>
+    <script async type="text/javascript" src="../../../../module-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../package-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../type-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../member-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../tag-search-index.js"></script>
+</head><body>
+<script type="text/javascript">
+var pathtoroot = "../../../../";
+</script>
+<noscript>
+    <div>JavaScript is disabled on your browser.</div>
+</noscript><header role="banner">
+    <nav role="navigation">
+        <div class="fixedNav">
+            <!-- ========= START OF TOP NAVBAR ======= -->
+            <div class="topNav"><a id="navbar.top">
+                <!--   -->
+            </a>
+                <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a>
+                </div>
+                <a id="navbar.top.firstrow">
+                    <!--   -->
+                </a>
+                <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+            <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" class="ui-autocomplete-input" autocomplete="off" placeholder="Search">
+<input type="reset" id="reset" value="reset">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ========= END OF TOP NAVBAR ========= -->
+        </div>
+        <div class="navPadding">&nbsp;</div>
+        <script type="text/javascript"><!--
+        $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+        //-->
+        </script>
+    </nav>
+</header>
+
+<main role="main">
+    <div class="header">
+        <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">io.spine.server.entity</a></div>
+        <h2 title="Class AbstractEntity" class="title">Class AbstractEntity</h2>
+    </div>
+    <div class="contentContainer">
+        <!-- <ul class="inheritance">
+            <li>java.lang.Object</li>
+            <li>
+                <ul class="inheritance">
+                    <li>adaptation.Adaptation</li>
+                </ul>
+            </li>
+        </ul> TODO inheritance tree -->
+        <div class="description">
+            <ul class="blockList">
+                <li class="blockList">
+                    
+                    <dl>
+                        <dt>All Implemented Interfaces:</dt>
+                        <dd>
+                            
+                            <code>io.spine.server.entity.Entity</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.entity.WithLifecycle</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.log.ReceptorLifecycle</code>
+                            
+                            
+                        </dd>
+                    </dl>
+                    
+                    <hr>
+                    <pre class="wrap-overflow">
+
+public abstract class <span class="typeNameLabel"><a href=AbstractEntity.html>AbstractEntity</a>&lt;I extends <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>, S extends EntityState&lt;<a href=AbstractEntity.html>I</a>&gt;&gt;</span>
+ implements <a href=Entity.html>Entity</a>&lt;<a href=AbstractEntity.html>I</a>, <a href=AbstractEntity.html>S</a>&gt;, <a href=../log/ReceptorLifecycle.html>ReceptorLifecycle</a>&lt;<a href=AbstractEntity.html>AbstractEntity</a>&lt;<a href=AbstractEntity.html>I</a>, <a href=AbstractEntity.html>S</a>&gt;&gt;
+                    </pre>
+                    <div class="block"><p>Abstract base for entities.</p></div>
+
+                    <dl>
+
+                    
+
+                    
+
+                    </dl>
+                </li>
+            </ul>
+        </div>
+        <div class="summary">
+            <ul class="blockList">
+                <li class="blockList">
+                <!-- ======== NESTED CLASS SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="nested.class.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Nested Class Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Class</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== FIELD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="field.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Field Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Field</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>private final <a href=AbstractEntity.html>I</a></code></td>
+                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#id>id</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="rowColor">
+                                            <td class="colFirst"><code>private final <a href=AbstractEntity.html>S</a></code></td>
+                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#state>state</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>private final Version</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#version>version</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="rowColor">
+                                            <td class="colFirst"><code>private final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a></code></td>
+                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#isActive>isActive</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>private  <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a></code></td>
+                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#isDeleted>isDeleted</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="rowColor">
+                                            <td class="colFirst"><code>private  <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a></code></td>
+                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#isArchived>isArchived</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>private final <a href=LifecycleFlags.html>LifecycleFlags</a></code></td>
+                                            <th class="colSecond" scope="row"><code><a href=AbstractEntity.html#lifecycleFlags>lifecycleFlags</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tbody>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Constructor</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+
+                                        
+                                            <tr class="altColor">
+                                                <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a
+                                                        href="#AbstractEntity()">AbstractEntity</a></span>()</code></th>
+                                                <td class="colLast">Creates a new instance with the zero version and cleared lifecycle flags.</td>
+                                            </tr>
+                                        
+                                            <tr class="rowColor">
+                                                <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a
+                                                        href="#AbstractEntity(I)">AbstractEntity</a></span>(<a href=AbstractEntity.html>I</a> id)</code></th>
+                                                <td class="colLast">Creates a new instance with the passed ID.</td>
+                                            </tr>
+                                        
+                                            <tr class="altColor">
+                                                <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a
+                                                        href="#AbstractEntity(I,java.util.function.Function)">AbstractEntity</a></span>(<a href=AbstractEntity.html>I</a> id, <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html>Function</a>&lt;<a href=AbstractEntity.html>I</a>, <a href=AbstractEntity.html>S</a>&gt; defaultState)</code></th>
+                                                <td class="colLast">Creates a new instance with the passed ID and default entity state obtained from the passed function.</td>
+                                            </tr>
+                                        
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== ENUM CONSTANT SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="enum.constant.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Enum Constant Summary</h3>
+                                <table class="memberSummary">
+                                    <caption><span>Enum Constants</span><span class="tabEnd">&nbsp;</span></caption>
+                                    <tr>
+                                        <th class="colFirst" scope="col">Enum Constant</th>
+                                        <th class="colLast" scope="col">Description</th>
+                                    </tr>
+                                    
+                                </table>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ========== METHOD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Method Summary</h3>
+                                <div class="memberSummary">
+                                    <div role="tablist" aria-orientation="horizontal">
+                                        <button role="tab" aria-selected="true" aria-controls="memberSummary_tabpanel" tabindex="0" onkeydown="switchTab(event)" id="t0" class="activeTableTab">All Methods</button>
+                                        <!-- TODO: Instance and Concrete Methods #1118 -->
+                                    </div>
+                                    <div id="memberSummary_tabpanel" role="tabpanel">
+                                    <table aria-labelledby="t0">
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Method</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                        <tr id="i0" class="altColor">
+                                            <td class="colFirst"><code>final <a href=AbstractEntity.html>I</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#getId()>getId</a>() </code>
+                                            </th>
+                                            <td class="colLast">The entity identifier.</td>
+                                        </tr>
+                                        
+                                        <tr id="i1" class="rowColor">
+                                            <td class="colFirst"><code>final <a href=AbstractEntity.html>S</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#getState()>getState</a>() </code>
+                                            </th>
+                                            <td class="colLast">The entity state.</td>
+                                        </tr>
+                                        
+                                        <tr id="i2" class="altColor">
+                                            <td class="colFirst"><code>final Version</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#getVersion()>getVersion</a>() </code>
+                                            </th>
+                                            <td class="colLast">The entity version.</td>
+                                        </tr>
+                                        
+                                        <tr id="i3" class="rowColor">
+                                            <td class="colFirst"><code><a href=AbstractEntity.html>I</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#id()>id</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains the identifier of the entity.</td>
+                                        </tr>
+                                        
+                                        <tr id="i4" class="altColor">
+                                            <td class="colFirst"><code>final <a href=AbstractEntity.html>S</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#state()>state</a>() </code>
+                                            </th>
+                                            <td class="colLast">If the state of the entity was not initialized, it is set to <a href=../aggregate/AggregatePart.html#defaultState()>default value</a> and returned.</td>
+                                        </tr>
+                                        
+                                        <tr id="i5" class="rowColor">
+                                            <td class="colFirst"><code>Version</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#version()>version</a>() </code>
+                                            </th>
+                                            <td class="colLast">Overrides to simplify implementation of entities implementing <a href=../EventProducer.html>io.spine.server.EventProducer</a>.</td>
+                                        </tr>
+                                        
+                                        <tr id="i6" class="altColor">
+                                            <td class="colFirst"><code>final <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#setId(I)>setId</a>(<a href=AbstractEntity.html>I</a> id) </code>
+                                            </th>
+                                            <td class="colLast">Assigns the ID to the entity.</td>
+                                        </tr>
+                                        
+                                        <tr id="i7" class="rowColor">
+                                            <td class="colFirst"><code>final <a href=AbstractEntity.html>S</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#defaultState()>defaultState</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains the default state of the entity.</td>
+                                        </tr>
+                                        
+                                        <tr id="i8" class="altColor">
+                                            <td class="colFirst"><code>final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html>List</a>&lt;ConstraintViolation&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#checkEntityState(S)>checkEntityState</a>(<a href=AbstractEntity.html>S</a> newState) </code>
+                                            </th>
+                                            <td class="colLast">Verifies the new entity state and returns ConstraintViolations, if any.</td>
+                                        </tr>
+                                        
+                                        <tr id="i9" class="rowColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#idAsString()>idAsString</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains the ID of the entity in the string form.</td>
+                                        </tr>
+                                        
+                                        <tr id="i10" class="altColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#toString()>toString</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i11" class="rowColor">
+                                            <td class="colFirst"><code><a href=LifecycleFlags.html>LifecycleFlags</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AbstractEntity.html#getLifecycleFlags()>getLifecycleFlags</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains current lifecycle flags.</td>
+                                        </tr>
+                                        
+                                        <tr id="i12" class="altColor">
+                                            <td class="colFirst"><code>final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#isArchived()>isArchived</a>() </code>
+                                            </th>
+                                            <td class="colLast">Tests whether the entity is marked as archived.</td>
+                                        </tr>
+                                        
+                                        <tr id="i13" class="rowColor">
+                                            <td class="colFirst"><code><a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AbstractEntity.html#setArchived(java.lang.Boolean)>setArchived</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a> archived) </code>
+                                            </th>
+                                            <td class="colLast">Sets <code>archived</code> status flag to the passed value.</td>
+                                        </tr>
+                                        
+                                        <tr id="i14" class="altColor">
+                                            <td class="colFirst"><code>final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#isDeleted()>isDeleted</a>() </code>
+                                            </th>
+                                            <td class="colLast">Tests whether the entity is marked as deleted.</td>
+                                        </tr>
+                                        
+                                        <tr id="i15" class="rowColor">
+                                            <td class="colFirst"><code><a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AbstractEntity.html#setDeleted(java.lang.Boolean)>setDeleted</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a> deleted) </code>
+                                            </th>
+                                            <td class="colLast">Sets <code>deleted</code> status flag to the passed value.</td>
+                                        </tr>
+                                        
+                                        <tr id="i16" class="altColor">
+                                            <td class="colFirst"><code><a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#checkNotArchived()>checkNotArchived</a>() </code>
+                                            </th>
+                                            <td class="colLast">Ensures that the entity is not marked as <code>archived</code>.</td>
+                                        </tr>
+                                        
+                                        <tr id="i17" class="rowColor">
+                                            <td class="colFirst"><code><a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#checkNotDeleted()>checkNotDeleted</a>() </code>
+                                            </th>
+                                            <td class="colLast">Ensures that the entity is not marked as <code>deleted</code>.</td>
+                                        </tr>
+                                        
+                                        <tr id="i18" class="altColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#lifecycleFlagsChanged()>lifecycleFlagsChanged</a>() </code>
+                                            </th>
+                                            <td class="colLast">Tells whether lifecycle flags of the entity have been changed since its initialization.</td>
+                                        </tr>
+                                        
+                                        <tr id="i19" class="rowColor">
+                                            <td class="colFirst"><code>Timestamp</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#whenModified()>whenModified</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains the timestamp of the entity version.</td>
+                                        </tr>
+                                        
+                                        <tr id="i20" class="altColor">
+                                            <td class="colFirst"><code>final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html>Optional</a>&lt;<a href=AbstractEntity.html>S</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#stateAt(com.google.protobuf.Timestamp)>stateAt</a>(Timestamp time) </code>
+                                            </th>
+                                            <td class="colLast">Obtains the state this entity had at the given time, if the recorded state history retains it.</td>
+                                        </tr>
+                                        
+                                        <tr id="i21" class="rowColor">
+                                            <td class="colFirst"><code>final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Iterator.html>Iterator</a>&lt;<a href=AbstractEntity.html>S</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#stateHistoryBackward(java.lang.Integer)>stateHistoryBackward</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html>Integer</a> depth) </code>
+                                            </th>
+                                            <td class="colLast">Creates an iterator over up to <a href=../aggregate/AggregatePart.html#stateHistoryBackward(java.lang.Integer)>depth</a> most recent recorded states of this entity, newest first.</td>
+                                        </tr>
+                                        
+                                        <tr id="i22" class="altColor">
+                                            <td class="colFirst"><code><a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#beforeInvoke(io.spine.server.model.Receptor)>beforeInvoke</a>(<a href=../model/Receptor.html>Receptor</a>&lt;<a href=AbstractEntity.html>AbstractEntity</a>&lt;<a href=AbstractEntity.html>I</a>, <a href=AbstractEntity.html>S</a>&gt;, ?, ?, ?&gt; method) </code>
+                                            </th>
+                                            <td class="colLast">Creates new ScopedLoggingContext containing the names of the types of the parameters of the given <a href=../model/Receptor.html>Receptor</a>.</td>
+                                        </tr>
+                                        
+                                        <tr id="i23" class="rowColor">
+                                            <td class="colFirst"><code><a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#afterInvoke(io.spine.server.model.Receptor)>afterInvoke</a>(<a href=../model/Receptor.html>Receptor</a>&lt;<a href=AbstractEntity.html>AbstractEntity</a>&lt;<a href=AbstractEntity.html>I</a>, <a href=AbstractEntity.html>S</a>&gt;, ?, ?, ?&gt; method) </code>
+                                            </th>
+                                            <td class="colLast">Releases the loggingContext installed by <a href=../aggregate/AggregatePart.html#beforeInvoke(io.spine.server.model.Receptor)>beforeInvoke</a>.</td>
+                                        </tr>
+                                        
+                                        <tr id="i24" class="altColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#equals(java.lang.Object)>equals</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a> other) </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr id="i25" class="rowColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html>Integer</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#hashCode()>hashCode</a>() </code>
+                                            </th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <ul class="blockList">
+                                
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.WithLifecycle">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.WithLifecycle</h3>
+                                            <code>isActive, lifecycleFlags</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.AbstractEntity">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.AbstractEntity</h3>
+                                            <code>getLifecycleFlags, isArchived, isDeleted, setArchived, setDeleted</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+                                        <!--   -->
+                                    </a>
+                                        <h3>Methods inherited from class&nbsp;java.lang.Object</h3>
+                                        <code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString,
+                                            wait, wait, wait</code></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+        <div class="details">
+            <ul class="blockList">
+                <li class="blockList">
+                    <!-- ========= CONSTRUCTOR DETAIL ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Detail</h3>
+                                
+                                <a name="AbstractEntity()"></a>
+                                <ul class="blockList">
+                                    <li class="blockList">
+                                        <h4>AbstractEntity</h4>
+                                        <pre>AbstractEntity()</pre>
+                                        <div class="block"><p>Creates a new instance with the zero version and cleared lifecycle flags.</p><p>When this constructor is called, the entity ID must be <a href=../aggregate/AggregatePart.html#setId(I)>set</a> before any other interactions with the instance.</p></div>
+                                        
+                                    </li>
+                                </ul>
+                                
+                                <a name="AbstractEntity(I)"></a>
+                                <ul class="blockList">
+                                    <li class="blockList">
+                                        <h4>AbstractEntity</h4>
+                                        <pre>AbstractEntity(<a href=AbstractEntity.html>I</a> id)</pre>
+                                        <div class="block"><p>Creates a new instance with the passed ID.</p></div>
+                                        
+                                    </li>
+                                </ul>
+                                
+                                <a name="AbstractEntity(I,java.util.function.Function)"></a>
+                                <ul class="blockList">
+                                    <li class="blockList">
+                                        <h4>AbstractEntity</h4>
+                                        <pre>AbstractEntity(<a href=AbstractEntity.html>I</a> id, <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html>Function</a>&lt;<a href=AbstractEntity.html>I</a>, <a href=AbstractEntity.html>S</a>&gt; defaultState)</pre>
+                                        <div class="block"><p>Creates a new instance with the passed ID and default entity state obtained from the passed function.</p></div>
+                                        
+                                        <dl>
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>id</code> - The ID of the new entity.</dd>
+                                            
+                                            
+                                            
+                                            <dd><code>defaultState</code> - The function to obtain a new entity state.</dd>
+                                            
+                                            
+                                        </dl>
+                                        
+                                    </li>
+                                </ul>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ============ METHOD DETAIL ========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Method Detail</h3>
+                                
+                                <a id="getId()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getId</h4>
+                                        <pre class="methodSignature"> final <a href=AbstractEntity.html>I</a> <a href=../aggregate/AggregatePart.html#getId()>getId</a>()</pre>
+                                        <div class="block"><p>The entity identifier.</p><p>A property shortcut for <code>id()</code>.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getState()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getState</h4>
+                                        <pre class="methodSignature"> final <a href=AbstractEntity.html>S</a> <a href=../aggregate/AggregatePart.html#getState()>getState</a>()</pre>
+                                        <div class="block"><p>The entity state.</p><p>A property shortcut for <code>state()</code>.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getVersion()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getVersion</h4>
+                                        <pre class="methodSignature"> final Version <a href=../aggregate/AggregatePart.html#getVersion()>getVersion</a>()</pre>
+                                        <div class="block"><p>The entity version.</p><p>A property shortcut for <code>version()</code>.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="id()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>id</h4>
+                                        <pre class="methodSignature"> <a href=AbstractEntity.html>I</a> <a href=../aggregate/AggregatePart.html#id()>id</a>()</pre>
+                                        <div class="block"><p>Obtains the identifier of the entity.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="state()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>state</h4>
+                                        <pre class="methodSignature"> final <a href=AbstractEntity.html>S</a> <a href=../aggregate/AggregatePart.html#state()>state</a>()</pre>
+                                        <div class="block"><p>If the state of the entity was not initialized, it is set to <a href=../aggregate/AggregatePart.html#defaultState()>default value</a> and returned.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>The current state or default state value.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="version()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>version</h4>
+                                        <pre class="methodSignature"> Version <a href=../aggregate/AggregatePart.html#version()>version</a>()</pre>
+                                        <div class="block"><p>Overrides to simplify implementation of entities implementing <a href=../EventProducer.html>io.spine.server.EventProducer</a>.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="setId(I)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setId</h4>
+                                        <pre class="methodSignature"> final <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a> <a href=../aggregate/AggregatePart.html#setId(I)>setId</a>(<a href=AbstractEntity.html>I</a> id)</pre>
+                                        <div class="block"><p>Assigns the ID to the entity.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="defaultState()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>defaultState</h4>
+                                        <pre class="methodSignature"> final <a href=AbstractEntity.html>S</a> <a href=../aggregate/AggregatePart.html#defaultState()>defaultState</a>()</pre>
+                                        <div class="block"><p>Obtains the default state of the entity.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="checkEntityState(S)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>checkEntityState</h4>
+                                        <pre class="methodSignature"> final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html>List</a>&lt;ConstraintViolation&gt; <a href=../aggregate/AggregatePart.html#checkEntityState(S)>checkEntityState</a>(<a href=AbstractEntity.html>S</a> newState)</pre>
+                                        <div class="block"><p>Verifies the new entity state and returns ConstraintViolations, if any.</p><p>The default implementation uses the message validation.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>newState</code> - A state object to replace the current state.</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>The constraint violations.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="idAsString()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>idAsString</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> <a href=../aggregate/AggregatePart.html#idAsString()>idAsString</a>()</pre>
+                                        <div class="block"><p>Obtains the ID of the entity in the string form.</p><p>Subsequent calls to the method return a cached instance of the string, which minimizes the performance impact of repeated calls.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>The string form of the entity ID.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="toString()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>toString</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> <a href=../aggregate/AggregatePart.html#toString()>toString</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="getLifecycleFlags()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getLifecycleFlags</h4>
+                                        <pre class="methodSignature"> <a href=LifecycleFlags.html>LifecycleFlags</a> <a href=AbstractEntity.html#getLifecycleFlags()>getLifecycleFlags</a>()</pre>
+                                        <div class="block"><p>Obtains current lifecycle flags.</p><p>API Note: This method is provided for mixing in with the generated code.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="isArchived()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>isArchived</h4>
+                                        <pre class="methodSignature"> final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a> <a href=../aggregate/AggregatePart.html#isArchived()>isArchived</a>()</pre>
+                                        <div class="block"><p>Tests whether the entity is marked as archived.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p><code>true</code> if the entity is archived, <code>false</code> otherwise.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="setArchived(java.lang.Boolean)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setArchived</h4>
+                                        <pre class="methodSignature"> <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a> <a href=AbstractEntity.html#setArchived(java.lang.Boolean)>setArchived</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a> archived)</pre>
+                                        <div class="block"><p>Sets <code>archived</code> status flag to the passed value.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="isDeleted()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>isDeleted</h4>
+                                        <pre class="methodSignature"> final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a> <a href=../aggregate/AggregatePart.html#isDeleted()>isDeleted</a>()</pre>
+                                        <div class="block"><p>Tests whether the entity is marked as deleted.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p><code>true</code> if the entity is deleted, <code>false</code> otherwise.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="setDeleted(java.lang.Boolean)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setDeleted</h4>
+                                        <pre class="methodSignature"> <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a> <a href=AbstractEntity.html#setDeleted(java.lang.Boolean)>setDeleted</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a> deleted)</pre>
+                                        <div class="block"><p>Sets <code>deleted</code> status flag to the passed value.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="checkNotArchived()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>checkNotArchived</h4>
+                                        <pre class="methodSignature"> <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a> <a href=../aggregate/AggregatePart.html#checkNotArchived()>checkNotArchived</a>()</pre>
+                                        <div class="block"><p>Ensures that the entity is not marked as <code>archived</code>.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="checkNotDeleted()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>checkNotDeleted</h4>
+                                        <pre class="methodSignature"> <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a> <a href=../aggregate/AggregatePart.html#checkNotDeleted()>checkNotDeleted</a>()</pre>
+                                        <div class="block"><p>Ensures that the entity is not marked as <code>deleted</code>.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="lifecycleFlagsChanged()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>lifecycleFlagsChanged</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a> <a href=../aggregate/AggregatePart.html#lifecycleFlagsChanged()>lifecycleFlagsChanged</a>()</pre>
+                                        <div class="block"><p>Tells whether lifecycle flags of the entity have been changed since its initialization.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="whenModified()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>whenModified</h4>
+                                        <pre class="methodSignature"> Timestamp <a href=../aggregate/AggregatePart.html#whenModified()>whenModified</a>()</pre>
+                                        <div class="block"><p>Obtains the timestamp of the entity version.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="stateAt(com.google.protobuf.Timestamp)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>stateAt</h4>
+                                        <pre class="methodSignature"> final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html>Optional</a>&lt;<a href=AbstractEntity.html>S</a>&gt; <a href=../aggregate/AggregatePart.html#stateAt(com.google.protobuf.Timestamp)>stateAt</a>(Timestamp time)</pre>
+                                        <div class="block"><p>Obtains the state this entity had at the given time, if the recorded state history retains it.</p><p>The result is the recorded state with the highest version among those which became current not later than the given time. The answer is honest about retention: an empty result means the question cannot be answered from the retained window — the time either precedes the oldest retained record, or predates the entity itself.</p><p>The state produced by the current, not-yet-stored dispatch is not recorded yet: a receptor reading the history observes the states persisted by the previous dispatches.</p><p>The state history is an opt-in feature — see <code>AbstractEntityRepository.recordStateHistory()</code>. Reading it while the repository of this entity does not record it is a configuration error. An entity created outside a repository has no recorded history and reads an empty <code>Optional</code>.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>time</code> - The point in time to look at.</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>The state at the given time, or an empty <code>Optional</code> if the          recorded history does not retain it.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="stateHistoryBackward(java.lang.Integer)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>stateHistoryBackward</h4>
+                                        <pre class="methodSignature"> final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Iterator.html>Iterator</a>&lt;<a href=AbstractEntity.html>S</a>&gt; <a href=../aggregate/AggregatePart.html#stateHistoryBackward(java.lang.Integer)>stateHistoryBackward</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html>Integer</a> depth)</pre>
+                                        <div class="block"><p>Creates an iterator over up to <a href=../aggregate/AggregatePart.html#stateHistoryBackward(java.lang.Integer)>depth</a> most recent recorded states of this entity, newest first.</p><p>Fewer states are returned if the recorded history retains fewer. The state produced by the current, not-yet-stored dispatch is not recorded yet: a receptor reading the history observes the states persisted by the previous dispatches.</p><p>The state history is an opt-in feature — see <code>AbstractEntityRepository.recordStateHistory()</code>. Reading it while the repository of this entity does not record it is a configuration error. An entity created outside a repository has no recorded history and reads an empty iterator.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>depth</code> - The maximal number of the most recent states to return; must be positive.</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>New iterator instance.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="beforeInvoke(io.spine.server.model.Receptor)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>beforeInvoke</h4>
+                                        <pre class="methodSignature">@OverridingMethodsMustInvokeSuper() <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a> <a href=../aggregate/AggregatePart.html#beforeInvoke(io.spine.server.model.Receptor)>beforeInvoke</a>(<a href=../model/Receptor.html>Receptor</a>&lt;<a href=AbstractEntity.html>AbstractEntity</a>&lt;<a href=AbstractEntity.html>I</a>, <a href=AbstractEntity.html>S</a>&gt;, ?, ?, ?&gt; method)</pre>
+                                        <div class="block"><p>Creates new ScopedLoggingContext containing the names of the types of the parameters of the given <a href=../model/Receptor.html>Receptor</a>.</p><p>The list will be displayed as <code>CONTEXT</code> metadata in a log record, iff the receptor performs logging.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>method</code> - <pre><code>     The receptor method that is going to be called.</code></pre></dd>
+                                            
+                                            
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="afterInvoke(io.spine.server.model.Receptor)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>afterInvoke</h4>
+                                        <pre class="methodSignature">@OverridingMethodsMustInvokeSuper() <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a> <a href=../aggregate/AggregatePart.html#afterInvoke(io.spine.server.model.Receptor)>afterInvoke</a>(<a href=../model/Receptor.html>Receptor</a>&lt;<a href=AbstractEntity.html>AbstractEntity</a>&lt;<a href=AbstractEntity.html>I</a>, <a href=AbstractEntity.html>S</a>&gt;, ?, ?, ?&gt; method)</pre>
+                                        <div class="block"><p>Releases the loggingContext installed by <a href=../aggregate/AggregatePart.html#beforeInvoke(io.spine.server.model.Receptor)>beforeInvoke</a>.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="equals(java.lang.Object)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>equals</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a> <a href=../aggregate/AggregatePart.html#equals(java.lang.Object)>equals</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a> other)</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="hashCode()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockListLast"
+                                          >
+                                    <li class="blockList">
+                                        <h4>hashCode</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html>Integer</a> <a href=../aggregate/AggregatePart.html#hashCode()>hashCode</a>()</pre>
+                                        <div class="block"></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+    </div>
+</main>
+<footer role="contentinfo">
+    <nav role="navigation">
+        <!-- ======= START OF BOTTOM NAVBAR ====== -->
+        <div class="bottomNav"><a id="navbar.bottom">
+            <!--   -->
+        </a>
+            <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a>
+            </div>
+            <a id="navbar.bottom.firstrow">
+                <!--   -->
+            </a>
+            <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+        <a id="skip.navbar.bottom">
+            <!--   -->
+        </a>
+        <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ======== END OF BOTTOM NAVBAR ======= -->
+    </nav>
+</footer><ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" id="ui-id-1" tabindex="0"
+    style="display: none;"></ul>
+<span role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></span>
+</body>
+</html>

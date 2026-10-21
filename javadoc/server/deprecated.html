@@ -117,20 +117,6 @@ var pathtoroot = "";
                             
                                 <tr class="altColor">
                                     <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/server/model/NothingOrBuilder.html">io.spine.server.model.NothingOrBuilder</a>
-                                    </th>
-                                    <td class="colLast"></td>
-                                </tr>
-                            
-                                <tr class="rowColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/server/model/DoNothingOrBuilder.html">io.spine.server.model.DoNothingOrBuilder</a>
-                                    </th>
-                                    <td class="colLast"></td>
-                                </tr>
-                            
-                                <tr class="altColor">
-                                    <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/server/aggregate/AggregateRootDirectory.html">io.spine.server.aggregate.AggregateRootDirectory</a>
                                     </th>
                                     <td class="colLast">A mapping of aggregate roots to the associated <a href=io/spine/server/aggregate/AggregatePart.html>parts</a>.</td>
@@ -145,6 +131,20 @@ var pathtoroot = "";
                             
                                 <tr class="altColor">
                                     <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/aggregate/AggregateEventRecordIdOrBuilder.html">io.spine.server.aggregate.AggregateEventRecordIdOrBuilder</a>
+                                    </th>
+                                    <td class="colLast"></td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/aggregate/AggregateEventRecordOrBuilder.html">io.spine.server.aggregate.AggregateEventRecordOrBuilder</a>
+                                    </th>
+                                    <td class="colLast"></td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/server/aggregate/SnapshotOrBuilder.html">io.spine.server.aggregate.SnapshotOrBuilder</a>
                                     </th>
                                     <td class="colLast"></td>
@@ -152,14 +152,14 @@ var pathtoroot = "";
                             
                                 <tr class="rowColor">
                                     <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/server/aggregate/AggregateEventRecordIdOrBuilder.html">io.spine.server.aggregate.AggregateEventRecordIdOrBuilder</a>
+                                        <a href="io/spine/server/model/NothingOrBuilder.html">io.spine.server.model.NothingOrBuilder</a>
                                     </th>
                                     <td class="colLast"></td>
                                 </tr>
                             
                                 <tr class="altColor">
                                     <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/server/aggregate/AggregateEventRecordOrBuilder.html">io.spine.server.aggregate.AggregateEventRecordOrBuilder</a>
+                                        <a href="io/spine/server/model/DoNothingOrBuilder.html">io.spine.server.model.DoNothingOrBuilder</a>
                                     </th>
                                     <td class="colLast"></td>
                                 </tr>
@@ -182,42 +182,16 @@ var pathtoroot = "";
                             
                                 <tr class="altColor">
                                     <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/server/model/DoNothing.html">io.spine.server.model.DoNothing</a>
-                                    </th>
-                                    <td class="colLast"><pre><code>A system command that implies no action.
-
-Use this command type when a commanding method does not produce any output in response to
-an event.
-
-This type is treated by the framework in a special way. A `DoNothing` command is never posted
-for processing after being emitted. Neither is it stored.
-
-There can be no handlers for a `DoNothing` command.
-
-Deprecated: please use `spine.server.command.DoNothing` instead.
-</code></pre> Protobuf type <code>spine.server.model.DoNothing</code></td>
-                                </tr>
-                            
-                                <tr class="rowColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/server/model/Nothing.html">io.spine.server.model.Nothing</a>
-                                    </th>
-                                    <td class="colLast"><pre><code>Deprecated: please use `spine.server.event.NoReaction` instead.
-</code></pre> Protobuf type <code>spine.server.model.Nothing</code></td>
-                                </tr>
-                            
-                                <tr class="altColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/server/storage/FieldMaskApplier.html">io.spine.server.storage.FieldMaskApplier</a>
-                                    </th>
-                                    <td class="colLast">A <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html>Function</a> that returns the passed storage record as-is.</td>
-                                </tr>
-                            
-                                <tr class="rowColor">
-                                    <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/server/aggregate/Apply.html">io.spine.server.aggregate.Apply</a>
                                     </th>
                                     <td class="colLast">Marks a method of an aggregate as an <i>event applier</i> — a method that modifies the aggregate's state from a played event.</td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/aggregate/AggregatePartRepository.html">io.spine.server.aggregate.AggregatePartRepository</a>
+                                    </th>
+                                    <td class="colLast">Common abstract base for repositories that manage <code>AggregatePart</code>s.</td>
                                 </tr>
                             
                                 <tr class="altColor">
@@ -229,9 +203,17 @@ Deprecated: please use `spine.server.command.DoNothing` instead.
                             
                                 <tr class="rowColor">
                                     <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/server/aggregate/AggregatePartRepository.html">io.spine.server.aggregate.AggregatePartRepository</a>
+                                        <a href="io/spine/server/aggregate/AggregateHistory.html">io.spine.server.aggregate.AggregateHistory</a>
                                     </th>
-                                    <td class="colLast">Common abstract base for repositories that manage <code>AggregatePart</code>s.</td>
+                                    <td class="colLast"><pre><code>The recorded history of an aggregate: the sequence of events it emitted.
+
+Retained for wire compatibility; no longer produced or read by the runtime.
+Since the event-sourcing cutover, aggregate state is no longer restored by
+replaying the history, so the &quot;snapshot plus tail&quot; semantics of this message
+no longer hold. The journal now stores plain `spine.core.Event`s directly,
+with no dedicated wrapper type. The field-level comments below describe the
+historical (pre-cutover) semantics.
+</code></pre> Protobuf type <code>spine.server.aggregate.AggregateHistory</code></td>
                                 </tr>
                             
                                 <tr class="altColor">
@@ -265,21 +247,6 @@ a snapshot.
                             
                                 <tr class="altColor">
                                     <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/server/aggregate/AggregateHistory.html">io.spine.server.aggregate.AggregateHistory</a>
-                                    </th>
-                                    <td class="colLast"><pre><code>The recorded history of an aggregate: the sequence of events it emitted.
-
-Retained for wire compatibility; no longer produced or read by the runtime.
-Since the event-sourcing cutover, aggregate state is no longer restored by
-replaying the history, so the &quot;snapshot plus tail&quot; semantics of this message
-no longer hold. The journal now stores plain `spine.core.Event`s directly,
-with no dedicated wrapper type. The field-level comments below describe the
-historical (pre-cutover) semantics.
-</code></pre> Protobuf type <code>spine.server.aggregate.AggregateHistory</code></td>
-                                </tr>
-                            
-                                <tr class="rowColor">
-                                    <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/server/aggregate/AggregateEventRecordId.html">io.spine.server.aggregate.AggregateEventRecordId</a>
                                     </th>
                                     <td class="colLast"><pre><code>An identifier of an `AggregateEventRecord`.
@@ -290,18 +257,51 @@ The current journal needs no dedicated identifier type: it stores plain
 </code></pre> Protobuf type <code>spine.server.aggregate.AggregateEventRecordId</code></td>
                                 </tr>
                             
-                                <tr class="altColor">
+                                <tr class="rowColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/server/aggregate/AggregatePart.html">io.spine.server.aggregate.AggregatePart</a>
                                     </th>
                                     <td class="colLast">A part of a larger aggregate.</td>
                                 </tr>
                             
-                                <tr class="rowColor">
+                                <tr class="altColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/server/aggregate/model/AggregatePartClass.html">io.spine.server.aggregate.model.AggregatePartClass</a>
                                     </th>
                                     <td class="colLast">Provides type information on an aggregate part class.</td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/model/Nothing.html">io.spine.server.model.Nothing</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>Deprecated: please use `spine.server.event.NoReaction` instead.
+</code></pre> Protobuf type <code>spine.server.model.Nothing</code></td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/model/DoNothing.html">io.spine.server.model.DoNothing</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>A system command that implies no action.
+
+Use this command type when a commanding method does not produce any output in response to
+an event.
+
+This type is treated by the framework in a special way. A `DoNothing` command is never posted
+for processing after being emitted. Neither is it stored.
+
+There can be no handlers for a `DoNothing` command.
+
+Deprecated: please use `spine.server.command.DoNothing` instead.
+</code></pre> Protobuf type <code>spine.server.model.DoNothing</code></td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/storage/FieldMaskApplier.html">io.spine.server.storage.FieldMaskApplier</a>
+                                    </th>
+                                    <td class="colLast">A <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html>Function</a> that returns the passed storage record as-is.</td>
                                 </tr>
                             
                         </table>
@@ -322,34 +322,6 @@ The current journal needs no dedicated identifier type: it stores plain
                             
                                 <tr class="altColor">
                                     <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/server/ServerEnvironment.html#when(java.lang.Class)">io.spine.server.when(java.lang.Class)</a>
-                                    </th>
-                                    <td class="colLast">Starts a flowing API chain for configuring <code>ServerEnvironment</code> for the passed type.</td>
-                                </tr>
-                            
-                                <tr class="rowColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/server/procman/ProcessManager.html#nothing()">io.spine.server.nothing()</a>
-                                    </th>
-                                    <td class="colLast">Obtains the <a href=io/spine/server/model/Nothing.html>Nothing</a> event message.</td>
-                                </tr>
-                            
-                                <tr class="altColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/server/GrpcContainer.Builder.html#port()">io.spine.server.port()</a>
-                                    </th>
-                                    <td class="colLast">Obtains the port of the connection, or empty <code>Optional</code> for in-process connection.</td>
-                                </tr>
-                            
-                                <tr class="rowColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/server/GrpcContainer.Builder.html#serverName()">io.spine.server.serverName()</a>
-                                    </th>
-                                    <td class="colLast">Obtains the name of the in-process connection, or empty <code>Optional</code> if the connection is made via a port.</td>
-                                </tr>
-                            
-                                <tr class="altColor">
-                                    <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/server/BoundedContextBuilder.html#tenantIndex()">io.spine.server.tenantIndex()</a>
                                     </th>
                                     <td class="colLast">Obtains <code>TenantIndex</code> implementation associated with the Bounded Context.</td>
@@ -364,42 +336,70 @@ The current journal needs no dedicated identifier type: it stores plain
                             
                                 <tr class="altColor">
                                     <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/ServerEnvironment.html#when(java.lang.Class)">io.spine.server.when(java.lang.Class)</a>
+                                    </th>
+                                    <td class="colLast">Starts a flowing API chain for configuring <code>ServerEnvironment</code> for the passed type.</td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/Server.Builder.html#port()">io.spine.server.port()</a>
+                                    </th>
+                                    <td class="colLast">Obtains the port of the connection, or empty <code>Optional</code> for in-process connection.</td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/Server.Builder.html#serverName()">io.spine.server.serverName()</a>
+                                    </th>
+                                    <td class="colLast">Obtains the name of the in-process connection, or empty <code>Optional</code> if the connection is made via a port.</td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/server/GrpcContainer.html#port()">io.spine.server.port()</a>
                                     </th>
                                     <td class="colLast">Obtains the port at which the container is exposed, or empty <code>Optional</code> if this is an in-process container.</td>
                                 </tr>
                             
-                                <tr class="rowColor">
+                                <tr class="altColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/server/GrpcContainer.html#serverName()">io.spine.server.serverName()</a>
                                     </th>
                                     <td class="colLast">Obtains the name of the in-process server, or empty <code>Optinal</code> if the container is exposed at a port.</td>
                                 </tr>
                             
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/command/SingleCommandAssignee.html#nothing()">io.spine.server.nothing()</a>
+                                    </th>
+                                    <td class="colLast">Obtains the <a href=io/spine/server/model/Nothing.html>Nothing</a> event message.</td>
+                                </tr>
+                            
                                 <tr class="altColor">
                                     <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/server/event/store/DefaultEventStore.html#read(I,com.google.protobuf.FieldMask)">io.spine.server.storage.read(I,com.google.protobuf.FieldMask)</a>
+                                        <a href="io/spine/server/tenant/TenantStorage.html#read(I,com.google.protobuf.FieldMask)">io.spine.server.storage.read(I,com.google.protobuf.FieldMask)</a>
                                     </th>
                                     <td class="colLast">Reads the record by the passed identifier ignoring the passed field mask.</td>
                                 </tr>
                             
                                 <tr class="rowColor">
                                     <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/server/event/store/DefaultEventStore.html#readAll(java.lang.Iterable,com.google.protobuf.FieldMask)">io.spine.server.storage.readAll(java.lang.Iterable,com.google.protobuf.FieldMask)</a>
+                                        <a href="io/spine/server/tenant/TenantStorage.html#readAll(java.lang.Iterable,com.google.protobuf.FieldMask)">io.spine.server.storage.readAll(java.lang.Iterable,com.google.protobuf.FieldMask)</a>
                                     </th>
                                     <td class="colLast">Reads the records by the passed identifiers ignoring the passed field mask.</td>
                                 </tr>
                             
                                 <tr class="altColor">
                                     <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/server/event/store/DefaultEventStore.html#toQuery(I,com.google.protobuf.FieldMask)">io.spine.server.storage.toQuery(I,com.google.protobuf.FieldMask)</a>
+                                        <a href="io/spine/server/tenant/TenantStorage.html#toQuery(I,com.google.protobuf.FieldMask)">io.spine.server.storage.toQuery(I,com.google.protobuf.FieldMask)</a>
                                     </th>
                                     <td class="colLast">Creates a new query that targets the single record with the specified ID ignoring the passed field mask.</td>
                                 </tr>
                             
                                 <tr class="rowColor">
                                     <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/server/event/store/DefaultEventStore.html#toQuery(java.lang.Iterable,com.google.protobuf.FieldMask)">io.spine.server.storage.toQuery(java.lang.Iterable,com.google.protobuf.FieldMask)</a>
+                                        <a href="io/spine/server/tenant/TenantStorage.html#toQuery(java.lang.Iterable,com.google.protobuf.FieldMask)">io.spine.server.storage.toQuery(java.lang.Iterable,com.google.protobuf.FieldMask)</a>
                                     </th>
                                     <td class="colLast">Creates a new query for the targets that have one of the passed identifiers ignoring the passed field mask.</td>
                                 </tr>
@@ -469,23 +469,9 @@ The current journal needs no dedicated identifier type: it stores plain
                             
                                 <tr class="rowColor">
                                     <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/server/command/Commander.html#nothing()">io.spine.server.nothing()</a>
+                                        <a href="io/spine/server/aggregate/AggregateRepository.html#loadAll(java.lang.Iterable,com.google.protobuf.FieldMask)">io.spine.server.entity.loadAll(java.lang.Iterable,com.google.protobuf.FieldMask)</a>
                                     </th>
-                                    <td class="colLast">Obtains the <a href=io/spine/server/model/Nothing.html>Nothing</a> event message.</td>
-                                </tr>
-                            
-                                <tr class="altColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/server/command/Assignee.html#nothing()">io.spine.server.nothing()</a>
-                                    </th>
-                                    <td class="colLast">Obtains the <a href=io/spine/server/model/Nothing.html>Nothing</a> event message.</td>
-                                </tr>
-                            
-                                <tr class="rowColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/server/command/CommandReceiver.html#nothing()">io.spine.server.nothing()</a>
-                                    </th>
-                                    <td class="colLast">Obtains the <a href=io/spine/server/model/Nothing.html>Nothing</a> event message.</td>
+                                    <td class="colLast"></td>
                                 </tr>
                             
                                 <tr class="altColor">
@@ -518,105 +504,35 @@ The current journal needs no dedicated identifier type: it stores plain
                             
                                 <tr class="altColor">
                                     <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/server/procman/ProcessManagerRepository.html#loadAll(java.lang.Iterable,com.google.protobuf.FieldMask)">io.spine.server.entity.loadAll(java.lang.Iterable,com.google.protobuf.FieldMask)</a>
-                                    </th>
-                                    <td class="colLast"></td>
-                                </tr>
-                            
-                                <tr class="rowColor">
-                                    <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/server/entity/storage/EntityRecordStorage.html#readAll(java.lang.Iterable,com.google.protobuf.FieldMask)">io.spine.server.entity.storage.readAll(java.lang.Iterable,com.google.protobuf.FieldMask)</a>
                                     </th>
                                     <td class="colLast">Reads the entity records by the passed record identifiers.</td>
                                 </tr>
                             
-                                <tr class="altColor">
+                                <tr class="rowColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/server/entity/storage/HistoryStorage.html#readAll(java.lang.Iterable,com.google.protobuf.FieldMask)">io.spine.server.storage.readAll(java.lang.Iterable,com.google.protobuf.FieldMask)</a>
                                     </th>
                                     <td class="colLast"></td>
                                 </tr>
                             
-                                <tr class="rowColor">
+                                <tr class="altColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/server/entity/storage/HistoryStorage.html#read(K,com.google.protobuf.FieldMask)">io.spine.server.storage.read(io.spine.core.EventId,com.google.protobuf.FieldMask)</a>
                                     </th>
                                     <td class="colLast"></td>
                                 </tr>
                             
-                                <tr class="altColor">
+                                <tr class="rowColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/server/entity/storage/HistoryStorage.html#toQuery(K,com.google.protobuf.FieldMask)">io.spine.server.storage.toQuery(io.spine.core.EventId,com.google.protobuf.FieldMask)</a>
                                     </th>
                                     <td class="colLast"></td>
                                 </tr>
                             
-                                <tr class="rowColor">
+                                <tr class="altColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/server/entity/storage/HistoryStorage.html#toQuery(java.lang.Iterable,com.google.protobuf.FieldMask)">io.spine.server.storage.toQuery(java.lang.Iterable,com.google.protobuf.FieldMask)</a>
-                                    </th>
-                                    <td class="colLast"></td>
-                                </tr>
-                            
-                                <tr class="altColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/server/storage/memory/InMemoryRecordStorage.html#read(I,com.google.protobuf.FieldMask)">io.spine.server.storage.read(I,com.google.protobuf.FieldMask)</a>
-                                    </th>
-                                    <td class="colLast">Reads the message record by the passed identifier.</td>
-                                </tr>
-                            
-                                <tr class="rowColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/server/storage/memory/InMemoryRecordStorage.html#readAll(java.lang.Iterable,com.google.protobuf.FieldMask)">io.spine.server.storage.readAll(java.lang.Iterable,com.google.protobuf.FieldMask)</a>
-                                    </th>
-                                    <td class="colLast">Reads all the message records according to the passed record identifiers.</td>
-                                </tr>
-                            
-                                <tr class="altColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/server/storage/memory/InMemoryRecordStorage.html#toQuery(I,com.google.protobuf.FieldMask)">io.spine.server.storage.toQuery(I,com.google.protobuf.FieldMask)</a>
-                                    </th>
-                                    <td class="colLast">Creates a new query that targets the single record with the specified ID.</td>
-                                </tr>
-                            
-                                <tr class="rowColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/server/storage/memory/InMemoryRecordStorage.html#toQuery(java.lang.Iterable,com.google.protobuf.FieldMask)">io.spine.server.storage.toQuery(java.lang.Iterable,com.google.protobuf.FieldMask)</a>
-                                    </th>
-                                    <td class="colLast">Creates a new query for the targets that have one of the passed identifiers.</td>
-                                </tr>
-                            
-                                <tr class="altColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/server/aggregate/Apply.html#allowImport()">io.spine.server.aggregate.allowImport()</a>
-                                    </th>
-                                    <td class="colLast">Formerly enabled importing of events into the aggregate.</td>
-                                </tr>
-                            
-                                <tr class="rowColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/server/aggregate/AggregateEventRecord.KindCase.html#valueOf(int)">io.spine.server.aggregate.valueOf(int)</a>
-                                    </th>
-                                    <td class="colLast"></td>
-                                </tr>
-                            
-                                <tr class="altColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/server/aggregate/AggregatePart.html#historyBackward()">io.spine.server.aggregate.historyBackward()</a>
-                                    </th>
-                                    <td class="colLast">Creates an iterator of the aggregate event history with reverse traversal.</td>
-                                </tr>
-                            
-                                <tr class="rowColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/server/aggregate/AggregatePart.html#historyContains(java.util.function.Predicate)">io.spine.server.aggregate.historyContains(java.util.function.Predicate)</a>
-                                    </th>
-                                    <td class="colLast">Verifies if the aggregate history contains an event that satisfies the passed predicate.</td>
-                                </tr>
-                            
-                                <tr class="altColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/server/integration/ExternalMessageValidationError.html#valueOf(int)">io.spine.server.integration.valueOf(int)</a>
                                     </th>
                                     <td class="colLast"></td>
                                 </tr>
@@ -633,6 +549,90 @@ The current journal needs no dedicated identifier type: it stores plain
                                         <a href="io/spine/server/event/Just.html#nothing()">io.spine.server.event.nothing()</a>
                                     </th>
                                     <td class="colLast">Obtains the instance of <code>Just&lt;Noting&gt;</code> for Java code.</td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/aggregate/Apply.html#allowImport()">io.spine.server.aggregate.allowImport()</a>
+                                    </th>
+                                    <td class="colLast">Formerly enabled importing of events into the aggregate.</td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/aggregate/AggregateEventRecord.KindCase.html#valueOf(int)">io.spine.server.aggregate.valueOf(int)</a>
+                                    </th>
+                                    <td class="colLast"></td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/aggregate/AggregatePart.html#historyBackward()">io.spine.server.aggregate.historyBackward()</a>
+                                    </th>
+                                    <td class="colLast">Creates an iterator of the aggregate event history with reverse traversal.</td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/aggregate/AggregatePart.html#historyContains(java.util.function.Predicate)">io.spine.server.aggregate.historyContains(java.util.function.Predicate)</a>
+                                    </th>
+                                    <td class="colLast">Verifies if the aggregate history contains an event that satisfies the passed predicate.</td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/storage/memory/InMemoryRecordStorage.html#read(I,com.google.protobuf.FieldMask)">io.spine.server.storage.read(I,com.google.protobuf.FieldMask)</a>
+                                    </th>
+                                    <td class="colLast">Reads the message record by the passed identifier.</td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/storage/memory/InMemoryRecordStorage.html#readAll(java.lang.Iterable,com.google.protobuf.FieldMask)">io.spine.server.storage.readAll(java.lang.Iterable,com.google.protobuf.FieldMask)</a>
+                                    </th>
+                                    <td class="colLast">Reads all the message records according to the passed record identifiers.</td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/storage/memory/InMemoryRecordStorage.html#toQuery(I,com.google.protobuf.FieldMask)">io.spine.server.storage.toQuery(I,com.google.protobuf.FieldMask)</a>
+                                    </th>
+                                    <td class="colLast">Creates a new query that targets the single record with the specified ID.</td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/storage/memory/InMemoryRecordStorage.html#toQuery(java.lang.Iterable,com.google.protobuf.FieldMask)">io.spine.server.storage.toQuery(java.lang.Iterable,com.google.protobuf.FieldMask)</a>
+                                    </th>
+                                    <td class="colLast">Creates a new query for the targets that have one of the passed identifiers.</td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/integration/ExternalMessageValidationError.html#valueOf(int)">io.spine.server.integration.valueOf(int)</a>
+                                    </th>
+                                    <td class="colLast"></td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/command/Assignee.html#nothing()">io.spine.server.nothing()</a>
+                                    </th>
+                                    <td class="colLast">Obtains the <a href=io/spine/server/model/Nothing.html>Nothing</a> event message.</td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/command/Commander.html#nothing()">io.spine.server.nothing()</a>
+                                    </th>
+                                    <td class="colLast">Obtains the <a href=io/spine/server/model/Nothing.html>Nothing</a> event message.</td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/server/command/CommandReceiver.html#nothing()">io.spine.server.nothing()</a>
+                                    </th>
+                                    <td class="colLast">Obtains the <a href=io/spine/server/model/Nothing.html>Nothing</a> event message.</td>
                                 </tr>
                             
                                 <tr class="rowColor">
@@ -663,6 +663,34 @@ Deprecated: use `duplicate_event` instead.
 
 Deprecated: use `duplicate_event` instead.
 </code></pre><code>.spine.core.EventId event = 2 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/EntityColumnsOrBuilder.html#getColumns()">io.spine.system.server.getColumns()</a>
+                                    </th>
+                                    <td class="colLast">Use <a href=io/spine/system/server/EntityColumnsOrBuilder.html#getColumnsMap()>getColumnsMap</a> instead.</td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/EntityColumns.Builder.html#getColumns()">io.spine.system.server.getColumns()</a>
+                                    </th>
+                                    <td class="colLast">Use <a href=io/spine/system/server/EntityColumns.Builder.html#getColumnsMap()>getColumnsMap</a> instead.</td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/EntityColumns.Builder.html#getMutableColumns()">io.spine.system.server.getMutableColumns()</a>
+                                    </th>
+                                    <td class="colLast">Use alternate mutation accessors instead.</td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/system/server/EntityColumns.html#getColumns()">io.spine.system.server.getColumns()</a>
+                                    </th>
+                                    <td class="colLast">Use <a href=io/spine/system/server/EntityColumns.html#getColumnsMap()>getColumnsMap</a> instead.</td>
                                 </tr>
                             
                                 <tr class="altColor">
@@ -777,19 +805,12 @@ Deprecated: use `duplicate_event` instead.
                             
                                 <tr class="rowColor">
                                     <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/system/server/EntityColumnsOrBuilder.html#getColumns()">io.spine.system.server.getColumns()</a>
-                                    </th>
-                                    <td class="colLast">Use <a href=io/spine/system/server/EntityColumnsOrBuilder.html#getColumnsMap()>getColumnsMap</a> instead.</td>
-                                </tr>
-                            
-                                <tr class="altColor">
-                                    <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/system/server/EntityTypeName.ImplCase.html#valueOf(int)">io.spine.system.server.valueOf(int)</a>
                                     </th>
                                     <td class="colLast"></td>
                                 </tr>
                             
-                                <tr class="rowColor">
+                                <tr class="altColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/system/server/CannotDispatchDuplicateCommandOrBuilder.html#hasCommand()">io.spine.system.server.hasCommand()</a>
                                     </th>
@@ -799,7 +820,7 @@ Deprecated: use `duplicate_command` instead.
 </code></pre><code>.spine.core.CommandId command = 2 [deprecated = true];</code></td>
                                 </tr>
                             
-                                <tr class="altColor">
+                                <tr class="rowColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/system/server/CannotDispatchDuplicateCommandOrBuilder.html#getCommand()">io.spine.system.server.getCommand()</a>
                                     </th>
@@ -809,7 +830,7 @@ Deprecated: use `duplicate_command` instead.
 </code></pre><code>.spine.core.CommandId command = 2 [deprecated = true];</code></td>
                                 </tr>
                             
-                                <tr class="rowColor">
+                                <tr class="altColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/system/server/CannotDispatchDuplicateCommandOrBuilder.html#getCommandOrBuilder()">io.spine.system.server.getCommandOrBuilder()</a>
                                     </th>
@@ -819,7 +840,7 @@ Deprecated: use `duplicate_command` instead.
 </code></pre><code>.spine.core.CommandId command = 2 [deprecated = true];</code></td>
                                 </tr>
                             
-                                <tr class="altColor">
+                                <tr class="rowColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/system/server/CannotDispatchDuplicateCommand.Builder.html#hasCommand()">io.spine.system.server.hasCommand()</a>
                                     </th>
@@ -829,7 +850,7 @@ Deprecated: use `duplicate_command` instead.
 </code></pre><code>.spine.core.CommandId command = 2 [deprecated = true];</code></td>
                                 </tr>
                             
-                                <tr class="rowColor">
+                                <tr class="altColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/system/server/CannotDispatchDuplicateCommand.Builder.html#getCommand()">io.spine.system.server.getCommand()</a>
                                     </th>
@@ -839,7 +860,7 @@ Deprecated: use `duplicate_command` instead.
 </code></pre><code>.spine.core.CommandId command = 2 [deprecated = true];</code></td>
                                 </tr>
                             
-                                <tr class="altColor">
+                                <tr class="rowColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/system/server/CannotDispatchDuplicateCommand.Builder.html#setCommand(io.spine.core.CommandId)">io.spine.system.server.setCommand(io.spine.core.CommandId)</a>
                                     </th>
@@ -849,7 +870,7 @@ Deprecated: use `duplicate_command` instead.
 </code></pre><code>.spine.core.CommandId command = 2 [deprecated = true];</code></td>
                                 </tr>
                             
-                                <tr class="rowColor">
+                                <tr class="altColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/system/server/CannotDispatchDuplicateCommand.Builder.html#setCommand(io.spine.core.CommandId.Builder)">io.spine.system.server.setCommand(io.spine.core.CommandId.Builder)</a>
                                     </th>
@@ -859,7 +880,7 @@ Deprecated: use `duplicate_command` instead.
 </code></pre><code>.spine.core.CommandId command = 2 [deprecated = true];</code></td>
                                 </tr>
                             
-                                <tr class="altColor">
+                                <tr class="rowColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/system/server/CannotDispatchDuplicateCommand.Builder.html#mergeCommand(io.spine.core.CommandId)">io.spine.system.server.mergeCommand(io.spine.core.CommandId)</a>
                                     </th>
@@ -869,7 +890,7 @@ Deprecated: use `duplicate_command` instead.
 </code></pre><code>.spine.core.CommandId command = 2 [deprecated = true];</code></td>
                                 </tr>
                             
-                                <tr class="rowColor">
+                                <tr class="altColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/system/server/CannotDispatchDuplicateCommand.Builder.html#clearCommand()">io.spine.system.server.clearCommand()</a>
                                     </th>
@@ -879,7 +900,7 @@ Deprecated: use `duplicate_command` instead.
 </code></pre><code>.spine.core.CommandId command = 2 [deprecated = true];</code></td>
                                 </tr>
                             
-                                <tr class="altColor">
+                                <tr class="rowColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/system/server/CannotDispatchDuplicateCommand.Builder.html#getCommandBuilder()">io.spine.system.server.getCommandBuilder()</a>
                                     </th>
@@ -889,7 +910,7 @@ Deprecated: use `duplicate_command` instead.
 </code></pre><code>.spine.core.CommandId command = 2 [deprecated = true];</code></td>
                                 </tr>
                             
-                                <tr class="rowColor">
+                                <tr class="altColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/system/server/CannotDispatchDuplicateCommand.Builder.html#getCommandOrBuilder()">io.spine.system.server.getCommandOrBuilder()</a>
                                     </th>
@@ -899,7 +920,7 @@ Deprecated: use `duplicate_command` instead.
 </code></pre><code>.spine.core.CommandId command = 2 [deprecated = true];</code></td>
                                 </tr>
                             
-                                <tr class="altColor">
+                                <tr class="rowColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/system/server/CannotDispatchDuplicateCommand.html#hasCommand()">io.spine.system.server.hasCommand()</a>
                                     </th>
@@ -909,7 +930,7 @@ Deprecated: use `duplicate_command` instead.
 </code></pre><code>.spine.core.CommandId command = 2 [deprecated = true];</code></td>
                                 </tr>
                             
-                                <tr class="rowColor">
+                                <tr class="altColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/system/server/CannotDispatchDuplicateCommand.html#getCommand()">io.spine.system.server.getCommand()</a>
                                     </th>
@@ -919,7 +940,7 @@ Deprecated: use `duplicate_command` instead.
 </code></pre><code>.spine.core.CommandId command = 2 [deprecated = true];</code></td>
                                 </tr>
                             
-                                <tr class="altColor">
+                                <tr class="rowColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/system/server/CannotDispatchDuplicateCommand.html#getCommandOrBuilder()">io.spine.system.server.getCommandOrBuilder()</a>
                                     </th>
@@ -927,27 +948,6 @@ Deprecated: use `duplicate_command` instead.
 
 Deprecated: use `duplicate_command` instead.
 </code></pre><code>.spine.core.CommandId command = 2 [deprecated = true];</code></td>
-                                </tr>
-                            
-                                <tr class="rowColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/system/server/EntityColumns.Builder.html#getColumns()">io.spine.system.server.getColumns()</a>
-                                    </th>
-                                    <td class="colLast">Use <a href=io/spine/system/server/EntityColumns.Builder.html#getColumnsMap()>getColumnsMap</a> instead.</td>
-                                </tr>
-                            
-                                <tr class="altColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/system/server/EntityColumns.Builder.html#getMutableColumns()">io.spine.system.server.getMutableColumns()</a>
-                                    </th>
-                                    <td class="colLast">Use alternate mutation accessors instead.</td>
-                                </tr>
-                            
-                                <tr class="rowColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/system/server/EntityColumns.html#getColumns()">io.spine.system.server.getColumns()</a>
-                                    </th>
-                                    <td class="colLast">Use <a href=io/spine/system/server/EntityColumns.html#getColumnsMap()>getColumnsMap</a> instead.</td>
                                 </tr>
                             
                                 <tr class="altColor">

@@ -108,76 +108,40 @@ var pathtoroot = "../../../../";
     <div class="typeSummary">
 
 <table>
-<caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
-<th class="colFirst" scope="col">Class</th>
+<th class="colFirst" scope="col">Interface</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tbody>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=InboxStorage.html>InboxStorage</a></th><td class="colLast">A contract for storages of Inbox messages.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandEndpoint.html>CommandEndpoint</a></th><td class="colLast">An endpoint that accepts commands.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AlreadyPickedUp.html>AlreadyPickedUp</a></th><td class="colLast">Represents a scenario when a shard could not be picked up, as it's already picked up by another worker.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ShardObserver.html>ShardObserver</a></th><td class="colLast">An abstract base for observers of the updates made to the contents of shards.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=InboxColumn.html>InboxColumn</a></th><td class="colLast">Columns stored along with each InboxMessage.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=BatchDeliveryListener.html>BatchDeliveryListener</a></th><td class="colLast">Listens to start and end of the <code>Inbox</code> batch delivery.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AbstractWorkRegistry.html>AbstractWorkRegistry</a></th><td class="colLast">An implementation base for <a href=ShardedWorkRegistry.html>ShardedWorkRegistries</a> based on a specific persistence mechanism.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Page.html>Page</a></th><td class="colLast">A page of messages obtained from a sharded storage in a read operation.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUpProcessBuilder.html>CatchUpProcessBuilder</a></th><td class="colLast">A builder for <a href=CatchUpProcess.html>CatchUpProcess</a>.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventEndpoint.html>EventEndpoint</a></th><td class="colLast">An endpoint that accepts events.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=UniformAcrossAllShards.html>UniformAcrossAllShards</a></th><td class="colLast">The strategy of splitting the entities into a number of shards uniformly.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ShardedWorkRegistry.html>ShardedWorkRegistry</a></th><td class="colLast">The registry of the shard indexes along with the identifiers of the nodes, which process the messages corresponding to each index.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=FailedReception.html>FailedReception</a></th><td class="colLast">The evidence of an InboxMessage that has failed to be handled by its receptor, such as an event or a command handler method.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=FailedReception.Action.html>Action</a></th><td class="colLast">An action to take in relation to the failed reception.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=DeliveryStats.html>DeliveryStats</a></th><td class="colLast">The statistics on <a href=Delivery.html#deliverMessagesFrom(io.spine.server.delivery.ShardIndex)>delivering the messages</a> from a certain shard.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CatchUpProcess.DispatchCatchingUp.html>DispatchCatchingUp</a></th><td class="colLast">A method object dispatching the event to catch-up.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUpStorage.html>CatchUpStorage</a></th><td class="colLast">A storage for the state of the ongoing catch-up processes.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUpSignal.html>CatchUpSignal</a></th><td class="colLast">A marker interface for the signals controlling the execution of catch-up processes.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Delivery.html>Delivery</a></th><td class="colLast">Delivers the messages to the entities.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=FailedPickUp.Action.html>Action</a></th><td class="colLast">Action to take in relation to failed shard pick-up.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=RuntimeFailure.html>RuntimeFailure</a></th><td class="colLast">Represents a scenario when the shard could not be picked because of some <code>RuntimeException</code>.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=PickUpOutcomeMixin.html>PickUpOutcomeMixin</a></th><td class="colLast">A mixin of the PickUpOutcome providing a convenience API over the Proto message.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CatchUpProcess.html>CatchUpProcess</a></th><td class="colLast">A process that performs a projection catch-up.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CatchUp.RequestOrBuilder.html>RequestOrBuilder</a></th><td class="colLast"></td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=FailedPickUp.html>FailedPickUp</a></th><td class="colLast">An abstract base for shard pick-up-related failures.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUpIdOrBuilder.html>CatchUpIdOrBuilder</a></th><td class="colLast"></td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CatchUpAlreadyStartedException.html>CatchUpAlreadyStartedException</a></th><td class="colLast">An exception telling that the projection catch-up cannot be started, since some of the requested entities are already catching up.</td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=DeliveryStrategy.html>DeliveryStrategy</a></th><td class="colLast">Determines the index of a shard for the given identifier of an entity.</td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=DeliveryMonitor.html>DeliveryMonitor</a></th><td class="colLast">A controlling monitor of an <a href=Delivery.html>Inbox Delivery</a> process.</td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUpColumn.html>CatchUpColumn</a></th><td class="colLast">The columns stored for <a href=CatchUp.html>CatchUp</a> states.</td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=DeliveryBuilder.html>DeliveryBuilder</a></th><td class="colLast">A builder for <code>Delivery</code> instances.</td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=InboxPage.html>InboxPage</a></th><td class="colLast">A single page of the messages read from the <a href=InboxStorage.html>InboxStorage</a>.</td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=LocalDispatchingObserver.html>LocalDispatchingObserver</a></th><td class="colLast">An observer of changes to the shard contents, which triggers immediate delivery of the sharded messages.</td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUp.Request.Builder.html>Builder</a></th><td class="colLast"><pre><code>A description of a catch-up requested.
-</code></pre> Protobuf type <code>spine.server.catchup.CatchUp.Request</code></td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CatchUp.Request.html>Request</a></th><td class="colLast"><pre><code>A description of a catch-up requested.
-</code></pre> Protobuf type <code>spine.server.catchup.CatchUp.Request</code></td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUp.Builder.html>Builder</a></th><td class="colLast"><pre><code>A state of a catch-up process.
-</code></pre> Protobuf type <code>spine.server.catchup.CatchUp</code></td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CatchUp.html>CatchUp</a></th><td class="colLast"><pre><code>A state of a catch-up process.
-</code></pre> Protobuf type <code>spine.server.catchup.CatchUp</code></td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=InboxProto.html>InboxProto</a></th><td class="colLast"></td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CatchUpId.Builder.html>Builder</a></th><td class="colLast"><pre><code>An ID of a catch-up process.
-</code></pre> Protobuf type <code>spine.server.catchup.CatchUpId</code></td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUpId.html>CatchUpId</a></th><td class="colLast"><pre><code>An ID of a catch-up process.
-</code></pre> Protobuf type <code>spine.server.catchup.CatchUpId</code></td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CatchUpProto.html>CatchUpProto</a></th><td class="colLast"></td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=DeliveryProto.html>DeliveryProto</a></th><td class="colLast"></td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CatchUpOrBuilder.html>CatchUpOrBuilder</a></th><td class="colLast"></td></tr>
 </tbody>
 </table>
 
@@ -194,40 +158,76 @@ var pathtoroot = "../../../../";
     <div class="typeSummary">
 
 <table>
-<caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
-<th class="colFirst" scope="col">Interface</th>
+<th class="colFirst" scope="col">Class</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tbody>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=EventEndpoint.html>EventEndpoint</a></th><td class="colLast">An endpoint that accepts events.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AbstractWorkRegistry.html>AbstractWorkRegistry</a></th><td class="colLast">An implementation base for <a href=ShardedWorkRegistry.html>ShardedWorkRegistries</a> based on a specific persistence mechanism.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=PickUpOutcomeMixin.html>PickUpOutcomeMixin</a></th><td class="colLast">A mixin of the PickUpOutcome providing a convenience API over the Proto message.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=RuntimeFailure.html>RuntimeFailure</a></th><td class="colLast">Represents a scenario when the shard could not be picked because of some <code>RuntimeException</code>.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=FailedReception.Action.html>Action</a></th><td class="colLast">An action to take in relation to the failed reception.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=DeliveryMonitor.html>DeliveryMonitor</a></th><td class="colLast">A controlling monitor of an <a href=Delivery.html>Inbox Delivery</a> process.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ShardObserver.html>ShardObserver</a></th><td class="colLast">An abstract base for observers of the updates made to the contents of shards.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=DeliveryStrategy.html>DeliveryStrategy</a></th><td class="colLast">Determines the index of a shard for the given identifier of an entity.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUpSignal.html>CatchUpSignal</a></th><td class="colLast">A marker interface for the signals controlling the execution of catch-up processes.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUpProcessBuilder.html>CatchUpProcessBuilder</a></th><td class="colLast">A builder for <a href=CatchUpProcess.html>CatchUpProcess</a>.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Page.html>Page</a></th><td class="colLast">A page of messages obtained from a sharded storage in a read operation.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=InboxColumn.html>InboxColumn</a></th><td class="colLast">Columns stored along with each InboxMessage.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=BatchDeliveryListener.html>BatchDeliveryListener</a></th><td class="colLast">Listens to start and end of the <code>Inbox</code> batch delivery.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=FailedReception.html>FailedReception</a></th><td class="colLast">The evidence of an InboxMessage that has failed to be handled by its receptor, such as an event or a command handler method.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ShardedWorkRegistry.html>ShardedWorkRegistry</a></th><td class="colLast">The registry of the shard indexes along with the identifiers of the nodes, which process the messages corresponding to each index.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CatchUpProcess.html>CatchUpProcess</a></th><td class="colLast">A process that performs a projection catch-up.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUpProcess.DispatchCatchingUp.html>DispatchCatchingUp</a></th><td class="colLast">A method object dispatching the event to catch-up.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=InboxStorage.html>InboxStorage</a></th><td class="colLast">A contract for storages of Inbox messages.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=FailedPickUp.Action.html>Action</a></th><td class="colLast">Action to take in relation to failed shard pick-up.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Delivery.html>Delivery</a></th><td class="colLast">Delivers the messages to the entities.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandEndpoint.html>CommandEndpoint</a></th><td class="colLast">An endpoint that accepts commands.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=LocalDispatchingObserver.html>LocalDispatchingObserver</a></th><td class="colLast">An observer of changes to the shard contents, which triggers immediate delivery of the sharded messages.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CatchUp.RequestOrBuilder.html>RequestOrBuilder</a></th><td class="colLast"></td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CatchUpColumn.html>CatchUpColumn</a></th><td class="colLast">The columns stored for <a href=CatchUp.html>CatchUp</a> states.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUpOrBuilder.html>CatchUpOrBuilder</a></th><td class="colLast"></td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUpStorage.html>CatchUpStorage</a></th><td class="colLast">A storage for the state of the ongoing catch-up processes.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CatchUpIdOrBuilder.html>CatchUpIdOrBuilder</a></th><td class="colLast"></td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CatchUpAlreadyStartedException.html>CatchUpAlreadyStartedException</a></th><td class="colLast">An exception telling that the projection catch-up cannot be started, since some of the requested entities are already catching up.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=InboxPage.html>InboxPage</a></th><td class="colLast">A single page of the messages read from the <a href=InboxStorage.html>InboxStorage</a>.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=FailedPickUp.html>FailedPickUp</a></th><td class="colLast">An abstract base for shard pick-up-related failures.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=DeliveryBuilder.html>DeliveryBuilder</a></th><td class="colLast">A builder for <code>Delivery</code> instances.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=DeliveryStats.html>DeliveryStats</a></th><td class="colLast">The statistics on <a href=Delivery.html#deliverMessagesFrom(io.spine.server.delivery.ShardIndex)>delivering the messages</a> from a certain shard.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=UniformAcrossAllShards.html>UniformAcrossAllShards</a></th><td class="colLast">The strategy of splitting the entities into a number of shards uniformly.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AlreadyPickedUp.html>AlreadyPickedUp</a></th><td class="colLast">Represents a scenario when a shard could not be picked up, as it's already picked up by another worker.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=DeliveryProto.html>DeliveryProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CatchUp.Request.Builder.html>Builder</a></th><td class="colLast"><pre><code>A description of a catch-up requested.
+</code></pre> Protobuf type <code>spine.server.catchup.CatchUp.Request</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUp.Request.html>Request</a></th><td class="colLast"><pre><code>A description of a catch-up requested.
+</code></pre> Protobuf type <code>spine.server.catchup.CatchUp.Request</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CatchUp.Builder.html>Builder</a></th><td class="colLast"><pre><code>A state of a catch-up process.
+</code></pre> Protobuf type <code>spine.server.catchup.CatchUp</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUp.html>CatchUp</a></th><td class="colLast"><pre><code>A state of a catch-up process.
+</code></pre> Protobuf type <code>spine.server.catchup.CatchUp</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CatchUpProto.html>CatchUpProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CatchUpId.Builder.html>Builder</a></th><td class="colLast"><pre><code>An ID of a catch-up process.
+</code></pre> Protobuf type <code>spine.server.catchup.CatchUpId</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CatchUpId.html>CatchUpId</a></th><td class="colLast"><pre><code>An ID of a catch-up process.
+</code></pre> Protobuf type <code>spine.server.catchup.CatchUpId</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=InboxProto.html>InboxProto</a></th><td class="colLast"></td></tr>
 </tbody>
 </table>
 
