@@ -25,7 +25,7 @@ package io.spine.dependency.local
 )
 object DokkaTools {
     const val group = Spine.toolsGroup
-    const val version = "2.0.0-SNAPSHOT.10"
+    const val version = "2.0.0-SNAPSHOT.11"
 
     /**
      * The artifact dropped its `spine-` prefix in `2.0.0-SNAPSHOT.9`, to

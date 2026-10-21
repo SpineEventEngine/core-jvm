@@ -76,8 +76,10 @@ import static io.spine.server.delivery.CatchUpMessages.shardProcessingRequested;
 import static io.spine.server.delivery.CatchUpMessages.started;
 import static io.spine.server.delivery.CatchUpMessages.toFilters;
 import static io.spine.server.delivery.CatchUpStatus.COMPLETED;
+import static io.spine.server.delivery.CatchUpStatus.CUS_UNDEFINED;
 import static io.spine.server.delivery.CatchUpStatus.FINALIZING;
 import static io.spine.server.delivery.CatchUpStatus.IN_PROGRESS;
+import static io.spine.server.delivery.CatchUpStatus.STARTED;
 import static io.spine.server.delivery.DeliveryStrategy.newIndex;
 import static io.spine.server.route.EventRoute.noTargets;
 import static java.util.stream.Collectors.toList;
@@ -106,7 +108,9 @@ import static java.util.stream.Collectors.toSet;
  * meaning that the catch-up starts its finalization when the event history is read
  * up until {@code now - 500 ms}.
  *
- * <p>In its lifecycle, the process moves through the several statuses.
+ * <p>In its lifecycle, the process moves through several statuses, and only forward.
+ * A signal that would move the process back, such as one delivered again after a failure,
+ * is ignored.
  *
  * <h3>{@linkplain CatchUpStatus#CUS_UNDEFINED Not started}</h3>
  *
@@ -368,10 +372,20 @@ public final class CatchUpProcess<I>
      *
      * <p>Otherwise, the handler emits nothing, as the results of its work are dispatched
      * directly to the inboxes of the catching-up projections.
+     *
+     * <p>A request that comes once the process is past {@code STARTED}, such as one delivered
+     * again after a failure, is ignored. Handling it would reset the instances and start
+     * the process over. While the process is {@code STARTED}, a request is handled again:
+     * the status is stored before the start signals are sent, so a failure in between
+     * leaves the start to be completed.
      */
     @React
     EitherOf3<HistoryEventsRecalled, HistoryFullyRecalled, NoReaction>
     handle(CatchUpRequested e, EventContext ctx) {
+        var status = builder().getStatus();
+        if (status != CUS_UNDEFINED && status != STARTED) {
+            return emitNoReaction();
+        }
         var id = e.getId();
 
         var request = e.getRequest();
@@ -381,12 +395,12 @@ public final class CatchUpProcess<I>
         builder().setWhenLastRead(withWindow)
                  .setRequest(request);
         var started = started(id);
-        builder().setStatus(CatchUpStatus.STARTED);
+        builder().setStatus(STARTED);
         flushState();
 
         dispatchCatchUpStarted(started, ctx);
         if (builder().getInstancesToClear() > 0) {
-            return EitherOf3.withC(noReaction());
+            return emitNoReaction();
         }
         recordAllShardsAsAffected();
         return startRecalling();
@@ -408,14 +422,22 @@ public final class CatchUpProcess<I>
      * <p>If the history has been read fully (i.e. until the start of the {@linkplain Turbulence
      * turbulence period}), emits a {@code HistoryFullyRecalled} event. Otherwise, emits
      * {@code HistoryEventsRecalled} by which it triggers the next round of history reading.
+     *
+     * <p>The reports are counted only while the process is {@code STARTED}, that is, until
+     * the count reaches zero. A later report, such as one delivered again after a failure,
+     * is ignored. Counting it would start another round of history reading, and some events
+     * could reach the instances twice.
      */
     @React
     EitherOf3<HistoryEventsRecalled, HistoryFullyRecalled, NoReaction>
     handle(EntityPreparedForCatchUp event) {
+        if (builder().getStatus() != STARTED) {
+            return emitNoReaction();
+        }
         var leftToClear = builder().getInstancesToClear() - 1;
         builder().setInstancesToClear(leftToClear);
         if (leftToClear > 0) {
-            return EitherOf3.withC(noReaction());
+            return emitNoReaction();
         }
         return startRecalling();
     }
@@ -426,12 +448,7 @@ public final class CatchUpProcess<I>
      */
     private EitherOf3<HistoryEventsRecalled, HistoryFullyRecalled, NoReaction> startRecalling() {
         builder().setStatus(IN_PROGRESS);
-
-        var result = recallMoreEvents();
-        if (result.hasA()) {
-            return EitherOf3.withA(result.getA());
-        }
-        return EitherOf3.withB(result.getB());
+        return recallMoreEvents();
     }
 
     /**
@@ -441,9 +458,18 @@ public final class CatchUpProcess<I>
      * <p>If the history has been read fully (i.e. until the start of the {@linkplain Turbulence
      * turbulence period}), emits a {@code HistoryFullyRecalled} event. Otherwise,
      * emits {@code HistoryEventsRecalled} by which it triggers the next round of history reading.
+     *
+     * <p>Acts only while the process is {@code IN_PROGRESS}. A signal that comes in any other
+     * status, such as one delivered again after the process has moved on, is ignored. Reading
+     * the history in that case would dispatch the events that came after the catch-up, and
+     * those could reach the instances twice.
      */
     @React
-    EitherOf2<HistoryEventsRecalled, HistoryFullyRecalled> handle(HistoryEventsRecalled event) {
+    EitherOf3<HistoryEventsRecalled, HistoryFullyRecalled, NoReaction>
+    handle(HistoryEventsRecalled event) {
+        if (builder().getStatus() != IN_PROGRESS) {
+            return emitNoReaction();
+        }
         return recallMoreEvents();
     }
 
@@ -466,8 +492,11 @@ public final class CatchUpProcess<I>
      *
      * <p>If there were no events read, the history is considered fully recalled. The process
      * will still have to deal with the event potentially emitted during the turbulence.
+     *
+     * <p>Never returns {@code NoReaction}; the return type only matches that of the handlers,
+     * which pass this result on.
      */
-    private EitherOf2<HistoryEventsRecalled, HistoryFullyRecalled> recallMoreEvents() {
+    private EitherOf3<HistoryEventsRecalled, HistoryFullyRecalled, NoReaction> recallMoreEvents() {
         var id = builder().getId();
         var request = builder().getRequest();
 
@@ -480,9 +509,9 @@ public final class CatchUpProcess<I>
             builder().setWhenLastRead(lastEventTimestamp);
             dispatchAll(stripped);
         } else {
-            return EitherOf2.withB(fullyRecalled(id));
+            return EitherOf3.withB(fullyRecalled(id));
         }
-        return EitherOf2.withA(recalled(id));
+        return EitherOf3.withA(recalled(id));
     }
 
     /**
@@ -491,15 +520,27 @@ public final class CatchUpProcess<I>
      *
      * <p>Emits a {@code LiveEventsPickedUp} event, which is dispatched to this process
      * in the next round.
+     *
+     * <p>A signal that comes in any status but {@code IN_PROGRESS} and {@code FINALIZING},
+     * such as one delivered again once the process is {@code COMPLETED}, is ignored.
+     * Finalizing the process once more would read
+     * the events that came after the catch-up, and those could reach the instances twice.
+     * While the process is {@code FINALIZING}, the finalization runs again: the status is
+     * stored before the finalization, so a failure in between leaves it to be completed.
      */
     @React
-    LiveEventsPickedUp handle(HistoryFullyRecalled event, EventContext context) {
+    EitherOf2<LiveEventsPickedUp, NoReaction>
+    handle(HistoryFullyRecalled event, EventContext context) {
         var id = event.getId();
-        if (builder().getStatus() != FINALIZING) {
+        var status = builder().getStatus();
+        if (status != IN_PROGRESS && status != FINALIZING) {
+            return EitherOf2.withB(noReaction());
+        }
+        if (status != FINALIZING) {
             builder().setStatus(FINALIZING);
             flushState();
         }
-        return runFinalization(id);
+        return EitherOf2.withA(runFinalization(id));
     }
 
     private LiveEventsPickedUp runFinalization(CatchUpId id) {
@@ -557,7 +598,7 @@ public final class CatchUpProcess<I>
     EitherOf3<CatchUpCompleted, ShardProcessingRequested, NoReaction> handle(ShardProcessed event) {
         var builder = builder();
         if (builder.getStatus() == COMPLETED) {
-            return EitherOf3.withC(noReaction());
+            return emitNoReaction();
         }
 
         var id = builder.getId();
@@ -574,7 +615,7 @@ public final class CatchUpProcess<I>
                     var completed = completeProcess(builder.getId());
                     return EitherOf3.withA(completed);
                 }
-                return EitherOf3.withC(noReaction());
+                return emitNoReaction();
             }
         }
         var stillRequested = shardProcessingRequested(id, event.getIndex());
@@ -612,6 +653,19 @@ public final class CatchUpProcess<I>
         flushState();
         var completed = catchUpCompleted(id);
         return completed;
+    }
+
+    /**
+     * Returns the outcome of a handler that emits {@code NoReaction} in this case.
+     *
+     * @param <A>
+     *         the type of the first event the handler may emit
+     * @param <B>
+     *         the type of the second event the handler may emit
+     */
+    private <A extends EventMessage, B extends EventMessage>
+    EitherOf3<A, B, NoReaction> emitNoReaction() {
+        return EitherOf3.withC(noReaction());
     }
 
     private Event wrapAsEvent(EventMessage event, EventContext context) {
