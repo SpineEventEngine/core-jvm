@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en"><head>
-    <title>SignalDispatchingEntity 2.0.0-SNAPSHOT.572 API </title>
+    <title>SignalDispatchingEntity 2.0.0-SNAPSHOT.573 API </title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="dc.created" content="2020-03-25">
     <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
@@ -145,7 +145,7 @@ var pathtoroot = "../../../../";
 public abstract class <span class="typeNameLabel"><a href=SignalDispatchingEntity.html>SignalDispatchingEntity</a>&lt;I extends <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>, S extends EntityState&lt;<a href=SignalDispatchingEntity.html>I</a>&gt;, B extends ValidatingBuilder&lt;<a href=SignalDispatchingEntity.html>S</a>&gt;&gt;</span>
 extends <a href=TransactionalEntity.html>TransactionalEntity</a>&lt;<a href=SignalDispatchingEntity.html>I</a>, <a href=SignalDispatchingEntity.html>S</a>, <a href=SignalDispatchingEntity.html>B</a>&gt; implements <a href=../command/Assignee.html>Assignee</a>
                     </pre>
-                    <div class="block"><p>Abstract base for entities that dispatch signals — both commands and events — to their receptors.</p><p>Such an entity is an <a href=../command/Assignee.html>Assignee</a>: commands are dispatched to the methods <a href=../command/Assign.html>assigned</a> to handle them. Events are dispatched to the receptors reacting to them.</p><p>This is the entity-level counterpart of <a href=SignalDispatchingRepository.html>SignalDispatchingRepository</a>: the repository routes a signal to the target entity, and the entity dispatches it to the matching receptor.</p><p>Because such an entity emits events, it keeps the recent history of them, served lazily from the entity's durable journal through a repository-installed loader — see <a href=../aggregate/AggregatePart.html#eventHistoryBackward(java.lang.Integer)>eventHistoryBackward</a> and <a href=../aggregate/AggregatePart.html#eventHistoryContains(java.lang.Integer,java.util.function.Predicate)>eventHistoryContains</a>.</p><p>A command may carry an expectation about the current state of the entity — for example, the value a field is believed to hold before it is changed or cleared. When a command receptor discovers that the actual value differs from the expected one, it may report the discrepancy — typically as a part of a rejection — with a <code>ValueMismatch</code> created by one of the <code>expectedXxx</code>/<code>unexpectedXxx</code> helper methods.</p><p>Each helper stamps the produced mismatch with the current version of this entity, telling the client which version of the state contradicted the expectation, so that the conflict can be resolved. The helpers belong to the <code>protected</code> API of this class because they exist for the receptor bodies of the subclasses: they read the version of this very entity, and have no use outside of its own signal-handling code.</p></div>
+                    <div class="block"><p>Abstract base for entities that dispatch signals — both commands and events — to their receptors.</p><p>Such an entity is an <a href=../command/Assignee.html>Assignee</a>: commands are dispatched to the methods <a href=../command/Assign.html>assigned</a> to handle them. Events are dispatched to the receptors reacting to them.</p><p>This is the entity-level counterpart of <a href=SignalDispatchingRepository.html>SignalDispatchingRepository</a>: the repository routes a signal to the target entity, and the entity dispatches it to the matching receptor.</p><p>Because such an entity emits events, it keeps the recent history of them, served lazily from the entity's durable journal through a repository-installed loader — see <a href=../procman/ProcessManager.html#eventHistoryBackward(java.lang.Integer)>eventHistoryBackward</a> and <a href=../procman/ProcessManager.html#eventHistoryContains(java.lang.Integer,java.util.function.Predicate)>eventHistoryContains</a>.</p><p>A command may carry an expectation about the current state of the entity — for example, the value a field is believed to hold before it is changed or cleared. When a command receptor discovers that the actual value differs from the expected one, it may report the discrepancy — typically as a part of a rejection — with a <code>ValueMismatch</code> created by one of the <code>expectedXxx</code>/<code>unexpectedXxx</code> helper methods.</p><p>Each helper stamps the produced mismatch with the current version of this entity, telling the client which version of the state contradicted the expectation, so that the conflict can be resolved. The helpers belong to the <code>protected</code> API of this class because they exist for the receptor bodies of the subclasses: they read the version of this very entity, and have no use outside of its own signal-handling code.</p></div>
 
                     <dl>
 
@@ -208,43 +208,43 @@ extends <a href=TransactionalEntity.html>TransactionalEntity</a>&lt;<a href=Sign
                                         
                                         <tr class="rowColor">
                                             <td class="colFirst"><code>private final <a href=SignalDispatchingEntity.html>I</a></code></td>
-                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#id>id</a></code></th>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManager.html#id>id</a></code></th>
                                             <td class="colLast"></td>
                                         </tr>
                                         
                                         <tr class="altColor">
                                             <td class="colFirst"><code>private final <a href=SignalDispatchingEntity.html>S</a></code></td>
-                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#state>state</a></code></th>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManager.html#state>state</a></code></th>
                                             <td class="colLast"></td>
                                         </tr>
                                         
                                         <tr class="rowColor">
                                             <td class="colFirst"><code>private final Version</code></td>
-                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#version>version</a></code></th>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManager.html#version>version</a></code></th>
                                             <td class="colLast"></td>
                                         </tr>
                                         
                                         <tr class="altColor">
                                             <td class="colFirst"><code>private final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a></code></td>
-                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#isActive>isActive</a></code></th>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManager.html#isActive>isActive</a></code></th>
                                             <td class="colLast"></td>
                                         </tr>
                                         
                                         <tr class="rowColor">
                                             <td class="colFirst"><code>private  <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a></code></td>
-                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#isDeleted>isDeleted</a></code></th>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManager.html#isDeleted>isDeleted</a></code></th>
                                             <td class="colLast"></td>
                                         </tr>
                                         
                                         <tr class="altColor">
                                             <td class="colFirst"><code>private  <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a></code></td>
-                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#isArchived>isArchived</a></code></th>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManager.html#isArchived>isArchived</a></code></th>
                                             <td class="colLast"></td>
                                         </tr>
                                         
                                         <tr class="rowColor">
                                             <td class="colFirst"><code>private final <a href=LifecycleFlags.html>LifecycleFlags</a></code></td>
-                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#lifecycleFlags>lifecycleFlags</a></code></th>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManager.html#lifecycleFlags>lifecycleFlags</a></code></th>
                                             <td class="colLast"></td>
                                         </tr>
                                         
@@ -336,7 +336,7 @@ extends <a href=TransactionalEntity.html>TransactionalEntity</a>&lt;<a href=Sign
                                         <tr id="i0" class="altColor">
                                             <td class="colFirst"><code>Any</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#producerId()>producerId</a>() </code>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManager.html#producerId()>producerId</a>() </code>
                                             </th>
                                             <td class="colLast">The object identity packed into Any.</td>
                                         </tr>
@@ -344,23 +344,23 @@ extends <a href=TransactionalEntity.html>TransactionalEntity</a>&lt;<a href=Sign
                                         <tr id="i1" class="rowColor">
                                             <td class="colFirst"><code>final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Iterator.html>Iterator</a>&lt;Event&gt;</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#eventHistoryBackward(java.lang.Integer)>eventHistoryBackward</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html>Integer</a> depth) </code>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManager.html#eventHistoryBackward(java.lang.Integer)>eventHistoryBackward</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html>Integer</a> depth) </code>
                                             </th>
-                                            <td class="colLast">Creates an iterator over up to <a href=../aggregate/AggregatePart.html#eventHistoryBackward(java.lang.Integer)>depth</a> most recent events of this entity's history, newest first.</td>
+                                            <td class="colLast">Creates an iterator over up to <a href=../procman/ProcessManager.html#eventHistoryBackward(java.lang.Integer)>depth</a> most recent events of this entity's history, newest first.</td>
                                         </tr>
                                         
                                         <tr id="i2" class="altColor">
                                             <td class="colFirst"><code>final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a></code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#eventHistoryContains(java.lang.Integer,java.util.function.Predicate)>eventHistoryContains</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html>Integer</a> depth, <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Predicate.html>Predicate</a>&lt;Event&gt; predicate) </code>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManager.html#eventHistoryContains(java.lang.Integer,java.util.function.Predicate)>eventHistoryContains</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html>Integer</a> depth, <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Predicate.html>Predicate</a>&lt;Event&gt; predicate) </code>
                                             </th>
-                                            <td class="colLast">Verifies if up to <a href=../aggregate/AggregatePart.html#eventHistoryContains(java.lang.Integer,java.util.function.Predicate)>depth</a> most recent events of this entity's history contain an event that satisfies the passed predicate.</td>
+                                            <td class="colLast">Verifies if up to <a href=../procman/ProcessManager.html#eventHistoryContains(java.lang.Integer,java.util.function.Predicate)>depth</a> most recent events of this entity's history contain an event that satisfies the passed predicate.</td>
                                         </tr>
                                         
                                         <tr id="i3" class="rowColor">
                                             <td class="colFirst"><code>final DispatchOutcome</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#detectDuplicate(io.spine.server.type.CommandEnvelope)>detectDuplicate</a>(<a href=../type/CommandEnvelope.html>CommandEnvelope</a> command) </code>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManager.html#detectDuplicate(io.spine.server.type.CommandEnvelope)>detectDuplicate</a>(<a href=../type/CommandEnvelope.html>CommandEnvelope</a> command) </code>
                                             </th>
                                             <td class="colLast">Checks the passed command against the double-dispatch guard.</td>
                                         </tr>
@@ -368,7 +368,7 @@ extends <a href=TransactionalEntity.html>TransactionalEntity</a>&lt;<a href=Sign
                                         <tr id="i4" class="altColor">
                                             <td class="colFirst"><code>final DispatchOutcome</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#detectDuplicate(io.spine.server.type.EventEnvelope)>detectDuplicate</a>(<a href=../type/EventEnvelope.html>EventEnvelope</a> event) </code>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManager.html#detectDuplicate(io.spine.server.type.EventEnvelope)>detectDuplicate</a>(<a href=../type/EventEnvelope.html>EventEnvelope</a> event) </code>
                                             </th>
                                             <td class="colLast">Checks the passed event against the double-dispatch guard.</td>
                                         </tr>
@@ -392,7 +392,7 @@ extends <a href=TransactionalEntity.html>TransactionalEntity</a>&lt;<a href=Sign
                                         <tr id="i7" class="rowColor">
                                             <td class="colFirst"><code>final ValueMismatch</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#expectedDefault(com.google.protobuf.Message,com.google.protobuf.Message)>expectedDefault</a>(Message actual, Message newValue) </code>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManager.html#expectedDefault(com.google.protobuf.Message,com.google.protobuf.Message)>expectedDefault</a>(Message actual, Message newValue) </code>
                                             </th>
                                             <td class="colLast">Creates a <code>ValueMismatch</code> for the case of discovering a non-default value when the default value was expected by a command.</td>
                                         </tr>
@@ -400,7 +400,7 @@ extends <a href=TransactionalEntity.html>TransactionalEntity</a>&lt;<a href=Sign
                                         <tr id="i8" class="altColor">
                                             <td class="colFirst"><code>final ValueMismatch</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#expectedNotDefault(com.google.protobuf.Message)>expectedNotDefault</a>(Message expected) </code>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManager.html#expectedNotDefault(com.google.protobuf.Message)>expectedNotDefault</a>(Message expected) </code>
                                             </th>
                                             <td class="colLast">Creates a <code>ValueMismatch</code> for a command that wanted to <i>clear</i> a value, but discovered that the field already has the default value.</td>
                                         </tr>
@@ -408,7 +408,7 @@ extends <a href=TransactionalEntity.html>TransactionalEntity</a>&lt;<a href=Sign
                                         <tr id="i9" class="rowColor">
                                             <td class="colFirst"><code>final ValueMismatch</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#expectedNotDefault(com.google.protobuf.Message,com.google.protobuf.Message)>expectedNotDefault</a>(Message expected, Message newValue) </code>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManager.html#expectedNotDefault(com.google.protobuf.Message,com.google.protobuf.Message)>expectedNotDefault</a>(Message expected, Message newValue) </code>
                                             </th>
                                             <td class="colLast">Creates a <code>ValueMismatch</code> for a command that wanted to <i>change</i> a field value, but discovered that the field has the default value.</td>
                                         </tr>
@@ -416,7 +416,7 @@ extends <a href=TransactionalEntity.html>TransactionalEntity</a>&lt;<a href=Sign
                                         <tr id="i10" class="altColor">
                                             <td class="colFirst"><code>final ValueMismatch</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#unexpectedValue(com.google.protobuf.Message,com.google.protobuf.Message,com.google.protobuf.Message)>unexpectedValue</a>(Message expected, Message actual, Message newValue) </code>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManager.html#unexpectedValue(com.google.protobuf.Message,com.google.protobuf.Message,com.google.protobuf.Message)>unexpectedValue</a>(Message expected, Message actual, Message newValue) </code>
                                             </th>
                                             <td class="colLast">Creates a <code>ValueMismatch</code> for the case of discovering a value different from the one expected by a command.</td>
                                         </tr>
@@ -424,7 +424,7 @@ extends <a href=TransactionalEntity.html>TransactionalEntity</a>&lt;<a href=Sign
                                         <tr id="i11" class="rowColor">
                                             <td class="colFirst"><code>final ValueMismatch</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#unexpectedValue(java.lang.String,java.lang.String,java.lang.String)>unexpectedValue</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> expected, <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> actual, <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> newValue) </code>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManager.html#unexpectedValue(java.lang.String,java.lang.String,java.lang.String)>unexpectedValue</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> expected, <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> actual, <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> newValue) </code>
                                             </th>
                                             <td class="colLast">Creates a <code>ValueMismatch</code> for the case of discovering a value different from the one expected by a command.</td>
                                         </tr>
@@ -432,7 +432,7 @@ extends <a href=TransactionalEntity.html>TransactionalEntity</a>&lt;<a href=Sign
                                         <tr id="i12" class="altColor">
                                             <td class="colFirst"><code>final ValueMismatch</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#expectedEmpty(java.lang.String,java.lang.String)>expectedEmpty</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> actual, <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> newValue) </code>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManager.html#expectedEmpty(java.lang.String,java.lang.String)>expectedEmpty</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> actual, <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> newValue) </code>
                                             </th>
                                             <td class="colLast">Creates a <code>ValueMismatch</code> for the case of discovering a non-empty value, when an empty string was expected by a command.</td>
                                         </tr>
@@ -440,7 +440,7 @@ extends <a href=TransactionalEntity.html>TransactionalEntity</a>&lt;<a href=Sign
                                         <tr id="i13" class="rowColor">
                                             <td class="colFirst"><code>final ValueMismatch</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=../aggregate/AggregatePart.html#expectedNotEmpty(java.lang.String)>expectedNotEmpty</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> expected) </code>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManager.html#expectedNotEmpty(java.lang.String)>expectedNotEmpty</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> expected) </code>
                                             </th>
                                             <td class="colLast">Creates a <code>ValueMismatch</code> for a command that wanted to clear a string value but discovered that the field is already empty.</td>
                                         </tr>
@@ -556,7 +556,7 @@ extends <a href=TransactionalEntity.html>TransactionalEntity</a>&lt;<a href=Sign
                                           >
                                     <li class="blockList">
                                         <h4>producerId</h4>
-                                        <pre class="methodSignature"> Any <a href=../aggregate/AggregatePart.html#producerId()>producerId</a>()</pre>
+                                        <pre class="methodSignature"> Any <a href=../procman/ProcessManager.html#producerId()>producerId</a>()</pre>
                                         <div class="block"><p>The object identity packed into Any.</p></div>
 
                                         <dl>
@@ -579,8 +579,8 @@ extends <a href=TransactionalEntity.html>TransactionalEntity</a>&lt;<a href=Sign
                                           >
                                     <li class="blockList">
                                         <h4>eventHistoryBackward</h4>
-                                        <pre class="methodSignature"> final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Iterator.html>Iterator</a>&lt;Event&gt; <a href=../aggregate/AggregatePart.html#eventHistoryBackward(java.lang.Integer)>eventHistoryBackward</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html>Integer</a> depth)</pre>
-                                        <div class="block"><p>Creates an iterator over up to <a href=../aggregate/AggregatePart.html#eventHistoryBackward(java.lang.Integer)>depth</a> most recent events of this entity's history, newest first.</p><p>Fewer events are returned if the history retains fewer. The events emitted by the current, not-yet-committed dispatch are excluded. The events committed by the earlier dispatches served by this instance — e.g., the preceding signals of a delivery batch — are included even while the deferred journal write has not persisted them yet.</p></div>
+                                        <pre class="methodSignature"> final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Iterator.html>Iterator</a>&lt;Event&gt; <a href=../procman/ProcessManager.html#eventHistoryBackward(java.lang.Integer)>eventHistoryBackward</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html>Integer</a> depth)</pre>
+                                        <div class="block"><p>Creates an iterator over up to <a href=../procman/ProcessManager.html#eventHistoryBackward(java.lang.Integer)>depth</a> most recent events of this entity's history, newest first.</p><p>Fewer events are returned if the history retains fewer. The events emitted by the current, not-yet-committed dispatch are excluded. The events committed by the earlier dispatches served by this instance — e.g., the preceding signals of a delivery batch — are included even while the deferred journal write has not persisted them yet.</p></div>
 
                                         <dl>
 
@@ -612,8 +612,8 @@ extends <a href=TransactionalEntity.html>TransactionalEntity</a>&lt;<a href=Sign
                                           >
                                     <li class="blockList">
                                         <h4>eventHistoryContains</h4>
-                                        <pre class="methodSignature"> final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a> <a href=../aggregate/AggregatePart.html#eventHistoryContains(java.lang.Integer,java.util.function.Predicate)>eventHistoryContains</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html>Integer</a> depth, <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Predicate.html>Predicate</a>&lt;Event&gt; predicate)</pre>
-                                        <div class="block"><p>Verifies if up to <a href=../aggregate/AggregatePart.html#eventHistoryContains(java.lang.Integer,java.util.function.Predicate)>depth</a> most recent events of this entity's history contain an event that satisfies the passed predicate.</p><p>The visibility caveats of <a href=../aggregate/AggregatePart.html#eventHistoryBackward(java.lang.Integer)>eventHistoryBackward</a> apply to this check.</p></div>
+                                        <pre class="methodSignature"> final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a> <a href=../procman/ProcessManager.html#eventHistoryContains(java.lang.Integer,java.util.function.Predicate)>eventHistoryContains</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html>Integer</a> depth, <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Predicate.html>Predicate</a>&lt;Event&gt; predicate)</pre>
+                                        <div class="block"><p>Verifies if up to <a href=../procman/ProcessManager.html#eventHistoryContains(java.lang.Integer,java.util.function.Predicate)>depth</a> most recent events of this entity's history contain an event that satisfies the passed predicate.</p><p>The visibility caveats of <a href=../procman/ProcessManager.html#eventHistoryBackward(java.lang.Integer)>eventHistoryBackward</a> apply to this check.</p></div>
 
                                         <dl>
 
@@ -646,7 +646,7 @@ extends <a href=TransactionalEntity.html>TransactionalEntity</a>&lt;<a href=Sign
                                           >
                                     <li class="blockList">
                                         <h4>detectDuplicate</h4>
-                                        <pre class="methodSignature"> final DispatchOutcome <a href=../aggregate/AggregatePart.html#detectDuplicate(io.spine.server.type.CommandEnvelope)>detectDuplicate</a>(<a href=../type/CommandEnvelope.html>CommandEnvelope</a> command)</pre>
+                                        <pre class="methodSignature"> final DispatchOutcome <a href=../procman/ProcessManager.html#detectDuplicate(io.spine.server.type.CommandEnvelope)>detectDuplicate</a>(<a href=../type/CommandEnvelope.html>CommandEnvelope</a> command)</pre>
                                         <div class="block"><p>Checks the passed command against the double-dispatch guard.</p></div>
 
                                         <dl>
@@ -679,7 +679,7 @@ extends <a href=TransactionalEntity.html>TransactionalEntity</a>&lt;<a href=Sign
                                           >
                                     <li class="blockList">
                                         <h4>detectDuplicate</h4>
-                                        <pre class="methodSignature"> final DispatchOutcome <a href=../aggregate/AggregatePart.html#detectDuplicate(io.spine.server.type.EventEnvelope)>detectDuplicate</a>(<a href=../type/EventEnvelope.html>EventEnvelope</a> event)</pre>
+                                        <pre class="methodSignature"> final DispatchOutcome <a href=../procman/ProcessManager.html#detectDuplicate(io.spine.server.type.EventEnvelope)>detectDuplicate</a>(<a href=../type/EventEnvelope.html>EventEnvelope</a> event)</pre>
                                         <div class="block"><p>Checks the passed event against the double-dispatch guard.</p></div>
 
                                         <dl>
@@ -778,7 +778,7 @@ extends <a href=TransactionalEntity.html>TransactionalEntity</a>&lt;<a href=Sign
                                           >
                                     <li class="blockList">
                                         <h4>expectedDefault</h4>
-                                        <pre class="methodSignature"> final ValueMismatch <a href=../aggregate/AggregatePart.html#expectedDefault(com.google.protobuf.Message,com.google.protobuf.Message)>expectedDefault</a>(Message actual, Message newValue)</pre>
+                                        <pre class="methodSignature"> final ValueMismatch <a href=../procman/ProcessManager.html#expectedDefault(com.google.protobuf.Message,com.google.protobuf.Message)>expectedDefault</a>(Message actual, Message newValue)</pre>
                                         <div class="block"><p>Creates a <code>ValueMismatch</code> for the case of discovering a non-default value when the default value was expected by a command.</p></div>
 
                                         <dl>
@@ -815,7 +815,7 @@ extends <a href=TransactionalEntity.html>TransactionalEntity</a>&lt;<a href=Sign
                                           >
                                     <li class="blockList">
                                         <h4>expectedNotDefault</h4>
-                                        <pre class="methodSignature"> final ValueMismatch <a href=../aggregate/AggregatePart.html#expectedNotDefault(com.google.protobuf.Message)>expectedNotDefault</a>(Message expected)</pre>
+                                        <pre class="methodSignature"> final ValueMismatch <a href=../procman/ProcessManager.html#expectedNotDefault(com.google.protobuf.Message)>expectedNotDefault</a>(Message expected)</pre>
                                         <div class="block"><p>Creates a <code>ValueMismatch</code> for a command that wanted to <i>clear</i> a value, but discovered that the field already has the default value.</p></div>
 
                                         <dl>
@@ -848,7 +848,7 @@ extends <a href=TransactionalEntity.html>TransactionalEntity</a>&lt;<a href=Sign
                                           >
                                     <li class="blockList">
                                         <h4>expectedNotDefault</h4>
-                                        <pre class="methodSignature"> final ValueMismatch <a href=../aggregate/AggregatePart.html#expectedNotDefault(com.google.protobuf.Message,com.google.protobuf.Message)>expectedNotDefault</a>(Message expected, Message newValue)</pre>
+                                        <pre class="methodSignature"> final ValueMismatch <a href=../procman/ProcessManager.html#expectedNotDefault(com.google.protobuf.Message,com.google.protobuf.Message)>expectedNotDefault</a>(Message expected, Message newValue)</pre>
                                         <div class="block"><p>Creates a <code>ValueMismatch</code> for a command that wanted to <i>change</i> a field value, but discovered that the field has the default value.</p></div>
 
                                         <dl>
@@ -885,7 +885,7 @@ extends <a href=TransactionalEntity.html>TransactionalEntity</a>&lt;<a href=Sign
                                           >
                                     <li class="blockList">
                                         <h4>unexpectedValue</h4>
-                                        <pre class="methodSignature"> final ValueMismatch <a href=../aggregate/AggregatePart.html#unexpectedValue(com.google.protobuf.Message,com.google.protobuf.Message,com.google.protobuf.Message)>unexpectedValue</a>(Message expected, Message actual, Message newValue)</pre>
+                                        <pre class="methodSignature"> final ValueMismatch <a href=../procman/ProcessManager.html#unexpectedValue(com.google.protobuf.Message,com.google.protobuf.Message,com.google.protobuf.Message)>unexpectedValue</a>(Message expected, Message actual, Message newValue)</pre>
                                         <div class="block"><p>Creates a <code>ValueMismatch</code> for the case of discovering a value different from the one expected by a command.</p></div>
 
                                         <dl>
@@ -926,7 +926,7 @@ extends <a href=TransactionalEntity.html>TransactionalEntity</a>&lt;<a href=Sign
                                           >
                                     <li class="blockList">
                                         <h4>unexpectedValue</h4>
-                                        <pre class="methodSignature"> final ValueMismatch <a href=../aggregate/AggregatePart.html#unexpectedValue(java.lang.String,java.lang.String,java.lang.String)>unexpectedValue</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> expected, <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> actual, <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> newValue)</pre>
+                                        <pre class="methodSignature"> final ValueMismatch <a href=../procman/ProcessManager.html#unexpectedValue(java.lang.String,java.lang.String,java.lang.String)>unexpectedValue</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> expected, <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> actual, <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> newValue)</pre>
                                         <div class="block"><p>Creates a <code>ValueMismatch</code> for the case of discovering a value different from the one expected by a command.</p></div>
 
                                         <dl>
@@ -967,7 +967,7 @@ extends <a href=TransactionalEntity.html>TransactionalEntity</a>&lt;<a href=Sign
                                           >
                                     <li class="blockList">
                                         <h4>expectedEmpty</h4>
-                                        <pre class="methodSignature"> final ValueMismatch <a href=../aggregate/AggregatePart.html#expectedEmpty(java.lang.String,java.lang.String)>expectedEmpty</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> actual, <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> newValue)</pre>
+                                        <pre class="methodSignature"> final ValueMismatch <a href=../procman/ProcessManager.html#expectedEmpty(java.lang.String,java.lang.String)>expectedEmpty</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> actual, <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> newValue)</pre>
                                         <div class="block"><p>Creates a <code>ValueMismatch</code> for the case of discovering a non-empty value, when an empty string was expected by a command.</p></div>
 
                                         <dl>
@@ -1004,7 +1004,7 @@ extends <a href=TransactionalEntity.html>TransactionalEntity</a>&lt;<a href=Sign
                                           >
                                     <li class="blockList">
                                         <h4>expectedNotEmpty</h4>
-                                        <pre class="methodSignature"> final ValueMismatch <a href=../aggregate/AggregatePart.html#expectedNotEmpty(java.lang.String)>expectedNotEmpty</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> expected)</pre>
+                                        <pre class="methodSignature"> final ValueMismatch <a href=../procman/ProcessManager.html#expectedNotEmpty(java.lang.String)>expectedNotEmpty</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html>String</a> expected)</pre>
                                         <div class="block"><p>Creates a <code>ValueMismatch</code> for a command that wanted to clear a string value but discovered that the field is already empty.</p></div>
 
                                         <dl>

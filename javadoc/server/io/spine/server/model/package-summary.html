@@ -108,6 +108,44 @@ var pathtoroot = "../../../../";
     <div class="typeSummary">
 
 <table>
+<caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Interface</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Receptor.html>Receptor</a></th><td class="colLast">Describes a method that accepts a message and optionally its context.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Attribute.html>Attribute</a></th><td class="colLast">Contains a value of an annotation attribute.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandEmitter.html>CommandEmitter</a></th><td class="colLast">A <a href=Receptor.html>Receptor</a> that produces commands in response to a signal.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventEmitter.html>EventEmitter</a></th><td class="colLast">A <a href=Receptor.html>Receptor</a> that produces events in response to a signal.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=VoidMethod.html>VoidMethod</a></th><td class="colLast">A <a href=Receptor.html>Receptor</a> that processes a message and produces no response.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ParameterSpec.html>ParameterSpec</a></th><td class="colLast">A specification of <a href=Receptor.html>receptor</a> parameters, specific for various <code>HandlerMethod</code> implementations.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=NothingOrBuilder.html>NothingOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=DoNothingOrBuilder.html>DoNothingOrBuilder</a></th><td class="colLast"></td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
 <caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Class</th>
@@ -115,53 +153,47 @@ var pathtoroot = "../../../../";
 </tr>
 <tbody>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=SignatureMismatchException.html>SignatureMismatchException</a></th><td class="colLast">Thrown for a <a href=Receptor.html>receptor</a> in case its <a href=Receptor.html#rawMethod()>wrapped method</a> does not match <a href=ReceptorSignature.html>method signature</a>, set for the handler.</td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ModelError.html>ModelError</a></th><td class="colLast">A programming error of message processing definition.</td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=UnknownEntityStateTypeException.html>UnknownEntityStateTypeException</a></th><td class="colLast">An exception thrown when a Query targets an unknown entity type.</td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=HandlerFieldFilterClashError.html>HandlerFieldFilterClashError</a></th><td class="colLast">An error indicating that two message handlers have clashing @Where filtering signatures.</td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=ReceptorSignature.html>ReceptorSignature</a></th><td class="colLast">Specification of a <a href=Receptor.html>Receptor</a> signature.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ModelClass.html>ModelClass</a></th><td class="colLast">Abstract base for classes providing additional information on a Java class, such as classes of messages being handled by the methods exposed by the class.</td></tr>
 
     <tr class="rowColor"><th class="colFirst" scope="row"><a href=AccessModifier.html>AccessModifier</a></th><td class="colLast">The predicate for <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/reflect/Modifier.html>access modifiers</a> of <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/reflect/Method.html>methods</a>.</td></tr>
 
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=MethodParams.html>MethodParams</a></th><td class="colLast">Provides information about parameters of a method.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ArgumentFilter.html>ArgumentFilter</a></th><td class="colLast">Allows filtering messages passed by a handler method by a value of the message field.</td></tr>
+
     <tr class="altColor"><th class="colFirst" scope="row"><a href=ExternalCommandReceiverMethodError.html>ExternalCommandReceiverMethodError</a></th><td class="colLast">An error thrown when one or more of the command accepting methods are marked <code>external</code> in the <a href=../command/model/CommandHandlingClass.html>CommandHandlingClass</a>.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=DuplicateReceptorError.html>DuplicateReceptorError</a></th><td class="colLast">Indicates that more than one handling method for the same message class is present in the declaring class.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=DispatchKey.html>DispatchKey</a></th><td class="colLast">Provides information for dispatching a message to a handler method.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=ExtractedArguments.html>ExtractedArguments</a></th><td class="colLast">Handler method arguments extracted from a signal.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ReceptorMap.html>ReceptorMap</a></th><td class="colLast">Provides mapping from a class of messages to methods that handle such messages.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=SignalOriginMismatchError.html>SignalOriginMismatchError</a></th><td class="colLast">An error that signifies that the <code>external</code> attribute was misplaced on a handler method.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=UnknownEntityStateTypeException.html>UnknownEntityStateTypeException</a></th><td class="colLast">An exception thrown when a Query targets an unknown entity type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ReceptorSignature.html>ReceptorSignature</a></th><td class="colLast">Specification of a <a href=Receptor.html>Receptor</a> signature.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=HandlerFieldFilterClashError.html>HandlerFieldFilterClashError</a></th><td class="colLast">An error indicating that two message handlers have clashing @Where filtering signatures.</td></tr>
 
     <tr class="altColor"><th class="colFirst" scope="row"><a href=AllowedParams.html>AllowedParams</a></th><td class="colLast">Specifies allowed combinations of parameters that a handler method may accept.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AbstractReceptor.html>AbstractReceptor</a></th><td class="colLast">An abstract base for wrappers over methods handling messages.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ExtractedArguments.html>ExtractedArguments</a></th><td class="colLast">Handler method arguments extracted from a signal.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=DispatchKey.html>DispatchKey</a></th><td class="colLast">Provides information for dispatching a message to a handler method.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=SignalOriginMismatchError.html>SignalOriginMismatchError</a></th><td class="colLast">An error that signifies that the <code>external</code> attribute was misplaced on a handler method.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=MethodParams.html>MethodParams</a></th><td class="colLast">Provides information about parameters of a method.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=DuplicateReceptorError.html>DuplicateReceptorError</a></th><td class="colLast">Indicates that more than one handling method for the same message class is present in the declaring class.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=ArgumentFilter.html>ArgumentFilter</a></th><td class="colLast">Allows filtering messages passed by a handler method by a value of the message field.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AbstractReceptor.html>AbstractReceptor</a></th><td class="colLast">An abstract base for wrappers over methods handling messages.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=DuplicateCommandReceptorError.html>DuplicateCommandReceptorError</a></th><td class="colLast">An error thrown on an attempt to add a class that declares a <a href=../command/model/CommandReceptor.html>receptor</a> that handles a command that is already handled by another class in the Model.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ModelError.html>ModelError</a></th><td class="colLast">A programming error of message processing definition.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=ReturnTypes.html>ReturnTypes</a></th><td class="colLast">Specifies types of values a handler methods may return.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=DuplicateCommandReceptorError.html>DuplicateCommandReceptorError</a></th><td class="colLast">An error thrown on an attempt to add a class that declares a <a href=../command/model/CommandReceptor.html>receptor</a> that handles a command that is already handled by another class in the Model.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ReceptorMap.html>ReceptorMap</a></th><td class="colLast">Provides mapping from a class of messages to methods that handle such messages.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ReturnTypes.html>ReturnTypes</a></th><td class="colLast">Specifies types of values a handler methods may return.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=ModelClass.html>ModelClass</a></th><td class="colLast">Abstract base for classes providing additional information on a Java class, such as classes of messages being handled by the methods exposed by the class.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=SignatureMismatchException.html>SignatureMismatchException</a></th><td class="colLast">Thrown for a <a href=Receptor.html>receptor</a> in case its <a href=Receptor.html#rawMethod()>wrapped method</a> does not match <a href=ReceptorSignature.html>method signature</a>, set for the handler.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=StandardEventsProto.html>StandardEventsProto</a></th><td class="colLast"></td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=StandardCommandsProto.html>StandardCommandsProto</a></th><td class="colLast"></td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=Nothing.Builder.html>Builder</a></th><td class="colLast"><pre><code>Deprecated: please use `spine.server.event.NoReaction` instead.
-</code></pre> Protobuf type <code>spine.server.model.Nothing</code></td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Nothing.Field.html>Field</a></th><td class="colLast">The listing of <a href=Nothing.html>Nothing</a> fields to be used for creating a subscription filter.</td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=Nothing.html>Nothing</a></th><td class="colLast"><pre><code>Deprecated: please use `spine.server.event.NoReaction` instead.
-</code></pre> Protobuf type <code>spine.server.model.Nothing</code></td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=StandardEventsProto.html>StandardEventsProto</a></th><td class="colLast"></td></tr>
 
     <tr class="rowColor"><th class="colFirst" scope="row"><a href=DoNothing.Builder.html>Builder</a></th><td class="colLast"><pre><code>A system command that implies no action.
 
@@ -189,47 +221,15 @@ There can be no handlers for a `DoNothing` command.
 Deprecated: please use `spine.server.command.DoNothing` instead.
 </code></pre> Protobuf type <code>spine.server.model.DoNothing</code></td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=StandardCommandsProto.html>StandardCommandsProto</a></th><td class="colLast"></td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Nothing.Builder.html>Builder</a></th><td class="colLast"><pre><code>Deprecated: please use `spine.server.event.NoReaction` instead.
+</code></pre> Protobuf type <code>spine.server.model.Nothing</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Nothing.Field.html>Field</a></th><td class="colLast">The listing of <a href=Nothing.html>Nothing</a> fields to be used for creating a subscription filter.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Nothing.html>Nothing</a></th><td class="colLast"><pre><code>Deprecated: please use `spine.server.event.NoReaction` instead.
+</code></pre> Protobuf type <code>spine.server.model.Nothing</code></td></tr>
 
     <tr class="altColor"><th class="colFirst" scope="row"><a href=Methods.html>Methods</a></th><td class="colLast"></td></tr>
-</tbody>
-</table>
-
-    </div>
-
-                </li>
-                
-                <li class="blockList">
-                    
-                    
-                    
-                    
-                    
-    <div class="typeSummary">
-
-<table>
-<caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Interface</th>
-<th class="colLast" scope="col">Description</th>
-</tr>
-<tbody>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandEmitter.html>CommandEmitter</a></th><td class="colLast">A <a href=Receptor.html>Receptor</a> that produces commands in response to a signal.</td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Receptor.html>Receptor</a></th><td class="colLast">Describes a method that accepts a message and optionally its context.</td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=VoidMethod.html>VoidMethod</a></th><td class="colLast">A <a href=Receptor.html>Receptor</a> that processes a message and produces no response.</td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=EventEmitter.html>EventEmitter</a></th><td class="colLast">A <a href=Receptor.html>Receptor</a> that produces events in response to a signal.</td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=ParameterSpec.html>ParameterSpec</a></th><td class="colLast">A specification of <a href=Receptor.html>receptor</a> parameters, specific for various <code>HandlerMethod</code> implementations.</td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Attribute.html>Attribute</a></th><td class="colLast">Contains a value of an annotation attribute.</td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=NothingOrBuilder.html>NothingOrBuilder</a></th><td class="colLast"></td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=DoNothingOrBuilder.html>DoNothingOrBuilder</a></th><td class="colLast"></td></tr>
 </tbody>
 </table>
 

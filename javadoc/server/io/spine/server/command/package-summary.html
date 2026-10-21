@@ -108,16 +108,20 @@ var pathtoroot = "../../../../";
     <div class="typeSummary">
 
 <table>
-<caption><span>Annotation Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
-<th class="colFirst" scope="col">Annotation</th>
+<th class="colFirst" scope="col">Interface</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tbody>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=Assign.html>Assign</a></th><td class="colLast">Marks a method as a command assignee.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Commander.html>Commander</a></th><td class="colLast">An interface common for objects posting one or more commands in response to an incoming message.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Command.html>Command</a></th><td class="colLast">Marks a commanding method.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Assignee.html>Assignee</a></th><td class="colLast">Declares one or more methods, each <a href=Assign.html>assigned</a> to handle commands of a specific type.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandReceiver.html>CommandReceiver</a></th><td class="colLast">Common interface for all objects that receive commands at the end of the dispatching.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=DoNothingOrBuilder.html>DoNothingOrBuilder</a></th><td class="colLast"></td></tr>
 </tbody>
 </table>
 
@@ -141,11 +145,11 @@ var pathtoroot = "../../../../";
 </tr>
 <tbody>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=AbstractAssignee.html>AbstractAssignee</a></th><td class="colLast">The abstract base for non-aggregate classes that expose methods assigned to handle commands and post their results to EventBus.</td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AbstractCommander.html>AbstractCommander</a></th><td class="colLast">The abstract base for classes that generate commands in response to incoming messages.</td></tr>
-
     <tr class="altColor"><th class="colFirst" scope="row"><a href=AbstractCommandDispatcher.html>AbstractCommandDispatcher</a></th><td class="colLast">The abstract base for non-aggregate classes that dispatch commands to their methods and post resulting events to EventBus.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AbstractAssignee.html>AbstractAssignee</a></th><td class="colLast">The abstract base for non-aggregate classes that expose methods assigned to handle commands and post their results to EventBus.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AbstractCommander.html>AbstractCommander</a></th><td class="colLast">The abstract base for classes that generate commands in response to incoming messages.</td></tr>
 
     <tr class="rowColor"><th class="colFirst" scope="row"><a href=DoNothing.Builder.html>Builder</a></th><td class="colLast"><pre><code>A system command that implies no action.
 
@@ -188,20 +192,16 @@ There can be no handlers for a `DoNothing` command.
     <div class="typeSummary">
 
 <table>
-<caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<caption><span>Annotation Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
-<th class="colFirst" scope="col">Interface</th>
+<th class="colFirst" scope="col">Annotation</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tbody>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=Assignee.html>Assignee</a></th><td class="colLast">Declares one or more methods, each <a href=Assign.html>assigned</a> to handle commands of a specific type.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=Assign.html>Assign</a></th><td class="colLast">Marks a method as a command assignee.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Commander.html>Commander</a></th><td class="colLast">An interface common for objects posting one or more commands in response to an incoming message.</td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandReceiver.html>CommandReceiver</a></th><td class="colLast">Common interface for all objects that receive commands at the end of the dispatching.</td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=DoNothingOrBuilder.html>DoNothingOrBuilder</a></th><td class="colLast"></td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=Command.html>Command</a></th><td class="colLast">Marks a commanding method.</td></tr>
 </tbody>
 </table>
 
