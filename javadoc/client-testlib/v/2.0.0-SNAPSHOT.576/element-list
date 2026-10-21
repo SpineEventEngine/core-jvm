@@ -1,0 +1,6 @@
+$dokka.format:javadoc-v1
+$dokka.linkExtension:html
+$dokka.location:io.spine.testing.client.command/TestCommandMessage.Builder///PointingToDeclaration/io/spine/testing/client/command/TestCommandMessage.Builder.html
+io.spine.testing.client
+io.spine.testing.client.command
+io.spine.testing.client.grpc
