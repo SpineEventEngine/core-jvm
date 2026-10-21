@@ -18,20 +18,17 @@ import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
-import io.spine.base.Identifier
-import io.spine.core.MessageId
 import io.spine.server.BoundedContext
 import io.spine.server.delivery.CatchUpStatus.COMPLETED
 import io.spine.server.delivery.InboxMessageStatus.DELIVERED
 import io.spine.server.delivery.event.CatchUpStarted
-import io.spine.server.delivery.event.EntityPreparedForCatchUp
 import io.spine.server.delivery.given.CounterView
+import io.spine.server.delivery.given.HoldingExecutor
+import io.spine.server.delivery.given.RecordingInboxStorage
 import io.spine.server.storage.memory.InMemoryStorageFactory
 import io.spine.test.delivery.numberAdded
 import io.spine.testing.SlowTest
 import io.spine.testing.server.blackbox.BlackBox
-import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit.SECONDS
 import kotlin.jvm.optionals.getOrNull
 import org.junit.jupiter.api.BeforeEach
@@ -180,35 +177,6 @@ internal class KeptStartSignalIgTest : AbstractCatchUpIgTest() {
 }
 
 /**
- * Records each message sent to an inbox.
- *
- * A message sent to an inbox is written on its own. A delivery run writes the messages
- * it has processed in a batch, which is not recorded.
- */
-private class RecordingInboxStorage :
-    InboxStorage(InMemoryStorageFactory.newInstance(), false) {
-
-    private val sent = CopyOnWriteArrayList<InboxMessage>()
-
-    override fun write(message: InboxMessage) {
-        sent.add(message)
-        super.write(message)
-    }
-
-    /**
-     * Returns the IDs of the instances that reported being prepared for the given job,
-     * in the order of the reports.
-     */
-    fun reportsOf(job: CatchUpId): List<String> =
-        sent.filter { it.hasEvent() }
-            .map { it.event.enclosedMessage() }
-            .filterIsInstance<EntityPreparedForCatchUp>()
-            .filter { it.id == job }
-            .map { Identifier.unpack(it.instanceId, MessageId::class.java) }
-            .map { Identifier.unpack(it.id, String::class.java) }
-}
-
-/**
  * A catch-up storage whose `readAll()` may lag behind its writes.
  *
  * Once frozen, `readAll()` returns the jobs stored at that moment, until unfrozen.
@@ -228,39 +196,4 @@ private class LaggingCatchUpStorage :
     }
 
     override fun readAll(): Iterator<CatchUp> = frozen?.iterator() ?: super.readAll()
-}
-
-/**
- * Runs each task in the calling thread or, while holding, keeps it until released.
- *
- * Holding emulates an executor that posts the system events after the delivery run ends.
- *
- * All the calls come from the test thread, so the executor needs no synchronization.
- */
-private class HoldingExecutor : Executor {
-
-    private val held = ArrayDeque<Runnable>()
-    private var holding = false
-
-    fun hold() {
-        holding = true
-    }
-
-    /**
-     * Runs the held tasks, and each task to come, in the calling thread.
-     */
-    fun release() {
-        holding = false
-        while (held.isNotEmpty()) {
-            held.removeFirst().run()
-        }
-    }
-
-    override fun execute(task: Runnable) {
-        if (holding) {
-            held.addLast(task)
-        } else {
-            task.run()
-        }
-    }
 }
