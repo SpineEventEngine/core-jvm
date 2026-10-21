@@ -113,16 +113,16 @@ var pathtoroot = "";
                             
                                 <tr class="altColor">
                                     <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/client/QueryFilter.html">io.spine.client.QueryFilter</a>
+                                        <a href="io/spine/client/CompositeQueryFilter.html">io.spine.client.CompositeQueryFilter</a>
                                     </th>
-                                    <td class="colLast">A query filter that targets a column of an entity.</td>
+                                    <td class="colLast">A composite query filter that targets one or more entity columns.</td>
                                 </tr>
                             
                                 <tr class="rowColor">
                                     <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/client/CompositeQueryFilter.html">io.spine.client.CompositeQueryFilter</a>
+                                        <a href="io/spine/client/QueryFilter.html">io.spine.client.QueryFilter</a>
                                     </th>
-                                    <td class="colLast">A composite query filter that targets one or more entity columns.</td>
+                                    <td class="colLast">A query filter that targets a column of an entity.</td>
                                 </tr>
                             
                         </table>
@@ -140,6 +140,76 @@ var pathtoroot = "";
                                 <th class="colFirst" scope="col">Method</th>
                                 <th class="colLast" scope="col">Description</th>
                             </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/client/Client.Builder.html#shutdownTimout(long,java.util.concurrent.TimeUnit)">io.spine.client.shutdownTimout(long,java.util.concurrent.TimeUnit)</a>
+                                    </th>
+                                    <td class="colLast">Sets the timeout for the <a href=io/spine/client/Client.html#close()>shutdown operation</a> of the client.</td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/client/Client.html#cancel(io.spine.client.Subscription)">io.spine.client.cancel(io.spine.client.Subscription)</a>
+                                    </th>
+                                    <td class="colLast">Requests cancellation of the passed subscription.</td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/client/QueryBuilder.html#withMask(java.lang.Iterable)">io.spine.client.withMask(java.lang.Iterable)</a>
+                                    </th>
+                                    <td class="colLast">Does nothing.</td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/client/QueryBuilder.html#withMask(kotlin.Array)">io.spine.client.withMask(kotlin.Array)</a>
+                                    </th>
+                                    <td class="colLast">Does nothing.</td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/client/SubscribingRequest.html#where(kotlin.Array)">io.spine.client.where(kotlin.Array)</a>
+                                    </th>
+                                    <td class="colLast">Configures the request to return results matching all the passed filters.</td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/client/SubscribingRequest.html#where(kotlin.Array)">io.spine.client.where(kotlin.Array)</a>
+                                    </th>
+                                    <td class="colLast">Configures the request to return results matching all the passed filters.</td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/client/SubscribingRequest.html#withMask(java.lang.Iterable)">io.spine.client.withMask(java.lang.Iterable)</a>
+                                    </th>
+                                    <td class="colLast">Does nothing.</td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/client/SubscribingRequest.html#withMask(kotlin.Array)">io.spine.client.withMask(kotlin.Array)</a>
+                                    </th>
+                                    <td class="colLast">Does nothing.</td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/client/QueryFactory.html#byIdsWithMask(java.lang.Class,java.util.Set,kotlin.Array)">io.spine.client.byIdsWithMask(java.lang.Class,java.util.Set,kotlin.Array)</a>
+                                    </th>
+                                    <td class="colLast">Creates a <a href=io/spine/client/Query.html>Query</a> to read certain entity states by IDs.</td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/client/QueryFactory.html#allWithMask(java.lang.Class,kotlin.Array)">io.spine.client.allWithMask(java.lang.Class,kotlin.Array)</a>
+                                    </th>
+                                    <td class="colLast">Creates a <a href=io/spine/client/Query.html>Query</a> to read all states of a certain entity.</td>
+                                </tr>
                             
                                 <tr class="altColor">
                                     <th class="colDeprecatedItemName" scope="row">
@@ -171,75 +241,12 @@ var pathtoroot = "";
                             
                                 <tr class="altColor">
                                     <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/client/TargetBuilder.html#withMask(java.lang.Iterable)">io.spine.client.withMask(java.lang.Iterable)</a>
+                                        <a href="io/spine/client/SubscriptionUpdate.UpdateCase.html#valueOf(int)">io.spine.client.valueOf(int)</a>
                                     </th>
-                                    <td class="colLast">Does nothing.</td>
+                                    <td class="colLast"></td>
                                 </tr>
                             
                                 <tr class="rowColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/client/TargetBuilder.html#withMask(kotlin.Array)">io.spine.client.withMask(kotlin.Array)</a>
-                                    </th>
-                                    <td class="colLast">Does nothing.</td>
-                                </tr>
-                            
-                                <tr class="altColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/client/Client.Builder.html#shutdownTimout(long,java.util.concurrent.TimeUnit)">io.spine.client.shutdownTimout(long,java.util.concurrent.TimeUnit)</a>
-                                    </th>
-                                    <td class="colLast">Sets the timeout for the <a href=io/spine/client/Client.html#close()>shutdown operation</a> of the client.</td>
-                                </tr>
-                            
-                                <tr class="rowColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/client/Client.html#cancel(io.spine.client.Subscription)">io.spine.client.cancel(io.spine.client.Subscription)</a>
-                                    </th>
-                                    <td class="colLast">Requests cancellation of the passed subscription.</td>
-                                </tr>
-                            
-                                <tr class="altColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/client/SubscriptionRequest.html#where(kotlin.Array)">io.spine.client.where(kotlin.Array)</a>
-                                    </th>
-                                    <td class="colLast">Configures the request to return results matching all the passed filters.</td>
-                                </tr>
-                            
-                                <tr class="rowColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/client/SubscriptionRequest.html#where(kotlin.Array)">io.spine.client.where(kotlin.Array)</a>
-                                    </th>
-                                    <td class="colLast">Configures the request to return results matching all the passed filters.</td>
-                                </tr>
-                            
-                                <tr class="altColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/client/SubscriptionRequest.html#withMask(java.lang.Iterable)">io.spine.client.withMask(java.lang.Iterable)</a>
-                                    </th>
-                                    <td class="colLast">Does nothing.</td>
-                                </tr>
-                            
-                                <tr class="rowColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/client/SubscriptionRequest.html#withMask(kotlin.Array)">io.spine.client.withMask(kotlin.Array)</a>
-                                    </th>
-                                    <td class="colLast">Does nothing.</td>
-                                </tr>
-                            
-                                <tr class="altColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/client/QueryFactory.html#byIdsWithMask(java.lang.Class,java.util.Set,kotlin.Array)">io.spine.client.byIdsWithMask(java.lang.Class,java.util.Set,kotlin.Array)</a>
-                                    </th>
-                                    <td class="colLast">Creates a <a href=io/spine/client/Query.html>Query</a> to read certain entity states by IDs.</td>
-                                </tr>
-                            
-                                <tr class="rowColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/client/QueryFactory.html#allWithMask(java.lang.Class,kotlin.Array)">io.spine.client.allWithMask(java.lang.Class,kotlin.Array)</a>
-                                    </th>
-                                    <td class="colLast">Creates a <a href=io/spine/client/Query.html>Query</a> to read all states of a certain entity.</td>
-                                </tr>
-                            
-                                <tr class="altColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/client/Topic.Builder.html#hasFieldMask()">io.spine.client.hasFieldMask()</a>
                                     </th>
@@ -250,7 +257,7 @@ the fields of the entity states.
 </code></pre><code>.google.protobuf.FieldMask field_mask = 3 [deprecated = true];</code></td>
                                 </tr>
                             
-                                <tr class="rowColor">
+                                <tr class="altColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/client/Topic.Builder.html#getFieldMask()">io.spine.client.getFieldMask()</a>
                                     </th>
@@ -261,7 +268,7 @@ the fields of the entity states.
 </code></pre><code>.google.protobuf.FieldMask field_mask = 3 [deprecated = true];</code></td>
                                 </tr>
                             
-                                <tr class="altColor">
+                                <tr class="rowColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/client/Topic.Builder.html#setFieldMask(com.google.protobuf.FieldMask)">io.spine.client.setFieldMask(com.google.protobuf.FieldMask)</a>
                                     </th>
@@ -272,7 +279,7 @@ the fields of the entity states.
 </code></pre><code>.google.protobuf.FieldMask field_mask = 3 [deprecated = true];</code></td>
                                 </tr>
                             
-                                <tr class="rowColor">
+                                <tr class="altColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/client/Topic.Builder.html#setFieldMask(com.google.protobuf.FieldMask.Builder)">io.spine.client.setFieldMask(com.google.protobuf.FieldMask.Builder)</a>
                                     </th>
@@ -283,7 +290,7 @@ the fields of the entity states.
 </code></pre><code>.google.protobuf.FieldMask field_mask = 3 [deprecated = true];</code></td>
                                 </tr>
                             
-                                <tr class="altColor">
+                                <tr class="rowColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/client/Topic.Builder.html#mergeFieldMask(com.google.protobuf.FieldMask)">io.spine.client.mergeFieldMask(com.google.protobuf.FieldMask)</a>
                                     </th>
@@ -294,7 +301,7 @@ the fields of the entity states.
 </code></pre><code>.google.protobuf.FieldMask field_mask = 3 [deprecated = true];</code></td>
                                 </tr>
                             
-                                <tr class="rowColor">
+                                <tr class="altColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/client/Topic.Builder.html#clearFieldMask()">io.spine.client.clearFieldMask()</a>
                                     </th>
@@ -305,7 +312,7 @@ the fields of the entity states.
 </code></pre><code>.google.protobuf.FieldMask field_mask = 3 [deprecated = true];</code></td>
                                 </tr>
                             
-                                <tr class="altColor">
+                                <tr class="rowColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/client/Topic.Builder.html#getFieldMaskBuilder()">io.spine.client.getFieldMaskBuilder()</a>
                                     </th>
@@ -316,7 +323,7 @@ the fields of the entity states.
 </code></pre><code>.google.protobuf.FieldMask field_mask = 3 [deprecated = true];</code></td>
                                 </tr>
                             
-                                <tr class="rowColor">
+                                <tr class="altColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/client/Topic.Builder.html#getFieldMaskOrBuilder()">io.spine.client.getFieldMaskOrBuilder()</a>
                                     </th>
@@ -327,7 +334,7 @@ the fields of the entity states.
 </code></pre><code>.google.protobuf.FieldMask field_mask = 3 [deprecated = true];</code></td>
                                 </tr>
                             
-                                <tr class="altColor">
+                                <tr class="rowColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/client/Topic.html#hasFieldMask()">io.spine.client.hasFieldMask()</a>
                                     </th>
@@ -338,7 +345,7 @@ the fields of the entity states.
 </code></pre><code>.google.protobuf.FieldMask field_mask = 3 [deprecated = true];</code></td>
                                 </tr>
                             
-                                <tr class="rowColor">
+                                <tr class="altColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/client/Topic.html#getFieldMask()">io.spine.client.getFieldMask()</a>
                                     </th>
@@ -349,7 +356,7 @@ the fields of the entity states.
 </code></pre><code>.google.protobuf.FieldMask field_mask = 3 [deprecated = true];</code></td>
                                 </tr>
                             
-                                <tr class="altColor">
+                                <tr class="rowColor">
                                     <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/client/Topic.html#getFieldMaskOrBuilder()">io.spine.client.getFieldMaskOrBuilder()</a>
                                     </th>
@@ -358,6 +365,67 @@ the fields of the entity states.
 The value of this field is ignored. The subscription updates always contain all
 the fields of the entity states.
 </code></pre><code>.google.protobuf.FieldMask field_mask = 3 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/client/TopicOrBuilder.html#hasFieldMask()">io.spine.client.hasFieldMask()</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>Deprecated: field masks are no longer supported.
+
+The value of this field is ignored. The subscription updates always contain all
+the fields of the entity states.
+</code></pre><code>.google.protobuf.FieldMask field_mask = 3 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/client/TopicOrBuilder.html#getFieldMask()">io.spine.client.getFieldMask()</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>Deprecated: field masks are no longer supported.
+
+The value of this field is ignored. The subscription updates always contain all
+the fields of the entity states.
+</code></pre><code>.google.protobuf.FieldMask field_mask = 3 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/client/TopicOrBuilder.html#getFieldMaskOrBuilder()">io.spine.client.getFieldMaskOrBuilder()</a>
+                                    </th>
+                                    <td class="colLast"><pre><code>Deprecated: field masks are no longer supported.
+
+The value of this field is ignored. The subscription updates always contain all
+the fields of the entity states.
+</code></pre><code>.google.protobuf.FieldMask field_mask = 3 [deprecated = true];</code></td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/client/SubscriptionValidationError.html#valueOf(int)">io.spine.client.valueOf(int)</a>
+                                    </th>
+                                    <td class="colLast"></td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/client/CompositeFilter.CompositeOperator.html#valueOf(int)">io.spine.client.valueOf(int)</a>
+                                    </th>
+                                    <td class="colLast"></td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/client/Target.CriterionCase.html#valueOf(int)">io.spine.client.valueOf(int)</a>
+                                    </th>
+                                    <td class="colLast"></td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/client/TopicValidationError.html#valueOf(int)">io.spine.client.valueOf(int)</a>
+                                    </th>
+                                    <td class="colLast"></td>
                                 </tr>
                             
                                 <tr class="rowColor">
@@ -516,88 +584,6 @@ of the entity states.
                             
                                 <tr class="rowColor">
                                     <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/client/EntityStateUpdate.KindCase.html#valueOf(int)">io.spine.client.valueOf(int)</a>
-                                    </th>
-                                    <td class="colLast"></td>
-                                </tr>
-                            
-                                <tr class="altColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/client/Target.CriterionCase.html#valueOf(int)">io.spine.client.valueOf(int)</a>
-                                    </th>
-                                    <td class="colLast"></td>
-                                </tr>
-                            
-                                <tr class="rowColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/client/QueryValidationError.html#valueOf(int)">io.spine.client.valueOf(int)</a>
-                                    </th>
-                                    <td class="colLast"></td>
-                                </tr>
-                            
-                                <tr class="altColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/client/TopicOrBuilder.html#hasFieldMask()">io.spine.client.hasFieldMask()</a>
-                                    </th>
-                                    <td class="colLast"><pre><code>Deprecated: field masks are no longer supported.
-
-The value of this field is ignored. The subscription updates always contain all
-the fields of the entity states.
-</code></pre><code>.google.protobuf.FieldMask field_mask = 3 [deprecated = true];</code></td>
-                                </tr>
-                            
-                                <tr class="rowColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/client/TopicOrBuilder.html#getFieldMask()">io.spine.client.getFieldMask()</a>
-                                    </th>
-                                    <td class="colLast"><pre><code>Deprecated: field masks are no longer supported.
-
-The value of this field is ignored. The subscription updates always contain all
-the fields of the entity states.
-</code></pre><code>.google.protobuf.FieldMask field_mask = 3 [deprecated = true];</code></td>
-                                </tr>
-                            
-                                <tr class="altColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/client/TopicOrBuilder.html#getFieldMaskOrBuilder()">io.spine.client.getFieldMaskOrBuilder()</a>
-                                    </th>
-                                    <td class="colLast"><pre><code>Deprecated: field masks are no longer supported.
-
-The value of this field is ignored. The subscription updates always contain all
-the fields of the entity states.
-</code></pre><code>.google.protobuf.FieldMask field_mask = 3 [deprecated = true];</code></td>
-                                </tr>
-                            
-                                <tr class="rowColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/client/SubscriptionValidationError.html#valueOf(int)">io.spine.client.valueOf(int)</a>
-                                    </th>
-                                    <td class="colLast"></td>
-                                </tr>
-                            
-                                <tr class="altColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/client/CompositeFilter.CompositeOperator.html#valueOf(int)">io.spine.client.valueOf(int)</a>
-                                    </th>
-                                    <td class="colLast"></td>
-                                </tr>
-                            
-                                <tr class="rowColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/client/SubscriptionUpdate.UpdateCase.html#valueOf(int)">io.spine.client.valueOf(int)</a>
-                                    </th>
-                                    <td class="colLast"></td>
-                                </tr>
-                            
-                                <tr class="altColor">
-                                    <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/client/Filter.Operator.html#valueOf(int)">io.spine.client.valueOf(int)</a>
-                                    </th>
-                                    <td class="colLast"></td>
-                                </tr>
-                            
-                                <tr class="rowColor">
-                                    <th class="colDeprecatedItemName" scope="row">
                                         <a href="io/spine/client/OrderBy.Direction.html#valueOf(int)">io.spine.client.valueOf(int)</a>
                                     </th>
                                     <td class="colLast"></td>
@@ -605,7 +591,21 @@ the fields of the entity states.
                             
                                 <tr class="altColor">
                                     <th class="colDeprecatedItemName" scope="row">
-                                        <a href="io/spine/client/TopicValidationError.html#valueOf(int)">io.spine.client.valueOf(int)</a>
+                                        <a href="io/spine/client/EntityStateUpdate.KindCase.html#valueOf(int)">io.spine.client.valueOf(int)</a>
+                                    </th>
+                                    <td class="colLast"></td>
+                                </tr>
+                            
+                                <tr class="rowColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/client/Filter.Operator.html#valueOf(int)">io.spine.client.valueOf(int)</a>
+                                    </th>
+                                    <td class="colLast"></td>
+                                </tr>
+                            
+                                <tr class="altColor">
+                                    <th class="colDeprecatedItemName" scope="row">
+                                        <a href="io/spine/client/QueryValidationError.html#valueOf(int)">io.spine.client.valueOf(int)</a>
                                     </th>
                                     <td class="colLast"></td>
                                 </tr>
