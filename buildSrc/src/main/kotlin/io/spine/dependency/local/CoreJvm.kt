@@ -24,10 +24,13 @@ typealias CoreJava = CoreJvm
  *
  * See [`SpineEventEngine/core-jvm`](https://github.com/SpineEventEngine/core-jvm/).
  */
-@Suppress("ConstPropertyName", "unused")
+@Suppress(
+    "ConstPropertyName" /* We use a custom convention for artifact properties. */,
+    "unused" /* Some subprojects do not use all CoreJvm artifacts. */,
+)
 object CoreJvm {
     const val group = Spine.group
-    const val version = "2.0.0-SNAPSHOT.567"
+    const val version = "2.0.0-SNAPSHOT.571"
 
     const val coreArtifact = "spine-core"
     const val clientArtifact = "spine-client"

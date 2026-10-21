@@ -23,12 +23,12 @@ import io.spine.dependency.Dependency
  */
 @Suppress(
     "unused" /* Some subprojects do not use all Time artifacts. */,
-    "ConstPropertyName" /* We use custom convention for artifact properties. */,
+    "ConstPropertyName" /* We use a custom convention for artifact properties. */,
     "MemberVisibilityCanBePrivate" /* The properties are used directly by other subprojects. */,
 )
 object Time : Dependency() {
     override val group = Spine.group
-    override val version = "2.0.0-SNAPSHOT.252"
+    override val version = "2.0.0-SNAPSHOT.251"
     private const val infix = "spine-time"
 
     fun lib(version: String): String = "$group:$infix:$version"

@@ -19,12 +19,15 @@ package io.spine.dependency.local
  *
  * See [`SpineEventEngine/validation`](https://github.com/SpineEventEngine/validation/).
  */
-@Suppress("ConstPropertyName", "unused")
+@Suppress(
+    "ConstPropertyName" /* We use a custom convention for artifact properties. */,
+    "unused" /* Some subprojects do not use all Validation artifacts. */,
+)
 object Validation {
     /**
      * The version of the Validation library artifacts.
      */
-    const val version = "2.0.0-SNAPSHOT.465"
+    const val version = "2.0.0-SNAPSHOT.464"
 
     const val group = Spine.toolsGroup
     private const val prefix = "validation"

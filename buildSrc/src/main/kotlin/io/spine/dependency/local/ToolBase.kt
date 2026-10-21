@@ -26,11 +26,14 @@ package io.spine.dependency.local
  *
  * @see <a href="https://github.com/SpineEventEngine/tool-base">tool-base</a>
  */
-@Suppress("ConstPropertyName", "unused")
+@Suppress(
+    "ConstPropertyName" /* We use a custom convention for artifact properties. */,
+    "unused" /* Some subprojects do not use all ToolBase artifacts. */,
+)
 object ToolBase {
     const val group = Spine.toolsGroup
-    const val version = "2.0.0-SNAPSHOT.425"
-    const val dogfoodingVersion = "2.0.0-SNAPSHOT.425"
+    const val version = "2.0.0-SNAPSHOT.426"
+    const val dogfoodingVersion = "2.0.0-SNAPSHOT.426"
 
     const val archive = "$group:archive:$version"
     const val code = "$group:code:$version"

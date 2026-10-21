@@ -92,3 +92,22 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
           verbose: true
+
+          # The Codecov CLI ships a set of "file fixes" with every upload. For
+          # `.kt` files — never `.java` — they mark each line holding nothing
+          # but a brace or a parenthesis as non-code. JaCoCo, however, does
+          # measure one such line: it attributes a Kotlin lambda body's
+          # instructions to the body's closing `}`, through the synthetic
+          # `$lambda$N` that an `invokedynamic` lambda compiles to. The fixes
+          # thus discard roughly a tenth of the measured lines, which would be
+          # harmless if every ingestion applied them. Not every one does: when
+          # Codecov re-processes a stored upload, the second pass leaves them
+          # unapplied, so one and the same report can be ingested on either
+          # line basis. That switch moves the `src/main/**` project status by
+          # about 0.7 percentage points, fourteen times the threshold in
+          # `.codecov.yml`, and it has been seen on `master`, whose commits
+          # are the `target: auto` baselines — so it can shift a pull
+          # request's delta either way. Sending no fixes makes both ingestion
+          # paths agree, at the price of counting a lambda-closing brace as a
+          # coverable line.
+          disable_file_fixes: true

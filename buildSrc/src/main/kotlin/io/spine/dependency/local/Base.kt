@@ -19,10 +19,13 @@ package io.spine.dependency.local
  *
  * @see <a href="https://github.com/SpineEventEngine/base-libraries">spine-base-libraries</a>
  */
-@Suppress("ConstPropertyName", "unused")
+@Suppress(
+    "ConstPropertyName" /* We use a custom convention for artifact properties. */,
+    "unused" /* Some subprojects do not use all Base artifacts. */,
+)
 object Base {
     const val version = "2.0.0-SNAPSHOT.461"
-    const val versionForBuildScript = "2.0.0-SNAPSHOT.460"
+    const val versionForBuildScript = "2.0.0-SNAPSHOT.461"
     const val group = Spine.group
     private const val prefix = "spine"
     const val libModule = "$prefix-base"

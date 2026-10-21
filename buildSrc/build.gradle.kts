@@ -77,7 +77,7 @@ val grGitVersion = "5.3.3"
  * This version may change from the [version of Kotlin][io.spine.dependency.lib.Kotlin.version]
  * used by the project.
  */
-val kotlinEmbeddedVersion = "2.4.21"
+val kotlinEmbeddedVersion = "2.4.10"
 
 /**
  * The version of Guava used in `buildSrc`.

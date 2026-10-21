@@ -334,19 +334,45 @@ private fun abbreviationPattern(abbreviation: String): Regex {
 private val wordStart = Regex("(?=\\p{javaUpperCase})")
 
 /**
- * Disables Dokka and Javadoc tasks in this `Project`.
+ * Disables the Dokka and Javadoc tasks generating the documentation of this `Project`.
  *
  * This function could be useful to improve build speed when building subprojects containing
  * test environments or integration test projects.
+ *
+ * The JARs packing the documentation stay enabled, as they do under
+ * [skipDokkaWhenPublishingToMavenLocal]. A publication declares one artifact
+ * file per JAR, and a JAR that a disabled task never writes would be missing
+ * both when publishing and when the published files are attested. With nothing
+ * generated to pack, such a JAR costs almost nothing: it contains only
+ * a manifest, or the output of an earlier Dokka run.
  */
 @Suppress("unused")
 fun Project.disableDocumentationTasks() {
     gradle.taskGraph.whenReady {
         tasks.forEach { task ->
-            val lowercaseName = task.name.lowercase()
-            if (lowercaseName.contains("dokka") || lowercaseName.contains("javadoc")) {
+            if (task.generatesDocumentation()) {
                 task.enabled = false
             }
         }
     }
+}
+
+/**
+ * Tells if this task generates documentation, rather than packing already generated
+ * documentation into a JAR.
+ *
+ * A [Jar] task is recognized by its type rather than by its name, so that
+ * `javadocJar` and `htmlDocsJar` are treated alike — as is any documentation JAR
+ * added later, whatever it is called. Any other task generates documentation if
+ * `dokka` or `javadoc` occurs in its name, ignoring case.
+ *
+ * [selectsDocsTask] keeps matching the same JARs by name, because the names it
+ * is given come from the command line rather than from the task graph.
+ */
+private fun Task.generatesDocumentation(): Boolean {
+    if (this is Jar) {
+        return false
+    }
+    return name.contains("dokka", ignoreCase = true)
+            || name.contains("javadoc", ignoreCase = true)
 }

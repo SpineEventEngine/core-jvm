@@ -19,9 +19,11 @@ package io.spine.dependency.local
  *
  * @see <a href="https://github.com/SpineEventEngine/base-types">spine-base-types</a>
  */
-@Suppress("ConstPropertyName")
+@Suppress(
+    "ConstPropertyName" /* We use a custom convention for artifact properties. */,
+)
 object BaseTypes {
-    const val version = "2.0.0-SNAPSHOT.227"
+    const val version = "2.0.0-SNAPSHOT.225"
     const val group = Spine.group
     const val artifact = "spine-base-types"
     const val lib = "$group:$artifact:$version"

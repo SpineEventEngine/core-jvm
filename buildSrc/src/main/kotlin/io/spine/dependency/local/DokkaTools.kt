@@ -21,7 +21,6 @@ package io.spine.dependency.local
  * See [`SpineEventEngine/dokka-tools`](https://github.com/SpineEventEngine/dokka-tools/).
  */
 @Suppress(
-    "unused" /* Some subprojects do not use the Dokka tools directly. */,
     "ConstPropertyName" /* We use a custom convention for artifact properties. */,
 )
 object DokkaTools {
