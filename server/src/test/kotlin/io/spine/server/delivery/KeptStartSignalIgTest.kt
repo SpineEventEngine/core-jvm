@@ -14,40 +14,23 @@
 
 package io.spine.server.delivery
 
-import com.google.protobuf.Timestamp
-import com.google.protobuf.util.Durations
-import com.google.protobuf.util.Timestamps.subtract
 import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
-import io.spine.base.Identifier
-import io.spine.base.Time.currentTime
-import io.spine.core.MessageId
-import io.spine.environment.Tests
 import io.spine.server.BoundedContext
 import io.spine.server.delivery.CatchUpStatus.COMPLETED
 import io.spine.server.delivery.InboxMessageStatus.DELIVERED
-import io.spine.server.delivery.InboxMessageStatus.TO_CATCH_UP
-import io.spine.server.delivery.InboxMessageStatus.TO_DELIVER
-import io.spine.server.delivery.KeptStartSignalTestEnv.EVENTS_PER_TARGET
-import io.spine.server.delivery.KeptStartSignalTestEnv.PAST_KEEPING_MILLIS
-import io.spine.server.delivery.KeptStartSignalTestEnv.PAST_TURBULENCE_MILLIS
-import io.spine.server.delivery.KeptStartSignalTestEnv.TARGETS
-import io.spine.server.delivery.KeptStartSignalTestEnv.THIRD
 import io.spine.server.delivery.event.CatchUpStarted
-import io.spine.server.delivery.event.EntityPreparedForCatchUp
 import io.spine.server.delivery.given.CounterView
+import io.spine.server.delivery.given.HoldingExecutor
+import io.spine.server.delivery.given.RecordingInboxStorage
 import io.spine.server.storage.memory.InMemoryStorageFactory
-import io.spine.server.under
 import io.spine.test.delivery.numberAdded
 import io.spine.testing.SlowTest
 import io.spine.testing.server.blackbox.BlackBox
-import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit.SECONDS
 import kotlin.jvm.optionals.getOrNull
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -71,56 +54,28 @@ import org.junit.jupiter.api.Timeout.ThreadMode.SEPARATE_THREAD
 @SlowTest
 @Timeout(value = 60, unit = SECONDS, threadMode = SEPARATE_THREAD)
 @DisplayName("Catch-up, given its start signals kept by a completed job, should")
-internal class KeptStartSignalIgTest : AbstractDeliveryTest() {
+internal class KeptStartSignalIgTest : AbstractCatchUpIgTest() {
 
-    private val repository = CounterView.Repository()
-    private val failures = CopyOnWriteArrayList<String>()
     private val inboxStorage = RecordingInboxStorage()
     private val catchUpStorage = LaggingCatchUpStorage()
     private val systemEvents = HoldingExecutor()
 
     /**
-     * Uses a single-shard `Delivery` that delivers synchronously through
-     * `LocalDispatchingObserver`, and records each failure.
-     *
-     * Without the recording, a failure would go unnoticed: `Delivery` only logs what a shard
-     * observer throws, and the default `DeliveryMonitor` marks a message as delivered even if
-     * its receptor failed.
+     * Uses a single-shard `Delivery` that records each message sent to an inbox, and whose
+     * query of the catch-up jobs the test can freeze.
      */
     @BeforeEach
     fun useRecordingDelivery() {
-        val delivery = Delivery.newBuilder()
-            .setStrategy(UniformAcrossAllShards.singleShard())
-            .setDeduplicationWindow(Durations.ZERO)
-            .setInboxStorage(inboxStorage)
-            .setCatchUpStorage(catchUpStorage)
-            .setMonitor(FailureRecorder(failures))
-            .build()
-        val dispatching = LocalDispatchingObserver()
-        delivery.subscribe { message ->
-            try {
-                dispatching.onMessage(message)
-            } catch (e: Exception) {
-                failures.add("Delivery run: $e")
-                throw e
-            }
+        useDelivery(UniformAcrossAllShards.singleShard()) { builder ->
+            builder.setInboxStorage(inboxStorage)
+                .setCatchUpStorage(catchUpStorage)
         }
-        under<Tests> { use(delivery) }
-    }
-
-    /**
-     * Restores the default weight of an event, which `CounterView` keeps in a static field
-     * for the whole JVM.
-     */
-    @AfterEach
-    fun resetWeight() {
-        CounterView.changeWeightTo(1)
     }
 
     @Test
     fun `reset each target once, while the jobs read by a delivery run lag behind the storage`() {
         blackBox().use { box ->
-            val since = emitHistory(box)
+            val since = emitHistory(box, EVENTS_PER_TARGET, *TARGETS.toTypedArray())
             CounterView.changeWeightTo(10)
             repository.catchUp(since, TARGETS)
 
@@ -148,7 +103,7 @@ internal class KeptStartSignalIgTest : AbstractDeliveryTest() {
                     state?.status shouldBe COMPLETED
                     state?.instancesToClear shouldBe 0
                 }
-                totals() shouldBe TARGETS.associateWith { 1000 }
+                totals(*TARGETS.toTypedArray()) shouldBe TARGETS.associateWith { 1000 }
                 undelivered().shouldBeEmpty()
             }
 
@@ -170,102 +125,55 @@ internal class KeptStartSignalIgTest : AbstractDeliveryTest() {
     }
 
     /**
-     * Returns the totals of the [TARGETS], or `null` for one that does not exist.
+     * Returns the start signals of the given job in the inbox.
      */
-    private fun totals(): Map<String, Int?> =
-        TARGETS.associateWith { id ->
-            repository.find(id).getOrNull()?.state()?.total
+    private fun startSignalsOf(job: CatchUpId): List<InboxMessage> =
+        inboxContents().filter {
+            it.hasEvent() && (it.event.enclosedMessage() as? CatchUpStarted)?.id == job
         }
-}
 
-/**
- * The constants of [KeptStartSignalIgTest].
- */
-private object KeptStartSignalTestEnv {
+    private companion object {
 
-    const val FIRST = "first"
-    const val SECOND = "second"
-    const val THIRD = "third"
-    val TARGETS = setOf(FIRST, SECOND)
-    const val EVENTS_PER_TARGET = 10
+        /**
+         * The ID of the first projection to catch up.
+         */
+        const val FIRST = "first"
 
-    /**
-     * Exceeds the 500 ms turbulence period of a catch-up.
-     */
-    const val PAST_TURBULENCE_MILLIS = 1_000L
+        /**
+         * The ID of the second projection to catch up.
+         */
+        const val SECOND = "second"
 
-    /**
-     * Exceeds the 1 s for which a completed job keeps a message it delivers.
-     */
-    const val PAST_KEEPING_MILLIS = 1_200L
-}
+        /**
+         * The ID of a projection that no catch-up of the test touches.
+         *
+         * See [TARGETS] for its purpose.
+         */
+        const val THIRD = "third"
 
-/**
- * Emits [EVENTS_PER_TARGET] events to each of the [TARGETS], weighing 1 each.
- *
- * Each event is posted live, so it gets a timestamp of its own. Then the function waits
- * until the events are older than the turbulence period of a catch-up.
- *
- * @param box The black box to post the events to.
- * @return The time to start the catch-up from, which precedes the events.
- */
-private fun emitHistory(box: BlackBox): Timestamp {
-    CounterView.changeWeightTo(1)
-    val since = subtract(currentTime(), Durations.fromMinutes(1))
-    repeat(EVENTS_PER_TARGET) {
-        TARGETS.forEach { id ->
-            box.receivesEvent(numberAdded { calculatorId = id })
-        }
+        /**
+         * The IDs of the projections that each catch-up of the test resets and replays.
+         *
+         * [THIRD] is not among them, because it serves another purpose. At the end of
+         * the test, a live event to [THIRD] starts one more delivery run, whose cleanup
+         * removes the expired start signals. No catch-up job matches [THIRD], so its event
+         * takes no part in the catch-ups and leaves the totals of the targets as they are.
+         */
+        val TARGETS = setOf(FIRST, SECOND)
+
+        /**
+         * The number of history events each of the [TARGETS] gets before the catch-ups.
+         *
+         * Each catch-up replays all of them, so a target replayed once at a weight of 100
+         * totals 1000.
+         */
+        const val EVENTS_PER_TARGET = 10
+
+        /**
+         * Exceeds the 1 s for which a completed job keeps a message it delivers.
+         */
+        const val PAST_KEEPING_MILLIS = 1_200L
     }
-    Thread.sleep(PAST_TURBULENCE_MILLIS)
-    return since
-}
-
-/**
- * Returns the start signals of the given job in the inbox.
- */
-private fun startSignalsOf(job: CatchUpId): List<InboxMessage> =
-    inboxContents().filter {
-        it.hasEvent() && (it.event.enclosedMessage() as? CatchUpStarted)?.id == job
-    }
-
-/**
- * Returns the messages that are still to be delivered, either live or for a catch-up.
- */
-private fun undelivered(): List<InboxMessage> =
-    inboxContents().filter {
-        it.status == TO_DELIVER || it.status == TO_CATCH_UP
-    }
-
-private fun inboxContents(): List<InboxMessage> = InboxContents.get().values.flatten()
-
-/**
- * Records each message sent to an inbox.
- *
- * A message sent to an inbox is written on its own. A delivery run writes the messages
- * it has processed in a batch, which is not recorded.
- */
-private class RecordingInboxStorage :
-    InboxStorage(InMemoryStorageFactory.newInstance(), false) {
-
-    private val sent = CopyOnWriteArrayList<InboxMessage>()
-
-    override fun write(message: InboxMessage) {
-        sent.add(message)
-        super.write(message)
-    }
-
-    /**
-     * Returns the IDs of the instances that reported being prepared for the given job,
-     * in the order of the reports.
-     */
-    fun reportsOf(job: CatchUpId): List<String> =
-        sent.filter { it.hasEvent() }
-            .map { it.event.enclosedMessage() }
-            .filterIsInstance<EntityPreparedForCatchUp>()
-            .filter { it.id == job }
-            .map { Identifier.unpack(it.instanceId, MessageId::class.java) }
-            .map { Identifier.unpack(it.id, String::class.java) }
 }
 
 /**
@@ -288,52 +196,4 @@ private class LaggingCatchUpStorage :
     }
 
     override fun readAll(): Iterator<CatchUp> = frozen?.iterator() ?: super.readAll()
-}
-
-/**
- * Records the receptor failures, which `Delivery` does not rethrow.
- */
-private class FailureRecorder(
-    private val failures: MutableList<String>
-) : DeliveryMonitor() {
-
-    override fun onReceptionFailure(reception: FailedReception): FailedReception.Action {
-        failures.add("Receptor: ${reception.error().message}")
-        return super.onReceptionFailure(reception)
-    }
-}
-
-/**
- * Runs each task in the calling thread or, while holding, keeps it until released.
- *
- * Holding emulates an executor that posts the system events after the delivery run ends.
- *
- * All the calls come from the test thread, so the executor needs no synchronization.
- */
-private class HoldingExecutor : Executor {
-
-    private val held = ArrayDeque<Runnable>()
-    private var holding = false
-
-    fun hold() {
-        holding = true
-    }
-
-    /**
-     * Runs the held tasks, and each task to come, in the calling thread.
-     */
-    fun release() {
-        holding = false
-        while (held.isNotEmpty()) {
-            held.removeFirst().run()
-        }
-    }
-
-    override fun execute(task: Runnable) {
-        if (holding) {
-            held.addLast(task)
-        } else {
-            task.run()
-        }
-    }
 }
