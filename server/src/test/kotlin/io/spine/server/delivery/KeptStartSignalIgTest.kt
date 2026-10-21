@@ -30,11 +30,9 @@ import io.spine.server.delivery.CatchUpStatus.COMPLETED
 import io.spine.server.delivery.InboxMessageStatus.DELIVERED
 import io.spine.server.delivery.InboxMessageStatus.TO_CATCH_UP
 import io.spine.server.delivery.InboxMessageStatus.TO_DELIVER
-import io.spine.server.delivery.KeptStartSignalTestEnv.EVENTS_PER_TARGET
-import io.spine.server.delivery.KeptStartSignalTestEnv.PAST_KEEPING_MILLIS
-import io.spine.server.delivery.KeptStartSignalTestEnv.PAST_TURBULENCE_MILLIS
-import io.spine.server.delivery.KeptStartSignalTestEnv.TARGETS
-import io.spine.server.delivery.KeptStartSignalTestEnv.THIRD
+import io.spine.server.delivery.KeptStartSignalIgTest.Companion.EVENTS_PER_TARGET
+import io.spine.server.delivery.KeptStartSignalIgTest.Companion.PAST_TURBULENCE_MILLIS
+import io.spine.server.delivery.KeptStartSignalIgTest.Companion.TARGETS
 import io.spine.server.delivery.event.CatchUpStarted
 import io.spine.server.delivery.event.EntityPreparedForCatchUp
 import io.spine.server.delivery.given.CounterView
@@ -176,28 +174,54 @@ internal class KeptStartSignalIgTest : AbstractDeliveryTest() {
         TARGETS.associateWith { id ->
             repository.find(id).getOrNull()?.state()?.total
         }
-}
 
-/**
- * The constants of [KeptStartSignalIgTest].
- */
-private object KeptStartSignalTestEnv {
+    companion object {
 
-    const val FIRST = "first"
-    const val SECOND = "second"
-    const val THIRD = "third"
-    val TARGETS = setOf(FIRST, SECOND)
-    const val EVENTS_PER_TARGET = 10
+        /**
+         * The ID of the first projection to catch up.
+         */
+        const val FIRST = "first"
 
-    /**
-     * Exceeds the 500 ms turbulence period of a catch-up.
-     */
-    const val PAST_TURBULENCE_MILLIS = 1_000L
+        /**
+         * The ID of the second projection to catch up.
+         */
+        const val SECOND = "second"
 
-    /**
-     * Exceeds the 1 s for which a completed job keeps a message it delivers.
-     */
-    const val PAST_KEEPING_MILLIS = 1_200L
+        /**
+         * The ID of a projection that no catch-up of the test touches.
+         *
+         * See [TARGETS] for its purpose.
+         */
+        const val THIRD = "third"
+
+        /**
+         * The IDs of the projections that each catch-up of the test resets and replays.
+         *
+         * [THIRD] is not among them, because it serves another purpose. At the end of
+         * the test, a live event to [THIRD] starts one more delivery run, whose cleanup
+         * removes the expired start signals. No catch-up job matches [THIRD], so its event
+         * takes no part in the catch-ups and leaves the totals of the targets as they are.
+         */
+        val TARGETS = setOf(FIRST, SECOND)
+
+        /**
+         * The number of history events each of the [TARGETS] gets before the catch-ups.
+         *
+         * Each catch-up replays all of them, so a target replayed once at a weight of 100
+         * totals 1000.
+         */
+        const val EVENTS_PER_TARGET = 10
+
+        /**
+         * Exceeds the 500 ms turbulence period of a catch-up.
+         */
+        const val PAST_TURBULENCE_MILLIS = 1_000L
+
+        /**
+         * Exceeds the 1 s for which a completed job keeps a message it delivers.
+         */
+        const val PAST_KEEPING_MILLIS = 1_200L
+    }
 }
 
 /**
