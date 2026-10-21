@@ -20,7 +20,7 @@ and `claude/dazzling-noyce-92ab0c` (repeated catch-ups). See "Coordination".
 - [x] 2026-10-20, at the owner's request: the projection type filter of
       `CatchUpProcess.canDispatch()` restored — see step 7 of "Plan"
 - [x] `master` (`81c6387bb97`, `.572`) merged; no conflicts
-- [x] Version `2.0.0-SNAPSHOT.574` (#1693 holds `.573`); the dependency reports regenerated
+- [x] Version `2.0.0-SNAPSHOT.574` (#1693 took `.573`); the dependency reports regenerated
 - [x] Pre-PR checks passed
 - [x] PR #1694 opened on 2026-10-20
 - [x] Bot review of #1694: the endpoint lock shared by the reactors of a state type —
@@ -238,8 +238,9 @@ Verification, with Corretto 17, on the PR head after the merge of `master` and t
   fix, that read runs on the job's own process too.
 - `dazzling-noyce` (#1683) and `funny-shannon` (#1684) are merged; `master` was merged
   into this branch on 2026-10-20, without conflicts.
-- Version: `master` is at `.572`, and the open #1693 holds `.573`. This branch is at
-  `.574`, and bumps again if a PR with a greater or equal version merges first.
+- Version: #1693 merged at `.573`, and `master` (`2b98e18083f`) was merged into this branch
+  again on 2026-10-21; the conflicts were the version and the reports only. This branch
+  stays at `.574`.
 
 ## Observations, not in this change
 
