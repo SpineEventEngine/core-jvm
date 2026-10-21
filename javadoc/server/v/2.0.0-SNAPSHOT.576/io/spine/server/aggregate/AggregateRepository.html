@@ -1,0 +1,1125 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en"><head>
+    <title>AggregateRepository 2.0.0-SNAPSHOT.576 API </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="dc.created" content="2020-03-25">
+    <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../dokka-javadoc-stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../jquery/jquery-ui.css" title="Style">
+    <script type="text/javascript" src="../../../../jquery/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-migrate-3.4.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
+
+    <script type="text/javascript" src="../../../../search.js"></script>
+    <script async type="text/javascript" src="../../../../module-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../package-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../type-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../member-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../tag-search-index.js"></script>
+</head><body>
+<script type="text/javascript">
+var pathtoroot = "../../../../";
+</script>
+<noscript>
+    <div>JavaScript is disabled on your browser.</div>
+</noscript><header role="banner">
+    <nav role="navigation">
+        <div class="fixedNav">
+            <!-- ========= START OF TOP NAVBAR ======= -->
+            <div class="topNav"><a id="navbar.top">
+                <!--   -->
+            </a>
+                <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a>
+                </div>
+                <a id="navbar.top.firstrow">
+                    <!--   -->
+                </a>
+                <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+            <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" class="ui-autocomplete-input" autocomplete="off" placeholder="Search">
+<input type="reset" id="reset" value="reset">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ========= END OF TOP NAVBAR ========= -->
+        </div>
+        <div class="navPadding">&nbsp;</div>
+        <script type="text/javascript"><!--
+        $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+        //-->
+        </script>
+    </nav>
+</header>
+
+<main role="main">
+    <div class="header">
+        <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">io.spine.server.aggregate</a></div>
+        <h2 title="Class AggregateRepository" class="title">Class AggregateRepository</h2>
+    </div>
+    <div class="contentContainer">
+        <!-- <ul class="inheritance">
+            <li>java.lang.Object</li>
+            <li>
+                <ul class="inheritance">
+                    <li>adaptation.Adaptation</li>
+                </ul>
+            </li>
+        </ul> TODO inheritance tree -->
+        <div class="description">
+            <ul class="blockList">
+                <li class="blockList">
+                    
+                    <dl>
+                        <dt>All Implemented Interfaces:</dt>
+                        <dd>
+                            
+                            <code>io.spine.logging.WithLogging</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.Closeable</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.ContextAware</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.bus.DispatcherDelegate</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.bus.MessageDispatcher</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.bus.MulticastDispatcher</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.commandbus.CommandDispatcherDelegate</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.entity.EventProducingRepository</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.entity.QueryableRepository</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.event.EventDispatcher</code>
+                            
+                            ,
+                            
+                            
+                            <code>java.io.Closeable</code>
+                            
+                            ,
+                            
+                            
+                            <code>java.lang.AutoCloseable</code>
+                            
+                            
+                        </dd>
+                    </dl>
+                    
+                    <hr>
+                    <pre class="wrap-overflow">
+
+public abstract class <span class="typeNameLabel"><a href=AggregateRepository.html>AggregateRepository</a>&lt;I extends <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>, A extends <a href=Aggregate.html>Aggregate</a>&lt;<a href=AggregateRepository.html>I</a>, <a href=AggregateRepository.html>S</a>, ?&gt;, S extends AggregateState&lt;<a href=AggregateRepository.html>I</a>&gt;&gt;</span>
+extends <a href=../entity/SignalDispatchingRepository.html>SignalDispatchingRepository</a>&lt;<a href=AggregateRepository.html>I</a>, <a href=AggregateRepository.html>A</a>, <a href=AggregateRepository.html>S</a>&gt; implements <a href=../entity/EventProducingRepository.html>EventProducingRepository</a>
+                    </pre>
+                    <div class="block"><p>The repository that manages instances of <code>Aggregate</code>s.</p><p>The repository routes commands and events to its aggregates, stores the events they produce, and posts those events to the EventBus.</p><p>Since the event-sourcing cutover, an aggregate is loaded from its latest persisted <a href=../entity/EntityRecord.html>EntityRecord</a> rather than by replaying its event journal. The repository keeps that latest state in its record storage and appends the emitted events to a separate event journal (an <a href=../entity/storage/EntityEventStorage.html>io.spine.server.entity.storage.EntityEventStorage</a>), kept append-only for traceability and for the opt-in double-dispatch guard.</p><p>Three per-repository settings tune this behavior:</p><ul><li><p><a href=../procman/ProcessManagerRepository.html#useDoubleDispatchGuard()>useDoubleDispatchGuard</a> — enables the history-backed double-dispatch guard,     which rejects a signal already seen among the last <a href=../procman/ProcessManagerRepository.html#eventHistoryDepth()>eventHistoryDepth</a>     dispatches — however long ago, including the earlier dispatches of the current     delivery batch. It is off by default for performance — when enabled, every     dispatch pays a bounded history read. This is a mechanism distinct from     the delivery layer's time-windowed deduplication, not a replacement for it.</p></li><li><p><a href=../procman/ProcessManagerRepository.html#eventHistoryDepth()>eventHistoryDepth</a> — how many recent events the guard scans on each dispatch     when enabled (default <code>SignalDispatchingEntity.DEFAULT_HISTORY_DEPTH</code>).</p></li><li><p><a href=../procman/ProcessManagerRepository.html#recordStateHistory()>recordStateHistory</a> — records the state history of the aggregates     on each dispatch. This is an opt-in feature shared by all entity repositories     (see <a href=../entity/AbstractEntityRepository.html>io.spine.server.entity.AbstractEntityRepository</a>).     The aggregates read the recorded history via <code>stateAt(Timestamp)</code> and     <code>stateHistoryBackward(int)</code> — e.g., for answering the &quot;state at a time&quot;     query. It is off by default: recording adds a write to every dispatch,     and the history grows until the application maintains it. Reading the     state history of a repository that does not     record it fails fast.</p></li></ul></div>
+
+                    <dl>
+
+                    
+
+                    
+
+                    </dl>
+                </li>
+            </ul>
+        </div>
+        <div class="summary">
+            <ul class="blockList">
+                <li class="blockList">
+                <!-- ======== NESTED CLASS SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="nested.class.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Nested Class Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Class</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== FIELD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="field.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Field Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Field</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>private final Logger</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManagerRepository.html#logger>logger</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="rowColor">
+                                            <td class="colFirst"><code>private final Logger.Api</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManagerRepository.html#atError>atError</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>private final Logger.Api</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManagerRepository.html#atSevere>atSevere</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="rowColor">
+                                            <td class="colFirst"><code>private final Logger.Api</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManagerRepository.html#atWarning>atWarning</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>private final Logger.Api</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManagerRepository.html#atInfo>atInfo</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="rowColor">
+                                            <td class="colFirst"><code>private final Logger.Api</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManagerRepository.html#atConfig>atConfig</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>private final Logger.Api</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManagerRepository.html#atDebug>atDebug</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="rowColor">
+                                            <td class="colFirst"><code>private final Logger.Api</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManagerRepository.html#atFine>atFine</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>private final Logger.Api</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManagerRepository.html#atFiner>atFiner</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="rowColor">
+                                            <td class="colFirst"><code>private final Logger.Api</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManagerRepository.html#atTrace>atTrace</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>private final Logger.Api</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManagerRepository.html#atFinest>atFinest</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="rowColor">
+                                            <td class="colFirst"><code>protected final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a></code></td>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManagerRepository.html#isTypeSupplier>isTypeSupplier</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>private final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a></code></td>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManagerRepository.html#isOpen>isOpen</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="rowColor">
+                                            <td class="colFirst"><code>private final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a></code></td>
+                                            <th class="colSecond" scope="row"><code><a href=../procman/ProcessManagerRepository.html#isRegistered>isRegistered</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tbody>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Constructor</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+
+                                        
+                                            <tr class="altColor">
+                                                <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a
+                                                        href="#AggregateRepository()">AggregateRepository</a></span>()</code></th>
+                                                <td class="colLast"></td>
+                                            </tr>
+                                        
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== ENUM CONSTANT SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="enum.constant.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Enum Constant Summary</h3>
+                                <table class="memberSummary">
+                                    <caption><span>Enum Constants</span><span class="tabEnd">&nbsp;</span></caption>
+                                    <tr>
+                                        <th class="colFirst" scope="col">Enum Constant</th>
+                                        <th class="colLast" scope="col">Description</th>
+                                    </tr>
+                                    
+                                </table>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ========== METHOD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Method Summary</h3>
+                                <div class="memberSummary">
+                                    <div role="tablist" aria-orientation="horizontal">
+                                        <button role="tab" aria-selected="true" aria-controls="memberSummary_tabpanel" tabindex="0" onkeydown="switchTab(event)" id="t0" class="activeTableTab">All Methods</button>
+                                        <!-- TODO: Instance and Concrete Methods #1118 -->
+                                    </div>
+                                    <div id="memberSummary_tabpanel" role="tabpanel">
+                                    <table aria-labelledby="t0">
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Method</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                        <tr id="i0" class="altColor">
+                                            <td class="colFirst"><code>final EventBus</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregateRepository.html#eventBus()>eventBus</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains the <code>EventBus</code> to which the repository posts.</td>
+                                        </tr>
+                                        
+                                        <tr id="i1" class="rowColor">
+                                            <td class="colFirst"><code>final <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregateRepository.html#setupInbox(io.spine.server.delivery.Inbox.Builder)>setupInbox</a>(Inbox.Builder&lt;<a href=AggregateRepository.html>I</a>&gt; builder) </code>
+                                            </th>
+                                            <td class="colLast">Sets up the inbox with the endpoints reacting upon events and handling commands.</td>
+                                        </tr>
+                                        
+                                        <tr id="i2" class="altColor">
+                                            <td class="colFirst"><code>final <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregateRepository.html#checkDispatchesMessages()>checkDispatchesMessages</a>() </code>
+                                            </th>
+                                            <td class="colLast">Ensures that the aggregates of this repository handle commands, react to events, or both.</td>
+                                        </tr>
+                                        
+                                        <tr id="i3" class="rowColor">
+                                            <td class="colFirst"><code><a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregateRepository.html#setupCommandRouting(io.spine.server.route.CommandRouting)>setupCommandRouting</a>(<a href=../route/CommandRouting.html>CommandRouting</a>&lt;<a href=AggregateRepository.html>I</a>&gt; routing) </code>
+                                            </th>
+                                            <td class="colLast">Does nothing by default: an Aggregate may react only to events, in which case no command routing is needed.</td>
+                                        </tr>
+                                        
+                                        <tr id="i4" class="altColor">
+                                            <td class="colFirst"><code><a href=AggregateRepository.html>A</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregateRepository.html#create(I)>create</a>(<a href=AggregateRepository.html>I</a> id) </code>
+                                            </th>
+                                            <td class="colLast">Creates an aggregate with the given ID, also posting the entity-created system event.</td>
+                                        </tr>
+                                        
+                                        <tr id="i5" class="rowColor">
+                                            <td class="colFirst"><code>final <a href=model/AggregateClass.html>AggregateClass</a>&lt;<a href=AggregateRepository.html>A</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregateRepository.html#aggregateClass()>aggregateClass</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains class information of aggregates managed by this repository.</td>
+                                        </tr>
+                                        
+                                        <tr id="i6" class="altColor">
+                                            <td class="colFirst"><code><a href=model/AggregateClass.html>AggregateClass</a>&lt;<a href=AggregateRepository.html>A</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregateRepository.html#toModelClass(java.lang.Class)>toModelClass</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;<a href=AggregateRepository.html>A</a>&gt; cls) </code>
+                                            </th>
+                                            <td class="colLast">Obtains a model class for the passed entity class value.</td>
+                                        </tr>
+                                        
+                                        <tr id="i7" class="rowColor">
+                                            <td class="colFirst"><code>final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregateRepository.html#eventHistoryEnabled()>eventHistoryEnabled</a>() </code>
+                                            </th>
+                                            <td class="colLast">Always <code>true</code>: an aggregate repository journals the events emitted by its aggregates unconditionally.</td>
+                                        </tr>
+                                        
+                                        <tr id="i8" class="altColor">
+                                            <td class="colFirst"><code>final ImmutableSet&lt;<a href=../type/CommandClass.html>CommandClass</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregateRepository.html#commandClasses()>commandClasses</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains a set of classes of commands handled by the aggregates of this repository.</td>
+                                        </tr>
+                                        
+                                        <tr id="i9" class="rowColor">
+                                            <td class="colFirst"><code>ImmutableSet&lt;<a href=../type/EventClass.html>EventClass</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregateRepository.html#messageClasses()>messageClasses</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains a set of event classes on which the aggregates of this repository react.</td>
+                                        </tr>
+                                        
+                                        <tr id="i10" class="altColor">
+                                            <td class="colFirst"><code>ImmutableSet&lt;<a href=../type/EventClass.html>EventClass</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregateRepository.html#domesticEventClasses()>domesticEventClasses</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains classes of domestic events on which the aggregates of this repository react.</td>
+                                        </tr>
+                                        
+                                        <tr id="i11" class="rowColor">
+                                            <td class="colFirst"><code>ImmutableSet&lt;<a href=../type/EventClass.html>EventClass</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregateRepository.html#externalEventClasses()>externalEventClasses</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains classes of external events on which the aggregates of this repository react.</td>
+                                        </tr>
+                                        
+                                        <tr id="i12" class="altColor">
+                                            <td class="colFirst"><code>ImmutableSet&lt;<a href=../type/EventClass.html>EventClass</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregateRepository.html#outgoingEvents()>outgoingEvents</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains classes of the events produced by entities of this repository.</td>
+                                        </tr>
+                                        
+                                        <tr id="i13" class="rowColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregateRepository.html#canDispatch(io.spine.server.type.EventEnvelope)>canDispatch</a>(<a href=../type/EventEnvelope.html>EventEnvelope</a> envelope) </code>
+                                            </th>
+                                            <td class="colLast">Checks if this dispatcher can dispatch the given message.</td>
+                                        </tr>
+                                        
+                                        <tr id="i14" class="altColor">
+                                            <td class="colFirst"><code>final DispatchOutcome</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregateRepository.html#dispatchTo(java.util.Set,io.spine.server.type.EventEnvelope)>dispatchTo</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html>Set</a>&lt;<a href=AggregateRepository.html>I</a>&gt; ids, <a href=../type/EventEnvelope.html>EventEnvelope</a> event) </code>
+                                            </th>
+                                            <td class="colLast">Sends the given event to the <code>Inbox</code>es of the aggregates reacting to it.</td>
+                                        </tr>
+                                        
+                                        <tr id="i15" class="rowColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html>Optional</a>&lt;<a href=AggregateRepository.html>A</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=AggregateRepository.html#find(I)>find</a>(<a href=AggregateRepository.html>I</a> id) </code>
+                                            </th>
+                                            <td class="colLast">Loads an aggregate by the passed ID.</td>
+                                        </tr>
+                                        
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <ul class="blockList">
+                                
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.logging.WithLogging">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.logging.WithLogging</h3>
+                                            <code>getAtConfig, getAtDebug, getAtError, getAtFine, getAtFiner, getAtFinest, getAtInfo, getAtSevere, getAtTrace, getAtWarning, getLogger, logger</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.aggregate.AggregateRepository">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.aggregate.AggregateRepository</h3>
+                                            <code>isOpen, isRegistered</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.RecordBasedRepository">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.RecordBasedRepository</h3>
+                                            <code>applyMigration, applyMigration, find, find, findActive, loadAll, loadAll, loadAll, recordStorage</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.SignalDispatchingRepository">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.SignalDispatchingRepository</h3>
+                                            <code>close, createEventStorage, dispatchCommand, doubleDispatchGuardEnabled, eventHistoryDepth, eventStorage, registerWith, setEventHistoryDepth, store, toEntity, useDoubleDispatchGuard</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.EventDispatchingRepository">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.EventDispatchingRepository</h3>
+                                            <code>route, setupEventRouting</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.Repository">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.Repository</h3>
+                                            <code>context, createStorage, entityClass, entityStateType, eventFilter, hasContext, idClass, index, iterator, onRegistered, open, storage, storageAssigned, store</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.bus.MessageDispatcher">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.bus.MessageDispatcher</h3>
+                                            <code>dispatch</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.AbstractEntityRepository">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.AbstractEntityRepository</h3>
+                                            <code>afterStore, createStateHistoryStorage, entityFactory, recordStateHistory, stateHistory, stateHistoryEnabled, stateHistoryStorage, stopRecordingStateHistory, storageConverter</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.QueryableRepository">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.QueryableRepository</h3>
+                                            <code>findStates, stateFrom</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.ContextAware">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.ContextAware</h3>
+                                            <code>checkNotRegistered, checkRegistered, unregister</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.Closeable">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.Closeable</h3>
+                                            <code>checkOpen, closeIfOpen</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.event.EventDispatcher">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.event.EventDispatcher</h3>
+                                            <code>dispatchesEvents, dispatchesExternalEvents, eventClasses</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.commandbus.CommandDispatcherDelegate">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.commandbus.CommandDispatcherDelegate</h3>
+                                            <code>dispatchesCommands</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.EventProducingRepository">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.EventProducingRepository</h3>
+                                            <code>filter, postEvents, postIfCommandRejected</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+                                        <!--   -->
+                                    </a>
+                                        <h3>Methods inherited from class&nbsp;java.lang.Object</h3>
+                                        <code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString,
+                                            wait, wait, wait</code></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+        <div class="details">
+            <ul class="blockList">
+                <li class="blockList">
+                    <!-- ========= CONSTRUCTOR DETAIL ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Detail</h3>
+                                
+                                <a name="AggregateRepository()"></a>
+                                <ul class="blockList">
+                                    <li class="blockList">
+                                        <h4>AggregateRepository</h4>
+                                        <pre>AggregateRepository()</pre>
+                                        <div class="block"></div>
+                                        
+                                    </li>
+                                </ul>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ============ METHOD DETAIL ========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Method Detail</h3>
+                                
+                                <a id="eventBus()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>eventBus</h4>
+                                        <pre class="methodSignature"> final EventBus <a href=AggregateRepository.html#eventBus()>eventBus</a>()</pre>
+                                        <div class="block"><p>Obtains the <code>EventBus</code> to which the repository posts.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="setupInbox(io.spine.server.delivery.Inbox.Builder)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setupInbox</h4>
+                                        <pre class="methodSignature"> final <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a> <a href=AggregateRepository.html#setupInbox(io.spine.server.delivery.Inbox.Builder)>setupInbox</a>(Inbox.Builder&lt;<a href=AggregateRepository.html>I</a>&gt; builder)</pre>
+                                        <div class="block"><p>Sets up the inbox with the endpoints reacting upon events and handling commands.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="checkDispatchesMessages()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>checkDispatchesMessages</h4>
+                                        <pre class="methodSignature"> final <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a> <a href=AggregateRepository.html#checkDispatchesMessages()>checkDispatchesMessages</a>()</pre>
+                                        <div class="block"><p>Ensures that the aggregates of this repository handle commands, react to events, or both.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="setupCommandRouting(io.spine.server.route.CommandRouting)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setupCommandRouting</h4>
+                                        <pre class="methodSignature"> <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a> <a href=AggregateRepository.html#setupCommandRouting(io.spine.server.route.CommandRouting)>setupCommandRouting</a>(<a href=../route/CommandRouting.html>CommandRouting</a>&lt;<a href=AggregateRepository.html>I</a>&gt; routing)</pre>
+                                        <div class="block"><p>Does nothing by default: an Aggregate may react only to events, in which case no command routing is needed.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>routing</code> - The routing schema to customize.</dd>
+                                            
+                                            
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="create(I)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>create</h4>
+                                        <pre class="methodSignature">@OverridingMethodsMustInvokeSuper() <a href=AggregateRepository.html>A</a> <a href=AggregateRepository.html#create(I)>create</a>(<a href=AggregateRepository.html>I</a> id)</pre>
+                                        <div class="block"><p>Creates an aggregate with the given ID, also posting the entity-created system event.</p><p>The history loaders and, when enabled, the double-dispatch guard are installed by the parent repository classes.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="aggregateClass()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>aggregateClass</h4>
+                                        <pre class="methodSignature"> final <a href=model/AggregateClass.html>AggregateClass</a>&lt;<a href=AggregateRepository.html>A</a>&gt; <a href=AggregateRepository.html#aggregateClass()>aggregateClass</a>()</pre>
+                                        <div class="block"><p>Obtains class information of aggregates managed by this repository.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="toModelClass(java.lang.Class)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>toModelClass</h4>
+                                        <pre class="methodSignature"> <a href=model/AggregateClass.html>AggregateClass</a>&lt;<a href=AggregateRepository.html>A</a>&gt; <a href=AggregateRepository.html#toModelClass(java.lang.Class)>toModelClass</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html>Class</a>&lt;<a href=AggregateRepository.html>A</a>&gt; cls)</pre>
+                                        <div class="block"><p>Obtains a model class for the passed entity class value.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="eventHistoryEnabled()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>eventHistoryEnabled</h4>
+                                        <pre class="methodSignature"> final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a> <a href=AggregateRepository.html#eventHistoryEnabled()>eventHistoryEnabled</a>()</pre>
+                                        <div class="block"><p>Always <code>true</code>: an aggregate repository journals the events emitted by its aggregates unconditionally.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="commandClasses()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>commandClasses</h4>
+                                        <pre class="methodSignature"> final ImmutableSet&lt;<a href=../type/CommandClass.html>CommandClass</a>&gt; <a href=AggregateRepository.html#commandClasses()>commandClasses</a>()</pre>
+                                        <div class="block"><p>Obtains a set of classes of commands handled by the aggregates of this repository.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>A set of command classes or an empty set if the aggregates do not handle commands.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="messageClasses()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>messageClasses</h4>
+                                        <pre class="methodSignature"> ImmutableSet&lt;<a href=../type/EventClass.html>EventClass</a>&gt; <a href=AggregateRepository.html#messageClasses()>messageClasses</a>()</pre>
+                                        <div class="block"><p>Obtains a set of event classes on which the aggregates of this repository react.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>A set of event classes or an empty set if the aggregates do not react to events.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="domesticEventClasses()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>domesticEventClasses</h4>
+                                        <pre class="methodSignature"> ImmutableSet&lt;<a href=../type/EventClass.html>EventClass</a>&gt; <a href=AggregateRepository.html#domesticEventClasses()>domesticEventClasses</a>()</pre>
+                                        <div class="block"><p>Obtains classes of domestic events on which the aggregates of this repository react.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>A set of event classes or an empty set if the aggregates do not react to domestic events.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="externalEventClasses()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>externalEventClasses</h4>
+                                        <pre class="methodSignature"> ImmutableSet&lt;<a href=../type/EventClass.html>EventClass</a>&gt; <a href=AggregateRepository.html#externalEventClasses()>externalEventClasses</a>()</pre>
+                                        <div class="block"><p>Obtains classes of external events on which the aggregates of this repository react.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>A set of event classes or an empty set if the aggregates do not react to external events.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="outgoingEvents()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>outgoingEvents</h4>
+                                        <pre class="methodSignature"> ImmutableSet&lt;<a href=../type/EventClass.html>EventClass</a>&gt; <a href=AggregateRepository.html#outgoingEvents()>outgoingEvents</a>()</pre>
+                                        <div class="block"><p>Obtains classes of the events produced by entities of this repository.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="canDispatch(io.spine.server.type.EventEnvelope)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>canDispatch</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a> <a href=AggregateRepository.html#canDispatch(io.spine.server.type.EventEnvelope)>canDispatch</a>(<a href=../type/EventEnvelope.html>EventEnvelope</a> envelope)</pre>
+                                        <div class="block"><p>Checks if this dispatcher can dispatch the given message. </p><p>This method does not check that the type of the message is one of the <a href=../event/Reaction.html#messageClasses()>dispatched message classes</a>. Instead, it validates the message against some custom rules of this dispatcher. </p><p>Extend this method to forbid messages from being dispatched to this instance.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p><code>true</code> if the given message can be dispatched by this dispatcher, <code>false</code> otherwise</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="dispatchTo(java.util.Set,io.spine.server.type.EventEnvelope)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>dispatchTo</h4>
+                                        <pre class="methodSignature"> final DispatchOutcome <a href=AggregateRepository.html#dispatchTo(java.util.Set,io.spine.server.type.EventEnvelope)>dispatchTo</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html>Set</a>&lt;<a href=AggregateRepository.html>I</a>&gt; ids, <a href=../type/EventEnvelope.html>EventEnvelope</a> event)</pre>
+                                        <div class="block"><p>Sends the given event to the <code>Inbox</code>es of the aggregates reacting to it.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="find(I)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockListLast"
+                                          >
+                                    <li class="blockList">
+                                        <h4>find</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html>Optional</a>&lt;<a href=AggregateRepository.html>A</a>&gt; <a href=AggregateRepository.html#find(I)>find</a>(<a href=AggregateRepository.html>I</a> id)</pre>
+                                        <div class="block"><p>Loads an aggregate by the passed ID.</p><p>An aggregate will be loaded even if the <a href=../entity/EntityRecord.html#isArchived()>archived</a> or <a href=../entity/EntityRecord.html#isDeleted()>deleted</a> lifecycle attribute, or both of them, are set to <code>true</code>.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>id</code> - The ID of the aggregate to load.</dd>
+                                            
+                                            
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>The aggregate instance, or <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html#empty()>empty()</a> if there is no aggregate with such ID.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+    </div>
+</main>
+<footer role="contentinfo">
+    <nav role="navigation">
+        <!-- ======= START OF BOTTOM NAVBAR ====== -->
+        <div class="bottomNav"><a id="navbar.bottom">
+            <!--   -->
+        </a>
+            <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a>
+            </div>
+            <a id="navbar.bottom.firstrow">
+                <!--   -->
+            </a>
+            <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+        <a id="skip.navbar.bottom">
+            <!--   -->
+        </a>
+        <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ======== END OF BOTTOM NAVBAR ======= -->
+    </nav>
+</footer><ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" id="ui-id-1" tabindex="0"
+    style="display: none;"></ul>
+<span role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></span>
+</body>
+</html>

@@ -139,53 +139,33 @@ var pathtoroot = "../../../../";
 </tr>
 <tbody>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregatePartRepository.html>AggregatePartRepository</a></th><td class="colLast">Common abstract base for repositories that manage <code>AggregatePart</code>s.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregateRoot.html>AggregateRoot</a></th><td class="colLast">A root object for a larger aggregate.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateRoot.html>AggregateRoot</a></th><td class="colLast">A root object for a larger aggregate.</td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregateHistory.Builder.html>Builder</a></th><td class="colLast"><pre><code>The recorded history of an aggregate: the sequence of events it emitted.
-
-Retained for wire compatibility; no longer produced or read by the runtime.
-Since the event-sourcing cutover, aggregate state is no longer restored by
-replaying the history, so the &quot;snapshot plus tail&quot; semantics of this message
-no longer hold. The journal now stores plain `spine.core.Event`s directly,
-with no dedicated wrapper type. The field-level comments below describe the
-historical (pre-cutover) semantics.
-</code></pre> Protobuf type <code>spine.server.aggregate.AggregateHistory</code></td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateHistory.html>AggregateHistory</a></th><td class="colLast"><pre><code>The recorded history of an aggregate: the sequence of events it emitted.
-
-Retained for wire compatibility; no longer produced or read by the runtime.
-Since the event-sourcing cutover, aggregate state is no longer restored by
-replaying the history, so the &quot;snapshot plus tail&quot; semantics of this message
-no longer hold. The journal now stores plain `spine.core.Event`s directly,
-with no dedicated wrapper type. The field-level comments below describe the
-historical (pre-cutover) semantics.
-</code></pre> Protobuf type <code>spine.server.aggregate.AggregateHistory</code></td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregateEventRecord.Builder.html>Builder</a></th><td class="colLast"><pre><code>A record with information about an event or a snapshot of an aggregate.
-
-This message is used by storage implementations.
-
-Retained for wire compatibility; no longer produced or read by the runtime.
-Since the event-sourcing cutover, the journal stores plain `spine.core.Event`s —
-a separate record kind, which never carries a snapshot. This message is retained
-so that the records persisted by the earlier versions of the framework stay
-parseable.
-</code></pre> Protobuf type <code>spine.server.aggregate.AggregateEventRecord</code></td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateEventRecord.html>AggregateEventRecord</a></th><td class="colLast"><pre><code>A record with information about an event or a snapshot of an aggregate.
-
-This message is used by storage implementations.
-
-Retained for wire compatibility; no longer produced or read by the runtime.
-Since the event-sourcing cutover, the journal stores plain `spine.core.Event`s —
-a separate record kind, which never carries a snapshot. This message is retained
-so that the records persisted by the earlier versions of the framework stay
-parseable.
-</code></pre> Protobuf type <code>spine.server.aggregate.AggregateEventRecord</code></td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregatePartRepository.html>AggregatePartRepository</a></th><td class="colLast">Common abstract base for repositories that manage <code>AggregatePart</code>s.</td></tr>
 
     <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregateProto.html>AggregateProto</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateEventRecord.Builder.html>Builder</a></th><td class="colLast"><pre><code>A record with information about an event or a snapshot of an aggregate.
+
+This message is used by storage implementations.
+
+Retained for wire compatibility; no longer produced or read by the runtime.
+Since the event-sourcing cutover, the journal stores plain `spine.core.Event`s —
+a separate record kind, which never carries a snapshot. This message is retained
+so that the records persisted by the earlier versions of the framework stay
+parseable.
+</code></pre> Protobuf type <code>spine.server.aggregate.AggregateEventRecord</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregateEventRecord.html>AggregateEventRecord</a></th><td class="colLast"><pre><code>A record with information about an event or a snapshot of an aggregate.
+
+This message is used by storage implementations.
+
+Retained for wire compatibility; no longer produced or read by the runtime.
+Since the event-sourcing cutover, the journal stores plain `spine.core.Event`s —
+a separate record kind, which never carries a snapshot. This message is retained
+so that the records persisted by the earlier versions of the framework stay
+parseable.
+</code></pre> Protobuf type <code>spine.server.aggregate.AggregateEventRecord</code></td></tr>
 
     <tr class="rowColor"><th class="colFirst" scope="row"><a href=Snapshot.Builder.html>Builder</a></th><td class="colLast"><pre><code>A snapshot of an aggregate's state at a point in its history.
 
@@ -202,6 +182,26 @@ longer produces snapshots: event-sourced loading was removed, so an aggregate's
 state is restored from its latest record rather than by replaying events from
 a snapshot.
 </code></pre> Protobuf type <code>spine.server.aggregate.Snapshot</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateHistory.Builder.html>Builder</a></th><td class="colLast"><pre><code>The recorded history of an aggregate: the sequence of events it emitted.
+
+Retained for wire compatibility; no longer produced or read by the runtime.
+Since the event-sourcing cutover, aggregate state is no longer restored by
+replaying the history, so the &quot;snapshot plus tail&quot; semantics of this message
+no longer hold. The journal now stores plain `spine.core.Event`s directly,
+with no dedicated wrapper type. The field-level comments below describe the
+historical (pre-cutover) semantics.
+</code></pre> Protobuf type <code>spine.server.aggregate.AggregateHistory</code></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregateHistory.html>AggregateHistory</a></th><td class="colLast"><pre><code>The recorded history of an aggregate: the sequence of events it emitted.
+
+Retained for wire compatibility; no longer produced or read by the runtime.
+Since the event-sourcing cutover, aggregate state is no longer restored by
+replaying the history, so the &quot;snapshot plus tail&quot; semantics of this message
+no longer hold. The journal now stores plain `spine.core.Event`s directly,
+with no dedicated wrapper type. The field-level comments below describe the
+historical (pre-cutover) semantics.
+</code></pre> Protobuf type <code>spine.server.aggregate.AggregateHistory</code></td></tr>
 
     <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateEventRecordId.Builder.html>Builder</a></th><td class="colLast"><pre><code>An identifier of an `AggregateEventRecord`.
 
@@ -249,11 +249,11 @@ The current journal needs no dedicated identifier type: it stores plain
 
     <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateHistoryOrBuilder.html>AggregateHistoryOrBuilder</a></th><td class="colLast"></td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregateEventRecordIdOrBuilder.html>AggregateEventRecordIdOrBuilder</a></th><td class="colLast"></td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateEventRecordOrBuilder.html>AggregateEventRecordOrBuilder</a></th><td class="colLast"></td></tr>
-
     <tr class="altColor"><th class="colFirst" scope="row"><a href=SnapshotOrBuilder.html>SnapshotOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AggregateEventRecordIdOrBuilder.html>AggregateEventRecordIdOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AggregateEventRecordOrBuilder.html>AggregateEventRecordOrBuilder</a></th><td class="colLast"></td></tr>
 </tbody>
 </table>
 

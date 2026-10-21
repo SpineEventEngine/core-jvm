@@ -1,0 +1,1222 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en"><head>
+    <title>ProcessManagerRepository 2.0.0-SNAPSHOT.576 API </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="dc.created" content="2020-03-25">
+    <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../dokka-javadoc-stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../jquery/jquery-ui.css" title="Style">
+    <script type="text/javascript" src="../../../../jquery/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-migrate-3.4.0.min.js"></script>
+    <script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
+
+    <script type="text/javascript" src="../../../../search.js"></script>
+    <script async type="text/javascript" src="../../../../module-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../package-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../type-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../member-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../tag-search-index.js"></script>
+</head><body>
+<script type="text/javascript">
+var pathtoroot = "../../../../";
+</script>
+<noscript>
+    <div>JavaScript is disabled on your browser.</div>
+</noscript><header role="banner">
+    <nav role="navigation">
+        <div class="fixedNav">
+            <!-- ========= START OF TOP NAVBAR ======= -->
+            <div class="topNav"><a id="navbar.top">
+                <!--   -->
+            </a>
+                <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a>
+                </div>
+                <a id="navbar.top.firstrow">
+                    <!--   -->
+                </a>
+                <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+            <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" class="ui-autocomplete-input" autocomplete="off" placeholder="Search">
+<input type="reset" id="reset" value="reset">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ========= END OF TOP NAVBAR ========= -->
+        </div>
+        <div class="navPadding">&nbsp;</div>
+        <script type="text/javascript"><!--
+        $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+        //-->
+        </script>
+    </nav>
+</header>
+
+<main role="main">
+    <div class="header">
+        <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">io.spine.server.procman</a></div>
+        <h2 title="Class ProcessManagerRepository" class="title">Class ProcessManagerRepository</h2>
+    </div>
+    <div class="contentContainer">
+        <!-- <ul class="inheritance">
+            <li>java.lang.Object</li>
+            <li>
+                <ul class="inheritance">
+                    <li>adaptation.Adaptation</li>
+                </ul>
+            </li>
+        </ul> TODO inheritance tree -->
+        <div class="description">
+            <ul class="blockList">
+                <li class="blockList">
+                    
+                    <dl>
+                        <dt>All Implemented Interfaces:</dt>
+                        <dd>
+                            
+                            <code>io.spine.logging.WithLogging</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.Closeable</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.ContextAware</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.bus.DispatcherDelegate</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.bus.MessageDispatcher</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.bus.MulticastDispatcher</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.commandbus.CommandDispatcherDelegate</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.entity.EventProducingRepository</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.entity.QueryableRepository</code>
+                            
+                            ,
+                            
+                            
+                            <code>io.spine.server.event.EventDispatcher</code>
+                            
+                            ,
+                            
+                            
+                            <code>java.io.Closeable</code>
+                            
+                            ,
+                            
+                            
+                            <code>java.lang.AutoCloseable</code>
+                            
+                            
+                        </dd>
+                    </dl>
+                    
+                    <hr>
+                    <pre class="wrap-overflow">
+
+public abstract class <span class="typeNameLabel"><a href=ProcessManagerRepository.html>ProcessManagerRepository</a>&lt;I extends <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html>Object</a>, P extends <a href=ProcessManager.html>ProcessManager</a>&lt;<a href=ProcessManagerRepository.html>I</a>, <a href=ProcessManagerRepository.html>S</a>, ?&gt;, S extends ProcessManagerState&lt;<a href=ProcessManagerRepository.html>I</a>&gt;&gt;</span>
+extends <a href=../entity/SignalDispatchingRepository.html>SignalDispatchingRepository</a>&lt;<a href=ProcessManagerRepository.html>I</a>, <a href=ProcessManagerRepository.html>P</a>, <a href=ProcessManagerRepository.html>S</a>&gt; implements <a href=../entity/EventProducingRepository.html>EventProducingRepository</a>
+                    </pre>
+                    <div class="block"><p>The abstract base for Process Managers repositories.</p><p>Three per-repository settings tune the optional machinery:</p><ul><li><p><a href=ProcessManagerRepository.html#recordEventHistory()>recordEventHistory</a> — journals the events emitted by the process     managers into the per-entity event journal. It is     off by default: the emitted events are durable in the     <a href=../event/EventStore.html>EventStore</a> regardless, and the     per-entity journal is a deliberate diagnostics and history index. While the     journaling is off, reading the event history of a managed process manager     fails fast.</p></li><li><p><a href=ProcessManagerRepository.html#useDoubleDispatchGuard()>useDoubleDispatchGuard</a> — enables the history-backed double-dispatch     guard, which rejects a signal already seen among the last     <a href=ProcessManagerRepository.html#eventHistoryDepth()>eventHistoryDepth</a> dispatches. It is off by default, and     requires the event journal it scans — enable it together with <a href=ProcessManagerRepository.html#recordEventHistory()>recordEventHistory</a>.</p></li><li><p><a href=ProcessManagerRepository.html#recordStateHistory()>recordStateHistory</a> — records the state history of the process     managers on each dispatch. This is an opt-in feature shared by all entity     repositories (see <a href=../entity/AbstractEntityRepository.html>io.spine.server.entity.AbstractEntityRepository</a>).     It is off by default.</p></li></ul></div>
+
+                    <dl>
+
+                    
+
+                    
+
+                    </dl>
+                </li>
+            </ul>
+        </div>
+        <div class="summary">
+            <ul class="blockList">
+                <li class="blockList">
+                <!-- ======== NESTED CLASS SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="nested.class.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Nested Class Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Class</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== FIELD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="field.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Field Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Field</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>private final Logger</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#logger>logger</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="rowColor">
+                                            <td class="colFirst"><code>private final Logger.Api</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#atError>atError</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>private final Logger.Api</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#atSevere>atSevere</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="rowColor">
+                                            <td class="colFirst"><code>private final Logger.Api</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#atWarning>atWarning</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>private final Logger.Api</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#atInfo>atInfo</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="rowColor">
+                                            <td class="colFirst"><code>private final Logger.Api</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#atConfig>atConfig</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>private final Logger.Api</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#atDebug>atDebug</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="rowColor">
+                                            <td class="colFirst"><code>private final Logger.Api</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#atFine>atFine</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>private final Logger.Api</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#atFiner>atFiner</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="rowColor">
+                                            <td class="colFirst"><code>private final Logger.Api</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#atTrace>atTrace</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>private final Logger.Api</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#atFinest>atFinest</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="rowColor">
+                                            <td class="colFirst"><code>protected final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a></code></td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#isTypeSupplier>isTypeSupplier</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>private final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a></code></td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#isOpen>isOpen</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="rowColor">
+                                            <td class="colFirst"><code>private final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a></code></td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#isRegistered>isRegistered</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tbody>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Constructor</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+
+                                        
+                                            <tr class="altColor">
+                                                <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a
+                                                        href="#ProcessManagerRepository()">ProcessManagerRepository</a></span>()</code></th>
+                                                <td class="colLast"></td>
+                                            </tr>
+                                        
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== ENUM CONSTANT SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="enum.constant.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Enum Constant Summary</h3>
+                                <table class="memberSummary">
+                                    <caption><span>Enum Constants</span><span class="tabEnd">&nbsp;</span></caption>
+                                    <tr>
+                                        <th class="colFirst" scope="col">Enum Constant</th>
+                                        <th class="colLast" scope="col">Description</th>
+                                    </tr>
+                                    
+                                </table>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ========== METHOD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Method Summary</h3>
+                                <div class="memberSummary">
+                                    <div role="tablist" aria-orientation="horizontal">
+                                        <button role="tab" aria-selected="true" aria-controls="memberSummary_tabpanel" tabindex="0" onkeydown="switchTab(event)" id="t0" class="activeTableTab">All Methods</button>
+                                        <!-- TODO: Instance and Concrete Methods #1118 -->
+                                    </div>
+                                    <div id="memberSummary_tabpanel" role="tabpanel">
+                                    <table aria-labelledby="t0">
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Method</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                        <tr id="i0" class="altColor">
+                                            <td class="colFirst"><code>final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#eventHistoryEnabled()>eventHistoryEnabled</a>() </code>
+                                            </th>
+                                            <td class="colLast">Tells whether this repository maintains the event history.</td>
+                                        </tr>
+                                        
+                                        <tr id="i1" class="rowColor">
+                                            <td class="colFirst"><code>final <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#recordEventHistory()>recordEventHistory</a>() </code>
+                                            </th>
+                                            <td class="colLast">Enables journaling the events emitted by the process managers of this repository.</td>
+                                        </tr>
+                                        
+                                        <tr id="i2" class="altColor">
+                                            <td class="colFirst"><code>final EventBus</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#eventBus()>eventBus</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains the <code>EventBus</code> to which the repository posts.</td>
+                                        </tr>
+                                        
+                                        <tr id="i3" class="rowColor">
+                                            <td class="colFirst"><code>final <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#setupInbox(io.spine.server.delivery.Inbox.Builder)>setupInbox</a>(Inbox.Builder&lt;<a href=ProcessManagerRepository.html>I</a>&gt; builder) </code>
+                                            </th>
+                                            <td class="colLast">Sets up the inbox with the endpoints reacting upon events and handling commands.</td>
+                                        </tr>
+                                        
+                                        <tr id="i4" class="altColor">
+                                            <td class="colFirst"><code><a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#setupEventRouting(io.spine.server.route.EventRouting)>setupEventRouting</a>(<a href=../route/EventRouting.html>EventRouting</a>&lt;<a href=ProcessManagerRepository.html>I</a>&gt; routing) </code>
+                                            </th>
+                                            <td class="colLast">Replaces default routing with the one that takes the target ID from the first field of an event message.</td>
+                                        </tr>
+                                        
+                                        <tr id="i5" class="rowColor">
+                                            <td class="colFirst"><code><a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#setupCommandRouting(io.spine.server.route.CommandRouting)>setupCommandRouting</a>(<a href=../route/CommandRouting.html>CommandRouting</a>&lt;<a href=ProcessManagerRepository.html>I</a>&gt; routing) </code>
+                                            </th>
+                                            <td class="colLast">Does nothing by default: a Process Manager may handle only events, in which case no command routing is needed.</td>
+                                        </tr>
+                                        
+                                        <tr id="i6" class="altColor">
+                                            <td class="colFirst"><code>final <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#checkDispatchesMessages()>checkDispatchesMessages</a>() </code>
+                                            </th>
+                                            <td class="colLast">Ensures there is at least one receptor declared by the class of the managed process manager:<ul><li><p>a command handler;</p></li><li><p>a domestic or external event reactor;</p></li><li><p>a domestic or external rejection reactor;</p></li><li><p>a commander.</p></li></ul></td>
+                                        </tr>
+                                        
+                                        <tr id="i7" class="rowColor">
+                                            <td class="colFirst"><code>final ImmutableSet&lt;<a href=../type/EventClass.html>EventClass</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#messageClasses()>messageClasses</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains a set of event classes to which process managers of this repository react.</td>
+                                        </tr>
+                                        
+                                        <tr id="i8" class="altColor">
+                                            <td class="colFirst"><code>final ImmutableSet&lt;<a href=../type/EventClass.html>EventClass</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#domesticEventClasses()>domesticEventClasses</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains classes of domestic events to which the process managers managed by this repository react.</td>
+                                        </tr>
+                                        
+                                        <tr id="i9" class="rowColor">
+                                            <td class="colFirst"><code>final ImmutableSet&lt;<a href=../type/EventClass.html>EventClass</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#externalEventClasses()>externalEventClasses</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains classes of external events to which the process managers managed by this repository react.</td>
+                                        </tr>
+                                        
+                                        <tr id="i10" class="altColor">
+                                            <td class="colFirst"><code>final ImmutableSet&lt;<a href=../type/CommandClass.html>CommandClass</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#commandClasses()>commandClasses</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains a set of classes of commands handled by process managers of this repository.</td>
+                                        </tr>
+                                        
+                                        <tr id="i11" class="rowColor">
+                                            <td class="colFirst"><code>ImmutableSet&lt;<a href=../type/EventClass.html>EventClass</a>&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#outgoingEvents()>outgoingEvents</a>() </code>
+                                            </th>
+                                            <td class="colLast">Obtains classes of the events produced by entities of this repository.</td>
+                                        </tr>
+                                        
+                                        <tr id="i12" class="altColor">
+                                            <td class="colFirst"><code><a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#canDispatch(io.spine.server.type.EventEnvelope)>canDispatch</a>(<a href=../type/EventEnvelope.html>EventEnvelope</a> envelope) </code>
+                                            </th>
+                                            <td class="colLast">Checks if this dispatcher can dispatch the given message.</td>
+                                        </tr>
+                                        
+                                        <tr id="i13" class="rowColor">
+                                            <td class="colFirst"><code>final DispatchOutcome</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#dispatchTo(java.util.Set,io.spine.server.type.EventEnvelope)>dispatchTo</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html>Set</a>&lt;<a href=ProcessManagerRepository.html>I</a>&gt; ids, <a href=../type/EventEnvelope.html>EventEnvelope</a> event) </code>
+                                            </th>
+                                            <td class="colLast">Sends the given event to the <code>Inbox</code>es of respective entities.</td>
+                                        </tr>
+                                        
+                                        <tr id="i14" class="altColor">
+                                            <td class="colFirst"><code>PmTransaction&lt;?, ?, ?&gt;</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#beginTransactionFor(P)>beginTransactionFor</a>(<a href=ProcessManagerRepository.html>P</a> manager) </code>
+                                            </th>
+                                            <td class="colLast">Begins a transaction for modifying the given process manager.</td>
+                                        </tr>
+                                        
+                                        <tr id="i15" class="rowColor">
+                                            <td class="colFirst"><code>final <a href=ProcessManagerRepository.html>P</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#toEntity(io.spine.server.entity.EntityRecord)>toEntity</a>(<a href=../entity/EntityRecord.html>EntityRecord</a> record) </code>
+                                            </th>
+                                            <td class="colLast">Reconstructs a process manager from the given record and <a href=ProcessManagerRepository.html#configure(P)>configures</a> it.</td>
+                                        </tr>
+                                        
+                                        <tr id="i16" class="altColor">
+                                            <td class="colFirst"><code><a href=ProcessManagerRepository.html>P</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#create(I)>create</a>(<a href=ProcessManagerRepository.html>I</a> id) </code>
+                                            </th>
+                                            <td class="colLast">Creates an entity with the given ID, installing the event history loader and, when enabled, the double-dispatch guard on it.</td>
+                                        </tr>
+                                        
+                                        <tr id="i17" class="rowColor">
+                                            <td class="colFirst"><code><a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#configure(P)>configure</a>(<a href=ProcessManagerRepository.html>P</a> processManager) </code>
+                                            </th>
+                                            <td class="colLast">A callback method for configuring a recently created <code>ProcessManager</code> instance before it is returned by the repository as the result of creating a new process manager instance or finding an existing one.</td>
+                                        </tr>
+                                        
+                                        <tr id="i18" class="altColor">
+                                            <td class="colFirst"><code>final <a href=ProcessManagerRepository.html>P</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=ProcessManagerRepository.html#findOrCreate(I)>findOrCreate</a>(<a href=ProcessManagerRepository.html>I</a> id) </code>
+                                            </th>
+                                            <td class="colLast">Finds a process manager by the passed ID or creates a new one, exposing the inherited method to this package.</td>
+                                        </tr>
+                                        
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <ul class="blockList">
+                                
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.logging.WithLogging">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.logging.WithLogging</h3>
+                                            <code>getAtConfig, getAtDebug, getAtError, getAtFine, getAtFiner, getAtFinest, getAtInfo, getAtSevere, getAtTrace, getAtWarning, getLogger, logger</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.procman.ProcessManagerRepository">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.procman.ProcessManagerRepository</h3>
+                                            <code>isOpen, isRegistered</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.SignalDispatchingRepository">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.SignalDispatchingRepository</h3>
+                                            <code>close, createEventStorage, dispatchCommand, doStore, doubleDispatchGuardEnabled, eventHistoryDepth, eventStorage, registerWith, setEventHistoryDepth, store, useDoubleDispatchGuard</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.EventDispatchingRepository">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.EventDispatchingRepository</h3>
+                                            <code>route</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.Repository">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.Repository</h3>
+                                            <code>context, createStorage, entityClass, entityStateType, eventFilter, find, hasContext, idClass, index, iterator, onRegistered, open, storage, storageAssigned, store</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.bus.MessageDispatcher">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.bus.MessageDispatcher</h3>
+                                            <code>dispatch</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.AbstractEntityRepository">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.AbstractEntityRepository</h3>
+                                            <code>afterStore, createStateHistoryStorage, entityFactory, recordStateHistory, stateHistory, stateHistoryEnabled, stateHistoryStorage, stopRecordingStateHistory, storageConverter</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.RecordBasedRepository">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.RecordBasedRepository</h3>
+                                            <code>applyMigration, applyMigration, find, find, findActive, loadAll, loadAll, loadAll, recordStorage</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.QueryableRepository">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.QueryableRepository</h3>
+                                            <code>findStates, stateFrom</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.ContextAware">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.ContextAware</h3>
+                                            <code>checkNotRegistered, checkRegistered, unregister</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.Closeable">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.Closeable</h3>
+                                            <code>checkOpen, closeIfOpen</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.event.EventDispatcher">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.event.EventDispatcher</h3>
+                                            <code>dispatchesEvents, dispatchesExternalEvents, eventClasses</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.commandbus.CommandDispatcherDelegate">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.commandbus.CommandDispatcherDelegate</h3>
+                                            <code>dispatchesCommands</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.io.spine.server.entity.EventProducingRepository">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;io.spine.server.entity.EventProducingRepository</h3>
+                                            <code>filter, postEvents, postIfCommandRejected</code></li>
+                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+                                        <!--   -->
+                                    </a>
+                                        <h3>Methods inherited from class&nbsp;java.lang.Object</h3>
+                                        <code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString,
+                                            wait, wait, wait</code></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+        <div class="details">
+            <ul class="blockList">
+                <li class="blockList">
+                    <!-- ========= CONSTRUCTOR DETAIL ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Detail</h3>
+                                
+                                <a name="ProcessManagerRepository()"></a>
+                                <ul class="blockList">
+                                    <li class="blockList">
+                                        <h4>ProcessManagerRepository</h4>
+                                        <pre>ProcessManagerRepository()</pre>
+                                        <div class="block"></div>
+                                        
+                                    </li>
+                                </ul>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ============ METHOD DETAIL ========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Method Detail</h3>
+                                
+                                <a id="eventHistoryEnabled()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>eventHistoryEnabled</h4>
+                                        <pre class="methodSignature"> final <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a> <a href=ProcessManagerRepository.html#eventHistoryEnabled()>eventHistoryEnabled</a>()</pre>
+                                        <div class="block"><p>Tells whether this repository maintains the event history.</p><p>For process managers, the journaling is opt-in and off by default — see <a href=ProcessManagerRepository.html#recordEventHistory()>recordEventHistory</a>.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="recordEventHistory()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>recordEventHistory</h4>
+                                        <pre class="methodSignature"> final <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a> <a href=ProcessManagerRepository.html#recordEventHistory()>recordEventHistory</a>()</pre>
+                                        <div class="block"><p>Enables journaling the events emitted by the process managers of this repository.</p><p>Unlike aggregates, whose journal is written unconditionally, process managers journal their events on an opt-in basis: the emitted events are durable in the <a href=../event/EventStore.html>EventStore</a> once posted, and the per-entity journal is a deliberate diagnostics and history index. When the journaling is enabled, the repository appends the emitted events to the journal on each successful dispatch, and the process managers may consult their recent event history.</p><p>The journal is also required by the <a href=ProcessManagerRepository.html#useDoubleDispatchGuard()>double-dispatch guard</a>.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="eventBus()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>eventBus</h4>
+                                        <pre class="methodSignature"> final EventBus <a href=ProcessManagerRepository.html#eventBus()>eventBus</a>()</pre>
+                                        <div class="block"><p>Obtains the <code>EventBus</code> to which the repository posts.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="setupInbox(io.spine.server.delivery.Inbox.Builder)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setupInbox</h4>
+                                        <pre class="methodSignature"> final <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a> <a href=ProcessManagerRepository.html#setupInbox(io.spine.server.delivery.Inbox.Builder)>setupInbox</a>(Inbox.Builder&lt;<a href=ProcessManagerRepository.html>I</a>&gt; builder)</pre>
+                                        <div class="block"><p>Sets up the inbox with the endpoints reacting upon events and handling commands.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="setupEventRouting(io.spine.server.route.EventRouting)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setupEventRouting</h4>
+                                        <pre class="methodSignature">@OverridingMethodsMustInvokeSuper() <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a> <a href=ProcessManagerRepository.html#setupEventRouting(io.spine.server.route.EventRouting)>setupEventRouting</a>(<a href=../route/EventRouting.html>EventRouting</a>&lt;<a href=ProcessManagerRepository.html>I</a>&gt; routing)</pre>
+                                        <div class="block"><p>Replaces default routing with the one that takes the target ID from the first field of an event message.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>routing</code> - The routing to customize.</dd>
+                                            
+                                            
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="setupCommandRouting(io.spine.server.route.CommandRouting)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setupCommandRouting</h4>
+                                        <pre class="methodSignature"> <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a> <a href=ProcessManagerRepository.html#setupCommandRouting(io.spine.server.route.CommandRouting)>setupCommandRouting</a>(<a href=../route/CommandRouting.html>CommandRouting</a>&lt;<a href=ProcessManagerRepository.html>I</a>&gt; routing)</pre>
+                                        <div class="block"><p>Does nothing by default: a Process Manager may handle only events, in which case no command routing is needed.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>routing</code> - The routing schema to customize.</dd>
+                                            
+                                            
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="checkDispatchesMessages()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>checkDispatchesMessages</h4>
+                                        <pre class="methodSignature"> final <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a> <a href=ProcessManagerRepository.html#checkDispatchesMessages()>checkDispatchesMessages</a>()</pre>
+                                        <div class="block"><p>Ensures there is at least one receptor declared by the class of the managed process manager:</p><ul><li><p>a command handler;</p></li><li><p>a domestic or external event reactor;</p></li><li><p>a domestic or external rejection reactor;</p></li><li><p>a commander.</p></li></ul></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="messageClasses()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>messageClasses</h4>
+                                        <pre class="methodSignature"> final ImmutableSet&lt;<a href=../type/EventClass.html>EventClass</a>&gt; <a href=ProcessManagerRepository.html#messageClasses()>messageClasses</a>()</pre>
+                                        <div class="block"><p>Obtains a set of event classes to which process managers of this repository react.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>A set of event classes or an empty set if process managers do not react to events.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="domesticEventClasses()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>domesticEventClasses</h4>
+                                        <pre class="methodSignature"> final ImmutableSet&lt;<a href=../type/EventClass.html>EventClass</a>&gt; <a href=ProcessManagerRepository.html#domesticEventClasses()>domesticEventClasses</a>()</pre>
+                                        <div class="block"><p>Obtains classes of domestic events to which the process managers managed by this repository react.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>A set of event classes or an empty set if process managers do not react to domestic events.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="externalEventClasses()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>externalEventClasses</h4>
+                                        <pre class="methodSignature"> final ImmutableSet&lt;<a href=../type/EventClass.html>EventClass</a>&gt; <a href=ProcessManagerRepository.html#externalEventClasses()>externalEventClasses</a>()</pre>
+                                        <div class="block"><p>Obtains classes of external events to which the process managers managed by this repository react.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>A set of event classes or an empty set if process managers do not react to external events.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="commandClasses()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>commandClasses</h4>
+                                        <pre class="methodSignature"> final ImmutableSet&lt;<a href=../type/CommandClass.html>CommandClass</a>&gt; <a href=ProcessManagerRepository.html#commandClasses()>commandClasses</a>()</pre>
+                                        <div class="block"><p>Obtains a set of classes of commands handled by process managers of this repository.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p>A set of command classes or an empty set if process managers do not handle commands.</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="outgoingEvents()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>outgoingEvents</h4>
+                                        <pre class="methodSignature"> ImmutableSet&lt;<a href=../type/EventClass.html>EventClass</a>&gt; <a href=ProcessManagerRepository.html#outgoingEvents()>outgoingEvents</a>()</pre>
+                                        <div class="block"><p>Obtains classes of the events produced by entities of this repository.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="canDispatch(io.spine.server.type.EventEnvelope)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>canDispatch</h4>
+                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html>Boolean</a> <a href=ProcessManagerRepository.html#canDispatch(io.spine.server.type.EventEnvelope)>canDispatch</a>(<a href=../type/EventEnvelope.html>EventEnvelope</a> envelope)</pre>
+                                        <div class="block"><p>Checks if this dispatcher can dispatch the given message. </p><p>This method does not check that the type of the message is one of the <a href=../event/Reaction.html#messageClasses()>dispatched message classes</a>. Instead, it validates the message against some custom rules of this dispatcher. </p><p>Extend this method to forbid messages from being dispatched to this instance.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+                                            <dt><span class="returnLabel">Returns:</span></dt>
+                                            <dd><p><code>true</code> if the given message can be dispatched by this dispatcher, <code>false</code> otherwise</p></dd>
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="dispatchTo(java.util.Set,io.spine.server.type.EventEnvelope)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>dispatchTo</h4>
+                                        <pre class="methodSignature"> final DispatchOutcome <a href=ProcessManagerRepository.html#dispatchTo(java.util.Set,io.spine.server.type.EventEnvelope)>dispatchTo</a>(<a href=https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html>Set</a>&lt;<a href=ProcessManagerRepository.html>I</a>&gt; ids, <a href=../type/EventEnvelope.html>EventEnvelope</a> event)</pre>
+                                        <div class="block"><p>Sends the given event to the <code>Inbox</code>es of respective entities.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="beginTransactionFor(P)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>beginTransactionFor</h4>
+                                        <pre class="methodSignature">@VisibleForTesting() PmTransaction&lt;?, ?, ?&gt; <a href=ProcessManagerRepository.html#beginTransactionFor(P)>beginTransactionFor</a>(<a href=ProcessManagerRepository.html>P</a> manager)</pre>
+                                        <div class="block"><p>Begins a transaction for modifying the given process manager.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="toEntity(io.spine.server.entity.EntityRecord)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>toEntity</h4>
+                                        <pre class="methodSignature"> final <a href=ProcessManagerRepository.html>P</a> <a href=ProcessManagerRepository.html#toEntity(io.spine.server.entity.EntityRecord)>toEntity</a>(<a href=../entity/EntityRecord.html>EntityRecord</a> record)</pre>
+                                        <div class="block"><p>Reconstructs a process manager from the given record and <a href=ProcessManagerRepository.html#configure(P)>configures</a> it.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="create(I)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>create</h4>
+                                        <pre class="methodSignature">@OverridingMethodsMustInvokeSuper() <a href=ProcessManagerRepository.html>P</a> <a href=ProcessManagerRepository.html#create(I)>create</a>(<a href=ProcessManagerRepository.html>I</a> id)</pre>
+                                        <div class="block"><p>Creates an entity with the given ID, installing the event history loader and, when enabled, the double-dispatch guard on it.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="configure(P)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>configure</h4>
+                                        <pre class="methodSignature">@OverridingMethodsMustInvokeSuper() <a href=https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/index.html>Unit</a> <a href=ProcessManagerRepository.html#configure(P)>configure</a>(<a href=ProcessManagerRepository.html>P</a> processManager)</pre>
+                                        <div class="block"><p>A callback method for configuring a recently created <code>ProcessManager</code> instance before it is returned by the repository as the result of creating a new process manager instance or finding an existing one.</p><p>The default implementation attaches the process manager to the bounded context so that it can perform querying. Overriding repositories may use this method for injecting other dependencies that process managers need to have.</p></div>
+
+                                        <dl>
+
+                                        
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>processManager</code> - The process manager to configure.</dd>
+                                            
+                                            
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                                <a id="findOrCreate(I)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockListLast"
+                                          >
+                                    <li class="blockList">
+                                        <h4>findOrCreate</h4>
+                                        <pre class="methodSignature"> final <a href=ProcessManagerRepository.html>P</a> <a href=ProcessManagerRepository.html#findOrCreate(I)>findOrCreate</a>(<a href=ProcessManagerRepository.html>I</a> id)</pre>
+                                        <div class="block"><p>Finds a process manager by the passed ID or creates a new one, exposing the inherited method to this package.</p></div>
+
+                                        <dl>
+
+                                        
+
+                                        
+
+                                        
+
+                                        </dl>
+                                    </li>
+                                </ul>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+    </div>
+</main>
+<footer role="contentinfo">
+    <nav role="navigation">
+        <!-- ======= START OF BOTTOM NAVBAR ====== -->
+        <div class="bottomNav"><a id="navbar.bottom">
+            <!--   -->
+        </a>
+            <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a>
+            </div>
+            <a id="navbar.bottom.firstrow">
+                <!--   -->
+            </a>
+            <ul class="navList" title="Navigation">
+    <li><a href="../../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+        <a id="skip.navbar.bottom">
+            <!--   -->
+        </a>
+        <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ======== END OF BOTTOM NAVBAR ======= -->
+    </nav>
+</footer><ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" id="ui-id-1" tabindex="0"
+    style="display: none;"></ul>
+<span role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></span>
+</body>
+</html>

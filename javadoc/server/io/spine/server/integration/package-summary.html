@@ -119,14 +119,6 @@ var pathtoroot = "../../../../";
 
     <tr class="rowColor"><th class="colFirst" scope="row"><a href=AbstractChannelObserver.html>AbstractChannelObserver</a></th><td class="colLast">Base routines for the <a href=../transport/Subscriber.html#addObserver(io.grpc.stub.StreamObserver)>subscriber observers</a>.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=ExternalMessage.Builder.html>Builder</a></th><td class="colLast"><pre><code>A wrapper around a message, which is used to send/receive the original message
-to/from external application components, such as other Bounded Contexts.
-</code></pre> Protobuf type <code>spine.server.integration.ExternalMessage</code></td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ExternalMessage.html>ExternalMessage</a></th><td class="colLast"><pre><code>A wrapper around a message, which is used to send/receive the original message
-to/from external application components, such as other Bounded Contexts.
-</code></pre> Protobuf type <code>spine.server.integration.ExternalMessage</code></td></tr>
-
     <tr class="altColor"><th class="colFirst" scope="row"><a href=ExternalEventsWanted.Builder.html>Builder</a></th><td class="colLast"><pre><code>A document message, describing types of events
 that are required for consumption by some part of the system.
 
@@ -171,15 +163,53 @@ for quite some time — in which case this message may serve to notify just-conn
 Contexts of its existence.
 </code></pre> Protobuf type <code>spine.server.integration.BoundedContextOnline</code></td></tr>
 
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ExternalEventType.Builder.html>Builder</a></th><td class="colLast"><pre><code>The type of a domain event that is emitted by one Bounded Context and consumed by
+other Bounded Contexts as &quot;external&quot; event
+</code></pre> Protobuf type <code>spine.server.integration.ExternalEventType</code></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ExternalEventType.html>ExternalEventType</a></th><td class="colLast"><pre><code>The type of a domain event that is emitted by one Bounded Context and consumed by
+other Bounded Contexts as &quot;external&quot; event
+</code></pre> Protobuf type <code>spine.server.integration.ExternalEventType</code></td></tr>
+
     <tr class="altColor"><th class="colFirst" scope="row"><a href=BrokerProto.html>BrokerProto</a></th><td class="colLast"></td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ExternalEventType.Builder.html>Builder</a></th><td class="colLast"><pre><code>The type of a domain event that is emitted by one Bounded Context and consumed by
-other Bounded Contexts as &quot;external&quot; event
-</code></pre> Protobuf type <code>spine.server.integration.ExternalEventType</code></td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ExternalMessage.Builder.html>Builder</a></th><td class="colLast"><pre><code>A wrapper around a message, which is used to send/receive the original message
+to/from external application components, such as other Bounded Contexts.
+</code></pre> Protobuf type <code>spine.server.integration.ExternalMessage</code></td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=ExternalEventType.html>ExternalEventType</a></th><td class="colLast"><pre><code>The type of a domain event that is emitted by one Bounded Context and consumed by
-other Bounded Contexts as &quot;external&quot; event
-</code></pre> Protobuf type <code>spine.server.integration.ExternalEventType</code></td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ExternalMessage.html>ExternalMessage</a></th><td class="colLast"><pre><code>A wrapper around a message, which is used to send/receive the original message
+to/from external application components, such as other Bounded Contexts.
+</code></pre> Protobuf type <code>spine.server.integration.ExternalMessage</code></td></tr>
+</tbody>
+</table>
+
+    </div>
+
+                </li>
+                
+                <li class="blockList">
+                    
+                    
+                    
+                    
+                    
+    <div class="typeSummary">
+
+<table>
+<caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Interface</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ExternalEventsWantedOrBuilder.html>ExternalEventsWantedOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ExternalEventTypeOrBuilder.html>ExternalEventTypeOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=ExternalMessageOrBuilder.html>ExternalMessageOrBuilder</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=BoundedContextOnlineOrBuilder.html>BoundedContextOnlineOrBuilder</a></th><td class="colLast"></td></tr>
 </tbody>
 </table>
 
@@ -205,36 +235,6 @@ other Bounded Contexts as &quot;external&quot; event
 
     <tr class="altColor"><th class="colFirst" scope="row"><a href=ExternalMessageValidationError.html>ExternalMessageValidationError</a></th><td class="colLast"><pre><code>The type of error that may occur during the `ExternalMessage` validation.
 </code></pre> Protobuf enum <code>spine.server.integration.ExternalMessageValidationError</code></td></tr>
-</tbody>
-</table>
-
-    </div>
-
-                </li>
-                
-                <li class="blockList">
-                    
-                    
-                    
-                    
-                    
-    <div class="typeSummary">
-
-<table>
-<caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Interface</th>
-<th class="colLast" scope="col">Description</th>
-</tr>
-<tbody>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=ExternalMessageOrBuilder.html>ExternalMessageOrBuilder</a></th><td class="colLast"></td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ExternalEventsWantedOrBuilder.html>ExternalEventsWantedOrBuilder</a></th><td class="colLast"></td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=BoundedContextOnlineOrBuilder.html>BoundedContextOnlineOrBuilder</a></th><td class="colLast"></td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=ExternalEventTypeOrBuilder.html>ExternalEventTypeOrBuilder</a></th><td class="colLast"></td></tr>
 </tbody>
 </table>
 

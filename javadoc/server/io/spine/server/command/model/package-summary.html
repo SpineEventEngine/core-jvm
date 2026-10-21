@@ -108,34 +108,18 @@ var pathtoroot = "../../../../../";
     <div class="typeSummary">
 
 <table>
-<caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
-<th class="colFirst" scope="col">Class</th>
+<th class="colFirst" scope="col">Interface</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tbody>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandingReaction.html>CommandingReaction</a></th><td class="colLast">A method that may generate one or more command messages in response to an event.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandHandlingClass.html>CommandHandlingClass</a></th><td class="colLast">A common interface for classes that handle commands.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AssigneeSignature.html>AssigneeSignature</a></th><td class="colLast">The signature of <a href=AssigneeReceptor.html>AssigneeReceptor</a>.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CommandingMethod.html>CommandingMethod</a></th><td class="colLast">Base interface for methods that generate one or more command messages in response to an incoming message.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommanderClass.html>CommanderClass</a></th><td class="colLast">Provides information on message handling for a class of <a href=../Commander.html>Commander</a>s.</td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AssigneeReceptor.html>AssigneeReceptor</a></th><td class="colLast">The wrapper for a method assigned to handle commands.</td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandReactionSignature.html>CommandReactionSignature</a></th><td class="colLast">A signature of <a href=CommandingReaction.html>CommandingReaction</a>.</td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CommandSubstituteSignature.html>CommandSubstituteSignature</a></th><td class="colLast">A signature of <a href=CommandSubstituter.html>CommandSubstituter</a>.</td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=AbstractCommandHandlingClass.html>AbstractCommandHandlingClass</a></th><td class="colLast">Abstract base for classes providing message handling information on classes that handle commands.</td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=DuplicateHandlerCheck.html>DuplicateHandlerCheck</a></th><td class="colLast">Ensures that there are no duplicating command-handling methods among the passed classes.</td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandReceptor.html>CommandReceptor</a></th><td class="colLast">An abstract base for methods that accept a command message and optionally its context.</td></tr>
-
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CommandSubstituter.html>CommandSubstituter</a></th><td class="colLast">A method that produces one or more command messages in response to an incoming command.</td></tr>
-
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=AssigneeClass.html>AssigneeClass</a></th><td class="colLast">Provides message-handling information on an <code>Assignee</code> class.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandingClass.html>CommandingClass</a></th><td class="colLast">An interface common for model classes of objects that create commands.</td></tr>
 </tbody>
 </table>
 
@@ -152,18 +136,34 @@ var pathtoroot = "../../../../../";
     <div class="typeSummary">
 
 <table>
-<caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
-<th class="colFirst" scope="col">Interface</th>
+<th class="colFirst" scope="col">Class</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tbody>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandingClass.html>CommandingClass</a></th><td class="colLast">An interface common for model classes of objects that create commands.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AssigneeReceptor.html>AssigneeReceptor</a></th><td class="colLast">The wrapper for a method assigned to handle commands.</td></tr>
 
-    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CommandHandlingClass.html>CommandHandlingClass</a></th><td class="colLast">A common interface for classes that handle commands.</td></tr>
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CommandSubstituter.html>CommandSubstituter</a></th><td class="colLast">A method that produces one or more command messages in response to an incoming command.</td></tr>
 
-    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandingMethod.html>CommandingMethod</a></th><td class="colLast">Base interface for methods that generate one or more command messages in response to an incoming message.</td></tr>
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandReceptor.html>CommandReceptor</a></th><td class="colLast">An abstract base for methods that accept a command message and optionally its context.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=AssigneeSignature.html>AssigneeSignature</a></th><td class="colLast">The signature of <a href=AssigneeReceptor.html>AssigneeReceptor</a>.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AssigneeClass.html>AssigneeClass</a></th><td class="colLast">Provides message-handling information on an <code>Assignee</code> class.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CommandingReaction.html>CommandingReaction</a></th><td class="colLast">A method that may generate one or more command messages in response to an event.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandSubstituteSignature.html>CommandSubstituteSignature</a></th><td class="colLast">A signature of <a href=CommandSubstituter.html>CommandSubstituter</a>.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=CommanderClass.html>CommanderClass</a></th><td class="colLast">Provides information on message handling for a class of <a href=../Commander.html>Commander</a>s.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=AbstractCommandHandlingClass.html>AbstractCommandHandlingClass</a></th><td class="colLast">Abstract base for classes providing message handling information on classes that handle commands.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=DuplicateHandlerCheck.html>DuplicateHandlerCheck</a></th><td class="colLast">Ensures that there are no duplicating command-handling methods among the passed classes.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=CommandReactionSignature.html>CommandReactionSignature</a></th><td class="colLast">A signature of <a href=CommandingReaction.html>CommandingReaction</a>.</td></tr>
 </tbody>
 </table>
 
