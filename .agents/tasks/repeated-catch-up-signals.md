@@ -155,9 +155,9 @@ an inbox, the reports, the status trail, `instances_to_clear`, the number of fin
 
 ## Coordination
 
-- PR #1693 (a `CatchUpStation` guard) is open at `.573`, and #1694 (the routing of
-  catch-up messages to the process of their repository) at `.574`; this branch is at `.575`.
-  Overlap with #1693: at most an append to `.agents/memory/MEMORY.md`. #1694 also edits
+- PR #1693 (a `CatchUpStation` guard, `.573`) merged on 2026-10-21; `master` was merged into
+  this branch, which keeps `.575`. #1694 (the routing of catch-up messages to the process of
+  their repository) is open at `.574`. #1694 also edits
   `CatchUpProcess` (routing, `canDispatch()`), not these handlers; a trial three-way merge
   is clean. Whichever of #1694 and this branch lands second merges `master` and runs
   `:server:test` again.
