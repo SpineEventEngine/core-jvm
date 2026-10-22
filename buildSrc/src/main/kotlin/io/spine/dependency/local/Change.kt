@@ -23,7 +23,7 @@ package io.spine.dependency.local
     "ConstPropertyName" /* We use a custom convention for artifact properties. */,
 )
 object Change {
-    const val version = "2.0.0-SNAPSHOT.208"
+    const val version = "2.0.0-SNAPSHOT.209"
     const val group = Spine.group
     const val artifact = "spine-change"
     const val lib = "$group:$artifact:$version"
