@@ -39,7 +39,7 @@ object CoreJvmCompiler {
     /**
      * The version to be used for integration tests.
      */
-    const val version = "2.0.0-SNAPSHOT.097"
+    const val version = "2.0.0-SNAPSHOT.099"
 
     /**
      * The ID of the Gradle plugin.
