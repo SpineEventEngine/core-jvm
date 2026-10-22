@@ -322,14 +322,19 @@ private fun Project.publishedArtifacts(): Map<String, String> {
 
     mavenPublications().forEach { publication ->
         publication.rejectMavenSnapshot()
-        val base = "${publication.artifactId}-${publication.version}"
         publication.artifacts.forEach { artifact ->
-            val classifier = artifact.classifier?.takeIf { it.isNotEmpty() }
-            val suffix = classifier?.let { "-$it" } ?: ""
-            record("$base$suffix.${artifact.extension}", artifact.file)
+            val name = publication.publishedName(
+                classifier = artifact.classifier,
+                extension = artifact.extension
+            )
+            record(name, artifact.file)
         }
-        pomFileOf(publication)?.let { record("$base.pom", it) }
-        moduleFileOf(publication)?.let { record("$base.module", it) }
+        pomFileOf(publication)?.let {
+            record(publication.publishedName(classifier = null, extension = "pom"), it)
+        }
+        moduleFileOf(publication)?.let {
+            record(publication.publishedName(classifier = null, extension = "module"), it)
+        }
     }
     return result
 }

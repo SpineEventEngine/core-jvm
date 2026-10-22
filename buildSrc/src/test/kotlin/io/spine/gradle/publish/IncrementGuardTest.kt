@@ -43,8 +43,8 @@ import org.junit.jupiter.api.io.TempDir
 @DisplayName("`IncrementGuard` should")
 class IncrementGuardTest {
 
-    @Nested
-    inner class `require the version check` {
+    @Nested inner class
+    `require the version check` {
 
         @Test
         fun `for pull requests targeting default branches`() {
@@ -59,8 +59,8 @@ class IncrementGuardTest {
         }
     }
 
-    @Nested
-    inner class `not require the version check` {
+    @Nested inner class
+    `not require the version check` {
 
         @Test
         fun `for pull requests targeting auxiliary branches`() {
@@ -85,8 +85,8 @@ class IncrementGuardTest {
         }
     }
 
-    @Nested
-    inner class `actually run the check` {
+    @Nested inner class
+    `actually run the check` {
 
         @Test
         fun `on a CI pull request to a protected branch`() {
@@ -99,8 +99,8 @@ class IncrementGuardTest {
         }
     }
 
-    @Nested
-    inner class `skip the check` {
+    @Nested inner class
+    `skip the check` {
 
         @Test
         fun `on a local build that does not publish`() {
@@ -115,8 +115,8 @@ class IncrementGuardTest {
         }
     }
 
-    @Nested
-    inner class `compare against the base branch` {
+    @Nested inner class
+    `compare against the base branch` {
 
         @Test
         fun `inside the Version Guard workflow with a base branch`() {
@@ -125,8 +125,8 @@ class IncrementGuardTest {
         }
     }
 
-    @Nested
-    inner class `not compare against the base branch` {
+    @Nested inner class
+    `not compare against the base branch` {
 
         @Test
         fun `outside the Version Guard workflow`() {
@@ -142,8 +142,8 @@ class IncrementGuardTest {
         }
     }
 
-    @Nested
-    inner class `detect a Maven Local publish` {
+    @Nested inner class
+    `detect a Maven Local publish` {
 
         @Test
         fun `for the task's own project`() {
@@ -180,8 +180,8 @@ class IncrementGuardTest {
         }
     }
 
-    @Nested
-    inner class `make 'checkVersionIncrement' a dependency of` {
+    @Nested inner class
+    `make 'checkVersionIncrement' a dependency of` {
 
         @Test
         fun `every Maven Local publishing task`() {
@@ -195,8 +195,8 @@ class IncrementGuardTest {
         }
     }
 
-    @Nested
-    inner class `keep 'checkVersionIncrement' out of` {
+    @Nested inner class
+    `keep 'checkVersionIncrement' out of` {
 
         @Test
         fun `the 'check' lifecycle task`() {
@@ -211,8 +211,8 @@ class IncrementGuardTest {
         }
     }
 
-    @Nested
-    inner class `configure 'checkVersionIncrement' with` {
+    @Nested inner class
+    `configure 'checkVersionIncrement' with` {
 
         @Test
         fun `the root directory of the build`() {
@@ -321,8 +321,8 @@ class IncrementGuardTest {
         }
     }
 
-    @Nested
-    inner class `make 'checkVersionIncrement' fail` {
+    @Nested inner class
+    `make 'checkVersionIncrement' fail` {
 
         @TempDir
         lateinit var repoDir: File
@@ -405,8 +405,8 @@ class IncrementGuardTest {
         }
     }
 
-    @Nested
-    inner class `make 'checkVersionIncrement' pass` {
+    @Nested inner class
+    `make 'checkVersionIncrement' pass` {
 
         @TempDir
         lateinit var repoDir: File

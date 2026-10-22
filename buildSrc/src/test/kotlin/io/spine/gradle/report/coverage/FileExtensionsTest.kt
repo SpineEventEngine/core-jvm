@@ -28,8 +28,8 @@ class FileExtensionsTest {
     @TempDir
     lateinit var sourceRoot: File
 
-    @Nested
-    inner class `for Java sources` {
+    @Nested inner class
+    `for Java sources` {
 
         @Test
         fun `return a single FQN`() {
@@ -46,8 +46,8 @@ class FileExtensionsTest {
         }
     }
 
-    @Nested
-    inner class `for Kotlin sources` {
+    @Nested inner class
+    `for Kotlin sources` {
 
         @Test
         fun `return both the declared class and the synthetic file class`() {
@@ -70,8 +70,8 @@ class FileExtensionsTest {
         }
     }
 
-    @Nested
-    inner class `for proto-file-scoped Kotlin sources` {
+    @Nested inner class
+    `for proto-file-scoped Kotlin sources` {
 
         @Test
         fun `strip the two-part 'proto-kt' suffix`() {
@@ -84,8 +84,8 @@ class FileExtensionsTest {
         }
     }
 
-    @Nested
-    inner class `for unsupported inputs` {
+    @Nested inner class
+    `for unsupported inputs` {
 
         @Test
         fun `return an empty list for non-source files`() {

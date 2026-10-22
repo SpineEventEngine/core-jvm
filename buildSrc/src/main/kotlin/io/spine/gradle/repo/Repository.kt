@@ -49,6 +49,17 @@ data class Repository(
          * Serializes obtaining the credentials of all repositories (see [credentials]).
          */
         private val credentialsLock = Any()
+
+        /**
+         * Obtains the name used for publishing to a repository with the given [name].
+         *
+         * @param snapshots If `true` the repository is used for publishing snapshots,
+         *  and the suffix `-snapshots` is added to the given [name].
+         *  Otherwise, the function returns just [name].
+         * @see Repository.name
+         */
+        fun publishingName(name: String, snapshots: Boolean): String =
+            name + if (snapshots) "-snapshots" else ""
     }
 
     init {
@@ -66,7 +77,7 @@ data class Repository(
      *  and the suffix `-snapshots` will be added to the value of the [name] property.
      *  Otherwise, the function returns just [name].
      */
-    fun name(snapshots: Boolean): String = name + if (snapshots) "-snapshots" else ""
+    fun name(snapshots: Boolean): String = publishingName(name, snapshots)
 
     /**
      * Obtains the target URL of the repository for publishing.
@@ -78,6 +89,12 @@ data class Repository(
      * of this repository.
      */
     fun hasOneTarget() = snapshots == releases
+
+    /**
+     * Obtains the URLs of the destinations of this repository: the `snapshots` one, and
+     * the `releases` one unless it is the same destination.
+     */
+    fun targets(): List<String> = listOf(snapshots, releases).distinct()
 
     /**
      * Obtains the publishing password credentials to this repository.

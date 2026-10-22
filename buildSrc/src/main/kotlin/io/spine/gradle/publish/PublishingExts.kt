@@ -70,6 +70,24 @@ internal val MavenPublication.isPluginMarker: Boolean
     get() = name.endsWith("PluginMarkerMaven")
 
 /**
+ * The path to the artifact of this publication in a Maven repository,
+ * such as `io/spine/spine-base`.
+ */
+internal val MavenPublication.repositoryPath: String
+    get() = "${groupId.replace('.', '/')}/$artifactId"
+
+/**
+ * Obtains the name under which a file of this publication with the given [classifier]
+ * and [extension] is published, such as `spine-base-2.0.0-javadoc.jar`.
+ *
+ * A `null` or empty [classifier] means the file has none, as the POM.
+ */
+internal fun MavenPublication.publishedName(classifier: String?, extension: String): String {
+    val suffix = classifier?.takeIf { it.isNotEmpty() }?.let { "-$it" } ?: ""
+    return "$artifactId-$version$suffix.$extension"
+}
+
+/**
  * Obtains an instance, if available, of [SpinePublishing] extension
  * applied to this project.
  */

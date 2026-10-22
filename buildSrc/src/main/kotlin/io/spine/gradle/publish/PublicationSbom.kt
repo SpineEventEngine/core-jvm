@@ -110,7 +110,7 @@ internal object PublicationSbom {
     /**
      * The extension of a published SBOM, as in `<artifactId>-<version>.spdx.json`.
      */
-    private const val sbomExtension = "spdx.json"
+    const val sbomExtension = "spdx.json"
 
     /**
      * The [platform][KotlinTarget.platform] under which a JVM module looks up the modules

@@ -21,7 +21,6 @@ import io.spine.gradle.SpineTaskGroup
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.tasks.PublishToMavenLocal
 
 /**
@@ -219,10 +218,3 @@ private fun Project.publishedArtifactPaths(): Set<String> =
     mavenPublications()
         .map { it.repositoryPath }
         .toSet()
-
-/**
- * The path to the artifact of this publication in a Maven repository,
- * such as `io/spine/spine-base`.
- */
-private val MavenPublication.repositoryPath: String
-    get() = "${groupId.replace('.', '/')}/$artifactId"

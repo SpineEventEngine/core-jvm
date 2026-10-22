@@ -329,6 +329,9 @@ open class SpinePublishing(private val project: Project) {
         }
         PublicationChecksums.registerTasks(project, projectsToPublish)
         PublicationSbom.registerTasks(project, projectsToPublish)
+        // After `PublicationSbom`: its `projectsEvaluated` callback adds the SBOM artifacts
+        // that the one of `PublicationState` collects.
+        PublicationState.registerOn(project.rootProject)
     }
 
     /**

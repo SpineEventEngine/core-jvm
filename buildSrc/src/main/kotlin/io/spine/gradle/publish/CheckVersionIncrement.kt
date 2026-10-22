@@ -235,7 +235,7 @@ abstract class CheckVersionIncrement : DefaultTask() {
      */
     private fun checkArtifactNotPublished(path: String) {
         val artifact = "$path/${MavenMetadata.FILE_NAME}"
-        val repositories = targetRepositories()
+        val repositories = repository.targets()
         var found = false
         for (repoUrl in repositories) {
             val metadata = fetch(repoUrl, artifact) ?: continue
@@ -250,18 +250,6 @@ abstract class CheckVersionIncrement : DefaultTask() {
                     "`$name` cannot tell whether the version `$version` is already published."
             )
         }
-    }
-
-    /**
-     * Returns the URLs of the target repositories: the `snapshots` one, and
-     * the `releases` one unless it is the same destination.
-     */
-    private fun targetRepositories(): List<String> {
-        val snapshots = repository.target(snapshots = true)
-        if (repository.hasOneTarget()) {
-            return listOf(snapshots)
-        }
-        return listOf(snapshots, repository.target(snapshots = false))
     }
 
     /**
