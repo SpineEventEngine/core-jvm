@@ -71,6 +71,16 @@ jobs:
       # reads only the caches written by the workflows that run on `master`.
       - uses: gradle/actions/setup-gradle@v6
 
+      # The same step as in `build-on-ubuntu.yml`. For a release version, the build
+      # runs Dokka for every published module, in parallel, and the Linux runner
+      # ships with effectively no swap, so a memory peak would be an instant OOM
+      # kill. It goes before the deploy key is decrypted, so that the action never
+      # runs with the key on disk.
+      - name: Add swap space
+        uses: pierotofy/set-swap-space@v1.0
+        with:
+          swap-size-gb: 8
+
       - name: Decrypt Git SSH credentials
         run: ./config/scripts/decrypt.sh "$GIT_CREDENTIALS_KEY" ./.github/keys/deploy_key_rsa.gpg ./deploy_key_rsa
         env:

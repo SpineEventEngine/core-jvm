@@ -24,7 +24,7 @@ package io.spine.dependency.local
     "unused" /* Some subprojects do not use all Logging artifacts. */,
 )
 object Logging {
-    const val version = "2.0.0-SNAPSHOT.428"
+    const val version = "2.0.0-SNAPSHOT.426"
     const val group = Spine.group
 
     const val loggingArtifact = "spine-logging"
