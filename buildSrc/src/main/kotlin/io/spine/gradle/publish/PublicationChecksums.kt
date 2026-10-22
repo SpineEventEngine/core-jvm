@@ -15,6 +15,7 @@
 package io.spine.gradle.publish
 
 import io.spine.gradle.SpineTaskGroup
+import io.spine.gradle.getOrRegister
 import java.io.File
 import java.security.MessageDigest
 import java.util.Locale
@@ -98,6 +99,13 @@ internal object PublicationChecksums {
      * the root project of a multi-module build, which is where `publish.yml`
      * expects the manifest. A module configuring the extension for itself also
      * gets an aggregator of its own, describing only that module.
+     *
+     * The registration is idempotent. `spinePublishing { }` configures the extension
+     * anew on every call, and the same project can be reached by two such calls:
+     * the root extension lists a module in [SpinePublishing.modulesWithCustomPublishing],
+     * while the module itself opens the extension with `customPublishing = true` —
+     * which is what `uber-jar-module.gradle.kts` does. Plain registration would fail
+     * on the second call, during configuration.
      */
     fun registerTasks(host: Project, published: Set<Project>) {
         val collectors = published.map { registerCollectorIn(it) }
@@ -177,10 +185,10 @@ internal object PublicationChecksums {
         // build directory afterwards.
         //
         // The list belongs to the project rather than to this call, because the
-        // task is registered once while `registerTasks` may run several times —
-        // see `getOrRegister`. Were the action to close over one call's projects,
-        // a later call adding a module would register its collector and still
-        // leave it out of the manifest.
+        // task is registered once while `registerTasks` may run several times, as
+        // the documentation of `registerTasks` explains. Were the action to close
+        // over one call's projects, a later call adding a module would register its
+        // collector and still leave it out of the manifest.
         val sources = host.attestationSources()
         sources += published.map { collectorOutput(it) }
         val target = host.layout.buildDirectory.file(aggregatePath)
@@ -255,27 +263,6 @@ internal object PublicationChecksums {
         }
     }
 }
-
-/**
- * Returns the task named [name] in this container, registering it with [init]
- * if it is not there yet.
- *
- * `spinePublishing { }` configures the extension anew on every call, and the
- * same project can be reached by two such calls: the root extension lists a
- * module in [SpinePublishing.modulesWithCustomPublishing], while the module
- * itself opens the extension with `customPublishing = true` — which is what
- * `uber-jar-module.gradle.kts` does. Plain registration fails on the second
- * call, during configuration, so registration has to be idempotent.
- */
-private fun TaskContainer.getOrRegister(
-    name: String,
-    init: Task.() -> Unit
-): TaskProvider<Task> =
-    if (names.contains(name)) {
-        named(name)
-    } else {
-        register(name, init)
-    }
 
 /**
  * Returns the `clean` task of this container, if it has one.

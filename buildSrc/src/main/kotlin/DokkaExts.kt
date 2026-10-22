@@ -238,7 +238,7 @@ fun Task.isInPublishingGraph(): Boolean =
  * Such a build usually feeds integration tests, which need the published code,
  * but not its documentation. So the Dokka tasks are skipped when the execution graph
  * contains a [PublishToMavenLocal] task and no task that ships the documentation
- * elsewhere: `publish`, a [PublishToMavenRepository] task, or `updateGitHubPages`.
+ * elsewhere: `publish`, a [PublishToMavenRepository] task, or `publishApiDocs`.
  * They still run if a task named on the command line selects a documentation task of
  * the graph: one that has `dokka` in its name, ignoring case, or a documentation JAR,
  * `javadocJar` or `htmlDocsJar`. The name may be the full one, e.g., `dokkaGenerate`,
@@ -276,7 +276,7 @@ fun Project.skipDokkaWhenPublishingToMavenLocal() {
 /**
  * The names of the lifecycle tasks that ship the documentation beyond Maven Local.
  */
-private val docsShippingTaskNames = setOf("publish", TaskName.updateGitHubPages)
+private val docsShippingTaskNames = setOf("publish", TaskName.publishApiDocs)
 
 /**
  * Tells if this graph publishes to Maven Local and does not contain a task that ships

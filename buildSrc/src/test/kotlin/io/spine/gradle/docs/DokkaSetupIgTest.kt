@@ -52,7 +52,7 @@ private const val PROBE_PATH = ":dokka-sample:dokkaGeneratePublicationProbe"
  * The build publishes a `javadocJar` that depends on the probe, just as the `javadocJar`
  * that `spinePublishing` creates depends on `dokkaGeneratePublicationJavadoc`. The build
  * publishes to a file-based repository and to its own Maven Local repository, so it never
- * touches `~/.m2`. The `updateGitHubPages` task of the build stands in for the one that
+ * touches `~/.m2`. The `publishApiDocs` task of the build stands in for the one that
  * copies the Dokka output to GitHub Pages.
  *
  * The project with the probe is named `dokka-sample`, like the modules of `dokka-tools`,
@@ -105,10 +105,10 @@ internal class DokkaSetupIgTest {
     }
 
     @Test
-    fun `run a Dokka task when the build updates GitHub Pages and publishes to Maven Local`() {
+    fun `run a Dokka task when the build publishes the API docs and publishes to Maven Local`() {
         runStoringThenReusing(
             ":dokka-sample:publishToMavenLocal",
-            ":dokka-sample:updateGitHubPages"
+            ":dokka-sample:publishApiDocs"
         ) {
             it.probeOutcome shouldBe SUCCESS
         }
@@ -227,7 +227,7 @@ internal class DokkaSetupIgTest {
                 }
             }
 
-            tasks.register("updateGitHubPages") {
+            tasks.register("publishApiDocs") {
                 dependsOn(docsProbe)
             }
             """.trimIndent()

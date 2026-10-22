@@ -62,13 +62,32 @@ class Repository private constructor(
     }
 
     /**
+     * Clones the tip of the [branch], or of the default branch if it is `null`,
+     * into the [temporary folder][location].
+     *
+     * The blobs are fetched only when the working tree needs them, and the working
+     * tree holds only the top-level files until [checkOutOnly] replaces them with
+     * the selected paths.
+     */
+    private fun cloneSparsely(branch: String?) {
+        val options = listOf("--depth", "1", "--filter=blob:none", "--sparse", "--single-branch")
+        val branchOption = branch?.let { listOf("--branch", it) } ?: emptyList()
+        repoExecute(listOf("git", "clone") + options + branchOption + listOf("--", sshUrl, "."))
+    }
+
+    /**
      * Executes a command in the [location].
      */
-    private fun repoExecute(vararg command: String): String {
-        val cmd = command.toList().joinToString(" ")
+    private fun repoExecute(vararg command: String): String = repoExecute(command.asList())
+
+    /**
+     * Executes a command, assembled as a list, in the [location].
+     */
+    private fun repoExecute(command: List<String>): String {
+        val cmd = command.joinToString(" ")
         val msg = "[Repo (${project.path})] Executing command: `$cmd`."
         System.err.println(msg)
-        return Cli(location.toFile()).execute(*command)
+        return Cli(location.toFile()).execute(command)
     }
 
     /**
@@ -125,10 +144,57 @@ class Repository private constructor(
      * match a namespaced branch such as `feature/$name`. Relies on `git ls-remote`
      * returning an empty output with a zero exit code when the branch is absent,
      * so the check does not raise an exception.
+     *
+     * @param name the name of the branch.
+     * @param remote the name of the remote or its URL; `origin` by default.
      */
-    private fun remoteHasBranch(name: String): Boolean {
-        val output = repoExecute("git", "ls-remote", "--heads", "origin", "refs/heads/$name")
+    private fun remoteHasBranch(name: String, remote: String = "origin"): Boolean {
+        val output = repoExecute("git", "ls-remote", "--heads", remote, "refs/heads/$name")
         return output.isNotBlank()
+    }
+
+    /**
+     * Checks out only the paths of the current branch that match the given [patterns],
+     * leaving the rest of the branch out of the working tree.
+     *
+     * The call replaces the paths checked out before, including the top-level files
+     * of a [sparse clone][Factory.cloneSparsely], so it has to be given every path
+     * to keep at once.
+     *
+     * The patterns follow the `.gitignore` syntax, so a folder can be checked out
+     * without some of its subfolders. The paths left out stay in the branch: committing
+     * [all changes][commitAllChanges] does not delete them.
+     *
+     * Leaving out some subfolders of a folder takes the non-cone mode of
+     * `git sparse-checkout`, which Git documents as deprecated, though Git 2.54 still
+     * supports it without a warning. The mode needs Git 2.35 or newer.
+     */
+    fun checkOutOnly(patterns: List<String>) {
+        repoExecute(listOf("git", "sparse-checkout", "set", "--no-cone") + patterns)
+    }
+
+    /**
+     * Obtains the names of the folders in the given [folder] of the current commit,
+     * whether they are checked out or not.
+     *
+     * Reads the tree of the current commit, so the changes in the working tree that
+     * are not committed yet are not reflected. The files in the [folder] are skipped.
+     *
+     * @param folder the path of the folder relative to the repository root.
+     * @return the names of the folders in [folder], or an empty list if there is
+     *   no such folder.
+     */
+    fun listFolders(folder: String): List<String> {
+        require(folder.isNotBlank()) { "The folder to list cannot be blank." }
+        // Each entry is `<mode> <type> <object>\t<path>`, the entries are separated
+        // by `NUL`, and the paths are not quoted.
+        return repoExecute("git", "ls-tree", "-z", "HEAD", "${folder.trimEnd('/')}/")
+            .split('\u0000')
+            .filter { it.isNotBlank() }
+            .mapNotNull { entry ->
+                val (info, path) = entry.split('\t', limit = 2)
+                path.substringAfterLast('/').takeIf { info.split(' ')[1] == "tree" }
+            }
     }
 
     /**
@@ -173,7 +239,6 @@ class Repository private constructor(
             // If the branch now exists on the remote, another module won the
             // creation race and we adopt its branch; otherwise the failure is
             // genuine and is rethrown.
-            repoExecute("git", "fetch", "origin")
             if (!remoteHasBranch(branch)) {
                 throw e
             }
@@ -184,8 +249,14 @@ class Repository private constructor(
     /**
      * Discards the local orphan branch in favour of the same-named branch that
      * already exists on the remote, keeping the local branch in sync with it.
+     *
+     * The branch is added to the branches fetched from the remote first: a single-branch
+     * clone, which a shallow one is too, fetches no other branch, and Git does not
+     * accept a branch it does not fetch as the upstream of a local one.
      */
     private fun adoptRemoteBranch(branch: String) {
+        repoExecute("git", "remote", "set-branches", "--add", "origin", branch)
+        repoExecute("git", "fetch", "origin", "+refs/heads/$branch:refs/remotes/origin/$branch")
         repoExecute("git", "reset", "--hard", "origin/$branch")
         repoExecute("git", "branch", "--set-upstream-to=origin/$branch", branch)
     }
@@ -273,6 +344,53 @@ class Repository private constructor(
             }
 
             return repo
+        }
+
+        /**
+         * Clones the tip of the [branch] of the repository with the provided SSH URL
+         * in a temporary folder, with only its top-level files checked out.
+         *
+         * Suits a branch with a large tip of which a change touches only a small part,
+         * such as the branch with the documentation of every published version.
+         * Further blobs are fetched only for the paths that [checkOutOnly] selects.
+         * The commits are made and [pushed][push] as in a full clone.
+         *
+         * A [branch] that does not exist yet is created and seeded with [initialFiles],
+         * which are top-level files.
+         *
+         * Configures the username and the email of the Git user.
+         * See [configureUser] documentation for more information.
+         *
+         * @throws IllegalArgumentException if SSH URL is a blank string.
+         */
+        fun cloneSparsely(
+            project: Project,
+            sshUrl: String,
+            user: UserInfo,
+            branch: String,
+            initialFiles: Map<String, String> = emptyMap(),
+        ): Repository {
+            require(sshUrl.isNotBlank()) { "SSH URL cannot be an empty string." }
+
+            val repo = Repository(project, sshUrl = sshUrl, user = user, currentBranch = branch)
+            var cloned = false
+            try {
+                // Ask the remote first: an existing branch is cloned alone, while
+                // a missing one needs the default branch to start from.
+                val branchExists = repo.remoteHasBranch(branch, remote = sshUrl)
+                repo.cloneSparsely(branch.takeIf { branchExists })
+                repo.configureUser(user)
+                if (!branchExists) {
+                    repo.createOrphanBranch(branch, initialFiles)
+                }
+                cloned = true
+                return repo
+            } finally {
+                // The caller cannot close a repository it never gets.
+                if (!cloned) {
+                    repo.close()
+                }
+            }
         }
     }
 }

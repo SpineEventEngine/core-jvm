@@ -17,6 +17,7 @@ package io.spine.gradle
 import kotlin.reflect.KClass
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskContainer
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.register
 
@@ -45,3 +46,22 @@ internal fun <T : Task> TaskContainer.named(name: TaskName<T>) = named(name.valu
  */
 internal fun <T : Task> TaskContainer.register(name: TaskName<T>, init: T.() -> Unit) =
     register(name.value, name.clazz, init)
+
+/**
+ * Returns the task named [name] in this container, registering it with [init]
+ * if it is not there yet.
+ *
+ * Unlike [register][TaskContainer.register], this does not fail when the task is
+ * already registered, so it suits code that may reach the same task more than once.
+ * [init] applies only when this call registers the task; for an existing task it is
+ * ignored, so a setup needed in both cases goes to [TaskProvider.configure].
+ */
+internal fun TaskContainer.getOrRegister(
+    name: String,
+    init: Task.() -> Unit = {}
+): TaskProvider<Task> =
+    if (name in names) {
+        named(name)
+    } else {
+        register(name, init)
+    }

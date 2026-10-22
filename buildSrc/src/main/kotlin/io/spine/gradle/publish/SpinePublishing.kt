@@ -17,6 +17,7 @@
 package io.spine.gradle.publish
 
 import io.spine.dependency.local.Spine
+import io.spine.gradle.github.pages.PublishAllApiDocs
 import io.spine.gradle.repo.Repository
 import java.util.Locale
 import org.gradle.api.Project
@@ -332,6 +333,9 @@ open class SpinePublishing(private val project: Project) {
         // After `PublicationSbom`: its `projectsEvaluated` callback adds the SBOM artifacts
         // that the one of `PublicationState` collects.
         PublicationState.registerOn(project.rootProject)
+        // `publishAllApiDocs` is registered here, as this is where the published modules
+        // are known. It is not tied to `publish`: neither task depends on the other.
+        PublishAllApiDocs.registerIn(project.rootProject, projectsToPublish)
     }
 
     /**

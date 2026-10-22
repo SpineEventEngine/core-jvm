@@ -23,44 +23,44 @@ import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.property
 
 /**
- * Configures the `updateGitHubPages` extension.
+ * Configures the `publishApiDocs` extension.
  */
 @Suppress("unused")
-fun Project.updateGitHubPages(
-    action: UpdateGitHubPagesExtension.() -> Unit
+fun Project.publishApiDocs(
+    action: PublishApiDocsExtension.() -> Unit
 ) {
-    apply<UpdateGitHubPages>()
+    apply<PublishApiDocs>()
 
-    val extension = extensions.getByType(UpdateGitHubPagesExtension::class)
+    val extension = extensions.getByType(PublishApiDocsExtension::class)
     extension.action()
 }
 
 /**
- * The extension for configuring the [UpdateGitHubPages] plugin.
+ * The extension for configuring the [PublishApiDocs] plugin.
  *
- * @property rootFolder The root folder of the repository to which the updated `Project` belongs.
+ * @property rootFolder The root folder of the repository to which the documented `Project` belongs.
  * @property includeInputs The external inputs, which output should be included
- *   into the GitHub Pages update. The values are interpreted according to
+ *   into the published documentation. The values are interpreted according to
  *   [Copy.from][org.gradle.api.tasks.Copy.from] specification.
  *   This property is optional.
  */
-class UpdateGitHubPagesExtension private constructor(
-    var rootFolder: Property<File>,
-    var includeInputs: SetProperty<Any>
+class PublishApiDocsExtension private constructor(
+    val rootFolder: Property<File>,
+    val includeInputs: SetProperty<Any>
 ) {
     internal companion object {
 
         /**
          * The name of the extension.
          */
-        const val name = "updateGitHubPages"
+        const val name = "publishApiDocs"
 
         /**
          * Creates a new extension and adds it to the passed project.
          */
-        fun createIn(project: Project): UpdateGitHubPagesExtension {
+        fun createIn(project: Project): PublishApiDocsExtension {
             val factory = project.objects
-            val result = UpdateGitHubPagesExtension(
+            val result = PublishApiDocsExtension(
                 rootFolder = factory.property(File::class),
                 includeInputs = factory.setProperty(Any::class.java)
             )
@@ -76,8 +76,8 @@ class UpdateGitHubPagesExtension private constructor(
     fun rootFolder(): File = rootFolder.get()
 
     /**
-     * Returns the external inputs, which results should be included into the
-     * GitHub Pages update.
+     * Returns the external inputs, whose results should be included into the
+     * published documentation.
      */
     fun includedInputs(): Set<Any> = includeInputs.get()
 }
