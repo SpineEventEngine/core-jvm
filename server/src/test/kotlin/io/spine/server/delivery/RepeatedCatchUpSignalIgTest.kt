@@ -22,10 +22,7 @@ import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import io.spine.base.EventMessage
-import io.spine.base.Identifier
 import io.spine.core.EventId
-import io.spine.core.MessageId
 import io.spine.server.BoundedContext
 import io.spine.server.delivery.CatchUpMessages.fullyRecalled
 import io.spine.server.delivery.CatchUpMessages.recalled
@@ -34,12 +31,13 @@ import io.spine.server.delivery.CatchUpStatus.FINALIZING
 import io.spine.server.delivery.CatchUpStatus.IN_PROGRESS
 import io.spine.server.delivery.CatchUpStatus.STARTED
 import io.spine.server.delivery.event.CatchUpRequested
-import io.spine.server.delivery.event.EntityPreparedForCatchUp
 import io.spine.server.delivery.event.HistoryEventsRecalled
 import io.spine.server.delivery.event.LiveEventsPickedUp
 import io.spine.server.delivery.event.ShardProcessingRequested
 import io.spine.server.delivery.event.catchUpRequested
 import io.spine.server.delivery.given.CounterView
+import io.spine.server.delivery.given.HoldingExecutor
+import io.spine.server.delivery.given.RecordingInboxStorage
 import io.spine.server.event.AbstractEventReactor
 import io.spine.server.event.EventDispatcher
 import io.spine.server.event.NoReaction
@@ -49,7 +47,6 @@ import io.spine.test.delivery.numberAdded
 import io.spine.testing.SlowTest
 import io.spine.testing.server.blackbox.BlackBox
 import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit.SECONDS
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -408,50 +405,6 @@ internal class RepeatedCatchUpSignalIgTest : AbstractCatchUpIgTest() {
             .count { it.process == job }
 
     /**
-     * Records each message sent to an inbox.
-     *
-     * A message sent is stored on its own. A delivery run stores the messages it has
-     * processed in a batch, which is not recorded.
-     */
-    private class RecordingInboxStorage :
-        InboxStorage(InMemoryStorageFactory.newInstance(), /* multitenant = */ false) {
-
-        private val sent = CopyOnWriteArrayList<InboxMessage>()
-
-        override fun write(message: InboxMessage) {
-            sent.add(message)
-            super.write(message)
-        }
-
-        /**
-         * Returns the IDs of the events sent to any inbox.
-         */
-        fun eventIds(): List<EventId> =
-            sent.filter { it.hasEvent() }.map { it.event.id }
-
-        /**
-         * Returns the events sent to any inbox.
-         */
-        fun events(): List<EventMessage> =
-            sent.filter { it.hasEvent() }.map { it.event.enclosedMessage() }
-
-        /**
-         * Returns the catch-up signals of the given job sent to any inbox.
-         */
-        fun signalsOf(job: CatchUpId): List<CatchUpSignal> =
-            events().filterIsInstance<CatchUpSignal>().filter { it.id == job }
-
-        /**
-         * Returns the IDs of the instances that reported being prepared for the given job,
-         * in the order of the reports.
-         */
-        fun reportsOf(job: CatchUpId): List<String> =
-            signalsOf(job).filterIsInstance<EntityPreparedForCatchUp>()
-                .map { Identifier.unpack(it.instanceId, MessageId::class.java) }
-                .map { Identifier.unpack(it.id, String::class.java) }
-    }
-
-    /**
      * Records each state of a catch-up job written to the storage.
      */
     private class RecordingCatchUpStorage :
@@ -496,67 +449,6 @@ internal class RepeatedCatchUpSignalIgTest : AbstractCatchUpIgTest() {
                 action(signal.id)
             }
             return noReaction()
-        }
-    }
-
-    /**
-     * Runs each task in the calling thread or, while holding, keeps it until released.
-     *
-     * Holding stands for an executor that posts the system events after the delivery run ends.
-     *
-     * All the calls come from the test thread, so the executor needs no synchronization.
-     */
-    private class HoldingExecutor : Executor {
-
-        private val held = ArrayDeque<Runnable>()
-        private var holding = false
-
-        val heldCount: Int
-            get() = held.size
-
-        fun hold() {
-            holding = true
-        }
-
-        /**
-         * Runs the first of the held tasks.
-         *
-         * The tasks it adds are held too.
-         */
-        fun releaseFirst() {
-            held.removeFirst().run()
-        }
-
-        /**
-         * Runs the given action with holding switched off, so each task it adds runs
-         * in the calling thread at once.
-         */
-        fun withoutHolding(action: () -> Unit) {
-            val wasHolding = holding
-            holding = false
-            try {
-                action()
-            } finally {
-                holding = wasHolding
-            }
-        }
-
-        /**
-         * Runs the held tasks, and each task to come, in the calling thread.
-         */
-        fun release() {
-            holding = false
-            while (held.isNotEmpty()) {
-                held.removeFirst().run()
-            }
-        }
-
-        override fun execute(task: Runnable) {
-            if (holding) {
-                held.addLast(task)
-            } else {
-                task.run()
-            }
         }
     }
 
