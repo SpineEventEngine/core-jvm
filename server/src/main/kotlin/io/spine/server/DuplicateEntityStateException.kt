@@ -16,6 +16,7 @@ package io.spine.server
 
 import io.spine.core.BoundedContextName
 import io.spine.string.Diags
+import io.spine.string.joinBackticked
 import io.spine.type.TypeUrl
 import java.io.Serial
 
@@ -49,7 +50,7 @@ public class DuplicateEntityStateException(
             contexts: Collection<BoundedContextName>
         ): String {
             val type = Diags.backtick(stateType.typeName())
-            val names = Diags.join(contexts.map { Diags.backtick(it.value) })
+            val names = contexts.map { it.value }.joinBackticked()
             return "The entity state type $type cannot be served by more than one domain" +
                     " Bounded Context: $names." +
                     " Register the repository of this type in one Bounded Context only."
