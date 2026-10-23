@@ -86,10 +86,10 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * of the respective {@code ServerEnvironment} for those Bounded Contexts. In this way,
  * the Contexts would reside in their own JVMs and not overlap on interacting with this singleton.
  *
- * <p>Within a JVM, entities with a given state type can be served by only one open domain
- * Bounded Context at a time. All Bounded Contexts share one {@link Delivery}, which finds
+ * <p>Within a JVM, entities with a given state type can be served by only one domain
+ * Bounded Context. All Bounded Contexts share one {@link Delivery}, which finds
  * the entities that receive a message by their state type only. Adding a repository to
- * a context while another open context serves the same entity state type fails with
+ * a context when another domain context already serves the same entity state type fails with
  * {@link DuplicateEntityStateException}. The check is
  * {@linkplain TypeConfigurator#checkDuplicateEntityStates(boolean) off} in tests by default.
  */
@@ -570,12 +570,12 @@ public final class ServerEnvironment implements Closeable {
 
         /**
          * Turns on or off the check that entities with a given state type are served by
-         * only one open domain Bounded Context at a time.
+         * only one domain Bounded Context.
          *
          * <p>When the check is on, adding a repository to a context fails with
          * {@link DuplicateEntityStateException} if another open domain context already serves
-         * entities with the same state type. A context stops serving its entities
-         * when it is closed.
+         * entities with the same state type. In tests, which build many contexts in one JVM,
+         * closing a context at the end of a test frees its entity state types.
          *
          * <p>By default, the check is off for {@link Tests} and on for other environment types.
          *

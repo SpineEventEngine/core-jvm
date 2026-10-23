@@ -15,6 +15,7 @@
 package io.spine.server
 
 import io.spine.core.BoundedContextName
+import io.spine.string.Diags
 import io.spine.type.TypeUrl
 import java.io.Serial
 
@@ -43,13 +44,15 @@ public class DuplicateEntityStateException(
         @Serial
         private const val serialVersionUID: Long = 0L
 
-        private fun messageOf(stateType: TypeUrl, contexts: Collection<BoundedContextName>) =
-            "The entity state type `${stateType.typeName()}` cannot be served by more than" +
-                    " one open domain Bounded Context at a time: ${quoted(contexts)}." +
-                    " Serve each entity state type in one context only, or close the context" +
-                    " that serves it before adding the type to another one."
-
-        private fun quoted(contexts: Collection<BoundedContextName>) =
-            contexts.joinToString { "`${it.value}`" }
+        private fun messageOf(
+            stateType: TypeUrl,
+            contexts: Collection<BoundedContextName>
+        ): String {
+            val type = Diags.backtick(stateType.typeName())
+            val names = Diags.join(contexts.map { Diags.backtick(it.value) })
+            return "The entity state type $type cannot be served by more than one domain" +
+                    " Bounded Context: $names." +
+                    " Register the repository of this type in one Bounded Context only."
+        }
     }
 }

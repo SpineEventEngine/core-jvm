@@ -22,7 +22,6 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldNotBeInstanceOf
 import io.spine.core.BoundedContextName
 import io.spine.core.BoundedContextNames.newName
@@ -114,8 +113,9 @@ internal class DuplicateEntityStateSpec {
                 context("Second", CalculatorRepository())
             }
 
-            error.message shouldContain "`${calc.typeName()}`"
-            error.message shouldContain "`First`, `Second`"
+            error.message shouldBe "The entity state type `spine.test.delivery.Calc` cannot be" +
+                    " served by more than one domain Bounded Context: `First`, `Second`." +
+                    " Register the repository of this type in one Bounded Context only."
         }
     }
 
