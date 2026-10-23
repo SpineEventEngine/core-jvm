@@ -17,17 +17,19 @@ import io.spine.gradle.SpineRepos
 import io.spine.gradle.SpineTaskGroup
 import io.spine.gradle.cleanFolder
 import java.nio.file.Path
-import java.nio.file.Paths
 
 // A reference to `config` to use along with the `ConfigTester`.
-val config: Path = Paths.get("./")
+//
+// Both paths below are resolved against the project directory, because a relative path
+// would be resolved against the working directory of the Gradle daemon instead.
+val config: Path = layout.projectDirectory.asFile.toPath()
 
 // A temp folder to use to check out the sources of other repositories with the `ConfigTester`.
-val tempFolder = File("./tmp")
+val tempFolder = layout.projectDirectory.dir("tmp").asFile
 
 // Creates a Gradle task that checks out and builds the selected Spine repositories
 // with the local version of `config` and `config/buildSrc`.
-ConfigTester(config, tasks, tempFolder)
+ConfigTester(config = config, tasks = tasks, tempFolder = tempFolder)
     .addRepo(SpineRepos.baseTypes)  // Builds `base-types` at `master`.
     .addRepo(SpineRepos.base)       // Builds `base` at `master`.
     .addRepo(SpineRepos.coreJvm)    // Builds `core-jvm` at `master`.

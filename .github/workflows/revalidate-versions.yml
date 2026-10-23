@@ -5,7 +5,7 @@
 # now stale: its publish would collide. GitHub does not re-run a PR's checks when its base
 # advances, so this workflow does it actively — for each other open PR whose
 # `version.gradle.kts` version is `<=` the new base version, it posts a failing
-# `Version Guard` commit status on the PR head, blocking the merge until the author
+# `Version bump` commit status on the PR head, blocking the merge until the author
 # re-bumps. The status self-clears: the re-bump push runs `increment-guard.yml`, which
 # posts a fresh `success` on the new head.
 #
@@ -40,14 +40,14 @@ concurrency:
 
 jobs:
   revalidate:
-    name: Revalidate open PRs
+    name: Mark stale version bumps
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         with:
           submodules: 'true'
 
-      - name: Revalidate open PRs against the new base version
+      - name: Mark open PRs whose version is not above the new base
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

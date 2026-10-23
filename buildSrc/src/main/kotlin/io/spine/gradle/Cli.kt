@@ -20,7 +20,6 @@ import java.io.File
 import java.io.InputStream
 import java.io.StringWriter
 import java.lang.ProcessBuilder.Redirect.PIPE
-import java.util.*
 
 /**
  * Executes a process from Gradle code.
@@ -32,20 +31,34 @@ class Cli(private val workingFolder: File) {
     /**
      * Executes the given terminal command and retrieves the command output.
      *
-     * [Executes][Runtime.exec] the given `String` array as a CLI command.
+     * Runs the given command, the program followed by its arguments, in
+     * the [workingFolder].
      *
      * If the execution is successful, returns the command output.
      * Throws an [IllegalStateException] otherwise.
      *
      * @param command the command to execute.
-     * @return the command line output.
+     * @return the standard output as the command wrote it, line breaks included,
+     *   decoded as UTF-8.
      * @throws IllegalStateException if the execution fails.
      */
-    fun execute(vararg command: String): String {
+    fun execute(vararg command: String): String = execute(command.asList())
+
+    /**
+     * Executes the given terminal command and retrieves the command output.
+     *
+     * Works like the `vararg` overload, for a command assembled as a list.
+     *
+     * @param command the command to execute, the program followed by its arguments.
+     * @return the standard output as the command wrote it, line breaks included,
+     *   decoded as UTF-8.
+     * @throws IllegalStateException if the execution fails.
+     */
+    fun execute(command: List<String>): String {
         val outWriter = StringWriter()
         val errWriter = StringWriter()
 
-        val process = ProcessBuilder(*command).apply {
+        val process = ProcessBuilder(command).apply {
             directory(workingFolder)
             redirectOutput(PIPE)
             redirectError(PIPE)
@@ -66,22 +79,22 @@ class Cli(private val workingFolder: File) {
             val commandLine = command.joinToString(" ")
             val nl = System.lineSeparator()
             val errorMsg = "Command `$commandLine` finished with exit code $exitCode:" +
-                    "$nl$errWriter" +
-                    "$nl$outWriter."
+                    "$nl${errWriter.toString().trimEnd()}" +
+                    "$nl${outWriter.toString().trimEnd()}."
             throw IllegalStateException(errorMsg)
         }
     }
 }
 
 /**
- * Starts a background thread that reads all lines from this [InputStream] and
- * appends them to [dest], returning the thread so the caller can [join][Thread.join]
- * it once the process has exited, ensuring the buffer holds the complete output.
+ * Starts a background thread that reads all of this [InputStream] and appends it
+ * to [dest], returning the thread so the caller can [join][Thread.join] it once
+ * the process has exited, ensuring the buffer holds the complete output.
+ *
+ * The text is appended as the process wrote it, line breaks included, so that
+ * a multi-line output can be split into lines.
  */
 private fun InputStream.pourTo(dest: StringWriter): Thread =
     Thread {
-        val sc = Scanner(this)
-        while (sc.hasNextLine()) {
-            dest.append(sc.nextLine())
-        }
+        bufferedReader().use { dest.append(it.readText()) }
     }.also { it.start() }

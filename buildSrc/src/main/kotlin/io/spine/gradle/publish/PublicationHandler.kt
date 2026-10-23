@@ -16,21 +16,32 @@ package io.spine.gradle.publish
 
 import DocumentationSettings
 import LicenseSettings
+import io.spine.gradle.SpineTaskGroup
 import io.spine.gradle.artifactId
 import io.spine.gradle.isSnapshot
 import io.spine.gradle.repo.Repository
 import io.spine.gradle.report.pom.InceptionYear
+import java.util.Locale
+import java.util.concurrent.Callable
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
+import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.invocation.BuildInvocationDetails
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.support.serviceOf
+import org.gradle.kotlin.dsl.withType
 
 /**
  * The name of the Maven Publishing Gradle plugin.
  */
 private const val MAVEN_PUBLISH = "maven-publish"
+
+/**
+ * The name of the Gradle plugin that adds test fixtures to a project.
+ */
+private const val JAVA_TEST_FIXTURES = "java-test-fixtures"
 
 /**
  * Abstract base for handlers of publications in a project
@@ -89,6 +100,7 @@ sealed class PublicationHandler(
                 // is applied.
                 pluginManager.withPlugin(MAVEN_PUBLISH) {
                     handlePublications()
+                    suppressTestFixturesPomWarnings()
                     registerDestinations()
                     configurePublishTask(destinations)
                     applied = true
@@ -102,6 +114,27 @@ sealed class PublicationHandler(
      * or creates new ones.
      */
     abstract fun handlePublications()
+
+    /**
+     * Silences the warnings that Gradle prints about the test fixtures variants
+     * when it generates the POM of a Maven publication of the [project].
+     *
+     * The `java-test-fixtures` plugin adds the test fixtures to the `java` component
+     * as variants with a capability of their own. Gradle Module Metadata (`.module`)
+     * keeps them, while a POM cannot describe a capability, so Gradle leaves them
+     * out of it by design. Hence, the warnings carry no information.
+     *
+     * The publications added after this handler is applied, such as `pluginMaven`
+     * of `java-gradle-plugin`, are silenced as well.
+     */
+    private fun suppressTestFixturesPomWarnings() {
+        project.pluginManager.withPlugin(JAVA_TEST_FIXTURES) {
+            project.publications.withType<MavenPublication>().configureEach {
+                suppressPomMetadataWarningsFor("testFixturesApiElements")
+                suppressPomMetadataWarningsFor("testFixturesRuntimeElements")
+            }
+        }
+    }
 
     /**
      * Goes through the [destinations] and registers each as a repository for publishing
@@ -276,18 +309,55 @@ sealed class PublicationHandler(
 }
 
 /**
- * Adds a Maven repository to the project specifying credentials, if they are
- * [available][Repository.credentials] from the root project.
+ * Adds a Maven repository to the project.
+ *
+ * The credentials of the repository, if they are [available][Repository.credentials]
+ * from the root project, are supplied only when a task publishing to it is about
+ * to run (see [supplyCredentials]).
  */
 private fun RepositoryHandler.register(project: Project, repository: Repository) {
     val isSnapshot = project.version.toString().isSnapshot()
-    val credentials = repository.credentials(project.rootProject)
-    maven {
+    val target = maven {
         name = repository.name(isSnapshot)
         url = project.uri(repository.target(isSnapshot))
-        credentials {
-            username = credentials?.username
-            password = credentials?.password
+    }
+    project.supplyCredentials(target, repository)
+}
+
+/**
+ * Registers a supplier task that sets the credentials of the [target] repository
+ * to those of the [source] one, and makes each task publishing to [target]
+ * depend on the supplier task.
+ *
+ * Obtaining the credentials may start an external process, e.g., `gcloud`
+ * for [CloudArtifactRegistry]. Gradle deprecates starting one at configuration time,
+ * and builds that do not publish should not obtain the credentials at all.
+ * An action of the publishing task cannot supply them, either: the task validates
+ * them before running any of its actions. Hence, the publishing task depends on
+ * the supplier task, which sets them on the repository rather than producing an output.
+ */
+private fun Project.supplyCredentials(target: MavenArtifactRepository, source: Repository) {
+    // Captured at configuration time: the action must not reach the project
+    // through its task, as Gradle deprecates calling `Task.project` at execution time.
+    val rootProject = rootProject
+    val repoName = target.name.replaceFirstChar { it.titlecase(Locale.ROOT) }
+    val supplier = tasks.register("supply${repoName}Credentials") {
+        group = SpineTaskGroup.name
+        description = "Obtains the credentials for publishing to the `${target.name}` repository"
+        notCompatibleWithConfigurationCache(
+            "Gradle does not support explicit repository credentials with the configuration cache."
+        )
+        doLast {
+            val credentials = source.credentials(rootProject)
+            target.credentials {
+                username = credentials?.username
+                password = credentials?.password
+            }
         }
+    }
+    tasks.withType<PublishToMavenRepository>().configureEach {
+        // The `maven-publish` plugin may assign the repository after this action runs,
+        // so the dependency is resolved later, when Gradle builds the task graph.
+        dependsOn(Callable { if (repository === target) supplier else null })
     }
 }

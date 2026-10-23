@@ -111,14 +111,21 @@ fun RepositoryHandler.standardToSpineSdk() {
     mavenCentral { excludeSpine() }
     gradlePluginPortal { excludeSpine() }
 
-    spineArtifacts()
-
+    //
+    // Spine repositories. Gradle fetches a module's artifacts only from the repository
+    // that served its metadata. If that repository drops the artifacts after a build
+    // cached the metadata, later builds fail instead of falling through to the next one.
+    //
+    // Google Artifact Registry retains old versions, so it comes first. `CloudRepo`
+    // serves only earlier versions. GitHub Packages comes last: a scheduled workflow
+    // keeps only the newest snapshots of each package there.
+    //
     @Suppress("DEPRECATION") // Still use `CloudRepo` for earlier versions.
     val spineRepos = listOf(
-        Repos.spine,
-        Repos.spineSnapshots,
         Repos.artifactRegistry,
-        Repos.artifactRegistrySnapshots
+        Repos.artifactRegistrySnapshots,
+        Repos.spine,
+        Repos.spineSnapshots
     )
 
     spineRepos
@@ -129,6 +136,8 @@ fun RepositoryHandler.standardToSpineSdk() {
                 includeSpineOnly()
             }
         }
+
+    spineArtifacts()
 
     // IntelliJ Platform repositories. `intellijReleases` serves the platform
     // artifacts (`com.jetbrains.intellij.*`); `intellijDependencies` serves the

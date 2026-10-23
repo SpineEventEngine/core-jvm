@@ -17,6 +17,6 @@ package io.spine.dependency.lib
 // https://commons.apache.org/proper/commons-codec/changes-report.html
 @Suppress("unused", "ConstPropertyName")
 object CommonsCodec {
-    private const val version = "1.22.1"
+    private const val version = "1.23.0"
     const val lib = "commons-codec:commons-codec:$version"
 }

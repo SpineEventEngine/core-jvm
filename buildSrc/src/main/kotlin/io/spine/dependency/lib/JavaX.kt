@@ -21,5 +21,5 @@ object JavaX {
     const val annotationGroup = "javax.annotation"
     const val annotations = "$annotationGroup:javax.annotation-api:1.3.2"
 
-    const val servletApi = "javax.servlet:javax.servlet-api:3.1.0"
+    const val servletApi = "javax.servlet:javax.servlet-api:4.0.1"
 }

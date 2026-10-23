@@ -19,11 +19,16 @@ package io.spine.dependency.test
 /**
  * Gradle TestKit extension for Google Truth.
  *
- * @see <a href="https://github.com/autonomousapps/dependency-analysis-android-gradle-plugin/tree/main/testkit-truth">TestKit source code</a>
+ * @see <a href="https://github.com/autonomousapps/dependency-analysis-gradle-plugin/tree/main/testkit/gradle-testkit-truth">TestKit source code</a>
  * @see <a href="https://dev.to/autonomousapps/gradle-all-the-way-down-testing-your-gradle-plugin-with-gradle-testkit-2hmc">Usage description</a>
  */
 @Suppress("unused", "ConstPropertyName")
 object TestKitTruth {
-    private const val version = "1.20.0"
-    const val lib = "com.autonomousapps:testkit-truth:$version"
+    private const val version = "1.7.1"
+
+    /**
+     * The artifact has been published as `gradle-testkit-truth` since `1.3`.
+     * Earlier versions, up to `1.1`, were published as `testkit-truth`.
+     */
+    const val lib = "com.autonomousapps:gradle-testkit-truth:$version"
 }

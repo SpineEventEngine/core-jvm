@@ -23,6 +23,6 @@ package io.spine.dependency.storage
  */
 @Suppress("unused", "ConstPropertyName")
 object H2 {
-    private const val version = "2.4.240"
+    private const val version = "2.5.252"
     const val lib = "com.h2database:h2:$version"
 }

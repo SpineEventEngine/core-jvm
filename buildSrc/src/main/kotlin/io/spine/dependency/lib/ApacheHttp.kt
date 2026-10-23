@@ -18,5 +18,5 @@ package io.spine.dependency.lib
 object ApacheHttp {
 
     // https://hc.apache.org/downloads.cgi
-    const val core = "org.apache.httpcomponents:httpcore:4.4.14"
+    const val core = "org.apache.httpcomponents:httpcore:4.4.16"
 }

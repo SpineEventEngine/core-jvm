@@ -1,0 +1,100 @@
+name: Publish API docs
+
+# Publishes the API documentation of the published modules to the `gh-pages`
+# branch, which GitHub Pages serves under `spine.io`.
+#
+# The job runs apart from `publish.yml`, and neither waits for the other: a
+# failure here leaves the Maven publication intact, and the other way round.
+# `:publishAllApiDocs` is registered in the root project by `spinePublishing { }`,
+# so it exists in every repository that publishes, and does nothing where no
+# module documents itself. It runs the `publishApiDocs` task of each published
+# module.
+#
+# Only release versions are published. For a snapshot version, which most merges
+# produce, the task of each module only says that it skips the documentation,
+# and the run ends green without generating or pushing any.
+#
+# A failed run can be re-run as it is: each module commits its documentation
+# even when nothing changed, and retries a failed push after rebasing onto
+# `gh-pages`.
+#
+# Each module clones only the tip of `gh-pages` and checks out only its own most
+# recent documentation and the folder of its version, so that a run does not
+# fetch the documentation of every version of every module.
+#
+# This job does not ask whether `publish.yml` could publish the version, as that
+# would couple the two again. When `publish.yml` stops because the version is
+# already taken, which the version checks of pull requests normally prevent,
+# this job still copies the documentation of the commit over that of the version.
+#
+# Unlike `publish.yml`, this file is not a caller of a reusable workflow hosted
+# by `config`. That split exists to make `config` the signer of the attestation
+# of the published artifacts, and the documentation is not attested.
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  publish-api-docs:
+    name: Publish API docs
+    runs-on: ubuntu-latest
+
+    # One run at a time per repository, since every run pushes to `gh-pages`.
+    # `queue: max` keeps up to 100 runs waiting, instead of letting a newer run
+    # cancel the waiting one: each run also adds the documentation of its own
+    # version, which no later run would publish. The waiting runs may start in
+    # another order than their commits, so a run replaces the most recent
+    # documentation of a module only if no newer version is published already.
+    concurrency:
+      group: api-docs-publishing-${{ github.repository }}
+      queue: max
+
+    # The push goes over SSH with the deploy key, not with `GITHUB_TOKEN`, which
+    # only reads the dependencies published to GitHub Packages.
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: 'true'
+
+      - uses: actions/setup-java@v5
+        with:
+          java-version: 17
+          distribution: zulu
+
+      # The cache stays on, unlike in `publishing.yml`, which turns it off to keep
+      # its attestation trustworthy: nothing here is attested. A run on `master`
+      # reads only the caches written by the workflows that run on `master`.
+      - uses: gradle/actions/setup-gradle@v6
+
+      # The same step as in `build-on-ubuntu.yml`. For a release version, the build
+      # runs Dokka for every published module, in parallel, and the Linux runner
+      # ships with effectively no swap, so a memory peak would be an instant OOM
+      # kill. It goes before the deploy key is decrypted, so that the action never
+      # runs with the key on disk.
+      - name: Add swap space
+        uses: pierotofy/set-swap-space@v1.0
+        with:
+          swap-size-gb: 8
+
+      - name: Decrypt Git SSH credentials
+        run: ./config/scripts/decrypt.sh "$GIT_CREDENTIALS_KEY" ./.github/keys/deploy_key_rsa.gpg ./deploy_key_rsa
+        env:
+          GIT_CREDENTIALS_KEY: ${{ secrets.GIT_CREDENTIALS_KEY }}
+
+      # The SSH agent does not accept a key that others can read. The build runs
+      # `register-ssh-key.sh` to hand the key to the agent.
+      - name: Set file system permissions
+        run: chmod 400 ./deploy_key_rsa && chmod +x ./config/scripts/register-ssh-key.sh
+
+      - name: Publish API docs
+        run: ./gradlew :publishAllApiDocs --stacktrace
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FORMAL_GIT_HUB_PAGES_AUTHOR: developers@spine.io
+          # https://docs.github.com/en/actions/reference/environment-variables
+          REPO_SLUG: ${{ github.repository }}    # e.g. SpineEventEngine/core-jvm

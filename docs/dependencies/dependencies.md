@@ -1,6 +1,6 @@
 
 
-# Dependencies of `io.spine:spine-client:2.0.0-SNAPSHOT.576`
+# Dependencies of `io.spine:spine-client:2.0.0-SNAPSHOT.577`
 
 ## Runtime
 1.  **Group** : com.google.android. **Name** : annotations. **Version** : 4.1.1.4.
@@ -29,7 +29,7 @@
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.guava. **Name** : guava. **Version** : 33.7.1-jre.
+1.  **Group** : com.google.guava. **Name** : guava. **Version** : 33.7.2-jre.
      * **Project URL:** [https://github.com/google/guava](https://github.com/google/guava)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -56,23 +56,23 @@
      * **License:** [https://opensource.org/licenses/BSD-3-Clause](https://opensource.org/licenses/BSD-3-Clause)
      * **License:** [BSD-3-Clause](https://opensource.org/licenses/BSD-3-Clause)
 
-1.  **Group** : io.grpc. **Name** : grpc-api. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-api. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-bom. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-bom. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-context. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-context. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-core. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-core. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-inprocess. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-inprocess. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -80,15 +80,15 @@
      * **Project URL:** [https://github.com/grpc/grpc-kotlin](https://github.com/grpc/grpc-kotlin)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-protobuf. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-protobuf. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-protobuf-lite. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-protobuf-lite. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-stub. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-stub. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -101,7 +101,7 @@
      * **License:** [https://github.com/javaee/javax.annotation/blob/master/LICENSE](https://github.com/javaee/javax.annotation/blob/master/LICENSE)
      * **License:** [CDDL + GPLv2 with classpath exception](https://github.com/javaee/javax.annotation/blob/master/LICENSE)
 
-1.  **Group** : org.codehaus.mojo. **Name** : animal-sniffer-annotations. **Version** : 1.27.
+1.  **Group** : org.codehaus.mojo. **Name** : animal-sniffer-annotations. **Version** : 1.28.
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [MIT license](https://spdx.org/licenses/MIT.txt)
 
@@ -155,7 +155,7 @@
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 ## Compile, tests, and tooling
-1.  **Group** : com.fasterxml.jackson. **Name** : jackson-bom. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson. **Name** : jackson-bom. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-bom](https://github.com/FasterXML/jackson-bom)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -165,49 +165,49 @@
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.core. **Name** : jackson-core. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.core. **Name** : jackson-core. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-core](https://github.com/FasterXML/jackson-core)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.core. **Name** : jackson-databind. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.core. **Name** : jackson-databind. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson](https://github.com/FasterXML/jackson)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.dataformat. **Name** : jackson-dataformat-xml. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.dataformat. **Name** : jackson-dataformat-xml. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-dataformat-xml](https://github.com/FasterXML/jackson-dataformat-xml)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.dataformat. **Name** : jackson-dataformat-yaml. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.dataformat. **Name** : jackson-dataformat-yaml. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-dataformats-text](https://github.com/FasterXML/jackson-dataformats-text)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.datatype. **Name** : jackson-datatype-guava. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.datatype. **Name** : jackson-datatype-guava. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-datatypes-collections](https://github.com/FasterXML/jackson-datatypes-collections)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.datatype. **Name** : jackson-datatype-jdk8. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.datatype. **Name** : jackson-datatype-jdk8. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-modules-java8/jackson-datatype-jdk8](https://github.com/FasterXML/jackson-modules-java8/jackson-datatype-jdk8)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.module. **Name** : jackson-module-kotlin. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.module. **Name** : jackson-module-kotlin. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-module-kotlin](https://github.com/FasterXML/jackson-module-kotlin)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.module. **Name** : jackson-module-parameter-names. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.module. **Name** : jackson-module-parameter-names. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-modules-java8/jackson-module-parameter-names](https://github.com/FasterXML/jackson-modules-java8/jackson-module-parameter-names)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -219,7 +219,7 @@
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.github.ben-manes.caffeine. **Name** : caffeine. **Version** : 3.2.4.
+1.  **Group** : com.github.ben-manes.caffeine. **Name** : caffeine. **Version** : 3.3.1.
      * **Project URL:** [https://github.com/ben-manes/caffeine](https://github.com/ben-manes/caffeine)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0)
      * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -316,12 +316,12 @@
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.guava. **Name** : guava. **Version** : 33.7.1-jre.
+1.  **Group** : com.google.guava. **Name** : guava. **Version** : 33.7.2-jre.
      * **Project URL:** [https://github.com/google/guava](https://github.com/google/guava)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.guava. **Name** : guava-testlib. **Version** : 33.7.1-jre.
+1.  **Group** : com.google.guava. **Name** : guava-testlib. **Version** : 33.7.2-jre.
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 1.  **Group** : com.google.guava. **Name** : listenablefuture. **Version** : 9999.0-empty-to-avoid-conflict-with-guava.
@@ -375,9 +375,9 @@
      * **Project URL:** [https://github.com/palantir/palantir-java-format](https://github.com/palantir/palantir-java-format)
      * **License:** [The Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
-1.  **Group** : com.puppycrawl.tools. **Name** : checkstyle. **Version** : 10.12.1.
+1.  **Group** : com.puppycrawl.tools. **Name** : checkstyle. **Version** : 12.3.1.
      * **Project URL:** [https://checkstyle.org/](https://checkstyle.org/)
-     * **License:** [LGPL-2.1+](http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt)
+     * **License:** [LGPL-2.1-or-later](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt)
 
 1.  **Group** : com.sksamuel.aedile. **Name** : aedile-core. **Version** : 3.0.4.
      * **Project URL:** [https://www.github.com/sksamuel/aedile](https://www.github.com/sksamuel/aedile)
@@ -399,13 +399,8 @@
      * **Project URL:** [https://github.com/square/kotlinpoet](https://github.com/square/kotlinpoet)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : commons-beanutils. **Name** : commons-beanutils. **Version** : 1.9.4.
-     * **Project URL:** [https://commons.apache.org/proper/commons-beanutils/](https://commons.apache.org/proper/commons-beanutils/)
-     * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
-     * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : commons-codec. **Name** : commons-codec. **Version** : 1.22.1.
-     * **Project URL:** [https://commons.apache.org/proper/commons-codec/](https://commons.apache.org/proper/commons-codec/)
+1.  **Group** : commons-beanutils. **Name** : commons-beanutils. **Version** : 1.11.0.
+     * **Project URL:** [https://commons.apache.org/proper/commons-beanutils](https://commons.apache.org/proper/commons-beanutils)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -426,7 +421,7 @@
      * **Project URL:** [https://github.com/ZacSweers/auto-service-ksp](https://github.com/ZacSweers/auto-service-ksp)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : info.picocli. **Name** : picocli. **Version** : 4.7.4.
+1.  **Group** : info.picocli. **Name** : picocli. **Version** : 4.7.7.
      * **Project URL:** [https://picocli.info](https://picocli.info)
      * **License:** [The Apache Software License, version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -543,23 +538,23 @@
      * **Project URL:** [https://detekt.dev](https://detekt.dev)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : io.grpc. **Name** : grpc-api. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-api. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-bom. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-bom. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-context. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-context. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-core. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-core. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-inprocess. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-inprocess. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -567,19 +562,19 @@
      * **Project URL:** [https://github.com/grpc/grpc-kotlin](https://github.com/grpc/grpc-kotlin)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-protobuf. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-protobuf. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-protobuf-lite. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-protobuf-lite. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-stub. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-stub. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : protoc-gen-grpc-java. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : protoc-gen-grpc-java. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -587,27 +582,27 @@
      * **Project URL:** [https://github.com/grpc/grpc-kotlin](https://github.com/grpc/grpc-kotlin)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -636,23 +631,18 @@
      * **Project URL:** [http://www.saxonica.com/](http://www.saxonica.com/)
      * **License:** [Mozilla Public License Version 2.0](http://www.mozilla.org/MPL/2.0/)
 
-1.  **Group** : net.sf.saxon. **Name** : Saxon-HE. **Version** : 12.2.
+1.  **Group** : net.sf.saxon. **Name** : Saxon-HE. **Version** : 12.9.
      * **Project URL:** [http://www.saxonica.com/](http://www.saxonica.com/)
      * **License:** [Mozilla Public License Version 2.0](http://www.mozilla.org/MPL/2.0/)
 
-1.  **Group** : net.sourceforge.pmd. **Name** : pmd-ant. **Version** : 7.27.0.
+1.  **Group** : net.sourceforge.pmd. **Name** : pmd-ant. **Version** : 7.28.0.
      * **License:** [BSD-style](http://pmd.sourceforge.net/license.html)
 
-1.  **Group** : net.sourceforge.pmd. **Name** : pmd-core. **Version** : 7.27.0.
+1.  **Group** : net.sourceforge.pmd. **Name** : pmd-core. **Version** : 7.28.0.
      * **License:** [BSD-style](http://pmd.sourceforge.net/license.html)
 
-1.  **Group** : net.sourceforge.pmd. **Name** : pmd-java. **Version** : 7.27.0.
+1.  **Group** : net.sourceforge.pmd. **Name** : pmd-java. **Version** : 7.28.0.
      * **License:** [BSD-style](http://pmd.sourceforge.net/license.html)
-
-1.  **Group** : org.antlr. **Name** : antlr4-runtime. **Version** : 4.11.1.
-     * **Project URL:** [https://www.antlr.org/](https://www.antlr.org/)
-     * **License:** [https://www.antlr.org/license.html](https://www.antlr.org/license.html)
-     * **License:** [BSD-3-Clause](https://www.antlr.org/license.html)
 
 1.  **Group** : org.antlr. **Name** : antlr4-runtime. **Version** : 4.13.2.
      * **Project URL:** [https://www.antlr.org/](https://www.antlr.org/)
@@ -664,25 +654,16 @@
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.apache.httpcomponents.client5. **Name** : httpclient5. **Version** : 5.1.3.
-     * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : org.apache.httpcomponents.core5. **Name** : httpcore5. **Version** : 5.1.3.
-     * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : org.apache.httpcomponents.core5. **Name** : httpcore5-h2. **Version** : 5.1.3.
-     * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
 1.  **Group** : org.apiguardian. **Name** : apiguardian-api. **Version** : 1.1.2.
      * **Project URL:** [https://github.com/apiguardian-team/apiguardian](https://github.com/apiguardian-team/apiguardian)
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.checkerframework. **Name** : checker-qual. **Version** : 4.2.2.
+1.  **Group** : org.checkerframework. **Name** : checker-qual. **Version** : 4.3.1.
      * **Project URL:** [https://checkerframework.org/](https://checkerframework.org/)
      * **License:** MIT
      * **License:** [The MIT License](https://opensource.org/licenses/MIT)
 
-1.  **Group** : org.codehaus.mojo. **Name** : animal-sniffer-annotations. **Version** : 1.27.
+1.  **Group** : org.codehaus.mojo. **Name** : animal-sniffer-annotations. **Version** : 1.28.
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [MIT license](https://spdx.org/licenses/MIT.txt)
 
@@ -878,15 +859,11 @@
      * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
      * **License:** [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.jetbrains.kotlin. **Name** : kotlin-stdlib. **Version** : 2.4.21.
-     * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
-     * **License:** [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
-
 1.  **Group** : org.jetbrains.kotlin. **Name** : kotlin-stdlib-common. **Version** : 2.0.21.
      * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.jetbrains.kotlin. **Name** : kotlin-stdlib-common. **Version** : 2.4.21.
+1.  **Group** : org.jetbrains.kotlin. **Name** : kotlin-stdlib-common. **Version** : 2.4.10.
      * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
      * **License:** [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -1025,19 +1002,19 @@
      * **License:** The Apache License, Version 2.0
      * **License:** [The Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.ow2.asm. **Name** : asm. **Version** : 9.10.1.
+1.  **Group** : org.ow2.asm. **Name** : asm. **Version** : 9.11.
      * **Project URL:** [http://asm.ow2.io/](http://asm.ow2.io/)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/LICENSE.txt)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/license.html)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.ow2.asm. **Name** : asm-commons. **Version** : 9.10.1.
+1.  **Group** : org.ow2.asm. **Name** : asm-commons. **Version** : 9.11.
      * **Project URL:** [http://asm.ow2.io/](http://asm.ow2.io/)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/LICENSE.txt)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/license.html)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.ow2.asm. **Name** : asm-tree. **Version** : 9.10.1.
+1.  **Group** : org.ow2.asm. **Name** : asm-tree. **Version** : 9.11.
      * **Project URL:** [http://asm.ow2.io/](http://asm.ow2.io/)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/LICENSE.txt)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/license.html)
@@ -1061,6 +1038,11 @@
      * **Project URL:** [http://www.slf4j.org](http://www.slf4j.org)
      * **License:** [MIT License](http://www.opensource.org/licenses/mit-license.php)
 
+1.  **Group** : org.slf4j. **Name** : slf4j-simple. **Version** : 2.0.17.
+     * **Project URL:** [http://www.slf4j.org](http://www.slf4j.org)
+     * **License:** [https://opensource.org/license/mit](https://opensource.org/license/mit)
+     * **License:** [MIT](https://opensource.org/license/mit)
+
 1.  **Group** : org.snakeyaml. **Name** : snakeyaml-engine. **Version** : 2.7.
      * **Project URL:** [https://bitbucket.org/snakeyaml/snakeyaml-engine](https://bitbucket.org/snakeyaml/snakeyaml-engine)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -1070,10 +1052,6 @@
      * **Project URL:** [https://bitbucket.org/snakeyaml/snakeyaml-engine](https://bitbucket.org/snakeyaml/snakeyaml-engine)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : org.xmlresolver. **Name** : xmlresolver. **Version** : 5.1.2.
-     * **Project URL:** [https://github.com/xmlresolver/xmlresolver](https://github.com/xmlresolver/xmlresolver)
-     * **License:** [Apache License version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
 1.  **Group** : org.xmlresolver. **Name** : xmlresolver. **Version** : 5.3.3.
      * **Project URL:** [https://github.com/xmlresolver/xmlresolver](https://github.com/xmlresolver/xmlresolver)
@@ -1122,14 +1100,14 @@
 
 The dependencies distributed under several licenses, are used according their commercial-use-friendly license.
 
-This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using 
+This report was generated on **Thu Oct 22 21:24:04 WEST 2026** using 
 [Gradle-License-Report plugin](https://github.com/jk1/Gradle-License-Report) by Evgeny Naumenko, licensed under 
 [Apache 2.0 License](https://github.com/jk1/Gradle-License-Report/blob/master/LICENSE).
 
 
 
 
-# Dependencies of `io.spine.tools:client-testlib:2.0.0-SNAPSHOT.576`
+# Dependencies of `io.spine.tools:client-testlib:2.0.0-SNAPSHOT.577`
 
 ## Runtime
 1.  **Group** : com.google.android. **Name** : annotations. **Version** : 4.1.1.4.
@@ -1170,12 +1148,12 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.guava. **Name** : guava. **Version** : 33.7.1-jre.
+1.  **Group** : com.google.guava. **Name** : guava. **Version** : 33.7.2-jre.
      * **Project URL:** [https://github.com/google/guava](https://github.com/google/guava)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.guava. **Name** : guava-testlib. **Version** : 33.7.1-jre.
+1.  **Group** : com.google.guava. **Name** : guava-testlib. **Version** : 33.7.2-jre.
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 1.  **Group** : com.google.guava. **Name** : listenablefuture. **Version** : 9999.0-empty-to-avoid-conflict-with-guava.
@@ -1216,23 +1194,23 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : io.grpc. **Name** : grpc-api. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-api. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-bom. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-bom. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-context. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-context. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-core. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-core. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-inprocess. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-inprocess. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -1240,39 +1218,39 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://github.com/grpc/grpc-kotlin](https://github.com/grpc/grpc-kotlin)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-protobuf. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-protobuf. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-protobuf-lite. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-protobuf-lite. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-stub. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-stub. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -1289,7 +1267,7 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [http://junit.org](http://junit.org)
      * **License:** [Eclipse Public License 1.0](http://www.eclipse.org/legal/epl-v10.html)
 
-1.  **Group** : org.codehaus.mojo. **Name** : animal-sniffer-annotations. **Version** : 1.27.
+1.  **Group** : org.codehaus.mojo. **Name** : animal-sniffer-annotations. **Version** : 1.28.
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [MIT license](https://spdx.org/licenses/MIT.txt)
 
@@ -1380,14 +1358,14 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** The Apache License, Version 2.0
      * **License:** [The Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.ow2.asm. **Name** : asm. **Version** : 9.10.1.
+1.  **Group** : org.ow2.asm. **Name** : asm. **Version** : 9.11.
      * **Project URL:** [http://asm.ow2.io/](http://asm.ow2.io/)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/LICENSE.txt)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/license.html)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 ## Compile, tests, and tooling
-1.  **Group** : com.fasterxml.jackson. **Name** : jackson-bom. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson. **Name** : jackson-bom. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-bom](https://github.com/FasterXML/jackson-bom)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -1397,49 +1375,49 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.core. **Name** : jackson-core. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.core. **Name** : jackson-core. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-core](https://github.com/FasterXML/jackson-core)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.core. **Name** : jackson-databind. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.core. **Name** : jackson-databind. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson](https://github.com/FasterXML/jackson)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.dataformat. **Name** : jackson-dataformat-xml. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.dataformat. **Name** : jackson-dataformat-xml. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-dataformat-xml](https://github.com/FasterXML/jackson-dataformat-xml)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.dataformat. **Name** : jackson-dataformat-yaml. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.dataformat. **Name** : jackson-dataformat-yaml. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-dataformats-text](https://github.com/FasterXML/jackson-dataformats-text)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.datatype. **Name** : jackson-datatype-guava. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.datatype. **Name** : jackson-datatype-guava. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-datatypes-collections](https://github.com/FasterXML/jackson-datatypes-collections)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.datatype. **Name** : jackson-datatype-jdk8. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.datatype. **Name** : jackson-datatype-jdk8. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-modules-java8/jackson-datatype-jdk8](https://github.com/FasterXML/jackson-modules-java8/jackson-datatype-jdk8)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.module. **Name** : jackson-module-kotlin. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.module. **Name** : jackson-module-kotlin. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-module-kotlin](https://github.com/FasterXML/jackson-module-kotlin)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.module. **Name** : jackson-module-parameter-names. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.module. **Name** : jackson-module-parameter-names. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-modules-java8/jackson-module-parameter-names](https://github.com/FasterXML/jackson-modules-java8/jackson-module-parameter-names)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -1451,7 +1429,7 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.github.ben-manes.caffeine. **Name** : caffeine. **Version** : 3.2.4.
+1.  **Group** : com.github.ben-manes.caffeine. **Name** : caffeine. **Version** : 3.3.1.
      * **Project URL:** [https://github.com/ben-manes/caffeine](https://github.com/ben-manes/caffeine)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0)
      * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -1548,12 +1526,12 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.guava. **Name** : guava. **Version** : 33.7.1-jre.
+1.  **Group** : com.google.guava. **Name** : guava. **Version** : 33.7.2-jre.
      * **Project URL:** [https://github.com/google/guava](https://github.com/google/guava)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.guava. **Name** : guava-testlib. **Version** : 33.7.1-jre.
+1.  **Group** : com.google.guava. **Name** : guava-testlib. **Version** : 33.7.2-jre.
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 1.  **Group** : com.google.guava. **Name** : listenablefuture. **Version** : 9999.0-empty-to-avoid-conflict-with-guava.
@@ -1607,9 +1585,9 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://github.com/palantir/palantir-java-format](https://github.com/palantir/palantir-java-format)
      * **License:** [The Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
-1.  **Group** : com.puppycrawl.tools. **Name** : checkstyle. **Version** : 10.12.1.
+1.  **Group** : com.puppycrawl.tools. **Name** : checkstyle. **Version** : 12.3.1.
      * **Project URL:** [https://checkstyle.org/](https://checkstyle.org/)
-     * **License:** [LGPL-2.1+](http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt)
+     * **License:** [LGPL-2.1-or-later](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt)
 
 1.  **Group** : com.sksamuel.aedile. **Name** : aedile-core. **Version** : 3.0.4.
      * **Project URL:** [https://www.github.com/sksamuel/aedile](https://www.github.com/sksamuel/aedile)
@@ -1631,13 +1609,8 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://github.com/square/kotlinpoet](https://github.com/square/kotlinpoet)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : commons-beanutils. **Name** : commons-beanutils. **Version** : 1.9.4.
-     * **Project URL:** [https://commons.apache.org/proper/commons-beanutils/](https://commons.apache.org/proper/commons-beanutils/)
-     * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
-     * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : commons-codec. **Name** : commons-codec. **Version** : 1.22.1.
-     * **Project URL:** [https://commons.apache.org/proper/commons-codec/](https://commons.apache.org/proper/commons-codec/)
+1.  **Group** : commons-beanutils. **Name** : commons-beanutils. **Version** : 1.11.0.
+     * **Project URL:** [https://commons.apache.org/proper/commons-beanutils](https://commons.apache.org/proper/commons-beanutils)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -1658,7 +1631,7 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://github.com/ZacSweers/auto-service-ksp](https://github.com/ZacSweers/auto-service-ksp)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : info.picocli. **Name** : picocli. **Version** : 4.7.4.
+1.  **Group** : info.picocli. **Name** : picocli. **Version** : 4.7.7.
      * **Project URL:** [https://picocli.info](https://picocli.info)
      * **License:** [The Apache Software License, version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -1775,23 +1748,23 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://detekt.dev](https://detekt.dev)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : io.grpc. **Name** : grpc-api. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-api. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-bom. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-bom. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-context. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-context. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-core. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-core. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-inprocess. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-inprocess. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -1799,39 +1772,39 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://github.com/grpc/grpc-kotlin](https://github.com/grpc/grpc-kotlin)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-protobuf. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-protobuf. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-protobuf-lite. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-protobuf-lite. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-stub. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-stub. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -1860,23 +1833,18 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [http://www.saxonica.com/](http://www.saxonica.com/)
      * **License:** [Mozilla Public License Version 2.0](http://www.mozilla.org/MPL/2.0/)
 
-1.  **Group** : net.sf.saxon. **Name** : Saxon-HE. **Version** : 12.2.
+1.  **Group** : net.sf.saxon. **Name** : Saxon-HE. **Version** : 12.9.
      * **Project URL:** [http://www.saxonica.com/](http://www.saxonica.com/)
      * **License:** [Mozilla Public License Version 2.0](http://www.mozilla.org/MPL/2.0/)
 
-1.  **Group** : net.sourceforge.pmd. **Name** : pmd-ant. **Version** : 7.27.0.
+1.  **Group** : net.sourceforge.pmd. **Name** : pmd-ant. **Version** : 7.28.0.
      * **License:** [BSD-style](http://pmd.sourceforge.net/license.html)
 
-1.  **Group** : net.sourceforge.pmd. **Name** : pmd-core. **Version** : 7.27.0.
+1.  **Group** : net.sourceforge.pmd. **Name** : pmd-core. **Version** : 7.28.0.
      * **License:** [BSD-style](http://pmd.sourceforge.net/license.html)
 
-1.  **Group** : net.sourceforge.pmd. **Name** : pmd-java. **Version** : 7.27.0.
+1.  **Group** : net.sourceforge.pmd. **Name** : pmd-java. **Version** : 7.28.0.
      * **License:** [BSD-style](http://pmd.sourceforge.net/license.html)
-
-1.  **Group** : org.antlr. **Name** : antlr4-runtime. **Version** : 4.11.1.
-     * **Project URL:** [https://www.antlr.org/](https://www.antlr.org/)
-     * **License:** [https://www.antlr.org/license.html](https://www.antlr.org/license.html)
-     * **License:** [BSD-3-Clause](https://www.antlr.org/license.html)
 
 1.  **Group** : org.antlr. **Name** : antlr4-runtime. **Version** : 4.13.2.
      * **Project URL:** [https://www.antlr.org/](https://www.antlr.org/)
@@ -1888,25 +1856,16 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.apache.httpcomponents.client5. **Name** : httpclient5. **Version** : 5.1.3.
-     * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : org.apache.httpcomponents.core5. **Name** : httpcore5. **Version** : 5.1.3.
-     * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : org.apache.httpcomponents.core5. **Name** : httpcore5-h2. **Version** : 5.1.3.
-     * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
 1.  **Group** : org.apiguardian. **Name** : apiguardian-api. **Version** : 1.1.2.
      * **Project URL:** [https://github.com/apiguardian-team/apiguardian](https://github.com/apiguardian-team/apiguardian)
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.checkerframework. **Name** : checker-qual. **Version** : 4.2.2.
+1.  **Group** : org.checkerframework. **Name** : checker-qual. **Version** : 4.3.1.
      * **Project URL:** [https://checkerframework.org/](https://checkerframework.org/)
      * **License:** MIT
      * **License:** [The MIT License](https://opensource.org/licenses/MIT)
 
-1.  **Group** : org.codehaus.mojo. **Name** : animal-sniffer-annotations. **Version** : 1.27.
+1.  **Group** : org.codehaus.mojo. **Name** : animal-sniffer-annotations. **Version** : 1.28.
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [MIT license](https://spdx.org/licenses/MIT.txt)
 
@@ -2102,15 +2061,11 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
      * **License:** [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.jetbrains.kotlin. **Name** : kotlin-stdlib. **Version** : 2.4.21.
-     * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
-     * **License:** [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
-
 1.  **Group** : org.jetbrains.kotlin. **Name** : kotlin-stdlib-common. **Version** : 2.0.21.
      * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.jetbrains.kotlin. **Name** : kotlin-stdlib-common. **Version** : 2.4.21.
+1.  **Group** : org.jetbrains.kotlin. **Name** : kotlin-stdlib-common. **Version** : 2.4.10.
      * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
      * **License:** [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -2249,19 +2204,19 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** The Apache License, Version 2.0
      * **License:** [The Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.ow2.asm. **Name** : asm. **Version** : 9.10.1.
+1.  **Group** : org.ow2.asm. **Name** : asm. **Version** : 9.11.
      * **Project URL:** [http://asm.ow2.io/](http://asm.ow2.io/)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/LICENSE.txt)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/license.html)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.ow2.asm. **Name** : asm-commons. **Version** : 9.10.1.
+1.  **Group** : org.ow2.asm. **Name** : asm-commons. **Version** : 9.11.
      * **Project URL:** [http://asm.ow2.io/](http://asm.ow2.io/)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/LICENSE.txt)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/license.html)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.ow2.asm. **Name** : asm-tree. **Version** : 9.10.1.
+1.  **Group** : org.ow2.asm. **Name** : asm-tree. **Version** : 9.11.
      * **Project URL:** [http://asm.ow2.io/](http://asm.ow2.io/)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/LICENSE.txt)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/license.html)
@@ -2285,6 +2240,11 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [http://www.slf4j.org](http://www.slf4j.org)
      * **License:** [MIT License](http://www.opensource.org/licenses/mit-license.php)
 
+1.  **Group** : org.slf4j. **Name** : slf4j-simple. **Version** : 2.0.17.
+     * **Project URL:** [http://www.slf4j.org](http://www.slf4j.org)
+     * **License:** [https://opensource.org/license/mit](https://opensource.org/license/mit)
+     * **License:** [MIT](https://opensource.org/license/mit)
+
 1.  **Group** : org.snakeyaml. **Name** : snakeyaml-engine. **Version** : 2.7.
      * **Project URL:** [https://bitbucket.org/snakeyaml/snakeyaml-engine](https://bitbucket.org/snakeyaml/snakeyaml-engine)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -2294,10 +2254,6 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://bitbucket.org/snakeyaml/snakeyaml-engine](https://bitbucket.org/snakeyaml/snakeyaml-engine)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : org.xmlresolver. **Name** : xmlresolver. **Version** : 5.1.2.
-     * **Project URL:** [https://github.com/xmlresolver/xmlresolver](https://github.com/xmlresolver/xmlresolver)
-     * **License:** [Apache License version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
 1.  **Group** : org.xmlresolver. **Name** : xmlresolver. **Version** : 5.3.3.
      * **Project URL:** [https://github.com/xmlresolver/xmlresolver](https://github.com/xmlresolver/xmlresolver)
@@ -2346,14 +2302,14 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
 
 The dependencies distributed under several licenses, are used according their commercial-use-friendly license.
 
-This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using 
+This report was generated on **Thu Oct 22 21:24:04 WEST 2026** using 
 [Gradle-License-Report plugin](https://github.com/jk1/Gradle-License-Report) by Evgeny Naumenko, licensed under 
 [Apache 2.0 License](https://github.com/jk1/Gradle-License-Report/blob/master/LICENSE).
 
 
 
 
-# Dependencies of `io.spine:spine-core:2.0.0-SNAPSHOT.576`
+# Dependencies of `io.spine:spine-core:2.0.0-SNAPSHOT.577`
 
 ## Runtime
 1.  **Group** : com.google.code.findbugs. **Name** : jsr305. **Version** : 3.0.2.
@@ -2374,7 +2330,7 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.guava. **Name** : guava. **Version** : 33.7.1-jre.
+1.  **Group** : com.google.guava. **Name** : guava. **Version** : 33.7.2-jre.
      * **Project URL:** [https://github.com/google/guava](https://github.com/google/guava)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -2451,7 +2407,7 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 ## Compile, tests, and tooling
-1.  **Group** : com.fasterxml.jackson. **Name** : jackson-bom. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson. **Name** : jackson-bom. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-bom](https://github.com/FasterXML/jackson-bom)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -2461,49 +2417,49 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.core. **Name** : jackson-core. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.core. **Name** : jackson-core. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-core](https://github.com/FasterXML/jackson-core)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.core. **Name** : jackson-databind. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.core. **Name** : jackson-databind. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson](https://github.com/FasterXML/jackson)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.dataformat. **Name** : jackson-dataformat-xml. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.dataformat. **Name** : jackson-dataformat-xml. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-dataformat-xml](https://github.com/FasterXML/jackson-dataformat-xml)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.dataformat. **Name** : jackson-dataformat-yaml. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.dataformat. **Name** : jackson-dataformat-yaml. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-dataformats-text](https://github.com/FasterXML/jackson-dataformats-text)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.datatype. **Name** : jackson-datatype-guava. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.datatype. **Name** : jackson-datatype-guava. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-datatypes-collections](https://github.com/FasterXML/jackson-datatypes-collections)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.datatype. **Name** : jackson-datatype-jdk8. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.datatype. **Name** : jackson-datatype-jdk8. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-modules-java8/jackson-datatype-jdk8](https://github.com/FasterXML/jackson-modules-java8/jackson-datatype-jdk8)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.module. **Name** : jackson-module-kotlin. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.module. **Name** : jackson-module-kotlin. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-module-kotlin](https://github.com/FasterXML/jackson-module-kotlin)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.module. **Name** : jackson-module-parameter-names. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.module. **Name** : jackson-module-parameter-names. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-modules-java8/jackson-module-parameter-names](https://github.com/FasterXML/jackson-modules-java8/jackson-module-parameter-names)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -2515,7 +2471,7 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.github.ben-manes.caffeine. **Name** : caffeine. **Version** : 3.2.4.
+1.  **Group** : com.github.ben-manes.caffeine. **Name** : caffeine. **Version** : 3.3.1.
      * **Project URL:** [https://github.com/ben-manes/caffeine](https://github.com/ben-manes/caffeine)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0)
      * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -2612,12 +2568,12 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.guava. **Name** : guava. **Version** : 33.7.1-jre.
+1.  **Group** : com.google.guava. **Name** : guava. **Version** : 33.7.2-jre.
      * **Project URL:** [https://github.com/google/guava](https://github.com/google/guava)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.guava. **Name** : guava-testlib. **Version** : 33.7.1-jre.
+1.  **Group** : com.google.guava. **Name** : guava-testlib. **Version** : 33.7.2-jre.
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 1.  **Group** : com.google.guava. **Name** : listenablefuture. **Version** : 9999.0-empty-to-avoid-conflict-with-guava.
@@ -2671,9 +2627,9 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://github.com/palantir/palantir-java-format](https://github.com/palantir/palantir-java-format)
      * **License:** [The Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
-1.  **Group** : com.puppycrawl.tools. **Name** : checkstyle. **Version** : 10.12.1.
+1.  **Group** : com.puppycrawl.tools. **Name** : checkstyle. **Version** : 12.3.1.
      * **Project URL:** [https://checkstyle.org/](https://checkstyle.org/)
-     * **License:** [LGPL-2.1+](http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt)
+     * **License:** [LGPL-2.1-or-later](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt)
 
 1.  **Group** : com.sksamuel.aedile. **Name** : aedile-core. **Version** : 3.0.4.
      * **Project URL:** [https://www.github.com/sksamuel/aedile](https://www.github.com/sksamuel/aedile)
@@ -2695,13 +2651,8 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://github.com/square/kotlinpoet](https://github.com/square/kotlinpoet)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : commons-beanutils. **Name** : commons-beanutils. **Version** : 1.9.4.
-     * **Project URL:** [https://commons.apache.org/proper/commons-beanutils/](https://commons.apache.org/proper/commons-beanutils/)
-     * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
-     * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : commons-codec. **Name** : commons-codec. **Version** : 1.22.1.
-     * **Project URL:** [https://commons.apache.org/proper/commons-codec/](https://commons.apache.org/proper/commons-codec/)
+1.  **Group** : commons-beanutils. **Name** : commons-beanutils. **Version** : 1.11.0.
+     * **Project URL:** [https://commons.apache.org/proper/commons-beanutils](https://commons.apache.org/proper/commons-beanutils)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -2722,7 +2673,7 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://github.com/ZacSweers/auto-service-ksp](https://github.com/ZacSweers/auto-service-ksp)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : info.picocli. **Name** : picocli. **Version** : 4.7.4.
+1.  **Group** : info.picocli. **Name** : picocli. **Version** : 4.7.7.
      * **Project URL:** [https://picocli.info](https://picocli.info)
      * **License:** [The Apache Software License, version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -2839,23 +2790,23 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://detekt.dev](https://detekt.dev)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : io.grpc. **Name** : grpc-api. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-api. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-bom. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-bom. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-context. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-context. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-core. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-core. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-inprocess. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-inprocess. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -2863,39 +2814,39 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://github.com/grpc/grpc-kotlin](https://github.com/grpc/grpc-kotlin)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-protobuf. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-protobuf. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-protobuf-lite. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-protobuf-lite. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-stub. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-stub. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -2924,23 +2875,18 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [http://www.saxonica.com/](http://www.saxonica.com/)
      * **License:** [Mozilla Public License Version 2.0](http://www.mozilla.org/MPL/2.0/)
 
-1.  **Group** : net.sf.saxon. **Name** : Saxon-HE. **Version** : 12.2.
+1.  **Group** : net.sf.saxon. **Name** : Saxon-HE. **Version** : 12.9.
      * **Project URL:** [http://www.saxonica.com/](http://www.saxonica.com/)
      * **License:** [Mozilla Public License Version 2.0](http://www.mozilla.org/MPL/2.0/)
 
-1.  **Group** : net.sourceforge.pmd. **Name** : pmd-ant. **Version** : 7.27.0.
+1.  **Group** : net.sourceforge.pmd. **Name** : pmd-ant. **Version** : 7.28.0.
      * **License:** [BSD-style](http://pmd.sourceforge.net/license.html)
 
-1.  **Group** : net.sourceforge.pmd. **Name** : pmd-core. **Version** : 7.27.0.
+1.  **Group** : net.sourceforge.pmd. **Name** : pmd-core. **Version** : 7.28.0.
      * **License:** [BSD-style](http://pmd.sourceforge.net/license.html)
 
-1.  **Group** : net.sourceforge.pmd. **Name** : pmd-java. **Version** : 7.27.0.
+1.  **Group** : net.sourceforge.pmd. **Name** : pmd-java. **Version** : 7.28.0.
      * **License:** [BSD-style](http://pmd.sourceforge.net/license.html)
-
-1.  **Group** : org.antlr. **Name** : antlr4-runtime. **Version** : 4.11.1.
-     * **Project URL:** [https://www.antlr.org/](https://www.antlr.org/)
-     * **License:** [https://www.antlr.org/license.html](https://www.antlr.org/license.html)
-     * **License:** [BSD-3-Clause](https://www.antlr.org/license.html)
 
 1.  **Group** : org.antlr. **Name** : antlr4-runtime. **Version** : 4.13.2.
      * **Project URL:** [https://www.antlr.org/](https://www.antlr.org/)
@@ -2952,25 +2898,16 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.apache.httpcomponents.client5. **Name** : httpclient5. **Version** : 5.1.3.
-     * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : org.apache.httpcomponents.core5. **Name** : httpcore5. **Version** : 5.1.3.
-     * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : org.apache.httpcomponents.core5. **Name** : httpcore5-h2. **Version** : 5.1.3.
-     * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
 1.  **Group** : org.apiguardian. **Name** : apiguardian-api. **Version** : 1.1.2.
      * **Project URL:** [https://github.com/apiguardian-team/apiguardian](https://github.com/apiguardian-team/apiguardian)
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.checkerframework. **Name** : checker-qual. **Version** : 4.2.2.
+1.  **Group** : org.checkerframework. **Name** : checker-qual. **Version** : 4.3.1.
      * **Project URL:** [https://checkerframework.org/](https://checkerframework.org/)
      * **License:** MIT
      * **License:** [The MIT License](https://opensource.org/licenses/MIT)
 
-1.  **Group** : org.codehaus.mojo. **Name** : animal-sniffer-annotations. **Version** : 1.27.
+1.  **Group** : org.codehaus.mojo. **Name** : animal-sniffer-annotations. **Version** : 1.28.
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [MIT license](https://spdx.org/licenses/MIT.txt)
 
@@ -3166,15 +3103,11 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
      * **License:** [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.jetbrains.kotlin. **Name** : kotlin-stdlib. **Version** : 2.4.21.
-     * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
-     * **License:** [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
-
 1.  **Group** : org.jetbrains.kotlin. **Name** : kotlin-stdlib-common. **Version** : 2.0.21.
      * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.jetbrains.kotlin. **Name** : kotlin-stdlib-common. **Version** : 2.4.21.
+1.  **Group** : org.jetbrains.kotlin. **Name** : kotlin-stdlib-common. **Version** : 2.4.10.
      * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
      * **License:** [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -3313,19 +3246,19 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** The Apache License, Version 2.0
      * **License:** [The Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.ow2.asm. **Name** : asm. **Version** : 9.10.1.
+1.  **Group** : org.ow2.asm. **Name** : asm. **Version** : 9.11.
      * **Project URL:** [http://asm.ow2.io/](http://asm.ow2.io/)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/LICENSE.txt)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/license.html)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.ow2.asm. **Name** : asm-commons. **Version** : 9.10.1.
+1.  **Group** : org.ow2.asm. **Name** : asm-commons. **Version** : 9.11.
      * **Project URL:** [http://asm.ow2.io/](http://asm.ow2.io/)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/LICENSE.txt)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/license.html)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.ow2.asm. **Name** : asm-tree. **Version** : 9.10.1.
+1.  **Group** : org.ow2.asm. **Name** : asm-tree. **Version** : 9.11.
      * **Project URL:** [http://asm.ow2.io/](http://asm.ow2.io/)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/LICENSE.txt)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/license.html)
@@ -3349,6 +3282,11 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [http://www.slf4j.org](http://www.slf4j.org)
      * **License:** [MIT License](http://www.opensource.org/licenses/mit-license.php)
 
+1.  **Group** : org.slf4j. **Name** : slf4j-simple. **Version** : 2.0.17.
+     * **Project URL:** [http://www.slf4j.org](http://www.slf4j.org)
+     * **License:** [https://opensource.org/license/mit](https://opensource.org/license/mit)
+     * **License:** [MIT](https://opensource.org/license/mit)
+
 1.  **Group** : org.snakeyaml. **Name** : snakeyaml-engine. **Version** : 2.7.
      * **Project URL:** [https://bitbucket.org/snakeyaml/snakeyaml-engine](https://bitbucket.org/snakeyaml/snakeyaml-engine)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -3358,10 +3296,6 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://bitbucket.org/snakeyaml/snakeyaml-engine](https://bitbucket.org/snakeyaml/snakeyaml-engine)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : org.xmlresolver. **Name** : xmlresolver. **Version** : 5.1.2.
-     * **Project URL:** [https://github.com/xmlresolver/xmlresolver](https://github.com/xmlresolver/xmlresolver)
-     * **License:** [Apache License version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
 1.  **Group** : org.xmlresolver. **Name** : xmlresolver. **Version** : 5.3.3.
      * **Project URL:** [https://github.com/xmlresolver/xmlresolver](https://github.com/xmlresolver/xmlresolver)
@@ -3410,14 +3344,14 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
 
 The dependencies distributed under several licenses, are used according their commercial-use-friendly license.
 
-This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using 
+This report was generated on **Thu Oct 22 21:24:04 WEST 2026** using 
 [Gradle-License-Report plugin](https://github.com/jk1/Gradle-License-Report) by Evgeny Naumenko, licensed under 
 [Apache 2.0 License](https://github.com/jk1/Gradle-License-Report/blob/master/LICENSE).
 
 
 
 
-# Dependencies of `io.spine.tools:core-testlib:2.0.0-SNAPSHOT.576`
+# Dependencies of `io.spine.tools:core-testlib:2.0.0-SNAPSHOT.577`
 
 ## Runtime
 1.  **Group** : com.google.android. **Name** : annotations. **Version** : 4.1.1.4.
@@ -3458,12 +3392,12 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.guava. **Name** : guava. **Version** : 33.7.1-jre.
+1.  **Group** : com.google.guava. **Name** : guava. **Version** : 33.7.2-jre.
      * **Project URL:** [https://github.com/google/guava](https://github.com/google/guava)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.guava. **Name** : guava-testlib. **Version** : 33.7.1-jre.
+1.  **Group** : com.google.guava. **Name** : guava-testlib. **Version** : 33.7.2-jre.
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 1.  **Group** : com.google.guava. **Name** : listenablefuture. **Version** : 9999.0-empty-to-avoid-conflict-with-guava.
@@ -3504,23 +3438,23 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : io.grpc. **Name** : grpc-api. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-api. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-bom. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-bom. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-context. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-context. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-core. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-core. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-inprocess. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-inprocess. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -3528,39 +3462,39 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://github.com/grpc/grpc-kotlin](https://github.com/grpc/grpc-kotlin)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-protobuf. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-protobuf. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-protobuf-lite. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-protobuf-lite. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-stub. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-stub. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -3577,7 +3511,7 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [http://junit.org](http://junit.org)
      * **License:** [Eclipse Public License 1.0](http://www.eclipse.org/legal/epl-v10.html)
 
-1.  **Group** : org.codehaus.mojo. **Name** : animal-sniffer-annotations. **Version** : 1.27.
+1.  **Group** : org.codehaus.mojo. **Name** : animal-sniffer-annotations. **Version** : 1.28.
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [MIT license](https://spdx.org/licenses/MIT.txt)
 
@@ -3668,14 +3602,14 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** The Apache License, Version 2.0
      * **License:** [The Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.ow2.asm. **Name** : asm. **Version** : 9.10.1.
+1.  **Group** : org.ow2.asm. **Name** : asm. **Version** : 9.11.
      * **Project URL:** [http://asm.ow2.io/](http://asm.ow2.io/)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/LICENSE.txt)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/license.html)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 ## Compile, tests, and tooling
-1.  **Group** : com.fasterxml.jackson. **Name** : jackson-bom. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson. **Name** : jackson-bom. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-bom](https://github.com/FasterXML/jackson-bom)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -3685,25 +3619,25 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.core. **Name** : jackson-core. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.core. **Name** : jackson-core. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-core](https://github.com/FasterXML/jackson-core)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.core. **Name** : jackson-databind. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.core. **Name** : jackson-databind. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson](https://github.com/FasterXML/jackson)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.dataformat. **Name** : jackson-dataformat-xml. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.dataformat. **Name** : jackson-dataformat-xml. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-dataformat-xml](https://github.com/FasterXML/jackson-dataformat-xml)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.module. **Name** : jackson-module-kotlin. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.module. **Name** : jackson-module-kotlin. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-module-kotlin](https://github.com/FasterXML/jackson-module-kotlin)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -3715,7 +3649,7 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.github.ben-manes.caffeine. **Name** : caffeine. **Version** : 3.2.4.
+1.  **Group** : com.github.ben-manes.caffeine. **Name** : caffeine. **Version** : 3.3.1.
      * **Project URL:** [https://github.com/ben-manes/caffeine](https://github.com/ben-manes/caffeine)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0)
      * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -3792,12 +3726,12 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.guava. **Name** : guava. **Version** : 33.7.1-jre.
+1.  **Group** : com.google.guava. **Name** : guava. **Version** : 33.7.2-jre.
      * **Project URL:** [https://github.com/google/guava](https://github.com/google/guava)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.guava. **Name** : guava-testlib. **Version** : 33.7.1-jre.
+1.  **Group** : com.google.guava. **Name** : guava-testlib. **Version** : 33.7.2-jre.
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 1.  **Group** : com.google.guava. **Name** : listenablefuture. **Version** : 9999.0-empty-to-avoid-conflict-with-guava.
@@ -3834,21 +3768,16 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
 1.  **Group** : com.google.truth.extensions. **Name** : truth-proto-extension. **Version** : 1.4.5.
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.puppycrawl.tools. **Name** : checkstyle. **Version** : 10.12.1.
+1.  **Group** : com.puppycrawl.tools. **Name** : checkstyle. **Version** : 12.3.1.
      * **Project URL:** [https://checkstyle.org/](https://checkstyle.org/)
-     * **License:** [LGPL-2.1+](http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt)
+     * **License:** [LGPL-2.1-or-later](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt)
 
 1.  **Group** : com.soywiz.korlibs.korte. **Name** : korte-jvm. **Version** : 4.0.10.
      * **Project URL:** [https://github.com/korlibs/korge-next](https://github.com/korlibs/korge-next)
      * **License:** [MIT](https://raw.githubusercontent.com/korlibs/korge-next/master/korge/LICENSE.txt)
 
-1.  **Group** : commons-beanutils. **Name** : commons-beanutils. **Version** : 1.9.4.
-     * **Project URL:** [https://commons.apache.org/proper/commons-beanutils/](https://commons.apache.org/proper/commons-beanutils/)
-     * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
-     * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : commons-codec. **Name** : commons-codec. **Version** : 1.22.1.
-     * **Project URL:** [https://commons.apache.org/proper/commons-codec/](https://commons.apache.org/proper/commons-codec/)
+1.  **Group** : commons-beanutils. **Name** : commons-beanutils. **Version** : 1.11.0.
+     * **Project URL:** [https://commons.apache.org/proper/commons-beanutils](https://commons.apache.org/proper/commons-beanutils)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -3865,7 +3794,7 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://github.com/drewhamilton/Poko](https://github.com/drewhamilton/Poko)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : info.picocli. **Name** : picocli. **Version** : 4.7.4.
+1.  **Group** : info.picocli. **Name** : picocli. **Version** : 4.7.7.
      * **Project URL:** [https://picocli.info](https://picocli.info)
      * **License:** [The Apache Software License, version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -3982,23 +3911,23 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://detekt.dev](https://detekt.dev)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : io.grpc. **Name** : grpc-api. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-api. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-bom. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-bom. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-context. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-context. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-core. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-core. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-inprocess. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-inprocess. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -4006,39 +3935,39 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://github.com/grpc/grpc-kotlin](https://github.com/grpc/grpc-kotlin)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-protobuf. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-protobuf. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-protobuf-lite. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-protobuf-lite. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-stub. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-stub. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -4063,23 +3992,18 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [http://www.saxonica.com/](http://www.saxonica.com/)
      * **License:** [Mozilla Public License Version 2.0](http://www.mozilla.org/MPL/2.0/)
 
-1.  **Group** : net.sf.saxon. **Name** : Saxon-HE. **Version** : 12.2.
+1.  **Group** : net.sf.saxon. **Name** : Saxon-HE. **Version** : 12.9.
      * **Project URL:** [http://www.saxonica.com/](http://www.saxonica.com/)
      * **License:** [Mozilla Public License Version 2.0](http://www.mozilla.org/MPL/2.0/)
 
-1.  **Group** : net.sourceforge.pmd. **Name** : pmd-ant. **Version** : 7.27.0.
+1.  **Group** : net.sourceforge.pmd. **Name** : pmd-ant. **Version** : 7.28.0.
      * **License:** [BSD-style](http://pmd.sourceforge.net/license.html)
 
-1.  **Group** : net.sourceforge.pmd. **Name** : pmd-core. **Version** : 7.27.0.
+1.  **Group** : net.sourceforge.pmd. **Name** : pmd-core. **Version** : 7.28.0.
      * **License:** [BSD-style](http://pmd.sourceforge.net/license.html)
 
-1.  **Group** : net.sourceforge.pmd. **Name** : pmd-java. **Version** : 7.27.0.
+1.  **Group** : net.sourceforge.pmd. **Name** : pmd-java. **Version** : 7.28.0.
      * **License:** [BSD-style](http://pmd.sourceforge.net/license.html)
-
-1.  **Group** : org.antlr. **Name** : antlr4-runtime. **Version** : 4.11.1.
-     * **Project URL:** [https://www.antlr.org/](https://www.antlr.org/)
-     * **License:** [https://www.antlr.org/license.html](https://www.antlr.org/license.html)
-     * **License:** [BSD-3-Clause](https://www.antlr.org/license.html)
 
 1.  **Group** : org.antlr. **Name** : antlr4-runtime. **Version** : 4.13.2.
      * **Project URL:** [https://www.antlr.org/](https://www.antlr.org/)
@@ -4091,25 +4015,16 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.apache.httpcomponents.client5. **Name** : httpclient5. **Version** : 5.1.3.
-     * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : org.apache.httpcomponents.core5. **Name** : httpcore5. **Version** : 5.1.3.
-     * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : org.apache.httpcomponents.core5. **Name** : httpcore5-h2. **Version** : 5.1.3.
-     * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
 1.  **Group** : org.apiguardian. **Name** : apiguardian-api. **Version** : 1.1.2.
      * **Project URL:** [https://github.com/apiguardian-team/apiguardian](https://github.com/apiguardian-team/apiguardian)
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.checkerframework. **Name** : checker-qual. **Version** : 4.2.2.
+1.  **Group** : org.checkerframework. **Name** : checker-qual. **Version** : 4.3.1.
      * **Project URL:** [https://checkerframework.org/](https://checkerframework.org/)
      * **License:** MIT
      * **License:** [The MIT License](https://opensource.org/licenses/MIT)
 
-1.  **Group** : org.codehaus.mojo. **Name** : animal-sniffer-annotations. **Version** : 1.27.
+1.  **Group** : org.codehaus.mojo. **Name** : animal-sniffer-annotations. **Version** : 1.28.
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [MIT license](https://spdx.org/licenses/MIT.txt)
 
@@ -4301,15 +4216,11 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
      * **License:** [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.jetbrains.kotlin. **Name** : kotlin-stdlib. **Version** : 2.4.21.
-     * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
-     * **License:** [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
-
 1.  **Group** : org.jetbrains.kotlin. **Name** : kotlin-stdlib-common. **Version** : 2.0.21.
      * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.jetbrains.kotlin. **Name** : kotlin-stdlib-common. **Version** : 2.4.21.
+1.  **Group** : org.jetbrains.kotlin. **Name** : kotlin-stdlib-common. **Version** : 2.4.10.
      * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
      * **License:** [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -4448,19 +4359,19 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** The Apache License, Version 2.0
      * **License:** [The Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.ow2.asm. **Name** : asm. **Version** : 9.10.1.
+1.  **Group** : org.ow2.asm. **Name** : asm. **Version** : 9.11.
      * **Project URL:** [http://asm.ow2.io/](http://asm.ow2.io/)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/LICENSE.txt)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/license.html)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.ow2.asm. **Name** : asm-commons. **Version** : 9.10.1.
+1.  **Group** : org.ow2.asm. **Name** : asm-commons. **Version** : 9.11.
      * **Project URL:** [http://asm.ow2.io/](http://asm.ow2.io/)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/LICENSE.txt)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/license.html)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.ow2.asm. **Name** : asm-tree. **Version** : 9.10.1.
+1.  **Group** : org.ow2.asm. **Name** : asm-tree. **Version** : 9.11.
      * **Project URL:** [http://asm.ow2.io/](http://asm.ow2.io/)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/LICENSE.txt)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/license.html)
@@ -4484,14 +4395,15 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [http://www.slf4j.org](http://www.slf4j.org)
      * **License:** [MIT License](http://www.opensource.org/licenses/mit-license.php)
 
+1.  **Group** : org.slf4j. **Name** : slf4j-simple. **Version** : 2.0.17.
+     * **Project URL:** [http://www.slf4j.org](http://www.slf4j.org)
+     * **License:** [https://opensource.org/license/mit](https://opensource.org/license/mit)
+     * **License:** [MIT](https://opensource.org/license/mit)
+
 1.  **Group** : org.snakeyaml. **Name** : snakeyaml-engine. **Version** : 2.7.
      * **Project URL:** [https://bitbucket.org/snakeyaml/snakeyaml-engine](https://bitbucket.org/snakeyaml/snakeyaml-engine)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : org.xmlresolver. **Name** : xmlresolver. **Version** : 5.1.2.
-     * **Project URL:** [https://github.com/xmlresolver/xmlresolver](https://github.com/xmlresolver/xmlresolver)
-     * **License:** [Apache License version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
 1.  **Group** : org.xmlresolver. **Name** : xmlresolver. **Version** : 5.3.3.
      * **Project URL:** [https://github.com/xmlresolver/xmlresolver](https://github.com/xmlresolver/xmlresolver)
@@ -4500,14 +4412,14 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
 
 The dependencies distributed under several licenses, are used according their commercial-use-friendly license.
 
-This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using 
+This report was generated on **Thu Oct 22 21:24:04 WEST 2026** using 
 [Gradle-License-Report plugin](https://github.com/jk1/Gradle-License-Report) by Evgeny Naumenko, licensed under 
 [Apache 2.0 License](https://github.com/jk1/Gradle-License-Report/blob/master/LICENSE).
 
 
 
 
-# Dependencies of `io.spine:spine-server:2.0.0-SNAPSHOT.576`
+# Dependencies of `io.spine:spine-server:2.0.0-SNAPSHOT.577`
 
 ## Runtime
 1.  **Group** : com.google.android. **Name** : annotations. **Version** : 4.1.1.4.
@@ -4536,7 +4448,7 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.guava. **Name** : guava. **Version** : 33.7.1-jre.
+1.  **Group** : com.google.guava. **Name** : guava. **Version** : 33.7.2-jre.
      * **Project URL:** [https://github.com/google/guava](https://github.com/google/guava)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -4563,23 +4475,23 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [https://opensource.org/licenses/BSD-3-Clause](https://opensource.org/licenses/BSD-3-Clause)
      * **License:** [BSD-3-Clause](https://opensource.org/licenses/BSD-3-Clause)
 
-1.  **Group** : io.grpc. **Name** : grpc-api. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-api. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-bom. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-bom. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-context. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-context. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-core. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-core. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-inprocess. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-inprocess. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -4587,15 +4499,15 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://github.com/grpc/grpc-kotlin](https://github.com/grpc/grpc-kotlin)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-protobuf. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-protobuf. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-protobuf-lite. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-protobuf-lite. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-stub. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-stub. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -4608,7 +4520,7 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [https://github.com/javaee/javax.annotation/blob/master/LICENSE](https://github.com/javaee/javax.annotation/blob/master/LICENSE)
      * **License:** [CDDL + GPLv2 with classpath exception](https://github.com/javaee/javax.annotation/blob/master/LICENSE)
 
-1.  **Group** : org.codehaus.mojo. **Name** : animal-sniffer-annotations. **Version** : 1.27.
+1.  **Group** : org.codehaus.mojo. **Name** : animal-sniffer-annotations. **Version** : 1.28.
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [MIT license](https://spdx.org/licenses/MIT.txt)
 
@@ -4662,7 +4574,7 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 ## Compile, tests, and tooling
-1.  **Group** : com.fasterxml.jackson. **Name** : jackson-bom. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson. **Name** : jackson-bom. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-bom](https://github.com/FasterXML/jackson-bom)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -4672,49 +4584,49 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.core. **Name** : jackson-core. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.core. **Name** : jackson-core. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-core](https://github.com/FasterXML/jackson-core)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.core. **Name** : jackson-databind. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.core. **Name** : jackson-databind. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson](https://github.com/FasterXML/jackson)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.dataformat. **Name** : jackson-dataformat-xml. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.dataformat. **Name** : jackson-dataformat-xml. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-dataformat-xml](https://github.com/FasterXML/jackson-dataformat-xml)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.dataformat. **Name** : jackson-dataformat-yaml. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.dataformat. **Name** : jackson-dataformat-yaml. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-dataformats-text](https://github.com/FasterXML/jackson-dataformats-text)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.datatype. **Name** : jackson-datatype-guava. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.datatype. **Name** : jackson-datatype-guava. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-datatypes-collections](https://github.com/FasterXML/jackson-datatypes-collections)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.datatype. **Name** : jackson-datatype-jdk8. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.datatype. **Name** : jackson-datatype-jdk8. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-modules-java8/jackson-datatype-jdk8](https://github.com/FasterXML/jackson-modules-java8/jackson-datatype-jdk8)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.module. **Name** : jackson-module-kotlin. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.module. **Name** : jackson-module-kotlin. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-module-kotlin](https://github.com/FasterXML/jackson-module-kotlin)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.module. **Name** : jackson-module-parameter-names. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.module. **Name** : jackson-module-parameter-names. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-modules-java8/jackson-module-parameter-names](https://github.com/FasterXML/jackson-modules-java8/jackson-module-parameter-names)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -4726,7 +4638,7 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.github.ben-manes.caffeine. **Name** : caffeine. **Version** : 3.2.4.
+1.  **Group** : com.github.ben-manes.caffeine. **Name** : caffeine. **Version** : 3.3.1.
      * **Project URL:** [https://github.com/ben-manes/caffeine](https://github.com/ben-manes/caffeine)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0)
      * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -4827,12 +4739,12 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.guava. **Name** : guava. **Version** : 33.7.1-jre.
+1.  **Group** : com.google.guava. **Name** : guava. **Version** : 33.7.2-jre.
      * **Project URL:** [https://github.com/google/guava](https://github.com/google/guava)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.guava. **Name** : guava-testlib. **Version** : 33.7.1-jre.
+1.  **Group** : com.google.guava. **Name** : guava-testlib. **Version** : 33.7.2-jre.
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 1.  **Group** : com.google.guava. **Name** : listenablefuture. **Version** : 9999.0-empty-to-avoid-conflict-with-guava.
@@ -4886,9 +4798,9 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://github.com/palantir/palantir-java-format](https://github.com/palantir/palantir-java-format)
      * **License:** [The Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
-1.  **Group** : com.puppycrawl.tools. **Name** : checkstyle. **Version** : 10.12.1.
+1.  **Group** : com.puppycrawl.tools. **Name** : checkstyle. **Version** : 12.3.1.
      * **Project URL:** [https://checkstyle.org/](https://checkstyle.org/)
-     * **License:** [LGPL-2.1+](http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt)
+     * **License:** [LGPL-2.1-or-later](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt)
 
 1.  **Group** : com.sksamuel.aedile. **Name** : aedile-core. **Version** : 3.0.4.
      * **Project URL:** [https://www.github.com/sksamuel/aedile](https://www.github.com/sksamuel/aedile)
@@ -4910,13 +4822,8 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://github.com/square/kotlinpoet](https://github.com/square/kotlinpoet)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : commons-beanutils. **Name** : commons-beanutils. **Version** : 1.9.4.
-     * **Project URL:** [https://commons.apache.org/proper/commons-beanutils/](https://commons.apache.org/proper/commons-beanutils/)
-     * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
-     * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : commons-codec. **Name** : commons-codec. **Version** : 1.22.1.
-     * **Project URL:** [https://commons.apache.org/proper/commons-codec/](https://commons.apache.org/proper/commons-codec/)
+1.  **Group** : commons-beanutils. **Name** : commons-beanutils. **Version** : 1.11.0.
+     * **Project URL:** [https://commons.apache.org/proper/commons-beanutils](https://commons.apache.org/proper/commons-beanutils)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -4937,7 +4844,7 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://github.com/ZacSweers/auto-service-ksp](https://github.com/ZacSweers/auto-service-ksp)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : info.picocli. **Name** : picocli. **Version** : 4.7.4.
+1.  **Group** : info.picocli. **Name** : picocli. **Version** : 4.7.7.
      * **Project URL:** [https://picocli.info](https://picocli.info)
      * **License:** [The Apache Software License, version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -5054,23 +4961,23 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://detekt.dev](https://detekt.dev)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : io.grpc. **Name** : grpc-api. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-api. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-bom. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-bom. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-context. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-context. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-core. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-core. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-inprocess. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-inprocess. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -5078,27 +4985,27 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://github.com/grpc/grpc-kotlin](https://github.com/grpc/grpc-kotlin)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-netty-shaded. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-netty-shaded. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-protobuf. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-protobuf. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-protobuf-lite. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-protobuf-lite. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-stub. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-stub. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-util. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-util. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : protoc-gen-grpc-java. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : protoc-gen-grpc-java. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -5106,27 +5013,27 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://github.com/grpc/grpc-kotlin](https://github.com/grpc/grpc-kotlin)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -5155,23 +5062,18 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [http://www.saxonica.com/](http://www.saxonica.com/)
      * **License:** [Mozilla Public License Version 2.0](http://www.mozilla.org/MPL/2.0/)
 
-1.  **Group** : net.sf.saxon. **Name** : Saxon-HE. **Version** : 12.2.
+1.  **Group** : net.sf.saxon. **Name** : Saxon-HE. **Version** : 12.9.
      * **Project URL:** [http://www.saxonica.com/](http://www.saxonica.com/)
      * **License:** [Mozilla Public License Version 2.0](http://www.mozilla.org/MPL/2.0/)
 
-1.  **Group** : net.sourceforge.pmd. **Name** : pmd-ant. **Version** : 7.27.0.
+1.  **Group** : net.sourceforge.pmd. **Name** : pmd-ant. **Version** : 7.28.0.
      * **License:** [BSD-style](http://pmd.sourceforge.net/license.html)
 
-1.  **Group** : net.sourceforge.pmd. **Name** : pmd-core. **Version** : 7.27.0.
+1.  **Group** : net.sourceforge.pmd. **Name** : pmd-core. **Version** : 7.28.0.
      * **License:** [BSD-style](http://pmd.sourceforge.net/license.html)
 
-1.  **Group** : net.sourceforge.pmd. **Name** : pmd-java. **Version** : 7.27.0.
+1.  **Group** : net.sourceforge.pmd. **Name** : pmd-java. **Version** : 7.28.0.
      * **License:** [BSD-style](http://pmd.sourceforge.net/license.html)
-
-1.  **Group** : org.antlr. **Name** : antlr4-runtime. **Version** : 4.11.1.
-     * **Project URL:** [https://www.antlr.org/](https://www.antlr.org/)
-     * **License:** [https://www.antlr.org/license.html](https://www.antlr.org/license.html)
-     * **License:** [BSD-3-Clause](https://www.antlr.org/license.html)
 
 1.  **Group** : org.antlr. **Name** : antlr4-runtime. **Version** : 4.13.2.
      * **Project URL:** [https://www.antlr.org/](https://www.antlr.org/)
@@ -5183,25 +5085,16 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.apache.httpcomponents.client5. **Name** : httpclient5. **Version** : 5.1.3.
-     * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : org.apache.httpcomponents.core5. **Name** : httpcore5. **Version** : 5.1.3.
-     * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : org.apache.httpcomponents.core5. **Name** : httpcore5-h2. **Version** : 5.1.3.
-     * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
 1.  **Group** : org.apiguardian. **Name** : apiguardian-api. **Version** : 1.1.2.
      * **Project URL:** [https://github.com/apiguardian-team/apiguardian](https://github.com/apiguardian-team/apiguardian)
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.checkerframework. **Name** : checker-qual. **Version** : 4.2.2.
+1.  **Group** : org.checkerframework. **Name** : checker-qual. **Version** : 4.3.1.
      * **Project URL:** [https://checkerframework.org/](https://checkerframework.org/)
      * **License:** MIT
      * **License:** [The MIT License](https://opensource.org/licenses/MIT)
 
-1.  **Group** : org.codehaus.mojo. **Name** : animal-sniffer-annotations. **Version** : 1.27.
+1.  **Group** : org.codehaus.mojo. **Name** : animal-sniffer-annotations. **Version** : 1.28.
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [MIT license](https://spdx.org/licenses/MIT.txt)
 
@@ -5397,15 +5290,11 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
      * **License:** [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.jetbrains.kotlin. **Name** : kotlin-stdlib. **Version** : 2.4.21.
-     * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
-     * **License:** [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
-
 1.  **Group** : org.jetbrains.kotlin. **Name** : kotlin-stdlib-common. **Version** : 2.0.21.
      * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.jetbrains.kotlin. **Name** : kotlin-stdlib-common. **Version** : 2.4.21.
+1.  **Group** : org.jetbrains.kotlin. **Name** : kotlin-stdlib-common. **Version** : 2.4.10.
      * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
      * **License:** [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -5544,19 +5433,19 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** The Apache License, Version 2.0
      * **License:** [The Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.ow2.asm. **Name** : asm. **Version** : 9.10.1.
+1.  **Group** : org.ow2.asm. **Name** : asm. **Version** : 9.11.
      * **Project URL:** [http://asm.ow2.io/](http://asm.ow2.io/)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/LICENSE.txt)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/license.html)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.ow2.asm. **Name** : asm-commons. **Version** : 9.10.1.
+1.  **Group** : org.ow2.asm. **Name** : asm-commons. **Version** : 9.11.
      * **Project URL:** [http://asm.ow2.io/](http://asm.ow2.io/)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/LICENSE.txt)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/license.html)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.ow2.asm. **Name** : asm-tree. **Version** : 9.10.1.
+1.  **Group** : org.ow2.asm. **Name** : asm-tree. **Version** : 9.11.
      * **Project URL:** [http://asm.ow2.io/](http://asm.ow2.io/)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/LICENSE.txt)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/license.html)
@@ -5580,6 +5469,11 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [http://www.slf4j.org](http://www.slf4j.org)
      * **License:** [MIT License](http://www.opensource.org/licenses/mit-license.php)
 
+1.  **Group** : org.slf4j. **Name** : slf4j-simple. **Version** : 2.0.17.
+     * **Project URL:** [http://www.slf4j.org](http://www.slf4j.org)
+     * **License:** [https://opensource.org/license/mit](https://opensource.org/license/mit)
+     * **License:** [MIT](https://opensource.org/license/mit)
+
 1.  **Group** : org.snakeyaml. **Name** : snakeyaml-engine. **Version** : 2.7.
      * **Project URL:** [https://bitbucket.org/snakeyaml/snakeyaml-engine](https://bitbucket.org/snakeyaml/snakeyaml-engine)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -5589,10 +5483,6 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://bitbucket.org/snakeyaml/snakeyaml-engine](https://bitbucket.org/snakeyaml/snakeyaml-engine)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : org.xmlresolver. **Name** : xmlresolver. **Version** : 5.1.2.
-     * **Project URL:** [https://github.com/xmlresolver/xmlresolver](https://github.com/xmlresolver/xmlresolver)
-     * **License:** [Apache License version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
 1.  **Group** : org.xmlresolver. **Name** : xmlresolver. **Version** : 5.3.3.
      * **Project URL:** [https://github.com/xmlresolver/xmlresolver](https://github.com/xmlresolver/xmlresolver)
@@ -5641,14 +5531,14 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
 
 The dependencies distributed under several licenses, are used according their commercial-use-friendly license.
 
-This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using 
+This report was generated on **Thu Oct 22 21:24:04 WEST 2026** using 
 [Gradle-License-Report plugin](https://github.com/jk1/Gradle-License-Report) by Evgeny Naumenko, licensed under 
 [Apache 2.0 License](https://github.com/jk1/Gradle-License-Report/blob/master/LICENSE).
 
 
 
 
-# Dependencies of `io.spine:spine-server-otel:2.0.0-SNAPSHOT.576`
+# Dependencies of `io.spine:spine-server-otel:2.0.0-SNAPSHOT.577`
 
 ## Runtime
 1.  **Group** : com.google.android. **Name** : annotations. **Version** : 4.1.1.4.
@@ -5677,7 +5567,7 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.guava. **Name** : guava. **Version** : 33.7.1-jre.
+1.  **Group** : com.google.guava. **Name** : guava. **Version** : 33.7.2-jre.
      * **Project URL:** [https://github.com/google/guava](https://github.com/google/guava)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -5704,23 +5594,23 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [https://opensource.org/licenses/BSD-3-Clause](https://opensource.org/licenses/BSD-3-Clause)
      * **License:** [BSD-3-Clause](https://opensource.org/licenses/BSD-3-Clause)
 
-1.  **Group** : io.grpc. **Name** : grpc-api. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-api. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-bom. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-bom. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-context. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-context. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-core. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-core. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-inprocess. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-inprocess. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -5728,15 +5618,15 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://github.com/grpc/grpc-kotlin](https://github.com/grpc/grpc-kotlin)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-protobuf. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-protobuf. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-protobuf-lite. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-protobuf-lite. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-stub. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-stub. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -5757,7 +5647,7 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [https://github.com/javaee/javax.annotation/blob/master/LICENSE](https://github.com/javaee/javax.annotation/blob/master/LICENSE)
      * **License:** [CDDL + GPLv2 with classpath exception](https://github.com/javaee/javax.annotation/blob/master/LICENSE)
 
-1.  **Group** : org.codehaus.mojo. **Name** : animal-sniffer-annotations. **Version** : 1.27.
+1.  **Group** : org.codehaus.mojo. **Name** : animal-sniffer-annotations. **Version** : 1.28.
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [MIT license](https://spdx.org/licenses/MIT.txt)
 
@@ -5811,7 +5701,7 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 ## Compile, tests, and tooling
-1.  **Group** : com.fasterxml.jackson. **Name** : jackson-bom. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson. **Name** : jackson-bom. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-bom](https://github.com/FasterXML/jackson-bom)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -5821,49 +5711,49 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.core. **Name** : jackson-core. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.core. **Name** : jackson-core. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-core](https://github.com/FasterXML/jackson-core)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.core. **Name** : jackson-databind. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.core. **Name** : jackson-databind. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson](https://github.com/FasterXML/jackson)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.dataformat. **Name** : jackson-dataformat-xml. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.dataformat. **Name** : jackson-dataformat-xml. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-dataformat-xml](https://github.com/FasterXML/jackson-dataformat-xml)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.dataformat. **Name** : jackson-dataformat-yaml. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.dataformat. **Name** : jackson-dataformat-yaml. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-dataformats-text](https://github.com/FasterXML/jackson-dataformats-text)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.datatype. **Name** : jackson-datatype-guava. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.datatype. **Name** : jackson-datatype-guava. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-datatypes-collections](https://github.com/FasterXML/jackson-datatypes-collections)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.datatype. **Name** : jackson-datatype-jdk8. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.datatype. **Name** : jackson-datatype-jdk8. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-modules-java8/jackson-datatype-jdk8](https://github.com/FasterXML/jackson-modules-java8/jackson-datatype-jdk8)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.module. **Name** : jackson-module-kotlin. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.module. **Name** : jackson-module-kotlin. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-module-kotlin](https://github.com/FasterXML/jackson-module-kotlin)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.module. **Name** : jackson-module-parameter-names. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.module. **Name** : jackson-module-parameter-names. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-modules-java8/jackson-module-parameter-names](https://github.com/FasterXML/jackson-modules-java8/jackson-module-parameter-names)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -5875,7 +5765,7 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.github.ben-manes.caffeine. **Name** : caffeine. **Version** : 3.2.4.
+1.  **Group** : com.github.ben-manes.caffeine. **Name** : caffeine. **Version** : 3.3.1.
      * **Project URL:** [https://github.com/ben-manes/caffeine](https://github.com/ben-manes/caffeine)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0)
      * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -5972,12 +5862,12 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.guava. **Name** : guava. **Version** : 33.7.1-jre.
+1.  **Group** : com.google.guava. **Name** : guava. **Version** : 33.7.2-jre.
      * **Project URL:** [https://github.com/google/guava](https://github.com/google/guava)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.guava. **Name** : guava-testlib. **Version** : 33.7.1-jre.
+1.  **Group** : com.google.guava. **Name** : guava-testlib. **Version** : 33.7.2-jre.
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 1.  **Group** : com.google.guava. **Name** : listenablefuture. **Version** : 9999.0-empty-to-avoid-conflict-with-guava.
@@ -6031,9 +5921,9 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://github.com/palantir/palantir-java-format](https://github.com/palantir/palantir-java-format)
      * **License:** [The Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
-1.  **Group** : com.puppycrawl.tools. **Name** : checkstyle. **Version** : 10.12.1.
+1.  **Group** : com.puppycrawl.tools. **Name** : checkstyle. **Version** : 12.3.1.
      * **Project URL:** [https://checkstyle.org/](https://checkstyle.org/)
-     * **License:** [LGPL-2.1+](http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt)
+     * **License:** [LGPL-2.1-or-later](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt)
 
 1.  **Group** : com.sksamuel.aedile. **Name** : aedile-core. **Version** : 3.0.4.
      * **Project URL:** [https://www.github.com/sksamuel/aedile](https://www.github.com/sksamuel/aedile)
@@ -6055,13 +5945,8 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://github.com/square/kotlinpoet](https://github.com/square/kotlinpoet)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : commons-beanutils. **Name** : commons-beanutils. **Version** : 1.9.4.
-     * **Project URL:** [https://commons.apache.org/proper/commons-beanutils/](https://commons.apache.org/proper/commons-beanutils/)
-     * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
-     * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : commons-codec. **Name** : commons-codec. **Version** : 1.22.1.
-     * **Project URL:** [https://commons.apache.org/proper/commons-codec/](https://commons.apache.org/proper/commons-codec/)
+1.  **Group** : commons-beanutils. **Name** : commons-beanutils. **Version** : 1.11.0.
+     * **Project URL:** [https://commons.apache.org/proper/commons-beanutils](https://commons.apache.org/proper/commons-beanutils)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -6082,7 +5967,7 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://github.com/ZacSweers/auto-service-ksp](https://github.com/ZacSweers/auto-service-ksp)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : info.picocli. **Name** : picocli. **Version** : 4.7.4.
+1.  **Group** : info.picocli. **Name** : picocli. **Version** : 4.7.7.
      * **Project URL:** [https://picocli.info](https://picocli.info)
      * **License:** [The Apache Software License, version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -6199,23 +6084,23 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://detekt.dev](https://detekt.dev)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : io.grpc. **Name** : grpc-api. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-api. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-bom. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-bom. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-context. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-context. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-core. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-core. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-inprocess. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-inprocess. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -6223,39 +6108,39 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://github.com/grpc/grpc-kotlin](https://github.com/grpc/grpc-kotlin)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-protobuf. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-protobuf. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-protobuf-lite. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-protobuf-lite. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-stub. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-stub. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -6372,23 +6257,18 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [http://www.saxonica.com/](http://www.saxonica.com/)
      * **License:** [Mozilla Public License Version 2.0](http://www.mozilla.org/MPL/2.0/)
 
-1.  **Group** : net.sf.saxon. **Name** : Saxon-HE. **Version** : 12.2.
+1.  **Group** : net.sf.saxon. **Name** : Saxon-HE. **Version** : 12.9.
      * **Project URL:** [http://www.saxonica.com/](http://www.saxonica.com/)
      * **License:** [Mozilla Public License Version 2.0](http://www.mozilla.org/MPL/2.0/)
 
-1.  **Group** : net.sourceforge.pmd. **Name** : pmd-ant. **Version** : 7.27.0.
+1.  **Group** : net.sourceforge.pmd. **Name** : pmd-ant. **Version** : 7.28.0.
      * **License:** [BSD-style](http://pmd.sourceforge.net/license.html)
 
-1.  **Group** : net.sourceforge.pmd. **Name** : pmd-core. **Version** : 7.27.0.
+1.  **Group** : net.sourceforge.pmd. **Name** : pmd-core. **Version** : 7.28.0.
      * **License:** [BSD-style](http://pmd.sourceforge.net/license.html)
 
-1.  **Group** : net.sourceforge.pmd. **Name** : pmd-java. **Version** : 7.27.0.
+1.  **Group** : net.sourceforge.pmd. **Name** : pmd-java. **Version** : 7.28.0.
      * **License:** [BSD-style](http://pmd.sourceforge.net/license.html)
-
-1.  **Group** : org.antlr. **Name** : antlr4-runtime. **Version** : 4.11.1.
-     * **Project URL:** [https://www.antlr.org/](https://www.antlr.org/)
-     * **License:** [https://www.antlr.org/license.html](https://www.antlr.org/license.html)
-     * **License:** [BSD-3-Clause](https://www.antlr.org/license.html)
 
 1.  **Group** : org.antlr. **Name** : antlr4-runtime. **Version** : 4.13.2.
      * **Project URL:** [https://www.antlr.org/](https://www.antlr.org/)
@@ -6400,25 +6280,16 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.apache.httpcomponents.client5. **Name** : httpclient5. **Version** : 5.1.3.
-     * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : org.apache.httpcomponents.core5. **Name** : httpcore5. **Version** : 5.1.3.
-     * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : org.apache.httpcomponents.core5. **Name** : httpcore5-h2. **Version** : 5.1.3.
-     * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
 1.  **Group** : org.apiguardian. **Name** : apiguardian-api. **Version** : 1.1.2.
      * **Project URL:** [https://github.com/apiguardian-team/apiguardian](https://github.com/apiguardian-team/apiguardian)
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.checkerframework. **Name** : checker-qual. **Version** : 4.2.2.
+1.  **Group** : org.checkerframework. **Name** : checker-qual. **Version** : 4.3.1.
      * **Project URL:** [https://checkerframework.org/](https://checkerframework.org/)
      * **License:** MIT
      * **License:** [The MIT License](https://opensource.org/licenses/MIT)
 
-1.  **Group** : org.codehaus.mojo. **Name** : animal-sniffer-annotations. **Version** : 1.27.
+1.  **Group** : org.codehaus.mojo. **Name** : animal-sniffer-annotations. **Version** : 1.28.
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [MIT license](https://spdx.org/licenses/MIT.txt)
 
@@ -6614,15 +6485,11 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
      * **License:** [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.jetbrains.kotlin. **Name** : kotlin-stdlib. **Version** : 2.4.21.
-     * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
-     * **License:** [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
-
 1.  **Group** : org.jetbrains.kotlin. **Name** : kotlin-stdlib-common. **Version** : 2.0.21.
      * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.jetbrains.kotlin. **Name** : kotlin-stdlib-common. **Version** : 2.4.21.
+1.  **Group** : org.jetbrains.kotlin. **Name** : kotlin-stdlib-common. **Version** : 2.4.10.
      * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
      * **License:** [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -6761,19 +6628,19 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** The Apache License, Version 2.0
      * **License:** [The Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.ow2.asm. **Name** : asm. **Version** : 9.10.1.
+1.  **Group** : org.ow2.asm. **Name** : asm. **Version** : 9.11.
      * **Project URL:** [http://asm.ow2.io/](http://asm.ow2.io/)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/LICENSE.txt)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/license.html)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.ow2.asm. **Name** : asm-commons. **Version** : 9.10.1.
+1.  **Group** : org.ow2.asm. **Name** : asm-commons. **Version** : 9.11.
      * **Project URL:** [http://asm.ow2.io/](http://asm.ow2.io/)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/LICENSE.txt)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/license.html)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.ow2.asm. **Name** : asm-tree. **Version** : 9.10.1.
+1.  **Group** : org.ow2.asm. **Name** : asm-tree. **Version** : 9.11.
      * **Project URL:** [http://asm.ow2.io/](http://asm.ow2.io/)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/LICENSE.txt)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/license.html)
@@ -6797,6 +6664,11 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [http://www.slf4j.org](http://www.slf4j.org)
      * **License:** [MIT License](http://www.opensource.org/licenses/mit-license.php)
 
+1.  **Group** : org.slf4j. **Name** : slf4j-simple. **Version** : 2.0.17.
+     * **Project URL:** [http://www.slf4j.org](http://www.slf4j.org)
+     * **License:** [https://opensource.org/license/mit](https://opensource.org/license/mit)
+     * **License:** [MIT](https://opensource.org/license/mit)
+
 1.  **Group** : org.snakeyaml. **Name** : snakeyaml-engine. **Version** : 2.7.
      * **Project URL:** [https://bitbucket.org/snakeyaml/snakeyaml-engine](https://bitbucket.org/snakeyaml/snakeyaml-engine)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -6806,10 +6678,6 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://bitbucket.org/snakeyaml/snakeyaml-engine](https://bitbucket.org/snakeyaml/snakeyaml-engine)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : org.xmlresolver. **Name** : xmlresolver. **Version** : 5.1.2.
-     * **Project URL:** [https://github.com/xmlresolver/xmlresolver](https://github.com/xmlresolver/xmlresolver)
-     * **License:** [Apache License version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
 1.  **Group** : org.xmlresolver. **Name** : xmlresolver. **Version** : 5.3.3.
      * **Project URL:** [https://github.com/xmlresolver/xmlresolver](https://github.com/xmlresolver/xmlresolver)
@@ -6858,14 +6726,14 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
 
 The dependencies distributed under several licenses, are used according their commercial-use-friendly license.
 
-This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using 
+This report was generated on **Thu Oct 22 21:24:04 WEST 2026** using 
 [Gradle-License-Report plugin](https://github.com/jk1/Gradle-License-Report) by Evgeny Naumenko, licensed under 
 [Apache 2.0 License](https://github.com/jk1/Gradle-License-Report/blob/master/LICENSE).
 
 
 
 
-# Dependencies of `io.spine.tools:server-testlib:2.0.0-SNAPSHOT.576`
+# Dependencies of `io.spine.tools:server-testlib:2.0.0-SNAPSHOT.577`
 
 ## Runtime
 1.  **Group** : com.google.android. **Name** : annotations. **Version** : 4.1.1.4.
@@ -6906,12 +6774,12 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.guava. **Name** : guava. **Version** : 33.7.1-jre.
+1.  **Group** : com.google.guava. **Name** : guava. **Version** : 33.7.2-jre.
      * **Project URL:** [https://github.com/google/guava](https://github.com/google/guava)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.guava. **Name** : guava-testlib. **Version** : 33.7.1-jre.
+1.  **Group** : com.google.guava. **Name** : guava-testlib. **Version** : 33.7.2-jre.
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 1.  **Group** : com.google.guava. **Name** : listenablefuture. **Version** : 9999.0-empty-to-avoid-conflict-with-guava.
@@ -6952,23 +6820,23 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : io.grpc. **Name** : grpc-api. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-api. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-bom. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-bom. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-context. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-context. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-core. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-core. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-inprocess. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-inprocess. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -6976,39 +6844,39 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://github.com/grpc/grpc-kotlin](https://github.com/grpc/grpc-kotlin)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-protobuf. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-protobuf. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-protobuf-lite. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-protobuf-lite. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-stub. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-stub. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -7025,7 +6893,7 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [http://junit.org](http://junit.org)
      * **License:** [Eclipse Public License 1.0](http://www.eclipse.org/legal/epl-v10.html)
 
-1.  **Group** : org.codehaus.mojo. **Name** : animal-sniffer-annotations. **Version** : 1.27.
+1.  **Group** : org.codehaus.mojo. **Name** : animal-sniffer-annotations. **Version** : 1.28.
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [MIT license](https://spdx.org/licenses/MIT.txt)
 
@@ -7116,14 +6984,14 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** The Apache License, Version 2.0
      * **License:** [The Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.ow2.asm. **Name** : asm. **Version** : 9.10.1.
+1.  **Group** : org.ow2.asm. **Name** : asm. **Version** : 9.11.
      * **Project URL:** [http://asm.ow2.io/](http://asm.ow2.io/)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/LICENSE.txt)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/license.html)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 ## Compile, tests, and tooling
-1.  **Group** : com.fasterxml.jackson. **Name** : jackson-bom. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson. **Name** : jackson-bom. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-bom](https://github.com/FasterXML/jackson-bom)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -7133,49 +7001,49 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.core. **Name** : jackson-core. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.core. **Name** : jackson-core. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-core](https://github.com/FasterXML/jackson-core)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.core. **Name** : jackson-databind. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.core. **Name** : jackson-databind. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson](https://github.com/FasterXML/jackson)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.dataformat. **Name** : jackson-dataformat-xml. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.dataformat. **Name** : jackson-dataformat-xml. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-dataformat-xml](https://github.com/FasterXML/jackson-dataformat-xml)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.dataformat. **Name** : jackson-dataformat-yaml. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.dataformat. **Name** : jackson-dataformat-yaml. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-dataformats-text](https://github.com/FasterXML/jackson-dataformats-text)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.datatype. **Name** : jackson-datatype-guava. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.datatype. **Name** : jackson-datatype-guava. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-datatypes-collections](https://github.com/FasterXML/jackson-datatypes-collections)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.datatype. **Name** : jackson-datatype-jdk8. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.datatype. **Name** : jackson-datatype-jdk8. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-modules-java8/jackson-datatype-jdk8](https://github.com/FasterXML/jackson-modules-java8/jackson-datatype-jdk8)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.module. **Name** : jackson-module-kotlin. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.module. **Name** : jackson-module-kotlin. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-module-kotlin](https://github.com/FasterXML/jackson-module-kotlin)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.fasterxml.jackson.module. **Name** : jackson-module-parameter-names. **Version** : 2.22.2.
+1.  **Group** : com.fasterxml.jackson.module. **Name** : jackson-module-parameter-names. **Version** : 2.22.3.
      * **Project URL:** [https://github.com/FasterXML/jackson-modules-java8/jackson-module-parameter-names](https://github.com/FasterXML/jackson-modules-java8/jackson-module-parameter-names)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -7187,7 +7055,7 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.github.ben-manes.caffeine. **Name** : caffeine. **Version** : 3.2.4.
+1.  **Group** : com.github.ben-manes.caffeine. **Name** : caffeine. **Version** : 3.3.1.
      * **Project URL:** [https://github.com/ben-manes/caffeine](https://github.com/ben-manes/caffeine)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0)
      * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -7284,12 +7152,12 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.guava. **Name** : guava. **Version** : 33.7.1-jre.
+1.  **Group** : com.google.guava. **Name** : guava. **Version** : 33.7.2-jre.
      * **Project URL:** [https://github.com/google/guava](https://github.com/google/guava)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : com.google.guava. **Name** : guava-testlib. **Version** : 33.7.1-jre.
+1.  **Group** : com.google.guava. **Name** : guava-testlib. **Version** : 33.7.2-jre.
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 1.  **Group** : com.google.guava. **Name** : listenablefuture. **Version** : 9999.0-empty-to-avoid-conflict-with-guava.
@@ -7343,9 +7211,9 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://github.com/palantir/palantir-java-format](https://github.com/palantir/palantir-java-format)
      * **License:** [The Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
-1.  **Group** : com.puppycrawl.tools. **Name** : checkstyle. **Version** : 10.12.1.
+1.  **Group** : com.puppycrawl.tools. **Name** : checkstyle. **Version** : 12.3.1.
      * **Project URL:** [https://checkstyle.org/](https://checkstyle.org/)
-     * **License:** [LGPL-2.1+](http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt)
+     * **License:** [LGPL-2.1-or-later](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt)
 
 1.  **Group** : com.sksamuel.aedile. **Name** : aedile-core. **Version** : 3.0.4.
      * **Project URL:** [https://www.github.com/sksamuel/aedile](https://www.github.com/sksamuel/aedile)
@@ -7367,13 +7235,8 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://github.com/square/kotlinpoet](https://github.com/square/kotlinpoet)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : commons-beanutils. **Name** : commons-beanutils. **Version** : 1.9.4.
-     * **Project URL:** [https://commons.apache.org/proper/commons-beanutils/](https://commons.apache.org/proper/commons-beanutils/)
-     * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
-     * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : commons-codec. **Name** : commons-codec. **Version** : 1.22.1.
-     * **Project URL:** [https://commons.apache.org/proper/commons-codec/](https://commons.apache.org/proper/commons-codec/)
+1.  **Group** : commons-beanutils. **Name** : commons-beanutils. **Version** : 1.11.0.
+     * **Project URL:** [https://commons.apache.org/proper/commons-beanutils](https://commons.apache.org/proper/commons-beanutils)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -7394,7 +7257,7 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://github.com/ZacSweers/auto-service-ksp](https://github.com/ZacSweers/auto-service-ksp)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : info.picocli. **Name** : picocli. **Version** : 4.7.4.
+1.  **Group** : info.picocli. **Name** : picocli. **Version** : 4.7.7.
      * **Project URL:** [https://picocli.info](https://picocli.info)
      * **License:** [The Apache Software License, version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -7511,23 +7374,23 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://detekt.dev](https://detekt.dev)
      * **License:** [The Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : io.grpc. **Name** : grpc-api. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-api. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-bom. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-bom. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-context. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-context. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-core. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-core. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-inprocess. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-inprocess. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
@@ -7535,106 +7398,106 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://github.com/grpc/grpc-kotlin](https://github.com/grpc/grpc-kotlin)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-netty. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-netty. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-protobuf. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-protobuf. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-protobuf-lite. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-protobuf-lite. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-stub. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-stub. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.grpc. **Name** : grpc-util. **Version** : 1.83.1.
+1.  **Group** : io.grpc. **Name** : grpc-util. **Version** : 1.85.0.
      * **Project URL:** [https://github.com/grpc/grpc-java](https://github.com/grpc/grpc-java)
      * **License:** [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-core-jvm. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-assertions-shared-jvm. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-common. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.2.4.
+1.  **Group** : io.kotest. **Name** : kotest-common-jvm. **Version** : 6.2.5.
      * **Project URL:** [https://github.com/kotest/kotest](https://github.com/kotest/kotest)
      * **License:** [Apache-2.0](https://opensource.org/licenses/Apache-2.0)
 
-1.  **Group** : io.netty. **Name** : netty-buffer. **Version** : 4.2.15.Final.
+1.  **Group** : io.netty. **Name** : netty-buffer. **Version** : 4.2.17.Final.
      * **Project URL:** [https://netty.io/](https://netty.io/)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0)
      * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
-1.  **Group** : io.netty. **Name** : netty-codec-base. **Version** : 4.2.15.Final.
+1.  **Group** : io.netty. **Name** : netty-codec-base. **Version** : 4.2.17.Final.
      * **Project URL:** [https://netty.io/](https://netty.io/)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0)
      * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
-1.  **Group** : io.netty. **Name** : netty-codec-compression. **Version** : 4.2.15.Final.
+1.  **Group** : io.netty. **Name** : netty-codec-compression. **Version** : 4.2.17.Final.
      * **Project URL:** [https://netty.io/](https://netty.io/)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0)
      * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
-1.  **Group** : io.netty. **Name** : netty-codec-http. **Version** : 4.2.15.Final.
+1.  **Group** : io.netty. **Name** : netty-codec-http. **Version** : 4.2.17.Final.
      * **Project URL:** [https://netty.io/](https://netty.io/)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0)
      * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
-1.  **Group** : io.netty. **Name** : netty-codec-http2. **Version** : 4.2.15.Final.
+1.  **Group** : io.netty. **Name** : netty-codec-http2. **Version** : 4.2.17.Final.
      * **Project URL:** [https://netty.io/](https://netty.io/)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0)
      * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
-1.  **Group** : io.netty. **Name** : netty-codec-socks. **Version** : 4.2.15.Final.
+1.  **Group** : io.netty. **Name** : netty-codec-socks. **Version** : 4.2.17.Final.
      * **Project URL:** [https://netty.io/](https://netty.io/)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0)
      * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
-1.  **Group** : io.netty. **Name** : netty-common. **Version** : 4.2.15.Final.
+1.  **Group** : io.netty. **Name** : netty-common. **Version** : 4.2.17.Final.
      * **Project URL:** [https://netty.io/](https://netty.io/)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0)
      * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
-1.  **Group** : io.netty. **Name** : netty-handler. **Version** : 4.2.15.Final.
+1.  **Group** : io.netty. **Name** : netty-handler. **Version** : 4.2.17.Final.
      * **Project URL:** [https://netty.io/](https://netty.io/)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0)
      * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
-1.  **Group** : io.netty. **Name** : netty-handler-proxy. **Version** : 4.2.15.Final.
+1.  **Group** : io.netty. **Name** : netty-handler-proxy. **Version** : 4.2.17.Final.
      * **Project URL:** [https://netty.io/](https://netty.io/)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0)
      * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
-1.  **Group** : io.netty. **Name** : netty-resolver. **Version** : 4.2.15.Final.
+1.  **Group** : io.netty. **Name** : netty-resolver. **Version** : 4.2.17.Final.
      * **Project URL:** [https://netty.io/](https://netty.io/)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0)
      * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
-1.  **Group** : io.netty. **Name** : netty-transport. **Version** : 4.2.15.Final.
+1.  **Group** : io.netty. **Name** : netty-transport. **Version** : 4.2.17.Final.
      * **Project URL:** [https://netty.io/](https://netty.io/)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0)
      * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
-1.  **Group** : io.netty. **Name** : netty-transport-native-unix-common. **Version** : 4.2.15.Final.
+1.  **Group** : io.netty. **Name** : netty-transport-native-unix-common. **Version** : 4.2.17.Final.
      * **Project URL:** [https://netty.io/](https://netty.io/)
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0)
      * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
@@ -7664,23 +7527,18 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [http://www.saxonica.com/](http://www.saxonica.com/)
      * **License:** [Mozilla Public License Version 2.0](http://www.mozilla.org/MPL/2.0/)
 
-1.  **Group** : net.sf.saxon. **Name** : Saxon-HE. **Version** : 12.2.
+1.  **Group** : net.sf.saxon. **Name** : Saxon-HE. **Version** : 12.9.
      * **Project URL:** [http://www.saxonica.com/](http://www.saxonica.com/)
      * **License:** [Mozilla Public License Version 2.0](http://www.mozilla.org/MPL/2.0/)
 
-1.  **Group** : net.sourceforge.pmd. **Name** : pmd-ant. **Version** : 7.27.0.
+1.  **Group** : net.sourceforge.pmd. **Name** : pmd-ant. **Version** : 7.28.0.
      * **License:** [BSD-style](http://pmd.sourceforge.net/license.html)
 
-1.  **Group** : net.sourceforge.pmd. **Name** : pmd-core. **Version** : 7.27.0.
+1.  **Group** : net.sourceforge.pmd. **Name** : pmd-core. **Version** : 7.28.0.
      * **License:** [BSD-style](http://pmd.sourceforge.net/license.html)
 
-1.  **Group** : net.sourceforge.pmd. **Name** : pmd-java. **Version** : 7.27.0.
+1.  **Group** : net.sourceforge.pmd. **Name** : pmd-java. **Version** : 7.28.0.
      * **License:** [BSD-style](http://pmd.sourceforge.net/license.html)
-
-1.  **Group** : org.antlr. **Name** : antlr4-runtime. **Version** : 4.11.1.
-     * **Project URL:** [https://www.antlr.org/](https://www.antlr.org/)
-     * **License:** [https://www.antlr.org/license.html](https://www.antlr.org/license.html)
-     * **License:** [BSD-3-Clause](https://www.antlr.org/license.html)
 
 1.  **Group** : org.antlr. **Name** : antlr4-runtime. **Version** : 4.13.2.
      * **Project URL:** [https://www.antlr.org/](https://www.antlr.org/)
@@ -7692,25 +7550,16 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.apache.httpcomponents.client5. **Name** : httpclient5. **Version** : 5.1.3.
-     * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : org.apache.httpcomponents.core5. **Name** : httpcore5. **Version** : 5.1.3.
-     * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : org.apache.httpcomponents.core5. **Name** : httpcore5-h2. **Version** : 5.1.3.
-     * **License:** [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
 1.  **Group** : org.apiguardian. **Name** : apiguardian-api. **Version** : 1.1.2.
      * **Project URL:** [https://github.com/apiguardian-team/apiguardian](https://github.com/apiguardian-team/apiguardian)
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.checkerframework. **Name** : checker-qual. **Version** : 4.2.2.
+1.  **Group** : org.checkerframework. **Name** : checker-qual. **Version** : 4.3.1.
      * **Project URL:** [https://checkerframework.org/](https://checkerframework.org/)
      * **License:** MIT
      * **License:** [The MIT License](https://opensource.org/licenses/MIT)
 
-1.  **Group** : org.codehaus.mojo. **Name** : animal-sniffer-annotations. **Version** : 1.27.
+1.  **Group** : org.codehaus.mojo. **Name** : animal-sniffer-annotations. **Version** : 1.28.
      * **License:** [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [MIT license](https://spdx.org/licenses/MIT.txt)
 
@@ -7906,15 +7755,11 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
      * **License:** [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.jetbrains.kotlin. **Name** : kotlin-stdlib. **Version** : 2.4.21.
-     * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
-     * **License:** [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
-
 1.  **Group** : org.jetbrains.kotlin. **Name** : kotlin-stdlib-common. **Version** : 2.0.21.
      * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
      * **License:** [The Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.jetbrains.kotlin. **Name** : kotlin-stdlib-common. **Version** : 2.4.21.
+1.  **Group** : org.jetbrains.kotlin. **Name** : kotlin-stdlib-common. **Version** : 2.4.10.
      * **Project URL:** [https://kotlinlang.org/](https://kotlinlang.org/)
      * **License:** [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -8053,19 +7898,19 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **License:** The Apache License, Version 2.0
      * **License:** [The Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.ow2.asm. **Name** : asm. **Version** : 9.10.1.
+1.  **Group** : org.ow2.asm. **Name** : asm. **Version** : 9.11.
      * **Project URL:** [http://asm.ow2.io/](http://asm.ow2.io/)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/LICENSE.txt)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/license.html)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.ow2.asm. **Name** : asm-commons. **Version** : 9.10.1.
+1.  **Group** : org.ow2.asm. **Name** : asm-commons. **Version** : 9.11.
      * **Project URL:** [http://asm.ow2.io/](http://asm.ow2.io/)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/LICENSE.txt)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/license.html)
      * **License:** [The Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-1.  **Group** : org.ow2.asm. **Name** : asm-tree. **Version** : 9.10.1.
+1.  **Group** : org.ow2.asm. **Name** : asm-tree. **Version** : 9.11.
      * **Project URL:** [http://asm.ow2.io/](http://asm.ow2.io/)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/LICENSE.txt)
      * **License:** [BSD-3-Clause](https://asm.ow2.io/license.html)
@@ -8089,6 +7934,11 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [http://www.slf4j.org](http://www.slf4j.org)
      * **License:** [MIT License](http://www.opensource.org/licenses/mit-license.php)
 
+1.  **Group** : org.slf4j. **Name** : slf4j-simple. **Version** : 2.0.17.
+     * **Project URL:** [http://www.slf4j.org](http://www.slf4j.org)
+     * **License:** [https://opensource.org/license/mit](https://opensource.org/license/mit)
+     * **License:** [MIT](https://opensource.org/license/mit)
+
 1.  **Group** : org.snakeyaml. **Name** : snakeyaml-engine. **Version** : 2.7.
      * **Project URL:** [https://bitbucket.org/snakeyaml/snakeyaml-engine](https://bitbucket.org/snakeyaml/snakeyaml-engine)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
@@ -8098,10 +7948,6 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
      * **Project URL:** [https://bitbucket.org/snakeyaml/snakeyaml-engine](https://bitbucket.org/snakeyaml/snakeyaml-engine)
      * **License:** [http://www.apache.org/licenses/LICENSE-2.0.txt](http://www.apache.org/licenses/LICENSE-2.0.txt)
      * **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
-
-1.  **Group** : org.xmlresolver. **Name** : xmlresolver. **Version** : 5.1.2.
-     * **Project URL:** [https://github.com/xmlresolver/xmlresolver](https://github.com/xmlresolver/xmlresolver)
-     * **License:** [Apache License version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
 1.  **Group** : org.xmlresolver. **Name** : xmlresolver. **Version** : 5.3.3.
      * **Project URL:** [https://github.com/xmlresolver/xmlresolver](https://github.com/xmlresolver/xmlresolver)
@@ -8150,6 +7996,6 @@ This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using
 
 The dependencies distributed under several licenses, are used according their commercial-use-friendly license.
 
-This report was generated on **Wed Oct 21 16:29:10 WEST 2026** using 
+This report was generated on **Thu Oct 22 21:24:04 WEST 2026** using 
 [Gradle-License-Report plugin](https://github.com/jk1/Gradle-License-Report) by Evgeny Naumenko, licensed under 
 [Apache 2.0 License](https://github.com/jk1/Gradle-License-Report/blob/master/LICENSE).
