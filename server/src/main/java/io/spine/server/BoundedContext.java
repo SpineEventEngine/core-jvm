@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server;
@@ -207,12 +195,34 @@ public abstract class BoundedContext
 
     /**
      * Adds the passed repository to the context.
+     *
+     * @throws DuplicateEntityStateException
+     *         if another open domain context already serves entities with the same state type,
+     *         and the {@linkplain ServerEnvironment.TypeConfigurator#checkDuplicateEntityStates
+     *         check} is on
      */
     protected final void register(Repository<?, ?> repository) {
         checkNotNull(repository);
+        serveStateOf(repository);
         registerIfAware(repository);
         guard.register(repository);
         repository.onRegistered();
+    }
+
+    /**
+     * Records that this context serves the entities of the passed repository,
+     * unless this is a System context.
+     *
+     * <p>Goes before registering the repository with this context, which also registers
+     * the inbox of the repository with the {@code Delivery} shared by all contexts.
+     * A failed check must leave the inbox of the other context in place.
+     */
+    @SuppressWarnings("ClassReferencesSubclass") // Only domain contexts are recorded.
+    private void serveStateOf(Repository<?, ?> repository) {
+        if (this instanceof DomainContext) {
+            ServerEnvironment.instance()
+                             .serve(this, repository.entityStateType());
+        }
     }
 
     /**
@@ -492,9 +502,13 @@ public abstract class BoundedContext
 
     /**
      * Closes all repositories and clears {@link TenantIndex}.
+     *
+     * <p>After the repositories are closed, other contexts may serve their entity state types.
      */
     private void shutDownRepositories() {
         guard.shutDownRepositories();
+        ServerEnvironment.instance()
+                         .forget(this);
         tenantIndex.close();
     }
 

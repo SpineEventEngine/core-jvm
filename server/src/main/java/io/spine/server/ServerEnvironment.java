@@ -1,35 +1,25 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server;
 
+import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.annotation.Internal;
 import io.spine.annotation.VisibleForTesting;
 import io.spine.base.Identifier;
+import io.spine.core.BoundedContextName;
 import io.spine.environment.CustomEnvironmentType;
 import io.spine.environment.DefaultMode;
 import io.spine.environment.Environment;
@@ -43,6 +33,7 @@ import io.spine.server.storage.memory.InMemoryStorageFactory;
 import io.spine.server.trace.TracerFactory;
 import io.spine.server.transport.TransportFactory;
 import io.spine.server.transport.memory.InMemoryTransportFactory;
+import io.spine.type.TypeUrl;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -94,6 +85,13 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * settings, they should arrange a separate deployable artifact and distinct configuration
  * of the respective {@code ServerEnvironment} for those Bounded Contexts. In this way,
  * the Contexts would reside in their own JVMs and not overlap on interacting with this singleton.
+ *
+ * <p>Within a JVM, entities with a given state type can be served by only one open domain
+ * Bounded Context at a time. All Bounded Contexts share one {@link Delivery}, which finds
+ * the entities that receive a message by their state type only. Adding a repository to
+ * a context while another open context serves the same entity state type fails with
+ * {@link DuplicateEntityStateException}. The check is
+ * {@linkplain TypeConfigurator#checkDuplicateEntityStates(boolean) off} in tests by default.
  */
 public final class ServerEnvironment implements Closeable {
 
@@ -138,6 +136,24 @@ public final class ServerEnvironment implements Closeable {
      */
     private final EnvSetting<TransportFactory> transportFactory =
             new EnvSetting<>(Tests.class, InMemoryTransportFactory::newInstance);
+
+    /**
+     * Tells if adding a repository to a domain Bounded Context fails when another open
+     * domain context serves entities with the same state type.
+     *
+     * <p>Defaults to {@code false} for tests. For other environment types, an absent value
+     * means {@code true}.
+     */
+    private final EnvSetting<Boolean> checkDuplicateEntityStates =
+            new EnvSetting<>(Tests.class, () -> false);
+
+    /**
+     * The record of which open domain Bounded Context serves which entity state type.
+     *
+     * <p>Unlike the settings, is not cleared on {@link #reset()}, because it describes
+     * the contexts that are still open.
+     */
+    private final ServedStateTypes servedStateTypes = new ServedStateTypes();
 
     /**
      * Provides schedulers used by all {@code CommandBus} instances of this environment.
@@ -274,6 +290,44 @@ public final class ServerEnvironment implements Closeable {
         return result;
     }
 
+    /**
+     * Obtains the names of the open domain Bounded Contexts that serve entities with
+     * the given state type.
+     *
+     * <p>The list has more than one name only if the check of duplicate entity states was
+     * {@linkplain TypeConfigurator#checkDuplicateEntityStates(boolean) off} when the contexts
+     * were given their repositories. This is the default in tests.
+     *
+     * @param stateType
+     *         the state type of the entities
+     * @return the names of the contexts in the order they started serving the type,
+     *         or an empty list if no open domain context serves it
+     */
+    @Internal
+    public ImmutableList<BoundedContextName> contextsServing(TypeUrl stateType) {
+        return servedStateTypes.contextsServing(stateType);
+    }
+
+    /**
+     * Records that the given domain context serves entities with the given state type.
+     *
+     * @throws DuplicateEntityStateException
+     *         if another open domain context already serves the type, and the check of
+     *         duplicate entity states is on
+     */
+    void serve(BoundedContext context, TypeUrl stateType) {
+        var check = checkDuplicateEntityStates.optionalValue(environment().type())
+                                              .orElse(true);
+        servedStateTypes.serve(context, stateType, check);
+    }
+
+    /**
+     * Records that the given context, which is closing, no longer serves any entities.
+     */
+    void forget(BoundedContext context) {
+        servedStateTypes.forget(context);
+    }
+
     private static Environment environment() {
         return Environment.instance();
     }
@@ -286,6 +340,7 @@ public final class ServerEnvironment implements Closeable {
         transportFactory.reset();
         tracerFactory.reset();
         storageFactory.reset();
+        checkDuplicateEntityStates.reset();
         delivery.reset();
         var currentEnv = environment().type();
         delivery.use(Delivery.local(), currentEnv);
@@ -501,6 +556,26 @@ public final class ServerEnvironment implements Closeable {
                 var wrapped = wrap(factory);
                 return wrapped;
             }, type);
+            return this;
+        }
+
+        /**
+         * Turns on or off the check that entities with a given state type are served by
+         * only one open domain Bounded Context at a time.
+         *
+         * <p>When the check is on, adding a repository to a context fails with
+         * {@link DuplicateEntityStateException} if another open domain context already serves
+         * entities with the same state type. A context stops serving its entities
+         * when it is closed.
+         *
+         * <p>By default, the check is off for {@link Tests} and on for other environment types.
+         *
+         * @param check
+         *         {@code true} to turn the check on, {@code false} to turn it off
+         */
+        @CanIgnoreReturnValue
+        public TypeConfigurator checkDuplicateEntityStates(boolean check) {
+            se.checkDuplicateEntityStates.use(check, type);
             return this;
         }
     }
