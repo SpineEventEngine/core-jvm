@@ -82,6 +82,7 @@ import static io.spine.server.delivery.CatchUpStatus.IN_PROGRESS;
 import static io.spine.server.delivery.CatchUpStatus.STARTED;
 import static io.spine.server.delivery.DeliveryStrategy.newIndex;
 import static io.spine.server.route.EventRoute.noTargets;
+import static io.spine.util.Exceptions.newIllegalStateException;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
@@ -239,8 +240,8 @@ import static java.util.stream.Collectors.toSet;
  *
  *      <li>Each {@link ShardProcessingRequested} event triggers the {@code Delivery} to read
  *      and dispatch the signals from a specific shard. Being sent, these events are dispatched
- *      to a special system {@link ShardMaintenanceProcess} serving as a handler. By reacting
- *      to a {@code ShardProcessingRequested}, the latter maintenance process emits
+ *      to the {@link ShardMaintenanceProcess} of this catch-up process, serving as a handler.
+ *      By reacting to a {@code ShardProcessingRequested}, the latter maintenance process emits
  *      a {@link ShardProcessed} event, telling that the {@code Delivery} has worked its way
  *      through the messages present in this shard.
  *
@@ -289,6 +290,12 @@ public final class CatchUpProcess<I>
     private final CatchUpStorage storage;
     private final CatchUpStarter.Builder<I> starterTemplate;
     private final Limit queryLimit;
+    private final ShardMaintenanceProcess maintenance;
+
+    /**
+     * The type URL of the projections caught up by this process.
+     */
+    private final String projectionType;
 
     private @MonotonicNonNull CatchUpStarter<I> catchUpStarter;
     private @MonotonicNonNull Supplier<EventStore> eventStore;
@@ -298,7 +305,13 @@ public final class CatchUpProcess<I>
         this.dispatchOperation = builder.getDispatchOp();
         this.storage = builder.getStorage();
         this.queryLimit = limitOf(builder.getPageSize());
-        this.starterTemplate = CatchUpStarter.newBuilder(builder.getRepository(), this.storage);
+        var repository = builder.getRepository();
+        var stateType = repository.entityStateType();
+        this.projectionType = stateType.value();
+        this.starterTemplate = CatchUpStarter.newBuilder(repository, this.storage);
+        var delivery = ServerEnvironment.instance()
+                                        .delivery();
+        this.maintenance = new ShardMaintenanceProcess(delivery, stateType);
     }
 
     @Internal
@@ -307,6 +320,12 @@ public final class CatchUpProcess<I>
         return new CatchUpProcessBuilder<>(repo);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Also registers, in the same context, the process maintaining the shards for
+     * the catch-ups performed by this process.
+     */
     @Override
     @Internal
     public void registerWith(BoundedContext context) {
@@ -315,6 +334,8 @@ public final class CatchUpProcess<I>
                                        .eventStore();
         this.catchUpStarter = starterTemplate.withContext(context)
                                              .build();
+        context.internalAccess()
+               .registerEventDispatcher(maintenance);
     }
 
     /**
@@ -821,6 +842,17 @@ public final class CatchUpProcess<I>
      */
     private ProjectionRepository<I, ?, ?> repository() {
         var id = builder().getId();
+        return repositoryOf(id);
+    }
+
+    /**
+     * Loads the repository of the projections caught up by the catch-up job with
+     * the given ID from the {@link CatchUpRepositories} cache.
+     *
+     * @throws IllegalStateException
+     *         if there is no repository of the job's projection type in the cache
+     */
+    private static <I> ProjectionRepository<I, ?, ?> repositoryOf(CatchUpId id) {
         var projectionType = TypeUrl.parse(id.getProjectionType());
         ProjectionRepository<I, ?, ?> result = CatchUpRepositories.cache()
                                                                   .get(projectionType);
@@ -851,13 +883,16 @@ public final class CatchUpProcess<I>
     /**
      * {@inheritDoc}
      *
-     * <p>Ensures that the passed signal is an instance of the supported types.
+     * <p>Ensures that the passed signal is an instance of the supported types and belongs to
+     * a catch-up of the projection type served by this process. Thus, a Bounded Context
+     * with several catch-up processes stores each signal once.
      */
     @Override
     public boolean canDispatch(EventEnvelope envelope) {
-        var message = envelope.message();
-        return message instanceof CatchUpSignal
-                || message instanceof ShardProcessed;
+        var jobs = route(envelope);
+        return !jobs.isEmpty()
+                && jobs.stream()
+                       .allMatch(job -> projectionType.equals(job.getProjectionType()));
     }
 
     @SuppressWarnings("ChainOfInstanceofChecks")    // Handling two distinct cases.
@@ -881,6 +916,53 @@ public final class CatchUpProcess<I>
     private static ImmutableSet<CatchUpId> routeCatchUpSignal(EventMessage message) {
         var signal = (CatchUpSignal) message;
         return ImmutableSet.of(signal.getId());
+    }
+
+    /**
+     * Returns the catch-up process of the repository whose projections are caught up by
+     * the catch-up job with the given ID.
+     *
+     * <p>Each projection repository has a catch-up process of its own. Thus, the job runs on
+     * the process of its own repository and posts its events in the Bounded Context of that
+     * repository.
+     *
+     * @param id
+     *         the ID of the catch-up job
+     * @return the catch-up process of the repository
+     * @throws IllegalStateException
+     *         if there is no open repository of the job's projection type that has
+     *         its catch-up process registered
+     */
+    @Override
+    @Internal
+    protected CatchUpProcess<?> reactorFor(CatchUpId id) {
+        return processOf(id);
+    }
+
+    /**
+     * Obtains the process catching up the projections of the type that the catch-up job
+     * with the given ID is for.
+     *
+     * @throws IllegalStateException
+     *         if there is no open repository of that projection type that has
+     *         its catch-up process registered
+     */
+    static CatchUpProcess<?> processOf(CatchUpId id) {
+        ProjectionRepository<?, ?, ?> repository = repositoryOf(id);
+        var process = repository.catchUpProcess();
+        if (process == null || !repository.isOpen()) {
+            throw newIllegalStateException(
+                    "There is no catch-up process for the projections of type `%s`.",
+                    id.getProjectionType());
+        }
+        return process;
+    }
+
+    /**
+     * Returns the process maintaining the shards for the catch-ups of this process.
+     */
+    ShardMaintenanceProcess maintenance() {
+        return maintenance;
     }
 
     @Override

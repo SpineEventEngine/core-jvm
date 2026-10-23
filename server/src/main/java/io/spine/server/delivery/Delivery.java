@@ -24,7 +24,6 @@ import io.spine.annotation.VisibleForTesting;
 import io.spine.core.BoundedContextName;
 import io.spine.core.BoundedContextNames;
 import io.spine.logging.WithLogging;
-import io.spine.server.BoundedContext;
 import io.spine.server.ContextSpec;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.bus.MulticastDispatchListener;
@@ -205,11 +204,11 @@ import static java.util.Collections.synchronizedList;
  *
  * <h3>Shard maintenance</h3>
  *
- * <p>To perform the maintenance procedures, the {@code Delivery} requires all the {@code
- * BoundedContext}s to register themselves in it. Upon this registration, a special
- * {@link ShardMaintenanceProcess} is registered as an event dispatcher in a passed
- * {@code BoundedContext}. Such a registration is performed automatically when the context is
- * {@linkplain  io.spine.server.BoundedContextBuilder#build() built}.
+ * <p>A catch-up of projections relies on the {@code Delivery} to process every shard
+ * the catch-up affects, both before the catch-up completes and right after it. The catch-up
+ * process requests this by emitting special events. The dispatchers handling them are
+ * registered automatically, along with the catch-up process, in the {@code BoundedContext}
+ * of each projection repository.
  */
 @SuppressWarnings({"OverlyCoupledClass", "ClassWithTooManyMethods"}) // It's fine for a centerpiece.
 public final class Delivery implements WithLogging {
@@ -703,22 +702,6 @@ public final class Delivery implements WithLogging {
         CatchUpRepositories.cache().put(repo);
         return builder.setStorage(catchUpStorage)
                       .setPageSize(catchUpPageSize);
-    }
-
-    /**
-     * Registers the internal {@code Delivery} message dispatchers
-     * in the given {@code BoundedContext}.
-     *
-     * <p>The registration of the dispatchers allows one to handle the
-     * {@code Delivery}-specific events.
-     *
-     * @param context
-     *         Bounded Context in which the message dispatchers should be registered
-     */
-    @Internal
-    public void registerDispatchersIn(BoundedContext context) {
-        context.internalAccess()
-               .registerEventDispatcher(new ShardMaintenanceProcess(this));
     }
 
     /**

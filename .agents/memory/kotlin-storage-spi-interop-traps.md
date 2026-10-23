@@ -1,6 +1,6 @@
 ---
 name: kotlin-storage-spi-interop-traps
-description: Two traps when writing Kotlin over the Java storage SPI — `ExtractId` method refs fail under K2 (nullable Guava SAM), and proto-DSL receiver properties shadow function parameters
+description: Two traps when writing Kotlin over the Java storage SPI — `ExtractId` method refs fail under K2 (nullable Guava SAM), and proto-DSL builder properties shadow non-local names (outer-receiver members, top-level declarations), but not parameters or locals
 metadata:
   type: project
 ---
@@ -15,12 +15,25 @@ the planned `ProcessManager` journaling PR will meet both again.
    `RecordSpec(..., { record -> requireNotNull(record).id }, columns)` — and keep the
    one-line comment explaining the nullability comes from the SAM, not the framework.
 
-2. **Inside a proto-DSL block, receiver properties shadow outer parameters.**
-   In `entityEventRecord { this.event = event }` the RHS `event` resolves to the
-   builder's own property (default instance), silently self-assigning. Bind the
-   parameter to a differently-named local before the block
-   (`val emitted = event`) and assign from that. Applies to any generated
-   `foo { }` DSL whose field names collide with locals/params in scope.
+2. **Inside a proto-DSL block, builder properties shadow non-local names, not parameters.**
+   Kotlin resolves a bare name to locals and parameters first — of the function and of
+   any enclosing lambda — and only then to the members of implicit receivers, innermost
+   first, and to top-level declarations last.
+   - Safe: `fun toRecord(event: Event) = entityEventRecord { this.event = event }`
+     assigns the parameter, so no renamed local is needed.
+   - The silent trap: a field name that collides with a non-local name. Such a name is
+     a member of an outer receiver (the enclosing class, its companion, an outer `with`,
+     `apply` or `alter` block) or a top-level declaration. Inside a class with
+     a `seconds` property, `timestamp { this.seconds = seconds }` assigns the builder's
+     own `seconds` to itself, because the right-hand side is the builder's property, not
+     the class's. Qualify the outer member (`this@Outer.seconds`) or the top-level name
+     (`pkg.seconds`), or bind either to a local before the block.
+
+   Verified twice, so do not revert to the opposite rule, which an earlier version of this
+   item stated. A throwaway spec for the `SpecScanner` fix found that a parameter wins.
+   On 2026-10-07, a probe compiled with `kotlinc` 2.3.21 against a protoc-generated DSL
+   (`protobuf-kotlin` 4.36.0) confirmed that finding: a function or lambda parameter wins,
+   while a property of the enclosing class and a top-level property are both shadowed.
 
 **Why:** both fail (1) or corrupt data (2) without any warning at the call site.
 

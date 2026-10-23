@@ -1,32 +1,21 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.delivery;
 
 import io.spine.annotation.Internal;
+import io.spine.base.Errors;
 import io.spine.base.Time;
 import io.spine.server.delivery.event.ShardProcessed;
 import io.spine.server.delivery.event.ShardProcessingRequested;
@@ -38,14 +27,24 @@ import io.spine.server.stand.Stand;
 import io.spine.server.type.EventEnvelope;
 import io.spine.type.TypeUrl;
 
+import static io.spine.server.delivery.CatchUpProcess.processOf;
 import static io.spine.server.dispatch.DispatchOutcomes.sentToInbox;
 import static io.spine.util.Exceptions.newIllegalStateException;
+import static java.lang.String.format;
 
 /**
  * The framework-internal process performing the maintenance of delivery shards.
  *
+ * <p>Each {@link CatchUpProcess} has a shard maintenance process of its own, registered in
+ * the same Bounded Context. The shard maintenance process handles the requests of that
+ * catch-up process only.
+ *
  * <p>Has its own {@link Inbox}, so the messages arriving to it are dispatched
- * by the {@link Delivery}.
+ * by the {@link Delivery}. As the {@code Delivery} keeps one {@code Inbox} per state type,
+ * it delivers the requests of all catch-up processes through the {@code Inbox} of
+ * the shard maintenance process created last. That process passes each request to the shard
+ * maintenance process of the catch-up process that made the request. Thus, the resulting
+ * {@code ShardProcessed} event is posted in the Bounded Context of that catch-up process.
  */
 final class ShardMaintenanceProcess extends AbstractEventReactor {
 
@@ -54,11 +53,24 @@ final class ShardMaintenanceProcess extends AbstractEventReactor {
     private final Inbox<ShardIndex> inbox;
 
     /**
+     * The type URL of the projections caught up by the catch-up process of this
+     * shard maintenance process.
+     */
+    private final String projectionType;
+
+    /**
      * Creates a new instance of the process, creating its own {@code Inbox} using the passed
      * {@code Delivery}.
+     *
+     * @param delivery
+     *         the {@code Delivery} to create the {@code Inbox} with
+     * @param projectionType
+     *         the type of the projections caught up by the catch-up process
+     *         for which the new process maintains the shards
      */
-    ShardMaintenanceProcess(Delivery delivery) {
+    ShardMaintenanceProcess(Delivery delivery, TypeUrl projectionType) {
         super();
+        this.projectionType = projectionType.value();
         Inbox.Builder<ShardIndex> builder = delivery.newInbox(TYPE);
         builder.addEventEndpoint(InboxLabel.REACT_UPON_EVENT, EventEndpoint::new);
         this.inbox = builder.build();
@@ -81,12 +93,34 @@ final class ShardMaintenanceProcess extends AbstractEventReactor {
         return processed;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Accepts only the shard processing requests made by the catch-up process of this
+     * shard maintenance process. Thus, a Bounded Context with several catch-up processes
+     * stores each request once.
+     */
+    @Override
+    public boolean canDispatch(EventEnvelope event) {
+        return event.message() instanceof ShardProcessingRequested request
+                && projectionType.equals(request.getProcess()
+                                                .getProjectionType());
+    }
+
     @Override
     public DispatchOutcome dispatch(EventEnvelope event) {
         var message = (ShardEvent) event.message();
         inbox.send(event)
              .toReactor(message.getIndex());
         return sentToInbox(event, message.getIndex());
+    }
+
+    /**
+     * Reacts to the event and posts the reaction to the Bounded Context
+     * in which this process is registered.
+     */
+    private DispatchOutcome react(EventEnvelope event) {
+        return super.dispatch(event);
     }
 
     /**
@@ -100,7 +134,8 @@ final class ShardMaintenanceProcess extends AbstractEventReactor {
     }
 
     /**
-     * An endpoint dispatching the events to the parent instance of {@code ShardMaintenanceProcess}.
+     * An endpoint dispatching the events to the shard maintenance process of the catch-up
+     * process that requested the processing of a shard.
      */
     private final class EventEndpoint implements MessageEndpoint<ShardIndex, EventEnvelope> {
 
@@ -112,7 +147,26 @@ final class ShardMaintenanceProcess extends AbstractEventReactor {
 
         @Override
         public DispatchOutcome dispatchTo(ShardIndex targetId) {
-            return ShardMaintenanceProcess.super.dispatch(envelope);
+            var request = (ShardProcessingRequested) envelope.message();
+            ShardMaintenanceProcess maintenance;
+            try {
+                maintenance = processOf(request.getProcess()).maintenance();
+            } catch (IllegalStateException e) {
+                return noProcessFor(e);
+            }
+            return maintenance.react(envelope);
+        }
+
+        private DispatchOutcome noProcessFor(IllegalStateException cause) {
+            logger().atWarning().withCause(cause).log(() -> format(
+                    "Cannot dispatch the event `%s` to a shard maintenance process.",
+                    envelope.messageClass()));
+            var outcome = DispatchOutcome
+                    .newBuilder()
+                    .setPropagatedSignal(envelope.messageId())
+                    .setError(Errors.fromThrowable(cause))
+                    .build();
+            return outcome;
         }
 
         @Override

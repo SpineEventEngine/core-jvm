@@ -90,7 +90,13 @@ public abstract class ProjectionRepository<I : Any,
                                            S : ProjectionState<I>> :
     EventDispatchingRepository<I, P, S>() {
 
-    private lateinit var catchUpProcess: CatchUpProcess<I>
+    /**
+     * The process catching up the projections of this repository.
+     *
+     * Is `null` until the process is registered in the Bounded Context of this repository.
+     */
+    @Volatile
+    private var catchUpProcess: CatchUpProcess<I>? = null
 
     /**
      * If projections of this repository are [subscribed][io.spine.core.Subscribe] to
@@ -114,13 +120,30 @@ public abstract class ProjectionRepository<I : Any,
     /**
      * Initializes the catch-up process for the instances of this repository and registers it
      * as an event dispatcher in the same Bounded Context as the repository itself.
+     *
+     * The process is [available][catchUpProcess] only once the context has registered it.
+     * The process itself dispatches the events it emits in reaction to a message. So,
+     * reactions emitted before the registration would find no dispatcher in the context.
      */
     private fun initCatchUp(context: BoundedContext) {
         val delivery = ServerEnvironment.instance().delivery()
         val builder = delivery.newCatchUpProcess(this)
-        catchUpProcess = builder.setDispatchOp(::sendToCatchingUp).build()
-        context.internalAccess().registerEventDispatcher(catchUpProcess)
+        val process = builder.setDispatchOp(::sendToCatchingUp).build()
+        context.internalAccess().registerEventDispatcher(process)
+        catchUpProcess = process
     }
+
+    /**
+     * Obtains the process catching up the projections of this repository.
+     *
+     * The `Delivery` passes the messages of a catch-up of this repository to this process.
+     *
+     * @return The process, or `null` if the process is not registered in
+     *   the Bounded Context of this repository yet.
+     */
+    @Internal
+    @JvmName("catchUpProcess")
+    internal fun catchUpProcess(): CatchUpProcess<I>? = catchUpProcess
 
     /**
      * Adds the endpoints updating the subscribing projections and catching them up.
@@ -305,8 +328,11 @@ public abstract class ProjectionRepository<I : Any,
     public fun catchUp(since: Timestamp, ids: Set<I>?): CatchUpId {
         checkCatchUpTargets(ids)
         checkCatchUpStartTime(since)
+        val process = checkNotNull(catchUpProcess) {
+            "The repository `$this` is not registered in a Bounded Context."
+        }
         return withCurrentTenant(context().isMultitenant)
-            .evaluate { catchUpProcess.startCatchUp(since, ids) }
+            .evaluate { process.startCatchUp(since, ids) }
     }
 
     private fun checkCatchUpTargets(ids: Set<I>?) {
