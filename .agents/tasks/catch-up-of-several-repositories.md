@@ -20,8 +20,8 @@ and `claude/dazzling-noyce-92ab0c` (repeated catch-ups). See "Coordination".
 - [x] 2026-10-20, at the owner's request: the projection type filter of
       `CatchUpProcess.canDispatch()` restored — see step 7 of "Plan"
 - [x] `master` (`81c6387bb97`, `.572`) merged; no conflicts
-- [x] Version `2.0.0-SNAPSHOT.577` (#1693 took `.573`, #1695 `.575`, #1696 `.576`);
-      the dependency reports regenerated
+- [x] Version `2.0.0-SNAPSHOT.578` (#1693 took `.573`, #1695 `.575`, #1696 `.576`,
+      #1697 `.577`); the dependency reports regenerated
 - [x] Pre-PR checks passed
 - [x] PR #1694 opened on 2026-10-20
 - [x] Bot review of #1694: the endpoint lock shared by the reactors of a state type —
@@ -244,7 +244,9 @@ Verification, with Corretto 17, on the PR head after the merge of `master` and t
   merged at `.575` (`35054d78dfc`); after that merge, this branch is at `.576`. #1695 adds
   status guards to the handlers of `CatchUpProcess`, which merged cleanly with
   the routing. Then #1696 merged at `.576` (`a67ffd4c2ec`), moving the catch-up test
-  fixtures to `testFixtures`; this branch is now at `.577`.
+  fixtures to `testFixtures`. Then #1697 merged at `.577` (`39ef520dc16`), refreshing
+  the dependencies and the Gradle wrapper; the only conflict was the dependency report,
+  and this branch is now at `.578`.
 
 ## Observations, not in this change
 
