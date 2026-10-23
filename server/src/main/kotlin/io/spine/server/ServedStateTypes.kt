@@ -25,8 +25,11 @@ import io.spine.type.TypeUrl
  * When the check is off, the record still keeps every context that serves the type,
  * so that [contextsServing] can tell about all of them.
  *
- * Contexts are told apart by identity, not by [name][BoundedContext.equals],
- * because two different contexts may have the same name, and each of them must be recorded.
+ * Contexts are told apart by identity, not by [name][BoundedContext.equals], because in tests
+ * many contexts have the same name: [BoundedContextBuilder.assumingTests], which `BlackBox`
+ * also uses, names each of them `AssumingTests`. Each of these contexts must be recorded.
+ * In an application, two contexts with one name would be a mistake. Comparing by identity
+ * lets the check report it, instead of taking the second context for the first one.
  */
 internal class ServedStateTypes {
 
