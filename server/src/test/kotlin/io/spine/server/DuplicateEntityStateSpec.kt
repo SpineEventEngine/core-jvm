@@ -114,7 +114,7 @@ internal class DuplicateEntityStateSpec {
             }
 
             error.message shouldBe "The entity state type `spine.test.delivery.Calc` cannot be" +
-                    " served by more than one domain Bounded Context: `First`, `Second`." +
+                    " served by more than one Bounded Context: `First`, `Second`." +
                     " Register the repository of this type in one Bounded Context only."
         }
     }

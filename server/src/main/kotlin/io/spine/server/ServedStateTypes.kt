@@ -19,7 +19,7 @@ import io.spine.core.BoundedContextName
 import io.spine.type.TypeUrl
 
 /**
- * The record of which open domain Bounded Context serves which entity state type.
+ * The record of which open Bounded Context serves which entity state type.
  *
  * When the check is on, the record lets only one open context serve a state type.
  * When the check is off, the record still keeps every context that serves the type,
@@ -35,7 +35,7 @@ internal class ServedStateTypes {
     /**
      * Records that the given context serves entities with the given state type.
      *
-     * @param context The domain context to which a repository is being added.
+     * @param context The context to which a repository is being added.
      * @param stateType The state type of the entities of the repository.
      * @param check If `true`, the context is not recorded when another open context
      *   already serves the type, and the method throws instead.

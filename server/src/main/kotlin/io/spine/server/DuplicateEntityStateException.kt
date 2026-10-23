@@ -21,7 +21,7 @@ import io.spine.type.TypeUrl
 import java.io.Serial
 
 /**
- * An exception thrown when more than one open domain Bounded Context of a JVM serves
+ * An exception thrown when more than one open Bounded Context of a JVM serves
  * entities with the same state type.
  *
  * All Bounded Contexts of a JVM share one [Delivery][io.spine.server.delivery.Delivery],
@@ -51,7 +51,7 @@ public class DuplicateEntityStateException(
         ): String {
             val type = Diags.backtick(stateType.typeName())
             val names = contexts.map { it.value }.joinBackticked()
-            return "The entity state type $type cannot be served by more than one domain" +
+            return "The entity state type $type cannot be served by more than one" +
                     " Bounded Context: $names." +
                     " Register the repository of this type in one Bounded Context only."
         }

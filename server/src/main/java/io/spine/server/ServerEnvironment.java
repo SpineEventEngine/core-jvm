@@ -86,12 +86,11 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * of the respective {@code ServerEnvironment} for those Bounded Contexts. In this way,
  * the Contexts would reside in their own JVMs and not overlap on interacting with this singleton.
  *
- * <p>Within a JVM, entities with a given state type can be served by only one domain
- * Bounded Context. All Bounded Contexts share one {@link Delivery}, which finds
- * the entities that receive a message by their state type only. Adding a repository to
- * a context when another domain context already serves the same entity state type fails with
- * {@link DuplicateEntityStateException}. The check is
- * {@linkplain TypeConfigurator#checkDuplicateEntityStates(boolean) off} in tests by default.
+ * <p>Within a JVM, entities with a given state type can be served by only one
+ * Bounded Context. Adding a repository to a context when another context already serves
+ * the same entity state type fails with {@link DuplicateEntityStateException}.
+ * The check is {@linkplain TypeConfigurator#checkDuplicateEntityStates(boolean) off}
+ * in tests by default.
  */
 public final class ServerEnvironment implements Closeable {
 
@@ -138,8 +137,8 @@ public final class ServerEnvironment implements Closeable {
             new EnvSetting<>(Tests.class, InMemoryTransportFactory::newInstance);
 
     /**
-     * Tells if adding a repository to a domain Bounded Context fails when another open
-     * domain context serves entities with the same state type.
+     * Tells if adding a repository to a Bounded Context fails when another open
+     * context serves entities with the same state type.
      *
      * <p>Defaults to {@code false} for tests. For other environment types, an absent value
      * means {@code true}.
@@ -148,7 +147,7 @@ public final class ServerEnvironment implements Closeable {
             new EnvSetting<>(Tests.class, () -> false);
 
     /**
-     * The record of which open domain Bounded Context serves which entity state type.
+     * The record of which open Bounded Context serves which entity state type.
      *
      * <p>Unlike the settings, it is not cleared on {@link #reset()}, because it describes
      * the contexts that are still open.
@@ -291,7 +290,7 @@ public final class ServerEnvironment implements Closeable {
     }
 
     /**
-     * Obtains the names of the open domain Bounded Contexts that serve entities with
+     * Obtains the names of the open Bounded Contexts that serve entities with
      * the given state type.
      *
      * <p>The list has more than one name only if the check of duplicate entity states was
@@ -301,7 +300,7 @@ public final class ServerEnvironment implements Closeable {
      * @param stateType
      *         the state type of the entities
      * @return the names of the contexts in the order they started serving the type,
-     *         or an empty list if no open domain context serves it
+     *         or an empty list if no open context serves it
      */
     @Internal
     public ImmutableList<BoundedContextName> contextsServing(TypeUrl stateType) {
@@ -309,12 +308,12 @@ public final class ServerEnvironment implements Closeable {
     }
 
     /**
-     * Records that the given domain context serves entities with the given state type.
+     * Records that the given context serves entities with the given state type.
      *
      * @return {@code true} if this call recorded the context for the type,
      *         {@code false} if the context had been recorded for it before
      * @throws DuplicateEntityStateException
-     *         if another open domain context already serves the type, and the check of
+     *         if another open context already serves the type, and the check of
      *         duplicate entity states is on
      */
     boolean serve(BoundedContext context, TypeUrl stateType) {
@@ -570,10 +569,10 @@ public final class ServerEnvironment implements Closeable {
 
         /**
          * Turns on or off the check that entities with a given state type are served by
-         * only one domain Bounded Context.
+         * only one Bounded Context.
          *
          * <p>When the check is on, adding a repository to a context fails with
-         * {@link DuplicateEntityStateException} if another open domain context already serves
+         * {@link DuplicateEntityStateException} if another open context already serves
          * entities with the same state type. In tests, which build many contexts in one JVM,
          * closing a context at the end of a test frees its entity state types.
          *

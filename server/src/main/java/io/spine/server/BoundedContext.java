@@ -197,7 +197,7 @@ public abstract class BoundedContext
      * Adds the passed repository to the context.
      *
      * @throws DuplicateEntityStateException
-     *         if another open domain context already serves entities with the same state type,
+     *         if another open context already serves entities with the same state type,
      *         and the {@linkplain ServerEnvironment.TypeConfigurator#checkDuplicateEntityStates
      *         check} is on
      */
