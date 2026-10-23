@@ -35,8 +35,8 @@ import org.junit.jupiter.api.Test
 @DisplayName("`ArtifactComponents` should")
 internal class ArtifactComponentsSpec {
 
-    @Nested
-    inner class `describe a bundled package` {
+    @Nested inner class
+    `describe a bundled package` {
 
         @Test
         fun `as contained in the artifact rather than a dependency of it`() {
@@ -157,8 +157,8 @@ internal class ArtifactComponentsSpec {
         }
     }
 
-    @Nested
-    inner class `keep` {
+    @Nested inner class
+    keep {
 
         @Test
         fun `the dependencies of the artifact as they are`() {
@@ -192,8 +192,8 @@ internal class ArtifactComponentsSpec {
         }
     }
 
-    @Nested
-    inner class `leave out` {
+    @Nested inner class
+    `leave out` {
 
         @Test
         fun `a package the artifact neither depends on nor bundles`() {
@@ -269,8 +269,8 @@ internal class ArtifactComponentsSpec {
         }
     }
 
-    @Nested
-    inner class `reject a document` {
+    @Nested inner class
+    `reject a document` {
 
         @Test
         fun `describing no package`() {

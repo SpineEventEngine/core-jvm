@@ -15,7 +15,8 @@
 package io.spine.gradle.github.pages
 
 /**
- * An author of updates to GitHub pages.
+ * The email of the author of the commits that publish the API documentation
+ * to GitHub Pages.
  */
 class AuthorEmail(val value: String) {
 

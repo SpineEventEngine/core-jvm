@@ -110,7 +110,7 @@ internal object PublicationSbom {
     /**
      * The extension of a published SBOM, as in `<artifactId>-<version>.spdx.json`.
      */
-    private const val sbomExtension = "spdx.json"
+    const val sbomExtension = "spdx.json"
 
     /**
      * The [platform][KotlinTarget.platform] under which a JVM module looks up the modules
@@ -154,7 +154,7 @@ internal object PublicationSbom {
      * Whether a project is a JVM or a multiplatform module is known only once it is
      * evaluated, so the registration waits until then. It is idempotent, because
      * `spinePublishing { }` may reach one project twice, as the documentation of
-     * `getOrRegister` in `PublicationChecksums.kt` explains.
+     * [PublicationChecksums.registerTasks] explains.
      */
     fun registerTasks(host: Project, published: Set<Project>) {
         published.forEach { project ->

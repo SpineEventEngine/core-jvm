@@ -19,9 +19,11 @@ package io.spine.dependency.local
  *
  * @see <a href="https://github.com/SpineEventEngine/testlib">spine-testlib</a>
  */
-@Suppress("ConstPropertyName")
+@Suppress(
+    "ConstPropertyName" /* We use a custom convention for artifact properties. */,
+)
 object TestLib {
-    const val version = "2.0.0-SNAPSHOT.215"
+    const val version = "2.0.0-SNAPSHOT.216"
     const val group = Spine.toolsGroup
     const val artifact = "base-testlib"
     const val lib = "$group:$artifact:$version"

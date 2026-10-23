@@ -17,16 +17,43 @@
 # (distributed by `config`), so `git worktree add` always checks it out — it can
 # therefore bring `config` itself into existence.
 #
-# It initializes ONLY submodules that are BOTH:
+# It acts ONLY on submodules that are BOTH:
 #
-#   * not yet checked out — those `git submodule status` marks with a leading `-`,
-#     at the commit the branch pins; and
+#   * not yet checked out — those `git submodule status` marks with a leading
+#     `-`; and
 #
 #   * config-managed — `config` itself (the bootstrap target `pull` lives inside,
 #     which carries no tracked `branch` in a consumer's `.gitmodules`), plus every
 #     submodule that declares a tracked `branch` in `.gitmodules`. This is exactly
 #     the rule `./config/pull` uses to decide what it floats, so the two scripts
 #     can never disagree about what is shared.
+#
+# Such a submodule is initialized and then advanced to the tip of its tracked
+# branch, the way `./config/pull` floats it — NOT left at the commit the
+# superproject pins. That pin is not a version anyone maintains: `.gitmodules`
+# declares `ignore = all` for `.agents/shared`, which hides the submodule from
+# `git status` and `git diff`, and `./config/pull` floats the on-disk copy without
+# ever committing the moved gitlink. The pin therefore still holds the value it
+# had on the day the submodule was adopted; an audit of all 19 Spine consumer
+# repositories on 2026-10-16 found every one of them months stale. Materializing
+# it hands a fresh worktree, CI checkout, or cloud session hook scripts, skills,
+# and guidelines that are months out of date.
+#
+# A submodule may declare `branch = .`, which gitmodules(5) defines as the branch
+# the superproject is on rather than a branch name. It is resolved before it
+# reaches a refspec, because `git fetch origin .` is a `fatal: invalid refspec`.
+# Nothing in Spine declares it today — `.agents/shared` tracks `agents`' `master`
+# whatever branch the consumer is on — but it is valid in any `.gitmodules`.
+#
+# Neither the clone nor the float can fail the session start. With no network at
+# all the clone is what fails: the submodule is left uninitialized and the
+# symlinks keep dangling until a run that has a network, exactly as before this
+# script floated anything. A float that fails after a successful clone — a branch
+# the remote does not have, a fetch that dies midway, a local branch that is not
+# a fast-forward — warns and leaves the submodule wherever the steps that did
+# succeed put it: at worst the pin, a usable, if older, tree. The submodule is
+# checked out by then, so later runs no longer see a `-` line for it and never
+# retry the float — which is why the warning points at `./config/pull`.
 #
 # Consumer-owned submodules (a Hugo theme, a vendored library, documentation
 # examples, ...) declare no tracked branch and are deliberately left untouched.
@@ -35,15 +62,14 @@
 # a submodule this project does not manage, on every single start. They are
 # skipped (noted on stderr).
 #
-# Submodules already present are left exactly as they are, so a tree that floated
-# `config` / `.agents/shared` to a branch tip via `./config/pull` is never
-# silently rewound to the pin. That makes the script idempotent and safe to run on
-# every session start.
+# Submodules already present are left exactly as they are, neither rewound to the
+# pin nor advanced. That keeps the script idempotent, keeps the runs that find
+# nothing missing free of network access, and never disturbs a tree whose
+# submodules someone deliberately parked on a particular commit. Run
+# `./config/pull` to float those.
 #
-# It does NOT float submodules to their branch tips — run `./config/pull`
-# afterwards for that. Unlike `pull`, it depends on no pre-existing `config`
-# submodule, so it can bootstrap a bare worktree where `./config/pull` does not
-# yet exist.
+# Unlike `pull`, this script depends on no pre-existing `config` submodule, so it
+# can bootstrap a bare worktree where `./config/pull` does not yet exist.
 #
 ################################################################################
 
@@ -133,19 +159,29 @@ cd "$root" || exit 0
 # Nothing to do in a repo without submodules.
 [ -f .gitmodules ] || exit 0
 
-# The set of config-managed submodule paths: `config` itself (handled specially —
-# it carries no tracked branch, exactly as in `./config/pull`), plus every
-# submodule declaring a tracked `branch` in `.gitmodules`. Mirrors `pull`'s rule.
-config_managed_paths() {
-    printf '%s\n' 'config'
+# The config-managed submodules, as `path<TAB>branch` lines: every submodule that
+# declares a tracked `branch` in `.gitmodules`, plus `config` itself — which
+# carries no tracked branch in a consumer's `.gitmodules`, and which
+# `./config/pull` floats to `master` in its step 1. Mirrors `pull`'s rule. The
+# declared entries come first, so a `.gitmodules` that does give `config` a
+# tracked branch wins over that default.
+config_managed() {
     git config -f .gitmodules --get-regexp '^submodule\..*\.branch$' 2>/dev/null \
-    | while read -r key _branch; do
+    | while read -r key branch; do
         name=${key#submodule.}; name=${name%.branch}
-        git config -f .gitmodules --get "submodule.$name.path" 2>/dev/null
+        path=$(git config -f .gitmodules --get "submodule.$name.path" 2>/dev/null) || continue
+        printf '%s\t%s\n' "$path" "$branch"
     done
+    printf '%s\t%s\n' 'config' 'master'
 }
 
-managed=$(config_managed_paths | sort -u)
+managed=$(config_managed)
+
+# The branch the submodule at `$1` tracks; empty when that path is not
+# config-managed at all. The first match wins, as noted above.
+tracked_branch() {
+    printf '%s\n' "$managed" | awk -F'\t' -v path="$1" '$1 == path { print $2; exit }'
+}
 
 # `git submodule status` prefixes each uninitialized submodule with `-`; an
 # initialized one starts with a space (at the pinned commit) or `+` (ahead of it).
@@ -153,13 +189,97 @@ managed=$(config_managed_paths | sort -u)
 # that path is config-managed.
 git submodule status 2>/dev/null | awk '$1 ~ /^-/ { print $2 }' | while read -r path; do
     [ -n "$path" ] || continue
-    if printf '%s\n' "$managed" | grep -qxF -- "$path"; then
-        echo "init-submodules: initializing '$path'"
-        git submodule update --init --recursive -- "$path" \
-            || echo "init-submodules: WARNING — could not initialize '$path' (offline?)." >&2
-    else
+    branch=$(tracked_branch "$path")
+    if [ -z "$branch" ]; then
         echo "init-submodules: skipping consumer-owned '$path' (not config-managed)." >&2
+        continue
     fi
+    echo "init-submodules: initializing '$path'"
+    git submodule update --init --recursive -- "$path" </dev/null || {
+        echo "init-submodules: WARNING — could not initialize '$path' (offline?)." >&2
+        continue
+    }
+    # `.gitmodules` may declare `branch = .`, which gitmodules(5) defines as the
+    # branch the superproject itself is on. That is a sentinel, not a ref: passed
+    # through, it dies with `fatal: invalid refspec '.'`, and because the clone
+    # has already succeeded by then the submodule would keep the pin and never be
+    # retried. Resolve it to the current branch name. A detached superproject has
+    # no name to inherit, so the float is skipped and the pin kept — the one case
+    # where `./config/pull` is the only way forward, once on a branch.
+    if [ "$branch" = "." ]; then
+        # `git branch --show-current` prints the name exactly, and prints nothing
+        # when `HEAD` is detached. `git rev-parse --abbrev-ref HEAD` cannot stand
+        # in: it shortens to a *non-ambiguous* name, so a superproject carrying
+        # both a branch and a tag called `foo` yields `heads/foo`; the fetch
+        # then succeeds but the checkout fails, leaving this freshly
+        # initialized submodule stale and never retried. `./config/pull`
+        # resolves it the same way, for the same reason.
+        branch=$(git branch --show-current 2>/dev/null)
+        if [ -z "$branch" ]; then
+            echo "init-submodules: WARNING — '$path' tracks the superproject's" \
+                 "branch ('.'), which is detached here; left at the pin. Run" \
+                 "'./config/pull' from a branch to float it." >&2
+            continue
+        fi
+    fi
+    # What that just checked out is the superproject's pin, which nobody
+    # maintains (see the header). Advance the fresh checkout to the tip of its
+    # tracked branch, leaving it ON the branch rather than in a detached `HEAD` —
+    # the same three steps `./config/pull` takes in its step 2, both scripts
+    # naming the fetch destination and the checkout start point, for the two
+    # reasons below. A failure leaves the submodule wherever the steps that did
+    # succeed put it, so the warning promises no particular commit, as `pull`'s
+    # does not.
+    #
+    # The fetch names its destination. A bare `git fetch origin <branch>` relies
+    # on the refspec configured for the remote to update
+    # `refs/remotes/origin/<branch>` opportunistically as well, which a full
+    # clone's does. But a submodule declaring `shallow = true` in `.gitmodules`
+    # is cloned single-branch (a shallow clone implies `--single-branch`), as
+    # `+refs/heads/<default>:refs/remotes/origin/<default>`, so any other tracked
+    # branch lands in `FETCH_HEAD` alone, `refs/remotes/origin/<branch>` never
+    # appears, and the checkout below fails. Spelling the refspec out makes the
+    # float work whatever refspec the clone carries, and the leading `+` matches
+    # what a default clone configures.
+    #
+    # The checkout asks whether the branch exists locally rather than letting Git
+    # work it out, because both answers are otherwise wrong in a reachable case.
+    # A fresh clone has a local branch only for the default branch, so `-b` alone
+    # would fail with `already exists` on the common path. And plain
+    # `git checkout <branch>` is not a reliable substitute: with no local branch
+    # of that name it guesses one from a remote-tracking ref, considering only
+    # refs the remote's fetch refspec covers — so in the single-branch clone
+    # above it fails even though the explicit fetch did create
+    # `refs/remotes/origin/<branch>` — and if the submodule carries a *tag* of
+    # that name it quietly resolves the tag and detaches `HEAD` instead, which
+    # the `--ff-only` below then fast-forwards to the right commit on no branch
+    # at all. Naming the start point avoids both.
+    #
+    # `merge --ff-only` is kept after either path: a local branch that has
+    # diverged from `origin/<branch>` is reported rather than overwritten.
+    # Nothing here force-moves a ref except the remote-tracking ref the fetch
+    # owns, which a default clone force-updates anyway.
+    #
+    # It merges `refs/remotes/origin/<branch>`, not the `origin/<branch>`
+    # shorthand, for the reason the checkout above spells a ref out too.
+    # gitrevisions(7) resolves a bare name through `refs/tags/` BEFORE
+    # `refs/remotes/`, so a tag literally named `origin/<branch>` wins the
+    # shorthand — and then this merge would fast-forward the branch the
+    # checkout just placed exactly onto whatever that tag points at, reporting
+    # success. Every ref in the chain is therefore fully qualified.
+    echo "init-submodules: floating '$path' -> origin/$branch"
+    ( cd "$path" \
+        && git fetch --quiet origin \
+               "+refs/heads/$branch:refs/remotes/origin/$branch" \
+        && if git show-ref --verify --quiet "refs/heads/$branch"; then \
+               git checkout --quiet "$branch"; \
+           else \
+               git checkout --quiet -b "$branch" \
+                   "refs/remotes/origin/$branch"; \
+           fi \
+        && git merge --quiet --ff-only "refs/remotes/origin/$branch" ) </dev/null \
+        || echo "init-submodules: WARNING — could not float '$path' to" \
+                "origin/$branch; run './config/pull' to retry." >&2
 done
 
 # Route Git hooks to the shared hooks directory so the secret-scan `pre-commit`

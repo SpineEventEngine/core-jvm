@@ -70,6 +70,24 @@ internal val MavenPublication.isPluginMarker: Boolean
     get() = name.endsWith("PluginMarkerMaven")
 
 /**
+ * The path to the artifact of this publication in a Maven repository,
+ * such as `io/spine/spine-base`.
+ */
+internal val MavenPublication.repositoryPath: String
+    get() = "${groupId.replace('.', '/')}/$artifactId"
+
+/**
+ * Obtains the name under which a file of this publication with the given [classifier]
+ * and [extension] is published, such as `spine-base-2.0.0-javadoc.jar`.
+ *
+ * A `null` or empty [classifier] means the file has none, as the POM.
+ */
+internal fun MavenPublication.publishedName(classifier: String?, extension: String): String {
+    val suffix = classifier?.takeIf { it.isNotEmpty() }?.let { "-$it" } ?: ""
+    return "$artifactId-$version$suffix.$extension"
+}
+
+/**
  * Obtains an instance, if available, of [SpinePublishing] extension
  * applied to this project.
  */
@@ -203,7 +221,19 @@ private fun TaskContainer.registerCheckCredentialsTask(
     }
 }
 
+/**
+ * Adds an action that fails this task if any of the [destinations] has no credentials.
+ *
+ * The action obtains the credentials with the [Project] of this task. The project is
+ * captured when this function runs, at configuration time, because Gradle deprecates
+ * calling [Task.getProject] at execution time. The configuration cache cannot store
+ * a project, though, so the task is not compatible with it.
+ */
 private fun Task.doLastCredentialsCheck(destinations: Set<Repository>) {
+    val project = project
+    notCompatibleWithConfigurationCache(
+        "Obtaining the credentials of a repository requires the `Project`."
+    )
     doLast {
         if (logger.isDebugEnabled) {
             val isSnapshot = project.version.toString().isSnapshot()

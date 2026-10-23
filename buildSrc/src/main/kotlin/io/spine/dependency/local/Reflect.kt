@@ -19,9 +19,11 @@ package io.spine.dependency.local
  *
  * @see <a href="https://github.com/SpineEventEngine/reflect">spine-reflect</a>
  */
-@Suppress("ConstPropertyName")
+@Suppress(
+    "ConstPropertyName" /* We use a custom convention for artifact properties. */,
+)
 object Reflect {
-    const val version = "2.0.0-SNAPSHOT.202"
+    const val version = "2.0.0-SNAPSHOT.203"
     const val group = Spine.group
     const val artifact = "spine-reflect"
     const val lib = "$group:$artifact:$version"

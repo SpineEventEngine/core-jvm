@@ -24,7 +24,10 @@ object PublishingRepos {
     val cloudArtifactRegistry = CloudArtifactRegistry.repository
 
     /**
-     * Obtains a GitHub repository by the given name.
+     * Obtains the GitHub Packages repository of the given GitHub repository.
+     *
+     * @param slug The name of the GitHub repository of Spine Event Engine, without
+     *   the organization, such as `core-jvm`.
      */
-    fun gitHub(repoName: String): Repository = GitHubPackages.repository(repoName)
+    fun gitHub(slug: String): Repository = GitHubPackages.repository(slug)
 }

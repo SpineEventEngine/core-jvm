@@ -40,8 +40,8 @@ class SpinePublishingTest {
         extension = project.spinePublishing { }
     }
 
-    @Nested
-    inner class `calculate 'artifactId'` {
+    @Nested inner class
+    `calculate 'artifactId'` {
 
         @Test
         fun `with default prefix for non-tool projects`() {
@@ -105,8 +105,8 @@ class SpinePublishingTest {
         }
     }
 
-    @Nested
-    inner class `validate configuration` {
+    @Nested inner class
+    `validate configuration` {
 
         @Test
         fun `ensuring 'testJar' inclusions are published`() {
@@ -155,8 +155,8 @@ class SpinePublishingTest {
         }
     }
 
-    @Nested
-    inner class `identify 'projectsToPublish'` {
+    @Nested inner class
+    `identify 'projectsToPublish'` {
 
         @Test
         fun `as the project itself if no modules are specified`() {
@@ -193,8 +193,8 @@ class SpinePublishingTest {
         }
     }
 
-    @Nested
-    inner class `resolve 'publishTo' repositories` {
+    @Nested inner class
+    `resolve 'publishTo' repositories` {
 
         @Test
         fun `from the extension itself if destinations are initialized`() {

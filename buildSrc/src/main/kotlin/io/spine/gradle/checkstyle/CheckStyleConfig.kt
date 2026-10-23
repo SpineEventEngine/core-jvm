@@ -18,6 +18,7 @@ import io.spine.dependency.build.CheckStyle
 import org.gradle.api.Project
 import org.gradle.api.plugins.quality.CheckstyleExtension
 import org.gradle.api.plugins.quality.CheckstylePlugin
+import org.gradle.kotlin.dsl.exclude
 import org.gradle.kotlin.dsl.the
 
 /**
@@ -49,6 +50,12 @@ object CheckStyleConfig {
         with(project.the<CheckstyleExtension>()) {
             toolVersion = CheckStyle.version
             configDirectory.set(configDir)
+        }
+
+        // Checkstyle needs Doxia only to generate its own website, and Doxia's
+        // dependencies conflict with the versions we force. See `CheckStyle.version`.
+        project.configurations.named("checkstyle") {
+            exclude(group = "org.apache.maven.doxia")
         }
 
         project.afterEvaluate {

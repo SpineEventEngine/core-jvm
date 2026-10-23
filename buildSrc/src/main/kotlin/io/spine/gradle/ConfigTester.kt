@@ -18,17 +18,36 @@ package io.spine.gradle
 
 import java.io.File
 import java.net.URI
+import java.nio.file.FileVisitResult
+import java.nio.file.FileVisitResult.CONTINUE
+import java.nio.file.FileVisitResult.SKIP_SUBTREE
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.SimpleFileVisitor
+import java.nio.file.attribute.BasicFileAttributes
+import kotlin.io.path.copyTo
+import kotlin.io.path.createDirectories
+import kotlin.io.path.exists
+import kotlin.io.path.name
+import kotlin.io.path.notExists
 import org.ajoberstar.grgit.Grgit
 import org.gradle.api.tasks.TaskContainer
+
+/**
+ * The name of the folder with the Gradle build logic of a project.
+ */
+private const val BUILD_SRC = "buildSrc"
 
 /**
  * A tool to execute the Gradle `build` task in selected Git repositories
  * with the local version of [config] contents.
  *
  * Checks out the content of selected repositories into the specified [tempFolder].
- * The folder is created if it does not exist. By default, uses `./tmp` as a temp folder.
+ * The folder is created if it does not exist.
+ *
+ * Both [config] and [tempFolder] must be absolute paths, e.g. obtained from
+ * `layout.projectDirectory`. A relative path is resolved against the working directory
+ * of the Gradle daemon, which is unrelated to the project directory.
  *
  * Replaces the `config` and `buildSrc` folders in the checked-out repository by the local versions
  * of code. If the repository-under-test already contains its own `buildSrc` or `config` folders,
@@ -46,7 +65,7 @@ import org.gradle.api.tasks.TaskContainer
 class ConfigTester(
     private val config: Path,
     private val tasks: TaskContainer,
-    private val tempFolder: File = File("./tmp")
+    private val tempFolder: File
 ) {
 
     companion object {
@@ -57,7 +76,16 @@ class ConfigTester(
         private const val BUILD_TIMEOUT_MINUTES = 30L
     }
 
-    private val buildSrc: Path = config.resolve("buildSrc")
+    init {
+        require(config.isAbsolute) {
+            "The path to `config` must be absolute. Encountered: `$config`."
+        }
+        require(tempFolder.isAbsolute) {
+            "The path to the temp folder must be absolute. Encountered: `$tempFolder`."
+        }
+    }
+
+    private val buildSrc: Path = config.resolve(BUILD_SRC)
 
     /**
      * Git repositories to test.
@@ -75,7 +103,8 @@ class ConfigTester(
     }
 
     /**
-     * Adds a test.
+     * Adds a Git [repo] into the test build by its URI, to be checked out
+     * at the given [branch].
      */
     fun addRepo(repo: URI, branch: Branch): ConfigTester {
         repos.add(GitRepository(repo, branch))
@@ -159,7 +188,9 @@ class GitRepository(
     private val uri: URI,
 
     /**
-     * A branch to checkout.
+     * A branch to check out.
+     *
+     * May be any branch of the repository, not only the default one.
      *
      * By default, points to `master`.
      */
@@ -193,6 +224,9 @@ class GitRepository(
      * the `destinationFolder/foobar` folder.
      *
      * If the supplied folder does not exist, it is created.
+     *
+     * The [branch] is checked out as a local branch tracking its remote counterpart.
+     * A [branch] the remote does not advertise fails the checkout.
      */
     fun checkout(destinationFolder: File): ClonedRepo {
         val preparedFolder = prepareCheckout(destinationFolder).toPath()
@@ -201,16 +235,21 @@ class GitRepository(
                     "to `${preparedFolder.toAbsolutePath()}`."
         )
 
+        // The branch is checked out by the `clone` itself, rather than by a subsequent
+        // `checkout`. A fresh clone has only the default branch among its local refs,
+        // so `checkout` cannot resolve any other branch by its plain name, while
+        // `refToCheckout` is resolved against the refs advertised by the remote,
+        // where every branch of the repository is present.
+        //
+        // Only the checked-out files are of interest further on, so the Git repository
+        // the clone opens is closed right away.
         Grgit.clone(
             mapOf(
                 "dir" to preparedFolder,
-                "uri" to uri
+                "uri" to uri,
+                "refToCheckout" to branch.name
             )
-        ).checkout(
-            mapOf(
-                "branch" to branch.name
-            )
-        )
+        ).close()
         return ClonedRepo(this, preparedFolder)
     }
 
@@ -260,12 +299,35 @@ class ClonedRepo(
      * Optionally, takes an [ignoredFolder] that will be excluded from the [source] paths
      * when copying.
      *
+     * Build output and Git metadata of the [source] are not copied. If the original
+     * `buildSrc` has its own `module.gradle.kts`, the script is preserved.
      *
      * Returns this instance of `ClonedRepo`, for call chaining.
      */
     fun replaceBuildSrc(source: Path, ignoredFolder: Path?): ClonedRepo {
-        replaceFolder("buildSrc", source, ignoredFolder)
+        replaceFolder(BUILD_SRC, source, ignoredFolder)?.let(::restoreModuleScript)
         return this
+    }
+
+    /**
+     * Restores the `module.gradle.kts` script of this repository, if it has one.
+     *
+     * `config` ships this script as an empty template that each project replaces
+     * by its own. The `config/migrate` script preserves the script of a project
+     * when installing `buildSrc` into it, and so must the test build.
+     *
+     * @param originalBuildSrc
+     *         the folder into which the original `buildSrc` of this repository was renamed.
+     */
+    private fun restoreModuleScript(originalBuildSrc: Path) {
+        val ownScript = originalBuildSrc.resolve(MODULE_SCRIPT_PATH)
+        if (!ownScript.exists()) {
+            return
+        }
+        println("Preserving the `$MODULE_SCRIPT_PATH` of `${repo.name}`.")
+        val destination = location.resolve(BUILD_SRC).resolve(MODULE_SCRIPT_PATH)
+        destination.parent.createDirectories()
+        ownScript.copyTo(destination, overwrite = true)
     }
 
     /**
@@ -280,6 +342,8 @@ class ClonedRepo(
      * Optionally, takes an [ignoredFolder] that will be excluded from the [source] paths
      * when copying.
      *
+     * Build output and Git metadata of the [source] are not copied.
+     *
      * Returns this instance of `ClonedRepo`, for call chaining.
      */
     fun replaceConfig(source: Path, ignoredFolder: Path?): ClonedRepo {
@@ -287,19 +351,30 @@ class ClonedRepo(
         return this
     }
 
-    private fun replaceFolder(folderName: String, source: Path, ignoredFolder: Path?) {
+    /**
+     * Replaces the [folderName] folder of this repository by the contents of the [source].
+     *
+     * The original folder, if any, is renamed into `<folderName>-original`.
+     *
+     * Returns the path to which the original folder was renamed, or `null`
+     * if this repository has no such folder.
+     */
+    private fun replaceFolder(folderName: String, source: Path, ignoredFolder: Path?): Path? {
         val folder = location.resolve(folderName)
         val rawFolder = folder.toFile()
+        var renamedInto: Path? = null
         if (rawFolder.exists() && rawFolder.isDirectory) {
-            val toRenameInto = location.resolve(folderName + "-original")
+            val toRenameInto = location.resolve("$folderName-original")
             println("Renaming ${folder.toAbsolutePath()} into ${toRenameInto.toAbsolutePath()}.")
-            rawFolder.renameTo(toRenameInto.toFile())
+            Files.move(folder, toRenameInto)
+            renamedInto = toRenameInto
         }
         println(
             "Copying the files from ${source.toAbsolutePath()} " +
                     "into ${folder.toAbsolutePath()}."
         )
         copyFolder(source, ignoredFolder, folder)
+        return renamedInto
     }
 
     @Suppress("TooGenericExceptionCaught")
@@ -313,22 +388,93 @@ class ClonedRepo(
         }
     }
 
+    /**
+     * Copies the [sourceFolder] into the [destinationFolder], skipping the [ignoredFolder]
+     * along with the build output and the Git metadata.
+     *
+     * A symbolic link to a folder is copied as an empty folder, as the tree is walked
+     * without following the links. A link that does not resolve is skipped: `config`
+     * has such links when its `.agents/shared` submodule is not checked out.
+     */
     private fun copyRecursively(sourceFolder: Path, ignoredFolder: Path?, destinationFolder: Path) {
-        fun Path.isIgnored(): Boolean = ignoredFolder
-            ?.let { toAbsolutePath().startsWith(it.toAbsolutePath()) }
-            ?: false
+        val ignored = ignoredFolder?.toAbsolutePath()
 
-        val flattenedTree = Files.walk(sourceFolder).filter { it.isIgnored().not() }
-        val filesToDestinations = flattenedTree.map { file ->
-            val destination = destinationFolder.resolve(sourceFolder.relativize(file))
-            file to destination
+        fun Path.isIgnored(): Boolean =
+            ignored?.let { toAbsolutePath().startsWith(it) } ?: false
+
+        fun Path.destination(): Path = destinationFolder.resolve(sourceFolder.relativize(this))
+
+        // The tree is walked rather than streamed, so that an entry which is not copied
+        // is not descended into either. During the test build the `tmp` folder alone holds
+        // the full clones of all the tested repositories.
+        Files.walkFileTree(sourceFolder, object : SimpleFileVisitor<Path>() {
+
+            override fun preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult {
+                if (dir != sourceFolder && (dir.isIgnored() || dir.isNonSource())) {
+                    return SKIP_SUBTREE
+                }
+                dir.destination().createDirectories()
+                return CONTINUE
+            }
+
+            override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult {
+                val danglingLink = attrs.isSymbolicLink && file.notExists()
+                if (!danglingLink && !file.isIgnored() && !file.isNonSource()) {
+                    file.copyTo(file.destination())
+                }
+                return CONTINUE
+            }
+        })
+    }
+
+    /**
+     * Tells if this entry holds the output of a build or the Git metadata,
+     * and hence must not be copied.
+     *
+     * The build output of the local `config` is unrelated to the repository under test.
+     * Git metadata additionally holds the IPC sockets of the Git file system monitor;
+     * these cannot be copied at all.
+     *
+     * A `build` folder is recognized only next to a Gradle build script, so that
+     * the source packages named `build` are copied as usual.
+     */
+    private fun Path.isNonSource(): Boolean {
+        if (name in NON_SOURCE_ENTRIES) {
+            return true
         }
+        return name == BUILD_OUTPUT && parent?.holdsGradleBuild() == true
+    }
 
-        val directories = filesToDestinations.filter { Files.isDirectory(it.first) }
-        directories.forEach { Files.createDirectories(it.second) }
+    private fun Path.holdsGradleBuild(): Boolean = BUILD_SCRIPTS.any { resolve(it).exists() }
 
-        val files = filesToDestinations.filter { Files.isDirectory(it.first).not() }
-        files.forEach { Files.copy(it.first, it.second) }
+    private companion object {
+
+        /**
+         * Names of the entries that never hold sources, at any depth of a project.
+         *
+         * @see ClonedRepo.isNonSource
+         */
+        val NON_SOURCE_ENTRIES = setOf(".git", ".gradle", ".kotlin")
+
+        /**
+         * The name of the folder that holds the output of a Gradle build.
+         *
+         * @see ClonedRepo.isNonSource
+         */
+        const val BUILD_OUTPUT = "build"
+
+        /**
+         * The names of the scripts by which a folder is recognized as a Gradle build.
+         */
+        val BUILD_SCRIPTS = setOf("build.gradle.kts", "settings.gradle.kts")
+
+        /**
+         * The path, relative to `buildSrc`, to the script that each project
+         * defines for itself.
+         *
+         * @see ClonedRepo.restoreModuleScript
+         */
+        const val MODULE_SCRIPT_PATH = "src/main/kotlin/module.gradle.kts"
     }
 }
 
@@ -353,5 +499,8 @@ object SpineRepos {
 
 /**
  * A name of a Git branch.
+ *
+ * The [name] is a plain branch name, such as `master` or `grpc-concurrency-fixes`.
+ * Neither the `refs/heads/` prefix nor the name of a remote is expected.
  */
 data class Branch(val name: String)

@@ -20,17 +20,29 @@ Shared skills, scripts, and guidelines come from the `.agents/shared` submodule 
 (and some shallow clones / cloud checkouts) start with NO submodules checked out, so
 those symlinks dangle and no skills are found. Bootstrap such a tree with
 **`./init-submodules`** — a root script that materializes the missing
-*config-managed* submodules at their pinned commits: `config` itself, plus every
-submodule that declares a tracked `branch` in `.gitmodules` (`.agents/shared`, and
-any shared submodule added later) — the same rule `./config/pull` uses to decide
-what it floats. Submodules the consumer owns (a Hugo theme, a vendored library,
-doc-example submodules, …) declare no tracked branch and are left untouched, so the
-automatic `SessionStart` run never tries to clone — or fail on credentials for — a
-submodule this project does not manage. It depends on no pre-existing `config`
-submodule, so it works before `./config/pull` (which lives inside the `config`
-submodule) can. Claude Code runs it automatically via a `SessionStart` hook; other
-agents and humans run it by hand, then `./config/pull` to float the shared submodules
-to their branch tips.
+*config-managed* submodules at the tip of their branch (`master` for `config`, the
+tracked `branch` for the rest): `config` itself, plus every submodule that declares
+a tracked `branch` in `.gitmodules` (`.agents/shared`, and any shared submodule
+added later) — the same rule `./config/pull` uses to decide what it floats. It
+deliberately does not stop at the commit the superproject pins for such a
+submodule: nothing keeps that pin current — `ignore = all` hides the submodule from
+`git status`, and `./config/pull` floats the on-disk copy without committing the
+moved gitlink — so materializing the pin as-is means months-old hook scripts,
+skills, and guidelines. If the float fails — a branch the remote does not have,
+say — a warning is printed and the submodule is left wherever the steps that
+did succeed put it, at worst the pin, so a session still starts with a usable
+tree; it is not retried on a later run, which is why that warning points at
+`./config/pull`. With no network at all the clone itself fails and the
+submodule is left uninitialized, as it was before. Submodules the consumer owns
+(a Hugo theme, a vendored library, doc-example submodules, …) declare no tracked
+branch and are left untouched, so the automatic `SessionStart` run never tries
+to clone — or fail on credentials for — a submodule this project does not
+manage. A submodule that is already checked out is left exactly as it is, which
+keeps repeated runs cheap and offline-safe and never rewinds a tree someone
+parked on a particular commit; run `./config/pull` to float those. It depends on
+no pre-existing `config` submodule, so it works before `./config/pull` (which
+lives inside the `config` submodule) can. Claude Code runs it automatically via
+a `SessionStart` hook; other agents and humans run it by hand.
 
 ## Commit and history safety
 

@@ -21,17 +21,19 @@ import io.spine.gradle.repo.RepoSlug
 import org.gradle.api.Project
 
 /**
- * Clones the current project repository with the branch dedicated to publishing
- * documentation to GitHub Pages checked out.
+ * Clones the branch of the current project repository dedicated to publishing
+ * documentation to GitHub Pages.
  *
  * The repository's GitHub SSH URL is derived from the `REPO_SLUG` environment
  * variable. The [branch][Branch.documentation] dedicated to publishing documentation
- * is automatically checked out in this repository, and created if it does not exist
- * yet. A freshly created branch is seeded with a `CNAME` file so that GitHub Pages
- * serves the documentation under the `spine.io` custom domain. Also, the username
- * and the email of the git user are automatically configured.
+ * is cloned [sparsely][Repository.Factory.cloneSparsely]: its tip holds the documentation
+ * of every published version of every module, while a publication touches the folders
+ * of one module only; the caller [checks them out][Repository.checkOutOnly]. The branch
+ * is created if it does not exist yet. A freshly created branch is seeded with a `CNAME`
+ * file so that GitHub Pages serves the documentation under the `spine.io` custom domain.
+ * Also, the username and the email of the Git user are automatically configured.
  *
- * The username is set to `"UpdateGitHubPages Plugin"`, and the email is derived from
+ * The username is set to `"PublishApiDocs Plugin"`, and the email is derived from
  * the `FORMAL_GIT_HUB_PAGES_AUTHOR` environment variable.
  *
  * @throws org.gradle.api.GradleException if any of the environment variables described above
@@ -40,7 +42,7 @@ import org.gradle.api.Project
 internal fun Repository.Factory.forPublishingDocumentation(project: Project): Repository {
     val host = RepoSlug.fromVar().gitHost()
 
-    val username = "UpdateGitHubPages Plugin"
+    val username = "PublishApiDocs Plugin"
     val userEmail = AuthorEmail.fromVar().toString()
     val user = UserInfo(username, userEmail)
 
@@ -51,5 +53,11 @@ internal fun Repository.Factory.forPublishingDocumentation(project: Project): Re
     // custom domain.
     val initialFiles = mapOf("CNAME" to "spine.io\n")
 
-    return clone(project, host, user, branch, initialFiles)
+    return cloneSparsely(
+        project,
+        sshUrl = host,
+        user = user,
+        branch = branch,
+        initialFiles = initialFiles
+    )
 }

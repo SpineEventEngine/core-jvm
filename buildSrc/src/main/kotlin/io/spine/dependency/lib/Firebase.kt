@@ -17,6 +17,6 @@ package io.spine.dependency.lib
 // https://firebase.google.com/docs/admin/setup#java
 @Suppress("unused", "ConstPropertyName")
 object Firebase {
-    private const val adminVersion = "9.10.0"
+    private const val adminVersion = "9.11.0"
     const val admin = "com.google.firebase:firebase-admin:$adminVersion"
 }

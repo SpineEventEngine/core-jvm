@@ -16,7 +16,6 @@ package io.spine.gradle.publish
 
 import com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
-import java.io.FileNotFoundException
 import java.net.URL
 
 /**
@@ -50,16 +49,16 @@ internal data class MavenMetadata(var versioning: Versioning = Versioning()) {
          *
          * If the document could not be found, assumes that the module was never
          * released and thus has no metadata.
+         *
+         * The document is read by [RemoteFile], which bounds the read with timeouts
+         * and retries it after a transient failure.
+         *
+         * @param url The URL of the document.
+         * @param authorization The value of the `Authorization` header to send, if any.
          */
-        fun fetchAndParse(url: URL): MavenMetadata? {
-            return try {
-                url.openStream().use { stream ->
-                    mapper.readValue(stream, MavenMetadata::class.java)
-                }
-            } catch (_: FileNotFoundException) {
-                null
-            }
-        }
+        fun fetchAndParse(url: URL, authorization: String? = null): MavenMetadata? =
+            RemoteFile.readText(url, authorization)
+                ?.let { mapper.readValue(it, MavenMetadata::class.java) }
     }
 }
 

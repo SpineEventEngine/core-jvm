@@ -85,7 +85,7 @@ val kotlinEmbeddedVersion = "2.4.10"
  * Always use the same version as the one specified in [io.spine.dependency.lib.Guava].
  * Otherwise, when testing Gradle plugins, clashes may occur.
  */
-val guavaVersion = "33.7.1-jre"
+val guavaVersion = "33.7.2-jre"
 
 /**
  * The version of ErrorProne Gradle plugin.
@@ -132,7 +132,7 @@ val kotestJvmPluginVersion = "0.4.11"
 /**
  * @see [io.spine.dependency.test.Kover]
  */
-val koverVersion = "0.9.9"
+val koverVersion = "0.9.11"
 
 /**
  * The version of the Shadow Plugin.
@@ -175,7 +175,7 @@ val junitVersion = "6.1.3"
  *
  * @see [io.spine.dependency.test.Kotest]
  */
-val kotestVersion = "6.2.4"
+val kotestVersion = "6.2.5"
 
 configurations.all {
     resolutionStrategy {
