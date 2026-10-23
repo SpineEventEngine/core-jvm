@@ -529,9 +529,9 @@ public abstract class BoundedContext
     /**
      * Closes all repositories and clears {@link TenantIndex}.
      *
-     * <p>Then other contexts may serve the entity state types of these repositories, even if
-     * closing one of the repositories fails. This context cannot be closed again to retry,
-     * because it is no longer open.
+     * <p>Does both even if closing some of the repositories fails, and then throws. After that,
+     * other contexts may serve the entity state types of these repositories. This context
+     * cannot be closed again to retry, because it is no longer open.
      */
     private void shutDownRepositories() {
         try {
@@ -539,8 +539,8 @@ public abstract class BoundedContext
         } finally {
             ServerEnvironment.instance()
                              .forget(this);
+            tenantIndex.close();
         }
-        tenantIndex.close();
     }
 
     /**

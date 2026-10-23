@@ -21,6 +21,7 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldNotContain
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldNotBeInstanceOf
 import io.spine.core.BoundedContextName
@@ -28,6 +29,7 @@ import io.spine.core.BoundedContextNames.newName
 import io.spine.environment.DefaultMode
 import io.spine.environment.Environment
 import io.spine.environment.Tests
+import io.spine.server.aggregate.AggregateRepository
 import io.spine.server.aggregate.given.repo.AnemicAggregateRepository
 import io.spine.server.delivery.given.DeliveryTestEnv.CalculatorRepository
 import io.spine.server.delivery.given.ReceptionistAggregate
@@ -223,13 +225,19 @@ internal class DuplicateEntityStateSpec {
         }
 
         @Test
-        fun `forget a context even if closing one of its repositories fails`() {
-            val first = context("First", FailingToCloseRepository())
+        fun `close every repository and forget the context, even if closing them fails`() {
+            val calculators = FailingCalculatorRepository()
+            val receptionists = FailingReceptionistRepository()
+            val first = context("First", calculators, receptionists)
 
-            shouldThrow<IllegalStateException> {
+            val error = shouldThrow<IllegalStateException> {
                 first.close()
             }
+            error.suppressed.map { it.message } shouldContainExactly listOf(REPOSITORY_FAILURE)
+            calculators.isOpen shouldBe false
+            receptionists.isOpen shouldBe false
             environment.contextsServing(calc).shouldBeEmpty()
+            environment.contextsServing(receptionist).shouldBeEmpty()
         }
 
         @Test
@@ -289,13 +297,25 @@ internal class DuplicateEntityStateSpec {
     }
 
     /**
-     * A repository that throws after closing its resources.
+     * A repository of calculators that throws from `close()` after closing its resources.
      */
-    private class FailingToCloseRepository : CalculatorRepository() {
+    private class FailingCalculatorRepository : CalculatorRepository() {
 
         override fun close() {
             super.close()
-            error("The repository failed to close.")
+            error(REPOSITORY_FAILURE)
+        }
+    }
+
+    /**
+     * A repository of receptionists that throws from `close()` after closing its resources.
+     */
+    private class FailingReceptionistRepository :
+        AggregateRepository<String, ReceptionistAggregate, Receptionist>() {
+
+        override fun close() {
+            super.close()
+            error(REPOSITORY_FAILURE)
         }
     }
 
@@ -305,6 +325,7 @@ internal class DuplicateEntityStateSpec {
         val emptyAggregate: TypeUrl = TypeUrl.of(EmptyAggregate::class.java)
 
         const val HOOK_FAILURE = "The action before closing failed."
+        const val REPOSITORY_FAILURE = "The repository failed to close."
 
         fun name(value: String): BoundedContextName = newName(value)
     }

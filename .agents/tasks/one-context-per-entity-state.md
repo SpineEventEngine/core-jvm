@@ -27,6 +27,9 @@ All line numbers are on `master` at `39ef520dc16`.
       entry it added (not on `onRegistered()` failure: the guard already holds the repository);
       `close()` closes the rest after a throwing `onBeforeClose`, and `DomainContext.close()`
       closes the System context in a `finally`. Both new cases fail without the fixes.
+- [x] Copilot review fix: `VisibilityGuard` closes every repository even if some fail, then
+      throws the first failure with the others suppressed; `tenantIndex` is closed in the
+      `finally` too. The case with two failing repositories fails without the fix.
 - [x] Pre-PR review fixes (owner's go-ahead on 2026-10-23): `forget()` in a `finally`, with
       a case where a repository fails to close (it fails without the `finally`); the spec resets
       the environment after each case and closes contexts that should not have been built;
