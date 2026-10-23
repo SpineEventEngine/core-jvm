@@ -34,9 +34,8 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
  * When the check is off, the record still keeps every context that serves the type,
  * so that {@link #contextsServing(TypeUrl)} can tell about all of them.
  *
- * <p>Contexts are told apart by identity rather than by
- * {@linkplain BoundedContext#equals(Object) name}: two contexts with the same name still have
- * a repository each.
+ * <p>Contexts are told apart by identity, not by {@linkplain BoundedContext#equals(Object) name},
+ * because two different contexts may have the same name, and each of them must be recorded.
  */
 final class ServedStateTypes {
 

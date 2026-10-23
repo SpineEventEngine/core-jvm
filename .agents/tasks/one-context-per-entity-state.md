@@ -22,7 +22,11 @@ All line numbers are on `master` at `39ef520dc16`.
 - [x] Exception name agreed with the owner on 2026-10-23: `DuplicateEntityStateException`.
 - [x] Plan approved by the owner (CLAUDE.md gate) on 2026-10-23.
 - [x] Implementation. See "Plan".
-- [x] Tests: `DuplicateEntityStateSpec`, 12 cases, all pass. The probe copy is deleted.
+- [x] Tests: `DuplicateEntityStateSpec`, 13 cases, all pass. The probe copy is deleted.
+- [x] Pre-PR review fixes (owner's go-ahead on 2026-10-23): `forget()` in a `finally`, with
+      a case where a repository fails to close (it fails without the `finally`); the spec resets
+      the environment after each case and closes contexts that should not have been built;
+      `@throws` on `build()`; doc wording. Weak references stay out, as decided.
 - [x] Team memory correction from #1694, as a separate commit.
 - [ ] Version bump and `pre-pr` (authorized on 2026-10-23).
 - [ ] PR (not authorized yet).

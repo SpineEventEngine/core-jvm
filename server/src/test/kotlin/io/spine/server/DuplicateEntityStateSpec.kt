@@ -15,8 +15,8 @@
 package io.spine.server
 
 import io.kotest.assertions.throwables.shouldNotThrowAny
-import io.kotest.assertions.withClue
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.string.shouldContain
@@ -61,10 +61,14 @@ internal class DuplicateEntityStateSpec {
         }
     }
 
+    /**
+     * Closes the contexts built by the case and resets the environment, so that the next case
+     * starts with the default value of the check, rather than with a value set explicitly.
+     */
     @AfterEach
-    fun closeContextsAndTurnCheckOff() {
+    fun closeContextsAndResetEnvironment() {
         closeContexts()
-        under<Tests> { checkDuplicateEntityStates(false) }
+        environment.reset()
     }
 
     @Nested inner class
@@ -156,7 +160,9 @@ internal class DuplicateEntityStateSpec {
         fun `check contexts built by 'BlackBox', and forget them when it closes`() {
             BlackBox.from(BoundedContext.singleTenant("First").add(CalculatorRepository())).use {
                 shouldThrow<DuplicateEntityStateException> {
+                    // Closed at once if the check fails to throw, so that it does not leak.
                     BlackBox.from(BoundedContext.singleTenant("Second").add(CalculatorRepository()))
+                        .close()
                 }
             }
 
@@ -181,8 +187,19 @@ internal class DuplicateEntityStateSpec {
                     .add(ReceptionistAggregate::class.java)
                     .add(CalculatorRepository())
                     .build()
+                    .also(built::add)
             }
             environment.contextsServing(receptionist).shouldBeEmpty()
+        }
+
+        @Test
+        fun `forget a context even if closing one of its repositories fails`() {
+            val first = context("First", FailingToCloseRepository())
+
+            shouldThrow<IllegalStateException> {
+                first.close()
+            }
+            environment.contextsServing(calc).shouldBeEmpty()
         }
 
         @Test
@@ -239,6 +256,17 @@ internal class DuplicateEntityStateSpec {
     private fun closeContexts() {
         built.forEach(BoundedContext::closeIfOpen)
         built.clear()
+    }
+
+    /**
+     * A repository that throws after closing its resources.
+     */
+    private class FailingToCloseRepository : CalculatorRepository() {
+
+        override fun close() {
+            super.close()
+            error("The repository failed to close.")
+        }
     }
 
     private companion object {

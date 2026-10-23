@@ -558,7 +558,15 @@ public final class BoundedContextBuilder implements WithLogging {
      * <p>The name of the System Bounded Context is derived from the name of the Domain Bounded
      * Context.
      *
+     * <p>If registering the repositories or the dispatchers fails, the method closes
+     * the context before throwing.
+     *
      * @return new {@code BoundedContext}
+     * @throws DuplicateEntityStateException
+     *         if another open domain Bounded Context already serves entities with the state
+     *         type of one of the repositories, and the
+     *         {@linkplain ServerEnvironment.TypeConfigurator#checkDuplicateEntityStates check}
+     *         is on
      */
     public BoundedContext build() {
         var system = buildSystem();

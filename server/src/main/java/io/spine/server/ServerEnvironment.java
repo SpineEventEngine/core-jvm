@@ -150,7 +150,7 @@ public final class ServerEnvironment implements Closeable {
     /**
      * The record of which open domain Bounded Context serves which entity state type.
      *
-     * <p>Unlike the settings, is not cleared on {@link #reset()}, because it describes
+     * <p>Unlike the settings, it is not cleared on {@link #reset()}, because it describes
      * the contexts that are still open.
      */
     private final ServedStateTypes servedStateTypes = new ServedStateTypes();

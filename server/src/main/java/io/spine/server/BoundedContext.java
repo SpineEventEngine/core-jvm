@@ -213,9 +213,9 @@ public abstract class BoundedContext
      * Records that this context serves the entities of the passed repository,
      * unless this is a System context.
      *
-     * <p>Goes before registering the repository with this context, which also registers
-     * the inbox of the repository with the {@code Delivery} shared by all contexts.
-     * A failed check must leave the inbox of the other context in place.
+     * <p>Must run before the repository is registered with this context, because registering
+     * it also adds its inbox to the {@code Delivery} shared by all contexts. If the check
+     * fails, the inbox of the context that already serves the type stays in place.
      */
     @SuppressWarnings("ClassReferencesSubclass") // Only domain contexts are recorded.
     private void serveStateOf(Repository<?, ?> repository) {
@@ -503,12 +503,17 @@ public abstract class BoundedContext
     /**
      * Closes all repositories and clears {@link TenantIndex}.
      *
-     * <p>After the repositories are closed, other contexts may serve their entity state types.
+     * <p>Then other contexts may serve the entity state types of these repositories, even if
+     * closing one of the repositories fails. This context cannot be closed again to retry,
+     * because it is no longer open.
      */
     private void shutDownRepositories() {
-        guard.shutDownRepositories();
-        ServerEnvironment.instance()
-                         .forget(this);
+        try {
+            guard.shutDownRepositories();
+        } finally {
+            ServerEnvironment.instance()
+                             .forget(this);
+        }
         tenantIndex.close();
     }
 

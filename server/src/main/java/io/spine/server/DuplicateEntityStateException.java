@@ -38,20 +38,21 @@ public final class DuplicateEntityStateException extends RuntimeException {
     private static final long serialVersionUID = 0L;
 
     /**
-     * Creates a new exception reporting the given state type and the contexts that serve it.
+     * Creates a new exception reporting the given state type and the contexts that serve it,
+     * or are about to serve it.
      *
      * @param stateType
-     *         the state type of the entities served by more than one context
+     *         the state type of the entities
      * @param contexts
-     *         the names of the contexts that serve the type
+     *         the names of the contexts that serve the type, or are about to serve it
      */
     public DuplicateEntityStateException(TypeUrl stateType,
                                          Collection<BoundedContextName> contexts) {
         super(format(
-                "The entity state type `%s` is served by more than one open domain" +
-                        " Bounded Context: %s. Serve each entity state type in one context" +
-                        " only, or close the context that serves it before adding the type" +
-                        " to another one.",
+                "The entity state type `%s` cannot be served by more than one open domain" +
+                        " Bounded Context at a time: %s. Serve each entity state type in one" +
+                        " context only, or close the context that serves it before adding" +
+                        " the type to another one.",
                 checkNotNull(stateType).typeName(), quoted(contexts)
         ));
     }
