@@ -18,7 +18,9 @@ import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldNotBeInstanceOf
 import io.spine.core.BoundedContextName
@@ -26,10 +28,12 @@ import io.spine.core.BoundedContextNames.newName
 import io.spine.environment.DefaultMode
 import io.spine.environment.Environment
 import io.spine.environment.Tests
+import io.spine.server.aggregate.given.repo.AnemicAggregateRepository
 import io.spine.server.delivery.given.DeliveryTestEnv.CalculatorRepository
 import io.spine.server.delivery.given.ReceptionistAggregate
 import io.spine.server.entity.Repository
 import io.spine.server.storage.memory.InMemoryStorageFactory
+import io.spine.server.test.shared.EmptyAggregate
 import io.spine.server.transport.memory.InMemoryTransportFactory
 import io.spine.system.server.CommandLog
 import io.spine.test.delivery.Calc
@@ -69,6 +73,16 @@ internal class DuplicateEntityStateSpec {
     fun closeContextsAndResetEnvironment() {
         closeContexts()
         environment.reset()
+    }
+
+    @Test
+    fun `forget a type whose repository fails to register after the build`() {
+        val context = context("Rejecting")
+
+        shouldThrow<IllegalStateException> {
+            context.internalAccess().register(AnemicAggregateRepository())
+        }
+        environment.contextsServing(emptyAggregate) shouldNotContain name("Rejecting")
     }
 
     @Nested inner class
@@ -193,6 +207,22 @@ internal class DuplicateEntityStateSpec {
         }
 
         @Test
+        fun `close a context that failed to build, even if its 'onBeforeClose' action throws`() {
+            context("First", CalculatorRepository())
+
+            val error = shouldThrow<DuplicateEntityStateException> {
+                BoundedContext.singleTenant("Second")
+                    .setOnBeforeClose { error(HOOK_FAILURE) }
+                    .add(ReceptionistAggregate::class.java)
+                    .add(CalculatorRepository())
+                    .build()
+                    .also(built::add)
+            }
+            error.suppressed.map { it.message } shouldContain HOOK_FAILURE
+            environment.contextsServing(receptionist).shouldBeEmpty()
+        }
+
+        @Test
         fun `forget a context even if closing one of its repositories fails`() {
             val first = context("First", FailingToCloseRepository())
 
@@ -272,6 +302,9 @@ internal class DuplicateEntityStateSpec {
     private companion object {
         val calc: TypeUrl = TypeUrl.of(Calc::class.java)
         val receptionist: TypeUrl = TypeUrl.of(Receptionist::class.java)
+        val emptyAggregate: TypeUrl = TypeUrl.of(EmptyAggregate::class.java)
+
+        const val HOOK_FAILURE = "The action before closing failed."
 
         fun name(value: String): BoundedContextName = newName(value)
     }

@@ -44,8 +44,6 @@ final class ServedStateTypes {
     /**
      * Records that the given context serves entities with the given state type.
      *
-     * <p>Does nothing if the context is already recorded for the type.
-     *
      * @param context
      *         the domain context to which a repository is being added
      * @param stateType
@@ -53,15 +51,17 @@ final class ServedStateTypes {
      * @param check
      *         if {@code true}, the context is not recorded when another open context
      *         already serves the type, and the method throws instead
+     * @return {@code true} if this call recorded the context for the type,
+     *         {@code false} if the context had been recorded for it before
      * @throws DuplicateEntityStateException
      *         if {@code check} is {@code true}, and another open context already serves the type
      */
-    synchronized void serve(BoundedContext context, TypeUrl stateType, boolean check) {
+    synchronized boolean serve(BoundedContext context, TypeUrl stateType, boolean check) {
         checkNotNull(context);
         checkNotNull(stateType);
         var serving = contexts.computeIfAbsent(stateType, type -> new ArrayList<>());
         if (serving.stream().anyMatch(sameAs(context))) {
-            return;
+            return false;
         }
         if (check && !serving.isEmpty()) {
             var names = ImmutableList.<BoundedContextName>builder()
@@ -71,6 +71,25 @@ final class ServedStateTypes {
             throw new DuplicateEntityStateException(stateType, names);
         }
         serving.add(context);
+        return true;
+    }
+
+    /**
+     * Removes the given context from the contexts that serve the given state type.
+     *
+     * <p>Does nothing if the context is not recorded for the type.
+     */
+    synchronized void forget(BoundedContext context, TypeUrl stateType) {
+        checkNotNull(context);
+        checkNotNull(stateType);
+        var serving = contexts.get(stateType);
+        if (serving == null) {
+            return;
+        }
+        serving.removeIf(sameAs(context));
+        if (serving.isEmpty()) {
+            contexts.remove(stateType);
+        }
     }
 
     /**

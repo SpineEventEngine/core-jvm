@@ -311,14 +311,23 @@ public final class ServerEnvironment implements Closeable {
     /**
      * Records that the given domain context serves entities with the given state type.
      *
+     * @return {@code true} if this call recorded the context for the type,
+     *         {@code false} if the context had been recorded for it before
      * @throws DuplicateEntityStateException
      *         if another open domain context already serves the type, and the check of
      *         duplicate entity states is on
      */
-    void serve(BoundedContext context, TypeUrl stateType) {
+    boolean serve(BoundedContext context, TypeUrl stateType) {
         var check = checkDuplicateEntityStates.optionalValue(environment().type())
                                               .orElse(true);
-        servedStateTypes.serve(context, stateType, check);
+        return servedStateTypes.serve(context, stateType, check);
+    }
+
+    /**
+     * Records that the given context no longer serves entities with the given state type.
+     */
+    void forget(BoundedContext context, TypeUrl stateType) {
+        servedStateTypes.forget(context, stateType);
     }
 
     /**

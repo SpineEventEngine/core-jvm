@@ -203,9 +203,19 @@ public abstract class BoundedContext
      */
     protected final void register(Repository<?, ?> repository) {
         checkNotNull(repository);
-        serveStateOf(repository);
-        registerIfAware(repository);
-        guard.register(repository);
+        var newlyServed = serveStateOf(repository);
+        try {
+            registerIfAware(repository);
+            guard.register(repository);
+        } catch (Throwable t) {
+            if (newlyServed) {
+                ServerEnvironment.instance()
+                                 .forget(this, repository.entityStateType());
+            }
+            throw t;
+        }
+        // The guard holds the repository now, so this context serves its entities
+        // even if the callback fails.
         repository.onRegistered();
     }
 
@@ -216,13 +226,15 @@ public abstract class BoundedContext
      * <p>Must run before the repository is registered with this context, because registering
      * it also adds its inbox to the {@code Delivery} shared by all contexts. If the check
      * fails, the inbox of the context that already serves the type stays in place.
+     *
+     * @return {@code true} if this call recorded that this context serves the type,
+     *         {@code false} if this is a System context, or if the type was recorded before
      */
     @SuppressWarnings("ClassReferencesSubclass") // Only domain contexts are recorded.
-    private void serveStateOf(Repository<?, ?> repository) {
-        if (this instanceof DomainContext) {
-            ServerEnvironment.instance()
-                             .serve(this, repository.entityStateType());
-        }
+    private boolean serveStateOf(Repository<?, ?> repository) {
+        return this instanceof DomainContext
+                && ServerEnvironment.instance()
+                                    .serve(this, repository.entityStateType());
     }
 
     /**
@@ -460,26 +472,40 @@ public abstract class BoundedContext
      *     <li>Closes all registered {@linkplain Repository repositories}.
      *     <li>Removes a {@link Probe}, if it was {@linkplain #install(Probe) installed}.
      * </ol>
+     *
+     * <p>If {@code onBeforeClose} throws, the method still closes the rest, and then throws.
      */
     @Override
     public void close() {
         var isOpen = isOpen();
-        if (isOpen && onBeforeClose != null) {
-            onBeforeClose.accept(this);
+        try {
+            if (isOpen && onBeforeClose != null) {
+                onBeforeClose.accept(this);
+            }
+        } finally {
+            closeComponents(isOpen);
         }
+    }
 
+    /**
+     * Closes the buses, the repositories, and the probe of this context.
+     *
+     * @param wasOpen
+     *         tells if the context was open when the closing started
+     */
+    private void closeComponents(boolean wasOpen) {
         commandBus.closeIfOpen();
         eventBus.closeIfOpen();
         broker.closeIfOpen();
         stand.closeIfOpen();
 
-        if (isOpen) {
+        if (wasOpen) {
             shutDownRepositories();
         }
         if (hasProbe()) {
             removeProbe();
         }
-        if (isOpen) {
+        if (wasOpen) {
             logger().atDebug().log(() -> format("%s", closed(nameForLogging())));
         }
     }
