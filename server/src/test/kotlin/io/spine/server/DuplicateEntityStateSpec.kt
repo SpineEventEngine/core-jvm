@@ -51,6 +51,15 @@ import org.junit.jupiter.api.Test
 internal class DuplicateEntityStateSpec {
 
     private val environment = ServerEnvironment.instance()
+
+    /**
+     * The contexts built by the current case.
+     *
+     * They are closed after each case. Otherwise they would keep serving their entity state
+     * types for the rest of the JVM, and fail the cases and the test classes that run later.
+     * A case that expects a build to fail adds its context too, so that the context is closed
+     * if the build succeeds by mistake.
+     */
     private val built = mutableListOf<BoundedContext>()
 
     /**
