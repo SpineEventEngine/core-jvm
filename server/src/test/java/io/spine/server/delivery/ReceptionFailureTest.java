@@ -1,27 +1,15 @@
 /*
- * Copyright 2023, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.delivery;
@@ -49,7 +37,6 @@ import static io.spine.server.delivery.given.ReceptionistAggregate.makeApplierPa
 
 @SlowTest
 @DisplayName("`Delivery` should allow to monitor the failed reception of signals ")
-@SuppressWarnings("resource" /* We don't care about closing black boxes in this test. */)
 final class ReceptionFailureTest extends AbstractDeliveryTest {
 
     @Test
@@ -58,33 +45,33 @@ final class ReceptionFailureTest extends AbstractDeliveryTest {
     void allowFailureRethrow() {
         var monitor = new ObservingMonitor();
         configureDelivery(monitor);
-        var context = blackBox().tolerateFailures();
-
-        var receptionistId = newUuid();
-        var command = tellToTurnConditioner(receptionistId);
-        makeApplierPass();
-        context.receivesCommand(command);
-        sleep();
-        assertThat(monitor.lastFailure()).isEmpty();
-        context.assertState(receptionistId, receptionist(receptionistId, 1));
-
-        var failureObserved = new AtomicBoolean(false);
-        monitor.setResolver((failure) -> {
-            failureObserved.set(true);
-            var error = failure.error();
-            assertThat(error.getStacktrace()).contains(FAILURE_MESSAGE);
-
+        try (var context = blackBox().tolerateFailures()) {
+            var receptionistId = newUuid();
+            var command = tellToTurnConditioner(receptionistId);
             makeApplierPass();
-            return failure.repeatDispatching();
-        });
+            context.receivesCommand(command);
+            sleep();
+            assertThat(monitor.lastFailure()).isEmpty();
+            context.assertState(receptionistId, receptionist(receptionistId, 1));
 
-        makeApplierFail();
-        context.receivesCommand(command);
-        sleep();
+            var failureObserved = new AtomicBoolean(false);
+            monitor.setResolver((failure) -> {
+                failureObserved.set(true);
+                var error = failure.error();
+                assertThat(error.getStacktrace()).contains(FAILURE_MESSAGE);
 
-        assertThat(failureObserved.get())
-                .isTrue();
-        assertInboxEmpty();
+                makeApplierPass();
+                return failure.repeatDispatching();
+            });
+
+            makeApplierFail();
+            context.receivesCommand(command);
+            sleep();
+
+            assertThat(failureObserved.get())
+                    .isTrue();
+            assertInboxEmpty();
+        }
     }
 
     @Test
@@ -93,16 +80,16 @@ final class ReceptionFailureTest extends AbstractDeliveryTest {
     void allowMarkingFailedMessageAsDelivered() {
         var monitor = new MarkFailureDeliveredMonitor();
         configureDelivery(monitor);
-        var context = blackBox().tolerateFailures();
+        try (var context = blackBox().tolerateFailures()) {
+            var receptionistId = newUuid();
+            var command = tellToTurnConditioner(receptionistId);
+            makeApplierFail();
+            context.receivesCommand(command);
+            sleep();
 
-        var receptionistId = newUuid();
-        var command = tellToTurnConditioner(receptionistId);
-        makeApplierFail();
-        context.receivesCommand(command);
-        sleep();
-
-        assertThat(monitor.failureReceived()).isTrue();
-        assertInboxEmpty();
+            assertThat(monitor.failureReceived()).isTrue();
+            assertInboxEmpty();
+        }
     }
 
     private static void assertInboxEmpty() {

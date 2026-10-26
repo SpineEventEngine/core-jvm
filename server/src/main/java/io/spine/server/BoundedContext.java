@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server;
@@ -207,12 +195,46 @@ public abstract class BoundedContext
 
     /**
      * Adds the passed repository to the context.
+     *
+     * @throws DuplicateEntityStateException
+     *         if another open context already serves entities with the same state type,
+     *         and the {@linkplain ServerEnvironment.TypeConfigurator#checkDuplicateEntityStates
+     *         check} is on
      */
     protected final void register(Repository<?, ?> repository) {
         checkNotNull(repository);
-        registerIfAware(repository);
-        guard.register(repository);
+        var newlyServed = serveStateOf(repository);
+        try {
+            registerIfAware(repository);
+            guard.register(repository);
+        } catch (Throwable t) {
+            if (newlyServed) {
+                ServerEnvironment.instance()
+                                 .forget(this, repository.entityStateType());
+            }
+            throw t;
+        }
+        // The guard holds the repository now, so this context serves its entities
+        // even if the callback fails.
         repository.onRegistered();
+    }
+
+    /**
+     * Records that this context serves the entities of the passed repository,
+     * unless this is a System context.
+     *
+     * <p>Must run before the repository is registered with this context, because registering
+     * it also adds its inbox to the {@code Delivery} shared by all contexts. If the check
+     * fails, the inbox of the context that already serves the type stays in place.
+     *
+     * @return {@code true} if this call recorded that this context serves the type,
+     *         {@code false} if this is a System context, or if the type was recorded before
+     */
+    @SuppressWarnings("ClassReferencesSubclass") // Only domain contexts are recorded.
+    private boolean serveStateOf(Repository<?, ?> repository) {
+        return this instanceof DomainContext
+                && ServerEnvironment.instance()
+                                    .serve(this, repository.entityStateType());
     }
 
     /**
@@ -450,26 +472,40 @@ public abstract class BoundedContext
      *     <li>Closes all registered {@linkplain Repository repositories}.
      *     <li>Removes a {@link Probe}, if it was {@linkplain #install(Probe) installed}.
      * </ol>
+     *
+     * <p>If {@code onBeforeClose} throws, the method still closes the rest, and then throws.
      */
     @Override
     public void close() {
         var isOpen = isOpen();
-        if (isOpen && onBeforeClose != null) {
-            onBeforeClose.accept(this);
+        try {
+            if (isOpen && onBeforeClose != null) {
+                onBeforeClose.accept(this);
+            }
+        } finally {
+            closeComponents(isOpen);
         }
+    }
 
+    /**
+     * Closes the buses, the repositories, and the probe of this context.
+     *
+     * @param wasOpen
+     *         tells if the context was open when the closing started
+     */
+    private void closeComponents(boolean wasOpen) {
         commandBus.closeIfOpen();
         eventBus.closeIfOpen();
         broker.closeIfOpen();
         stand.closeIfOpen();
 
-        if (isOpen) {
+        if (wasOpen) {
             shutDownRepositories();
         }
         if (hasProbe()) {
             removeProbe();
         }
-        if (isOpen) {
+        if (wasOpen) {
             logger().atDebug().log(() -> format("%s", closed(nameForLogging())));
         }
     }
@@ -492,10 +528,19 @@ public abstract class BoundedContext
 
     /**
      * Closes all repositories and clears {@link TenantIndex}.
+     *
+     * <p>Does both even if closing some of the repositories fails, and then throws. After that,
+     * other contexts may serve the entity state types of these repositories. This context
+     * cannot be closed again to retry, because it is no longer open.
      */
     private void shutDownRepositories() {
-        guard.shutDownRepositories();
-        tenantIndex.close();
+        try {
+            guard.shutDownRepositories();
+        } finally {
+            ServerEnvironment.instance()
+                             .forget(this);
+            tenantIndex.close();
+        }
     }
 
     /**
