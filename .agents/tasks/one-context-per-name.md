@@ -113,9 +113,8 @@ this change.
   - P1, applied: `checkNameFree()` also rejects the name of the System context of an open
     context, and a name whose System context would have the name of an open context
     (`Users` and `Users_System`). Two new `DuplicateContextNameSpec` cases.
-  - P2, not applied: reserving the name before the build callbacks run. A storage factory
-    that builds a context with the same name from inside `buildSystem()` would pass the
-    check. The owner chose check-then-record over a reservation, for simplicity.
+  - P2, not applied: reserving the name before the build callbacks run. The owner chose
+    check-then-record over a reservation, for simplicity.
 - Copilot on #1701: when the command bus failed to close, the other buses, the broker and
   the stand were skipped, yet the repositories were shut down and the name released. So a new
   context could take the name while the old broker's transport subscriptions and event store
