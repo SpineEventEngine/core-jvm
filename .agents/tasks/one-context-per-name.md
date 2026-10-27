@@ -78,6 +78,11 @@ this change.
 - **The rule settles an item #1700 left open:** `Server.Builder` collects the contexts into a
   set, and `BoundedContext.equals()` compares names. A second context with the name of the
   first was dropped from the set and never closed. Now its build fails.
+- **A closed context could still take an entity state type** (the owner asked to close this
+  gap in this PR). `internalAccess().register()` on a closed domain context recorded the
+  type after `closed()` had run, and initialized the repository, inbox included. Nothing
+  freed the type afterwards. `BoundedContext.register()` now calls `checkOpen()` first.
+  Covered by the `DuplicateEntityStateSpec` case "not let a closed context take a type".
 
 ## Tests fixed
 
@@ -137,3 +142,4 @@ this change.
   is no longer open, so its name can be used again.
 - `BoundedContextBuilder.assumingTests()` names each context `AssumingTests-<n>`.
 - `ServerEnvironment.findContextServing()` is removed (`@Internal`, added by #1700).
+- A closed Bounded Context rejects new repositories with `IllegalStateException`.

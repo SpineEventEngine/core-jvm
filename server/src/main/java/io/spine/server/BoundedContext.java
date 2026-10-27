@@ -206,11 +206,14 @@ public abstract class BoundedContext
     /**
      * Adds the passed repository to the context.
      *
+     * @throws IllegalStateException
+     *         if this context is closed
      * @throws DuplicateEntityStateException
      *         if another open context already serves entities with the same state type
      */
     protected final void register(Repository<?, ?> repository) {
         checkNotNull(repository);
+        checkOpen();
         var newlyServed = serveStateOf(repository);
         try {
             registerIfAware(repository);
@@ -721,6 +724,8 @@ public abstract class BoundedContext
          * Registers the passed repository.
          *
          * @return this instance of {@code InternalAccess} for call chaining
+         * @throws IllegalStateException
+         *         if the context is closed
          * @see BoundedContext#register(Repository)
          */
         @CanIgnoreReturnValue

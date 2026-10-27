@@ -21,6 +21,7 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.kotest.matchers.types.shouldNotBeInstanceOf
 import io.spine.environment.DefaultMode
@@ -109,6 +110,20 @@ internal class DuplicateEntityStateSpec {
             second.internalAccess().register(CalculatorRepository())
         }
         contextServing(calc) shouldBeSameInstanceAs first
+    }
+
+    @Test
+    fun `not let a closed context take a type`() {
+        val closed = context("Closed").also { it.close() }
+
+        val error = shouldThrow<IllegalStateException> {
+            closed.internalAccess().register(CalculatorRepository())
+        }
+        error.message shouldContain "already closed"
+        contextServing(calc).shouldBeNull()
+        shouldNotThrowAny {
+            context("Open", CalculatorRepository())
+        }
     }
 
     @Test
