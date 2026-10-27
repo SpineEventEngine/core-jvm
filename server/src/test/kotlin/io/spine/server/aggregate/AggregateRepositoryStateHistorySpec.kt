@@ -178,25 +178,26 @@ internal class AggregateRepositoryStateHistorySpec {
     fun `record the histories of tenants separately`() {
         // Close `context` first: it serves the entity state type of `StateHistoryTestRepository`.
         context.close()
-        BoundedContextBuilder.assumingTests(true).build().use { mtContext ->
-            val mtRepository = StateHistoryTestRepository()
-            mtContext.internalAccess()
-                .register(mtRepository)
-            mtRepository.enableStateHistory()
-            val alice = tenantId { value = "Alice" }
-            val bob = tenantId { value = "Bob" }
-            postAs(mtContext, alice, Given.CommandMessage.createProject(projectId))
-            postAs(mtContext, bob, Given.CommandMessage.createProject(projectId))
-            postAs(mtContext, alice, Given.CommandMessage.addTask(projectId))
+        BoundedContextBuilder.assumingTests(/* multitenant = */ true)
+            .build().use { mtContext ->
+                val mtRepository = StateHistoryTestRepository()
+                mtContext.internalAccess()
+                    .register(mtRepository)
+                mtRepository.enableStateHistory()
+                val alice = tenantId { value = "Alice" }
+                val bob = tenantId { value = "Bob" }
+                postAs(mtContext, alice, Given.CommandMessage.createProject(projectId))
+                postAs(mtContext, bob, Given.CommandMessage.createProject(projectId))
+                postAs(mtContext, alice, Given.CommandMessage.addTask(projectId))
 
-            val aliceRecords = historyOf(mtRepository, alice)
-            aliceRecords.map { it.version.number } shouldContainExactly listOf(2, 1)
-            aliceRecords.forEach {
-                it.entityId shouldBe Identifier.pack(projectId)
+                val aliceRecords = historyOf(mtRepository, alice)
+                aliceRecords.map { it.version.number } shouldContainExactly listOf(2, 1)
+                aliceRecords.forEach {
+                    it.entityId shouldBe Identifier.pack(projectId)
+                }
+                val bobRecords = historyOf(mtRepository, bob)
+                bobRecords.map { it.version.number } shouldContainExactly listOf(1)
             }
-            val bobRecords = historyOf(mtRepository, bob)
-            bobRecords.map { it.version.number } shouldContainExactly listOf(1)
-        }
     }
 
     @Test

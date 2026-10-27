@@ -190,7 +190,7 @@ class ProcessManagerRepositoryTest
     protected void setUp() {
         super.setUp();
         setCurrentTenant(requestFactory.tenantId());
-        context = BoundedContextBuilder.assumingTests(true).build();
+        context = BoundedContextBuilder.assumingTests(/* multitenant = */ true).build();
         context.internalAccess()
                .register(repository());
         TestProcessManager.clearMessageDeliveryHistory();

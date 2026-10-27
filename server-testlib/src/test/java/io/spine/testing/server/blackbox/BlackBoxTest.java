@@ -525,14 +525,14 @@ abstract class BlackBoxTest<T extends BlackBox> {
 
         @Test
         void singleTenant() {
-            var builder = BoundedContextBuilder.assumingTests(false)
+            var builder = BoundedContextBuilder.assumingTests(/* multitenant = */ false)
                     .enrichEventsUsing(enricher);
             assertBlackBox(builder, StBlackBox.class);
         }
 
         @Test
         void multiTenant() {
-            var builder = BoundedContextBuilder.assumingTests(true)
+            var builder = BoundedContextBuilder.assumingTests(/* multitenant = */ true)
                     .setTenantIndex(tenantIndex)
                     .enrichEventsUsing(enricher);
             assertBlackBox(builder, MtBlackBox.class);

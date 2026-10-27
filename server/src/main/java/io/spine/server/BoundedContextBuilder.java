@@ -142,7 +142,7 @@ public final class BoundedContextBuilder implements WithLogging {
     @Internal
     @VisibleForTesting
     public static BoundedContextBuilder assumingTests() {
-        return assumingTests(false);
+        return assumingTests(/* multitenant = */ false);
     }
 
     /**

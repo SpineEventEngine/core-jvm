@@ -69,7 +69,7 @@ class EntityEventsTest {
 
     @BeforeEach
     void setUp() {
-        context = BoundedContextBuilder.assumingTests(false)
+        context = BoundedContextBuilder.assumingTests(/* multitenant = */ false)
                                        .build();
         var system = systemOf(context);
 

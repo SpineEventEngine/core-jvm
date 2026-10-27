@@ -192,7 +192,7 @@ class ThirdPartyContextTest {
         var documentRepository = new DocumentRepository();
         // Assigned to the field that `closeContext()` closes after each test.
         context = BoundedContextBuilder
-                .assumingTests(true)
+                .assumingTests(/* multitenant = */ true)
                 .add(documentRepository)
                 .build();
         assertThat(context.isMultitenant())

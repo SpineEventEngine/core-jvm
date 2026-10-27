@@ -96,7 +96,8 @@ internal class BoundedContextSpec {
     @BeforeEach
     fun setUp() {
         ModelTests.dropAllModels()
-        context = assumingTests(true).build()
+        context = assumingTests(/* multitenant = */ true)
+            .build()
     }
 
     @AfterEach
@@ -137,9 +138,10 @@ internal class BoundedContextSpec {
 
         @Test
         fun `multitenancy state`() {
-            assumingTests(true).build().use {
-                it.isMultitenant shouldBe true
-            }
+            assumingTests(/* multitenant = */ true)
+                .build().use {
+                    it.isMultitenant shouldBe true
+                }
         }
 
         @Test
@@ -330,10 +332,12 @@ internal class BoundedContextSpec {
         }
 
         private fun multiTenant(): BoundedContext =
-            assumingTests(true).build()
+            assumingTests(/* multitenant = */ true)
+                .build()
 
         private fun singleTenant(): BoundedContext =
-            assumingTests(false).build()
+            assumingTests(/* multitenant = */ false)
+                .build()
     }
 
     /**
