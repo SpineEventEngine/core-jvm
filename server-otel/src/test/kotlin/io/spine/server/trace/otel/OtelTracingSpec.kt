@@ -56,8 +56,13 @@ internal class OtelTracingSpec {
 
     @AfterEach
     fun tearDown() {
-        context.close()
-        ServerEnvironment.instance().reset()
+        try {
+            if (::context.isInitialized) {
+                context.close()
+            }
+        } finally {
+            ServerEnvironment.instance().reset()
+        }
     }
 
     @Test

@@ -68,8 +68,13 @@ class TracingTest {
 
     @AfterEach
     void tearDown() {
-        context.close();
-        serverEnvironment.reset();
+        try {
+            if (context != null) {
+                context.close();
+            }
+        } finally {
+            serverEnvironment.reset();
+        }
     }
 
     @Test

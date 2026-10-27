@@ -39,6 +39,7 @@ import io.spine.test.delivery.Calc
 import io.spine.test.delivery.Receptionist
 import io.spine.testing.server.blackbox.BlackBox
 import io.spine.type.TypeUrl
+import kotlin.jvm.optionals.getOrNull
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -225,9 +226,12 @@ internal class DuplicateEntityStateSpec {
 
         @AfterEach
         fun backToTests() {
-            closeContexts()
-            environment.reset()
-            Environment.instance().setTo(Tests::class.java)
+            try {
+                closeContexts()
+            } finally {
+                environment.reset()
+                Environment.instance().setTo(Tests::class.java)
+            }
         }
 
         @Test
@@ -275,7 +279,7 @@ internal class DuplicateEntityStateSpec {
     }
 
     private fun contextServing(type: TypeUrl): BoundedContext? =
-        environment.findContextServing(type).orElse(null)
+        environment.findContextServing(type).getOrNull()
 
     /**
      * A repository of calculators that throws from `close()` after closing its resources.

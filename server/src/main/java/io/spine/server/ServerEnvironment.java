@@ -87,8 +87,9 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * <p>Within a JVM, entities with a given state type can be served by only one open
  * Bounded Context. Adding a repository to a context fails with
  * {@link DuplicateEntityStateException} if another open context already serves the same
- * entity state type. This holds in tests too, so a test should close the contexts it builds.
- * It frees their entity state types for the contexts of the tests that run later.
+ * entity state type. This holds in tests too. Closing a context frees its entity state types,
+ * so a test should close the contexts it builds. Otherwise, the contexts of the tests that run
+ * later cannot serve the same types.
  */
 public final class ServerEnvironment implements Closeable {
 

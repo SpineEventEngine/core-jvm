@@ -31,6 +31,7 @@ import io.spine.test.server.StatusCheckGrpc
 import io.spine.testing.TestValues.randomString
 import io.spine.testing.logging.mute.MuteLogging
 import io.spine.type.TypeUrl
+import kotlin.jvm.optionals.getOrNull
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
@@ -174,7 +175,7 @@ internal class ServerSpec {
     }
 
     private fun contextServing(type: TypeUrl): BoundedContext? =
-        ServerEnvironment.instance().findContextServing(type).orElse(null)
+        ServerEnvironment.instance().findContextServing(type).getOrNull()
 
     private companion object {
 

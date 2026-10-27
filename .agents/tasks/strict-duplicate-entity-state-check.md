@@ -2,7 +2,7 @@
 slug: strict-duplicate-entity-state-check
 branch: strict-duplicate-entity-state-check
 owner: claude
-status: planning
+status: in-review
 started: 2026-10-27
 ---
 
@@ -11,8 +11,8 @@ started: 2026-10-27
 PR #1698 made a Bounded Context fail to take a repository whose entity state type another
 open context already serves (`DuplicateEntityStateException`). But the check is off under
 `Tests` by default (`TypeConfigurator.checkDuplicateEntityStates(boolean)`). So the framework
-handles the duplicate case only for tests, and the lookup of the serving context has to cope
-with several contexts.
+has to tolerate duplicate entity states only for the sake of tests, and the lookup of the
+serving context has to cope with several contexts.
 
 This task removes the switch. The check is always on, and the tests that serve one type in two
 open contexts are fixed instead.
@@ -27,11 +27,12 @@ All line numbers are on `master` at `2e597e36bf0`.
 - [x] `DuplicateEntityStateSpec` updated: 14 cases, including a new one for two contexts
       with the same name.
 - [x] Verified: full check twice, and a leak scan of the fixed tree (see "Verification").
-- [x] Reviews by `spine-code-review` and `review-docs` addressed (see "Review fixes").
+- [x] Reviews by `spine-code-review`, `kotlin-engineer` and `review-docs` addressed
+      (see "Review fixes").
 - [x] Version bump to `2.0.0-SNAPSHOT.590`, authorized on 2026-10-27. The PR is breaking
       (a public method is removed, and the check now runs in tests), so the version is
       rounded up to the next multiple of ten, above the `.580` of #1699.
-- [ ] `pre-pr`, PR (authorized on 2026-10-27).
+- [x] `pre-pr` passed, and PR #1700 is open (authorized on 2026-10-27).
 
 ## Found during implementation
 
@@ -56,6 +57,11 @@ All line numbers are on `master` at `2e597e36bf0`.
   try-with-resources instead of a last statement that a failed assertion would skip.
 - Doc wording: `ServerEnvironment` class Javadoc, `ServedStateTypes`, the exception KDoc,
   `Server.shutdown()`, and one form for test comments that close a context first.
+- Pre-PR reviews: teardowns of `TracingTest`, `OtelTracingSpec` and the `outside of tests`
+  group of `DuplicateEntityStateSpec` reset the environment in a `finally`; the two cases of
+  `AggregateRepositoryStateHistorySpec` build their context with `use {}`, inside the `try`
+  that resets the environment; `getOrNull()` instead of `orElse(null)`; clearer wording of
+  the `ServerEnvironment` class Javadoc; fixes to this file.
 - Codex on PR #1700: `Server.Builder.build()` left the contexts it had built open when
   building a later one failed, e.g. with `DuplicateEntityStateException`. Nobody could close
   them, because no `Server` was returned. The builder now closes them before rethrowing.
@@ -97,15 +103,15 @@ Three runs in scratch copies of `master`, on 2026-10-27. Nothing of them is comm
 4. **`ServedStateTypes` keeps one context per type**: `MutableMap<TypeUrl, BoundedContext>`.
    `serve(context, stateType)` always checks, and loses the `check` parameter. Contexts are
    still compared by identity, so two same-named contexts still count as two.
-5. **The lookup returns one context.** `ServerEnvironment.contextsServing(TypeUrl):
-   ImmutableList<BoundedContextName>` becomes
+5. **The lookup returns one context.** `ServerEnvironment.contextsServing(TypeUrl)`, which
+   returns a list of names, becomes
    `@Internal Optional<BoundedContext> findContextServing(TypeUrl)`. This is the signature that
    #1699 adds on top of `contextsServing()`, without its `@throws DuplicateEntityStateException`.
    So whichever PR merges second takes the version of this one, and #1699 drops its
    "several contexts" path.
 6. **Docs.** `ServerEnvironment` class Javadoc, `BoundedContext.register()` and
    `BoundedContextBuilder.build()` lose "and the check is on". The `ServerEnvironment` Javadoc
-   says that tests, which build many contexts in one JVM, close each context they build.
+   says that the rule holds in tests too, and that a test should close the contexts it builds.
 7. **Delete `.agents/tasks/one-context-per-entity-state.md`**, the task file of #1698. It
    should have gone on the merge.
 
@@ -127,7 +133,8 @@ try-with-resources for a local, `server.shutdown()` for a `Server`.
 **Leak a context (30 classes; run 2).** In `:server`: `TracingTest`, `AggregateRepositoryTest`,
 `AggregatePartTest`, `AggregateRootTest`, `AggregateQueryingTest`, `BoundedContextSpec`,
 `RejectionInFilterTest`, `StandTest` and `MultitenantStandTest` (the contexts are built by
-`StandTestEnv.newStand()` in `testFixtures`, which returns only the `Stand`), `InMemoryDeliveryTest`
+`StandTestEnv.newStand()`, now `newContext()`, in `testFixtures`, which returned only the
+`Stand`), `InMemoryDeliveryTest`
 (its base `DeliveryTest`), `EntitySpec`, `FilterSpec`, `ProcessManagerRepositoryTest`,
 `ProjectionSpec`, `StateRoutingTest`, `ThirdPartyContextTest`, `AbstractEntityLoggingTest`,
 `DefaultConverterSpec`, `AggregateRepositoryViewsTest`, `EntityEventsTest`,
@@ -138,13 +145,14 @@ In `:server-testlib`: `StBlackBoxTest` and `MtBlackBoxTest` (their base `BlackBo
 `TracingTest`; run 2 did not cover the module).
 
 **Two contexts with one type inside a case.** `RepositoryTest.iterateBareRepository()` and
-three cases of `AggregateRepositoryStateHistorySpec` build a second context with the type of
+two cases of `AggregateRepositoryStateHistorySpec` build a second context with the type of
 the context of `@BeforeEach`. They get their own context instead.
 
 **Fail only because of the above (run 3), no change expected:** `AggregateSpec`,
 `ProjectionRepositoryTest`, `SubscriptionServiceTest`, `RecordBasedRepositoryTest`,
 `DoubleDispatchGuardSpec`, `AggregateRecentHistorySpec`, `ProjectionStateHistorySpec`,
-`AggregateCommandEndpointTest`, `ProjectionRepositoryCatchUpSpec`.
+`AggregateCommandEndpointTest`, `ProjectionRepositoryCatchUpSpec`. (`ProjectionRepositoryTest`
+was changed later anyway; see "Review fixes".)
 
 **`DuplicateEntityStateSpec`.** Drop the cases of the switch (`in tests`, `be turned on`,
 `several, when the check is off`) and the `turnCheckOn()` set-up. Keep the `DefaultMode` case
@@ -152,13 +160,15 @@ as "check outside of tests too". Assert the lookup by identity of the context.
 
 ## Verification
 
-`./gradlew build` is blocked by the version gate until the bump, so the build ran as
-`./gradlew :server:cleanTest check dokkaGenerate --no-build-cache` (JDK 17). Test counts are
-read from the XML reports.
+Before the bump, `./gradlew build` was blocked by the version gate, so the first two checks
+ran as `./gradlew :server:cleanTest check dokkaGenerate --no-build-cache` (JDK 17). Test counts
+are read from the XML reports.
 
-- Run 1 (2026-10-27): passes. `:server` 2,167 tests, `:server-testlib` 159, `:server-otel` 22,
-  0 failures.
-- Run 2, after the review fixes: passes. `:server` 2,169 tests (two new `ServerSpec` cases),
-  `:server-testlib` 159, `:server-otel` 22, 0 failures.
-- Leak scan: the throwaway extension of run 2 ("Evidence"), applied to a scratch copy of
-  the fixed branch. Not committed.
+- Branch check 1 (2026-10-27): passes. `:server` 2,167 tests, `:server-testlib` 159,
+  `:server-otel` 22, 0 failures.
+- Branch check 2, after the first review fixes: passes. `:server` 2,169 tests (two new
+  `ServerSpec` cases), `:server-testlib` 159, `:server-otel` 22, 0 failures.
+- After the bump to `.590`: `./gradlew build dokkaGenerate` passes (the `pre-pr` build).
+- After the Codex fix: `./gradlew build dokkaGenerate` passes. `:server` 2,170 tests.
+- Leak scan: the throwaway extension of "Evidence" run 2, applied to a scratch copy of the
+  fixed branch, reports no class. Not committed.

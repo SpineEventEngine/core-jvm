@@ -178,14 +178,13 @@ internal class AggregateRepositoryStateHistorySpec {
     fun `record the histories of tenants separately`() {
         // Close `context` first: it serves the entity state type of `StateHistoryTestRepository`.
         context.close()
-        val mtContext = BoundedContextBuilder.assumingTests(true).build()
-        val mtRepository = StateHistoryTestRepository()
-        mtContext.internalAccess()
-            .register(mtRepository)
-        mtRepository.enableStateHistory()
-        val alice = tenantId { value = "Alice" }
-        val bob = tenantId { value = "Bob" }
-        try {
+        BoundedContextBuilder.assumingTests(true).build().use { mtContext ->
+            val mtRepository = StateHistoryTestRepository()
+            mtContext.internalAccess()
+                .register(mtRepository)
+            mtRepository.enableStateHistory()
+            val alice = tenantId { value = "Alice" }
+            val bob = tenantId { value = "Bob" }
             postAs(mtContext, alice, Given.CommandMessage.createProject(projectId))
             postAs(mtContext, bob, Given.CommandMessage.createProject(projectId))
             postAs(mtContext, alice, Given.CommandMessage.addTask(projectId))
@@ -197,9 +196,6 @@ internal class AggregateRepositoryStateHistorySpec {
             }
             val bobRecords = historyOf(mtRepository, bob)
             bobRecords.map { it.version.number } shouldContainExactly listOf(1)
-        } finally {
-            mtRepository.close()
-            mtContext.close()
         }
     }
 
@@ -242,32 +238,32 @@ internal class AggregateRepositoryStateHistorySpec {
         under<Tests> {
             use(FailingHistoryFactory())
         }
-        // Close `context` first: it serves the entity state type of `StateHistoryTestRepository`.
-        context.close()
-        val failingContext = BoundedContextBuilder.assumingTests().build()
-        val failingRepository = StateHistoryTestRepository()
-        failingContext.internalAccess()
-            .register(failingRepository)
-        val observer = CreatedProjectsObserver()
-        failingContext.internalAccess()
-            .registerEventDispatcher(observer)
-        failingRepository.enableStateHistory()
         try {
-            failingContext.commandBus()
-                .post(Given.ACommand.createProject(projectId), noOpObserver())
+            // Close `context` first: it serves the entity state type of
+            // `StateHistoryTestRepository`.
+            context.close()
+            BoundedContextBuilder.assumingTests().build().use { failingContext ->
+                val failingRepository = StateHistoryTestRepository()
+                failingContext.internalAccess()
+                    .register(failingRepository)
+                val observer = CreatedProjectsObserver()
+                failingContext.internalAccess()
+                    .registerEventDispatcher(observer)
+                failingRepository.enableStateHistory()
+                failingContext.commandBus()
+                    .post(Given.ACommand.createProject(projectId), noOpObserver())
 
-            // The durable state write precedes the failing append...
-            failingRepository.loadAggregate(projectId)
-                .version()
-                .number shouldBe 1
-            // ...but the documented contract holds: the failure to record
-            // the history fails the dispatch, and the produced event is
-            // never posted. A write path swallowing the failure would have
-            // published it.
-            observer.seen shouldBe 0
+                // The durable state write precedes the failing append...
+                failingRepository.loadAggregate(projectId)
+                    .version()
+                    .number shouldBe 1
+                // ...but the documented contract holds: the failure to record
+                // the history fails the dispatch, and the produced event is
+                // never posted. A write path swallowing the failure would have
+                // published it.
+                observer.seen shouldBe 0
+            }
         } finally {
-            failingRepository.close()
-            failingContext.close()
             ServerEnvironment.instance().reset()
         }
     }
