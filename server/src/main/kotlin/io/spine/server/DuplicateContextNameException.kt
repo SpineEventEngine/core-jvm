@@ -41,7 +41,7 @@ public class DuplicateContextNameException internal constructor(
 
         private fun messageOf(name: BoundedContextName): String {
             val quoted = Diags.backtick(name.value)
-            return "A Bounded Context named $quoted is already open, or is being built." +
+            return "A Bounded Context named $quoted is already open." +
                     " Close it, or give the new context another name."
         }
     }

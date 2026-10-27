@@ -583,18 +583,10 @@ public final class BoundedContextBuilder implements WithLogging {
      *         type of one of the repositories
      */
     public BoundedContext build() {
-        return OpenContexts.open(spec.name(), this::buildContext);
-    }
-
-    /**
-     * Builds the System and the domain Bounded Contexts, and registers the repositories
-     * and the dispatchers with the domain one.
-     *
-     * @see #build()
-     */
-    private BoundedContext buildContext() {
+        OpenContexts.checkNameFree(spec.name());
         var system = buildSystem();
         var result = buildDomain(system);
+        OpenContexts.opened(result);
         logger().atDebug()
                 .log(() -> format("%s created.", result.nameForLogging()));
         try {

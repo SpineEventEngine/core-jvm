@@ -26,10 +26,16 @@ import io.spine.type.TypeUrl
  *
  * The object guards both rules:
  *
- * - [open] builds a context only if no other open context has its name. Otherwise, it throws
- *   [DuplicateContextNameException] before anything is built.
+ * - [checkNameFree] throws [DuplicateContextNameException] if an open context has the name
+ *   of a context about to be built. It runs before anything is built: a System context,
+ *   for example, registers the inboxes of its repositories as soon as it is built.
+ * - [opened] records the new context, before its repositories are added.
  * - [serve] records the state type of a repository added to a context. It throws
  *   [DuplicateEntityStateException] if another open context already serves the type.
+ *
+ * Checking the name and recording the context are two steps. Two threads that build contexts
+ * with one name at the same time may both pass the check. Building contexts is rarely that
+ * concurrent, so this object does not guard against it.
  *
  * Closing a context frees its name and its types. So a test should close the contexts
  * it builds. Otherwise, the contexts that later tests build cannot reuse those names and types.
@@ -37,23 +43,17 @@ import io.spine.type.TypeUrl
  * System contexts are not recorded. Their names follow the names of their domain contexts,
  * and all of them serve the same entity state types.
  *
- * Contexts are told apart by identity, not by [name][BoundedContext.equals]. A context
- * frees only a name bound to it. A context closed by its failed build holds no name:
- * its name is only reserved, and [open] releases it.
+ * Contexts are told apart by identity, not by [name][BoundedContext.equals].
  */
 internal object OpenContexts {
 
     /**
-     * The open domain contexts by their names.
+     * The open domain contexts.
      *
-     * Guards [building] too.
+     * A list rather than a set, because a set would compare the contexts by
+     * [name][BoundedContext.equals], and this object tells them apart by identity.
      */
-    private val names = mutableMapOf<BoundedContextName, BoundedContext>()
-
-    /**
-     * The names reserved for the contexts being built.
-     */
-    private val building = mutableSetOf<BoundedContextName>()
+    private val contexts = mutableListOf<BoundedContext>()
 
     /**
      * The record of which open domain context serves which entity state type.
@@ -61,62 +61,26 @@ internal object OpenContexts {
     private val servedStateTypes = ServedStateTypes()
 
     /**
-     * Builds a domain context with the given name, unless another open context has the name.
+     * Checks that no open context has the given name.
      *
-     * Reserves the name before [build] runs, so that nothing is built for a name that is
-     * taken. For example, a System context registers the inboxes of its repositories as soon
-     * as it is built. Binds the name to the built context, or releases it if [build] throws.
-     *
-     * @param C The type of the context.
-     * @param name The name of the context to build.
-     * @param build Builds the context.
-     * @return The built context.
-     * @throws DuplicateContextNameException If another open context has the name,
-     *   or is being built with it.
+     * @throws DuplicateContextNameException If an open context has the name.
      */
     @JvmStatic
-    fun <C : BoundedContext> open(name: BoundedContextName, build: () -> C): C {
-        reserve(name)
-        var opened = false
-        try {
-            val context = build()
-            bind(name, context)
-            opened = true
-            return context
-        } finally {
-            if (!opened) {
-                release(name)
-            }
-        }
-    }
-
-    private fun reserve(name: BoundedContextName) {
-        synchronized(names) {
-            if (name in names || name in building) {
+    fun checkNameFree(name: BoundedContextName) {
+        synchronized(contexts) {
+            if (contexts.any { it.name() == name }) {
                 throw DuplicateContextNameException(name)
             }
-            building.add(name)
         }
     }
 
     /**
-     * Binds the reserved name to the built context.
-     *
-     * Releases the name instead if the context was closed while it was being built,
-     * because a closed context never frees a name again.
+     * Records that the given context, which has just been built, is open.
      */
-    private fun bind(name: BoundedContextName, context: BoundedContext) {
-        synchronized(names) {
-            building.remove(name)
-            if (context.isOpen) {
-                names[name] = context
-            }
-        }
-    }
-
-    private fun release(name: BoundedContextName) {
-        synchronized(names) {
-            building.remove(name)
+    @JvmStatic
+    fun opened(context: BoundedContext) {
+        synchronized(contexts) {
+            contexts.add(context)
         }
     }
 
@@ -143,22 +107,16 @@ internal object OpenContexts {
         servedStateTypes.forget(stateType, context)
 
     /**
-     * Records that the given context, which is closing, frees its name
+     * Records that the given context, which is closing, is no longer open
      * and no longer serves any entities.
      *
-     * Does nothing for a context that is not recorded, such as a System context.
-     *
-     * Forgets the types before it frees the name. So a new context that gets the name can
-     * also serve the types.
+     * Does nothing for a context that is not recorded.
      */
     @JvmStatic
     fun closed(context: BoundedContext) {
         servedStateTypes.forget(context)
-        val name = context.name()
-        synchronized(names) {
-            if (names[name] === context) {
-                names.remove(name)
-            }
+        synchronized(contexts) {
+            contexts.removeAll { it === context }
         }
     }
 

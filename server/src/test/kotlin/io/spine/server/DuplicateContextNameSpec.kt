@@ -52,8 +52,8 @@ internal class DuplicateContextNameSpec {
         val error = shouldThrow<DuplicateContextNameException> {
             context(sameName)
         }
-        error.message shouldBe "A Bounded Context named `$sameName` is already open," +
-                " or is being built. Close it, or give the new context another name."
+        error.message shouldBe "A Bounded Context named `$sameName` is already open." +
+                " Close it, or give the new context another name."
     }
 
     @Test
@@ -103,7 +103,7 @@ internal class DuplicateContextNameSpec {
     }
 
     @Test
-    fun `count the name of a context that is being built`() {
+    fun `count the name of a context while its repositories are registered`() {
         val nested = BuildingContextOnRegistration(sameName)
 
         shouldThrow<DuplicateContextNameException> {
@@ -121,8 +121,9 @@ internal class DuplicateContextNameSpec {
     }
 
     /**
-     * A repository that builds a context with the given name when it is registered,
-     * which happens while the context of the repository is being built.
+     * A repository that builds a context with the given name when it is registered.
+     *
+     * The context of the repository is open under its name by then, so this build fails.
      */
     private inner class BuildingContextOnRegistration(
         private val name: String
