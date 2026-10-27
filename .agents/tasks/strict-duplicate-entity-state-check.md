@@ -28,7 +28,10 @@ All line numbers are on `master` at `2e597e36bf0`.
       with the same name.
 - [x] Verified: full check twice, and a leak scan of the fixed tree (see "Verification").
 - [x] Reviews by `spine-code-review` and `review-docs` addressed (see "Review fixes").
-- [ ] Version bump, `pre-pr`, PR (each needs the owner's authorization).
+- [x] Version bump to `2.0.0-SNAPSHOT.590`, authorized on 2026-10-27. The PR is breaking
+      (a public method is removed, and the check now runs in tests), so the version is
+      rounded up to the next multiple of ten, above the `.580` of #1699.
+- [ ] `pre-pr`, PR (authorized on 2026-10-27).
 
 ## Found during implementation
 
