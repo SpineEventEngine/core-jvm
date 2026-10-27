@@ -208,8 +208,16 @@ internal class ServerSpec {
         // The server builds its contexts in no particular order, so the context of users
         // may be built before the failure, too. Closing any of the contexts throws an `Error`.
         val builder = Server.atPort(ANY_FREE_PORT)
-            .add(BoundedContext.singleTenant("First").add(CalculatorRepository()).errorOnClose())
-            .add(BoundedContext.singleTenant("Second").add(CalculatorRepository()).errorOnClose())
+            .add(
+                BoundedContext.singleTenant("First")
+                    .add(CalculatorRepository())
+                    .errorOnClose()
+            )
+            .add(
+                BoundedContext.singleTenant("Second")
+                    .add(CalculatorRepository())
+                    .errorOnClose()
+            )
             .add(users().errorOnClose())
 
         val thrown = shouldThrow<DuplicateEntityStateException> {
