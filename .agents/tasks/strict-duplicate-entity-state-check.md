@@ -56,6 +56,10 @@ All line numbers are on `master` at `2e597e36bf0`.
   try-with-resources instead of a last statement that a failed assertion would skip.
 - Doc wording: `ServerEnvironment` class Javadoc, `ServedStateTypes`, the exception KDoc,
   `Server.shutdown()`, and one form for test comments that close a context first.
+- Codex on PR #1700: `Server.Builder.build()` left the contexts it had built open when
+  building a later one failed, e.g. with `DuplicateEntityStateException`. Nobody could close
+  them, because no `Server` was returned. The builder now closes them before rethrowing.
+  A new `ServerSpec` case fails without the fix, and so do three later cases of the spec.
 
 ## Evidence
 

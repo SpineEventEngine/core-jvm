@@ -149,6 +149,21 @@ internal class ServerSpec {
     }
 
     @Test
+    fun `close the contexts it built when building another one fails`() {
+        // Both contexts serve `UserAccount`, so the one built second fails to build.
+        val builder = Server.atPort(ANY_FREE_PORT)
+            .add(users())
+            .add(users())
+
+        shouldThrow<DuplicateEntityStateException> {
+            // Shut down at once if the build succeeds by mistake, so that it does not leak.
+            builder.build().shutdownAndWait()
+        }
+
+        contextServing(userAccount).shouldBeNull()
+    }
+
+    @Test
     @MuteLogging
     fun `prohibit obtaining the bound port of an in-process server`() {
         val server = Server.inProcess(randomString()).build()

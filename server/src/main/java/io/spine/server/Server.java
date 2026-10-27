@@ -23,7 +23,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -238,6 +240,9 @@ public final class Server implements WithLogging {
 
         /**
          * Creates a new instance of the server.
+         *
+         * <p>If building one of the Bounded Contexts fails, the method closes the contexts
+         * built before it, and then throws.
          */
         public Server build() {
             var result = new Server(this);
@@ -246,11 +251,48 @@ public final class Server implements WithLogging {
 
         private ImmutableSet<BoundedContext> contexts() {
             if (contexts == null) {
-                ImmutableSet.Builder<BoundedContext> result = ImmutableSet.builder();
-                contextBuilders.forEach(c -> result.add(c.build()));
-                contexts = result.build();
+                contexts = buildContexts();
             }
             return contexts;
+        }
+
+        /**
+         * Builds the Bounded Contexts of the server.
+         *
+         * <p>If building one of them fails, closes the contexts built before it, and then
+         * throws. The caller never gets these contexts, so nobody else can close them.
+         * Left open, they would keep serving their entity state types.
+         */
+        private ImmutableSet<BoundedContext> buildContexts() {
+            List<BoundedContext> built = new ArrayList<>();
+            try {
+                for (var builder : contextBuilders) {
+                    built.add(builder.build());
+                }
+            } catch (Throwable t) {
+                closeAfterFailure(built, t);
+                throw t;
+            }
+            return ImmutableSet.copyOf(built);
+        }
+
+        /**
+         * Closes the contexts built before the build of the server failed.
+         *
+         * @param built
+         *         the contexts to close
+         * @param failure
+         *         the error that failed the build; an error thrown on closing is added to it
+         *         as suppressed
+         */
+        private static void closeAfterFailure(List<BoundedContext> built, Throwable failure) {
+            for (var context : built) {
+                try {
+                    context.close();
+                } catch (RuntimeException e) {
+                    failure.addSuppressed(e);
+                }
+            }
         }
 
         /**
