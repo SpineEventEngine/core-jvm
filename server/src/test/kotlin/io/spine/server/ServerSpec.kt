@@ -16,16 +16,20 @@ package io.spine.server
 
 import com.google.protobuf.Empty
 import io.grpc.ManagedChannelBuilder
+import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.spine.server.delivery.given.DeliveryTestEnv.CalculatorRepository
 import io.spine.server.given.service.StatusCheckService
 import io.spine.test.client.ClientTestContext.tasks
 import io.spine.test.client.ClientTestContext.users
 import io.spine.test.client.users.UserAccount
+import io.spine.test.delivery.Calc
 import io.spine.test.server.ServerStatus.OK
 import io.spine.test.server.StatusCheckGrpc
 import io.spine.testing.TestValues.randomString
@@ -166,6 +170,40 @@ internal class ServerSpec {
 
     @Test
     @MuteLogging
+    fun `close every context when shut down, even if closing one of them fails`() {
+        val server = Server.atPort(ANY_FREE_PORT)
+            .add(BoundedContext.singleTenant("Calculators").add(FailingCalculatorRepository()))
+            .add(users())
+            .build()
+        server.start()
+
+        shouldNotThrowAny {
+            server.shutdown()
+        }
+
+        contextServing(calc).shouldBeNull()
+        contextServing(userAccount).shouldBeNull()
+    }
+
+    @Test
+    fun `keep the error of closing a context it built when building another one fails`() {
+        // Both contexts serve `Calc`, so the one built second fails to build,
+        // and then closing the one built first fails too.
+        val builder = Server.atPort(ANY_FREE_PORT)
+            .add(BoundedContext.singleTenant("First").add(FailingCalculatorRepository()))
+            .add(BoundedContext.singleTenant("Second").add(FailingCalculatorRepository()))
+
+        val thrown = shouldThrow<DuplicateEntityStateException> {
+            // Shut down at once if the build succeeds by mistake, so that it does not leak.
+            builder.build().shutdownAndWait()
+        }
+
+        thrown.suppressed.map { it.message } shouldContain CLOSE_FAILURE
+        contextServing(calc).shouldBeNull()
+    }
+
+    @Test
+    @MuteLogging
     fun `prohibit obtaining the bound port of an in-process server`() {
         val server = Server.inProcess(randomString()).build()
 
@@ -177,11 +215,25 @@ internal class ServerSpec {
     private fun contextServing(type: TypeUrl): BoundedContext? =
         ServerEnvironment.instance().findContextServing(type).getOrNull()
 
+    /**
+     * A repository of calculators that throws from `close()` after closing its resources.
+     */
+    private class FailingCalculatorRepository : CalculatorRepository() {
+
+        override fun close() {
+            super.close()
+            error(CLOSE_FAILURE)
+        }
+    }
+
     private companion object {
 
         const val ADDRESS = "localhost"
 
+        const val CLOSE_FAILURE = "The repository failed to close."
+
         val userAccount: TypeUrl = TypeUrl.of(UserAccount::class.java)
+        val calc: TypeUrl = TypeUrl.of(Calc::class.java)
 
         /**
          * Tells the operating system to pick a free port when the server binds.
