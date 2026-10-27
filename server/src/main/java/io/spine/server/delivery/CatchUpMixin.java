@@ -17,6 +17,7 @@ package io.spine.server.delivery;
 import io.spine.annotation.GeneratedMixin;
 import io.spine.annotation.Internal;
 import io.spine.core.TenantId;
+import io.spine.type.TypeUrl;
 
 /**
  * A mixin for the state of the {@linkplain CatchUpProcess catch-up process job}.
@@ -24,6 +25,13 @@ import io.spine.core.TenantId;
 @GeneratedMixin
 @Internal
 interface CatchUpMixin extends CatchUpOrBuilder {
+
+    /**
+     * Returns the type of the projections that this catch-up job catches up.
+     */
+    default TypeUrl projectionType() {
+        return TypeUrl.parse(getId().getProjectionType());
+    }
 
     /**
      * Tells whether this catch-up job works with the data of the passed tenant.

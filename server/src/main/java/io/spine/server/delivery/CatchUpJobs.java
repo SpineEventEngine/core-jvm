@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Table;
 import com.google.protobuf.Any;
 import io.spine.core.TenantId;
+import io.spine.type.TypeUrl;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
@@ -135,7 +136,7 @@ final class CatchUpJobs {
      */
     @Nullable CatchUp jobFor(InboxMessage message) {
         var inbox = message.getInboxId();
-        var type = inbox.getTypeUrl();
+        var type = TypeUrl.parse(inbox.getTypeUrl());
         var target = inbox.getEntityId().getId();
         var ofTenant = jobFor(new Scope(type, message.tenant()), target);
         if (ofTenant != null) {
@@ -172,10 +173,10 @@ final class CatchUpJobs {
      */
     private static final class Scope {
 
-        private final String type;
+        private final TypeUrl type;
         private final TenantId tenant;
 
-        private Scope(String type, TenantId tenant) {
+        private Scope(TypeUrl type, TenantId tenant) {
             this.type = type;
             this.tenant = tenant;
         }
@@ -187,7 +188,7 @@ final class CatchUpJobs {
          */
         private static Scope of(CatchUp job) {
             var tenant = job.hasTenant() ? job.getTenant() : NO_TENANT;
-            return new Scope(job.getId().getProjectionType(), tenant);
+            return new Scope(job.projectionType(), tenant);
         }
 
         @Override

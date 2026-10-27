@@ -79,9 +79,8 @@ public class CatchUpStorage extends EntityRecordStorage<CatchUpId, CatchUp> {
      *         the type of the projection state to use for filtering
      */
     public Iterator<CatchUp> readByType(TypeUrl projectionType) {
-        var type = projectionType.value();
         return allJobs()
-                .filter(job -> job.getId().getProjectionType().equals(type))
+                .filter(job -> projectionType.equals(job.projectionType()))
                 .iterator();
     }
 

@@ -15,6 +15,7 @@
 package io.spine.server.delivery;
 
 import io.spine.core.BoundedContextName;
+import io.spine.type.TypeUrl;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
@@ -48,7 +49,7 @@ final class InboxDeliveries {
      * The inboxes of the types other than those of the catch-up machinery,
      * by the type URL.
      */
-    private final Map<String, Registered> byType = newConcurrentMap();
+    private final Map<TypeUrl, Registered> byType = newConcurrentMap();
 
     /**
      * The inboxes of the catch-up machinery, by the type URL and the System context.
@@ -67,18 +68,18 @@ final class InboxDeliveries {
      */
     ShardedMessageDelivery<InboxMessage> get(InboxMessage message) {
         var inboxId = message.getInboxId();
-        var typeUrl = inboxId.getTypeUrl();
-        if (!isCatchUpType(typeUrl)) {
-            var registered = byType.get(typeUrl);
+        var type = TypeUrl.parse(inboxId.getTypeUrl());
+        if (!isCatchUpType(type)) {
+            var registered = byType.get(type);
             checkState(registered != null,
-                       "Cannot find the registered Inbox for the type URL `%s`.", typeUrl);
+                       "Cannot find the registered Inbox for the type URL `%s`.", type);
             return registered.delivery;
         }
         var systemContext = systemContextOf(inboxId);
-        var registered = bySystemContext.get(new CatchUpInbox(typeUrl, systemContext));
+        var registered = bySystemContext.get(new CatchUpInbox(type, systemContext));
         checkState(registered != null,
                    "Cannot find the registered Inbox for the type URL `%s` in the context `%s`.",
-                   typeUrl, systemContext.getValue());
+                   type, systemContext.getValue());
         return registered.delivery;
     }
 
@@ -89,12 +90,11 @@ final class InboxDeliveries {
      */
     void register(Inbox<?> inbox) {
         var registered = new Registered(inbox);
-        var typeUrl = inbox.entityStateType()
-                           .value();
-        if (isCatchUpType(typeUrl)) {
+        var type = inbox.entityStateType();
+        if (isCatchUpType(type)) {
             bySystemContext.put(catchUpInboxOf(inbox), registered);
         } else {
-            byType.put(typeUrl, registered);
+            byType.put(type, registered);
         }
     }
 
@@ -105,12 +105,11 @@ final class InboxDeliveries {
      * unregister an inbox of the same target, which replaced this one.
      */
     void unregister(Inbox<?> inbox) {
-        var typeUrl = inbox.entityStateType()
-                           .value();
-        if (isCatchUpType(typeUrl)) {
+        var type = inbox.entityStateType();
+        if (isCatchUpType(type)) {
             removeIfOf(inbox, catchUpInboxOf(inbox), bySystemContext);
         } else {
-            removeIfOf(inbox, typeUrl, byType);
+            removeIfOf(inbox, type, byType);
         }
     }
 
@@ -124,17 +123,17 @@ final class InboxDeliveries {
         }
     }
 
-    private static boolean isCatchUpType(String typeUrl) {
-        return CatchUpProcess.TYPE.value().equals(typeUrl)
-                || ShardMaintenanceProcess.TYPE.value().equals(typeUrl);
+    private static boolean isCatchUpType(TypeUrl type) {
+        return CatchUpProcess.TYPE.equals(type)
+                || ShardMaintenanceProcess.TYPE.equals(type);
     }
 
     private static CatchUpInbox catchUpInboxOf(Inbox<?> inbox) {
-        var typeUrl = inbox.entityStateType();
+        var type = inbox.entityStateType();
         var context = inbox.contextName();
         checkState(context != null,
-                   "The inbox of `%s` must belong to a System context.", typeUrl);
-        return new CatchUpInbox(typeUrl.value(), context);
+                   "The inbox of `%s` must belong to a System context.", type);
+        return new CatchUpInbox(type, context);
     }
 
     /**
@@ -190,11 +189,11 @@ final class InboxDeliveries {
      */
     private static final class CatchUpInbox {
 
-        private final String typeUrl;
+        private final TypeUrl type;
         private final BoundedContextName systemContext;
 
-        private CatchUpInbox(String typeUrl, BoundedContextName systemContext) {
-            this.typeUrl = typeUrl;
+        private CatchUpInbox(TypeUrl type, BoundedContextName systemContext) {
+            this.type = type;
             this.systemContext = systemContext;
         }
 
@@ -206,13 +205,13 @@ final class InboxDeliveries {
             if (!(o instanceof CatchUpInbox other)) {
                 return false;
             }
-            return typeUrl.equals(other.typeUrl)
+            return type.equals(other.type)
                     && systemContext.equals(other.systemContext);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(typeUrl, systemContext);
+            return Objects.hash(type, systemContext);
         }
     }
 }
