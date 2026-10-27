@@ -21,11 +21,11 @@ import io.spine.type.TypeUrl
  *
  * The record lets only one open context serve a state type.
  *
- * Contexts are told apart by identity, not by [name][BoundedContext.equals], because in tests
- * many contexts have the same name: [BoundedContextBuilder.assumingTests], which `BlackBox`
- * also uses, names each of them `AssumingTests`. Comparing by name would take the second
- * of them for the first one, and a duplicate state type would go unreported. The same holds
- * in an application, where two contexts with one name would be a mistake.
+ * Contexts are told apart by identity, not by [name][BoundedContext.equals]. Two open contexts
+ * cannot have one name, but a closed context and a newer one can have one. A late call for
+ * the closed context must not change the record of the newer one.
+ *
+ * @see OpenContexts
  */
 internal class ServedStateTypes {
 

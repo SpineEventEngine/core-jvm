@@ -49,6 +49,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -64,6 +65,14 @@ import static java.lang.String.format;
  */
 @SuppressWarnings({"ClassWithTooManyMethods", "OverlyCoupledClass"}) // OK for this central piece.
 public final class BoundedContextBuilder implements WithLogging {
+
+    /**
+     * Counts the builders of test-only Bounded Contexts created in this JVM.
+     *
+     * <p>Gives each of these contexts a name of its own, because two open contexts
+     * cannot have one name.
+     */
+    private static final AtomicLong testContextCounter = new AtomicLong();
 
     private final ContextSpec spec;
 
@@ -125,11 +134,15 @@ public final class BoundedContextBuilder implements WithLogging {
 
     /**
      * Creates a new builder for a test-only bounded context.
+     *
+     * <p>The name of the context is {@code AssumingTests} followed by a number, such as
+     * {@code AssumingTests-1}. Each call gives a new number, so that several such contexts
+     * can be open at once.
      */
     @Internal
     @VisibleForTesting
     public static BoundedContextBuilder assumingTests(boolean multitenant) {
-        var name = assumingTestsValue();
+        var name = assumingTestsValue() + '-' + testContextCounter.incrementAndGet();
         var spec = multitenant
                    ? multitenant(name)
                    : singleTenant(name);
@@ -558,15 +571,28 @@ public final class BoundedContextBuilder implements WithLogging {
      * <p>The name of the System Bounded Context is derived from the name of the Domain Bounded
      * Context.
      *
-     * <p>If registering the repositories or the dispatchers fails, the method closes
+     * <p>If another open Bounded Context has the same name, the method throws before building
+     * anything. If registering the repositories or the dispatchers fails, the method closes
      * the context before throwing.
      *
      * @return new {@code BoundedContext}
+     * @throws DuplicateContextNameException
+     *         if another open Bounded Context has the same name
      * @throws DuplicateEntityStateException
      *         if another open Bounded Context already serves entities with the state
      *         type of one of the repositories
      */
     public BoundedContext build() {
+        return OpenContexts.open(spec.name(), this::buildContext);
+    }
+
+    /**
+     * Builds the System and the domain Bounded Contexts, and registers the repositories
+     * and the dispatchers with the domain one.
+     *
+     * @see #build()
+     */
+    private BoundedContext buildContext() {
         var system = buildSystem();
         var result = buildDomain(system);
         logger().atDebug()

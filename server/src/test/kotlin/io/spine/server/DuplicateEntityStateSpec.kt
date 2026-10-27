@@ -39,7 +39,6 @@ import io.spine.test.delivery.Calc
 import io.spine.test.delivery.Receptionist
 import io.spine.testing.server.blackbox.BlackBox
 import io.spine.type.TypeUrl
-import kotlin.jvm.optionals.getOrNull
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -86,16 +85,6 @@ internal class DuplicateEntityStateSpec {
 
         shouldThrow<DuplicateEntityStateException> {
             context("Second", CalculatorRepository())
-        }
-        contextServing(calc) shouldBeSameInstanceAs first
-    }
-
-    @Test
-    fun `tell apart two contexts with the same name`() {
-        val first = context("Same", CalculatorRepository())
-
-        shouldThrow<DuplicateEntityStateException> {
-            context("Same", CalculatorRepository())
         }
         contextServing(calc) shouldBeSameInstanceAs first
     }
@@ -279,7 +268,7 @@ internal class DuplicateEntityStateSpec {
     }
 
     private fun contextServing(type: TypeUrl): BoundedContext? =
-        environment.findContextServing(type).getOrNull()
+        OpenContexts.findContextServing(type)
 
     /**
      * A repository of calculators that throws from `close()` after closing its resources.

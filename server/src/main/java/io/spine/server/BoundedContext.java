@@ -18,7 +18,6 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.annotation.Internal;
 import io.spine.base.EntityState;
 import io.spine.core.BoundedContextName;
-import io.spine.core.BoundedContextNames;
 import io.spine.logging.WithLogging;
 import io.spine.option.EntityOption.Visibility;
 import io.spine.server.aggregate.AggregateRootDirectory;
@@ -71,6 +70,15 @@ import static java.lang.String.format;
  *
  * <p>An instance of {@code BoundedContext} acts as a major point of configuration for all
  * the model elements that belong to it.
+ *
+ * <p>Within a JVM, an open Bounded Context has a name of its own and serves entity state types
+ * of its own. {@linkplain BoundedContextBuilder#build() Building} a context fails with
+ * {@link DuplicateContextNameException} if another open context has the same name. Adding
+ * a repository fails with {@link DuplicateEntityStateException} if another open context already
+ * serves its entity state type. This holds in tests too.
+ *
+ * <p>Closing a context frees its name and its types, so a test should close the contexts
+ * it builds. Otherwise, the contexts that later tests build cannot reuse those names and types.
  *
  * @see <a href="https://martinfowler.com/bliki/BoundedContext.html">
  *         Martin Fowler on Bounded Contexts</a>
@@ -207,8 +215,7 @@ public abstract class BoundedContext
             guard.register(repository);
         } catch (Throwable t) {
             if (newlyServed) {
-                ServerEnvironment.instance()
-                                 .forget(repository.entityStateType(), this);
+                OpenContexts.forget(repository.entityStateType(), this);
             }
             throw t;
         }
@@ -230,8 +237,7 @@ public abstract class BoundedContext
      */
     private boolean serveStateOf(Repository<?, ?> repository) {
         return !isSystem()
-                && ServerEnvironment.instance()
-                                    .serve(repository.entityStateType(), this);
+                && OpenContexts.serve(repository.entityStateType(), this);
     }
 
     /**
@@ -425,8 +431,7 @@ public abstract class BoundedContext
      * Obtains an ID of the Bounded Context.
      *
      * <p>The ID allows identifying a Bounded Context in a multi-context application.
-     * If the ID was not defined during the building process, the Bounded Context gets
-     * {@link BoundedContextNames#assumingTests()} name.
+     * Two open Bounded Contexts of a JVM cannot have the same ID.
      *
      * @return the ID of this {@code BoundedContext}
      */
@@ -533,15 +538,14 @@ public abstract class BoundedContext
      * Closes all repositories and clears {@link TenantIndex}.
      *
      * <p>Does both even if closing some of the repositories fails, and then throws. After that,
-     * other contexts may serve the entity state types of these repositories. This context
-     * cannot be closed again to retry, because it is no longer open.
+     * another context may have the name of this one and serve the entity state types of these
+     * repositories. This context cannot be closed again to retry, because it is no longer open.
      */
     private void shutDownRepositories() {
         try {
             guard.shutDownRepositories();
         } finally {
-            ServerEnvironment.instance()
-                             .forget(this);
+            OpenContexts.closed(this);
             tenantIndex.close();
         }
     }

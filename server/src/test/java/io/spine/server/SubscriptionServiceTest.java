@@ -1,27 +1,15 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server;
@@ -62,6 +50,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -83,6 +73,14 @@ class SubscriptionServiceTest {
 
     private BoundedContext context;
     private SubscriptionService subscriptionService;
+
+    /**
+     * The other contexts built by the current test.
+     *
+     * <p>They are closed after each test, so that their names are free for the tests
+     * that run later.
+     */
+    private final List<BoundedContext> built = new ArrayList<>();
 
     /** The observer for creating a subscription. */
     private MemoizingObserver<Subscription> observer;
@@ -115,14 +113,16 @@ class SubscriptionServiceTest {
         cancellationObserver = new MemoizingObserver<>();
     }
 
-    private static BoundedContext randomCtx() {
-        return BoundedContext.singleTenant(newUuid())
-                             .build();
+    private BoundedContext randomCtx() {
+        return remember(BoundedContext.singleTenant(newUuid())
+                                      .build());
     }
 
     @AfterEach
     void tearDown() throws Exception {
         context.close();
+        built.forEach(BoundedContext::closeIfOpen);
+        built.clear();
     }
 
     /*
@@ -131,9 +131,15 @@ class SubscriptionServiceTest {
      */
 
     /** Creates a new multi-tenant BoundedContext with the passed name. */
-    private static BoundedContext ctx(String name) {
-        return BoundedContext.multitenant(name)
-                             .build();
+    private BoundedContext ctx(String name) {
+        return remember(BoundedContext.multitenant(name)
+                                      .build());
+    }
+
+    /** Adds the passed context to those closed after the current test. */
+    private BoundedContext remember(BoundedContext context) {
+        built.add(context);
+        return context;
     }
 
     @Nested

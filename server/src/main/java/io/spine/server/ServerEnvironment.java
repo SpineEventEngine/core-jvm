@@ -31,7 +31,6 @@ import io.spine.server.storage.memory.InMemoryStorageFactory;
 import io.spine.server.trace.TracerFactory;
 import io.spine.server.transport.TransportFactory;
 import io.spine.server.transport.memory.InMemoryTransportFactory;
-import io.spine.type.TypeUrl;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -84,12 +83,8 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * of the respective {@code ServerEnvironment} for those Bounded Contexts. In this way,
  * the Contexts would reside in their own JVMs and not overlap on interacting with this singleton.
  *
- * <p>Within a JVM, entities with a given state type can be served by only one open
- * Bounded Context. Adding a repository to a context fails with
- * {@link DuplicateEntityStateException} if another open context already serves the same
- * entity state type. This holds in tests too. Closing a context frees its entity state types,
- * so a test should close the contexts it builds. Otherwise, the contexts of the tests that run
- * later cannot serve the same types.
+ * <p>Within a JVM, each open Bounded Context has a name of its own and serves entity state
+ * types of its own, as described in {@link BoundedContext}.
  */
 public final class ServerEnvironment implements Closeable {
 
@@ -134,14 +129,6 @@ public final class ServerEnvironment implements Closeable {
      */
     private final EnvSetting<TransportFactory> transportFactory =
             new EnvSetting<>(Tests.class, InMemoryTransportFactory::newInstance);
-
-    /**
-     * The record of which open Bounded Context serves which entity state type.
-     *
-     * <p>Unlike the settings, it is not cleared on {@link #reset()}, because it describes
-     * the contexts that are still open.
-     */
-    private final ServedStateTypes servedStateTypes = new ServedStateTypes();
 
     /**
      * Provides schedulers used by all {@code CommandBus} instances of this environment.
@@ -276,44 +263,6 @@ public final class ServerEnvironment implements Closeable {
                                      .orElseThrow(() -> SuggestConfiguring.transportFactory(type));
 
         return result;
-    }
-
-    /**
-     * Obtains the open Bounded Context that serves entities with the given state type.
-     *
-     * @param stateType
-     *         the state type of the entities
-     * @return the context, or {@code Optional.empty()} if no open context serves the type
-     */
-    @Internal
-    public Optional<BoundedContext> findContextServing(TypeUrl stateType) {
-        return Optional.ofNullable(servedStateTypes.contextServing(stateType));
-    }
-
-    /**
-     * Records that the given context serves entities with the given state type.
-     *
-     * @return {@code true} if this call recorded the context for the type,
-     *         {@code false} if the context had been recorded for it before
-     * @throws DuplicateEntityStateException
-     *         if another open context already serves the type
-     */
-    boolean serve(TypeUrl stateType, BoundedContext context) {
-        return servedStateTypes.serve(stateType, context);
-    }
-
-    /**
-     * Records that the given context no longer serves entities with the given state type.
-     */
-    void forget(TypeUrl stateType, BoundedContext context) {
-        servedStateTypes.forget(stateType, context);
-    }
-
-    /**
-     * Records that the given context, which is closing, no longer serves any entities.
-     */
-    void forget(BoundedContext context) {
-        servedStateTypes.forget(context);
     }
 
     private static Environment environment() {
