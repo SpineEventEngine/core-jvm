@@ -56,8 +56,8 @@ Skip this section unless you customize the storage of the `Delivery`.
 
 - `CatchUpStorage` now extends `EntityRecordStorage<CatchUpId, CatchUp>`. Its constructor and
   `StorageFactory.createCatchUpStorage(boolean)` keep their signatures.
-- `readAll()` of `CatchUp` messages is now `readJobs()`, and `read(id)` is `readJob(id)`.
-  `readByType()` stays.
+- `readAll()` of `CatchUp` messages is now `readJobs()`, `read(id)` is `readJob(id)`, and
+  `readByType(TypeUrl)` stays as it was.
 - `write(CatchUp)` is removed. The process managers write the jobs through the inherited
   `write(RecordWithColumns)`; to write a record yourself, use `write(id, record)`.
 - `CatchUpColumn` is removed: the jobs have no column of their own any more.
@@ -90,9 +90,9 @@ the catch-ups, completed ones included. By default, this is the storage that you
 
 - The records of catch-up jobs written before the upgrade hold `CatchUp` messages, not entity
   records, and they are not converted. The jobs of completed catch-ups stay in the storage.
-  The new storage is likely to use the same table, or kind, as the old one: the context and
-  the type that name it are the same. Records of the old format there would fail the reads of
-  the `Delivery`.
+  The new storage is likely to use the same table, or kind, as the old one, because the context
+  and the type that name it are the same. If records of the old format are left there, the reads
+  of the `Delivery` fail on them.
 - A shard maintenance message written before the upgrade is addressed to the shard only.
   The `Delivery` cannot deliver such a message: it fails the delivery run with an error
   that states this rule.

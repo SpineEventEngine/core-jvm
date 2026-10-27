@@ -61,7 +61,7 @@ internal class TallyContexts : AutoCloseable {
      */
     fun emit(context: String, vararg ids: String, count: Int = EVENTS_PER_TALLY) {
         repeat(count) {
-            ids.forEach { post(context, it) }
+            ids.forEach { post(context = context, id = it) }
         }
     }
 
