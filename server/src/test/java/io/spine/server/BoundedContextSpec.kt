@@ -372,6 +372,8 @@ internal class BoundedContextSpec {
             object : BoundedContext(assumingTests()) {
                 @Internal
                 override fun systemClient(): SystemClient = TestValues.nullRef()
+
+                override fun isSystem(): Boolean = false
             }
         }
     }
