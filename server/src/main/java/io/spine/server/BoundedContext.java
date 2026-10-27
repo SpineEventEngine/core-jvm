@@ -208,7 +208,7 @@ public abstract class BoundedContext
         } catch (Throwable t) {
             if (newlyServed) {
                 ServerEnvironment.instance()
-                                 .forget(this, repository.entityStateType());
+                                 .forget(repository.entityStateType(), this);
             }
             throw t;
         }
@@ -232,7 +232,7 @@ public abstract class BoundedContext
     private boolean serveStateOf(Repository<?, ?> repository) {
         return this instanceof DomainContext
                 && ServerEnvironment.instance()
-                                    .serve(this, repository.entityStateType());
+                                    .serve(repository.entityStateType(), this);
     }
 
     /**

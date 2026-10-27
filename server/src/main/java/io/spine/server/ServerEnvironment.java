@@ -298,14 +298,14 @@ public final class ServerEnvironment implements Closeable {
      * @throws DuplicateEntityStateException
      *         if another open context already serves the type
      */
-    boolean serve(BoundedContext context, TypeUrl stateType) {
+    boolean serve(TypeUrl stateType, BoundedContext context) {
         return servedStateTypes.serve(stateType, context);
     }
 
     /**
      * Records that the given context no longer serves entities with the given state type.
      */
-    void forget(BoundedContext context, TypeUrl stateType) {
+    void forget(TypeUrl stateType, BoundedContext context) {
         servedStateTypes.forget(stateType, context);
     }
 
