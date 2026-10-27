@@ -93,4 +93,19 @@ internal class ServedStateTypes {
     @Synchronized
     fun contextsServing(stateType: TypeUrl): ImmutableList<BoundedContextName> =
         ImmutableList.copyOf(contexts[stateType].orEmpty().map { it.name() })
+
+    /**
+     * Obtains the open context that serves entities with the given state type.
+     *
+     * @return The context, or `null` if no open context serves the type.
+     * @throws DuplicateEntityStateException If more than one open context serves the type.
+     */
+    @Synchronized
+    fun findContextServing(stateType: TypeUrl): BoundedContext? {
+        val serving = contexts[stateType].orEmpty()
+        if (serving.size > 1) {
+            throw DuplicateEntityStateException(stateType, serving.map { it.name() })
+        }
+        return serving.firstOrNull()
+    }
 }

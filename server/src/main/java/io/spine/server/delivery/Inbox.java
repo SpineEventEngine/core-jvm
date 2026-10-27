@@ -1,33 +1,22 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.delivery;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.annotation.Internal;
+import io.spine.core.BoundedContextName;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventEnvelope;
@@ -59,6 +48,7 @@ public final class Inbox<I> {
     private final InboxOfEvents<I> eventPart;
     private final Delivery delivery;
     private final @Nullable BatchDeliveryListener<I> batchDispatcher;
+    private final @Nullable BoundedContextName contextName;
 
     private Inbox(Builder<I> builder, Delivery delivery) {
         this.entityStateType = builder.entityStateType;
@@ -66,6 +56,7 @@ public final class Inbox<I> {
         this.eventPart = new InboxOfEvents<>(builder);
         this.delivery = delivery;
         this.batchDispatcher = builder.batchDispatcher;
+        this.contextName = builder.contextName;
     }
 
     /**
@@ -112,6 +103,14 @@ public final class Inbox<I> {
     }
 
     /**
+     * Returns the name of the Bounded Context, to which this {@code Inbox} belongs,
+     * or {@code null} if it was not {@linkplain Builder#withContext(BoundedContextName) set}.
+     */
+    @Nullable BoundedContextName contextName() {
+        return contextName;
+    }
+
+    /**
      * Returns an {@code Inbox}-specific mechanism of delivery the previously sharded messages
      * to the endpoints configured for this {@code Inbox} instance.
      */
@@ -142,6 +141,7 @@ public final class Inbox<I> {
         private final Endpoints<I, EventEnvelope> eventEndpoints = new Endpoints<>();
         private final Endpoints<I, CommandEnvelope> commandEndpoints = new Endpoints<>();
         private @Nullable BatchDeliveryListener<I> batchDispatcher;
+        private @Nullable BoundedContextName contextName;
 
         /**
          * Creates an instance of {@code Builder} for the given {@code Inbox} consumer entity type.
@@ -189,6 +189,18 @@ public final class Inbox<I> {
         @CanIgnoreReturnValue
         public Builder<I> withBatchListener(BatchDeliveryListener<I> dispatcher) {
             this.batchDispatcher = checkNotNull(dispatcher);
+            return this;
+        }
+
+        /**
+         * Sets the name of the Bounded Context, to which the {@code Inbox} belongs.
+         *
+         * <p>The {@code Delivery} needs it for the inboxes of the catch-up machinery, because
+         * every System context has inboxes of these types.
+         */
+        @CanIgnoreReturnValue
+        public Builder<I> withContext(BoundedContextName name) {
+            this.contextName = checkNotNull(name);
             return this;
         }
 

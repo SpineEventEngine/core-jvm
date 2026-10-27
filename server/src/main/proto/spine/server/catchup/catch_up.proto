@@ -28,9 +28,11 @@ import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
 
 import "spine/core/event.proto";
+import "spine/core/tenant_id.proto";
 
 // A state of a catch-up process.
 message CatchUp {
+    option (entity).kind = PROCESS_MANAGER;
     option (is).java_type = "CatchUpMixin";
 
     CatchUpId id = 1;
@@ -84,6 +86,13 @@ message CatchUp {
 
     // The indexes of shards in which the dispatching of the catch-up events is finalized.
     repeated int32 finalized_shard = 8;
+
+    // The tenant whose projection instances are caught up.
+    //
+    // Set only if the projections belong to a multi-tenant Bounded Context. If not set,
+    // the catch-up processes the messages of any tenant.
+    //
+    spine.core.TenantId tenant = 9;
 }
 
 // An ID of a catch-up process.

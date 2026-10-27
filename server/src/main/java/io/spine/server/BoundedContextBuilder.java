@@ -576,9 +576,6 @@ public final class BoundedContextBuilder implements WithLogging {
         try {
             registerRepositories(result);
             registerDispatchers(result);
-            ServerEnvironment.instance()
-                             .delivery()
-                             .registerDispatchersIn(result);
         } catch (Throwable t) {
             closeAfterFailure(result, t);
             throw t;

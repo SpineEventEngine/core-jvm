@@ -1,27 +1,15 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.system.server;
@@ -30,13 +18,16 @@ import io.spine.annotation.Internal;
 import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.server.ServerEnvironment;
+import io.spine.server.delivery.CatchUpRepository;
+import io.spine.server.delivery.ShardMaintenanceRepository;
 import io.spine.server.event.EventDispatcher;
 
 /**
  * An implementation of {@link BoundedContext} used for the System domain.
  *
  * <p>Orchestrates the system entities that serve the goal of monitoring, auditing, and debugging
- * the domain-specific entities.
+ * the domain-specific entities. It also runs the catch-up of the projections of the associated
+ * Bounded Context.
  *
  * <p>Each {@link BoundedContext} has an associated {@code SystemContext}. The system entities
  * describe the meta information about the domain entities of the associated {@link BoundedContext}.
@@ -78,7 +69,16 @@ public final class SystemContext extends BoundedContext {
         return result;
     }
 
+    /**
+     * Registers the repositories of the system entities.
+     *
+     * <p>The repositories of the catch-up and shard maintenance processes are always
+     * registered. Together, they perform the catch-up of the projections of the associated
+     * domain context.
+     */
     private void registerRepositories(CommandLogRepository commandLog) {
+        register(new CatchUpRepository());
+        register(new ShardMaintenanceRepository());
         if (config.includeCommandLog()) {
             register(commandLog);
             register(new ScheduledCommandRepository());

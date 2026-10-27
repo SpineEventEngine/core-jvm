@@ -24,12 +24,10 @@ import io.spine.annotation.VisibleForTesting;
 import io.spine.core.BoundedContextName;
 import io.spine.core.BoundedContextNames;
 import io.spine.logging.WithLogging;
-import io.spine.server.BoundedContext;
 import io.spine.server.ContextSpec;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.bus.MulticastDispatchListener;
 import io.spine.server.delivery.memory.InMemoryShardedWorkRegistry;
-import io.spine.server.projection.ProjectionRepository;
 import io.spine.string.Stringifiers;
 import io.spine.type.TypeUrl;
 
@@ -105,13 +103,11 @@ import static java.util.Collections.synchronizedList;
  * read from the history at a time. This is helpful to balance the per-shard throughput, so
  * that the live messages are still dispatched through the same shards in a reasonable time.
  *
- * <p>The statuses of the ongoing catch-up processes are stored in a dedicated
+ * <p>The statuses of the catch-up processes are stored in a dedicated
  * {@link CatchUpStorage}. The {@code DeliveryBuilder} {@linkplain
  * DeliveryBuilder#setCatchUpStorage(CatchUpStorage) exposes an API} for the customization of this
- * storage. By default, the {@code CatchUpStorage} is single-tenant. However,
- * as with the {@code InboxStorage} used by the {@code Delivery}, it should be configured
- * as multi-tenant if at least one {@code BoundedContext} served by the {@code Delivery}
- * is multi-tenant.
+ * storage. The catch-up processes of all Bounded Contexts and all tenants share it,
+ * so it must be single-tenant, as it is by default.
  *
  * <h3>Observers</h3>
  *
@@ -205,11 +201,9 @@ import static java.util.Collections.synchronizedList;
  *
  * <h3>Shard maintenance</h3>
  *
- * <p>To perform the maintenance procedures, the {@code Delivery} requires all the {@code
- * BoundedContext}s to register themselves in it. Upon this registration, a special
- * {@link ShardMaintenanceProcess} is registered as an event dispatcher in a passed
- * {@code BoundedContext}. Such a registration is performed automatically when the context is
- * {@linkplain  io.spine.server.BoundedContextBuilder#build() built}.
+ * <p>A catch-up needs to know that the {@code Delivery} has processed a shard. It asks for it
+ * with a special message, which the {@code Delivery} delivers through the shard to the System
+ * context of the Bounded Context that serves the projections.
  */
 @SuppressWarnings({"OverlyCoupledClass", "ClassWithTooManyMethods"}) // It's fine for a centerpiece.
 public final class Delivery implements WithLogging {
@@ -582,7 +576,7 @@ public final class Delivery implements WithLogging {
         var hasUndelivered = messages.stream()
                                      .anyMatch(message -> message.getStatus() != DELIVERED);
         return hasUndelivered
-               ? baseline.compare(catchUpStorage.readAll())
+               ? baseline.compare(catchUpStorage.readJobs())
                : CatchUpJobs.none();
     }
 
@@ -690,38 +684,6 @@ public final class Delivery implements WithLogging {
     }
 
     /**
-     * Creates a new instance of the builder for {@link CatchUpProcess}.
-     *
-     * @param repo
-     *         projection repository for which the catch-up process will be created
-     * @param <I>
-     *         the type of identifiers of entities managed by the projection repository
-     * @return new builder for the {@code CatchUpProcess}
-     */
-    public <I> CatchUpProcessBuilder<I> newCatchUpProcess(ProjectionRepository<I, ?, ?> repo) {
-        var builder = CatchUpProcess.newBuilder(repo);
-        CatchUpRepositories.cache().put(repo);
-        return builder.setStorage(catchUpStorage)
-                      .setPageSize(catchUpPageSize);
-    }
-
-    /**
-     * Registers the internal {@code Delivery} message dispatchers
-     * in the given {@code BoundedContext}.
-     *
-     * <p>The registration of the dispatchers allows one to handle the
-     * {@code Delivery}-specific events.
-     *
-     * @param context
-     *         Bounded Context in which the message dispatchers should be registered
-     */
-    @Internal
-    public void registerDispatchersIn(BoundedContext context) {
-        context.internalAccess()
-               .registerEventDispatcher(new ShardMaintenanceProcess(this));
-    }
-
-    /**
      * Returns a listener of the dispatching operations occurring in the
      * {@link io.spine.server.bus.MulticastBus MulticastBus}es.
      */
@@ -785,9 +747,15 @@ public final class Delivery implements WithLogging {
     /**
      * Returns the instance of {@link CatchUpStorage} used by this {@code Delivery}.
      */
-    @VisibleForTesting
     CatchUpStorage catchUpStorage() {
         return catchUpStorage;
+    }
+
+    /**
+     * Returns the maximum number of events a catch-up reads from the event history at a time.
+     */
+    int catchUpPageSize() {
+        return catchUpPageSize;
     }
 
     int shardCount() {

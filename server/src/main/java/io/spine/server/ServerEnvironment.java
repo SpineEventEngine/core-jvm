@@ -308,6 +308,23 @@ public final class ServerEnvironment implements Closeable {
     }
 
     /**
+     * Obtains the open Bounded Context that serves entities with the given state type.
+     *
+     * @param stateType
+     *         the state type of the entities
+     * @return the context, or {@code Optional.empty()} if no open context serves the type
+     * @throws DuplicateEntityStateException
+     *         if more than one open context serves the type, which is possible only if
+     *         the check of duplicate entity states was
+     *         {@linkplain TypeConfigurator#checkDuplicateEntityStates(boolean) off} when
+     *         the contexts were given their repositories; this is the default in tests
+     */
+    @Internal
+    public Optional<BoundedContext> findContextServing(TypeUrl stateType) {
+        return Optional.ofNullable(servedStateTypes.findContextServing(stateType));
+    }
+
+    /**
      * Records that the given context serves entities with the given state type.
      *
      * @return {@code true} if this call recorded the context for the type,

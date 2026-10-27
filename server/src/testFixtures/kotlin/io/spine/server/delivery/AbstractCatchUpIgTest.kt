@@ -90,6 +90,9 @@ abstract class AbstractCatchUpIgTest : AbstractDeliveryTest() {
      * @param strategy The strategy of the delivery.
      * @param observer The observer that delivers each message sent to an inbox,
      *   `LocalDispatchingObserver` by default.
+     * @param onePagePerRun If `true`, each delivery run ends after the first page in which it
+     *   delivers a message. A test that delivers the shards in turn uses it, so that the work
+     *   of one shard does not run to its end before the other shards are delivered.
      * @param configure Sets other properties of the delivery, such as its storages,
      *   the size of a page, or the deduplication window, which is zero by default.
      *   The monitor is set after this function runs, so the function cannot replace
@@ -101,9 +104,10 @@ abstract class AbstractCatchUpIgTest : AbstractDeliveryTest() {
     protected fun useDelivery(
         strategy: DeliveryStrategy,
         observer: ShardObserver = LocalDispatchingObserver(),
+        onePagePerRun: Boolean = false,
         configure: (DeliveryBuilder) -> Unit = {}
     ): Delivery {
-        val watchdog = Watchdog()
+        val watchdog = Watchdog(onePagePerRun)
         val builder = Delivery.newBuilder()
             .setStrategy(strategy)
             .setDeduplicationWindow(Durations.ZERO)
@@ -195,8 +199,11 @@ abstract class AbstractCatchUpIgTest : AbstractDeliveryTest() {
     /**
      * Records the receptor failures, which `Delivery` does not throw, and stops
      * the delivery once 30 seconds have passed since the watchdog was created.
+     *
+     * @param onePagePerRun If `true`, also stops each run after the first page
+     *   in which it delivers a message.
      */
-    private inner class Watchdog : DeliveryMonitor() {
+    private inner class Watchdog(private val onePagePerRun: Boolean) : DeliveryMonitor() {
 
         private val deadline = TimeSource.Monotonic.markNow() + WATCHDOG_SECONDS.seconds
 
@@ -211,7 +218,8 @@ abstract class AbstractCatchUpIgTest : AbstractDeliveryTest() {
             return up
         }
 
-        override fun shouldContinueAfter(stage: DeliveryStage): Boolean = !timeIsUp()
+        override fun shouldContinueAfter(stage: DeliveryStage): Boolean =
+            !timeIsUp() && !(onePagePerRun && stage.messagesDelivered > 0)
 
         override fun onReceptionFailure(reception: FailedReception): FailedReception.Action {
             val error = reception.error()

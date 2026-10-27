@@ -23,6 +23,8 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.spine.base.Time.currentTime
+import io.spine.core.TenantId
+import io.spine.core.copy
 import io.spine.server.delivery.CatchUpStatus.COMPLETED
 import io.spine.server.delivery.CatchUpStatus.FINALIZING
 import io.spine.server.delivery.CatchUpStatus.IN_PROGRESS
@@ -30,8 +32,10 @@ import io.spine.server.delivery.CatchUpStatus.STARTED
 import io.spine.server.delivery.given.CounterView
 import io.spine.server.delivery.given.TestCatchUpJobs.catchUpJob
 import io.spine.server.delivery.given.TestInboxMessages.catchingUp
+import io.spine.server.delivery.given.TestTenants
 import io.spine.test.delivery.Calc
 import io.spine.test.delivery.DTask
+import io.spine.test.delivery.TallyA1
 import io.spine.type.TypeUrl
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -48,7 +52,12 @@ internal class CatchUpJobsSpec {
     private val typeWithoutJobs = TypeUrl.of(DTask::class.java)
 
     /**
-     * Jobs catching up all instances or some of them, of two types, completed and not.
+     * The type of the projections of a multi-tenant context, whose jobs have tenants.
+     */
+    private val typeOfTenants = TypeUrl.of(TallyA1::class.java)
+
+    /**
+     * Jobs catching up all instances or some of them, of three types, completed and not.
      */
     private val pool = listOf(
         catchUpJob(type, COMPLETED, currentTime(), null),
@@ -58,6 +67,10 @@ internal class CatchUpJobsSpec {
         catchUpJob(type, COMPLETED, currentTime(), listOf(SECOND, THIRD)),
         catchUpJob(anotherType, STARTED, currentTime(), null),
         catchUpJob(anotherType, COMPLETED, currentTime(), listOf(FIRST)),
+        catchUpJob(typeOfTenants, COMPLETED, currentTime(), null).ofTenant(TestTenants.X),
+        catchUpJob(typeOfTenants, IN_PROGRESS, currentTime(), listOf(FIRST))
+            .ofTenant(TestTenants.X),
+        catchUpJob(typeOfTenants, STARTED, currentTime(), null).ofTenant(TestTenants.Y),
     )
 
     private val messages = listOf(
@@ -67,6 +80,10 @@ internal class CatchUpJobsSpec {
         catchingUp(FOURTH, type),
         catchingUp(FIRST, anotherType),
         catchingUp(FIRST, typeWithoutJobs),
+        catchingUp(FIRST, typeOfTenants).ofTenant(TestTenants.X),
+        catchingUp(SECOND, typeOfTenants).ofTenant(TestTenants.X),
+        catchingUp(FIRST, typeOfTenants).ofTenant(TestTenants.Y),
+        catchingUp(FIRST, typeOfTenants).ofTenant(TestTenants.Z),
     )
 
     @Test
@@ -93,6 +110,28 @@ internal class CatchUpJobsSpec {
     }
 
     @Test
+    fun `choose the job of the tenant of the message`() {
+        val ofX = catchUpJob(typeOfTenants, IN_PROGRESS, currentTime(), null)
+            .ofTenant(TestTenants.X)
+        val ofY = catchUpJob(typeOfTenants, IN_PROGRESS, currentTime(), null)
+            .ofTenant(TestTenants.Y)
+        val jobs = CatchUpJobs.of(listOf(ofX, ofY))
+
+        jobs.jobFor(catchingUp(FIRST, typeOfTenants).ofTenant(TestTenants.X)) shouldBe ofX
+        jobs.jobFor(catchingUp(FIRST, typeOfTenants).ofTenant(TestTenants.Y)) shouldBe ofY
+        jobs.jobFor(catchingUp(FIRST, typeOfTenants).ofTenant(TestTenants.Z)).shouldBeNull()
+    }
+
+    @Test
+    fun `choose a job with no tenant for a message of any tenant`() {
+        val job = catchUpJob(type, IN_PROGRESS, currentTime(), listOf(FIRST))
+        val jobs = CatchUpJobs.of(listOf(job))
+
+        jobs.jobFor(catchingUp(FIRST, type)) shouldBe job
+        jobs.jobFor(catchingUp(FIRST, type).ofTenant(TestTenants.X)) shouldBe job
+    }
+
+    @Test
     fun `choose among the matching jobs of any subset in any order, preferring an ongoing one`() {
         val variants = pool.subsets().flatMap { listOf(it, it.reversed()) }
         for (jobs in variants) {
@@ -112,6 +151,23 @@ internal class CatchUpJobsSpec {
         const val SECOND = "second"
         const val THIRD = "third"
         const val FOURTH = "fourth"
+    }
+}
+
+/**
+ * Returns a copy of this job, which works with the data of the given tenant.
+ */
+private fun CatchUp.ofTenant(tenant: TenantId): CatchUp =
+    copy { this.tenant = tenant }
+
+/**
+ * Returns a copy of this message, whose command is sent by the given tenant.
+ */
+private fun InboxMessage.ofTenant(tenant: TenantId): InboxMessage = copy {
+    command = command.copy {
+        context = context.copy {
+            actorContext = actorContext.copy { tenantId = tenant }
+        }
     }
 }
 

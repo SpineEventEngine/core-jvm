@@ -44,7 +44,7 @@ import org.junit.jupiter.api.Timeout.ThreadMode.SEPARATE_THREAD
  * It happens when a delivery run processes the signals with the jobs that do not include
  * the new one yet. Because each run reads the jobs again for each page, making this happen
  * takes a storage whose queries lag behind its writes, as eventually consistent queries do.
- * The catch-up storage of this test lets the test freeze what `readAll()` returns, which
+ * The catch-up storage of this test lets the test freeze what `readJobs()` returns, which
  * `Delivery` reads the jobs with, while the other reads and the writes go through.
  *
  * The system events are posted in parallel, as in production, through an executor that runs
@@ -85,6 +85,8 @@ internal class KeptStartSignalIgTest : AbstractCatchUpIgTest() {
             catchUpStorage.freezeQueries()
             systemEvents.hold()
             val job = repository.catchUp(since, TARGETS)
+            // The request is a system event too. Release it, so that only the reports stay held.
+            systemEvents.releaseFirst()
 
             withClue("The start signals, delivered and kept by the completed job") {
                 startSignalsOf(job).map { it.status to it.hasKeepUntil() } shouldBe
@@ -99,7 +101,7 @@ internal class KeptStartSignalIgTest : AbstractCatchUpIgTest() {
                     inboxStorage.reportsOf(job).sorted() shouldBe TARGETS.sorted()
                 }
                 withClue("The state of the job") {
-                    val state = catchUpStorage.read(job).getOrNull()
+                    val state = catchUpStorage.readJob(job).getOrNull()
                     state?.status shouldBe COMPLETED
                     state?.instancesToClear shouldBe 0
                 }
@@ -177,9 +179,9 @@ internal class KeptStartSignalIgTest : AbstractCatchUpIgTest() {
 }
 
 /**
- * A catch-up storage whose `readAll()` may lag behind its writes.
+ * A catch-up storage whose `readJobs()` may lag behind its writes.
  *
- * Once frozen, `readAll()` returns the jobs stored at that moment, until unfrozen.
+ * Once frozen, `readJobs()` returns the jobs stored at that moment, until unfrozen.
  * The other reads and the writes go through.
  */
 private class LaggingCatchUpStorage :
@@ -188,12 +190,12 @@ private class LaggingCatchUpStorage :
     private var frozen: List<CatchUp>? = null
 
     fun freezeQueries() {
-        frozen = super.readAll().asSequence().toList()
+        frozen = super.readJobs().asSequence().toList()
     }
 
     fun unfreezeQueries() {
         frozen = null
     }
 
-    override fun readAll(): Iterator<CatchUp> = frozen?.iterator() ?: super.readAll()
+    override fun readJobs(): Iterator<CatchUp> = frozen?.iterator() ?: super.readJobs()
 }

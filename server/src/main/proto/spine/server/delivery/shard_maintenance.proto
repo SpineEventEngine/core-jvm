@@ -1,0 +1,54 @@
+/*
+ * Copyright 2026 CodeMatters, Lda.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
+ */
+
+syntax = "proto3";
+
+package spine.server.delivery;
+
+import "spine/options.proto";
+
+option (type_url_prefix) = "type.spine.io";
+option (internal_all) = true;
+
+option java_package = "io.spine.server.delivery";
+option java_outer_classname = "ShardMaintenanceProto";
+option java_multiple_files = true;
+
+import "spine/server/delivery/delivery.proto";
+import "spine/server/catchup/catch_up.proto";
+
+// A process that makes sure that the `Delivery` has processed the messages of a shard,
+// when a catch-up job asks for it.
+//
+// Each System Bounded Context has its own repository of these processes.
+//
+message ShardMaintenance {
+    option (entity).kind = PROCESS_MANAGER;
+
+    ShardMaintenanceId id = 1;
+}
+
+// An ID of a `ShardMaintenance` process.
+//
+// The job is a part of the ID, because the jobs of several Bounded Contexts may ask for
+// the same shard. The job tells which System context the request belongs to.
+//
+message ShardMaintenanceId {
+
+    // The shard to process.
+    ShardIndex shard = 1 [(required) = true, (validate) = true];
+
+    // The catch-up job that asked for the processing.
+    catchup.CatchUpId job = 2 [(required) = true];
+}
