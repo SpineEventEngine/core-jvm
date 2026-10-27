@@ -16,14 +16,20 @@ package io.spine.server
 
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.spine.core.Ack
 import io.spine.core.BoundedContextNames
+import io.spine.server.bus.BusFilter
 import io.spine.server.delivery.given.DeliveryTestEnv.CalculatorRepository
+import io.spine.server.type.CommandEnvelope
 import io.spine.test.delivery.Calc
 import io.spine.type.TypeUrl
+import java.util.Optional
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -54,6 +60,26 @@ internal class DuplicateContextNameSpec {
         }
         error.message shouldBe "A Bounded Context named `$sameName` is already open." +
                 " Close it, or give the new context another name."
+    }
+
+    @Test
+    fun `reject a context with the name of the System context of an open context`() {
+        context(ownerName)
+
+        val error = shouldThrow<DuplicateContextNameException> {
+            context(ownerSystemName)
+        }
+        error.message shouldContain "`$ownerSystemName`"
+    }
+
+    @Test
+    fun `reject a context whose System context would have the name of an open context`() {
+        context(ownerSystemName)
+
+        val error = shouldThrow<DuplicateContextNameException> {
+            context(ownerName)
+        }
+        error.message shouldContain "`$ownerSystemName`"
     }
 
     @Test
@@ -114,6 +140,23 @@ internal class DuplicateContextNameSpec {
         }
     }
 
+    @Test
+    fun `free the name and the types of a context whose bus fails to close`() {
+        val first = BoundedContext.singleTenant(failingName)
+            .addCommandFilter(FailingToClose())
+            .add(CalculatorRepository())
+            .build()
+            .also(built::add)
+
+        shouldThrow<IllegalStateException> {
+            first.close()
+        }
+        OpenContexts.findContextServing(calc).shouldBeNull()
+        shouldNotThrowAny {
+            context(failingName, CalculatorRepository())
+        }
+    }
+
     private fun context(name: String, vararg repositories: CalculatorRepository): BoundedContext {
         val builder = BoundedContext.singleTenant(name)
         repositories.forEach { builder.add(it) }
@@ -135,6 +178,16 @@ internal class DuplicateContextNameSpec {
         }
     }
 
+    /**
+     * A command filter that fails to close, which makes closing the command bus fail.
+     */
+    private class FailingToClose : BusFilter<CommandEnvelope> {
+
+        override fun filter(envelope: CommandEnvelope): Optional<Ack> = Optional.empty()
+
+        override fun close() = error("The filter failed to close.")
+    }
+
     private companion object {
 
         val calc: TypeUrl = TypeUrl.of(Calc::class.java)
@@ -147,5 +200,12 @@ internal class DuplicateContextNameSpec {
         const val reusedName = "DuplicateContextNameSpec.Reused"
         const val firstName = "DuplicateContextNameSpec.First"
         const val secondName = "DuplicateContextNameSpec.Second"
+        const val failingName = "DuplicateContextNameSpec.Failing"
+        const val ownerName = "DuplicateContextNameSpec.Owner"
+
+        /**
+         * The name of the System context of the context named [ownerName].
+         */
+        val ownerSystemName: String = BoundedContextNames.newName(ownerName).toSystem().value
     }
 }

@@ -571,13 +571,15 @@ public final class BoundedContextBuilder implements WithLogging {
      * <p>The name of the System Bounded Context is derived from the name of the Domain Bounded
      * Context.
      *
-     * <p>If another open Bounded Context has the same name, the method throws before building
-     * anything. If registering the repositories or the dispatchers fails, the method closes
+     * <p>If another open Bounded Context has the name of the new context or of its System
+     * context, the method throws before building anything. If registering the repositories
+     * or the dispatchers fails, the method closes
      * the context before throwing.
      *
      * @return new {@code BoundedContext}
      * @throws DuplicateContextNameException
-     *         if another open Bounded Context has the same name
+     *         if another open Bounded Context has the name of the new context or of its
+     *         System context
      * @throws DuplicateEntityStateException
      *         if another open Bounded Context already serves entities with the state
      *         type of one of the repositories

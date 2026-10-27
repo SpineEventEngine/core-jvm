@@ -22,8 +22,8 @@ import io.spine.type.TypeUrl
  * The record lets only one open context serve a state type.
  *
  * Contexts are told apart by identity, not by [name][BoundedContext.equals]. Two open contexts
- * cannot have one name, but a closed context and a newer one can have one. A late call for
- * the closed context must not change the record of the newer one.
+ * cannot have one name, but a closed context and a newer context can have the same name.
+ * A late call for the closed context must not remove the types that the newer context serves.
  *
  * @see OpenContexts
  */

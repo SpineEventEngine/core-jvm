@@ -24,12 +24,13 @@ import io.spine.type.TypeUrl
  * and one storage factory. So an open domain context must have a name of its own and serve
  * entity state types of its own. See [DuplicateContextNameException] for why names matter.
  *
- * The object guards both rules:
+ * The object enforces both rules in three steps:
  *
  * - [checkNameFree] throws [DuplicateContextNameException] if an open context has the name
  *   of a context about to be built. It runs before anything is built: a System context,
  *   for example, registers the inboxes of its repositories as soon as it is built.
- * - [opened] records the new context, before its repositories are added.
+ * - [opened] records the new context before its repositories are registered, so that its name
+ *   is taken while they register.
  * - [serve] records the state type of a repository added to a context. It throws
  *   [DuplicateEntityStateException] if another open context already serves the type.
  *
@@ -37,11 +38,12 @@ import io.spine.type.TypeUrl
  * with one name at the same time may both pass the check. Building contexts is rarely that
  * concurrent, so this object does not guard against it.
  *
- * Closing a context frees its name and its types. So a test should close the contexts
- * it builds. Otherwise, the contexts that later tests build cannot reuse those names and types.
+ * A closed context is no longer open, so another context may have its name and serve its
+ * entity state types. See [BoundedContext] on what this means for tests.
  *
  * System contexts are not recorded. Their names follow the names of their domain contexts,
- * and all of them serve the same entity state types.
+ * so [checkNameFree] checks them through their domain contexts. All of them serve the same
+ * entity state types.
  *
  * Contexts are told apart by identity, not by [name][BoundedContext.equals].
  */
@@ -61,16 +63,20 @@ internal object OpenContexts {
     private val servedStateTypes = ServedStateTypes()
 
     /**
-     * Checks that no open context has the given name.
+     * Checks that no open context has the given name, or the name of the System context
+     * that a domain context with the given name gets.
      *
-     * @throws DuplicateContextNameException If an open context has the name.
+     * The System contexts of the open domain contexts count too.
+     *
+     * @throws DuplicateContextNameException If an open context has one of the names.
      */
     @JvmStatic
     fun checkNameFree(name: BoundedContextName) {
         synchronized(contexts) {
-            if (contexts.any { it.name() == name }) {
-                throw DuplicateContextNameException(name)
-            }
+            val taken = contexts.flatMap { listOf(it.name(), it.name().toSystem()) }
+            listOf(name, name.toSystem())
+                .firstOrNull { it in taken }
+                ?.let { throw DuplicateContextNameException(it) }
         }
     }
 

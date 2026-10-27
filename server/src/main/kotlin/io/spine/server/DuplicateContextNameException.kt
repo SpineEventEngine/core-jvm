@@ -22,12 +22,16 @@ import java.io.Serial
  * An exception thrown when a Bounded Context is built with the name of another open
  * Bounded Context of the JVM.
  *
+ * The System context of a Bounded Context is an open context too. So a context cannot have
+ * the name of the System context of another open one, and its own System context cannot have
+ * the name of another open context.
+ *
  * The framework tells Bounded Contexts apart by name in several places. For example,
  * the integration transport takes a message from a context with the same name for one of its
  * own, and the event store keeps the events of a context under its name. So two open contexts
  * with one name would be taken for one another.
  *
- * @param name The name of the context.
+ * @param name The name that another open context already has.
  * @see BoundedContextBuilder.build
  */
 public class DuplicateContextNameException internal constructor(

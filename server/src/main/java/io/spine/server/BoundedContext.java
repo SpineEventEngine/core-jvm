@@ -77,8 +77,9 @@ import static java.lang.String.format;
  * a repository fails with {@link DuplicateEntityStateException} if another open context already
  * serves its entity state type. This holds in tests too.
  *
- * <p>Closing a context frees its name and its types, so a test should close the contexts
- * it builds. Otherwise, the contexts that later tests build cannot reuse those names and types.
+ * <p>A closed context is no longer open, so another context may have its name and serve its
+ * entity state types. A test should therefore close the contexts it builds. Otherwise,
+ * the contexts that later tests build cannot have those names or serve those types.
  *
  * @see <a href="https://martinfowler.com/bliki/BoundedContext.html">
  *         Martin Fowler on Bounded Contexts</a>
@@ -482,6 +483,8 @@ public abstract class BoundedContext
      * </ol>
      *
      * <p>If {@code onBeforeClose} throws, the method still closes the rest, and then throws.
+     * If closing one of the buses throws, the method still closes the repositories, and then
+     * throws.
      */
     @Override
     public void close() {
@@ -498,17 +501,23 @@ public abstract class BoundedContext
     /**
      * Closes the buses, the repositories, and the probe of this context.
      *
+     * <p>Shuts down the repositories even if closing a bus fails. Otherwise, the context
+     * would keep its name and its entity state types for good, because it is no longer open,
+     * and so cannot be closed again.
+     *
      * @param wasOpen
      *         tells if the context was open when the closing started
      */
     private void closeComponents(boolean wasOpen) {
-        commandBus.closeIfOpen();
-        eventBus.closeIfOpen();
-        broker.closeIfOpen();
-        stand.closeIfOpen();
-
-        if (wasOpen) {
-            shutDownRepositories();
+        try {
+            commandBus.closeIfOpen();
+            eventBus.closeIfOpen();
+            broker.closeIfOpen();
+            stand.closeIfOpen();
+        } finally {
+            if (wasOpen) {
+                shutDownRepositories();
+            }
         }
         if (hasProbe()) {
             removeProbe();

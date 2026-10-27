@@ -120,9 +120,12 @@ class SubscriptionServiceTest {
 
     @AfterEach
     void tearDown() throws Exception {
-        context.close();
-        built.forEach(BoundedContext::closeIfOpen);
-        built.clear();
+        try {
+            context.close();
+        } finally {
+            built.forEach(BoundedContext::closeIfOpen);
+            built.clear();
+        }
     }
 
     /*

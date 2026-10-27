@@ -39,8 +39,8 @@ this change.
       dependency reports for `.600`: `:server` 2,179 tests (1 skipped), `:server-testlib` 159,
       `:server-otel` 22, `:core` 180, `:client` 189, `:core-testlib` 25, `:client-testlib` 2;
       0 failures. No unresolved doc links.
-- [ ] A PR with the base `strict-duplicate-entity-state-check` (#1700), as the owner decided
-      on 2026-10-27.
+- [x] PR #1701 with the base `strict-duplicate-entity-state-check` (#1700), as the owner
+      decided on 2026-10-27. `pre-pr` passed at `55f0b71d26d`.
 
 ## Design
 
@@ -101,19 +101,34 @@ this change.
 - `review-docs`: the public `BoundedContext.name()` Javadoc no longer links `@Internal` API;
   wording fixes in the KDoc of `OpenContexts`, `ServedStateTypes`, and the exception.
 - `spine-code-review` and `kotlin-engineer`: the stale KDoc of `ServedStateTypesSpec`.
+- Pre-PR Should-fix items, applied at the owner's request:
+  - `BoundedContext.closeComponents()` shuts down the repositories even if closing a bus
+    fails. Before, such a context kept its name and its types for good: it was no longer
+    open, so it could not be closed again. Covered by a new `DuplicateContextNameSpec` case
+    with a command filter that fails to close.
+  - Docs: the class docs of `BoundedContext` and `OpenContexts` no longer say that closing
+    "frees" the name; the `ServedStateTypes` KDoc is clearer.
+  - `ContextAwareTestTest` and `SubscriptionServiceTest` close their contexts in `finally`.
+- Codex on #1701:
+  - P1, applied: `checkNameFree()` also rejects the name of the System context of an open
+    context, and a name whose System context would have the name of an open context
+    (`Users` and `Users_System`). Two new `DuplicateContextNameSpec` cases.
+  - P2, not applied: reserving the name before the build callbacks run. A storage factory
+    that builds a context with the same name from inside `buildSystem()` would pass the
+    check. The owner chose check-then-record over a reservation, for simplicity.
+- Not applied: `spine-code-review` noted that the "build nothing for a rejected name" case does
+  not prove that the check runs before `buildSystem()`. The inbox registry it would need to
+  observe is package-private to `io.spine.server.delivery`.
 
 ## Open questions
 
-- **A domain context can be named like a System context.** While `Users` is open, a domain
-  context named `Users_System` is accepted, so it shares a name with the System context of
-  `Users`. `OpenContexts` could reject such a name (and the reverse), or the rule could stay
-  for domain contexts only. The owner's call.
 - **#1700's task file** describes `ServerEnvironment.findContextServing()` and its record as
   the design. It goes stale once this lands.
 
 ## Release notes
 
-- Two open Bounded Contexts can no longer have one name: `BoundedContextBuilder.build()`
-  throws `DuplicateContextNameException`. A closed context frees its name.
+- Two open Bounded Contexts can no longer have one name, System contexts included:
+  `BoundedContextBuilder.build()` throws `DuplicateContextNameException`. A closed context
+  is no longer open, so its name can be used again.
 - `BoundedContextBuilder.assumingTests()` names each context `AssumingTests-<n>`.
 - `ServerEnvironment.findContextServing()` is removed (`@Internal`, added by #1700).

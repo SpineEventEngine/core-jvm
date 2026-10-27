@@ -40,11 +40,13 @@ class ContextAwareTestTest {
         assertThrows(NullPointerException.class, test::context);
 
         test.createContext();
-        assertThat(test.context())
-                .isNotNull();
-
-        // Free the name of the context for the next test.
-        test.closeContext();
+        try {
+            assertThat(test.context())
+                    .isNotNull();
+        } finally {
+            // Close the context, so that the next test can build a context with the same name.
+            test.closeContext();
+        }
     }
 
     @Test
