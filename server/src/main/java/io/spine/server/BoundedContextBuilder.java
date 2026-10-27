@@ -564,9 +564,7 @@ public final class BoundedContextBuilder implements WithLogging {
      * @return new {@code BoundedContext}
      * @throws DuplicateEntityStateException
      *         if another open Bounded Context already serves entities with the state
-     *         type of one of the repositories, and the
-     *         {@linkplain ServerEnvironment.TypeConfigurator#checkDuplicateEntityStates check}
-     *         is on
+     *         type of one of the repositories
      */
     public BoundedContext build() {
         var system = buildSystem();

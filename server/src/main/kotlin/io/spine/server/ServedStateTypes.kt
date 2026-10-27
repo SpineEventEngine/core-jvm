@@ -14,63 +14,53 @@
 
 package io.spine.server
 
-import com.google.common.collect.ImmutableList
-import io.spine.core.BoundedContextName
 import io.spine.type.TypeUrl
 
 /**
  * The record of which open Bounded Context serves which entity state type.
  *
- * When the check is on, the record lets only one open context serve a state type.
- * When the check is off, the record still keeps every context that serves the type,
- * so that [contextsServing] can tell about all of them.
+ * The record lets only one open context serve a state type.
  *
  * Contexts are told apart by identity, not by [name][BoundedContext.equals], because in tests
  * many contexts have the same name: [BoundedContextBuilder.assumingTests], which `BlackBox`
- * also uses, names each of them `AssumingTests`. Each of these contexts must be recorded.
- * In an application, two contexts with one name would be a mistake. Comparing by identity
- * lets the check report it, instead of taking the second context for the first one.
+ * also uses, names each of them `AssumingTests`. Comparing by name would take the second
+ * of them for the first one, and a duplicate state type would go unreported. The same holds
+ * in an application, where two contexts with one name would be a mistake.
  */
 internal class ServedStateTypes {
 
-    private val contexts = mutableMapOf<TypeUrl, MutableList<BoundedContext>>()
+    private val contexts = mutableMapOf<TypeUrl, BoundedContext>()
 
     /**
      * Records that the given context serves entities with the given state type.
      *
      * @param context The context to which a repository is being added.
      * @param stateType The state type of the entities of the repository.
-     * @param check If `true`, the context is not recorded when another open context
-     *   already serves the type, and the method throws instead.
      * @return `true` if this call recorded the context for the type,
      *   `false` if the context had been recorded for it before.
-     * @throws DuplicateEntityStateException If [check] is `true`, and another open context
-     *   already serves the type.
+     * @throws DuplicateEntityStateException If another open context already serves the type.
      */
     @Synchronized
-    fun serve(context: BoundedContext, stateType: TypeUrl, check: Boolean): Boolean {
-        val serving = contexts.getOrPut(stateType) { mutableListOf() }
-        if (serving.any { it === context }) {
+    fun serve(context: BoundedContext, stateType: TypeUrl): Boolean {
+        val serving = contexts[stateType]
+        if (serving === context) {
             return false
         }
-        if (check && serving.isNotEmpty()) {
-            val names = serving.map { it.name() } + context.name()
-            throw DuplicateEntityStateException(stateType, names)
+        if (serving != null) {
+            throw DuplicateEntityStateException(stateType, listOf(serving.name(), context.name()))
         }
-        serving.add(context)
+        contexts[stateType] = context
         return true
     }
 
     /**
-     * Removes the given context from the contexts that serve the given state type.
+     * Removes the given context from the record of the given state type.
      *
      * Does nothing if the context is not recorded for the type.
      */
     @Synchronized
     fun forget(context: BoundedContext, stateType: TypeUrl) {
-        val serving = contexts[stateType] ?: return
-        serving.removeAll { it === context }
-        if (serving.isEmpty()) {
+        if (contexts[stateType] === context) {
             contexts.remove(stateType)
         }
     }
@@ -82,15 +72,13 @@ internal class ServedStateTypes {
      */
     @Synchronized
     fun forget(context: BoundedContext) {
-        contexts.values.forEach { serving -> serving.removeAll { it === context } }
-        contexts.values.removeAll { it.isEmpty() }
+        contexts.values.removeAll { it === context }
     }
 
     /**
-     * Obtains the names of the open contexts that serve entities with the given state type,
-     * in the order they were recorded.
+     * Obtains the open context that serves entities with the given state type,
+     * or `null` if no open context serves it.
      */
     @Synchronized
-    fun contextsServing(stateType: TypeUrl): ImmutableList<BoundedContextName> =
-        ImmutableList.copyOf(contexts[stateType].orEmpty().map { it.name() })
+    fun contextServing(stateType: TypeUrl): BoundedContext? = contexts[stateType]
 }

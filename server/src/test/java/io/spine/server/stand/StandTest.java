@@ -28,6 +28,7 @@ import io.spine.client.Topic;
 import io.spine.client.TopicId;
 import io.spine.core.Event;
 import io.spine.protobuf.AnyPacker;
+import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.server.Given.CustomerAggregate;
 import io.spine.server.Given.CustomerAggregateRepository;
@@ -51,14 +52,17 @@ import io.spine.test.projection.ProjectId;
 import io.spine.testing.server.tenant.TenantAwareTest;
 import io.spine.validation.ValidationError;
 import org.jspecify.annotations.Nullable;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -86,7 +90,7 @@ import static io.spine.server.stand.given.StandTestEnv.einProject;
 import static io.spine.server.stand.given.StandTestEnv.emptyUpdateCallback;
 import static io.spine.server.stand.given.StandTestEnv.generateCustomers;
 import static io.spine.server.stand.given.StandTestEnv.ids;
-import static io.spine.server.stand.given.StandTestEnv.newStand;
+import static io.spine.server.stand.given.StandTestEnv.newContext;
 import static io.spine.server.stand.given.StandTestEnv.projectIdFor;
 import static io.spine.server.stand.given.StandTestEnv.setupExpectedFindAllBehaviour;
 import static io.spine.server.stand.given.StandTestEnv.storeSampleProject;
@@ -106,6 +110,14 @@ class StandTest extends TenantAwareTest {
     private boolean multitenant = false;
 
     private ActorRequestFactory requestFactory = createRequestFactory(null);
+
+    /**
+     * The contexts built by the current test.
+     *
+     * <p>They are closed after the test, so that the contexts of later tests can serve
+     * the same types.
+     */
+    private final List<BoundedContext> contexts = new ArrayList<>();
 
     protected void setMultitenant(boolean multitenant) {
         this.multitenant = multitenant;
@@ -129,6 +141,22 @@ class StandTest extends TenantAwareTest {
         requestFactory = createRequestFactory(null);
     }
 
+    @AfterEach
+    protected void closeContexts() {
+        contexts.forEach(BoundedContext::closeIfOpen);
+        contexts.clear();
+    }
+
+    /**
+     * Remembers the given context to close it after the test.
+     *
+     * @return the given context
+     */
+    protected BoundedContext closeAfterTest(BoundedContext context) {
+        contexts.add(context);
+        return context;
+    }
+
     @Nested
     @DisplayName("register")
     class Register {
@@ -137,9 +165,9 @@ class StandTest extends TenantAwareTest {
         @DisplayName("projection repositories")
         void projectionRepositories() {
             var multitenant = isMultitenant();
-            var boundedContext = BoundedContextBuilder
+            var boundedContext = closeAfterTest(BoundedContextBuilder
                     .assumingTests(multitenant)
-                    .build();
+                    .build());
             var stand = boundedContext.stand();
 
             checkTypesEmpty(stand);
@@ -161,7 +189,7 @@ class StandTest extends TenantAwareTest {
         @Test
         @DisplayName("aggregate repositories")
         void aggregateRepositories() {
-            var boundedContext = BoundedContextBuilder.assumingTests().build();
+            var boundedContext = closeAfterTest(BoundedContextBuilder.assumingTests().build());
             var stand = boundedContext.stand();
 
             checkTypesEmpty(stand);
@@ -395,10 +423,10 @@ class StandTest extends TenantAwareTest {
                 "when event is produced by a standalone command assignee")
         void uponEventFromStandaloneAssignee() {
             var waiter = new AloneWaiter();
-            var context =
+            var context = closeAfterTest(
                     BoundedContextBuilder.assumingTests(isMultitenant())
                                          .addCommandDispatcher(waiter)
-                                         .build();
+                                         .build());
             var stand = context.stand();
             var topic = requestFactory.topic().allOf(OrderPlaced.class);
 
@@ -599,9 +627,9 @@ class StandTest extends TenantAwareTest {
                 .setMultitenant(multitenant)
                 .build();
         var repository = new CustomerAggregateRepository();
-        BoundedContextBuilder.assumingTests()
-                             .add(repository)
-                             .build();
+        closeAfterTest(BoundedContextBuilder.assumingTests()
+                                            .add(repository)
+                                            .build());
         stand.registerTypeSupplier(repository);
         var queryFactory = getRequestFactory().query();
         var query =
@@ -801,12 +829,12 @@ class StandTest extends TenantAwareTest {
     }
 
     private Stand createStand() {
-        return newStand(isMultitenant());
+        return closeAfterTest(newContext(isMultitenant())).stand();
     }
 
     @SuppressWarnings("OverloadedVarargsMethod") // OK for this helper method.
     private Stand createStand(Repository<?, ?>... repositories) {
-        return newStand(isMultitenant(), repositories);
+        return closeAfterTest(newContext(isMultitenant(), repositories)).stand();
     }
 
     private void doCheckReadingProjectsById(int numberOfProjects) {

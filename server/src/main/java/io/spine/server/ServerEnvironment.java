@@ -14,12 +14,10 @@
 
 package io.spine.server;
 
-import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.annotation.Internal;
 import io.spine.annotation.VisibleForTesting;
 import io.spine.base.Identifier;
-import io.spine.core.BoundedContextName;
 import io.spine.environment.CustomEnvironmentType;
 import io.spine.environment.DefaultMode;
 import io.spine.environment.Environment;
@@ -86,11 +84,11 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * of the respective {@code ServerEnvironment} for those Bounded Contexts. In this way,
  * the Contexts would reside in their own JVMs and not overlap on interacting with this singleton.
  *
- * <p>Within a JVM, entities with a given state type can be served by only one
- * Bounded Context. Adding a repository to a context when another context already serves
- * the same entity state type fails with {@link DuplicateEntityStateException}.
- * The check is {@linkplain TypeConfigurator#checkDuplicateEntityStates(boolean) off}
- * in tests by default.
+ * <p>Within a JVM, entities with a given state type can be served by only one open
+ * Bounded Context. Adding a repository to a context fails with
+ * {@link DuplicateEntityStateException} if another open context already serves the same
+ * entity state type. This holds in tests too, so a test should close the contexts it builds.
+ * It frees their entity state types for the contexts of the tests that run later.
  */
 public final class ServerEnvironment implements Closeable {
 
@@ -135,16 +133,6 @@ public final class ServerEnvironment implements Closeable {
      */
     private final EnvSetting<TransportFactory> transportFactory =
             new EnvSetting<>(Tests.class, InMemoryTransportFactory::newInstance);
-
-    /**
-     * Tells if adding a repository to a Bounded Context fails when another open
-     * context serves entities with the same state type.
-     *
-     * <p>Defaults to {@code false} for tests. For other environment types, an absent value
-     * means {@code true}.
-     */
-    private final EnvSetting<Boolean> checkDuplicateEntityStates =
-            new EnvSetting<>(Tests.class, () -> false);
 
     /**
      * The record of which open Bounded Context serves which entity state type.
@@ -290,21 +278,15 @@ public final class ServerEnvironment implements Closeable {
     }
 
     /**
-     * Obtains the names of the open Bounded Contexts that serve entities with
-     * the given state type.
-     *
-     * <p>The list has more than one name only if the check of duplicate entity states was
-     * {@linkplain TypeConfigurator#checkDuplicateEntityStates(boolean) off} when the contexts
-     * were given their repositories. This is the default in tests.
+     * Obtains the open Bounded Context that serves entities with the given state type.
      *
      * @param stateType
      *         the state type of the entities
-     * @return the names of the contexts in the order they started serving the type,
-     *         or an empty list if no open context serves it
+     * @return the context, or {@code Optional.empty()} if no open context serves the type
      */
     @Internal
-    public ImmutableList<BoundedContextName> contextsServing(TypeUrl stateType) {
-        return servedStateTypes.contextsServing(stateType);
+    public Optional<BoundedContext> findContextServing(TypeUrl stateType) {
+        return Optional.ofNullable(servedStateTypes.contextServing(stateType));
     }
 
     /**
@@ -313,13 +295,10 @@ public final class ServerEnvironment implements Closeable {
      * @return {@code true} if this call recorded the context for the type,
      *         {@code false} if the context had been recorded for it before
      * @throws DuplicateEntityStateException
-     *         if another open context already serves the type, and the check of
-     *         duplicate entity states is on
+     *         if another open context already serves the type
      */
     boolean serve(BoundedContext context, TypeUrl stateType) {
-        var check = checkDuplicateEntityStates.optionalValue(environment().type())
-                                              .orElse(true);
-        return servedStateTypes.serve(context, stateType, check);
+        return servedStateTypes.serve(context, stateType);
     }
 
     /**
@@ -348,7 +327,6 @@ public final class ServerEnvironment implements Closeable {
         transportFactory.reset();
         tracerFactory.reset();
         storageFactory.reset();
-        checkDuplicateEntityStates.reset();
         delivery.reset();
         var currentEnv = environment().type();
         delivery.use(Delivery.local(), currentEnv);
@@ -564,26 +542,6 @@ public final class ServerEnvironment implements Closeable {
                 var wrapped = wrap(factory);
                 return wrapped;
             }, type);
-            return this;
-        }
-
-        /**
-         * Turns on or off the check that entities with a given state type are served by
-         * only one Bounded Context.
-         *
-         * <p>When the check is on, adding a repository to a context fails with
-         * {@link DuplicateEntityStateException} if another open context already serves
-         * entities with the same state type. In tests, which build many contexts in one JVM,
-         * closing a context at the end of a test frees its entity state types.
-         *
-         * <p>By default, the check is off for {@link Tests} and on for other environment types.
-         *
-         * @param check
-         *         {@code true} to turn the check on, {@code false} to turn it off
-         */
-        @CanIgnoreReturnValue
-        public TypeConfigurator checkDuplicateEntityStates(boolean check) {
-            se.checkDuplicateEntityStates.use(check, type);
             return this;
         }
     }

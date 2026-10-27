@@ -19,10 +19,12 @@ import com.google.protobuf.FieldMask
 import com.google.protobuf.fieldMask
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.spine.server.BoundedContext
 import io.spine.server.BoundedContextBuilder
 import io.spine.server.given.organizations.Organization
 import io.spine.server.given.organizations.OrganizationId
 import io.spine.server.given.organizations.organization
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -30,11 +32,12 @@ import org.junit.jupiter.api.Test
 @DisplayName("`DefaultConverter` should")
 internal class DefaultConverterSpec {
 
+    private lateinit var context: BoundedContext
     private lateinit var converter: StorageConverter<OrganizationId, TestEntity, Organization>
 
     @BeforeEach
     fun setUp() {
-        val context = BoundedContextBuilder.assumingTests().build()
+        context = BoundedContextBuilder.assumingTests().build()
         val repo: RecordBasedRepository<OrganizationId, TestEntity, Organization> =
             TestRepository()
         context.internalAccess()
@@ -42,6 +45,11 @@ internal class DefaultConverterSpec {
 
         val stateType = repo.entityModelClass().stateTypeUrl()
         converter = DefaultConverter(stateType, repo.entityFactory())
+    }
+
+    @AfterEach
+    fun tearDown() {
+        context.close()
     }
 
     @Test
