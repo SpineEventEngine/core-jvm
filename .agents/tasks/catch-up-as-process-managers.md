@@ -32,8 +32,8 @@ All line numbers below are on `master` at `39ef520dc16`.
           an ID-only file would make an import cycle with `delivery.proto`.
         - `writeJob()` lives in the test fixtures (`TestCatchUpJobs`), not in `CatchUpStorage`.
         - `CatchUpEventFactory` is removed: nothing uses it any more.
-        - The tests that hold system events release the held `CatchUpRequested` at once,
-          because the request is now a system event.
+        - `CatchUpRequested` is posted at once, even with parallel posting. See item 9 of
+          "Found during planning".
         - `CatchUpRepository` and `ShardMaintenanceRepository` are Kotlin, per the team rule
           from #1698 (`feedback_new_code_in_kotlin.md`): new classes are Kotlin.
       - 2026-10-27, after the merge: `build dokkaGenerate` ran all tests green
@@ -561,6 +561,18 @@ Read in the code on 2026-10-23, on `master` at `39ef520dc16`. The plan is
 9. **`CatchUpRequested` becomes a system event, posted in parallel in production** (team
    memory `system-events-synchronous-in-tests`). The new suite gets one case with parallel
    posting through `HoldingExecutor`.
+   - Review of #1699 (Codex and Copilot, 2026-10-27): posted in parallel, the request let
+     `catchUp()` return before the job was stored. A second call for the same instances then
+     passed the check, and two jobs rebuilt the same projections. On `master`, with the default
+     local `Delivery`, the job was stored before `catchUp()` returned.
+   - Fixed: `CatchUpStarter` posts the request with the new `SystemWriteSide.postEventNow()`,
+     which does not use the posting executor. `CatchUpRequestIgTest` holds the executor and
+     checks that the second call fails. The tests that hold system events no longer release
+     the request themselves.
+   - Not fixed, also from that review: two open contexts with one name, such as two
+     `AssumingTests` contexts, share the key of the catch-up inboxes. Keying them by the context
+     object needs a way from a domain context to its System context, or the framework could
+     forbid two open contexts with one name. Left for a task of its own.
 10. **An old-form maintenance message** fails the delivery run with an error that names the
     upgrade rule, as a type with no inbox does today (`InboxDeliveries.java:48-53`).
 11. **A correction to "Tests".** Today the reactor of `EmptyRepositoryCatchUpIgTest` gets

@@ -85,8 +85,6 @@ internal class KeptStartSignalIgTest : AbstractCatchUpIgTest() {
             catchUpStorage.freezeQueries()
             systemEvents.hold()
             val job = repository.catchUp(since, TARGETS)
-            // The request is a system event too. Release it, so that only the reports stay held.
-            systemEvents.releaseFirst()
 
             withClue("The start signals, delivered and kept by the completed job") {
                 startSignalsOf(job).map { it.status to it.hasKeepUntil() } shouldBe
