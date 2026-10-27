@@ -34,14 +34,14 @@ internal class ServedStateTypes {
     /**
      * Records that the given context serves entities with the given state type.
      *
-     * @param context The context to which a repository is being added.
      * @param stateType The state type of the entities of the repository.
+     * @param context The context to which a repository is being added.
      * @return `true` if this call recorded the context for the type,
      *   `false` if the context had been recorded for it before.
      * @throws DuplicateEntityStateException If another open context already serves the type.
      */
     @Synchronized
-    fun serve(context: BoundedContext, stateType: TypeUrl): Boolean {
+    fun serve(stateType: TypeUrl, context: BoundedContext): Boolean {
         val serving = contexts[stateType]
         if (serving === context) {
             return false
@@ -59,7 +59,7 @@ internal class ServedStateTypes {
      * Does nothing if the context is not recorded for the type.
      */
     @Synchronized
-    fun forget(context: BoundedContext, stateType: TypeUrl) {
+    fun forget(stateType: TypeUrl, context: BoundedContext) {
         if (contexts[stateType] === context) {
             contexts.remove(stateType)
         }

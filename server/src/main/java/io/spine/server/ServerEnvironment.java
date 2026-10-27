@@ -299,14 +299,14 @@ public final class ServerEnvironment implements Closeable {
      *         if another open context already serves the type
      */
     boolean serve(BoundedContext context, TypeUrl stateType) {
-        return servedStateTypes.serve(context, stateType);
+        return servedStateTypes.serve(stateType, context);
     }
 
     /**
      * Records that the given context no longer serves entities with the given state type.
      */
     void forget(BoundedContext context, TypeUrl stateType) {
-        servedStateTypes.forget(context, stateType);
+        servedStateTypes.forget(stateType, context);
     }
 
     /**
