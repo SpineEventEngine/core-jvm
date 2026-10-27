@@ -282,14 +282,14 @@ public final class Server implements WithLogging {
          * @param built
          *         the contexts to close
          * @param failure
-         *         the error that failed the build; an error thrown on closing is added to it
-         *         as suppressed
+         *         the error that failed the build; whatever closing throws, even an
+         *         {@code Error}, is added to it as suppressed, so the rest still close
          */
         private static void closeAfterFailure(List<BoundedContext> built, Throwable failure) {
             for (var context : built) {
                 try {
                     context.close();
-                } catch (RuntimeException e) {
+                } catch (Throwable e) {
                     failure.addSuppressed(e);
                 }
             }

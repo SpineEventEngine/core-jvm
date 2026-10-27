@@ -66,6 +66,14 @@ All line numbers are on `master` at `2e597e36bf0`.
   building a later one failed, e.g. with `DuplicateEntityStateException`. Nobody could close
   them, because no `Server` was returned. The builder now closes them before rethrowing.
   A new `ServerSpec` case fails without the fix, and so do three later cases of the spec.
+- Copilot on PR #1700: the builder caught only `RuntimeException` when closing those contexts.
+  An `Error`, e.g. an `AssertionError` from an `onBeforeClose` hook, replaced the build failure
+  and left the rest of the contexts open. The builder now catches `Throwable` and adds it to
+  the failure as suppressed, as try-with-resources does. The new test showed the same defect
+  in `BoundedContextBuilder.build()`, which closes a context that failed to build (from #1698).
+  It catches `Throwable` too. A new `ServerSpec` case, where every context throws an `Error`
+  from its hook, fails without either fix in any build order. The hook of the
+  `DuplicateEntityStateSpec` case for a failed build now throws an `Error`.
 
 ## Evidence
 
@@ -170,5 +178,7 @@ are read from the XML reports.
   `ServerSpec` cases), `:server-testlib` 159, `:server-otel` 22, 0 failures.
 - After the bump to `.590`: `./gradlew build dokkaGenerate` passes (the `pre-pr` build).
 - After the Codex fix: `./gradlew build dokkaGenerate` passes. `:server` 2,170 tests.
+- After the Copilot fix: `./gradlew build dokkaGenerate` passes. `:server` 2,175 tests,
+  `:server-testlib` 159, `:server-otel` 22, 0 failures.
 - Leak scan: the throwaway extension of "Evidence" run 2, applied to a scratch copy of the
   fixed branch, reports no class. Not committed.

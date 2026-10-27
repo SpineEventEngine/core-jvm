@@ -203,6 +203,26 @@ internal class ServerSpec {
     }
 
     @Test
+    fun `keep the build error and close every built context if closing one throws an 'Error'`() {
+        // Both `First` and `Second` serve `Calc`, so the one of them built second fails to build.
+        // The server builds its contexts in no particular order, so the context of users
+        // may be built before the failure, too. Closing any of the contexts throws an `Error`.
+        val builder = Server.atPort(ANY_FREE_PORT)
+            .add(BoundedContext.singleTenant("First").add(CalculatorRepository()).errorOnClose())
+            .add(BoundedContext.singleTenant("Second").add(CalculatorRepository()).errorOnClose())
+            .add(users().errorOnClose())
+
+        val thrown = shouldThrow<DuplicateEntityStateException> {
+            // Shut down at once if the build succeeds by mistake, so that it does not leak.
+            builder.build().shutdownAndWait()
+        }
+
+        thrown.suppressed.map { it.message } shouldContain HOOK_FAILURE
+        contextServing(calc).shouldBeNull()
+        contextServing(userAccount).shouldBeNull()
+    }
+
+    @Test
     @MuteLogging
     fun `prohibit obtaining the bound port of an in-process server`() {
         val server = Server.inProcess(randomString()).build()
@@ -214,6 +234,14 @@ internal class ServerSpec {
 
     private fun contextServing(type: TypeUrl): BoundedContext? =
         ServerEnvironment.instance().findContextServing(type).getOrNull()
+
+    /**
+     * Makes the hook of the context throw an `Error` before the context closes.
+     *
+     * The context still closes its repositories after the hook throws.
+     */
+    private fun BoundedContextBuilder.errorOnClose(): BoundedContextBuilder =
+        setOnBeforeClose { throw AssertionError(HOOK_FAILURE) }
 
     /**
      * A repository of calculators that throws from `close()` after closing its resources.
@@ -231,6 +259,8 @@ internal class ServerSpec {
         const val ADDRESS = "localhost"
 
         const val CLOSE_FAILURE = "The repository failed to close."
+
+        const val HOOK_FAILURE = "The hook failed before closing the context."
 
         val userAccount: TypeUrl = TypeUrl.of(UserAccount::class.java)
         val calc: TypeUrl = TypeUrl.of(Calc::class.java)

@@ -175,7 +175,7 @@ internal class DuplicateEntityStateSpec {
 
         val error = shouldThrow<DuplicateEntityStateException> {
             BoundedContext.singleTenant("Second")
-                .setOnBeforeClose { error(HOOK_FAILURE) }
+                .setOnBeforeClose { throw AssertionError(HOOK_FAILURE) }
                 .add(ReceptionistAggregate::class.java)
                 .add(CalculatorRepository())
                 .build()
