@@ -21,7 +21,7 @@ import io.spine.server.procman.ProcessManagerRepository
 import io.spine.server.route.EventRouting
 
 /**
- * The repository of the catch-up processes of a System Bounded Context.
+ * The repository of the catch-up processes of a System context.
  *
  * Every System context registers one. All of them store the processes in the same
  * [CatchUpStorage], that of the [Delivery].

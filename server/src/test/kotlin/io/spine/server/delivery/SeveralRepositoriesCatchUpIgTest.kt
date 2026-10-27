@@ -58,7 +58,7 @@ internal class SeveralRepositoriesCatchUpIgTest : AbstractCatchUpIgTest() {
     @BeforeEach
     @AfterEach
     fun restoreTallyWeight() {
-        TallyWeight.value = 1
+        TallyWeight.reset()
     }
 
     @AfterEach
@@ -101,12 +101,12 @@ internal class SeveralRepositoriesCatchUpIgTest : AbstractCatchUpIgTest() {
         val first = TallyA1Repository()
         val last = TallyB1Repository()
         contexts.create(CONTEXT, first, last)
-        contexts.emit(CONTEXT, ALPHA, BETA)
+        contexts.emit(context = CONTEXT, ALPHA, BETA)
         waitPastTurbulence()
 
         TallyWeight.value = CAUGHT_UP_WEIGHT
         first.catchUp(anHourAgo(), setOf(ALPHA))
-        contexts.post(CONTEXT, ALPHA, live = true)
+        contexts.post(context = CONTEXT, id = ALPHA, live = true)
 
         assertSoftly {
             failures.shouldBeEmpty()
@@ -150,14 +150,14 @@ internal class SeveralRepositoriesCatchUpIgTest : AbstractCatchUpIgTest() {
         val later = TallyA2Repository()
         contexts.create(CONTEXT, earlier)
         contexts.create(LATER_CONTEXT, later)
-        contexts.emit(CONTEXT, ALPHA, BETA)
-        contexts.emit(LATER_CONTEXT, ALPHA, BETA)
+        contexts.emit(context = CONTEXT, ALPHA, BETA)
+        contexts.emit(context = LATER_CONTEXT, ALPHA, BETA)
         waitPastTurbulence()
 
         TallyWeight.value = CAUGHT_UP_WEIGHT
         earlier.catchUpAll(anHourAgo())
-        contexts.post(CONTEXT, ALPHA, live = true)
-        contexts.post(LATER_CONTEXT, ALPHA, live = true)
+        contexts.post(context = CONTEXT, id = ALPHA, live = true)
+        contexts.post(context = LATER_CONTEXT, id = ALPHA, live = true)
 
         assertSoftly {
             failures.shouldBeEmpty()
@@ -205,12 +205,12 @@ internal class SeveralRepositoriesCatchUpIgTest : AbstractCatchUpIgTest() {
         notCaughtUp: List<TallyRepository<*, *>>,
         catchUp: () -> Unit
     ) {
-        contexts.emit(CONTEXT, ALPHA, BETA)
+        contexts.emit(context = CONTEXT, ALPHA, BETA)
         waitPastTurbulence()
 
         TallyWeight.value = CAUGHT_UP_WEIGHT
         catchUp()
-        contexts.post(CONTEXT, ALPHA, live = true)
+        contexts.post(context = CONTEXT, id = ALPHA, live = true)
 
         assertSoftly {
             failures.shouldBeEmpty()

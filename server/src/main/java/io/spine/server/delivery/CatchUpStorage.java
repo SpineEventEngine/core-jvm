@@ -88,9 +88,9 @@ public class CatchUpStorage extends EntityRecordStorage<CatchUpId, CatchUp> {
     /**
      * Does nothing.
      *
-     * <p>The catch-up processes of every System context share this storage, and each of them
-     * closes its storage when its context closes. So no context closes the storage, and
-     * it stays open for the {@code Delivery}.
+     * <p>The catch-up processes of every System context share this storage, and the repository
+     * of each closes its storage when its context closes. So this method does nothing, and
+     * the storage stays open for the {@code Delivery}.
      */
     @Override
     public void close() {

@@ -48,9 +48,9 @@ internal class TallyContexts : AutoCloseable {
     }
 
     /**
-     * Adds the given context, built by the test, under the given name.
+     * Adds the given context under the given name.
      */
-    fun add(name: String, box: BlackBox): BlackBox {
+    private fun add(name: String, box: BlackBox): BlackBox {
         check(name !in boxes) { "A context named `$name` is added already." }
         boxes[name] = box
         return box
@@ -102,7 +102,8 @@ internal class TallyContexts : AutoCloseable {
      * Closes the context with the given name.
      */
     fun close(context: String) {
-        boxes.remove(context)?.close()
+        checkNotNull(boxes.remove(context)) { "There is no context named `$context`." }
+            .close()
     }
 
     override fun close() {
@@ -130,15 +131,20 @@ internal class TallyContexts : AutoCloseable {
  * A context left open would keep serving its entity state types for the rest
  * of the test run.
  *
- * @throws RuntimeException The first failure, with the later ones suppressed.
+ * @throws Exception The first failure, with the later ones suppressed.
  */
 internal fun closeAll(resources: Iterable<AutoCloseable>) {
-    var failure: RuntimeException? = null
+    var failure: Exception? = null
     resources.forEach { resource ->
         try {
             resource.close()
-        } catch (e: RuntimeException) {
-            failure?.addSuppressed(e) ?: run { failure = e }
+        } catch (e: Exception) {
+            val first = failure
+            if (first == null) {
+                failure = e
+            } else {
+                first.addSuppressed(e)
+            }
         }
     }
     failure?.let { throw it }

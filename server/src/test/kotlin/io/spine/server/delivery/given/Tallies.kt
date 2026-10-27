@@ -36,8 +36,17 @@ import kotlin.jvm.optionals.getOrNull
  */
 internal object TallyWeight {
 
+    private const val DEFAULT = 1
+
     @Volatile
-    var value: Int = 1
+    var value: Int = DEFAULT
+
+    /**
+     * Sets the weight back to the default of 1.
+     */
+    fun reset() {
+        value = DEFAULT
+    }
 }
 
 /**

@@ -39,9 +39,8 @@ import static java.util.stream.Collectors.toSet;
  * The one who starts the catch-up process.
  *
  * <p>Checks whether the catch-up is already started for the requested IDs before posting
- * {@linkplain CatchUpRequested an event} telling that the catch-up has been requested.
- * The event is posted to the System context of the Bounded Context of the projection
- * repository, where a catch-up process handles it.
+ * an event that requests the catch-up. The event is posted to the System context of
+ * the Bounded Context of the projection repository, where a catch-up process handles it.
  *
  * @param <I>
  *         the type of the identifiers of the catching-up entities

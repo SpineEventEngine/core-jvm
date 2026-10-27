@@ -15,8 +15,6 @@
 package io.spine.server.delivery;
 
 import io.spine.core.BoundedContextName;
-import io.spine.server.ServerEnvironment;
-import io.spine.type.TypeUrl;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
@@ -34,9 +32,9 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  * serves the entities of a state type, so there is one inbox per type.
  *
  * <p>The two types of the catch-up machinery, {@link CatchUpProcess} and
- * {@link ShardMaintenanceProcess}, are different. Every System context has a repository
- * of each, so there is an inbox of each type in every System context. The catch-up job
- * of a message tells which of them to use:
+ * {@link ShardMaintenanceProcess}, are an exception. Every System context has a repository
+ * of each, so each of these types has an inbox in every System context. The catch-up job
+ * of a message tells which inbox to use:
  *
  * <ol>
  *     <li>the job tells the type of the projection it catches up;
@@ -135,29 +133,21 @@ final class InboxDeliveries {
         var typeUrl = inbox.entityStateType();
         var context = inbox.contextName();
         checkState(context != null,
-                   "The inbox of `%s` must belong to a System Bounded Context.", typeUrl);
+                   "The inbox of `%s` must belong to a System context.", typeUrl);
         return new CatchUpInbox(typeUrl.value(), context);
     }
 
     /**
-     * Finds the System context, to which the catch-up message with the passed address
-     * is delivered.
+     * Finds the System context, to which the catch-up message with the passed address goes.
      *
      * @throws IllegalStateException
      *         if no open context serves the projection type of the job
      */
     private static BoundedContextName systemContextOf(InboxId inboxId) {
         var job = jobOf(inboxId);
-        var projectionType = TypeUrl.parse(job.getProjectionType());
-        var domain = ServerEnvironment.instance()
-                                      .findContextServing(projectionType)
-                                      .orElseThrow(() -> newIllegalStateException(
-                                              "No open Bounded Context serves" +
-                                                      " the projection type `%s` of" +
-                                                      " the catch-up job `%s`.",
-                                              projectionType, job.getUuid()));
-        return domain.name()
-                     .toSystem();
+        return CatchUpProcess.domainContextOf(job)
+                             .name()
+                             .toSystem();
     }
 
     /**

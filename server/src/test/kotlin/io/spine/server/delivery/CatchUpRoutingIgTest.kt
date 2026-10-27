@@ -59,7 +59,7 @@ internal class CatchUpRoutingIgTest : AbstractCatchUpIgTest() {
     @BeforeEach
     @AfterEach
     fun restoreTallyWeight() {
-        TallyWeight.value = 1
+        TallyWeight.reset()
     }
 
     @AfterEach
@@ -77,7 +77,7 @@ internal class CatchUpRoutingIgTest : AbstractCatchUpIgTest() {
         contexts.create(FIRST, first)
         contexts.create(SECOND, second)
         contexts.create("WithoutProjections")
-        listOf(FIRST, SECOND).forEach { contexts.emit(it, ALPHA, BETA) }
+        listOf(FIRST, SECOND).forEach { contexts.emit(context = it, ALPHA, BETA) }
         waitPastTurbulence()
 
         TallyWeight.value = CAUGHT_UP_WEIGHT
@@ -118,7 +118,7 @@ internal class CatchUpRoutingIgTest : AbstractCatchUpIgTest() {
         val tallies = TallyA1Repository()
         val reactor = LiveEventsWhileFinalizing(FIRST)
         contexts.create(FIRST, tallies, dispatcher = reactor)
-        contexts.emit(FIRST, ALPHA, BETA)
+        contexts.emit(context = FIRST, ALPHA, BETA)
         waitPastTurbulence()
 
         TallyWeight.value = CAUGHT_UP_WEIGHT
@@ -142,7 +142,7 @@ internal class CatchUpRoutingIgTest : AbstractCatchUpIgTest() {
         contexts.create(FIRST, TallyA1Repository())
         val tallies = TallyA2Repository()
         contexts.create(SECOND, tallies)
-        contexts.emit(SECOND, ALPHA, BETA)
+        contexts.emit(context = SECOND, ALPHA, BETA)
         waitPastTurbulence()
 
         contexts.close(FIRST)
@@ -188,7 +188,7 @@ internal class CatchUpRoutingIgTest : AbstractCatchUpIgTest() {
         fun on(@Suppress("UNUSED_PARAMETER") event: FinalizationStarted): NoReaction {
             if (!postedBefore) {
                 postedBefore = true
-                contexts.post(context, ALPHA, live = true)
+                contexts.post(context = context, id = ALPHA, live = true)
             }
             return noReaction()
         }
@@ -197,7 +197,7 @@ internal class CatchUpRoutingIgTest : AbstractCatchUpIgTest() {
         fun on(@Suppress("UNUSED_PARAMETER") event: LiveEventsPickedUp): NoReaction {
             if (!postedAfter) {
                 postedAfter = true
-                contexts.post(context, ALPHA, live = true)
+                contexts.post(context = context, id = ALPHA, live = true)
             }
             return noReaction()
         }

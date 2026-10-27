@@ -87,7 +87,7 @@ import static java.util.stream.Collectors.toSet;
 /**
  * A process that performs a projection catch-up.
  *
- * <p>Every System Bounded Context has a repository of these processes. A catch-up starts when
+ * <p>Every System context has a repository of these processes. A catch-up starts when
  * a projection repository asks the System context of its own context for it. The process then
  * posts its events on the bus of the System context. The dispatchers of the domain context are
  * registered on that bus too, so they get the events of the process as well.
@@ -129,9 +129,8 @@ import static java.util.stream.Collectors.toSet;
  *     and the process emits the start signal for itself.
  *
  *     <li>When the process gets the start signal back, it sends the signal to the target
- *     projection repository, which kills the state of the matching entities. For a catch-up of
- *     all the instances, these are all the stored ones, including the archived and deleted
- *     ones.
+ *     projection repository, which kills the state of the matching entities. For a catch-up
+ *     of all the instances, these are all the stored ones, archived and deleted included.
  * </ol>
  *
  * <h3>{@linkplain CatchUpStatus#STARTED STARTED}</h3>
@@ -154,10 +153,9 @@ import static java.util.stream.Collectors.toSet;
  *
  * <p>The catch-up maintains this status until the history is read till the point in time,
  * which is very close to the {@link io.spine.base.Time#currentTime() Time.currentTime()}.
- * When this time comes,
- * the events arriving to the {@code EventStore} are very likely to be just-emitted in a live mode.
- * Therefore, the process needs to decide whether the history is fully read, or
- * to continue the traversal through the history.
+ * When this time comes, the events arriving to the {@code EventStore} are very likely
+ * to be just-emitted in a live mode. Therefore, the process needs to decide whether
+ * the history is fully read, or to continue the traversal through the history.
  *
  * <p>At this stage the actions are as follows.
  *
@@ -185,12 +183,11 @@ import static java.util.stream.Collectors.toSet;
  * corresponding {@code HistoryFullyRecalled} is received. It then signals itself that
  * the finalization has started, and reads the rest of the history only when it gets that
  * signal back. So by the time of the read, the {@code Delivery} sees the process
- * {@code FINALIZING}. At this stage,
- * the {@code Delivery} stops the propagation of the events to the catch-up messages, waiting for
- * this process to populate the inboxes with the messages arriving to be dispatched during
- * the turbulence period. Potentially, the inboxes will contain the duplicates produced by both
- * the live users and this process. To deal with it, a deduplication is performed by
- * the {@code Delivery}. See {@link CatchUpStation} for more details.
+ * {@code FINALIZING}. At this stage, the {@code Delivery} stops the propagation of the events
+ * to the catch-up messages, waiting for this process to populate the inboxes with the messages
+ * arriving to be dispatched during the turbulence period. Potentially, the inboxes will contain
+ * the duplicates produced by both the live users and this process. To deal with it, the
+ * {@code Delivery} deduplicates them. See {@link CatchUpStation} for more details.
  *
  * <p>The historical data pushed by the catch-up is dispatched through a number of shards,
  * each processed by the {@code Delivery} independently of each other. Each time {@code Delivery}
@@ -218,7 +215,7 @@ import static java.util.stream.Collectors.toSet;
  * <ol type="a">
  *     <li>the catch-up process has emitted all the events from the history,
  *
- *     <li>the catch-up process has signalled itself after sending the last historical events,
+ *     <li>the catch-up process has signaled itself after sending the last historical events,
  *
  *     <li>all these events were dispatched already — otherwise, the process wasn't going
  *     to be in its {@code FINALIZING} state.
@@ -263,9 +260,8 @@ import static java.util.stream.Collectors.toSet;
  *      from these events, the catch-up is able to tell when all the affected shards were
  *      fully processed by the {@code Delivery}. Once all shards are processed, the process
  *      moves to the {@code COMPLETED} status and signals itself. When it gets that signal back,
- *      it emits {@link CatchUpCompleted}. So by the time the {@code CatchUpCompleted} is posted,
- *      the {@code COMPLETED} status is stored, and a catch-up of the same instances may be
- *      started.
+ *      it emits {@link CatchUpCompleted}. So by the time the completion is reported,
+ *      the {@code COMPLETED} status is stored, and a catch-up of the same instances may start.
  * </ol>
  *
  * <h3>{@link CatchUpStatus#COMPLETED COMPLETED}</h3>
@@ -318,8 +314,7 @@ public final class CatchUpProcess extends ProcessManager<CatchUpId, CatchUp, Cat
      * <p>A request that comes once the process is past {@code STARTED}, such as one delivered
      * again after a failure, is ignored. Handling it would reset the instances and start
      * the process over. While the process is {@code STARTED}, a request is handled again.
-     * So a failure that happens before the start signals are sent leaves the start to be
-     * completed.
+     * So a failure before the start signals are sent leaves the start to be completed.
      */
     @React
     EitherOf2<CatchUpStarted, NoReaction> handle(CatchUpRequested e, EventContext ctx) {
@@ -841,19 +836,28 @@ public final class CatchUpProcess extends ProcessManager<CatchUpId, CatchUp, Cat
     /**
      * Returns the open Bounded Context that serves the projection type of this process.
      *
+     * @see #domainContextOf(CatchUpId)
+     */
+    private BoundedContext domainContext() {
+        return domainContextOf(id());
+    }
+
+    /**
+     * Returns the open Bounded Context that serves the projection type of the given job.
+     *
      * @throws IllegalStateException
      *         if no open context serves the type
      * @throws io.spine.server.DuplicateEntityStateException
      *         if more than one open context serves the type
      */
-    private BoundedContext domainContext() {
-        var projectionType = projectionType();
+    static BoundedContext domainContextOf(CatchUpId job) {
+        var projectionType = TypeUrl.parse(job.getProjectionType());
         return ServerEnvironment.instance()
                                 .findContextServing(projectionType)
                                 .orElseThrow(() -> newIllegalStateException(
                                         "No open Bounded Context serves the projection" +
                                                 " type `%s` of the catch-up job `%s`.",
-                                        projectionType, id().getUuid()));
+                                        projectionType, job.getUuid()));
     }
 
     /**

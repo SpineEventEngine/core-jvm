@@ -356,9 +356,8 @@ internal class RepeatedCatchUpSignalIgTest : AbstractCatchUpIgTest() {
     /**
      * Catches up [FIRST] and [SECOND], weighing each event 10.
      *
-     * The request of the catch-up is a system event. If the system events are held,
-     * the request is released at once, so that only the system events that follow it
-     * stay held.
+     * The request of the catch-up is a system event. If the system events are held, the request
+     * is released at once, so that only the system events that follow it stay held.
      *
      * @return The ID of the catch-up job.
      */

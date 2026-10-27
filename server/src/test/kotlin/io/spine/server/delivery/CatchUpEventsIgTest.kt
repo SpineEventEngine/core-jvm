@@ -48,7 +48,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
 /**
- * Tests where the events of a catch-up go.
+ * Tests where the events of a catch-up are posted and stored.
  *
  * They are posted in the System context of the projections, so they are stored only if
  * that context is told to store its events. The dispatchers of the context of
@@ -59,7 +59,7 @@ import org.junit.jupiter.api.Test
 internal class CatchUpEventsIgTest : AbstractCatchUpIgTest() {
 
     @Test
-    fun `store none of its events in the event store of the projections`() {
+    fun `store none of its events by default`() {
         useDelivery(UniformAcrossAllShards.forNumber(1))
         val context = BoundedContextBuilder.assumingTests()
             .add(repository)

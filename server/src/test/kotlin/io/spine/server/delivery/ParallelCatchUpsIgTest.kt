@@ -111,7 +111,7 @@ internal class ParallelCatchUpsIgTest : AbstractCatchUpIgTest() {
     @BeforeEach
     @AfterEach
     fun restoreTallyWeight() {
-        TallyWeight.value = 1
+        TallyWeight.reset()
     }
 
     @AfterEach
@@ -244,7 +244,10 @@ internal class ParallelCatchUpsIgTest : AbstractCatchUpIgTest() {
         var most = 0
         activity.filter { (job, _) -> jobs[job] == group }
             .forEach { (job, event) ->
-                if (event == JobEvent.STARTED) active.add(job) else active.remove(job)
+                when (event) {
+                    JobEvent.STARTED -> active.add(job)
+                    JobEvent.COMPLETED -> active.remove(job)
+                }
                 most = maxOf(most, active.size)
             }
         return most
@@ -520,7 +523,6 @@ internal class ParallelCatchUpsIgTest : AbstractCatchUpIgTest() {
          */
         const val MAX_ROUNDS = 10_000
 
-
         /**
          * Runs the operation in the given tenant, or with no tenant set if it is `null`.
          */
@@ -548,8 +550,9 @@ internal class ParallelCatchUpsIgTest : AbstractCatchUpIgTest() {
                 }
             }
             val withParallelPosting = Case(
-                Scenario.WITH_ALL_OF_ANOTHER_TYPE, Tenancy.MULTI, contexts = 3, shards = 3,
-                StartPoint.IN_PROGRESS, parallelPosting = true
+                Scenario.WITH_ALL_OF_ANOTHER_TYPE, Tenancy.MULTI,
+                contexts = 3, shards = 3, startPoint = StartPoint.IN_PROGRESS,
+                parallelPosting = true
             )
             return (matrix + withParallelPosting).stream()
         }

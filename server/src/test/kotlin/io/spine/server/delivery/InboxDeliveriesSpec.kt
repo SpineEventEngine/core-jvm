@@ -121,7 +121,7 @@ internal class InboxDeliveriesSpec : AbstractDeliveryTest() {
         @Test
         fun `failing if only another System context has an inbox`() {
             serveTallies(TASKS)
-            deliveries.register(inbox(CatchUpProcess.TYPE, newName("Billing").toSystem()))
+            deliveries.register(inbox(CatchUpProcess.TYPE, BILLING.toSystem()))
 
             val error = shouldThrow<IllegalStateException> {
                 deliveries.get(messageTo(CatchUpProcess.TYPE, job()))

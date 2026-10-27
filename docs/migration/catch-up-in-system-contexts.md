@@ -11,8 +11,8 @@ repository. Now it runs in a process manager in the System context of the projec
 Bounded Context. The same goes for the shard maintenance that a catch-up uses. Before, if a JVM
 had more than one projection repository or Bounded Context, the reactor created last handled
 every catch-up message, and some catch-ups never completed. Now each catch-up is handled in the
-System context of its own projection type. A catch-up also no longer touches the messages of
-other tenants.
+System context of the Bounded Context that serves its projection type. A catch-up also no
+longer touches the messages of other tenants.
 
 ## At a glance
 
@@ -38,8 +38,8 @@ builder.systemSettings()
        .persistEvents();
 ```
 
-This stores every other system event of the context too, such as `EntityCreated` and
-`EntityStateChanged`.
+Turning it on stores every other system event of the context too, for example
+`EntityCreated` and `EntityStateChanged`.
 
 ## 2. The completion of a catch-up can still be subscribed to
 
@@ -84,9 +84,9 @@ kind, per System context.
 
 Before you upgrade, let every catch-up complete, and let the `Delivery` deliver every message.
 Then delete all the records of the `CatchUpStorage` of the `Delivery`: these are the jobs of
-the catch-ups, completed ones included. Unless you set your own storage with
-`DeliveryBuilder.setCatchUpStorage()`, it is the storage of the `CatchUp` records that your
-`StorageFactory` created for the `Delivery`.
+the catch-ups, completed ones included. By default, this is the storage that your
+`StorageFactory` creates with `createCatchUpStorage(false)`. If you set your own storage with
+`DeliveryBuilder.setCatchUpStorage()`, it is that one.
 
 - The records of catch-up jobs written before the upgrade hold `CatchUp` messages, not entity
   records, and they are not converted. The jobs of completed catch-ups stay in the storage.
@@ -94,5 +94,5 @@ the catch-ups, completed ones included. Unless you set your own storage with
   the type that name it are the same. Records of the old format there would fail the reads of
   the `Delivery`.
 - A shard maintenance message written before the upgrade is addressed to the shard only.
-  The `Delivery` cannot deliver it, and fails the delivery run with an error that states
-  this rule.
+  The `Delivery` cannot deliver such a message: it fails the delivery run with an error
+  that states this rule.

@@ -31,7 +31,7 @@ import "spine/server/catchup/catch_up.proto";
 // A process that makes sure that the `Delivery` has processed the messages of a shard,
 // when a catch-up job asks for it.
 //
-// Each System Bounded Context has its own repository of these processes.
+// Each System context has a repository of these processes.
 //
 message ShardMaintenance {
     option (entity).kind = PROCESS_MANAGER;

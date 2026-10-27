@@ -29,6 +29,7 @@ option java_multiple_files = true;
 // is served by one context only. The number in the name tells the context.
 //
 // Each tally keeps the values of the `NumberAdded` events it applied, in the order applied.
+//
 
 message TallyA1 {
     option (entity).kind = PROJECTION;

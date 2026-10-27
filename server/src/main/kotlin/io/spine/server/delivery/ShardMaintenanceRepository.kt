@@ -20,7 +20,7 @@ import io.spine.server.procman.ProcessManagerRepository
 import io.spine.server.route.EventRouting
 
 /**
- * The repository of the shard maintenance processes of a System Bounded Context.
+ * The repository of the shard maintenance processes of a System context.
  *
  * Every System context registers one.
  */

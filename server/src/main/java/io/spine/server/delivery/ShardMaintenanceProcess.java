@@ -24,8 +24,8 @@ import io.spine.type.TypeUrl;
 /**
  * The framework-internal process performing the maintenance of delivery shards.
  *
- * <p>Every System Bounded Context has a repository of these processes. There is a process
- * for each pair of a shard and a catch-up job that asked for that shard to be processed.
+ * <p>Every System context has a repository of these processes. There is a process for each
+ * pair of a shard and a catch-up job that asked for that shard to be processed.
  * The job in the ID tells the {@link Delivery} which System context handles the request.
  *
  * <p>The state of the process holds only its ID.
