@@ -43,6 +43,7 @@ import io.spine.system.server.SystemContext;
 import io.spine.type.TypeName;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -483,8 +484,8 @@ public abstract class BoundedContext
      * </ol>
      *
      * <p>If {@code onBeforeClose} throws, the method still closes the rest, and then throws.
-     * If closing one of the buses throws, the method still closes the repositories, and then
-     * throws.
+     * If closing one of the parts listed above throws, the method still closes the others,
+     * and then throws.
      */
     @Override
     public void close() {
@@ -501,22 +502,31 @@ public abstract class BoundedContext
     /**
      * Closes the buses, the repositories, and the probe of this context.
      *
-     * <p>Shuts down the repositories even if closing a bus fails. Otherwise, the context
-     * would keep its name and its entity state types for good, because it is no longer open,
-     * and so cannot be closed again.
+     * <p>Closes each of them even if closing another one fails, and then throws the first
+     * failure, with the later ones suppressed. A context that failed to close is no longer
+     * open, so it cannot be closed again to retry.
+     *
+     * <p>Shuts down the repositories last. Until then, the context keeps its name and its
+     * entity state types, so another context cannot take them while the buses of this one
+     * may still be open.
      *
      * @param wasOpen
      *         tells if the context was open when the closing started
      */
     private void closeComponents(boolean wasOpen) {
-        try {
-            commandBus.closeIfOpen();
-            eventBus.closeIfOpen();
-            broker.closeIfOpen();
-            stand.closeIfOpen();
-        } finally {
-            if (wasOpen) {
+        RuntimeException failure = null;
+        for (var component : List.<Closeable>of(commandBus, eventBus, broker, stand)) {
+            try {
+                component.closeIfOpen();
+            } catch (RuntimeException e) {
+                failure = withSuppressed(failure, e);
+            }
+        }
+        if (wasOpen) {
+            try {
                 shutDownRepositories();
+            } catch (RuntimeException e) {
+                failure = withSuppressed(failure, e);
             }
         }
         if (hasProbe()) {
@@ -525,6 +535,22 @@ public abstract class BoundedContext
         if (wasOpen) {
             logger().atDebug().log(() -> format("%s", closed(nameForLogging())));
         }
+        if (failure != null) {
+            throw failure;
+        }
+    }
+
+    /**
+     * Returns the first failure, adding the passed one to it as suppressed,
+     * or the passed failure if it is the first one.
+     */
+    private static RuntimeException
+    withSuppressed(@Nullable RuntimeException first, RuntimeException next) {
+        if (first == null) {
+            return next;
+        }
+        first.addSuppressed(next);
+        return first;
     }
 
     @Override

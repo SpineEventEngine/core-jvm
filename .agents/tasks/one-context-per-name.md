@@ -116,6 +116,12 @@ this change.
   - P2, not applied: reserving the name before the build callbacks run. A storage factory
     that builds a context with the same name from inside `buildSystem()` would pass the
     check. The owner chose check-then-record over a reservation, for simplicity.
+- Copilot on #1701: when the command bus failed to close, the other buses, the broker and
+  the stand were skipped, yet the repositories were shut down and the name released. So a new
+  context could take the name while the old broker's transport subscriptions and event store
+  were open. `closeComponents()` now closes each part even if another fails, shuts down the
+  repositories last, and throws the first failure with the later ones suppressed. The spec of
+  a failing command bus checks that the other parts are closed.
 - Not applied: `spine-code-review` noted that the "build nothing for a rejected name" case does
   not prove that the check runs before `buildSystem()`. The inbox registry it would need to
   observe is package-private to `io.spine.server.delivery`.

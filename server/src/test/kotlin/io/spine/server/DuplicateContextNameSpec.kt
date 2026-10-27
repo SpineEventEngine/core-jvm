@@ -16,6 +16,7 @@ package io.spine.server
 
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.assertions.withClue
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -141,7 +142,7 @@ internal class DuplicateContextNameSpec {
     }
 
     @Test
-    fun `free the name and the types of a context whose bus fails to close`() {
+    fun `close the rest of a context whose command bus fails to close, and free its name`() {
         val first = BoundedContext.singleTenant(failingName)
             .addCommandFilter(FailingToClose())
             .add(CalculatorRepository())
@@ -150,6 +151,11 @@ internal class DuplicateContextNameSpec {
 
         shouldThrow<IllegalStateException> {
             first.close()
+        }
+        withClue("The parts closed after the failing command bus") {
+            first.eventBus().isOpen shouldBe false
+            first.internalAccess().broker().isOpen shouldBe false
+            first.stand().isOpen shouldBe false
         }
         OpenContexts.findContextServing(calc).shouldBeNull()
         shouldNotThrowAny {
