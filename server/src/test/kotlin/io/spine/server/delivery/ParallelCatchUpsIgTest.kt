@@ -46,6 +46,7 @@ import io.spine.server.tenant.TenantAwareRunner
 import io.spine.test.delivery.numberAdded
 import io.spine.testing.SlowTest
 import io.spine.testing.server.blackbox.BlackBox
+import io.spine.type.TypeUrl
 import java.util.concurrent.TimeUnit.SECONDS
 import java.util.stream.Stream
 import org.junit.jupiter.api.AfterEach
@@ -67,7 +68,9 @@ import org.junit.jupiter.params.provider.MethodSource
  * each next job when the previous one reaches the [StartPoint] of the case. At that moment, it
  * also posts a live event to every instance of the context, in every tenant. The test delivers
  * the messages itself, one page of each shard in turn, until none is left. So the jobs of
- * all the contexts and tenants run at once, in one thread. Each case runs with the default
+ * all the contexts and tenants run at once, in one thread. The messages of the catch-up
+ * processes all go to the first shard, so that each next job starts before the previous one
+ * completes; see [CatchUpsInFirstShard]. Each case runs with the default
  * page size, and with pages of [SMALL_PAGE] messages, in which the messages held for a job
  * take several pages.
  *
@@ -191,12 +194,36 @@ internal class ParallelCatchUpsIgTest : AbstractCatchUpIgTest() {
      */
     private fun useDeliveryOfCase(): Delivery =
         useDelivery(
-            UniformAcrossAllShards.forNumber(case.shards),
+            CatchUpsInFirstShard(case.shards),
             observer = { },
             onePagePerRun = true
         ) { builder ->
             case.pageSize?.let { builder.setPageSize(it) }
         }
+
+    /**
+     * Spreads the messages over the shards as [UniformAcrossAllShards] does, but puts all
+     * the messages of the catch-up processes into the first shard.
+     *
+     * The messages of a shard are delivered in the order they arrive. The [Chain] posts
+     * the request of the next job while the previous job reaches the start point, so the request
+     * comes before the next step of the previous job, and the two jobs overlap. With
+     * the processes spread over the shards by their random IDs, the request could wait in its
+     * shard until the previous job completed, and a case failed on the overlap now and then.
+     */
+    private class CatchUpsInFirstShard(private val shards: Int) : DeliveryStrategy() {
+
+        private val uniform = UniformAcrossAllShards.forNumber(shards)
+
+        override fun indexFor(entityId: Any, entityStateType: TypeUrl): ShardIndex =
+            if (entityStateType == CatchUpProcess.TYPE) {
+                newIndex(0, shards)
+            } else {
+                uniform.determineIndex(entityId, entityStateType)
+            }
+
+        override fun shardCount(): Int = shards
+    }
 
     /**
      * Delivers the messages of every shard, and runs the system events held, if any,
