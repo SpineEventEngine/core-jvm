@@ -114,7 +114,7 @@ public final class Inbox<I> {
      * Returns an {@code Inbox}-specific mechanism of delivery the previously sharded messages
      * to the endpoints configured for this {@code Inbox} instance.
      */
-    public ShardedMessageDelivery<InboxMessage> delivery() {
+    ShardedMessageDelivery<InboxMessage> delivery() {
         return new TargetDelivery<>(commandPart, eventPart, batchDispatcher);
     }
 
