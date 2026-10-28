@@ -63,7 +63,7 @@ import static java.lang.String.format;
 /**
  * A builder for producing {@code BoundedContext} instances.
  */
-@SuppressWarnings({"ClassWithTooManyMethods", "OverlyCoupledClass"}) // OK for this central piece.
+@SuppressWarnings("ClassWithTooManyMethods" /* OK for this central piece. */)
 public final class BoundedContextBuilder implements WithLogging {
 
     /**
@@ -536,6 +536,7 @@ public final class BoundedContextBuilder implements WithLogging {
      */
     @Deprecated
     @CanIgnoreReturnValue
+    @SuppressWarnings("DeprecatedIsStillUsed" /* `AggregateRootDirectory` */)
     public BoundedContextBuilder
     setAggregateRootDirectory(Supplier<AggregateRootDirectory> directory) {
         this.rootDirectory = checkNotNull(directory);
@@ -584,6 +585,7 @@ public final class BoundedContextBuilder implements WithLogging {
      *         if another open Bounded Context already serves entities with the state
      *         type of one of the repositories
      */
+    @SuppressWarnings("ProhibitedExceptionThrown" /* Rethrowing what was caught. */)
     public BoundedContext build() {
         OpenContexts.checkNameFree(spec.name());
         var system = buildSystem();
