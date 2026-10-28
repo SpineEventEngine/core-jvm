@@ -37,6 +37,7 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static io.spine.server.delivery.InboxMessageStatus.DELIVERED;
 import static java.lang.String.format;
 import static java.util.Collections.synchronizedList;
@@ -160,8 +161,8 @@ import static java.util.Collections.synchronizedList;
  * {@link InboxMessageStatus#TO_CATCH_UP TO_CATCH_UP} status to the respective targets. Also,
  * while the target entity is under a catch-up, all the live messages headed to it are ignored.
  * Once the catch-up is completed, this station handles the transition period, in which the last
- * batch of the historical events and live messages are dispatched together.
- * See {@link CatchUpStation} for more details.
+ * batch of the historical events and live messages are dispatched together, even if they take
+ * several pages of the shard. See {@link CatchUpStation} for more details.
  *
  * <b>2. Live delivery station</b>
  *
@@ -531,6 +532,10 @@ public final class Delivery implements WithLogging {
      * from its start. Until then, the jobs of the first read stand for all the later ones,
      * so they are indexed once per run.
      *
+     * <p>A page that has a message held for a {@linkplain CatchUpStatus#COMPLETED completed}
+     * catch-up is delivered together with the other messages held for completed catch-ups
+     * in the shard. See {@link #withHeldForCompleted withHeldForCompleted(..)} for the details.
+     *
      * @return the results of the run
      */
     private RunResult runDelivery(ShardSessionRecord session) {
@@ -550,7 +555,11 @@ public final class Delivery implements WithLogging {
                 if (baseline.changed()) {
                     break;
                 }
-                var stage = deliverMessages(messages, index, jobs);
+                var toDeliver = withHeldForCompleted(messages, index, jobs, baseline);
+                if (baseline.changed()) {
+                    break;
+                }
+                var stage = deliverMessages(toDeliver, index, jobs);
                 stages.add(stage);
                 shouldContinue = monitorTellsToContinueAfter(stage);
             }
@@ -578,6 +587,57 @@ public final class Delivery implements WithLogging {
         return hasUndelivered
                ? baseline.compare(catchUpStorage.readJobs())
                : CatchUpJobs.none();
+    }
+
+    /**
+     * Adds to the messages of a page the other messages held for completed catch-ups
+     * in the shard, if the page has any of them.
+     *
+     * <p>Once a catch-up is completed, its held messages are delivered at once. The second
+     * copy of each event is dropped, and the events are sorted by time. These messages may take
+     * more than one page, so all of them are delivered with the first page that has one.
+     * They are all in the shard by then. A message is held only by a run that sees its
+     * catch-up finalizing, and the first run that sees the catch-up completed starts from
+     * the beginning of the shard.
+     *
+     * <p>The held messages are read after the jobs. A new catch-up of the same instances may
+     * start in between, and its messages are held too. So the jobs are read again, and
+     * the passed baseline tells whether they changed.
+     *
+     * @param page
+     *         the messages of the page
+     * @param index
+     *         the shard of the page
+     * @param jobs
+     *         the catch-up jobs read for the page
+     * @param baseline
+     *         the jobs of the run to compare the jobs read again with
+     * @return the messages of the page, followed by the other messages held for
+     *         the completed catch-ups
+     */
+    private ImmutableList<InboxMessage> withHeldForCompleted(ImmutableList<InboxMessage> page,
+                                                             ShardIndex index,
+                                                             CatchUpJobs jobs,
+                                                             CatchUpBaseline baseline) {
+        var holdsAny = page.stream()
+                           .anyMatch(jobs::heldForCompleted);
+        if (!holdsAny) {
+            return page;
+        }
+        var inPage = page.stream()
+                         .map(InboxMessage::getId)
+                         .collect(toImmutableSet());
+        var result = ImmutableList.<InboxMessage>builder()
+                                  .addAll(page);
+        var held = inboxStorage.readToCatchUp(index);
+        while (held.hasNext()) {
+            var message = held.next();
+            if (!inPage.contains(message.getId()) && jobs.heldForCompleted(message)) {
+                result.add(message);
+            }
+        }
+        baseline.compare(catchUpStorage.readJobs());
+        return result.build();
     }
 
     private DeliveryStage deliverMessages(ImmutableList<InboxMessage> messages,

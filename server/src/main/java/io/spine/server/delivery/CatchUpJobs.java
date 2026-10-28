@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Objects;
 
 import static io.spine.server.delivery.CatchUpStatus.COMPLETED;
+import static io.spine.server.delivery.InboxMessageStatus.TO_CATCH_UP;
 
 /**
  * The {@code CatchUp} jobs read from the {@link CatchUpStorage}, indexed by the inboxes
@@ -155,6 +156,24 @@ final class CatchUpJobs {
             return forTarget;
         }
         return preferred(forTarget, forAll);
+    }
+
+    /**
+     * Tells whether the passed message is held for a completed catch-up.
+     *
+     * <p>Such a message is in {@link InboxMessageStatus#TO_CATCH_UP TO_CATCH_UP} status, and
+     * the job {@linkplain #jobFor(InboxMessage) chosen} for it is completed.
+     *
+     * @param message
+     *         the message to check
+     * @return {@code true} if a completed job holds the message, {@code false} otherwise
+     */
+    boolean heldForCompleted(InboxMessage message) {
+        if (message.getStatus() != TO_CATCH_UP) {
+            return false;
+        }
+        var job = jobFor(message);
+        return job != null && job.getStatus() == COMPLETED;
     }
 
     /**

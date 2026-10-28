@@ -67,7 +67,9 @@ import org.junit.jupiter.params.provider.MethodSource
  * each next job when the previous one reaches the [StartPoint] of the case. At that moment, it
  * also posts a live event to every instance of the context, in every tenant. The test delivers
  * the messages itself, one page of each shard in turn, until none is left. So the jobs of
- * all the contexts and tenants run at once, in one thread.
+ * all the contexts and tenants run at once, in one thread. Each case runs with the default
+ * page size, and with pages of [SMALL_PAGE] messages, in which the messages held for a job
+ * take several pages.
  *
  * The tallies apply each value at a weight, which changes from 1 to [LIVE_WEIGHT] before
  * the first job starts. So a tally that is caught up holds all its values at the new weight,
@@ -123,11 +125,7 @@ internal class ParallelCatchUpsIgTest : AbstractCatchUpIgTest() {
     @MethodSource("cases")
     fun `complete each job, and keep the live events of every instance`(case: Case) {
         this.case = case
-        delivery = useDelivery(
-            UniformAcrossAllShards.forNumber(case.shards),
-            observer = { },
-            onePagePerRun = true
-        )
+        delivery = useDeliveryOfCase()
         if (case.parallelPosting) {
             systemEvents.hold()
         }
@@ -186,6 +184,19 @@ internal class ParallelCatchUpsIgTest : AbstractCatchUpIgTest() {
             }
         }
     }
+
+    /**
+     * Installs a `Delivery` with the shards and the page size of the case, which the test
+     * runs itself, one page per run.
+     */
+    private fun useDeliveryOfCase(): Delivery =
+        useDelivery(
+            UniformAcrossAllShards.forNumber(case.shards),
+            observer = { },
+            onePagePerRun = true
+        ) { builder ->
+            case.pageSize?.let { builder.setPageSize(it) }
+        }
 
     /**
      * Delivers the messages of every shard, and runs the system events held, if any,
@@ -477,12 +488,18 @@ internal class ParallelCatchUpsIgTest : AbstractCatchUpIgTest() {
         val contexts: Int,
         val shards: Int,
         val startPoint: StartPoint,
-        val parallelPosting: Boolean = false
+        val parallelPosting: Boolean = false,
+
+        /**
+         * The number of messages in a page of a shard, or `null` for the default.
+         */
+        val pageSize: Int? = null
     ) {
         override fun toString(): String =
             "$scenario, $tenancy, $contexts context(s), $shards shard(s)," +
                     " the next job at $startPoint" +
-                    if (parallelPosting) ", system events posted in parallel" else ""
+                    (if (pageSize != null) ", pages of $pageSize" else "") +
+                    (if (parallelPosting) ", system events posted in parallel" else "")
     }
 
     /**
@@ -519,6 +536,12 @@ internal class ParallelCatchUpsIgTest : AbstractCatchUpIgTest() {
         const val LIVE_WEIGHT = 100
 
         /**
+         * The size of a page of a shard, small enough for the messages held for a job
+         * to take several pages.
+         */
+        const val SMALL_PAGE = 4
+
+        /**
          * Stops the delivery of a case that would not end.
          */
         const val MAX_ROUNDS = 10_000
@@ -539,11 +562,14 @@ internal class ParallelCatchUpsIgTest : AbstractCatchUpIgTest() {
                 Tenancy.entries.flatMap { tenancy ->
                     (1..3).flatMap { contexts ->
                         listOf(1, 3).flatMap { shards ->
-                            StartPoint.entries.map { point ->
-                                Case(
-                                    scenario, tenancy,
-                                    contexts = contexts, shards = shards, startPoint = point
-                                )
+                            StartPoint.entries.flatMap { point ->
+                                listOf(null, SMALL_PAGE).map { pageSize ->
+                                    Case(
+                                        scenario, tenancy,
+                                        contexts = contexts, shards = shards, startPoint = point,
+                                        pageSize = pageSize
+                                    )
+                                }
                             }
                         }
                     }

@@ -32,6 +32,7 @@ import io.spine.server.delivery.CatchUpStatus.STARTED
 import io.spine.server.delivery.given.CounterView
 import io.spine.server.delivery.given.TestCatchUpJobs.catchUpJob
 import io.spine.server.delivery.given.TestInboxMessages.catchingUp
+import io.spine.server.delivery.given.TestInboxMessages.toDeliver
 import io.spine.server.delivery.given.TestTenants
 import io.spine.test.delivery.Calc
 import io.spine.test.delivery.DTask
@@ -107,6 +108,29 @@ internal class CatchUpJobsSpec {
 
         CatchUpJobs.of(listOf(completed, ongoing)).jobFor(message) shouldBe ongoing
         CatchUpJobs.of(listOf(ongoing, completed)).jobFor(message) shouldBe ongoing
+    }
+
+    @Test
+    fun `tell a message held for a completed catch-up`() {
+        val jobs = CatchUpJobs.of(listOf(catchUpJob(type, COMPLETED, currentTime(), null)))
+
+        jobs.heldForCompleted(catchingUp(FIRST, type)) shouldBe true
+        withClue("A live message") {
+            jobs.heldForCompleted(toDeliver(FIRST, type)) shouldBe false
+        }
+        withClue("A message of a type with no jobs") {
+            jobs.heldForCompleted(catchingUp(FIRST, typeWithoutJobs)) shouldBe false
+        }
+    }
+
+    @Test
+    fun `not tell a message held for a completed catch-up, if an ongoing one is chosen`() {
+        val completed = catchUpJob(type, COMPLETED, currentTime(), null)
+        val ongoing = catchUpJob(type, STARTED, currentTime(), listOf(FIRST))
+        val jobs = CatchUpJobs.of(listOf(completed, ongoing))
+
+        jobs.heldForCompleted(catchingUp(FIRST, type)) shouldBe false
+        jobs.heldForCompleted(catchingUp(SECOND, type)) shouldBe true
     }
 
     @Test

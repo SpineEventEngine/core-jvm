@@ -618,10 +618,11 @@ Read in the code on 2026-10-23, on `master` at `39ef520dc16`. The plan is
       deduplicates and sorts the held messages within one page only
       (`CatchUpStation.java:278-291`). With small pages, the two copies are on different
       pages, and both are delivered.
-    - This PR does not change that code. Not reproduced on `master`: there, the same cases
-      break earlier, on the defects this PR fixes.
+    - Not reproduced on `master`: there, the same cases break earlier, on the defects this
+      PR fixes.
     - In production it can happen when a shard holds more than a page of messages.
-      It needs a task of its own.
+    - Fixed in this PR on 2026-10-28, on the owner's request, rather than in a PR of its own:
+      see `catch-up-held-messages-across-pages.md`.
 
 ## Coordination
 

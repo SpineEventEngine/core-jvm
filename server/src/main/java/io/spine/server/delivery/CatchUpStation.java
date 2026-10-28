@@ -266,6 +266,10 @@ final class CatchUpStation extends Station {
          * replayed event history and potentially some "paused" live events. So, all the matching
          * messages in {@code TO_CATCH_UP} status are accepted to be dispatched to their targets.
          *
+         * <p>Even if these messages take several pages of a shard, the {@code Delivery} passes
+         * all of them in the conveyor of the first page that has one. So they are deduplicated
+         * and sorted together.
+         *
          * <p>The messages accepted for delivery are
          * {@linkplain Conveyor#keepForLonger(InboxMessage, Duration) set to be kept} in their
          * inboxes for {@code HOW_LONG_TO_KEEP}, whether or not a deduplication window is set.
