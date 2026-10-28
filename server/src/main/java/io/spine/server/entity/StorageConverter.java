@@ -103,6 +103,7 @@ public abstract class StorageConverter<I, E extends Entity<I, S>, S extends Enti
      *         the state of entities. Please remove the calls and overrides.
      */
     @Deprecated
+    @SuppressWarnings("InlineMeSuggester" /* Must stay overridable until removed. */)
     protected FieldMask fieldMask() {
         return FieldMask.getDefaultInstance();
     }

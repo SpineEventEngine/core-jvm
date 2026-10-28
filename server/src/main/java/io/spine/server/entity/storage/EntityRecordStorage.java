@@ -131,6 +131,7 @@ public class EntityRecordStorage<I, S extends EntityState<I>>
      */
     @Deprecated
     @Override
+    @SuppressWarnings("InlineMeSuggester" /* Must stay overridable until removed. */)
     public Iterator<EntityRecord> readAll(Iterable<I> ids, FieldMask mask) {
         return readAll(ids);
     }

@@ -323,6 +323,7 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
      * @deprecated Field masks are no longer supported. Please use {@link #loadAll(Iterable)}.
      */
     @Deprecated
+    @SuppressWarnings("InlineMeSuggester" /* Must stay overridable until removed. */)
     public Iterator<E> loadAll(Iterable<I> ids, FieldMask fieldMask) {
         return loadAll(ids);
     }

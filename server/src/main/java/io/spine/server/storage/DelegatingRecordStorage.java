@@ -15,7 +15,6 @@
 package io.spine.server.storage;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import com.google.protobuf.FieldMask;
 import com.google.protobuf.Message;
 import io.spine.annotation.Internal;
 import io.spine.query.RecordQuery;
@@ -76,17 +75,6 @@ public abstract class DelegatingRecordStorage<I, R extends Message> extends Reco
         return delegate.read(id);
     }
 
-    /**
-     * Reads the record by the passed identifier ignoring the passed field mask.
-     *
-     * @deprecated Field masks are no longer supported. Please use {@link #read(Object)}.
-     */
-    @Deprecated
-    @Override
-    protected Optional<R> read(I id, FieldMask mask) {
-        return read(id);
-    }
-
     @Override
     protected Iterator<R> readAll() {
         return delegate.readAll();
@@ -95,17 +83,6 @@ public abstract class DelegatingRecordStorage<I, R extends Message> extends Reco
     @Override
     protected Iterator<R> readAll(Iterable<I> ids) {
         return delegate.readAll(ids);
-    }
-
-    /**
-     * Reads the records by the passed identifiers ignoring the passed field mask.
-     *
-     * @deprecated Field masks are no longer supported. Please use {@link #readAll(Iterable)}.
-     */
-    @Deprecated
-    @Override
-    protected Iterator<R> readAll(Iterable<I> ids, FieldMask mask) {
-        return readAll(ids);
     }
 
     @Override
@@ -160,33 +137,9 @@ public abstract class DelegatingRecordStorage<I, R extends Message> extends Reco
         return delegate.toQuery(id);
     }
 
-    /**
-     * Creates a new query that targets the single record with the specified ID
-     * ignoring the passed field mask.
-     *
-     * @deprecated Field masks are no longer supported. Please use {@link #toQuery(Object)}.
-     */
-    @Deprecated
-    @Override
-    protected RecordQuery<I, R> toQuery(I id, FieldMask mask) {
-        return toQuery(id);
-    }
-
     @Override
     protected RecordQuery<I, R> toQuery(Iterable<I> ids) {
         return delegate.toQuery(ids);
-    }
-
-    /**
-     * Creates a new query for the targets that have one of the passed identifiers
-     * ignoring the passed field mask.
-     *
-     * @deprecated Field masks are no longer supported. Please use {@link #toQuery(Iterable)}.
-     */
-    @Deprecated
-    @Override
-    protected RecordQuery<I, R> toQuery(Iterable<I> ids, FieldMask mask) {
-        return toQuery(ids);
     }
 
     @Override
