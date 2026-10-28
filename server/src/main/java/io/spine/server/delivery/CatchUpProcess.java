@@ -784,9 +784,9 @@ public final class CatchUpProcess extends ProcessManager<CatchUpId, CatchUp, Cat
             return noTargets();
         }
         Set<Object> actualTargets = new HashSet<>();
-        @Nullable Set<Object> targetsForDispatch = targets.isEmpty()
-                                                   ? null
-                                                   : targets;
+        var targetsForDispatch = targets.isEmpty()
+                                 ? null
+                                 : targets;
         for (var event : events) {
             var targetsOfThisDispatch = repository.sendToCatchingUp(event, targetsForDispatch);
             actualTargets.addAll(targetsOfThisDispatch);

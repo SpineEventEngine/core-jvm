@@ -205,7 +205,7 @@ import static java.util.Collections.synchronizedList;
  * with a special message, which the {@code Delivery} delivers through the shard to the System
  * context of the Bounded Context that serves the projections.
  */
-@SuppressWarnings({"OverlyCoupledClass", "ClassWithTooManyMethods"}) // It's fine for a centerpiece.
+@SuppressWarnings("ClassWithTooManyMethods" /* It's fine for a centerpiece. */)
 public final class Delivery implements WithLogging {
 
     /**
@@ -787,8 +787,7 @@ public final class Delivery implements WithLogging {
      * @param multitenant
      *         whether the Bounded Context supports multi-tenancy
      */
-    @SuppressWarnings({"TestOnlyProblems" /* The called code is not test-only. */,
-            "WeakerAccess" /* Used in descendant libraries to configure storage. */})
+    @SuppressWarnings("WeakerAccess" /* Used in descendant libraries to configure storage. */)
     public static ContextSpec contextSpec(boolean multitenant) {
         var name = SYSTEM_DELIVERY.value();
         return multitenant ?
