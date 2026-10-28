@@ -142,7 +142,7 @@ public final class BoundedContextBuilder implements WithLogging {
     @Internal
     @VisibleForTesting
     public static BoundedContextBuilder assumingTests() {
-        return assumingTests(false);
+        return assumingTests(/* multitenant = */ false);
     }
 
     /**
@@ -564,9 +564,7 @@ public final class BoundedContextBuilder implements WithLogging {
      * @return new {@code BoundedContext}
      * @throws DuplicateEntityStateException
      *         if another open Bounded Context already serves entities with the state
-     *         type of one of the repositories, and the
-     *         {@linkplain ServerEnvironment.TypeConfigurator#checkDuplicateEntityStates check}
-     *         is on
+     *         type of one of the repositories
      */
     public BoundedContext build() {
         var system = buildSystem();
@@ -595,13 +593,13 @@ public final class BoundedContextBuilder implements WithLogging {
      * @param context
      *         the context to close
      * @param failure
-     *         the error that failed the build; an error thrown on closing is added to it
-     *         as suppressed
+     *         the error that failed the build; whatever closing throws, even an
+     *         {@code Error}, is added to it as suppressed, so it does not replace the failure
      */
     private static void closeAfterFailure(BoundedContext context, Throwable failure) {
         try {
             context.close();
-        } catch (RuntimeException e) {
+        } catch (Throwable e) {
             failure.addSuppressed(e);
         }
     }

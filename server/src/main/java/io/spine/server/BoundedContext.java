@@ -75,7 +75,7 @@ import static java.lang.String.format;
  * @see <a href="https://martinfowler.com/bliki/BoundedContext.html">
  *         Martin Fowler on Bounded Contexts</a>
  */
-@SuppressWarnings({"ClassWithTooManyMethods", "OverlyCoupledClass", "NotJavadoc"})
+@SuppressWarnings({"ClassWithTooManyMethods", "NotJavadoc"})
 public abstract class BoundedContext
         implements Comparable<BoundedContext>,
                    Closeable,
@@ -197,9 +197,7 @@ public abstract class BoundedContext
      * Adds the passed repository to the context.
      *
      * @throws DuplicateEntityStateException
-     *         if another open context already serves entities with the same state type,
-     *         and the {@linkplain ServerEnvironment.TypeConfigurator#checkDuplicateEntityStates
-     *         check} is on
+     *         if another open context already serves entities with the same state type
      */
     protected final void register(Repository<?, ?> repository) {
         checkNotNull(repository);
@@ -210,7 +208,7 @@ public abstract class BoundedContext
         } catch (Throwable t) {
             if (newlyServed) {
                 ServerEnvironment.instance()
-                                 .forget(this, repository.entityStateType());
+                                 .forget(repository.entityStateType(), this);
             }
             throw t;
         }
@@ -230,11 +228,10 @@ public abstract class BoundedContext
      * @return {@code true} if this call recorded that this context serves the type,
      *         {@code false} if this is a System context, or if the type was recorded before
      */
-    @SuppressWarnings("ClassReferencesSubclass") // Only domain contexts are recorded.
     private boolean serveStateOf(Repository<?, ?> repository) {
-        return this instanceof DomainContext
+        return !isSystem()
                 && ServerEnvironment.instance()
-                                    .serve(this, repository.entityStateType());
+                                    .serve(repository.entityStateType(), this);
     }
 
     /**
@@ -457,6 +454,12 @@ public abstract class BoundedContext
      */
     @Internal
     public abstract SystemClient systemClient();
+
+    /**
+     * Tells if this is a System context, which keeps the meta information
+     * about the entities of another Bounded Context.
+     */
+    protected abstract boolean isSystem();
 
     /**
      * Closes the {@code BoundedContext} performing all necessary clean-ups.

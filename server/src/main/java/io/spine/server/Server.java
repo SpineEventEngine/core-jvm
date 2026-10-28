@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server;
@@ -35,7 +23,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -124,10 +114,40 @@ public final class Server implements WithLogging {
 
     /**
      * Initiates an orderly shutdown in which existing calls continue but new calls are rejected.
+     *
+     * <p>Also closes the Bounded Contexts of the server, logging an error for each one
+     * that fails to close.
      */
     public void shutdown() {
         logger().atInfo().log(() -> "Shutting down the server...");
         grpcContainer.shutdown();
+        closeContexts();
+        logger().atInfo().log(() -> "Server shut down.");
+    }
+
+    /**
+     * Initiates a forceful shutdown in which preexisting and new calls are rejected.
+     *
+     * <p>The method returns when the server becomes terminated and its Bounded Contexts
+     * are closed, as {@link #shutdown()} closes them.
+     *
+     * <p>The most common usage scenario for this method is clean-up in unit tests
+     * (e.g. {@literal @}{@code AfterEach} in JUnit5) that involve client-server communications.
+     */
+    @VisibleForTesting
+    public void shutdownAndWait() {
+        try {
+            grpcContainer.shutdownNowAndWait();
+        } finally {
+            closeContexts();
+        }
+    }
+
+    /**
+     * Closes the Bounded Contexts of the server, logging an error for each one that fails
+     * to close.
+     */
+    private void closeContexts() {
         contexts.forEach(context -> {
             try {
                 context.close();
@@ -138,19 +158,6 @@ public final class Server implements WithLogging {
                         "Unable to close the `%s` Context.", contextName));
             }
         });
-        logger().atInfo().log(() -> "Server shut down.");
-    }
-
-    /**
-     * Initiates a forceful shutdown in which preexisting and new calls are rejected.
-     *
-     * <p>The method returns when the server becomes terminated.
-     * The most common usage scenario for this method is clean-up in unit tests
-     * (e.g. {@literal @}{@code AfterEach} in JUnit5) that involve client-server communications.
-     */
-    @VisibleForTesting
-    public void shutdownAndWait() {
-        grpcContainer.shutdownNowAndWait();
     }
 
     /**
@@ -233,6 +240,9 @@ public final class Server implements WithLogging {
 
         /**
          * Creates a new instance of the server.
+         *
+         * <p>If building one of the Bounded Contexts fails, the method closes the contexts
+         * built before it, and then throws.
          */
         public Server build() {
             var result = new Server(this);
@@ -241,11 +251,48 @@ public final class Server implements WithLogging {
 
         private ImmutableSet<BoundedContext> contexts() {
             if (contexts == null) {
-                ImmutableSet.Builder<BoundedContext> result = ImmutableSet.builder();
-                contextBuilders.forEach(c -> result.add(c.build()));
-                contexts = result.build();
+                contexts = buildContexts();
             }
             return contexts;
+        }
+
+        /**
+         * Builds the Bounded Contexts of the server.
+         *
+         * <p>If building one of them fails, closes the contexts built before it, and then
+         * throws. The caller never gets these contexts, so nobody else can close them.
+         * Left open, they would keep serving their entity state types.
+         */
+        private ImmutableSet<BoundedContext> buildContexts() {
+            List<BoundedContext> built = new ArrayList<>();
+            try {
+                for (var builder : contextBuilders) {
+                    built.add(builder.build());
+                }
+            } catch (Throwable t) {
+                closeAfterFailure(built, t);
+                throw t;
+            }
+            return ImmutableSet.copyOf(built);
+        }
+
+        /**
+         * Closes the contexts built before the build of the server failed.
+         *
+         * @param built
+         *         the contexts to close
+         * @param failure
+         *         the error that failed the build; whatever closing throws, even an
+         *         {@code Error}, is added to it as suppressed, so the rest still close
+         */
+        private static void closeAfterFailure(List<BoundedContext> built, Throwable failure) {
+            for (var context : built) {
+                try {
+                    context.close();
+                } catch (Throwable e) {
+                    failure.addSuppressed(e);
+                }
+            }
         }
 
         /**

@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.aggregate
@@ -188,29 +176,28 @@ internal class AggregateRepositoryStateHistorySpec {
 
     @Test
     fun `record the histories of tenants separately`() {
-        val mtContext = BoundedContextBuilder.assumingTests(true).build()
-        val mtRepository = StateHistoryTestRepository()
-        mtContext.internalAccess()
-            .register(mtRepository)
-        mtRepository.enableStateHistory()
-        val alice = tenantId { value = "Alice" }
-        val bob = tenantId { value = "Bob" }
-        try {
-            postAs(mtContext, alice, Given.CommandMessage.createProject(projectId))
-            postAs(mtContext, bob, Given.CommandMessage.createProject(projectId))
-            postAs(mtContext, alice, Given.CommandMessage.addTask(projectId))
+        // Close `context` first: it serves the entity state type of `StateHistoryTestRepository`.
+        context.close()
+        BoundedContextBuilder.assumingTests(/* multitenant = */ true)
+            .build().use { mtContext ->
+                val mtRepository = StateHistoryTestRepository()
+                mtContext.internalAccess()
+                    .register(mtRepository)
+                mtRepository.enableStateHistory()
+                val alice = tenantId { value = "Alice" }
+                val bob = tenantId { value = "Bob" }
+                postAs(mtContext, alice, Given.CommandMessage.createProject(projectId))
+                postAs(mtContext, bob, Given.CommandMessage.createProject(projectId))
+                postAs(mtContext, alice, Given.CommandMessage.addTask(projectId))
 
-            val aliceRecords = historyOf(mtRepository, alice)
-            aliceRecords.map { it.version.number } shouldContainExactly listOf(2, 1)
-            aliceRecords.forEach {
-                it.entityId shouldBe Identifier.pack(projectId)
+                val aliceRecords = historyOf(mtRepository, alice)
+                aliceRecords.map { it.version.number } shouldContainExactly listOf(2, 1)
+                aliceRecords.forEach {
+                    it.entityId shouldBe Identifier.pack(projectId)
+                }
+                val bobRecords = historyOf(mtRepository, bob)
+                bobRecords.map { it.version.number } shouldContainExactly listOf(1)
             }
-            val bobRecords = historyOf(mtRepository, bob)
-            bobRecords.map { it.version.number } shouldContainExactly listOf(1)
-        } finally {
-            mtRepository.close()
-            mtContext.close()
-        }
     }
 
     @Test
@@ -252,30 +239,32 @@ internal class AggregateRepositoryStateHistorySpec {
         under<Tests> {
             use(FailingHistoryFactory())
         }
-        val failingContext = BoundedContextBuilder.assumingTests().build()
-        val failingRepository = StateHistoryTestRepository()
-        failingContext.internalAccess()
-            .register(failingRepository)
-        val observer = CreatedProjectsObserver()
-        failingContext.internalAccess()
-            .registerEventDispatcher(observer)
-        failingRepository.enableStateHistory()
         try {
-            failingContext.commandBus()
-                .post(Given.ACommand.createProject(projectId), noOpObserver())
+            // Close `context` first: it serves the entity state type of
+            // `StateHistoryTestRepository`.
+            context.close()
+            BoundedContextBuilder.assumingTests().build().use { failingContext ->
+                val failingRepository = StateHistoryTestRepository()
+                failingContext.internalAccess()
+                    .register(failingRepository)
+                val observer = CreatedProjectsObserver()
+                failingContext.internalAccess()
+                    .registerEventDispatcher(observer)
+                failingRepository.enableStateHistory()
+                failingContext.commandBus()
+                    .post(Given.ACommand.createProject(projectId), noOpObserver())
 
-            // The durable state write precedes the failing append...
-            failingRepository.loadAggregate(projectId)
-                .version()
-                .number shouldBe 1
-            // ...but the documented contract holds: the failure to record
-            // the history fails the dispatch, and the produced event is
-            // never posted. A write path swallowing the failure would have
-            // published it.
-            observer.seen shouldBe 0
+                // The durable state write precedes the failing append...
+                failingRepository.loadAggregate(projectId)
+                    .version()
+                    .number shouldBe 1
+                // ...but the documented contract holds: the failure to record
+                // the history fails the dispatch, and the produced event is
+                // never posted. A write path swallowing the failure would have
+                // published it.
+                observer.seen shouldBe 0
+            }
         } finally {
-            failingRepository.close()
-            failingContext.close()
             ServerEnvironment.instance().reset()
         }
     }
