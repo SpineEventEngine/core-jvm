@@ -23,6 +23,12 @@ All line numbers below are on `master` at `39ef520dc16`.
       - 2026-10-26: #1698 merged (`2e597e36bf0`). On 2026-10-27, on the owner's request, this
         branch was fast-forwarded to `origin/master` at that commit. The three files that both
         sides changed were re-applied by hand: `ServedStateTypes` is Kotlin now.
+      - Later on 2026-10-27, on the owner's request, this branch is stacked on #1701
+        (`claude/one-context-per-name`, `.600`). It got #1701 by a merge, on 2026-10-28, after
+        #1700 merged into `master` and GitHub rebased #1701. #1700 turns the check on in tests
+        too, and #1701 allows one open domain context per name. So the lookup moved to
+        `OpenContexts` and returns one context or `null`, and the test of two contexts that
+        serve one projection type is gone: they cannot be open.
 - [ ] PR #1694 closed without merging. Its team memory correction moves to the check PR.
 - [ ] Plan mode: the implementation plan approved by the owner (CLAUDE.md gate).
 - [ ] Implementation. See "Plan".
@@ -573,6 +579,8 @@ Read in the code on 2026-10-23, on `master` at `39ef520dc16`. The plan is
      `AssumingTests` contexts, share the key of the catch-up inboxes. Keying them by the context
      object needs a way from a domain context to its System context, or the framework could
      forbid two open contexts with one name. Left for a task of its own.
+   - Fixed since by #1701, which this branch now builds on: an open domain context must have
+     a name of its own.
 10. **An old-form maintenance message** fails the delivery run with an error that names the
     upgrade rule, as a type with no inbox does today (`InboxDeliveries.java:48-53`).
 11. **A correction to "Tests".** Today the reactor of `EmptyRepositoryCatchUpIgTest` gets
@@ -599,6 +607,8 @@ Read in the code on 2026-10-23, on `master` at `39ef520dc16`. The plan is
     - The check is off in tests. So if a leaked context serves a projection type that a
       catch-up test uses, the lookup finds two contexts, and the catch-up fails.
     - If this happens, fix the leaking test: close its `BlackBox`.
+    - Gone since #1700: the check is on in tests too, so a leaked context makes the next
+      context that serves its types fail at once.
 15. **Found while testing: the deduplication of a completed job works per page.**
     - `ParallelCatchUpsIgTest` with pages of 4 messages, one page per run, failed 69 cases
       of 109. A caught-up tally held a live event twice, or out of order, e.g.
