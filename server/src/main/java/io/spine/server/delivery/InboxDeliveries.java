@@ -152,6 +152,9 @@ final class InboxDeliveries {
      * @throws IllegalStateException
      *         if the address is of the form written by an earlier version of the framework
      */
+    @SuppressWarnings("ChainOfInstanceofChecks" /* An inbox target here could be either
+       `CatchUpId` or `ShardMaintenanceId` that refers to a catch-up job. Having a common
+       interface for them just to avoid the cast does not make much sense. */)
     private static CatchUpId jobOf(InboxId inboxId) {
         var target = InboxIds.unwrap(inboxId);
         if (target instanceof CatchUpId job) {
