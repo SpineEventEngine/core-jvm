@@ -116,6 +116,11 @@ public final class SystemContext extends BoundedContext {
         return NoOpSystemClient.INSTANCE;
     }
 
+    @Override
+    protected boolean isSystem() {
+        return true;
+    }
+
     /**
      * Obtains the configuration of this system context.
      */

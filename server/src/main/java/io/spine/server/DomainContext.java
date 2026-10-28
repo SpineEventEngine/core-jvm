@@ -60,6 +60,11 @@ final class DomainContext extends BoundedContext {
         return system;
     }
 
+    @Override
+    protected boolean isSystem() {
+        return false;
+    }
+
     /**
      * {@inheritDoc}
      *

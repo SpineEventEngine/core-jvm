@@ -22,7 +22,6 @@ import io.spine.core.BoundedContextName
 import io.spine.core.BoundedContextNames.newName
 import io.spine.environment.Tests
 import io.spine.server.BoundedContext
-import io.spine.server.DuplicateEntityStateException
 import io.spine.server.delivery.given.NoOpEndpoint
 import io.spine.server.delivery.given.TallyA1Repository
 import io.spine.server.delivery.given.closeAll
@@ -159,18 +158,6 @@ internal class InboxDeliveriesSpec : AbstractDeliveryTest() {
         }
 
         @Test
-        fun `if two open contexts serve the projection type`() {
-            serveTallies(TASKS)
-            serveTallies(BILLING)
-
-            val error = shouldThrow<DuplicateEntityStateException> {
-                deliveries.get(messageTo(CatchUpProcess.TYPE, job()))
-            }
-            error.message shouldContain TASKS.value
-            error.message shouldContain BILLING.value
-        }
-
-        @Test
         fun `if a shard maintenance message is addressed to the shard only`() {
             serveTallies(TASKS)
             val shardOnly = DeliveryStrategy.newIndex(0, 1)
@@ -184,8 +171,6 @@ internal class InboxDeliveriesSpec : AbstractDeliveryTest() {
 
     /**
      * Builds a domain context with the given name, which serves the tallies.
-     *
-     * The check of duplicate entity states is off in tests, so two such contexts may be open.
      */
     private fun serveTallies(name: BoundedContextName) {
         val context = BoundedContext.singleTenant(name.value)

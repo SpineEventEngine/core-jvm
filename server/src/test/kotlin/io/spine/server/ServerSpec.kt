@@ -1,44 +1,40 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server
 
 import com.google.protobuf.Empty
 import io.grpc.ManagedChannelBuilder
+import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.ints.shouldBeGreaterThan
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.spine.server.delivery.given.DeliveryTestEnv.CalculatorRepository
 import io.spine.server.given.service.StatusCheckService
 import io.spine.test.client.ClientTestContext.tasks
 import io.spine.test.client.ClientTestContext.users
+import io.spine.test.client.users.UserAccount
+import io.spine.test.delivery.Calc
 import io.spine.test.server.ServerStatus.OK
 import io.spine.test.server.StatusCheckGrpc
 import io.spine.testing.TestValues.randomString
 import io.spine.testing.logging.mute.MuteLogging
+import io.spine.type.TypeUrl
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
@@ -68,15 +64,21 @@ internal class ServerSpec {
     }
 
     @Test
+    @MuteLogging
     fun `provide 'CommandService', 'QueryService', and 'SubscriptionService'`() {
         val server = Server.atPort(ANY_FREE_PORT)
             .add(users())
             .add(tasks())
             .build()
-
-        server.subscriptionService() shouldNotBe null
-        server.queryService() shouldNotBe null
-        server.commandService() shouldNotBe null
+        // The server is started only to be shut down, which closes its contexts.
+        server.start()
+        try {
+            server.subscriptionService() shouldNotBe null
+            server.queryService() shouldNotBe null
+            server.commandService() shouldNotBe null
+        } finally {
+            server.shutdown()
+        }
     }
 
     @Test
@@ -123,6 +125,112 @@ internal class ServerSpec {
 
     @Test
     @MuteLogging
+    fun `close its contexts when shut down and awaited`() {
+        val server = Server.atPort(ANY_FREE_PORT)
+            .add(users())
+            .build()
+        server.start()
+        contextServing(userAccount).shouldNotBeNull()
+
+        server.shutdownAndWait()
+
+        contextServing(userAccount).shouldBeNull()
+    }
+
+    @Test
+    @MuteLogging
+    fun `close its contexts when shut down and awaited, even if it was not started`() {
+        val server = Server.atPort(ANY_FREE_PORT)
+            .add(users())
+            .build()
+        contextServing(userAccount).shouldNotBeNull()
+
+        shouldThrow<IllegalStateException> {
+            server.shutdownAndWait()
+        }
+
+        contextServing(userAccount).shouldBeNull()
+    }
+
+    @Test
+    fun `close the contexts it built when building another one fails`() {
+        // Both contexts have one name, so the one built second fails to build.
+        val builder = Server.atPort(ANY_FREE_PORT)
+            .add(users())
+            .add(users())
+
+        shouldThrow<DuplicateContextNameException> {
+            // Shut down at once if the build succeeds by mistake, so that it does not leak.
+            builder.build().shutdownAndWait()
+        }
+
+        contextServing(userAccount).shouldBeNull()
+    }
+
+    @Test
+    @MuteLogging
+    fun `close every context when shut down, even if closing one of them fails`() {
+        val server = Server.atPort(ANY_FREE_PORT)
+            .add(BoundedContext.singleTenant("Calculators").add(FailingCalculatorRepository()))
+            .add(users())
+            .build()
+        server.start()
+
+        shouldNotThrowAny {
+            server.shutdown()
+        }
+
+        contextServing(calc).shouldBeNull()
+        contextServing(userAccount).shouldBeNull()
+    }
+
+    @Test
+    fun `keep the error of closing a context it built when building another one fails`() {
+        // Both contexts serve `Calc`, so the one built second fails to build,
+        // and then closing the one built first fails too.
+        val builder = Server.atPort(ANY_FREE_PORT)
+            .add(BoundedContext.singleTenant("First").add(FailingCalculatorRepository()))
+            .add(BoundedContext.singleTenant("Second").add(FailingCalculatorRepository()))
+
+        val thrown = shouldThrow<DuplicateEntityStateException> {
+            // Shut down at once if the build succeeds by mistake, so that it does not leak.
+            builder.build().shutdownAndWait()
+        }
+
+        thrown.suppressed.map { it.message } shouldContain CLOSE_FAILURE
+        contextServing(calc).shouldBeNull()
+    }
+
+    @Test
+    fun `keep the build error and close every built context if closing one throws an 'Error'`() {
+        // Both `First` and `Second` serve `Calc`, so the one of them built second fails to build.
+        // The server builds its contexts in no particular order, so the context of users
+        // may be built before the failure, too. Closing any of the contexts throws an `Error`.
+        val builder = Server.atPort(ANY_FREE_PORT)
+            .add(
+                BoundedContext.singleTenant("First")
+                    .add(CalculatorRepository())
+                    .errorOnClose()
+            )
+            .add(
+                BoundedContext.singleTenant("Second")
+                    .add(CalculatorRepository())
+                    .errorOnClose()
+            )
+            .add(users().errorOnClose())
+
+        val thrown = shouldThrow<DuplicateEntityStateException> {
+            // Shut down at once if the build succeeds by mistake, so that it does not leak.
+            builder.build().shutdownAndWait()
+        }
+
+        thrown.suppressed.map { it.message } shouldContain HOOK_FAILURE
+        contextServing(calc).shouldBeNull()
+        contextServing(userAccount).shouldBeNull()
+    }
+
+    @Test
+    @MuteLogging
     fun `prohibit obtaining the bound port of an in-process server`() {
         val server = Server.inProcess(randomString()).build()
 
@@ -131,9 +239,38 @@ internal class ServerSpec {
         }
     }
 
+    private fun contextServing(type: TypeUrl): BoundedContext? =
+        OpenContexts.findContextServing(type)
+
+    /**
+     * Makes the hook of the context throw an `Error` before the context closes.
+     *
+     * The context still closes its repositories after the hook throws.
+     */
+    private fun BoundedContextBuilder.errorOnClose(): BoundedContextBuilder =
+        setOnBeforeClose { throw AssertionError(HOOK_FAILURE) }
+
+    /**
+     * A repository of calculators that throws from `close()` after closing its resources.
+     */
+    private class FailingCalculatorRepository : CalculatorRepository() {
+
+        override fun close() {
+            super.close()
+            error(CLOSE_FAILURE)
+        }
+    }
+
     private companion object {
 
         const val ADDRESS = "localhost"
+
+        const val CLOSE_FAILURE = "The repository failed to close."
+
+        const val HOOK_FAILURE = "The hook failed before closing the context."
+
+        val userAccount: TypeUrl = TypeUrl.of(UserAccount::class.java)
+        val calc: TypeUrl = TypeUrl.of(Calc::class.java)
 
         /**
          * Tells the operating system to pick a free port when the server binds.

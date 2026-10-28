@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.projection
@@ -156,28 +144,29 @@ internal class ProjectionSpec {
         @Suppress("UNCHECKED_CAST")
         val repository = DefaultRepository.of(SavingProjection::class.java)
                 as ProjectionRepository<String, SavingProjection, SavedString>
-        val context = BoundedContextBuilder.assumingTests().build()
-        val contextAccess = context.internalAccess()
-        contextAccess.register(repository)
-        val monitor = DiagnosticMonitor()
-        contextAccess.registerEventDispatcher(monitor)
-        val event = GivenEvent.arbitrary()
-        val envelope = EventEnvelope.of(event)
-        val endpoint = ProjectionEndpoint.of<String, SavingProjection, SavedString>(
-            repository,
-            envelope
-        )
+        BoundedContextBuilder.assumingTests().build().use { context ->
+            val contextAccess = context.internalAccess()
+            contextAccess.register(repository)
+            val monitor = DiagnosticMonitor()
+            contextAccess.registerEventDispatcher(monitor)
+            val event = GivenEvent.arbitrary()
+            val envelope = EventEnvelope.of(event)
+            val endpoint = ProjectionEndpoint.of<String, SavingProjection, SavedString>(
+                repository,
+                envelope
+            )
 
-        endpoint.dispatchTo(projection.id)
+            endpoint.dispatchTo(projection.id)
 
-        val systemEvents = monitor.handlerFailureEvents()
-        systemEvents shouldHaveSize 1
-        val systemEvent = systemEvents[0]
-        systemEvent.handledSignal.asEventId() shouldBe event.id()
-        systemEvent.entity.id shouldBe Identifier.pack(projection.id)
-        val error = systemEvent.error
-        error.type shouldBe EventValidationError.getDescriptor().fullName
-        error.code shouldBe UNSUPPORTED_EVENT_VALUE
+            val systemEvents = monitor.handlerFailureEvents()
+            systemEvents shouldHaveSize 1
+            val systemEvent = systemEvents[0]
+            systemEvent.handledSignal.asEventId() shouldBe event.id()
+            systemEvent.entity.id shouldBe Identifier.pack(projection.id)
+            val error = systemEvent.error
+            error.type shouldBe EventValidationError.getDescriptor().fullName
+            error.code shouldBe UNSUPPORTED_EVENT_VALUE
+        }
     }
 
     @Test

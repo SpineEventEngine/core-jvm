@@ -62,9 +62,6 @@ final class InboxDeliveries {
      * @throws IllegalStateException
      *         if there is no delivery found, or the message is addressed in the form of
      *         an earlier version of the framework
-     * @throws io.spine.server.DuplicateEntityStateException
-     *         if the message belongs to the catch-up of a projection type, which more
-     *         than one open context serves
      */
     ShardedMessageDelivery<InboxMessage> get(InboxMessage message) {
         var inboxId = message.getInboxId();

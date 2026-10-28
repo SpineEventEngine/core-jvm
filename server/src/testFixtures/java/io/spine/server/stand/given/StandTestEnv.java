@@ -40,9 +40,9 @@ import io.spine.core.TenantId;
 import io.spine.grpc.MemoizingObserver;
 import io.spine.people.PersonName;
 import io.spine.protobuf.AnyPacker;
+import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.server.Given.CustomerAggregateRepository;
-import io.spine.server.commandbus.CommandDispatcher;
 import io.spine.server.entity.EntityRecord;
 import io.spine.server.entity.Repository;
 import io.spine.server.stand.Stand;
@@ -96,27 +96,30 @@ public final class StandTestEnv {
     private StandTestEnv() {
     }
 
-    public static Stand newStand(boolean multitenant) {
-        return newStand(multitenant,
-                        new CustomerAggregateRepository(), new StandTestProjectionRepository());
+    /**
+     * Creates a context serving customers and projects.
+     *
+     * <p>The caller closes the context, so that the contexts of later tests can serve
+     * the same entity state types.
+     */
+    public static BoundedContext newContext(boolean multitenant) {
+        return newContext(multitenant,
+                          new CustomerAggregateRepository(), new StandTestProjectionRepository());
     }
 
-    public static Stand newStand(boolean multitenant, Repository<?, ?>... repositories) {
+    /**
+     * Creates a context with the given repositories.
+     *
+     * <p>The caller closes the context, so that the contexts of later tests can serve
+     * the same entity state types.
+     */
+    public static BoundedContext newContext(boolean multitenant,
+                                            Repository<?, ?>... repositories) {
         var builder = BoundedContextBuilder.assumingTests(multitenant);
         for (var repository : repositories) {
             builder.add(repository);
         }
-        var context = builder.build();
-        return context.stand();
-    }
-
-    public static Stand newStand(CommandDispatcher... dispatchers) {
-        var builder = BoundedContextBuilder.assumingTests();
-        for (var dispatcher : dispatchers) {
-            builder.addCommandDispatcher(dispatcher);
-        }
-        var context = builder.build();
-        return context.stand();
+        return builder.build();
     }
 
     public static ActorRequestFactory createRequestFactory(@Nullable TenantId tenant) {

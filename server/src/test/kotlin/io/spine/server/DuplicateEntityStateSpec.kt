@@ -17,14 +17,13 @@ package io.spine.server
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.withClue
-import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
-import io.kotest.matchers.collections.shouldNotContain
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.kotest.matchers.types.shouldNotBeInstanceOf
-import io.spine.core.BoundedContextName
-import io.spine.core.BoundedContextNames.newName
 import io.spine.environment.DefaultMode
 import io.spine.environment.Environment
 import io.spine.environment.Tests
@@ -68,21 +67,63 @@ internal class DuplicateEntityStateSpec {
      */
     @BeforeEach
     fun checkTypesAreNotServed() {
-        listOf(calc, receptionist).forEach { type ->
-            withClue("Contexts left open by other tests serve `${type.typeName()}`") {
-                environment.contextsServing(type).shouldBeEmpty()
+        listOf(calc, receptionist, emptyAggregate).forEach { type ->
+            withClue("A context left open by another test serves `${type.typeName()}`") {
+                contextServing(type).shouldBeNull()
             }
         }
     }
 
-    /**
-     * Closes the contexts built by the case and resets the environment, so that the next case
-     * starts with the default value of the check, rather than with a value set explicitly.
-     */
     @AfterEach
-    fun closeContextsAndResetEnvironment() {
-        closeContexts()
-        environment.reset()
+    fun closeContexts() {
+        built.forEach(BoundedContext::closeIfOpen)
+        built.clear()
+    }
+
+    @Test
+    fun `reject a context serving a type that another open context serves`() {
+        val first = context("First", CalculatorRepository())
+
+        shouldThrow<DuplicateEntityStateException> {
+            context("Second", CalculatorRepository())
+        }
+        contextServing(calc) shouldBeSameInstanceAs first
+    }
+
+    @Test
+    fun `allow the type in another context after the first one is closed`() {
+        val first = context("First", CalculatorRepository())
+        first.close()
+
+        val second = shouldNotThrowAny {
+            context("Second", CalculatorRepository())
+        }
+        contextServing(calc) shouldBeSameInstanceAs second
+    }
+
+    @Test
+    fun `check a repository added through 'internalAccess()' after the build`() {
+        val first = context("First", CalculatorRepository())
+        val second = context("Second")
+
+        shouldThrow<DuplicateEntityStateException> {
+            second.internalAccess().register(CalculatorRepository())
+        }
+        contextServing(calc) shouldBeSameInstanceAs first
+    }
+
+    @Test
+    fun `not let a closed context take a type`() {
+        val closed = context("Closed").also { it.close() }
+
+        val error = shouldThrow<IllegalStateException> {
+            closed.internalAccess().register(CalculatorRepository())
+        }
+        error.message shouldContain "already closed"
+        contextServing(calc).shouldBeNull()
+        shouldNotThrowAny {
+            context("Open", CalculatorRepository())
+        }
     }
 
     @Test
@@ -92,7 +133,87 @@ internal class DuplicateEntityStateSpec {
         shouldThrow<IllegalStateException> {
             context.internalAccess().register(AnemicAggregateRepository())
         }
-        environment.contextsServing(emptyAggregate) shouldNotContain name("Rejecting")
+        contextServing(emptyAggregate).shouldBeNull()
+    }
+
+    @Test
+    fun `check contexts built by 'BlackBox', and forget them when it closes`() {
+        BlackBox.from(BoundedContext.singleTenant("First").add(CalculatorRepository())).use {
+            shouldThrow<DuplicateEntityStateException> {
+                // Closed at once in case the build succeeds by mistake, so that the `BlackBox`
+                // does not leak.
+                BlackBox.from(BoundedContext.singleTenant("Second").add(CalculatorRepository()))
+                    .close()
+            }
+        }
+
+        contextServing(calc).shouldBeNull()
+    }
+
+    @Test
+    fun `not count System contexts`() {
+        shouldNotThrowAny {
+            contextWithCommandLog("First")
+            contextWithCommandLog("Second")
+        }
+        contextServing(TypeUrl.of(CommandLog::class.java)).shouldBeNull()
+    }
+
+    @Test
+    fun `close a context that failed to build, so that it serves none of its types`() {
+        context("First", CalculatorRepository())
+
+        shouldThrow<DuplicateEntityStateException> {
+            BoundedContext.singleTenant("Second")
+                .add(ReceptionistAggregate::class.java)
+                .add(CalculatorRepository())
+                .build()
+                .also(built::add)
+        }
+        contextServing(receptionist).shouldBeNull()
+    }
+
+    @Test
+    fun `close a context that failed to build, even if its 'onBeforeClose' action throws`() {
+        context("First", CalculatorRepository())
+
+        val error = shouldThrow<DuplicateEntityStateException> {
+            BoundedContext.singleTenant("Second")
+                .setOnBeforeClose { throw AssertionError(HOOK_FAILURE) }
+                .add(ReceptionistAggregate::class.java)
+                .add(CalculatorRepository())
+                .build()
+                .also(built::add)
+        }
+        error.suppressed.map { it.message } shouldContain HOOK_FAILURE
+        contextServing(receptionist).shouldBeNull()
+    }
+
+    @Test
+    fun `close every repository and forget the context, even if closing them fails`() {
+        val calculators = FailingCalculatorRepository()
+        val receptionists = FailingReceptionistRepository()
+        val first = context("First", calculators, receptionists)
+
+        val error = shouldThrow<IllegalStateException> {
+            first.close()
+        }
+        error.suppressed.map { it.message } shouldContainExactly listOf(REPOSITORY_FAILURE)
+        calculators.isOpen shouldBe false
+        receptionists.isOpen shouldBe false
+        contextServing(calc).shouldBeNull()
+        contextServing(receptionist).shouldBeNull()
+    }
+
+    @Test
+    fun `leave a duplicate within one context to the checks of the context`() {
+        val context = context("Single", CalculatorRepository())
+
+        val error = shouldThrow<RuntimeException> {
+            context.internalAccess().register(CalculatorRepository())
+        }
+        error.shouldNotBeInstanceOf<DuplicateEntityStateException>()
+        contextServing(calc) shouldBeSameInstanceAs context
     }
 
     @Nested inner class
@@ -109,13 +230,16 @@ internal class DuplicateEntityStateSpec {
 
         @AfterEach
         fun backToTests() {
-            closeContexts()
-            environment.reset()
-            Environment.instance().setTo(Tests::class.java)
+            try {
+                closeContexts()
+            } finally {
+                environment.reset()
+                Environment.instance().setTo(Tests::class.java)
+            }
         }
 
         @Test
-        fun `be on by default, naming the type and both contexts`() {
+        fun `reject a second context, naming the type and both contexts`() {
             context("First", CalculatorRepository())
 
             val error = shouldThrow<DuplicateEntityStateException> {
@@ -129,162 +253,20 @@ internal class DuplicateEntityStateSpec {
     }
 
     @Nested inner class
-    `in tests` {
-
-        @Test
-        fun `be off by default`() {
-            context("First", CalculatorRepository())
-
-            shouldNotThrowAny {
-                context("Second", CalculatorRepository())
-            }
-        }
-
-        @Test
-        fun `be turned on`() {
-            under<Tests> { checkDuplicateEntityStates(true) }
-            context("First", CalculatorRepository())
-
-            shouldThrow<DuplicateEntityStateException> {
-                context("Second", CalculatorRepository())
-            }
-        }
-    }
-
-    @Nested inner class
-    `when on` {
-
-        @BeforeEach
-        fun turnCheckOn() {
-            under<Tests> { checkDuplicateEntityStates(true) }
-        }
-
-        @Test
-        fun `allow the type in another context after the first one is closed`() {
-            val first = context("First", CalculatorRepository())
-            first.close()
-
-            shouldNotThrowAny {
-                context("Second", CalculatorRepository())
-            }
-            environment.contextsServing(calc) shouldContainExactly listOf(name("Second"))
-        }
-
-        @Test
-        fun `check a repository added through 'internalAccess()' after the build`() {
-            context("First", CalculatorRepository())
-            val second = context("Second")
-
-            shouldThrow<DuplicateEntityStateException> {
-                second.internalAccess().register(CalculatorRepository())
-            }
-            environment.contextsServing(calc) shouldContainExactly listOf(name("First"))
-        }
-
-        @Test
-        fun `check contexts built by 'BlackBox', and forget them when it closes`() {
-            BlackBox.from(BoundedContext.singleTenant("First").add(CalculatorRepository())).use {
-                shouldThrow<DuplicateEntityStateException> {
-                    // Closed at once if the check fails to throw, so that it does not leak.
-                    BlackBox.from(BoundedContext.singleTenant("Second").add(CalculatorRepository()))
-                        .close()
-                }
-            }
-
-            environment.contextsServing(calc).shouldBeEmpty()
-        }
-
-        @Test
-        fun `not count System contexts`() {
-            shouldNotThrowAny {
-                contextWithCommandLog("First")
-                contextWithCommandLog("Second")
-            }
-            environment.contextsServing(TypeUrl.of(CommandLog::class.java)).shouldBeEmpty()
-        }
-
-        @Test
-        fun `close a context that failed to build, so that it serves none of its types`() {
-            context("First", CalculatorRepository())
-
-            shouldThrow<DuplicateEntityStateException> {
-                BoundedContext.singleTenant("Second")
-                    .add(ReceptionistAggregate::class.java)
-                    .add(CalculatorRepository())
-                    .build()
-                    .also(built::add)
-            }
-            environment.contextsServing(receptionist).shouldBeEmpty()
-        }
-
-        @Test
-        fun `close a context that failed to build, even if its 'onBeforeClose' action throws`() {
-            context("First", CalculatorRepository())
-
-            val error = shouldThrow<DuplicateEntityStateException> {
-                BoundedContext.singleTenant("Second")
-                    .setOnBeforeClose { error(HOOK_FAILURE) }
-                    .add(ReceptionistAggregate::class.java)
-                    .add(CalculatorRepository())
-                    .build()
-                    .also(built::add)
-            }
-            error.suppressed.map { it.message } shouldContain HOOK_FAILURE
-            environment.contextsServing(receptionist).shouldBeEmpty()
-        }
-
-        @Test
-        fun `close every repository and forget the context, even if closing them fails`() {
-            val calculators = FailingCalculatorRepository()
-            val receptionists = FailingReceptionistRepository()
-            val first = context("First", calculators, receptionists)
-
-            val error = shouldThrow<IllegalStateException> {
-                first.close()
-            }
-            error.suppressed.map { it.message } shouldContainExactly listOf(REPOSITORY_FAILURE)
-            calculators.isOpen shouldBe false
-            receptionists.isOpen shouldBe false
-            environment.contextsServing(calc).shouldBeEmpty()
-            environment.contextsServing(receptionist).shouldBeEmpty()
-        }
-
-        @Test
-        fun `leave a duplicate within one context to the checks of the context`() {
-            val context = context("Single", CalculatorRepository())
-
-            val error = shouldThrow<RuntimeException> {
-                context.internalAccess().register(CalculatorRepository())
-            }
-            error.shouldNotBeInstanceOf<DuplicateEntityStateException>()
-            environment.contextsServing(calc) shouldContainExactly listOf(name("Single"))
-        }
-    }
-
-    @Nested inner class
-    `tell which open contexts serve a type, reporting` {
+    `find the open context serving a type, reporting` {
 
         @Test
         fun none() {
             context("First", CalculatorRepository())
 
-            environment.contextsServing(receptionist).shouldBeEmpty()
+            contextServing(receptionist).shouldBeNull()
         }
 
         @Test
-        fun one() {
-            context("First", CalculatorRepository())
+        fun `the serving one`() {
+            val first = context("First", CalculatorRepository())
 
-            environment.contextsServing(calc) shouldContainExactly listOf(name("First"))
-        }
-
-        @Test
-        fun `several, when the check is off`() {
-            context("First", CalculatorRepository())
-            context("Second", CalculatorRepository())
-
-            environment.contextsServing(calc) shouldContainExactly
-                    listOf(name("First"), name("Second"))
+            contextServing(calc) shouldBeSameInstanceAs first
         }
     }
 
@@ -300,10 +282,8 @@ internal class DuplicateEntityStateSpec {
         return builder.build().also(built::add)
     }
 
-    private fun closeContexts() {
-        built.forEach(BoundedContext::closeIfOpen)
-        built.clear()
-    }
+    private fun contextServing(type: TypeUrl): BoundedContext? =
+        OpenContexts.findContextServing(type)
 
     /**
      * A repository of calculators that throws from `close()` after closing its resources.
@@ -335,7 +315,5 @@ internal class DuplicateEntityStateSpec {
 
         const val HOOK_FAILURE = "The action before closing failed."
         const val REPOSITORY_FAILURE = "The repository failed to close."
-
-        fun name(value: String): BoundedContextName = newName(value)
     }
 }
