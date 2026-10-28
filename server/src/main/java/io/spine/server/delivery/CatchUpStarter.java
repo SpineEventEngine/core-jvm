@@ -85,10 +85,11 @@ public final class CatchUpStarter<I> {
      *
      * <p>In a multi-tenant context, the catch-up is started for the current tenant.
      *
-     * <p>The request of the catch-up is posted before this method returns, even if the system
-     * context posts its events in parallel. So, with a {@code Delivery} that delivers each
-     * message at once, the job of the catch-up is stored by then, and the next call for
-     * the same instances fails.
+     * <p>The check for a catch-up already in progress sees another catch-up only once its
+     * request is processed. That may happen after this method returns: for example, when
+     * the system events are posted in parallel, or when the {@code Delivery} delivers messages
+     * later. So two calls for the same instances, one right after the other, may both pass
+     * the check.
      *
      * @param ids
      *         the IDs of the projection instances to catch-up, or {@code null} if all entities of
@@ -114,7 +115,7 @@ public final class CatchUpStarter<I> {
                 .build();
         context.systemClient()
                .writeSide()
-               .postEventNow(eventMessage);
+               .postEvent(eventMessage);
         return id;
     }
 

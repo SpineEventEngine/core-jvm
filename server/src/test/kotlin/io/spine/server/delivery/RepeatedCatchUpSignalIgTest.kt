@@ -356,11 +356,22 @@ internal class RepeatedCatchUpSignalIgTest : AbstractCatchUpIgTest() {
     /**
      * Catches up [FIRST] and [SECOND], weighing each event 10.
      *
+     * The request of the catch-up is a system event. If the system events are held, the request
+     * is released at once, so that only the system events that follow it stay held.
+     *
      * @return The ID of the catch-up job.
      */
     private fun catchUpTwoTargets(since: Timestamp): CatchUpId {
         CounterView.changeWeightTo(10)
-        return repository.catchUp(since, setOf(FIRST, SECOND))
+        check(systemEvents.heldCount == 0) {
+            "No system event may be held before the catch-up starts, so that the request" +
+                    " is the first one held."
+        }
+        val job = repository.catchUp(since, setOf(FIRST, SECOND))
+        if (systemEvents.heldCount > 0) {
+            systemEvents.releaseFirst()
+        }
+        return job
     }
 
     /**

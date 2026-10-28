@@ -38,8 +38,8 @@ All line numbers below are on `master` at `39ef520dc16`.
           an ID-only file would make an import cycle with `delivery.proto`.
         - `writeJob()` lives in the test fixtures (`TestCatchUpJobs`), not in `CatchUpStorage`.
         - `CatchUpEventFactory` is removed: nothing uses it any more.
-        - `CatchUpRequested` is posted at once, even with parallel posting. See item 9 of
-          "Found during planning".
+        - `CatchUpRequested` was posted at once, even with parallel posting, until
+          2026-10-28. See item 9 of "Found during planning".
         - `CatchUpRepository` and `ShardMaintenanceRepository` are Kotlin, per the team rule
           from #1698 (`feedback_new_code_in_kotlin.md`): new classes are Kotlin.
       - 2026-10-27, after the merge: `build dokkaGenerate` ran all tests green
@@ -579,6 +579,11 @@ Read in the code on 2026-10-23, on `master` at `39ef520dc16`. The plan is
      which does not use the posting executor. `CatchUpRequestIgTest` holds the executor and
      checks that the second call fails. The tests that hold system events no longer release
      the request themselves.
+   - Reverted on 2026-10-28, on the owner's request: the case is too rare for a method of
+     its own. `CatchUpStarter` posts the request with `postEvent()` again, and
+     `CatchUpRequestIgTest` is removed. The `@throws` docs of `catchUp()` and `catchUpAll()`,
+     and section 5 of the migration guide, say that the check misses a catch-up whose
+     request is not processed yet.
    - Not fixed, also from that review: two open contexts with one name, such as two
      `AssumingTests` contexts, share the key of the catch-up inboxes. Keying them by the context
      object needs a way from a domain context to its System context, or the framework could

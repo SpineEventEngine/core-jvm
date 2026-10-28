@@ -288,7 +288,11 @@ public abstract class ProjectionRepository<I : Any,
      *   be caught up.
      * @return Identifier of the catch-up operation.
      * @throws CatchUpAlreadyStartedException If another catch-up for the same entity type and
-     *   overlapping targets is already in progress.
+     *   overlapping targets is already in progress. The check sees another catch-up only once
+     *   its request is processed, which may happen after this method returns: for example,
+     *   when the system events are posted in parallel, as they are in production by default,
+     *   or when the `Delivery` delivers messages later. So two calls for the same targets,
+     *   one right after the other, may both pass the check.
      * @see catchUpAll A shortcut method that starts the catch-up for all entities in this
      *   repository.
      */
@@ -318,7 +322,8 @@ public abstract class ProjectionRepository<I : Any,
      * @param since Point in the past, since which the catch-up should be performed.
      * @return Identifier of the catch-up operation.
      * @throws CatchUpAlreadyStartedException If another catch-up for the same entity type is
-     *   already in progress.
+     *   already in progress. As with [catchUp], the check misses a catch-up whose request
+     *   is not processed yet.
      * @see catchUp
      */
     @Throws(CatchUpAlreadyStartedException::class)

@@ -1,6 +1,6 @@
 # Catch-up in the System contexts
 
-This guide tells you what changes when you upgrade to `2.0.0-SNAPSHOT.580`, in which the
+This guide tells you what changes when you upgrade to `2.0.0-SNAPSHOT.610`, in which the
 catch-up of projections runs in the System contexts. Most applications need no code changes.
 Read the [upgrade rule](#upgrade-rule) before you deploy.
 
@@ -25,6 +25,7 @@ longer touches the messages of other tenants.
 | The record of a catch-up job | a `CatchUp` message | the entity record of a process manager |
 | `CatchUpStorage` | a `MessageStorage` | an `EntityRecordStorage`; must be single-tenant |
 | Tenancy, in a multi-tenant context | a job matched the messages of every tenant | a job matches the messages of its own tenant |
+| A second `catchUp()` of the same instances, right after the first | failed, if the `Delivery` delivers each message at once | **may pass**, if the system events are posted in parallel, as in production by default |
 | `AbstractStatefulReactor` | public base class | **removed** |
 
 ## 1. The catch-up's events are no longer stored by default
@@ -73,7 +74,20 @@ context, and each of them is stored: one record per catch-up job and affected sh
 holds only the IDs of the shard and the job. With a database storage, expect one more table, or
 kind, per System context.
 
-## 5. Removed API
+## 5. A repeated catch-up request may pass the check
+
+`catchUp()` and `catchUpAll()` throw `CatchUpAlreadyStartedException` if a catch-up of the
+same instances is already in progress. The check sees another catch-up only once its request
+is processed. The request is now a system event, and in production a System context posts
+its events in parallel by default. So `catchUp()` may return before its request is
+processed, and a second call for the same instances, right after the first one, may pass
+the check. Before, with a `Delivery` that delivers each message at once, the second call
+failed.
+
+If your code may start the same catch-up twice, keep the ID that `catchUp()` returns, and
+wait for the completion event with that ID before you start another one.
+
+## 6. Removed API
 
 - `AbstractStatefulReactor`. It was the base of the catch-up reactor. Use a `ProcessManager`
   and its repository instead.
