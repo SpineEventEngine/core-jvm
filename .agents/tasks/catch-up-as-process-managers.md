@@ -562,6 +562,10 @@ Read in the code on 2026-10-23, on `master` at `39ef520dc16`. The plan is
    - `ShardMaintenanceId` goes in `spine/server/delivery/shard_maintenance_id.proto`;
    - `FinalizationStarted` and `AllShardsFinalized` go in
      `spine/server/catchup/catch_up_finalization_events.proto`.
+   - Changed on 2026-10-28, on the owner's request: the two events moved into
+     `catch_up_events.proto`, next to the other events of the catch-up. They belong to that
+     family, and the files had the same options, so neither the Java names nor the type URLs
+     changed.
 8. **Stand.** Today both reactors skip Stand. The two repositories return `false` from
    `isTypeSupplier()`, which keeps that.
 9. **`CatchUpRequested` becomes a system event, posted in parallel in production** (team

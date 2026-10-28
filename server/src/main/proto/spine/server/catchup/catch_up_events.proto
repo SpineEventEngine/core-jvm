@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 syntax = "proto3";
@@ -79,10 +67,32 @@ message HistoryFullyRecalled {
     CatchUpId id = 1;
 }
 
+// The catch-up has moved to the `FINALIZING` status.
+//
+// The catch-up emits this event for itself. By the time it gets the event back,
+// the new status is stored, so the `Delivery` holds back the live events of the targets
+// before the catch-up reads the rest of the history.
+//
+message FinalizationStarted {
+
+    CatchUpId id = 1;
+}
+
 // The catch-up process has detected the recently dispatched events and has sent them to the
 // respective entities.
-//
 message LiveEventsPickedUp {
+
+    CatchUpId id = 1;
+}
+
+// The `Delivery` has processed every shard affected by the catch-up, while it saw
+// the catch-up `FINALIZING`.
+//
+// The catch-up emits this event for itself, after it has moved to the `COMPLETED` status.
+// By the time it gets the event back, the new status is stored. So a catch-up of the same
+// instances may start as soon as this catch-up reports its completion.
+//
+message AllShardsFinalized {
 
     CatchUpId id = 1;
 }
