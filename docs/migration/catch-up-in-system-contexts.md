@@ -61,7 +61,12 @@ Skip this section unless you customize the storage of the `Delivery`.
   `readByType(TypeUrl)` stays as it was.
 - `write(CatchUp)` is removed. The process managers write the jobs through the inherited
   `write(RecordWithColumns)`; to write a record yourself, use `write(id, record)`.
-- `CatchUpColumn` is removed: the jobs have no column of their own any more.
+- `CatchUpColumn` is removed. The jobs keep its three columns, `status`, `when_last_read`, and
+  `projection_type`, which `catch_up.proto` now declares as columns of the process state.
+  `projection_type` is a new field of `CatchUp`, a copy of `id.projection_type`, and
+  `readByType()` queries by it.
+- To test your storage, extend `CatchUpStorageTest` from the test fixtures of `spine-server`,
+  as you may already extend `InboxStorageTest`. It queries the jobs by each of the columns.
 - The storage must be single-tenant, as the `Delivery` creates it by default. The process
   managers of every context and every tenant share it, and the `Delivery` reads the jobs of
   all of them at once. `DeliveryBuilder.setCatchUpStorage()` now rejects a multi-tenant one.
@@ -101,6 +106,11 @@ Then delete all the records of the `CatchUpStorage` of the `Delivery`: these are
 the catch-ups, completed ones included. By default, this is the storage that your
 `StorageFactory` creates with `createCatchUpStorage(false)`. If you set your own storage with
 `DeliveryBuilder.setCatchUpStorage()`, it is that one.
+
+With a SQL database, for example through `jdbc-storage`, drop the table of that storage instead
+of deleting its records. The records of the process managers have more columns than the old
+ones, for example `archived` and `deleted`. A table that exists is not created again, so the old
+table would stay with the old columns, and the first write of a job would fail.
 
 - The records of catch-up jobs written before the upgrade hold `CatchUp` messages, not entity
   records, and they are not converted. The jobs of completed catch-ups stay in the storage.

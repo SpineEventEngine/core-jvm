@@ -310,6 +310,9 @@ public final class CatchUpProcess extends ProcessManager<CatchUpId, CatchUp, Cat
      * a single nanosecond from the specified catch-up start time and then treats this
      * interval as exclusive.
      *
+     * <p>The process copies the projection type from its ID into its state, where the type
+     * is a column. So the storage of the jobs can find the jobs of a projection type.
+     *
      * <p>If the projections belong to a multi-tenant Bounded Context, the process remembers
      * the tenant of the request. It then processes only the messages of this tenant.
      *
@@ -329,7 +332,9 @@ public final class CatchUpProcess extends ProcessManager<CatchUpId, CatchUp, Cat
         var withWindow = subtract(sinceWhen, fromNanos(1));
         builder().setWhenLastRead(withWindow)
                  .setRequest(request)
-                 .setStatus(STARTED);
+                 .setStatus(STARTED)
+                 .setProjectionType(e.getId()
+                                     .getProjectionType());
         if (domainContext().isMultitenant()) {
             builder().setTenant(ctx.actorContext()
                                    .getTenantId());

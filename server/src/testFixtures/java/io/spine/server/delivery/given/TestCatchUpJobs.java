@@ -73,6 +73,7 @@ public final class TestCatchUpJobs {
                 .setId(catchUpId)
                 .setStatus(status)
                 .setRequest(request)
+                .setProjectionType(projectionType.value())
                 .build();
         return result;
     }

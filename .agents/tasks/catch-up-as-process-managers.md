@@ -633,6 +633,31 @@ Read in the code on 2026-10-23, on `master` at `39ef520dc16`. The plan is
     - Fixed in this PR on 2026-10-28, on the owner's request, rather than in a PR of its own:
       see `catch-up-held-messages-across-pages.md`.
 
+## Review: the columns of the catch-up jobs (2026-10-28)
+
+armiol's review (changes requested): `CatchUpColumn` is removed, so the job storage stores no
+columns of `CatchUp`, and the jobs cannot be queried by them. Nothing was run on a real storage.
+
+- **As found.** On `master`, `CatchUpColumn` stored `status`, `when_last_read` and
+  `projection_type`, and `CatchUpStorage.readByType()` queried by `projection_type`. In this
+  PR the jobs are entity records with no columns of their own, and `readByType()` reads all
+  the jobs and filters them in memory. No test queried the jobs by a column, so nothing failed.
+- **Agreed in chat with the owner:**
+  1. `CatchUp` declares the three columns again: `(column)` on `when_last_read` and `status`,
+     and a new `projection_type`, which the process copies from its ID on the request. A column
+     must be a top-level field of the state, and the type is in the ID only.
+  2. `readByType()` queries by the `projection_type` column.
+  3. A new abstract suite, `CatchUpStorageTest`, in the test fixtures, which storage libraries
+     extend as they extend `InboxStorageTest`. It checks the three columns, a query by each,
+     `readByType()`, `readJobs()` and `readJob()`. A subclass runs it on the in-memory
+     storage, which matches no record on a column the record does not store.
+  4. The migration guide: on a SQL storage, drop the old job table, not only its records.
+     `jdbc-storage` creates a table only if it is missing, so the old table would stay with
+     the old columns.
+- **Later, in `jdbc-storage`:** once it builds on this version, a `JdbcCatchUpStorageTest`
+  and a MySQL one, behind `MysqlTests.enabled`, extend the suite. They also check that the old
+  and the new tables collide, as item 4 assumes.
+
 ## Coordination
 
 - **Order.** The check PR goes first, because this PR needs its record and lookup.
