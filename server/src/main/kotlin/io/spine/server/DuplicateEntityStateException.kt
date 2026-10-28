@@ -30,7 +30,7 @@ import java.io.Serial
  *
  * @param stateType The state type of the entities.
  * @param contexts The names of the contexts that serve the type, or are about to serve it.
- * @see ServerEnvironment
+ * @see BoundedContext
  */
 public class DuplicateEntityStateException internal constructor(
     stateType: TypeUrl,

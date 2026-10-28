@@ -21,6 +21,7 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.kotest.matchers.types.shouldNotBeInstanceOf
 import io.spine.environment.DefaultMode
@@ -39,7 +40,6 @@ import io.spine.test.delivery.Calc
 import io.spine.test.delivery.Receptionist
 import io.spine.testing.server.blackbox.BlackBox
 import io.spine.type.TypeUrl
-import kotlin.jvm.optionals.getOrNull
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -91,16 +91,6 @@ internal class DuplicateEntityStateSpec {
     }
 
     @Test
-    fun `tell apart two contexts with the same name`() {
-        val first = context("Same", CalculatorRepository())
-
-        shouldThrow<DuplicateEntityStateException> {
-            context("Same", CalculatorRepository())
-        }
-        contextServing(calc) shouldBeSameInstanceAs first
-    }
-
-    @Test
     fun `allow the type in another context after the first one is closed`() {
         val first = context("First", CalculatorRepository())
         first.close()
@@ -120,6 +110,20 @@ internal class DuplicateEntityStateSpec {
             second.internalAccess().register(CalculatorRepository())
         }
         contextServing(calc) shouldBeSameInstanceAs first
+    }
+
+    @Test
+    fun `not let a closed context take a type`() {
+        val closed = context("Closed").also { it.close() }
+
+        val error = shouldThrow<IllegalStateException> {
+            closed.internalAccess().register(CalculatorRepository())
+        }
+        error.message shouldContain "already closed"
+        contextServing(calc).shouldBeNull()
+        shouldNotThrowAny {
+            context("Open", CalculatorRepository())
+        }
     }
 
     @Test
@@ -279,7 +283,7 @@ internal class DuplicateEntityStateSpec {
     }
 
     private fun contextServing(type: TypeUrl): BoundedContext? =
-        environment.findContextServing(type).getOrNull()
+        OpenContexts.findContextServing(type)
 
     /**
      * A repository of calculators that throws from `close()` after closing its resources.

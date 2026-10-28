@@ -35,7 +35,6 @@ import io.spine.test.server.StatusCheckGrpc
 import io.spine.testing.TestValues.randomString
 import io.spine.testing.logging.mute.MuteLogging
 import io.spine.type.TypeUrl
-import kotlin.jvm.optionals.getOrNull
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
@@ -155,12 +154,12 @@ internal class ServerSpec {
 
     @Test
     fun `close the contexts it built when building another one fails`() {
-        // Both contexts serve `UserAccount`, so the one built second fails to build.
+        // Both contexts have one name, so the one built second fails to build.
         val builder = Server.atPort(ANY_FREE_PORT)
             .add(users())
             .add(users())
 
-        shouldThrow<DuplicateEntityStateException> {
+        shouldThrow<DuplicateContextNameException> {
             // Shut down at once if the build succeeds by mistake, so that it does not leak.
             builder.build().shutdownAndWait()
         }
@@ -241,7 +240,7 @@ internal class ServerSpec {
     }
 
     private fun contextServing(type: TypeUrl): BoundedContext? =
-        ServerEnvironment.instance().findContextServing(type).getOrNull()
+        OpenContexts.findContextServing(type)
 
     /**
      * Makes the hook of the context throw an `Error` before the context closes.
