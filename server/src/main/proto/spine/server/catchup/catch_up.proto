@@ -28,9 +28,11 @@ import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
 
 import "spine/core/event.proto";
+import "spine/core/tenant_id.proto";
 
 // A state of a catch-up process.
 message CatchUp {
+    option (entity).kind = PROCESS_MANAGER;
     option (is).java_type = "CatchUpMixin";
 
     CatchUpId id = 1;
@@ -60,10 +62,10 @@ message CatchUp {
     Request request = 2 [(required) = true, (validate) = true];
 
     // During the catch-up, this field holds the timestamp of the last event already processed.
-    google.protobuf.Timestamp when_last_read = 3;
+    google.protobuf.Timestamp when_last_read = 3 [(column) = true];
 
     // The current status of the catch-up process.
-    CatchUpStatus status = 4 [(required) = true];
+    CatchUpStatus status = 4 [(required) = true, (column) = true];
 
     // The total number of shards in the environment
     // at the moment the affected shards were last recorded.
@@ -84,6 +86,20 @@ message CatchUp {
 
     // The indexes of shards in which the dispatching of the catch-up events is finalized.
     repeated int32 finalized_shard = 8;
+
+    // The tenant whose projection instances are caught up.
+    //
+    // Set only if the projections belong to a multi-tenant Bounded Context. If not set,
+    // the catch-up processes the messages of any tenant.
+    //
+    spine.core.TenantId tenant = 9;
+
+    // The type URL of the state of the projections under catch-up.
+    //
+    // A copy of `id.projection_type`, which the process sets when the catch-up is requested.
+    // As a column, it lets the storage find the jobs of a projection type.
+    //
+    string projection_type = 10 [(column) = true];
 }
 
 // An ID of a catch-up process.

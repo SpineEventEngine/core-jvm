@@ -18,13 +18,16 @@ import io.spine.annotation.Internal;
 import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.server.ServerEnvironment;
+import io.spine.server.delivery.CatchUpRepository;
+import io.spine.server.delivery.ShardMaintenanceRepository;
 import io.spine.server.event.EventDispatcher;
 
 /**
  * An implementation of {@link BoundedContext} used for the System domain.
  *
  * <p>Orchestrates the system entities that serve the goal of monitoring, auditing, and debugging
- * the domain-specific entities.
+ * the domain-specific entities. It also runs the catch-up of the projections
+ * of the associated Bounded Context.
  *
  * <p>Each {@link BoundedContext} has an associated {@code SystemContext}. The system entities
  * describe the meta information about the domain entities of the associated {@link BoundedContext}.
@@ -66,7 +69,16 @@ public final class SystemContext extends BoundedContext {
         return result;
     }
 
+    /**
+     * Registers the repositories of the system entities.
+     *
+     * <p>The repositories of the catch-up and shard maintenance processes are always
+     * registered. Together, they perform the catch-up of the projections of
+     * the associated domain context.
+     */
     private void registerRepositories(CommandLogRepository commandLog) {
+        register(new CatchUpRepository());
+        register(new ShardMaintenanceRepository());
         if (config.includeCommandLog()) {
             register(commandLog);
             register(new ScheduledCommandRepository());

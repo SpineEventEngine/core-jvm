@@ -26,11 +26,10 @@ import io.spine.base.Time
 import io.spine.core.Event
 import io.spine.option.EntityOption.Kind.PROJECTION
 import io.spine.server.BoundedContext
-import io.spine.server.ServerEnvironment
 import io.spine.server.delivery.CatchUpAlreadyStartedException
 import io.spine.server.delivery.CatchUpId
-import io.spine.server.delivery.CatchUpProcess
 import io.spine.server.delivery.CatchUpSignal
+import io.spine.server.delivery.CatchUpStarter
 import io.spine.server.delivery.Inbox
 import io.spine.server.delivery.InboxLabel
 import io.spine.server.dispatch.DispatchOutcome
@@ -90,7 +89,7 @@ public abstract class ProjectionRepository<I : Any,
                                            S : ProjectionState<I>> :
     EventDispatchingRepository<I, P, S>() {
 
-    private lateinit var catchUpProcess: CatchUpProcess<I>
+    private lateinit var catchUpStarter: CatchUpStarter<I>
 
     /**
      * If projections of this repository are [subscribed][io.spine.core.Subscribe] to
@@ -98,8 +97,7 @@ public abstract class ProjectionRepository<I : Any,
      * [configured][setupStateRouting]. If one of the states of entities cannot be routed
      * using the created schema, `IllegalStateException` will be thrown.
      *
-     * Creates an instance of the [CatchUpProcess] enabling this repository
-     * [to catch-up][catchUp] its instances.
+     * Enables this repository [to catch-up][catchUp] its instances.
      *
      * @param context The `BoundedContext` of this repository.
      * @throws IllegalStateException If the state routing does not cover one of the entity state
@@ -108,18 +106,7 @@ public abstract class ProjectionRepository<I : Any,
     @OverridingMethodsMustInvokeSuper
     override fun registerWith(context: BoundedContext) {
         super.registerWith(context)
-        initCatchUp(context)
-    }
-
-    /**
-     * Initializes the catch-up process for the instances of this repository and registers it
-     * as an event dispatcher in the same Bounded Context as the repository itself.
-     */
-    private fun initCatchUp(context: BoundedContext) {
-        val delivery = ServerEnvironment.instance().delivery()
-        val builder = delivery.newCatchUpProcess(this)
-        catchUpProcess = builder.setDispatchOp(::sendToCatchingUp).build()
-        context.internalAccess().registerEventDispatcher(catchUpProcess)
+        catchUpStarter = CatchUpStarter.of(this, context)
     }
 
     /**
@@ -283,10 +270,14 @@ public abstract class ProjectionRepository<I : Any,
      *
      * During this process, the entities receive continuous updates to their state. After the
      * catch-up is completed, the framework automatically resumes the dispatching of ongoing live
-     * events. When the catch-up is completed, a
-     * [CatchUpCompleted][io.spine.server.delivery.event.CatchUpCompleted] event is emitted.
-     * One may use the identifier of the catch-up process and subscribe to the events of this type
-     * to understand whether the operation is done.
+     * events. When the catch-up is completed, the framework emits an event that tells so,
+     * and carries the identifier of the catch-up, which this method returns. The subscribers
+     * registered in the Bounded Context of this repository receive the event, so one may
+     * subscribe to it to understand whether the operation is done.
+     *
+     * The events of a catch-up are system events. So they are not stored unless the context
+     * is set to store its system events with
+     * `BoundedContextBuilder.systemSettings().persistEvents()`.
      *
      * The subscriptions to the entity state updates (i.e.
      * [EntityStateChanged][io.spine.system.server.event.EntityStateChanged]) events are not
@@ -297,7 +288,11 @@ public abstract class ProjectionRepository<I : Any,
      *   be caught up.
      * @return Identifier of the catch-up operation.
      * @throws CatchUpAlreadyStartedException If another catch-up for the same entity type and
-     *   overlapping targets is already in progress.
+     *   overlapping targets is already in progress. The check sees another catch-up only once
+     *   its request is processed, which may happen after this method returns: for example,
+     *   when the system events are posted in parallel, as they are in production by default,
+     *   or when the `Delivery` delivers messages later. So two calls for the same targets,
+     *   one right after the other, may both pass the check.
      * @see catchUpAll A shortcut method that starts the catch-up for all entities in this
      *   repository.
      */
@@ -306,7 +301,7 @@ public abstract class ProjectionRepository<I : Any,
         checkCatchUpTargets(ids)
         checkCatchUpStartTime(since)
         return withCurrentTenant(context().isMultitenant)
-            .evaluate { catchUpProcess.startCatchUp(since, ids) }
+            .evaluate { catchUpStarter.start(ids, since) }
     }
 
     private fun checkCatchUpTargets(ids: Set<I>?) {
@@ -327,7 +322,8 @@ public abstract class ProjectionRepository<I : Any,
      * @param since Point in the past, since which the catch-up should be performed.
      * @return Identifier of the catch-up operation.
      * @throws CatchUpAlreadyStartedException If another catch-up for the same entity type is
-     *   already in progress.
+     *   already in progress. As with [catchUp], the check misses a catch-up whose request
+     *   is not processed yet.
      * @see catchUp
      */
     @Throws(CatchUpAlreadyStartedException::class)
@@ -359,7 +355,8 @@ public abstract class ProjectionRepository<I : Any,
      * @return The set of the entity identifiers that actually received the dispatched event.
      * @see CatchUpEndpoint
      */
-    private fun sendToCatchingUp(event: Event, restrictToIds: Set<I>?): Set<I> {
+    @JvmName("sendToCatchingUp")
+    internal fun sendToCatchingUp(event: Event, restrictToIds: Set<I>?): Set<I> {
         val envelope = EventEnvelope.of(event)
         val catchUpTargets: Set<I> = if (envelope.message() is CatchUpSignal) {
             restrictToIds ?: storedIds()

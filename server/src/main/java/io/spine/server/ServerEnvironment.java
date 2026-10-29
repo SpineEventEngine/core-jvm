@@ -15,6 +15,7 @@
 package io.spine.server;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.errorprone.annotations.InlineMe;
 import io.spine.annotation.Internal;
 import io.spine.annotation.VisibleForTesting;
 import io.spine.base.Identifier;
@@ -333,6 +334,8 @@ public final class ServerEnvironment implements Closeable {
      *         require backticks when called from Kotlin, where {@code when} is a keyword.
      */
     @Deprecated
+    @InlineMe(replacement = "ServerEnvironment.under(type)",
+              imports = "io.spine.server.ServerEnvironment")
     public static TypeConfigurator when(Class<? extends EnvironmentType<?>> type) {
         return under(type);
     }

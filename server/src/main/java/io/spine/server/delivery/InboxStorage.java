@@ -23,6 +23,7 @@ import io.spine.server.storage.MessageStorage;
 import io.spine.server.storage.StorageFactory;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Iterator;
 import java.util.Optional;
 
 import static com.google.common.collect.Streams.stream;
@@ -30,6 +31,7 @@ import static io.spine.server.delivery.InboxColumn.inbox_shard;
 import static io.spine.server.delivery.InboxColumn.received_at;
 import static io.spine.server.delivery.InboxColumn.status;
 import static io.spine.server.delivery.InboxColumn.version;
+import static io.spine.server.delivery.InboxMessageStatus.TO_CATCH_UP;
 import static io.spine.server.delivery.InboxMessageStatus.TO_DELIVER;
 import static java.util.stream.Collectors.toList;
 
@@ -152,6 +154,25 @@ public class InboxStorage extends MessageStorage<InboxMessageId, InboxMessage> {
         Optional<InboxMessage> result = iterator.hasNext() ? Optional.of(iterator.next())
                                                            : Optional.empty();
         return result;
+    }
+
+    /**
+     * Reads the messages held for the catch-up in the given shard.
+     *
+     * <p>These are the messages in {@link InboxMessageStatus#TO_CATCH_UP TO_CATCH_UP} status.
+     * Unlike {@link #readAll(ShardIndex, int) readAll(..)}, this method reads them in a single
+     * query, in no particular order.
+     *
+     * @param index
+     *         the shard index to look in
+     * @return the messages held for the catch-up
+     */
+    public Iterator<InboxMessage> readToCatchUp(ShardIndex index) {
+        var query =
+                queryBuilder().where(inbox_shard).is(index)
+                              .where(status).is(TO_CATCH_UP)
+                              .build();
+        return readAll(query);
     }
 
     /**

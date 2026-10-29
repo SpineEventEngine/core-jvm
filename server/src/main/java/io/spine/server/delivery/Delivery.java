@@ -24,12 +24,10 @@ import io.spine.annotation.VisibleForTesting;
 import io.spine.core.BoundedContextName;
 import io.spine.core.BoundedContextNames;
 import io.spine.logging.WithLogging;
-import io.spine.server.BoundedContext;
 import io.spine.server.ContextSpec;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.bus.MulticastDispatchListener;
 import io.spine.server.delivery.memory.InMemoryShardedWorkRegistry;
-import io.spine.server.projection.ProjectionRepository;
 import io.spine.string.Stringifiers;
 import io.spine.type.TypeUrl;
 
@@ -39,6 +37,7 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static io.spine.server.delivery.InboxMessageStatus.DELIVERED;
 import static java.lang.String.format;
 import static java.util.Collections.synchronizedList;
@@ -105,13 +104,11 @@ import static java.util.Collections.synchronizedList;
  * read from the history at a time. This is helpful to balance the per-shard throughput, so
  * that the live messages are still dispatched through the same shards in a reasonable time.
  *
- * <p>The statuses of the ongoing catch-up processes are stored in a dedicated
+ * <p>The statuses of the catch-up processes are stored in a dedicated
  * {@link CatchUpStorage}. The {@code DeliveryBuilder} {@linkplain
  * DeliveryBuilder#setCatchUpStorage(CatchUpStorage) exposes an API} for the customization of this
- * storage. By default, the {@code CatchUpStorage} is single-tenant. However,
- * as with the {@code InboxStorage} used by the {@code Delivery}, it should be configured
- * as multi-tenant if at least one {@code BoundedContext} served by the {@code Delivery}
- * is multi-tenant.
+ * storage. The catch-up processes of all Bounded Contexts and all tenants share it,
+ * so it must be single-tenant, as it is by default.
  *
  * <h3>Observers</h3>
  *
@@ -164,8 +161,8 @@ import static java.util.Collections.synchronizedList;
  * {@link InboxMessageStatus#TO_CATCH_UP TO_CATCH_UP} status to the respective targets. Also,
  * while the target entity is under a catch-up, all the live messages headed to it are ignored.
  * Once the catch-up is completed, this station handles the transition period, in which the last
- * batch of the historical events and live messages are dispatched together.
- * See {@link CatchUpStation} for more details.
+ * batch of the historical events and live messages are dispatched together, even if they take
+ * several pages of the shard. See {@link CatchUpStation} for more details.
  *
  * <b>2. Live delivery station</b>
  *
@@ -205,13 +202,11 @@ import static java.util.Collections.synchronizedList;
  *
  * <h3>Shard maintenance</h3>
  *
- * <p>To perform the maintenance procedures, the {@code Delivery} requires all the {@code
- * BoundedContext}s to register themselves in it. Upon this registration, a special
- * {@link ShardMaintenanceProcess} is registered as an event dispatcher in a passed
- * {@code BoundedContext}. Such a registration is performed automatically when the context is
- * {@linkplain  io.spine.server.BoundedContextBuilder#build() built}.
+ * <p>A catch-up needs to know that the {@code Delivery} has processed a shard. It asks for it
+ * with a special message, which the {@code Delivery} delivers through the shard to the System
+ * context of the Bounded Context that serves the projections.
  */
-@SuppressWarnings({"OverlyCoupledClass", "ClassWithTooManyMethods"}) // It's fine for a centerpiece.
+@SuppressWarnings("ClassWithTooManyMethods" /* It's fine for a centerpiece. */)
 public final class Delivery implements WithLogging {
 
     /**
@@ -537,6 +532,10 @@ public final class Delivery implements WithLogging {
      * from its start. Until then, the jobs of the first read stand for all the later ones,
      * so they are indexed once per run.
      *
+     * <p>A page that has a message held for a {@linkplain CatchUpStatus#COMPLETED completed}
+     * catch-up is delivered together with the other messages held for completed catch-ups
+     * in the shard. See {@link #withHeldForCompleted withHeldForCompleted(..)} for the details.
+     *
      * @return the results of the run
      */
     private RunResult runDelivery(ShardSessionRecord session) {
@@ -556,7 +555,11 @@ public final class Delivery implements WithLogging {
                 if (baseline.changed()) {
                     break;
                 }
-                var stage = deliverMessages(messages, index, jobs);
+                var toDeliver = withHeldForCompleted(messages, index, jobs, baseline);
+                if (baseline.changed()) {
+                    break;
+                }
+                var stage = deliverMessages(toDeliver, index, jobs);
                 stages.add(stage);
                 shouldContinue = monitorTellsToContinueAfter(stage);
             }
@@ -582,8 +585,59 @@ public final class Delivery implements WithLogging {
         var hasUndelivered = messages.stream()
                                      .anyMatch(message -> message.getStatus() != DELIVERED);
         return hasUndelivered
-               ? baseline.compare(catchUpStorage.readAll())
+               ? baseline.compare(catchUpStorage.readJobs())
                : CatchUpJobs.none();
+    }
+
+    /**
+     * Adds to the messages of a page the other messages held for completed catch-ups
+     * in the shard, if the page has any of them.
+     *
+     * <p>Once a catch-up is completed, its held messages are delivered at once. The second
+     * copy of each event is dropped, and the events are sorted by time. These messages may take
+     * more than one page, so all of them are delivered with the first page that has one.
+     * They are all in the shard by then. A message is held only by a run that sees its
+     * catch-up finalizing, and the first run that sees the catch-up completed starts from
+     * the beginning of the shard.
+     *
+     * <p>The held messages are read after the jobs. A new catch-up of the same instances may
+     * start in between, and its messages are held too. So the jobs are read again, and
+     * the passed baseline tells whether they changed.
+     *
+     * @param page
+     *         the messages of the page
+     * @param index
+     *         the shard of the page
+     * @param jobs
+     *         the catch-up jobs read for the page
+     * @param baseline
+     *         the jobs of the run to compare the jobs read again with
+     * @return the messages of the page, followed by the other messages held for
+     *         the completed catch-ups
+     */
+    private ImmutableList<InboxMessage> withHeldForCompleted(ImmutableList<InboxMessage> page,
+                                                             ShardIndex index,
+                                                             CatchUpJobs jobs,
+                                                             CatchUpBaseline baseline) {
+        var holdsAny = page.stream()
+                           .anyMatch(jobs::heldForCompleted);
+        if (!holdsAny) {
+            return page;
+        }
+        var inPage = page.stream()
+                         .map(InboxMessage::getId)
+                         .collect(toImmutableSet());
+        var result = ImmutableList.<InboxMessage>builder()
+                                  .addAll(page);
+        var held = inboxStorage.readToCatchUp(index);
+        while (held.hasNext()) {
+            var message = held.next();
+            if (!inPage.contains(message.getId()) && jobs.heldForCompleted(message)) {
+                result.add(message);
+            }
+        }
+        baseline.compare(catchUpStorage.readJobs());
+        return result.build();
     }
 
     private DeliveryStage deliverMessages(ImmutableList<InboxMessage> messages,
@@ -690,38 +744,6 @@ public final class Delivery implements WithLogging {
     }
 
     /**
-     * Creates a new instance of the builder for {@link CatchUpProcess}.
-     *
-     * @param repo
-     *         projection repository for which the catch-up process will be created
-     * @param <I>
-     *         the type of identifiers of entities managed by the projection repository
-     * @return new builder for the {@code CatchUpProcess}
-     */
-    public <I> CatchUpProcessBuilder<I> newCatchUpProcess(ProjectionRepository<I, ?, ?> repo) {
-        var builder = CatchUpProcess.newBuilder(repo);
-        CatchUpRepositories.cache().put(repo);
-        return builder.setStorage(catchUpStorage)
-                      .setPageSize(catchUpPageSize);
-    }
-
-    /**
-     * Registers the internal {@code Delivery} message dispatchers
-     * in the given {@code BoundedContext}.
-     *
-     * <p>The registration of the dispatchers allows one to handle the
-     * {@code Delivery}-specific events.
-     *
-     * @param context
-     *         Bounded Context in which the message dispatchers should be registered
-     */
-    @Internal
-    public void registerDispatchersIn(BoundedContext context) {
-        context.internalAccess()
-               .registerEventDispatcher(new ShardMaintenanceProcess(this));
-    }
-
-    /**
      * Returns a listener of the dispatching operations occurring in the
      * {@link io.spine.server.bus.MulticastBus MulticastBus}es.
      */
@@ -785,9 +807,15 @@ public final class Delivery implements WithLogging {
     /**
      * Returns the instance of {@link CatchUpStorage} used by this {@code Delivery}.
      */
-    @VisibleForTesting
     CatchUpStorage catchUpStorage() {
         return catchUpStorage;
+    }
+
+    /**
+     * Returns the maximum number of events a catch-up reads from the event history at a time.
+     */
+    int catchUpPageSize() {
+        return catchUpPageSize;
     }
 
     int shardCount() {
@@ -819,8 +847,7 @@ public final class Delivery implements WithLogging {
      * @param multitenant
      *         whether the Bounded Context supports multi-tenancy
      */
-    @SuppressWarnings({"TestOnlyProblems" /* The called code is not test-only. */,
-            "WeakerAccess" /* Used in descendant libraries to configure storage. */})
+    @SuppressWarnings("WeakerAccess" /* Used in descendant libraries to configure storage. */)
     public static ContextSpec contextSpec(boolean multitenant) {
         var name = SYSTEM_DELIVERY.value();
         return multitenant ?

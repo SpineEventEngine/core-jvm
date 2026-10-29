@@ -1,38 +1,29 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.delivery;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.protobuf.Timestamp;
+import io.spine.annotation.Internal;
 import io.spine.base.Identifier;
+import io.spine.core.TenantId;
 import io.spine.server.BoundedContext;
+import io.spine.server.ServerEnvironment;
 import io.spine.server.delivery.event.CatchUpRequested;
 import io.spine.server.projection.ProjectionRepository;
+import io.spine.server.tenant.TenantFunction;
 import io.spine.server.type.EventClass;
 import io.spine.type.TypeUrl;
 import org.jspecify.annotations.Nullable;
@@ -47,54 +38,70 @@ import static java.util.stream.Collectors.toSet;
 /**
  * The one who starts the catch-up process.
  *
- * <p>Checks whether the catch-up is already started for the requested IDs before emitting
- * {@linkplain CatchUpRequested an event} telling that the catch-up has been requested.
+ * <p>Checks whether the catch-up is already started for the requested IDs before posting
+ * an event that requests the catch-up. The event is posted to the System context of
+ * the Bounded Context of the projection repository, where a catch-up process handles it.
  *
  * @param <I>
  *         the type of the identifiers of the catching-up entities
  */
-final class CatchUpStarter<I> {
+@Internal
+public final class CatchUpStarter<I> {
 
     private final BoundedContext context;
     private final TypeUrl projectionStateType;
     private final CatchUpStorage storage;
     private final ImmutableSet<EventClass> eventClasses;
 
-    private CatchUpStarter(Builder<I> builder) {
-        this.context = builder.context;
-        this.storage = builder.storage;
-        this.projectionStateType = builder.repository.entityStateType();
-        this.eventClasses = builder.repository.messageClasses();
+    private CatchUpStarter(ProjectionRepository<I, ?, ?> repository, BoundedContext context) {
+        this.context = context;
+        this.projectionStateType = repository.entityStateType();
+        this.eventClasses = repository.messageClasses();
+        this.storage = ServerEnvironment.instance()
+                                        .delivery()
+                                        .catchUpStorage();
     }
 
     /**
-     * Creates a new builder for the {@code CatchUpStarter}.
+     * Creates a new starter of the catch-up for the projections of the given repository.
      *
-     * @param repo
-     *         the repository of the projection to catch up.
-     * @param storage
-     *         the storage of the catch-up processes
+     * @param repository
+     *         the repository of the projections to catch up
+     * @param context
+     *         the context of the repository
      * @param <I>
      *         the type of the identifiers of the catching-up entities
-     * @return the new instance of the builder
+     * @return the new instance
      */
-    static <I> Builder<I> newBuilder(ProjectionRepository<I, ?, ?> repo, CatchUpStorage storage) {
-        return new Builder<>(repo, storage);
+    public static <I> CatchUpStarter<I> of(ProjectionRepository<I, ?, ?> repository,
+                                           BoundedContext context) {
+        checkNotNull(repository);
+        checkNotNull(context);
+        return new CatchUpStarter<>(repository, context);
     }
 
     /**
      * Starts the catch-up restricting it to the set of projection instances by certain identifiers.
+     *
+     * <p>In a multi-tenant context, the catch-up is started for the current tenant.
+     *
+     * <p>The check for a catch-up already in progress sees another catch-up only once its
+     * request is processed. That may happen after this method returns: for example, when
+     * the system events are posted in parallel, or when the {@code Delivery} delivers messages
+     * later. So two calls for the same instances, one right after the other, may both pass
+     * the check.
      *
      * @param ids
      *         the IDs of the projection instances to catch-up, or {@code null} if all entities of
      *         this kind need to catch up.
      * @param since
      *         since when the catch-up is going to read the events
+     * @return identifier of the catch-up operation
      * @throws CatchUpAlreadyStartedException
      *         if the catch-up is already in progress for at least one of the requested entities
-     * @return identifier of the catch-up operation
      */
-    CatchUpId start(@Nullable Set<I> ids, Timestamp since) throws CatchUpAlreadyStartedException {
+    public CatchUpId start(@Nullable Set<I> ids, Timestamp since)
+            throws CatchUpAlreadyStartedException {
         checkNotActive(ids);
 
         var request = buildRequest(ids, since);
@@ -106,10 +113,9 @@ final class CatchUpStarter<I> {
                 .setId(id)
                 .setRequest(request)
                 .build();
-        var eventFactory = new CatchUpEventFactory(projectionStateType, context.isMultitenant());
-        var event = eventFactory.createEvent(eventMessage);
-        context.eventBus()
-               .post(event);
+        context.systemClient()
+               .writeSide()
+               .postEvent(eventMessage);
         return id;
     }
 
@@ -131,15 +137,30 @@ final class CatchUpStarter<I> {
         return requestBuilder.build();
     }
 
+    /**
+     * Checks that no ongoing catch-up of the current tenant includes the passed instances.
+     */
     private void checkNotActive(@Nullable Set<I> ids) throws CatchUpAlreadyStartedException {
+        var tenant = currentTenant();
         var ongoing = storage.readByType(projectionStateType);
         var active = stream(ongoing)
                 .filter(catchUp -> CatchUpStatus.COMPLETED != catchUp.getStatus())
+                .filter(catchUp -> catchUp.isOfTenant(tenant))
                 .collect(toList());
         var alreadyCatchingUp = hasIntersections(active, ids);
         if (alreadyCatchingUp) {
             throw new CatchUpAlreadyStartedException(projectionStateType, ids);
         }
+    }
+
+    private TenantId currentTenant() {
+        var function = new TenantFunction<TenantId>(context.isMultitenant()) {
+            @Override
+            public TenantId apply(TenantId tenant) {
+                return tenant;
+            }
+        };
+        return checkNotNull(function.execute());
     }
 
     @SuppressWarnings("MethodWithMultipleLoops")
@@ -167,41 +188,5 @@ final class CatchUpStarter<I> {
             }
         }
         return false;
-    }
-
-    /**
-     * A builder for the {@link CatchUpStarter} instances.
-     *
-     * @param <I>
-     *         the type of the identifiers of the catching-up entities
-     */
-    static final class Builder<I> {
-
-        private final ProjectionRepository<I, ?, ?> repository;
-        private final CatchUpStorage storage;
-
-        private BoundedContext context;
-
-        private Builder(ProjectionRepository<I, ?, ?> repository,
-                        CatchUpStorage storage) {
-            this.repository = repository;
-            this.storage = storage;
-        }
-
-        /**
-         * Sets the <b>initialized</b> {@code BoundedContext}, in scope of which the catch-up is
-         * performed.
-         */
-        @CanIgnoreReturnValue
-        Builder<I> withContext(BoundedContext context) {
-            this.context = checkNotNull(context);
-            return this;
-        }
-
-        CatchUpStarter<I> build() {
-            checkNotNull(context, "The Bounded Context must be set" +
-                    "in order to create an instance of `CatchUpStarter`.");
-            return new CatchUpStarter<>(this);
-        }
     }
 }

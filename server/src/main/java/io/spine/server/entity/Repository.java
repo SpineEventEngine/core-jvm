@@ -542,7 +542,8 @@ public abstract class Repository<I, E extends Entity<I, ?>>
     private void initInbox() {
         var delivery = ServerEnvironment.instance()
                                         .delivery();
-        Inbox.Builder<I> builder = delivery.newInbox(entityStateType());
+        var builder = delivery.<I>newInbox(entityStateType())
+                              .withContext(context().name());
         setupInbox(builder);
         if (!builder.hasEndpoints()) {
             return;

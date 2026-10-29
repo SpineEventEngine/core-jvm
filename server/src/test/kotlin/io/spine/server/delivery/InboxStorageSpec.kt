@@ -15,10 +15,13 @@
 package io.spine.server.delivery
 
 import io.kotest.assertions.withClue
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.optional.shouldBeEmpty
 import io.kotest.matchers.optional.shouldBePresent
 import io.kotest.matchers.shouldBe
 import io.spine.server.delivery.given.GatedStorageFactory
+import io.spine.server.delivery.given.TestInboxMessages.catchingUp
+import io.spine.server.delivery.given.TestInboxMessages.delivered
 import io.spine.server.delivery.given.TestInboxMessages.toDeliver
 import io.spine.server.entity.given.concurrency.Gate
 import io.spine.server.entity.given.concurrency.Worker
@@ -29,8 +32,9 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 /**
- * Tests the concurrent use of an [InboxStorage] over [record storages][GatedStorageFactory]
- * that can hold a thread at a [Gate], the way a real storage holds it during its I/O.
+ * Tests the reads of an [InboxStorage], and its concurrent use over
+ * [record storages][GatedStorageFactory] that can hold a thread at a [Gate], the way a real
+ * storage holds it during its I/O.
  */
 @DisplayName("`InboxStorage` should")
 internal class InboxStorageSpec {
@@ -42,6 +46,27 @@ internal class InboxStorageSpec {
      * The message on which a thread is held inside the record storage.
      */
     private val held = messageTo("a-calc")
+
+    @Test
+    fun `read the messages held for the catch-up in the given shard`() {
+        val type = TypeUrl.of(Calc::class.java)
+        val shard = DeliveryStrategy.newIndex(0, 2)
+        val anotherShard = DeliveryStrategy.newIndex(1, 2)
+        val catchingUp = catchingUp("a-calc", type).inShard(shard)
+        val catchingUpToo = catchingUp("another-calc", type).inShard(shard)
+        storage.writeBatch(
+            listOf(
+                catchingUp,
+                toDeliver("a-calc", type).inShard(shard),
+                catchingUpToo,
+                delivered("a-calc", type).inShard(shard),
+                catchingUp("a-calc", type).inShard(anotherShard)
+            )
+        )
+
+        storage.readToCatchUp(shard).asSequence().toList() shouldContainExactlyInAnyOrder
+                listOf(catchingUp, catchingUpToo)
+    }
 
     /**
      * A `Delivery` has one `InboxStorage` for all the shards, so the storage I/O for
@@ -116,3 +141,9 @@ internal class InboxStorageSpec {
  */
 private fun messageTo(calculator: String): InboxMessage =
     toDeliver(calculator, TypeUrl.of(Calc::class.java))
+
+/**
+ * Returns a copy of this message with a new ID, which places it in the given shard.
+ */
+private fun InboxMessage.inShard(shard: ShardIndex): InboxMessage =
+    copy { id = InboxMessageMixin.generateIdWith(shard) }

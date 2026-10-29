@@ -16,6 +16,8 @@ package io.spine.server.delivery;
 
 import io.spine.annotation.GeneratedMixin;
 import io.spine.annotation.Internal;
+import io.spine.core.TenantId;
+import io.spine.type.TypeUrl;
 
 /**
  * A mixin for the state of the {@linkplain CatchUpProcess catch-up process job}.
@@ -25,12 +27,41 @@ import io.spine.annotation.Internal;
 interface CatchUpMixin extends CatchUpOrBuilder {
 
     /**
+     * Returns the type of the projections that this catch-up job catches up.
+     */
+    default TypeUrl projectionType() {
+        return TypeUrl.parse(getId().getProjectionType());
+    }
+
+    /**
+     * Tells whether this catch-up job works with the data of the passed tenant.
+     *
+     * <p>A job of a multi-tenant Bounded Context has its tenant set, and works only with
+     * the data of this tenant. A job of a single-tenant context has no tenant, and works
+     * with the data of any tenant.
+     *
+     * <p>The tenant is not set in single-tenant contexts on purpose. The signals of such
+     * a context carry either an empty tenant ID, or the ID that a single-tenant context
+     * uses for its only tenant, so no tenant ID would match them all.
+     *
+     * @param tenant
+     *         the tenant to check
+     * @return {@code true} if the job works with the data of the tenant
+     */
+    default boolean isOfTenant(TenantId tenant) {
+        return !hasTenant() || getTenant().equals(tenant);
+    }
+
+    /**
      * Tells whether the passed {@code InboxMessage} matches this catch-up job.
      *
-     * <p>To match, two conditions must be met:
+     * <p>To match, three conditions must be met:
      *
      * <ol>
      *     <li>the target entity type of the job and the message must be the same;
+     *
+     *     <li>the job must {@linkplain #isOfTenant(TenantId) be of} the tenant
+     *     of the message;
      *
      *     <li>the identifier of the message target must be included into the list of the
      *     identifiers specified in the job OR the job matches all the targets of the entity type.
@@ -48,6 +79,9 @@ interface CatchUpMixin extends CatchUpOrBuilder {
         var targetInbox = message.getInboxId();
         var actualTargetType = targetInbox.getTypeUrl();
         if (!expectedProjectionType.equals(actualTargetType)) {
+            return false;
+        }
+        if (!isOfTenant(message.tenant())) {
             return false;
         }
         var targets = getRequest().getTargetList();

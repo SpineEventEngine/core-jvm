@@ -37,6 +37,7 @@ import io.spine.server.delivery.event.HistoryFullyRecalled
 import io.spine.server.delivery.event.LiveEventsPickedUp
 import io.spine.server.delivery.given.ConsecutiveProjection
 import io.spine.server.delivery.given.CounterView
+import io.spine.server.delivery.given.TestCatchUpJobs.writeJob
 import io.spine.server.storage.memory.InMemoryStorageFactory
 import io.spine.server.tenant.TenantAwareRunner
 import io.spine.test.delivery.ConsecutiveNumberView
@@ -203,10 +204,10 @@ internal class CatchUpJobsPerPageIgTest : AbstractCatchUpIgTest() {
         useSingleShard(pageSize = PAGE_SIZE, catchUpStorage = storage)
         BlackBox.singleTenantWith(repository).use { box ->
             val job = inProgressJobFor(FIRST)
-            storage.write(job)
+            writeJob(storage, job)
             // The job moves on and a live event arrives right after the jobs are read.
             storage.afterNextRead {
-                storage.write(job.copy { status = FINALIZING })
+                writeJob(storage, job.copy { status = FINALIZING })
                 box.receivesEvent(numberAdded { calculatorId = FIRST; value = MARK })
             }
 
@@ -333,8 +334,8 @@ internal class CatchUpJobsPerPageIgTest : AbstractCatchUpIgTest() {
             nextReadAction.set(action)
         }
 
-        override fun readAll(): Iterator<CatchUp> {
-            val jobs = super.readAll().asSequence().toList()
+        override fun readJobs(): Iterator<CatchUp> {
+            val jobs = super.readJobs().asSequence().toList()
             reads.incrementAndGet()
             nextReadAction.getAndSet(null)?.invoke()
             return jobs.iterator()

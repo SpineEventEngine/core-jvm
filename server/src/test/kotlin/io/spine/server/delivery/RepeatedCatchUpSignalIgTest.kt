@@ -23,6 +23,7 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.spine.core.EventId
+import io.spine.protobuf.AnyPacker
 import io.spine.server.BoundedContext
 import io.spine.server.delivery.CatchUpMessages.fullyRecalled
 import io.spine.server.delivery.CatchUpMessages.recalled
@@ -38,13 +39,17 @@ import io.spine.server.delivery.event.catchUpRequested
 import io.spine.server.delivery.given.CounterView
 import io.spine.server.delivery.given.HoldingExecutor
 import io.spine.server.delivery.given.RecordingInboxStorage
+import io.spine.server.entity.EntityRecord
 import io.spine.server.event.AbstractEventReactor
 import io.spine.server.event.EventDispatcher
 import io.spine.server.event.NoReaction
 import io.spine.server.event.React
+import io.spine.server.storage.RecordWithColumns
 import io.spine.server.storage.memory.InMemoryStorageFactory
+import io.spine.system.server.SystemBoundedContexts.systemOf
 import io.spine.test.delivery.numberAdded
 import io.spine.testing.SlowTest
+import io.spine.testing.server.TestEventFactory
 import io.spine.testing.server.blackbox.BlackBox
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.TimeUnit.SECONDS
@@ -64,7 +69,7 @@ import org.junit.jupiter.api.Timeout.ThreadMode.SEPARATE_THREAD
  * Each repeat is a new event with the message of the original, so the deduplication of
  * `Delivery` does not drop it. A report of an instance is posted the way `CatchUpEndpoint`
  * posts the first one: as a system event of the target projection. Any other signal is
- * posted the way `CatchUpStarter` posts `CatchUpRequested`.
+ * posted to the System context, where `CatchUpStarter` posts `CatchUpRequested`.
  *
  * Parallel posting of system events is enabled, as in production, but its executor runs
  * each task in the calling thread or holds the task until it is released.
@@ -351,11 +356,22 @@ internal class RepeatedCatchUpSignalIgTest : AbstractCatchUpIgTest() {
     /**
      * Catches up [FIRST] and [SECOND], weighing each event 10.
      *
+     * The request of the catch-up is a system event. If the system events are held, the request
+     * is released at once, so that only the system events that follow it stay held.
+     *
      * @return The ID of the catch-up job.
      */
     private fun catchUpTwoTargets(since: Timestamp): CatchUpId {
         CounterView.changeWeightTo(10)
-        return repository.catchUp(since, setOf(FIRST, SECOND))
+        check(systemEvents.heldCount == 0) {
+            "No system event may be held before the catch-up starts, so that the request" +
+                    " is the first one held."
+        }
+        val job = repository.catchUp(since, setOf(FIRST, SECOND))
+        if (systemEvents.heldCount > 0) {
+            systemEvents.releaseFirst()
+        }
+        return job
     }
 
     /**
@@ -368,14 +384,16 @@ internal class RepeatedCatchUpSignalIgTest : AbstractCatchUpIgTest() {
     }
 
     /**
-     * Posts the given signal once more as a new event, the way `CatchUpStarter` makes
-     * and posts `CatchUpRequested`, and records the event ID in [repeatedSignals].
+     * Posts the given signal once more as a new event to the System context, where
+     * `CatchUpStarter` posts `CatchUpRequested`, and records the event ID in [repeatedSignals].
+     *
+     * The signal is posted at once, even while the system events are held. The system
+     * events that follow it are held as usual.
      */
     private fun postAgain(signal: CatchUpSignal) {
-        val factory = CatchUpEventFactory(CounterView.projectionType(), /* multitenant = */ false)
-        val event = factory.createEvent(signal)
+        val event = TestEventFactory.newInstance(javaClass).createEvent(signal)
         repeatedSignals.add(event.id)
-        context.eventBus().post(event)
+        systemOf(context).eventBus().post(event)
     }
 
     /**
@@ -412,9 +430,9 @@ internal class RepeatedCatchUpSignalIgTest : AbstractCatchUpIgTest() {
 
         private val writes = CopyOnWriteArrayList<CatchUp>()
 
-        override fun write(message: CatchUp) {
-            writes.add(message)
-            super.write(message)
+        override fun write(record: RecordWithColumns<CatchUpId, EntityRecord>) {
+            writes.add(AnyPacker.unpack(record.record().state, CatchUp::class.java))
+            super.write(record)
         }
 
         fun writesOf(job: CatchUpId): List<CatchUp> = writes.filter { it.id == job }

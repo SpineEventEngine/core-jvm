@@ -116,6 +116,7 @@ public abstract class RecordStorage<I, R extends Message> extends AbstractStorag
      * @deprecated Field masks are no longer supported. Please use {@link #read(Object)}.
      */
     @Deprecated
+    @SuppressWarnings("InlineMeSuggester" /* Must stay overridable until removed. */)
     protected Optional<R> read(I id, FieldMask mask) {
         return read(id);
     }
@@ -169,6 +170,7 @@ public abstract class RecordStorage<I, R extends Message> extends AbstractStorag
      * @deprecated Field masks are no longer supported. Please use {@link #readAll(Iterable)}.
      */
     @Deprecated
+    @SuppressWarnings("InlineMeSuggester" /* Must stay overridable until removed. */)
     protected Iterator<R> readAll(Iterable<I> ids, FieldMask mask) {
         return readAll(ids);
     }
@@ -267,6 +269,7 @@ public abstract class RecordStorage<I, R extends Message> extends AbstractStorag
      * @deprecated Field masks are no longer supported. Please use {@link #toQuery(Object)}.
      */
     @Deprecated
+    @SuppressWarnings("InlineMeSuggester" /* Must stay overridable until removed. */)
     protected RecordQuery<I, R> toQuery(I id, FieldMask mask) {
         return toQuery(id);
     }
@@ -286,6 +289,7 @@ public abstract class RecordStorage<I, R extends Message> extends AbstractStorag
      * @deprecated Field masks are no longer supported. Please use {@link #toQuery(Iterable)}.
      */
     @Deprecated
+    @SuppressWarnings("InlineMeSuggester" /* Must stay overridable until removed. */)
     protected RecordQuery<I, R> toQuery(Iterable<I> ids, FieldMask mask) {
         return toQuery(ids);
     }

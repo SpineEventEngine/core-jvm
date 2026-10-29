@@ -43,6 +43,11 @@ class RecordingInboxStorage :
     }
 
     /**
+     * Returns the messages sent to any inbox, in the order they were sent.
+     */
+    fun messagesSent(): List<InboxMessage> = sent.toList()
+
+    /**
      * Returns the IDs of the events sent to any inbox.
      */
     fun eventIds(): List<EventId> =
