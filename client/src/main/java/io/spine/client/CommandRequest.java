@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.client;
@@ -253,25 +241,33 @@ public final class CommandRequest extends ClientRequestBase implements WithLoggi
                   .addAll(subscriptions);
         }
 
+        /**
+         * Handles the status of the acknowledgement of the posted command.
+         *
+         * <p>A command rejected by a filter of the server-side Command Bus is handled as
+         * an accepted one: the server also posts the rejection as an event, and the event
+         * reaches the consumers of the rejection through the subscriptions made before posting,
+         * the same way as a rejection thrown by a command handler.
+         */
         @CanIgnoreReturnValue
+        @SuppressWarnings("deprecation") // Recognize the error of a server before `error_case`.
         private ImmutableSet<Subscription> handleStatus(Status status) {
             switch (status.getStatusCase()) {
                 case OK:
+                case REJECTION:
                     return Optional.ofNullable(subscriptions)
                                    .orElse(ImmutableSet.of());
+                case ERROR_CASE:
                 case ERROR:
                     cancelVoidSubscriptions();
                     reportErrorWhenPosting(status);
                     return ImmutableSet.of();
-                case REJECTION:
-                    /* This should not happen as a rejection can be raised when the command is
-                       already dispatched. We include this case for the sake of completeness. */
                 case STATUS_NOT_SET:
                     /* The server sent an ack with invalid status. */
                 default:
                     throw newIllegalStateException(
                             "Cannot handle ack status `%s` when posting the command `%s`.",
-                            shortDebugString(command));
+                            status.getStatusCase(), shortDebugString(command));
             }
         }
 
@@ -286,15 +282,22 @@ public final class CommandRequest extends ClientRequestBase implements WithLoggi
             }
         }
 
+        /**
+         * Passes the error case to the error handler.
+         *
+         * <p>An error sent with the deprecated {@code Status.error} by an older server is
+         * reported as
+         * {@link io.spine.core.ErrorCase#ERROR_CASE_UNSPECIFIED ERROR_CASE_UNSPECIFIED}.
+         */
         private void reportErrorWhenPosting(Status status) {
-            errorHandler().accept(command, status.getError());
+            errorHandler().accept(command, status.getErrorCase());
         }
 
         private ServerErrorHandler errorHandler() {
             return Optional.ofNullable(serverErrorHandler())
                            .orElse(new LoggingServerErrorHandler(
                                    CommandRequest.this.logger(),
-                                   "Unable to post the command `%s`. Returned error: `%s`.")
+                                   "Unable to post the command `%s`. Returned error case: `%s`.")
                            );
         }
     }

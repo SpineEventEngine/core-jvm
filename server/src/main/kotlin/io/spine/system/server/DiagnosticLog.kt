@@ -117,15 +117,30 @@ internal class DiagnosticLog(private val source: String) : AbstractEventSubscrib
         @JvmStatic
         fun write(event: DiagnosticEvent, source: String) {
             val kind = Kind.of(event)
+            logger.at(kind.level)
+                .per(kind)
+                .atMostEvery(1, SECONDS)
+                .log { statementOf(event, source) }
+        }
+
+        /**
+         * Obtains the level at which the given event is written.
+         */
+        internal fun levelOf(event: DiagnosticEvent): Level = Kind.of(event).level
+
+        /**
+         * Composes the statement written for the given event.
+         *
+         * The statement has a short message, the source, and the event in JSON with
+         * the values of invalid fields masked.
+         */
+        internal fun statementOf(event: DiagnosticEvent, source: String): String {
             val masked = when (event) {
                 is RequestValidationFailed -> masked(event)
                 is ConstraintViolated -> masked(event)
                 else -> event
             }
-            logger.at(kind.level)
-                .per(kind)
-                .atMostEvery(1, SECONDS)
-                .log { "${kind.message} Source: `$source`. ${masked.toCompactJson()}" }
+            return "${Kind.of(event).message} Source: `$source`. ${masked.toCompactJson()}"
         }
 
         private fun masked(event: RequestValidationFailed): RequestValidationFailed =
@@ -145,9 +160,12 @@ internal class DiagnosticLog(private val source: String) : AbstractEventSubscrib
             val values = message.placeholderValueMap.mapValues { (placeholder, value) ->
                 if (placeholder in maskedPlaceholders) MASK else value
             }
+            val maskedMessage = message.toBuilder()
+                .clearPlaceholderValue()
+                .putAllPlaceholderValue(values)
             return violation.toBuilder()
                 .clearFieldValue()
-                .setMessage(message.toBuilder().clearPlaceholderValue().putAllPlaceholderValue(values))
+                .setMessage(maskedMessage)
                 .build()
         }
     }

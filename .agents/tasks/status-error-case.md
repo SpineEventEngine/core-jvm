@@ -178,8 +178,11 @@ New files in `server/src/main/proto/spine/system/server/`, one event per file, e
 
 - `core.MessageId request` — the request's ID and the type URL of its message (a command,
   event, query target, or topic target);
-- `core.ActorContext actor_context` — the actor and the tenant, as sent;
-- `core.BoundedContextName context` — the context that refused it, if any.
+- `core.ActorContext actor_context` — the actor and the tenant, as sent.
+
+There is no field for the Bounded Context (dropped while implementing): an event posted to
+a context's System belongs to that context, and `DiagnosticLog` writes the name of the context
+it is registered in, or of the service that writes an event directly.
 
 | Event | Its own fields |
 |---|---|
@@ -229,26 +232,26 @@ and no message. `QueryResponse.response` and `SubscriptionUpdate.response` stay 
 
 ## Plan
 
-- [ ] **Version.** Bump `version.gradle.kts` above master (`bump-version`; master is at
+- [x] **Version.** Bump `version.gradle.kts` above master (`bump-version`; master is at
   `2.0.0-SNAPSHOT.612`; re-check before the bump).
-- [ ] **Protos.**
+- [x] **Protos.**
   - `core`: `spine/core/error_case.proto`; `error_case` in `Status`, `error` deprecated;
     the comments of `Response`, `Status`, `Ack`, and `CommandService.Post` describe the new
     statuses.
   - `server`: the six diagnostic events; `CommandErrored.error_case`, `error` deprecated.
-- [ ] **`core` API.** `Responses.errorCase(ErrorCase)`; `Responses.errorWith(Error)`
+- [x] **`core` API.** `Responses.errorCase(ErrorCase)`; `Responses.errorWith(Error)`
   deprecated; `ResponseMixin.errorCase()`, `isError()` true for `error_case`, `error()`
   deprecated.
-- [ ] **Buses.**
-  - `Bus` keeps the System write side given to `BusBuilder`. Today `BoundedContextBuilder`
-    injects it only into the `CommandBus`; the `EventBus` gets it too (there is no `ImportBus`
-    any more). In the System context the write side is a no-op, so its own buses post nothing.
+- [x] **Buses.**
+  - `Bus` keeps the System write side given to `BusBuilder`, or a no-op one. Only the
+    `CommandBus` gets it (see the Log). In the System context the write side is a no-op, so its
+    own buses post nothing.
   - `FilterChain` converts an error ack from a filter: the `ErrorCase` mapping, the diagnostic
     event built from the `Error` and the envelope, posted under the envelope's tenant, and the
     slim ack passed on.
   - `MessageIdExtensions`: `causedError(ErrorCase)`; the `Error` overload deprecated.
   - `CommandAckMonitor` and `CommandLogProjection` move to `error_case`.
-- [ ] **Services.**
+- [x] **Services.**
   - `ServiceDelegate`: internal type and no context answer `UNSUPPORTED_REQUEST` and log
     `UnsupportedRequestReceived`. The stack trace stops reaching clients.
   - `CommandService`: error acks carry `error_case`; an unexpected exception answers
@@ -257,15 +260,15 @@ and no message. `QueryResponse.response` and `SubscriptionUpdate.response` stay 
     context's System and fail the RPC with the code and trailer above; unexpected exceptions
     fail with `INTERNAL` (A1). `transport.Statuses` builds these failures;
     `invalidArgumentWithCause` goes away (it is `@Internal`).
-- [ ] **`DiagnosticLog`** as designed; registered in `SystemContext.newInstance()`.
-- [ ] **Java client.**
+- [x] **`DiagnosticLog`** as designed; registered in `SystemContext.newInstance()`.
+- [x] **Java client.**
   - `CommandRequest.handleStatus`: `ERROR_CASE` cancels the subscriptions and calls the
     `ServerErrorHandler`; `REJECTION` is handled (A3) instead of throwing.
   - `ServerErrorHandler` takes an `ErrorCase` (A2); `LoggingServerErrorHandler`, `Client`,
     `Subscriptions.CancellationObserver` follow.
   - `StreamObservers.errorCaseOf(Throwable)` reads the trailer; `fromStreamError` and
     `MetadataConverter` deprecated.
-- [ ] **Test library.** `BlackboxProbe` drops its `DiagnosticLog`; `UnsupportedCommandGuard`
+- [x] **Test library.** `BlackboxProbe` drops its `DiagnosticLog`; `UnsupportedCommandGuard`
   checks `CommandErrored.error_case`; `ResponseStatusSubject` asserts `error_case`.
 - [ ] **Tests** (Kotlin `*Spec`, Kotest assertions):
   - the mapping, value by value;
@@ -317,5 +320,19 @@ mapped code.
 ## Log
 
 - 2026-11-04 — questions Q1–Q9 decided; plan drafted.
-- 2026-11-04 — executing. The version bump waits for commit authorization (`bump-version`
-  commits); until then verify with `./gradlew check dokkaGenerate`.
+- 2026-11-04 — executing. Commits and the PR authorized by the owner's prompt; version bumped
+  to `2.0.0-SNAPSHOT.620` (a breaking PR: `ServerErrorHandler` and the wire statuses change).
+- 2026-11-04 — differences from the draft, found while implementing:
+  - the `EventBus` gets no System write side: it rejects every event without subscribers
+    (`DeadEventTap`), which is normal, and events are not client requests. Only the
+    `CommandBus` posts diagnostics for filter errors;
+  - a subscription to a topic no context serves is not an error (the service subscribes in
+    every context), so `NO_CONTEXT` applies to commands and queries only;
+  - A3 simplified: the Java client handles a rejection ack like an accepted one; the rejection
+    reaches the client through the event subscription, as one thrown by a handler does. No
+    de-duplication, no race between the two streams;
+  - `REQUEST_DENIED` maps to the gRPC `PERMISSION_DENIED` (not produced by reads today);
+  - `CommandLog` records a handler failure as `INTERNAL_ERROR` (the details stay in
+    `HandlerFailedUnexpectedly`);
+  - the test library's `DiagnosticLog` and its test are removed; `UnsupportedCommandGuard`
+    reads `UnsupportedRequestReceived`.

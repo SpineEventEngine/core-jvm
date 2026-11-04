@@ -1,35 +1,29 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server
 
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.spine.core.Status.StatusCase.ERROR
+import io.kotest.matchers.types.shouldBeInstanceOf
+import io.spine.core.Command
+import io.spine.core.ErrorCase.TENANT_ERROR
+import io.spine.core.Status.StatusCase.ERROR_CASE
 import io.spine.protobuf.isNotDefault
+import io.spine.server.given.diagnostics.RequestDiagnosticsMonitor
+import io.spine.system.server.TenantCheckFailed
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
@@ -43,11 +37,8 @@ internal class CommandServiceSingleTenancySpec : CommandServiceTenancyTest() {
     }
 
     @Test
-    fun `return ERROR for a command with 'TenantId'`() {
-        // Creates a command with `TenantId`.
-        val command = Given.ACommand.createProject()
-
-        service.post(command, responseObserver)
+    fun `return 'TENANT_ERROR' for a command with 'TenantId'`() {
+        service.post(commandWithTenant(), responseObserver)
 
         responseObserver.isCompleted shouldBe true
 
@@ -56,6 +47,26 @@ internal class CommandServiceSingleTenancySpec : CommandServiceTenancyTest() {
         result shouldNotBe null
 
         result.isNotDefault() shouldBe true
-        result.status.statusCase shouldBe ERROR
+        result.status.statusCase shouldBe ERROR_CASE
+        result.status.errorCase shouldBe TENANT_ERROR
     }
+
+    @Test
+    fun `keep the reason of the tenant error on the server side`() {
+        val monitor = RequestDiagnosticsMonitor.of(context)
+        val command = commandWithTenant()
+
+        service.post(command, responseObserver)
+
+        val diagnostics = monitor.diagnostics
+        diagnostics shouldHaveSize 1
+        val event = diagnostics[0].shouldBeInstanceOf<TenantCheckFailed>()
+        event.reason shouldBe TenantCheckFailed.Reason.TENANT_INAPPLICABLE
+        event.request.typeUrl shouldBe command.enclosedTypeUrl().value()
+    }
+
+    /**
+     * Creates a command with `TenantId`.
+     */
+    private fun commandWithTenant(): Command = Given.ACommand.createProject()
 }

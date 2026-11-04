@@ -14,15 +14,17 @@
 
 package io.spine.server;
 
+import io.grpc.StatusRuntimeException;
 import io.spine.client.QueryResponse;
+import io.spine.core.ErrorCase;
 import io.spine.core.Responses;
 import io.spine.grpc.MemoizingObserver;
+import io.spine.grpc.StreamObservers;
 import io.spine.server.Given.ProjectDetailsRepository;
 import io.spine.server.Given.ThrowingProjectDetailsRepository;
-import io.spine.server.model.UnknownEntityStateTypeException;
 import io.spine.testing.logging.mute.MuteLogging;
 import io.spine.testing.server.model.ModelTests;
-import io.spine.type.UnpublishedLanguageException;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -35,6 +37,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static io.spine.grpc.StreamObservers.memoizingObserver;
 import static io.spine.server.Given.CUSTOMERS_CONTEXT_NAME;
 import static io.spine.server.Given.PROJECTS_CONTEXT_NAME;
+import static java.util.Objects.requireNonNull;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -106,23 +109,30 @@ class QueryServiceTest {
         var query = Given.AQuery.readInternalType();
         service.read(query, responseObserver);
 
-        assertThat(responseObserver.getError())
-                .isInstanceOf(UnpublishedLanguageException.class);
+        assertErrorCase(responseObserver.getError(), ErrorCase.UNSUPPORTED_REQUEST);
     }
 
     @Test
     @MuteLogging
-    @DisplayName(
-            "throw an `UnknownEntityStateTypeException` if the requested entity type is unknown")
+    @DisplayName("fail with `UNSUPPORTED_REQUEST`, not naming the type, if the type is unknown")
     void failOnUnknownType() {
         var query = Given.AQuery.readUnknownType();
         service.read(query, responseObserver);
         var error = responseObserver.getError();
-        var assertError = assertThat(error);
-        assertError.isNotNull();
-        assertError.isInstanceOf(UnknownEntityStateTypeException.class);
+        assertErrorCase(error, ErrorCase.UNSUPPORTED_REQUEST);
         var unknownTypeUrl = query.targetType().value();
-        assertError.hasMessageThat().contains(unknownTypeUrl);
+        assertThat(requireNonNull(error).getMessage())
+                .doesNotContain(unknownTypeUrl);
+    }
+
+    /**
+     * Asserts that the call failed with the given error case.
+     */
+    private static void assertErrorCase(@Nullable Throwable error, ErrorCase expected) {
+        assertThat(error)
+                .isInstanceOf(StatusRuntimeException.class);
+        assertThat(StreamObservers.errorCaseOf(requireNonNull(error)).orElse(null))
+                .isEqualTo(expected);
     }
 
     /**
