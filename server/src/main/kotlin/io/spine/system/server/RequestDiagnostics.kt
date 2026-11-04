@@ -25,11 +25,11 @@ import io.spine.core.CommandValidationError
 import io.spine.core.ErrorCase
 import io.spine.core.MessageId
 import io.spine.protobuf.AnyPacker
-import io.spine.server.type.CommandEnvelope
 import io.spine.system.server.TenantCheckFailed.Reason.REASON_UNSPECIFIED
 import io.spine.system.server.TenantCheckFailed.Reason.TENANT_INAPPLICABLE
 import io.spine.system.server.TenantCheckFailed.Reason.TENANT_NOT_SPECIFIED
 import io.spine.validation.ConstraintViolation
+import io.spine.validation.NonValidated
 import io.spine.validation.ValidationError
 
 /**
@@ -165,35 +165,46 @@ internal object RequestDiagnostics {
     ): RequestProcessingFailed = processingFailed(request, actor, Errors.fromThrowable(failure))
 
     /**
-     * Obtains the ID and the type of the given command.
+     * Obtains the ID of the given command and the type URL of its message.
+     *
+     * The command may be invalid, so the result is not validated.
      */
     @JvmStatic
-    fun idOf(command: Command): MessageId = CommandEnvelope.of(command).messageId()
+    fun idOf(command: Command): @NonValidated MessageId =
+        messageId(AnyPacker.pack(command.id), command.message.typeUrl)
 
     /**
      * Obtains the ID of the given query and the type of its target.
+     *
+     * The query may be invalid, so the result is not validated.
      */
     @JvmStatic
-    fun idOf(query: Query): MessageId = messageId(AnyPacker.pack(query.id), query.target.type)
+    fun idOf(query: Query): @NonValidated MessageId =
+        messageId(AnyPacker.pack(query.id), query.target.type)
 
     /**
      * Obtains the ID of the given topic and the type of its target.
+     *
+     * The topic may be invalid, so the result is not validated.
      */
     @JvmStatic
-    fun idOf(topic: Topic): MessageId = messageId(AnyPacker.pack(topic.id), topic.target.type)
+    fun idOf(topic: Topic): @NonValidated MessageId =
+        messageId(AnyPacker.pack(topic.id), topic.target.type)
 
     /**
      * Obtains the ID of the given subscription and the type of the target of its topic.
+     *
+     * The subscription may be invalid, so the result is not validated.
      */
     @JvmStatic
-    fun idOf(subscription: Subscription): MessageId =
+    fun idOf(subscription: Subscription): @NonValidated MessageId =
         messageId(AnyPacker.pack(subscription.id), subscription.topic.target.type)
 
-    private fun messageId(id: com.google.protobuf.Any, typeUrl: String): MessageId =
+    private fun messageId(id: com.google.protobuf.Any, typeUrl: String): @NonValidated MessageId =
         MessageId.newBuilder()
             .setId(id)
             .setTypeUrl(typeUrl)
-            .build()
+            .buildPartial()
 
     private fun violationsOf(error: Error): List<ConstraintViolation> {
         val details = error.details

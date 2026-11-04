@@ -700,7 +700,6 @@ public final class BoundedContextBuilder implements WithLogging {
                    @Nullable Stand systemStand) {
         initTenantIndex();
         initCommandBus(client.writeSide());
-        eventBus.injectSystem(client.writeSide());
         this.stand = createStand(systemStand);
         var result = instanceFactory.apply(this);
         return result;

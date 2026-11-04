@@ -1,34 +1,28 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
+
 package io.spine.testing.server.blackbox.probe
 
 import io.kotest.matchers.shouldBe
-import io.spine.testing.server.blackbox.given.GivenCommandError.duplicationError
-import io.spine.testing.server.blackbox.given.GivenCommandError.nonValidationError
-import io.spine.testing.server.blackbox.given.GivenCommandError.unsupportedError
+import io.spine.core.MessageId
+import io.spine.system.server.UnsupportedRequestReceived
+import io.spine.system.server.UnsupportedRequestReceived.Reason
+import io.spine.system.server.UnsupportedRequestReceived.Reason.INTERNAL_TYPE
+import io.spine.system.server.UnsupportedRequestReceived.Reason.NO_CONTEXT
+import io.spine.system.server.UnsupportedRequestReceived.Reason.NO_RECEIVER
+import io.spine.system.server.unsupportedRequestReceived
+import io.spine.validation.NonValidated
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -44,27 +38,44 @@ internal class UnsupportedCommandGuardSpec {
     }
 
     @Test
-    fun `check and remember the unsupported command error`() {
-        val commandType = "SomeCommand"
-        val result = guard.checkAndRemember(unsupportedError(commandType))
+    fun `check and remember the type of a command which has no handler`() {
+        val result = guard.checkAndRemember(unsupported(NO_RECEIVER))
 
         result shouldBe true
-        guard.commandType() shouldBe commandType
+        guard.commandType() shouldBe COMMAND_TYPE
     }
 
     @Test
-    fun `return 'false' and ignore the command validation error with the different code`() {
-        val result = guard.checkAndRemember(duplicationError())
+    fun `return 'false' and ignore a command which no context serves`() {
+        val result = guard.checkAndRemember(unsupported(NO_CONTEXT))
 
         result shouldBe false
         guard.commandType() shouldBe null
     }
 
     @Test
-    fun `return 'false' and ignore the command error of the different type`() {
-        val result = guard.checkAndRemember(nonValidationError())
+    fun `return 'false' and ignore a command of an internal type`() {
+        val result = guard.checkAndRemember(unsupported(INTERNAL_TYPE))
 
         result shouldBe false
         guard.commandType() shouldBe null
+    }
+
+    private companion object {
+
+        const val COMMAND_TYPE = "spine.test.SomeCommand"
+
+        fun unsupported(reason: Reason): UnsupportedRequestReceived =
+            unsupportedRequestReceived {
+                request = commandWithoutId()
+                this.reason = reason
+            }
+
+        /**
+         * Creates the ID of a command without the ID value, which the guard does not read.
+         */
+        private fun commandWithoutId(): @NonValidated MessageId = MessageId.newBuilder()
+            .setTypeUrl("type.spine.io/$COMMAND_TYPE")
+            .buildPartial()
     }
 }

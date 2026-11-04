@@ -28,19 +28,17 @@ package io.spine.testing.server.blackbox.probe;
 
 import com.google.common.collect.ImmutableSet;
 import io.spine.annotation.VisibleForTesting;
-import io.spine.base.Error;
-import io.spine.core.CommandValidationError;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.event.AbstractEventSubscriber;
 import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
-import io.spine.system.server.event.CommandErrored;
+import io.spine.system.server.UnsupportedRequestReceived;
 import io.spine.testing.server.blackbox.BlackBox;
+import io.spine.type.TypeUrl;
 import org.jspecify.annotations.Nullable;
 
-import static io.spine.core.CommandValidationError.UNSUPPORTED_COMMAND_VALUE;
-import static io.spine.server.commandbus.CommandException.ATTR_COMMAND_TYPE_NAME;
 import static io.spine.server.dispatch.DispatchOutcomes.successfulOutcome;
+import static io.spine.system.server.UnsupportedRequestReceived.Reason.NO_RECEIVER;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -49,14 +47,11 @@ import static org.junit.jupiter.api.Assertions.fail;
  * Verifies that the commands posted to the {@link BlackBox} are not the
  * {@linkplain io.spine.server.bus.DeadMessageHandler "dead"} messages.
  *
- * <p>The guard subscribes to the {@link CommandErrored} event.
+ * <p>The guard subscribes to the {@link UnsupportedRequestReceived} diagnostic event, which
+ * the {@code CommandBus} posts for a command that no handler of the context serves.
  * It does not subscribe to external events.
  */
 final class UnsupportedCommandGuard extends AbstractEventSubscriber {
-
-    private static final String COMMAND_VALIDATION_ERROR_TYPE =
-            CommandValidationError.getDescriptor()
-                                  .getFullName();
 
     /** The name of the guarded Bounded Context. */
     private final String context;
@@ -64,7 +59,7 @@ final class UnsupportedCommandGuard extends AbstractEventSubscriber {
     /**
      * A name of the command type for which the violation occurs in printable form.
      *
-     * @see #checkAndRemember(CommandErrored)
+     * @see #checkAndRemember(UnsupportedRequestReceived)
      */
     private @Nullable String commandType;
 
@@ -75,38 +70,32 @@ final class UnsupportedCommandGuard extends AbstractEventSubscriber {
 
     @Override
     public ImmutableSet<EventClass> messageClasses() {
-        return EventClass.setOf(CommandErrored.class);
+        return EventClass.setOf(UnsupportedRequestReceived.class);
     }
 
     /**
-     * Checks if the given {@link CommandErrored} message represents an unsupported command
-     * {@linkplain io.spine.server.commandbus.UnsupportedCommandException error}.
+     * Checks if the given {@link UnsupportedRequestReceived} event tells about a command that
+     * has no {@linkplain io.spine.server.commandbus.UnsupportedCommandException handler}.
      */
     @Override
     public boolean canDispatch(EventEnvelope eventEnvelope) {
-        var event = (CommandErrored) eventEnvelope.message();
+        var event = (UnsupportedRequestReceived) eventEnvelope.message();
         return checkAndRemember(event);
     }
 
     /**
-     * Checks if the given {@link CommandErrored} event represents an "unsupported" error and,
-     * if so, remembers its data.
+     * Checks if the given {@link UnsupportedRequestReceived} event tells about a command that
+     * has no handler and, if so, remembers the type of the command.
      */
     @VisibleForTesting
-    boolean checkAndRemember(CommandErrored event) {
-        var error = event.getError();
-        if (!isUnsupportedError(error)) {
+    boolean checkAndRemember(UnsupportedRequestReceived event) {
+        if (event.getReason() != NO_RECEIVER) {
             return false;
         }
-        commandType = error.getAttributesMap()
-                           .get(ATTR_COMMAND_TYPE_NAME)
-                           .getStringValue();
+        commandType = TypeUrl.parse(event.getRequest().getTypeUrl())
+                             .toTypeName()
+                             .value();
         return true;
-    }
-
-    private static boolean isUnsupportedError(Error error) {
-        return COMMAND_VALIDATION_ERROR_TYPE.equals(error.getType())
-                && error.getCode() == UNSUPPORTED_COMMAND_VALUE;
     }
 
     /**

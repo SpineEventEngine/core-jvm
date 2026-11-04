@@ -39,11 +39,15 @@ import io.spine.client.Target;
 import io.spine.client.ThreadSafeObserver;
 import io.spine.client.Topic;
 import io.spine.client.grpc.SubscriptionServiceGrpc;
+import io.spine.core.ActorContext;
+import io.spine.core.MessageId;
 import io.spine.core.Response;
 import io.spine.grpc.MemoizingObserver;
 import io.spine.grpc.StreamObservers;
 import io.spine.logging.WithLogging;
 import io.spine.server.stand.SubscriptionCallback;
+import io.spine.server.transport.Statuses;
+import io.spine.system.server.RequestDiagnostics;
 import io.spine.type.TypeUrl;
 import org.jspecify.annotations.Nullable;
 
@@ -54,6 +58,7 @@ import java.util.function.Consumer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Sets.union;
+import static io.spine.core.ErrorCase.INTERNAL_ERROR;
 import static io.spine.grpc.StreamObservers.forwardErrorsOnly;
 import static io.spine.server.stand.SubscriptionCallback.forwardingTo;
 import static java.lang.String.format;
@@ -121,7 +126,7 @@ public final class SubscriptionService
             consumer.accept(safeObserver);
         } catch (@SuppressWarnings("OverlyBroadCatchBlock") Exception e) {
             logger().atError().withCause(e).log(() -> errorMessage);
-            safeObserver.onError(e);
+            safeObserver.onError(Statuses.failure(INTERNAL_ERROR));
         }
     }
 
@@ -186,6 +191,16 @@ public final class SubscriptionService
         }
 
         @Override
+        protected MessageId requestId(Topic topic) {
+            return RequestDiagnostics.idOf(topic);
+        }
+
+        @Override
+        protected ActorContext actorOf(Topic topic) {
+            return topic.getContext();
+        }
+
+        @Override
         protected void serve(BoundedContext context,
                              Topic topic,
                              StreamObserver<Subscription> observer,
@@ -228,6 +243,17 @@ public final class SubscriptionService
         @Override
         protected TypeUrl enclosedMessageType(Subscription subscription) {
             return subscription.targetType();
+        }
+
+        @Override
+        protected MessageId requestId(Subscription subscription) {
+            return RequestDiagnostics.idOf(subscription);
+        }
+
+        @Override
+        protected ActorContext actorOf(Subscription subscription) {
+            return subscription.getTopic()
+                               .getContext();
         }
     }
 

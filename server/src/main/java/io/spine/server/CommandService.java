@@ -28,23 +28,23 @@ package io.spine.server;
 
 import io.grpc.BindableService;
 import io.grpc.stub.StreamObserver;
-import io.spine.base.Error;
-import io.spine.base.Errors;
 import io.spine.client.grpc.CommandServiceGrpc;
 import io.spine.core.Ack;
+import io.spine.core.ActorContext;
 import io.spine.core.Command;
+import io.spine.core.ErrorCase;
+import io.spine.core.MessageId;
 import io.spine.logging.WithLogging;
-import io.spine.server.commandbus.UnsupportedCommandException;
 import io.spine.server.type.CommandClass;
+import io.spine.system.server.RequestDiagnostics;
 import io.spine.type.MessageClass;
 import io.spine.type.TypeUrl;
-import io.spine.type.UnpublishedLanguageException;
 import org.jspecify.annotations.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static io.spine.server.bus.MessageIdExtensions.causedError;
-import static java.lang.String.format;
+import static io.spine.system.server.UnsupportedRequestReceived.Reason.NO_CONTEXT;
 
 /**
  * The {@code CommandService} provides a synchronous way to post commands
@@ -116,6 +116,17 @@ public final class CommandService
         }
 
         @Override
+        protected MessageId requestId(Command cmd) {
+            return RequestDiagnostics.idOf(cmd);
+        }
+
+        @Override
+        protected ActorContext actorOf(Command cmd) {
+            return cmd.getContext()
+                      .getActorContext();
+        }
+
+        @Override
         protected void serve(BoundedContext context,
                              Command cmd,
                              StreamObserver<Ack> observer,
@@ -123,33 +134,32 @@ public final class CommandService
             context.commandBus().post(cmd, observer);
         }
 
-        @Override
-        protected void handleInternal(Command cmd, StreamObserver<Ack> observer) {
-            var unpublishedLanguage = new UnpublishedLanguageException(cmd.enclosedMessage());
-            logger().atError().withCause(unpublishedLanguage).log(() -> format(
-                    "Unpublished command posted to `%s`.", serviceName()));
-            var error = Errors.fromThrowable(unpublishedLanguage);
-            respondWithError(cmd, error, observer);
-        }
-
         /**
-         * Since a command can be handled by only one bounded context, responds
-         * with the acknowledgement containing {@link UnsupportedCommandException}.
+         * Since a command can be handled by only one bounded context, responds with
+         * the acknowledgement of {@link ErrorCase#UNSUPPORTED_REQUEST UNSUPPORTED_REQUEST}.
          */
         @Override
         protected void serveNoContext(Command cmd,
                                       StreamObserver<Ack> observer,
                                       @Nullable Object params) {
-            var unsupported = new UnsupportedCommandException(cmd);
-            logger().atError().withCause(unsupported).log(() -> format(
-                    "Unsupported command posted to `%s`.", serviceName()));
-            var error = unsupported.asError();
-            respondWithError(cmd, error, observer);
+            rejectUnsupported(cmd, NO_CONTEXT, observer);
         }
 
-        private static void respondWithError(Command cmd, Error err, StreamObserver<Ack> observer) {
-            var id = cmd.getId();
-            var response = causedError(id, err);
+        /**
+         * Responds with the acknowledgement that carries the error case.
+         *
+         * <p>An unexpected failure still fails the call, because the bus may have already
+         * acknowledged the command.
+         */
+        @Override
+        protected void respondWithError(Command cmd,
+                                        ErrorCase errorCase,
+                                        StreamObserver<Ack> observer) {
+            if (errorCase == ErrorCase.INTERNAL_ERROR) {
+                super.respondWithError(cmd, errorCase, observer);
+                return;
+            }
+            var response = causedError(cmd.getId(), errorCase);
             observer.onNext(response);
             observer.onCompleted();
         }

@@ -470,6 +470,10 @@ public abstract class Bus<T extends Signal<?, ?, ?>,
      * the message, possibly a client, receives only the kind of the error. The details go to
      * a diagnostic event, posted to the System context under the tenant of the message.
      *
+     * <p>A bus built without the System write side posts no diagnostic event. Only
+     * the {@code CommandBus} gets it: clients post commands, while events are posted
+     * by the server itself, and an event that nobody handles is not an error.
+     *
      * <p>Other acknowledgements are returned as they are.
      */
     @SuppressWarnings("deprecation")

@@ -30,14 +30,15 @@ import io.grpc.stub.StreamObserver;
 import io.spine.client.Query;
 import io.spine.client.QueryResponse;
 import io.spine.client.grpc.QueryServiceGrpc;
+import io.spine.core.ActorContext;
+import io.spine.core.MessageId;
 import io.spine.logging.WithLogging;
-import io.spine.server.model.UnknownEntityStateTypeException;
-import io.spine.server.stand.InvalidRequestException;
+import io.spine.system.server.RequestDiagnostics;
 import io.spine.type.TypeUrl;
 import org.jspecify.annotations.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static io.spine.server.transport.Statuses.invalidArgumentWithCause;
+import static io.spine.system.server.UnsupportedRequestReceived.Reason.NO_CONTEXT;
 import static io.spine.type.ProtoTexts.shortDebugString;
 import static java.lang.String.format;
 
@@ -96,30 +97,38 @@ public final class QueryService
         }
 
         @Override
+        protected MessageId requestId(Query query) {
+            return RequestDiagnostics.idOf(query);
+        }
+
+        @Override
+        protected ActorContext actorOf(Query query) {
+            return query.getContext();
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * <p>An invalid query fails the call with the error case of the problem.
+         */
+        @Override
         protected void serve(BoundedContext context,
                              Query query,
                              StreamObserver<QueryResponse> observer,
                              @Nullable Object params) {
-            try {
-                var stand = context.stand();
-                stand.execute(query, observer);
-            } catch (InvalidRequestException e) {
-                logger().atError().log(() -> format("Invalid request. `%s`", e.asError()));
-                var exception = invalidArgumentWithCause(e);
-                observer.onError(exception);
-            } catch (@SuppressWarnings("OverlyBroadCatchBlock") Exception e) {
-                logger().atError().withCause(e).log(() -> "Error processing query.");
-                observer.onError(e);
-            }
+            var stand = context.stand();
+            stand.execute(query, observer);
         }
 
+        /**
+         * Fails the call with {@link io.spine.core.ErrorCase#UNSUPPORTED_REQUEST
+         * UNSUPPORTED_REQUEST}, since no bounded context exposes the target type of the query.
+         */
         @Override
         protected void serveNoContext(Query query,
                                       StreamObserver<QueryResponse> observer,
                                       @Nullable Object params) {
-            var exception = new UnknownEntityStateTypeException(query.targetType());
-            logger().atError().withCause(exception).log();
-            observer.onError(exception);
+            rejectUnsupported(query, NO_CONTEXT, observer);
         }
     }
 
