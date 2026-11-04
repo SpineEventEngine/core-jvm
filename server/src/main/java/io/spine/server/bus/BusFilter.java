@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.bus;
@@ -105,12 +93,21 @@ public interface BusFilter<E extends MessageEnvelope<?, ?, ?>> extends Closeable
      * message does not pass the filter due to a technical error or inconsistency in model
      * data.
      *
+     * <p>The poster of the message does not receive the error. The bus replaces it with
+     * an {@linkplain io.spine.core.ErrorCase error case}, which tells only the kind of
+     * the error, and posts the error to the System context in a diagnostic event.
+     * An error given by a filter of the application is reported to the poster as
+     * {@link io.spine.core.ErrorCase#REQUEST_DENIED REQUEST_DENIED}.
+     *
      * @param envelope
      *          the envelope with the message to filter
      * @param cause
      *         the cause of the rejection
      * @return the {@code Optional.of(Ack)} signaling that the message does not pass the filter
      */
+    @SuppressWarnings("deprecation")
+    // Reason: `Status.error` stays the carrier between a filter and its bus until the filter
+    // API gets its own result type.
     default Optional<Ack> reject(E envelope, Error cause) {
         checkNotNull(envelope);
         checkNotNull(cause);

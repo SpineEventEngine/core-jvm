@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 syntax = "proto3";
@@ -38,13 +26,14 @@ option java_outer_classname = "ResponseProto";
 import "google/protobuf/empty.proto";
 
 import "spine/base/error.proto";
+import "spine/core/error_case.proto";
 import "spine/core/event.proto";
 
 // The result of a call returned by a service.
 //
-// A service may return `ok` or an `error` (technical problem) or a `rejection`.
-// The client may expect results (returned via a separate call to the read-side or via event
-// stream) only upon receiving the `ok` status.
+// A service may return `ok`, an `error_case` (the request cannot be accepted), or
+// a `rejection`. The client may expect results (returned via a separate call to the read-side
+// or via event stream) only upon receiving the `ok` status.
 //
 message Response {
     option (is).java_type = "ResponseMixin";
@@ -63,9 +52,31 @@ message Status {
 
         // The technical error occurred upon receiving the request, and no further
         // processing would occur.
-        base.Error error = 2;
+        //
+        // Deprecated: the server reports errors with `error_case`.
+        //
+        // The server does not send this field to clients. It is going to be removed.
+        //
+        base.Error error = 2 [deprecated = true];
 
         // It is not possible to satisfy the request because of the business rejection.
+        //
+        // A filter of a Command Bus may reject a command before the command is dispatched,
+        // for example, when the user who made the request has no permission to do it.
+        // The filter does so with `CommandFilter.reject(CommandEnvelope, RejectionThrowable)`.
+        // The rejection event is also posted to the Event Bus, so its subscribers receive it too.
+        //
+        // A rejection thrown by a command handler never comes in this field: the command is
+        // handled after it is acknowledged. The client receives such a rejection only as
+        // an event, through a subscription.
+        //
         core.Event rejection = 3;
+
+        // The request cannot be accepted, and no further processing would occur.
+        //
+        // The value tells only the kind of the problem. The server keeps the details
+        // in a diagnostic event of the System context.
+        //
+        ErrorCase error_case = 4;
     }
 }

@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.bus;
@@ -46,16 +34,31 @@ import static java.util.stream.Collectors.joining;
  *
  * <p>The {@link #close() close()} method closes all the underlying filters.
  *
+ * <p>The acknowledgement given by a filter passes through the {@link AckConverter} of the chain
+ * before the chain returns it.
+ *
  * @param <E>
  *         the type of envelopes of the filtered messages
  */
 final class FilterChain<E extends MessageEnvelope<?, ?, ?>> implements BusFilter<E>, Closeable {
 
     private final ImmutableList<BusFilter<E>> chain;
+    private final AckConverter<E> converter;
     private volatile boolean closed;
 
+    /**
+     * Creates a chain which returns the acknowledgements of the filters as they are.
+     */
     FilterChain(Iterable<BusFilter<E>> filters) {
+        this(filters, (envelope, filter, ack) -> ack);
+    }
+
+    /**
+     * Creates a chain which converts the acknowledgements of the filters.
+     */
+    FilterChain(Iterable<BusFilter<E>> filters, AckConverter<E> converter) {
         this.chain = ImmutableList.copyOf(filters);
+        this.converter = checkNotNull(converter);
     }
 
     @Override
@@ -65,7 +68,8 @@ final class FilterChain<E extends MessageEnvelope<?, ?, ?>> implements BusFilter
         for (var filter : chain) {
             var output = filter.filter(envelope);
             if (output.isPresent()) {
-                return output;
+                var ack = converter.convert(envelope, filter, output.get());
+                return Optional.of(ack);
             }
         }
         return letPass();
@@ -110,5 +114,28 @@ final class FilterChain<E extends MessageEnvelope<?, ?, ?>> implements BusFilter
                 .map(Class::getSimpleName)
                 .collect(joining(", "));
         return format("%s[%s]", FilterChain.class.getName(), filters);
+    }
+
+    /**
+     * Converts the acknowledgement given by a filter into the one the chain returns.
+     *
+     * @param <E>
+     *         the type of envelopes of the filtered messages
+     */
+    @FunctionalInterface
+    interface AckConverter<E extends MessageEnvelope<?, ?, ?>> {
+
+        /**
+         * Converts the acknowledgement.
+         *
+         * @param envelope
+         *         the filtered message
+         * @param filter
+         *         the filter which did not let the message pass
+         * @param ack
+         *         the acknowledgement given by the filter
+         * @return the acknowledgement to return from the chain
+         */
+        Ack convert(E envelope, BusFilter<E> filter, Ack ack);
     }
 }

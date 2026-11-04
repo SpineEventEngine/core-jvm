@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 @file:JvmName("MessageIdExtensions")
@@ -35,6 +23,7 @@ import io.spine.base.RejectionThrowable
 import io.spine.core.Ack
 import io.spine.core.Command
 import io.spine.core.CommandId
+import io.spine.core.ErrorCase
 import io.spine.core.Event
 import io.spine.core.MessageId
 import io.spine.core.Responses.errorWith
@@ -54,14 +43,33 @@ import io.spine.server.event.reject
 public fun Message.acknowledge(): Ack = ackWithStatus(statusOk())
 
 /**
+ * Rejects a message with this ID (e.g. [MessageId] or [SignalId]) because of an error
+ * of the passed kind.
+ *
+ * @param errorCase the kind of the error that prevented the message from being handled
+ * @receiver the ID of the message that caused the error
+ */
+public fun Message.causedError(errorCase: ErrorCase): Ack = ackWithStatus(errorWith(errorCase))
+
+/**
  * Rejects a message with this ID (e.g. [MessageId] or [SignalId]) because the passed
  * error occurred.
+ *
+ * A bus replaces such an acknowledgement given by a filter with the one carrying only
+ * the [ErrorCase] of the error.
  *
  * @param cause the error that prevented the message from being handled
  * @receiver the ID of the message that caused the error
  */
+@Deprecated(
+    "Clients receive only the kind of the error. Please use `causedError(ErrorCase)`.",
+    ReplaceWith("causedError(errorCase)")
+)
 @VisibleForTesting
-public fun Message.causedError(cause: Error): Ack = ackWithStatus(errorWith(cause))
+public fun Message.causedError(cause: Error): Ack =
+    // Reason: `Status.error` stays the carrier between a filter and its bus until it is removed.
+    @Suppress("DEPRECATION")
+    ackWithStatus(errorWith(cause))
 
 /**
  * Rejects a command with this ID with the passed rejection event.

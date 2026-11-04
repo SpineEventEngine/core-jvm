@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.bus;
@@ -34,12 +22,19 @@ import io.spine.annotation.Internal;
 import io.spine.annotation.VisibleForTesting;
 import io.spine.base.Mistake;
 import io.spine.core.Ack;
+import io.spine.core.Responses;
 import io.spine.core.Signal;
 import io.spine.core.SignalId;
+import io.spine.core.Status;
+import io.spine.core.TenantId;
 import io.spine.logging.WithLogging;
 import io.spine.server.Closeable;
 import io.spine.server.type.MessageEnvelope;
 import io.spine.server.type.SignalEnvelope;
+import io.spine.system.server.ErrorCases;
+import io.spine.system.server.NoOpSystemWriteSide;
+import io.spine.system.server.RequestDiagnostics;
+import io.spine.system.server.SystemWriteSide;
 import io.spine.type.MessageClass;
 
 import java.util.LinkedHashMap;
@@ -49,6 +44,7 @@ import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.server.bus.MessageIdExtensions.acknowledge;
+import static io.spine.system.server.WriteSideFunction.delegatingTo;
 import static io.spine.util.Preconditions2.checkNotDefaultArg;
 import static io.spine.util.Suppliers2.memoize;
 import static java.lang.String.format;
@@ -83,11 +79,19 @@ public abstract class Bus<T extends Signal<?, ?, ?>,
      */
     private final Supplier<FilterChain<E>> filterChain;
 
+    /**
+     * The write side of the System context, to which the bus posts diagnostic events.
+     */
+    private final SystemWriteSide system;
+
     protected Bus(BusBuilder<?, T, E, C, D> builder) {
         super();
         this.listeners = new Listeners<>(builder);
         this.filterChain = memoize(() -> this.createFilterChain(builder.filters()));
         this.registry = builder.newRegistry();
+        this.system = builder.hasSystem()
+                      ? builder.getSystem()
+                      : NoOpSystemWriteSide.INSTANCE;
     }
 
     /**
@@ -455,7 +459,39 @@ public abstract class Bus<T extends Signal<?, ?, ?>,
 
     private FilterChain<E> createFilterChain(Iterable<BusFilter<E>> filters) {
         var possiblyModifiedFilters = setupFilters(filters);
-        var result = new FilterChain<>(possiblyModifiedFilters);
+        var result = new FilterChain<>(possiblyModifiedFilters, this::reportError);
         return result;
+    }
+
+    /**
+     * Replaces the error given by a filter with the error case sent to the poster.
+     *
+     * <p>A filter reports an error with the deprecated {@code Status.error}. The poster of
+     * the message, possibly a client, receives only the kind of the error. The details go to
+     * a diagnostic event, posted to the System context under the tenant of the message.
+     *
+     * <p>Other acknowledgements are returned as they are.
+     */
+    @SuppressWarnings("deprecation")
+    // Reason: `Status.error` stays the carrier between a filter and its bus until the filter
+    // API gets its own result type; then the field is removed.
+    private Ack reportError(E envelope, BusFilter<E> filter, Ack ack) {
+        var status = ack.getStatus();
+        if (status.getStatusCase() != Status.StatusCase.ERROR) {
+            return ack;
+        }
+        var error = status.getError();
+        var errorCase = ErrorCases.of(error);
+        var diagnostic = RequestDiagnostics.of(
+                envelope.messageId(), envelope.actorContext(), error, errorCase, filter.getClass()
+        );
+        systemOf(envelope.tenantId()).postEvent(diagnostic, envelope.asMessageOrigin());
+        return ack.toBuilder()
+                  .setStatus(Responses.errorWith(errorCase))
+                  .build();
+    }
+
+    private SystemWriteSide systemOf(TenantId tenant) {
+        return delegatingTo(system).get(tenant);
     }
 }
