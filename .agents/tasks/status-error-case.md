@@ -173,8 +173,10 @@ The mapping lives in one internal Kotlin object. It reads the framework's own en
 
 ### Diagnostic events
 
-New files in `server/src/main/proto/spine/system/server/`, one event per file, each with
-`option (is).java_type = "DiagnosticEvent"`. Every event carries:
+All in `server/src/main/proto/spine/system/server/request_diagnostic_events.proto`: event
+types must be in a file whose name ends with `events.proto` for the code generation to make
+them events. The file sets `option (every_is).java_type = "DiagnosticEvent"`.
+Every event carries:
 
 - `core.MessageId request` — the request's ID and the type URL of its message (a command,
   event, query target, or topic target);
