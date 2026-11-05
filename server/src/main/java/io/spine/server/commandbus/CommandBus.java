@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.commandbus;
@@ -46,7 +34,6 @@ import io.spine.server.bus.BusFilter;
 import io.spine.server.bus.DeadMessageHandler;
 import io.spine.server.bus.EnvelopeValidator;
 import io.spine.server.bus.UnicastBus;
-import io.spine.server.event.EventBus;
 import io.spine.server.type.CommandClass;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.system.server.SystemWriteSide;
@@ -57,7 +44,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static io.spine.grpc.StreamObservers.noOpObserver;
 import static io.spine.system.server.WriteSideFunction.delegatingTo;
 
 /**
@@ -99,18 +85,6 @@ public final class CommandBus
     private @MonotonicNonNull CommandValidator commandValidator;
 
     /**
-     * An observer that processes the {@linkplain io.spine.base.RejectionThrowable rejections}
-     * thrown by the bus {@linkplain BusFilter filters}.
-     *
-     * <p>When the bus is first created, this observer does nothing. Once an {@link EventBus} is
-     * {@linkplain #initObservers(EventBus) injected} into this command bus instance, the observer
-     * will start publishing the rejections to the said event bus.
-     *
-     * <p>This observer can stay NO-OP in a test environment for the simplicity of tests.
-     */
-    private StreamObserver<Ack> immediateRejectionObserver = noOpObserver();
-
-    /**
      * Creates a new instance according to the passed {@link Builder}.
      */
     private CommandBus(Builder builder) {
@@ -134,22 +108,6 @@ public final class CommandBus
     @VisibleForTesting
     public boolean isMultitenant() {
         return multitenant;
-    }
-
-    /**
-     * Initializes the {@link #immediateRejectionObserver} with the given {@link EventBus}.
-     *
-     * <p>This enables posting of rejections received from command filters
-     * to the associated {@link EventBus}.
-     *
-     * <p>This method is called by the {@link io.spine.server.BoundedContext BoundedContext} and is
-     * a part of context initialization process.
-     *
-     * @see AckRejectionPublisher
-     */
-    public void initObservers(EventBus eventBus) {
-        checkNotNull(eventBus);
-        immediateRejectionObserver = new AckRejectionPublisher(eventBus);
     }
 
     /**
@@ -192,7 +150,6 @@ public final class CommandBus
                 .build();
         var result = new CompositeObserver<>(ImmutableList.of(
                 wrappedSource,
-                immediateRejectionObserver,
                 commandAckMonitor
         ));
         return result;

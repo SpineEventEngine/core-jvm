@@ -1,0 +1,52 @@
+/*
+ * Copyright 2026 CodeMatters, Lda.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
+ */
+
+syntax = "proto3";
+
+package spine.core;
+
+import "spine/options.proto";
+
+option (type_url_prefix) = "type.spine.io";
+option java_package = "io.spine.core";
+option java_multiple_files = true;
+option java_outer_classname = "ErrorCaseProto";
+
+// The kind of problem that stopped a request.
+//
+// The server tells the client only the kind of the problem, not why it happened. This makes
+// repeated attempts to guess a request that the server would accept less informative.
+//
+// The values do not name the kind of the request, because the client knows what it sent.
+//
+enum ErrorCase {
+
+    // Reserved value.
+    ERROR_CASE_UNSPECIFIED = 0;
+
+    // The request is invalid.
+    INVALID_REQUEST = 1;
+
+    // The request is not served.
+    UNSUPPORTED_REQUEST = 2;
+
+    // The tenant of the request is not accepted.
+    TENANT_ERROR = 3;
+
+    // The request is not allowed.
+    REQUEST_DENIED = 4;
+
+    // An unexpected failure occurred on the server side.
+    INTERNAL_ERROR = 5;
+}

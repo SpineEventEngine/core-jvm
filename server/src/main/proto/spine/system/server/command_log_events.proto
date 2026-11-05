@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 syntax = "proto3";
@@ -39,11 +27,11 @@ option java_multiple_files = true;
 
 import "spine/base/error.proto";
 import "spine/core/command.proto";
+import "spine/core/error_case.proto";
 import "spine/core/event.proto";
 import "spine/system/server/command_log.proto";
 
 // An event emitted when a new command is received by the `CommandBus`.
-//
 message CommandReceived {
 
     // The ID of the command.
@@ -54,7 +42,6 @@ message CommandReceived {
 }
 
 // An event emitted when the command is acknowledged by the `CommandBus`.
-//
 message CommandAcknowledged {
 
     // The ID of the command.
@@ -62,7 +49,6 @@ message CommandAcknowledged {
 }
 
 // An event emitted when the command is scheduled.
-//
 message CommandScheduled {
 
     // The ID of the command.
@@ -73,7 +59,6 @@ message CommandScheduled {
 }
 
 // An event emitted when a command is passed to a dispatcher after being acknowledged.
-//
 message CommandDispatched {
 
     // The ID of the command.
@@ -94,26 +79,27 @@ message TargetAssignedToCommand {
 }
 
 // An event emitted when a command is successfully handled.
-//
 message CommandHandled {
 
     // The ID of the command.
     core.CommandId id = 1;
 }
 
-// An event emitted if the command cannot be handled due to a technical error.
-//
+// An event emitted when the Command Bus does not accept a command because of an error,
+// for example, because the command is invalid.
 message CommandErrored {
 
     // The ID of the command.
     core.CommandId id = 1;
 
-    // The runtime error.
+    // The error that stopped the command.
     base.Error error = 2;
+
+    // The error case returned to the client.
+    core.ErrorCase error_case = 3;
 }
 
 // An event emitted if the command cannot be handled due to a business rejection.
-//
 message CommandRejected {
 
     // The ID of the command.
@@ -124,7 +110,6 @@ message CommandRejected {
 }
 
 // An event emitted when another command was generated in response to a received command.
-//
 message CommandTransformed {
 
     // The ID of the command.
