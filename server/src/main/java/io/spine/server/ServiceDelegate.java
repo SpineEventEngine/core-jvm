@@ -37,6 +37,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.core.ErrorCase.INTERNAL_ERROR;
 import static io.spine.core.ErrorCase.UNSUPPORTED_REQUEST;
 import static io.spine.system.server.UnsupportedRequestReceived.Reason.INTERNAL_TYPE;
+import static io.spine.system.server.UnsupportedRequestReceived.Reason.NO_CONTEXT;
 import static io.spine.system.server.WriteSideFunction.delegatingTo;
 import static io.spine.type.MessageExtsKt.isInternal;
 
@@ -83,12 +84,20 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
      */
     @SuppressWarnings("OverlyBroadCatchBlock") // Any failure of a request is reported the same way.
     final void serve(T request, StreamObserver<R> observer, @Nullable Object params) {
-        if (detectInternal(request)) {
+        boolean internal;
+        Optional<BoundedContext> context;
+        try {
+            internal = detectInternal(request);
+            context = internal ? Optional.empty() : find(enclosedMessageType(request));
+        } catch (RuntimeException e) {
+            // The type of the request is malformed, or unknown to the server.
+            rejectUnsupported(request, NO_CONTEXT, observer);
+            return;
+        }
+        if (internal) {
             handleInternal(request, observer);
             return;
         }
-        var type = enclosedMessageType(request);
-        var context = find(type);
         try {
             if (context.isPresent()) {
                 serve(context.get(), request, observer, params);

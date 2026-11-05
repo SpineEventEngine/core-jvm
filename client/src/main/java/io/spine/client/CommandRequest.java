@@ -17,12 +17,15 @@ package io.spine.client;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
+import io.grpc.stub.StreamObserver;
 import io.spine.annotation.VisibleForTesting;
 import io.spine.base.CommandMessage;
 import io.spine.base.EventMessage;
 import io.spine.core.Command;
+import io.spine.core.Event;
 import io.spine.core.Status;
 import io.spine.logging.WithLogging;
+import io.spine.type.TypeUrl;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
@@ -199,6 +202,12 @@ public final class CommandRequest extends ClientRequestBase implements WithLoggi
         private final MultiEventConsumers consumers;
         private @Nullable ImmutableSet<Subscription> subscriptions;
 
+        /**
+         * Delivers the events of the subscriptions, and a rejection from the acknowledgement,
+         * to the consumers, each event at most once.
+         */
+        private @Nullable StreamObserver<Event> eventObserver;
+
         private PostOperation() {
             this.command =
                     client().requestOf(user())
@@ -236,7 +245,10 @@ public final class CommandRequest extends ClientRequestBase implements WithLoggi
 
         private void subscribeToEvents() {
             var client = client();
-            this.subscriptions = subscribe(client, command, consumers, streamingErrorHandler());
+            var delivering = consumers.toObserver(streamingErrorHandler());
+            var observer = new DistinctEventObserver(delivering);
+            this.eventObserver = observer;
+            this.subscriptions = subscribe(client, command, consumers, observer);
             client.subscriptions()
                   .addAll(subscriptions);
         }
@@ -245,16 +257,20 @@ public final class CommandRequest extends ClientRequestBase implements WithLoggi
          * Handles the status of the acknowledgement of the posted command.
          *
          * <p>A command rejected by a filter of the server-side Command Bus is handled as
-         * an accepted one: the server also posts the rejection as an event, and the event
-         * reaches the consumers of the rejection through the subscriptions made before posting,
-         * the same way as a rejection thrown by a command handler.
+         * an accepted one, and its rejection goes to the consumers of the rejection, if any.
+         * The server also posts the rejection as an event, which the subscriptions made before
+         * posting may bring as well, if they are active by then. The consumers receive
+         * the rejection once.
          */
         @CanIgnoreReturnValue
-        @SuppressWarnings("deprecation") // Handles the error of a server that predates `error_case`.
+        @SuppressWarnings("deprecation") // Handles an error of a server before `error_case`.
         private ImmutableSet<Subscription> handleStatus(Status status) {
             switch (status.getStatusCase()) {
-                case OK:
                 case REJECTION:
+                    deliverRejection(status.getRejection());
+                    return Optional.ofNullable(subscriptions)
+                                   .orElse(ImmutableSet.of());
+                case OK:
                     return Optional.ofNullable(subscriptions)
                                    .orElse(ImmutableSet.of());
                 case ERROR_CASE:
@@ -268,6 +284,22 @@ public final class CommandRequest extends ClientRequestBase implements WithLoggi
                     throw newIllegalStateException(
                             "Cannot handle ack status `%s` when posting the command `%s`.",
                             status.getStatusCase(), shortDebugString(command));
+            }
+        }
+
+        /**
+         * Passes the rejection from the acknowledgement to its consumers, if any.
+         */
+        private void deliverRejection(Event rejection) {
+            if (eventObserver == null) {
+                return;
+            }
+            var type = rejection.enclosedTypeUrl();
+            var consumed = consumers.eventTypes()
+                                    .stream()
+                                    .anyMatch(cls -> TypeUrl.of(cls).equals(type));
+            if (consumed) {
+                eventObserver.onNext(rejection);
             }
         }
 

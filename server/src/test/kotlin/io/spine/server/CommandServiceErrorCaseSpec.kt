@@ -14,6 +14,7 @@
 
 package io.spine.server
 
+import com.google.protobuf.Any as ProtoAny
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotBeEmpty
@@ -26,6 +27,7 @@ import io.spine.core.Ack
 import io.spine.core.Command
 import io.spine.core.ErrorCase.INVALID_REQUEST
 import io.spine.core.ErrorCase.REQUEST_DENIED
+import io.spine.core.ErrorCase.UNSUPPORTED_REQUEST
 import io.spine.core.Status.StatusCase.ERROR_CASE
 import io.spine.server.bus.BusFilter
 import io.spine.server.given.diagnostics.RequestDiagnosticsMonitor
@@ -88,6 +90,15 @@ internal class CommandServiceErrorCaseSpec : CommandServiceTenancyTest() {
     }
 
     @Test
+    fun `answer a command of an unknown type with 'UNSUPPORTED_REQUEST'`() {
+        service.post(commandOfUnknownType(), responseObserver)
+
+        val ack = responseObserver.firstResponse()
+        ack.status.statusCase shouldBe ERROR_CASE
+        ack.status.errorCase shouldBe UNSUPPORTED_REQUEST
+    }
+
+    @Test
     fun `post no diagnostic event for an accepted command`() {
         val monitor = RequestDiagnosticsMonitor.of(context)
 
@@ -123,6 +134,14 @@ internal class CommandServiceErrorCaseSpec : CommandServiceTenancyTest() {
         fun commandWithoutId(): @NonValidated Command = Given.ACommand.createProject()
             .toBuilder()
             .clearId()
+            .buildPartial()
+
+        /**
+         * Creates a command whose message is of a type unknown to the server.
+         */
+        fun commandOfUnknownType(): @NonValidated Command = Given.ACommand.createProject()
+            .toBuilder()
+            .setMessage(ProtoAny.newBuilder().setTypeUrl("type.spine.io/spine.test.Unknown"))
             .buildPartial()
 
         fun Ack.text(): String = toByteString().toStringUtf8()
