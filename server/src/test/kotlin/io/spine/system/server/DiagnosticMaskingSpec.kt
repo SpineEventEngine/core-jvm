@@ -22,6 +22,7 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import io.spine.base.Errors
 import io.spine.base.error
 import io.spine.protobuf.AnyPacker
+import io.spine.server.entity.InvalidEntityStateException
 import io.spine.string.templateString
 import io.spine.type.toCompactJson
 import io.spine.validation.ConstraintViolation
@@ -98,6 +99,57 @@ internal class DiagnosticMaskingSpec {
     }
 
     @Test
+    fun `mask every line of a message with several violations`() {
+        val exception = ValidationException(listOf(passwordViolation, pinViolation))
+        val error = Errors.fromThrowable(exception)
+        error.stacktrace shouldContain PIN // Ensures the second line is in the stack trace.
+
+        val masked = DiagnosticMasking.masked(error)
+
+        masked.stacktrace shouldNotContain SECRET
+        masked.stacktrace shouldNotContain PIN
+        masked.stacktrace shouldContain "\tat "
+    }
+
+    @Test
+    fun `mask an error caused by a subclass of a validation exception`() {
+        val wrapped = "${InvalidEntityStateException::class.java.name}: $SECRET"
+        val error = error {
+            type = IllegalStateException::class.java.name
+            message = wrapped
+            stacktrace = "java.lang.IllegalStateException: $wrapped\n" +
+                    "\tat io.spine.test.Handler.on(Handler.java:42)\n" +
+                    "Caused by: $wrapped\n" +
+                    "\t... 1 more"
+        }
+
+        val masked = DiagnosticMasking.masked(error)
+
+        masked.message shouldBe DiagnosticMasking.MASK
+        masked.stacktrace shouldNotContain SECRET
+        masked.stacktrace shouldContain
+                "Caused by: ${InvalidEntityStateException::class.java.name}"
+    }
+
+    @Test
+    fun `leave an event without an error as it is`() {
+        val event = HandlerFailedUnexpectedly.getDefaultInstance()
+
+        val masked = DiagnosticMasking.masked(event).shouldBeInstanceOf<HandlerFailedUnexpectedly>()
+
+        masked.hasError() shouldBe false
+    }
+
+    @Test
+    fun `tell if a failure involves validation`() {
+        val wrapped = IllegalStateException(ValidationException(passwordViolation))
+
+        DiagnosticMasking.involvesValidation(wrapped) shouldBe true
+        val other = IllegalStateException("Storage failed.")
+        DiagnosticMasking.involvesValidation(other) shouldBe false
+    }
+
+    @Test
     fun `leave other errors as they are`() {
         val error = error {
             type = "com.example.AccessDenied"
@@ -113,6 +165,7 @@ internal class DiagnosticMaskingSpec {
         const val FIELD = "password"
         const val PATTERN = "[a-z]+"
         const val CUSTOM_PLACEHOLDER = "custom.value"
+        const val PIN = "9876"
 
         val passwordViolation: ConstraintViolation = constraintViolation {
             typeName = "spine.test.SignUp"
@@ -124,6 +177,16 @@ internal class DiagnosticMaskingSpec {
                 placeholderValue.put(FIELD_VALUE.value.name, SECRET)
                 placeholderValue.put(REGEX_PATTERN.value.name, PATTERN)
                 placeholderValue.put(CUSTOM_PLACEHOLDER, SECRET)
+            }
+        }
+
+        val pinViolation: ConstraintViolation = constraintViolation {
+            typeName = "spine.test.SignUp"
+            fieldValue = AnyPacker.pack(StringValue.of(PIN))
+            message = templateString {
+                withPlaceholders = "The value `\${field.value}` of `\${field.path}` is too short."
+                placeholderValue.put(FIELD_PATH.value.name, "pin")
+                placeholderValue.put(FIELD_VALUE.value.name, PIN)
             }
         }
     }

@@ -502,16 +502,11 @@ public abstract class Bus<T extends Signal<?, ?, ?>,
      * <p>A failure to post does not change what the poster receives: the event is written
      * to the server log directly instead.
      */
-    @SuppressWarnings("OverlyBroadCatchBlock") // Any failure of the System context.
     private void post(E envelope, DiagnosticEvent diagnostic) {
-        try {
-            delegatingTo(system).get(envelope.tenantId())
-                                .postEvent(diagnostic, envelope.asMessageOrigin());
-        } catch (RuntimeException e) {
-            var busName = getClass().getSimpleName();
-            logger().atError().withCause(e).log(() -> format(
-                    "`%s` could not post a diagnostic event to the System context.", busName));
-            DiagnosticLog.write(diagnostic, busName);
-        }
+        DiagnosticLog.postOrWrite(
+                diagnostic, getClass().getSimpleName(),
+                () -> delegatingTo(system).get(envelope.tenantId())
+                                          .postEvent(diagnostic, envelope.asMessageOrigin())
+        );
     }
 }

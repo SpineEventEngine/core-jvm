@@ -39,7 +39,6 @@ import static io.spine.core.ErrorCase.UNSUPPORTED_REQUEST;
 import static io.spine.system.server.UnsupportedRequestReceived.Reason.INTERNAL_TYPE;
 import static io.spine.system.server.WriteSideFunction.delegatingTo;
 import static io.spine.type.MessageExtsKt.isInternal;
-import static java.lang.String.format;
 
 /**
  * An abstract base for classes implementing server-side services.
@@ -231,19 +230,13 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
      * <p>A failure to post does not change what the client receives: the event is written
      * to the server log directly instead.
      */
-    @SuppressWarnings("OverlyBroadCatchBlock") // Any failure of the System context.
     private void post(BoundedContext context, ActorContext actor, DiagnosticEvent event) {
-        try {
-            var writeSide = context.systemClient()
-                                   .writeSide();
-            delegatingTo(writeSide).get(actor.getTenantId())
-                                   .postEvent(event);
-        } catch (RuntimeException e) {
-            logger().atError().withCause(e).log(() -> format(
-                    "`%s` could not post a diagnostic event to the System context of `%s`.",
-                    serviceName(), context.name().getValue()));
-            DiagnosticLog.write(event, serviceName());
-        }
+        DiagnosticLog.postOrWrite(
+                event, serviceName(),
+                () -> delegatingTo(context.systemClient().writeSide())
+                        .get(actor.getTenantId())
+                        .postEvent(event)
+        );
     }
 
     /**

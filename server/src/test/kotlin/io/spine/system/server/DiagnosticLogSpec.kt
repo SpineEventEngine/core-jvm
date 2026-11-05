@@ -15,6 +15,7 @@
 package io.spine.system.server
 
 import com.google.protobuf.StringValue
+import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
@@ -22,6 +23,7 @@ import io.spine.logging.Level
 import io.spine.protobuf.AnyPacker
 import io.spine.string.templateString
 import io.spine.testing.logging.LoggingTest
+import io.spine.testing.logging.mute.MuteLogging
 import io.spine.validation.ConstraintViolation
 import io.spine.validation.StandardPlaceholder.FIELD_PATH
 import io.spine.validation.StandardPlaceholder.FIELD_VALUE
@@ -84,6 +86,25 @@ internal class DiagnosticLogSpec {
         statement shouldNotContain SECRET
         statement shouldContain DiagnosticMasking.MASK
         statement shouldContain FIELD
+    }
+
+    @Test
+    fun `post a diagnostic event with the given action`() {
+        var posted = false
+
+        DiagnosticLog.postOrWrite(RoutingFailed.getDefaultInstance(), SOURCE) { posted = true }
+
+        posted shouldBe true
+    }
+
+    @Test
+    @MuteLogging
+    fun `write the event, not fail, when posting fails`() {
+        shouldNotThrowAny {
+            DiagnosticLog.postOrWrite(RoutingFailed.getDefaultInstance(), SOURCE) {
+                error("The System context is unavailable.")
+            }
+        }
     }
 
     @Nested inner class

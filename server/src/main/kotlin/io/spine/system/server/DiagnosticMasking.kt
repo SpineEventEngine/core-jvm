@@ -14,10 +14,13 @@
 
 package io.spine.system.server
 
+import com.google.common.base.Throwables
 import io.spine.base.Error
 import io.spine.protobuf.pack
+import io.spine.server.commandbus.InvalidCommandException
+import io.spine.server.entity.InvalidEntityStateException
+import io.spine.server.event.InvalidEventException
 import io.spine.validation.ConstraintViolation
-import io.spine.validation.StandardPlaceholder
 import io.spine.validation.StandardPlaceholder.FIELD_PATH
 import io.spine.validation.StandardPlaceholder.FIELD_TYPE
 import io.spine.validation.StandardPlaceholder.GOES_COMPANION
@@ -55,41 +58,62 @@ internal object DiagnosticMasking {
     /**
      * The placeholders whose values describe a constraint, not the validated message.
      */
-    private val safePlaceholders: Set<String> = listOf<StandardPlaceholder>(
+    private val safePlaceholders: Set<String> = listOf(
         FIELD_PATH, FIELD_TYPE, MESSAGE_TYPE, PARENT_TYPE,
         REGEX_PATTERN, REGEX_MODIFIERS, GOES_COMPANION, GROUP_PATH, REQUIRE_FIELDS,
         RANGE_VALUE, MAX_VALUE, MAX_OPERATOR, MIN_VALUE, MIN_OPERATOR,
     ).mapTo(HashSet()) { it.value.name }
 
-    private val validationException: String = ValidationException::class.java.name
+    /**
+     * The names of the exceptions whose messages contain the values that failed validation.
+     */
+    private val validationExceptionNames: Set<String> = listOf(
+        ValidationException::class.java,
+        InvalidEntityStateException::class.java,
+        InvalidCommandException::class.java,
+        InvalidEventException::class.java,
+    ).mapTo(HashSet()) { it.name }
 
     /**
-     * The header line of an exception in a stack trace: the class and the message.
+     * A line of a stack trace that tells a stack frame, or how many frames are omitted.
      */
-    private val exceptionHeader = Regex(
-        """^(\s*(?:Caused by: |Suppressed: )?[\w.$]+): .*$""",
-        RegexOption.MULTILINE
-    )
+    private val frameLine = Regex("""^\s+(?:at |\.\.\. \d+ more)""")
+
+    /**
+     * The header line of a cause or of a suppressed exception: the class and the message.
+     */
+    private val causeHeader = Regex("""^(\s*(?:Caused by: |Suppressed: )[\w.$]+)(?:: .*)?$""")
 
     /**
      * Masks the values of the given event that may come from the messages of requests.
      */
     fun masked(event: DiagnosticEvent): DiagnosticEvent = when (event) {
-        is RequestValidationFailed -> event.toBuilder()
-            .clearViolation()
-            .addAllViolation(event.violationList.map(::masked))
-            .setError(masked(event.error))
-            .build()
+        is RequestValidationFailed -> maskedValidation(event)
         is ConstraintViolated -> event.toBuilder()
             .clearViolation()
             .addAllViolation(event.violationList.map(::masked))
             .build()
-        is RequestDenied -> event.toBuilder().setError(masked(event.error)).build()
-        is RequestProcessingFailed -> event.toBuilder().setError(masked(event.error)).build()
-        is HandlerFailedUnexpectedly -> event.toBuilder().setError(masked(event.error)).build()
-        is RoutingFailed -> event.toBuilder().setError(masked(event.error)).build()
-        is AggregateHistoryCorrupted -> event.toBuilder().setError(masked(event.error)).build()
+        is RequestDenied ->
+            if (event.hasError()) event.toBuilder().setError(masked(event.error)).build() else event
+        is RequestProcessingFailed ->
+            if (event.hasError()) event.toBuilder().setError(masked(event.error)).build() else event
+        is HandlerFailedUnexpectedly ->
+            if (event.hasError()) event.toBuilder().setError(masked(event.error)).build() else event
+        is RoutingFailed ->
+            if (event.hasError()) event.toBuilder().setError(masked(event.error)).build() else event
+        is AggregateHistoryCorrupted ->
+            if (event.hasError()) event.toBuilder().setError(masked(event.error)).build() else event
         else -> event
+    }
+
+    private fun maskedValidation(event: RequestValidationFailed): RequestValidationFailed {
+        val builder = event.toBuilder()
+            .clearViolation()
+            .addAllViolation(event.violationList.map(::masked))
+        if (event.hasError()) {
+            builder.error = masked(event.error)
+        }
+        return builder.build()
     }
 
     /**
@@ -114,17 +138,19 @@ internal object DiagnosticMasking {
     /**
      * Masks an error caused by a failed validation.
      *
-     * The message of such an error, and the messages in the headers of its stack trace,
-     * contain the invalid values, so they are masked. The violations in its details are
-     * [masked][masked] one by one. Other errors are returned as they are.
+     * The message of such an error, and the messages of the exceptions in its stack trace,
+     * contain the invalid values. The messages are masked, and only the stack frames and
+     * the classes of the exceptions remain in the stack trace. The violations in the details
+     * of the error are masked one by one.
+     *
+     * Other errors are returned as they are.
      */
     fun masked(error: Error): Error {
         if (!error.isCausedByValidation()) {
             return error
         }
-        val stacktrace = error.stacktrace.replace(exceptionHeader) { "${it.groupValues[1]}: $MASK" }
         val builder = error.toBuilder()
-            .setStacktrace(stacktrace)
+            .setStacktrace(maskedTrace(error.stacktrace))
         if (error.message.isNotEmpty()) {
             builder.message = MASK
         }
@@ -138,6 +164,39 @@ internal object DiagnosticMasking {
         return builder.build()
     }
 
+    /**
+     * Tells if the given throwable, or any of its causes, has a message with the values that
+     * failed validation.
+     */
+    fun involvesValidation(failure: Throwable): Boolean =
+        Throwables.getCausalChain(failure).any {
+            it is ValidationException
+                    || it is InvalidCommandException
+                    || it is InvalidEventException
+        }
+
     private fun Error.isCausedByValidation(): Boolean =
-        details.`is`(ValidationError::class.java) || stacktrace.contains(validationException)
+        details.`is`(ValidationError::class.java)
+                || type in validationExceptionNames
+                || validationExceptionNames.any { stacktrace.contains(it) }
+
+    /**
+     * Keeps the stack frames and the classes of the exceptions of the given stack trace.
+     *
+     * The messages of the exceptions are masked. The lines of a message that spans several
+     * lines are dropped.
+     */
+    private fun maskedTrace(trace: String): String = trace.lineSequence()
+        .mapIndexedNotNull { index, line ->
+            when {
+                line.isBlank() -> null
+                frameLine.containsMatchIn(line) -> line
+                index == 0 -> maskedHeader(line)
+                else -> causeHeader.matchEntire(line)?.let { "${it.groupValues[1]}: $MASK" }
+            }
+        }
+        .joinToString(System.lineSeparator())
+
+    private fun maskedHeader(line: String): String =
+        if (line.contains(": ")) "${line.substringBefore(": ")}: $MASK" else line
 }

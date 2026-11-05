@@ -14,12 +14,13 @@
 
 package io.spine.system.server
 
+import com.google.protobuf.Any as ProtoAny
 import io.spine.client.Query
 import io.spine.client.Subscription
 import io.spine.client.Topic
 import io.spine.core.Command
 import io.spine.core.MessageId
-import io.spine.protobuf.AnyPacker
+import io.spine.protobuf.pack
 import io.spine.validation.NonValidated
 
 /**
@@ -37,7 +38,7 @@ internal object RequestIds {
      */
     @JvmStatic
     fun of(command: Command): @NonValidated MessageId =
-        messageId(AnyPacker.pack(command.id), command.message.typeUrl)
+        messageId(command.id.pack(), command.message.typeUrl)
 
     /**
      * Obtains the ID of the given query and the type of its target.
@@ -46,7 +47,7 @@ internal object RequestIds {
      */
     @JvmStatic
     fun of(query: Query): @NonValidated MessageId =
-        messageId(AnyPacker.pack(query.id), query.target.type)
+        messageId(query.id.pack(), query.target.type)
 
     /**
      * Obtains the ID of the given topic and the type of its target.
@@ -55,7 +56,7 @@ internal object RequestIds {
      */
     @JvmStatic
     fun of(topic: Topic): @NonValidated MessageId =
-        messageId(AnyPacker.pack(topic.id), topic.target.type)
+        messageId(topic.id.pack(), topic.target.type)
 
     /**
      * Obtains the ID of the given subscription and the type of the target of its topic.
@@ -64,9 +65,9 @@ internal object RequestIds {
      */
     @JvmStatic
     fun of(subscription: Subscription): @NonValidated MessageId =
-        messageId(AnyPacker.pack(subscription.id), subscription.topic.target.type)
+        messageId(subscription.id.pack(), subscription.topic.target.type)
 
-    private fun messageId(id: com.google.protobuf.Any, typeUrl: String): @NonValidated MessageId =
+    private fun messageId(id: ProtoAny, typeUrl: String): @NonValidated MessageId =
         MessageId.newBuilder()
             .setId(id)
             .setTypeUrl(typeUrl)

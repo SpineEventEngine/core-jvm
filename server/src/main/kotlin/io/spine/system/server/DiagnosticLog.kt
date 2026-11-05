@@ -114,6 +114,32 @@ internal class DiagnosticLog(private val source: String) : AbstractEventSubscrib
         }
 
         /**
+         * Posts the given diagnostic event, or writes it to the log if posting fails.
+         *
+         * A failure of the System context must not change what the poster of a request
+         * receives, so the failure is logged and the event is written directly.
+         * The cause of the failure is logged unless its message may contain the values
+         * that failed validation.
+         *
+         * @param event The event to post.
+         * @param source The name of the bus or the service that posts the event.
+         * @param post The action that posts the event to the System context.
+         */
+        @JvmStatic
+        @Suppress("TooGenericExceptionCaught") // Any failure of the System context.
+        fun postOrWrite(event: DiagnosticEvent, source: String, post: Runnable) {
+            try {
+                post.run()
+            } catch (e: RuntimeException) {
+                val api = logger.atError()
+                val cause = if (DiagnosticMasking.involvesValidation(e)) null else e
+                api.withCause(cause)
+                    .log { "`$source` could not post a diagnostic event to the System context." }
+                write(event, source)
+            }
+        }
+
+        /**
          * Obtains the level at which the given event is written.
          */
         @VisibleForTesting
