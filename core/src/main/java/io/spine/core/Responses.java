@@ -1,27 +1,15 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.core;
@@ -29,6 +17,7 @@ package io.spine.core;
 import com.google.protobuf.Empty;
 import io.spine.base.Error;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static io.spine.util.Preconditions2.checkNotDefaultArg;
 
 /**
@@ -64,8 +53,27 @@ public final class Responses {
     }
 
     /**
-     * Creates an error status with the passed cause.
+     * Creates an error status of the passed kind.
+     *
+     * @throws IllegalArgumentException
+     *         if the error case is {@link ErrorCase#ERROR_CASE_UNSPECIFIED} or unrecognized
      */
+    public static Status errorWith(ErrorCase errorCase) {
+        checkArgument(errorCase != ErrorCase.ERROR_CASE_UNSPECIFIED
+                              && errorCase != ErrorCase.UNRECOGNIZED,
+                      "The error case must be specified.");
+        return Status.newBuilder()
+                     .setErrorCase(errorCase)
+                     .build();
+    }
+
+    /**
+     * Creates an error status with the passed cause.
+     *
+     * @deprecated The server reports the kind of the error to clients; please use
+     *         {@link #errorWith(ErrorCase)}.
+     */
+    @Deprecated
     public static Status errorWith(Error cause) {
         return Status.newBuilder()
                      .setError(cause)
@@ -74,7 +82,11 @@ public final class Responses {
 
     /**
      * Creates a rejection status with the passed rejection.
+     *
+     * @deprecated The server does not send rejections in acknowledgements: a command is
+     *         rejected only by its handler, and the client receives the rejection as an event.
      */
+    @Deprecated
     public static Status rejectedBecauseOf(Event rejection) {
         checkNotDefaultArg(rejection);
         var status = Status.newBuilder()

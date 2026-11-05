@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server;
@@ -39,11 +27,15 @@ import io.spine.client.Target;
 import io.spine.client.ThreadSafeObserver;
 import io.spine.client.Topic;
 import io.spine.client.grpc.SubscriptionServiceGrpc;
+import io.spine.core.ActorContext;
+import io.spine.core.MessageId;
 import io.spine.core.Response;
 import io.spine.grpc.MemoizingObserver;
 import io.spine.grpc.StreamObservers;
 import io.spine.logging.WithLogging;
 import io.spine.server.stand.SubscriptionCallback;
+import io.spine.server.transport.Statuses;
+import io.spine.system.server.RequestIds;
 import io.spine.type.TypeUrl;
 import org.jspecify.annotations.Nullable;
 
@@ -54,6 +46,7 @@ import java.util.function.Consumer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Sets.union;
+import static io.spine.core.ErrorCase.INTERNAL_ERROR;
 import static io.spine.grpc.StreamObservers.forwardErrorsOnly;
 import static io.spine.server.stand.SubscriptionCallback.forwardingTo;
 import static java.lang.String.format;
@@ -63,6 +56,9 @@ import static java.lang.String.format;
  * from the server.
  *
  * <p>For synchronous read-side updates please see {@link QueryService}.
+ *
+ * <p>A request that cannot be served fails the call with a gRPC status that carries only
+ * an {@linkplain io.spine.core.ErrorCase error case}, as {@link QueryService} does.
  */
 public final class SubscriptionService
         extends SubscriptionServiceGrpc.SubscriptionServiceImplBase
@@ -121,7 +117,7 @@ public final class SubscriptionService
             consumer.accept(safeObserver);
         } catch (@SuppressWarnings("OverlyBroadCatchBlock") Exception e) {
             logger().atError().withCause(e).log(() -> errorMessage);
-            safeObserver.onError(e);
+            safeObserver.onError(Statuses.failure(INTERNAL_ERROR));
         }
     }
 
@@ -186,6 +182,16 @@ public final class SubscriptionService
         }
 
         @Override
+        protected MessageId requestId(Topic topic) {
+            return RequestIds.of(topic);
+        }
+
+        @Override
+        protected ActorContext actorOf(Topic topic) {
+            return topic.getContext();
+        }
+
+        @Override
         protected void serve(BoundedContext context,
                              Topic topic,
                              StreamObserver<Subscription> observer,
@@ -228,6 +234,17 @@ public final class SubscriptionService
         @Override
         protected TypeUrl enclosedMessageType(Subscription subscription) {
             return subscription.targetType();
+        }
+
+        @Override
+        protected MessageId requestId(Subscription subscription) {
+            return RequestIds.of(subscription);
+        }
+
+        @Override
+        protected ActorContext actorOf(Subscription subscription) {
+            return subscription.getTopic()
+                               .getContext();
         }
     }
 

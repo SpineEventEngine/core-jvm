@@ -1,27 +1,15 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.commandbus;
@@ -30,17 +18,13 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.grpc.stub.StreamObserver;
-import io.spine.base.EventMessage;
 import io.spine.core.Ack;
 import io.spine.core.Command;
 import io.spine.core.CommandId;
-import io.spine.core.Status;
 import io.spine.core.TenantId;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.system.server.SystemWriteSide;
 import io.spine.system.server.event.CommandAcknowledged;
-import io.spine.system.server.event.CommandErrored;
-import io.spine.system.server.event.CommandRejected;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -53,7 +37,7 @@ import static io.spine.util.Exceptions.newIllegalArgumentException;
  * A {@link StreamObserver} for {@link io.spine.core.Command Command}
  * {@linkplain Ack acknowledgement}.
  *
- * <p>Posts a system event whenever a command is acknowledged or rejected.
+ * <p>Posts a system event whenever a command is acknowledged.
  */
 final class CommandAckMonitor implements StreamObserver<Ack> {
 
@@ -71,12 +55,28 @@ final class CommandAckMonitor implements StreamObserver<Ack> {
     /**
      * {@inheritDoc}
      *
-     * <p>Posts either {@link CommandAcknowledged}, {@link CommandErrored}, or
-     * {@link CommandRejected} system event depending on the value of the given {@code Ack}.
+     * <p>Posts {@link CommandAcknowledged} for an accepted command.
+     *
+     * <p>For a command that a filter refused, the {@code CommandBus} has already posted
+     * {@link io.spine.system.server.event.CommandErrored CommandErrored} with the error,
+     * which the acknowledgement does not carry.
      */
     @Override
+    @SuppressWarnings("EnumSwitchStatementWhichMissesCases") // Default values.
     public void onNext(Ack value) {
-        postSystemEvent(value);
+        var status = value.getStatus();
+        var commandId = toCommandId(value);
+        switch (status.getStatusCase()) {
+            case OK -> postAcknowledged(commandId);
+            case ERROR_CASE -> {
+                // Reported by the bus with the error.
+            }
+            default -> throw newIllegalArgumentException(
+                    "Command `%s` has invalid status `%s`.",
+                    commandId.getUuid(),
+                    status.getStatusCase()
+            );
+        }
     }
 
     @Override
@@ -89,36 +89,14 @@ final class CommandAckMonitor implements StreamObserver<Ack> {
         // NO-OP.
     }
 
-    private void postSystemEvent(Ack ack) {
-        var status = ack.getStatus();
-        var commandId = toCommandId(ack);
-        var systemEvent = systemEventFor(status, commandId);
+    private void postAcknowledged(CommandId commandId) {
         var command = commands.get(commandId);
         checkState(command != null, "Unknown command ID encountered: `%s`.", commandId.value());
-        var systemEventOrigin = CommandEnvelope.of(command).asMessageOrigin();
-        writeSide.postEvent(systemEvent, systemEventOrigin);
-    }
-
-    @SuppressWarnings("EnumSwitchStatementWhichMissesCases") // Default values.
-    private static EventMessage systemEventFor(Status status, CommandId commandId) {
-        return switch (status.getStatusCase()) {
-            case OK -> CommandAcknowledged.newBuilder()
-                    .setId(commandId)
-                    .build();
-            case ERROR -> CommandErrored.newBuilder()
-                    .setId(commandId)
-                    .setError(status.getError())
-                    .build();
-            case REJECTION -> CommandRejected.newBuilder()
-                    .setId(commandId)
-                    .setRejectionEvent(status.getRejection())
-                    .build();
-            default -> throw newIllegalArgumentException(
-                    "Command `%s` has invalid status `%s`.",
-                    commandId.getUuid(),
-                    status.getStatusCase()
-            );
-        };
+        var event = CommandAcknowledged.newBuilder()
+                .setId(commandId)
+                .build();
+        var origin = CommandEnvelope.of(command).asMessageOrigin();
+        writeSide.postEvent(event, origin);
     }
 
     /**

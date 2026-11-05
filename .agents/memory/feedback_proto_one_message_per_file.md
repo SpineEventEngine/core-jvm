@@ -21,3 +21,8 @@ easier."
   new file; the point is to stop growing legacy multi-message files.
 - Do not reorganize existing multi-message files as a side effect — the rule
   targets new types; legacy layout changes are a task of their own.
+- **Event types are the exception to "named after the leading message":** they
+  must be in a file whose name ends with `events.proto`, or the code generation
+  does not make them events. Put a new family of events into one new
+  `<family>_events.proto` (e.g. `request_diagnostic_events.proto`), not into one
+  file per event named after it. Owner, 2026-11-05, on PR for `ErrorCase`.

@@ -64,6 +64,7 @@ public final class SystemContext extends BoundedContext {
         builder.enrichEventsUsing(enricher);
         var result = new SystemContext(builder);
         result.registerRepositories(commandLog);
+        result.registerDiagnosticLog();
         result.registerTracing();
         result.init();
         return result;
@@ -83,6 +84,14 @@ public final class SystemContext extends BoundedContext {
             register(commandLog);
             register(new ScheduledCommandRepository());
         }
+    }
+
+    /**
+     * Registers the log which writes the diagnostic events of this context to the server log.
+     */
+    private void registerDiagnosticLog() {
+        var source = name().getValue();
+        registerEventDispatcher(new DiagnosticLog(source));
     }
 
     private void registerTracing() {

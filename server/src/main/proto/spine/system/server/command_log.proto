@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 syntax = "proto3";
@@ -37,10 +25,12 @@ option java_package = "io.spine.system.server";
 option java_outer_classname = "CommandLifecycleProto";
 option java_multiple_files = true;
 
+import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
+import "spine/base/error.proto";
 import "spine/core/command.proto";
-import "spine/core/response.proto";
+import "spine/core/event.proto";
 import "spine/client/entities.proto";
 
 // The current status of a command in a system.
@@ -109,10 +99,37 @@ message CommandTimeline {
     oneof outcome {
 
         // The command was handled, rejected, or errored.
-        spine.core.Status how_handled = 8 [(goes).with = "when_handled"];
+        HandlingStatus how_handled = 8 [(goes).with = "when_handled"];
 
         // Other commands were generated instead.
         Substituted substituted = 9 [(goes).with = "when_substituted"];
+    }
+}
+
+// The status of a command after it was handled.
+//
+// The field numbers are those of the same fields in `spine.core.Status`, which
+// `CommandTimeline.how_handled` held before.
+//
+message HandlingStatus {
+
+    oneof status {
+        option (choice).required = true;
+
+        // The command was handled.
+        google.protobuf.Empty ok = 1;
+
+        // An error occurred.
+        //
+        // Either the Command Bus did not accept the command, for example, because it is
+        // invalid, or the command was accepted, and its handler failed.
+        //
+        // The log is kept on the server side, so the error has all the details.
+        //
+        spine.base.Error error = 2;
+
+        // A handler rejected the command.
+        spine.core.Event rejection = 3;
     }
 }
 

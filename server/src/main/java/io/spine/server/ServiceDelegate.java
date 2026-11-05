@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server;
@@ -29,16 +17,32 @@ package io.spine.server;
 import com.google.common.collect.ImmutableSet;
 import io.grpc.BindableService;
 import io.grpc.stub.StreamObserver;
+import io.spine.base.Errors;
+import io.spine.core.ActorContext;
+import io.spine.core.ErrorCase;
+import io.spine.core.MessageId;
 import io.spine.logging.WithLogging;
+import io.spine.server.stand.InvalidRequestException;
+import io.spine.server.transport.Statuses;
+import io.spine.system.server.DiagnosticEvent;
+import io.spine.system.server.DiagnosticLog;
+import io.spine.system.server.ErrorCases;
+import io.spine.system.server.RequestDiagnostics;
+import io.spine.system.server.UnsupportedRequestReceived;
 import io.spine.type.TypeUrl;
-import io.spine.type.UnpublishedLanguageException;
+import io.spine.type.UnknownTypeException;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static io.spine.core.ErrorCase.INTERNAL_ERROR;
+import static io.spine.core.ErrorCase.INVALID_REQUEST;
+import static io.spine.core.ErrorCase.UNSUPPORTED_REQUEST;
+import static io.spine.system.server.UnsupportedRequestReceived.Reason.INTERNAL_TYPE;
+import static io.spine.system.server.UnsupportedRequestReceived.Reason.NO_CONTEXT;
+import static io.spine.system.server.WriteSideFunction.delegatingTo;
 import static io.spine.type.MessageExtsKt.isInternal;
-import static java.lang.String.format;
 
 /**
  * An abstract base for classes implementing server-side services.
@@ -51,6 +55,11 @@ import static java.lang.String.format;
  * the request. If not found, an error is returned. Otherwise, the request is
  * {@linkplain #serve(BoundedContext, Object, StreamObserver, Object) dispatched} to
  * the bounded context.
+ *
+ * <p>The client receives only the {@linkplain ErrorCase kind} of an error. The details of
+ * the error go to a diagnostic event. The event is posted to the System context of the bounded
+ * context that serves the request. When there is no such context, or the request fails
+ * unexpectedly, the event is written to the server log directly.
  *
  * @param <T>
  *         the type of the request handled by the service
@@ -76,17 +85,36 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
     /**
      * Handles the posted request.
      */
+    @SuppressWarnings("OverlyBroadCatchBlock") // Any failure of a request is reported the same way.
     final void serve(T request, StreamObserver<R> observer, @Nullable Object params) {
-        if (detectInternal(request)) {
+        boolean internal;
+        Optional<BoundedContext> context;
+        try {
+            internal = detectInternal(request);
+            context = internal ? Optional.empty() : find(enclosedMessageType(request));
+        } catch (UnknownTypeException e) {
+            rejectUnsupported(request, NO_CONTEXT, observer);
+            return;
+        } catch (RuntimeException e) {
+            // The type of the request is malformed.
+            rejectMalformed(request, e, observer);
+            return;
+        }
+        if (internal) {
             handleInternal(request, observer);
             return;
         }
-        var type = enclosedMessageType(request);
-        var boundedContext = find(type);
-        boundedContext.ifPresentOrElse(
-            ctx -> serve(ctx, request, observer, params),
-            () -> serveNoContext(request, observer, params)
-        );
+        try {
+            if (context.isPresent()) {
+                serve(context.get(), request, observer, params);
+            } else {
+                serveNoContext(request, observer, params);
+            }
+        } catch (InvalidRequestException e) {
+            reject(context.orElse(null), request, e, observer);
+        } catch (RuntimeException e) {
+            fail(request, e, observer);
+        }
     }
 
     /**
@@ -97,6 +125,17 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
      * message belongs.
      */
     protected abstract TypeUrl enclosedMessageType(T request);
+
+    /**
+     * Obtains the ID of the request and the type of its message, as diagnostic events
+     * refer to the request.
+     */
+    protected abstract MessageId requestId(T request);
+
+    /**
+     * Obtains the actor context of the request.
+     */
+    protected abstract ActorContext actorOf(T request);
 
     /**
      * Handles the request by passing it to the corresponding feature of
@@ -120,7 +159,7 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
     /**
      * Handles the case when no bounded context was found for the incoming request.
      *
-     * <p>Implementations may return an error to the given observer.
+     * <p>Implementations may {@linkplain #rejectUnsupported reject} the request.
      */
     protected abstract void serveNoContext(T request,
                                            StreamObserver<R> observer,
@@ -138,15 +177,96 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
     /**
      * Handles the case of an internal message enclosed into the specified request.
      *
-     * <p>Default implementation reports {@link UnpublishedLanguageException} to
-     * the given observer.
+     * <p>The client receives {@link ErrorCase#UNSUPPORTED_REQUEST UNSUPPORTED_REQUEST}, the same
+     * as for a type that no bounded context serves, so that it cannot tell an internal type
+     * from an unknown one.
      */
     protected void handleInternal(T request, StreamObserver<R> observer) {
-        var targetType = enclosedMessageType(request);
-        var unpublishedLanguage = new UnpublishedLanguageException(targetType.typeName());
-        logger().atError().withCause(unpublishedLanguage).log(() -> format(
-                "Unpublished type (`%s`) posted to `%s`.", targetType, serviceName()));
-        observer.onError(unpublishedLanguage);
+        rejectUnsupported(request, INTERNAL_TYPE, observer);
+    }
+
+    /**
+     * Sends the error of the given kind to the client.
+     *
+     * <p>By default, fails the call with a gRPC status that carries the error case.
+     */
+    protected void respondWithError(T request, ErrorCase errorCase, StreamObserver<R> observer) {
+        observer.onError(Statuses.failure(errorCase));
+    }
+
+    /**
+     * Rejects a request of a type that the service does not serve.
+     *
+     * <p>Writes {@link UnsupportedRequestReceived} to the diagnostic log and responds with
+     * {@link ErrorCase#UNSUPPORTED_REQUEST UNSUPPORTED_REQUEST}.
+     */
+    final void rejectUnsupported(T request,
+                                 UnsupportedRequestReceived.Reason reason,
+                                 StreamObserver<R> observer) {
+        var event = RequestDiagnostics.unsupported(requestId(request), actorOf(request), reason);
+        DiagnosticLog.write(event, serviceName());
+        respondWithError(request, UNSUPPORTED_REQUEST, observer);
+    }
+
+    /**
+     * Rejects a request whose type cannot be read.
+     *
+     * <p>Writes {@link io.spine.system.server.RequestValidationFailed RequestValidationFailed}
+     * with the error to the diagnostic log and responds with
+     * {@link ErrorCase#INVALID_REQUEST INVALID_REQUEST}.
+     */
+    private void rejectMalformed(T request, RuntimeException failure, StreamObserver<R> observer) {
+        var event = RequestDiagnostics.of(
+                requestId(request), actorOf(request), Errors.fromThrowable(failure), INVALID_REQUEST
+        );
+        DiagnosticLog.write(event, serviceName());
+        respondWithError(request, INVALID_REQUEST, observer);
+    }
+
+    /**
+     * Rejects the request that a bounded context finds invalid.
+     */
+    private void reject(@Nullable BoundedContext context,
+                        T request,
+                        InvalidRequestException exception,
+                        StreamObserver<R> observer) {
+        var error = exception.asError();
+        var errorCase = ErrorCases.of(error);
+        var actor = actorOf(request);
+        var event = RequestDiagnostics.of(requestId(request), actor, error, errorCase);
+        if (context == null) {
+            DiagnosticLog.write(event, serviceName());
+        } else {
+            post(context, actor, event);
+        }
+        respondWithError(request, errorCase, observer);
+    }
+
+    /**
+     * Reports a request that failed unexpectedly.
+     */
+    private void fail(T request, RuntimeException failure, StreamObserver<R> observer) {
+        var event = RequestDiagnostics.processingFailed(
+                requestId(request), actorOf(request), failure
+        );
+        DiagnosticLog.write(event, serviceName());
+        respondWithError(request, INTERNAL_ERROR, observer);
+    }
+
+    /**
+     * Posts the diagnostic event to the System context of the given context,
+     * under the tenant of the request.
+     *
+     * <p>A failure to post does not change what the client receives: the event is written
+     * to the server log directly instead.
+     */
+    private void post(BoundedContext context, ActorContext actor, DiagnosticEvent event) {
+        DiagnosticLog.postOrWrite(
+                event, serviceName(),
+                () -> delegatingTo(context.systemClient().writeSide())
+                        .get(actor.getTenantId())
+                        .postEvent(event)
+        );
     }
 
     /**

@@ -1,28 +1,17 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
+
 package io.spine.server;
 
 import io.grpc.BindableService;
@@ -30,14 +19,15 @@ import io.grpc.stub.StreamObserver;
 import io.spine.client.Query;
 import io.spine.client.QueryResponse;
 import io.spine.client.grpc.QueryServiceGrpc;
+import io.spine.core.ActorContext;
+import io.spine.core.MessageId;
 import io.spine.logging.WithLogging;
-import io.spine.server.model.UnknownEntityStateTypeException;
-import io.spine.server.stand.InvalidRequestException;
+import io.spine.system.server.RequestIds;
 import io.spine.type.TypeUrl;
 import org.jspecify.annotations.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static io.spine.server.transport.Statuses.invalidArgumentWithCause;
+import static io.spine.system.server.UnsupportedRequestReceived.Reason.NO_CONTEXT;
 import static io.spine.type.ProtoTexts.shortDebugString;
 import static java.lang.String.format;
 
@@ -76,6 +66,12 @@ public final class QueryService
 
     /**
      * Executes the passed query returning results to the passed observer.
+     *
+     * <p>A query that cannot be served fails the call with a gRPC status that carries only
+     * an {@linkplain io.spine.core.ErrorCase error case}; see
+     * {@code StreamObservers.errorCaseOf(Throwable)} for reading it on the client side.
+     * The details of the error go to a diagnostic event of the System context and to
+     * the server log.
      */
     @Override
     public void read(Query query, StreamObserver<QueryResponse> observer) {
@@ -96,30 +92,38 @@ public final class QueryService
         }
 
         @Override
+        protected MessageId requestId(Query query) {
+            return RequestIds.of(query);
+        }
+
+        @Override
+        protected ActorContext actorOf(Query query) {
+            return query.getContext();
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * <p>An invalid query fails the call with the error case of the problem.
+         */
+        @Override
         protected void serve(BoundedContext context,
                              Query query,
                              StreamObserver<QueryResponse> observer,
                              @Nullable Object params) {
-            try {
-                var stand = context.stand();
-                stand.execute(query, observer);
-            } catch (InvalidRequestException e) {
-                logger().atError().log(() -> format("Invalid request. `%s`", e.asError()));
-                var exception = invalidArgumentWithCause(e);
-                observer.onError(exception);
-            } catch (@SuppressWarnings("OverlyBroadCatchBlock") Exception e) {
-                logger().atError().withCause(e).log(() -> "Error processing query.");
-                observer.onError(e);
-            }
+            var stand = context.stand();
+            stand.execute(query, observer);
         }
 
+        /**
+         * Fails the call with {@link io.spine.core.ErrorCase#UNSUPPORTED_REQUEST
+         * UNSUPPORTED_REQUEST}, since no bounded context exposes the target type of the query.
+         */
         @Override
         protected void serveNoContext(Query query,
                                       StreamObserver<QueryResponse> observer,
                                       @Nullable Object params) {
-            var exception = new UnknownEntityStateTypeException(query.targetType());
-            logger().atError().withCause(exception).log();
-            observer.onError(exception);
+            rejectUnsupported(query, NO_CONTEXT, observer);
         }
     }
 

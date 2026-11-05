@@ -1,46 +1,32 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.testing.server.blackbox.probe;
 
 import com.google.common.collect.ImmutableSet;
 import io.spine.annotation.VisibleForTesting;
-import io.spine.base.Error;
-import io.spine.core.CommandValidationError;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.event.AbstractEventSubscriber;
 import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
-import io.spine.system.server.event.CommandErrored;
+import io.spine.system.server.UnsupportedRequestReceived;
 import io.spine.testing.server.blackbox.BlackBox;
+import io.spine.type.TypeUrl;
 import org.jspecify.annotations.Nullable;
 
-import static io.spine.core.CommandValidationError.UNSUPPORTED_COMMAND_VALUE;
-import static io.spine.server.commandbus.CommandException.ATTR_COMMAND_TYPE_NAME;
 import static io.spine.server.dispatch.DispatchOutcomes.successfulOutcome;
+import static io.spine.system.server.UnsupportedRequestReceived.Reason.NO_RECEIVER;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -49,14 +35,11 @@ import static org.junit.jupiter.api.Assertions.fail;
  * Verifies that the commands posted to the {@link BlackBox} are not the
  * {@linkplain io.spine.server.bus.DeadMessageHandler "dead"} messages.
  *
- * <p>The guard subscribes to the {@link CommandErrored} event.
+ * <p>The guard subscribes to the {@link UnsupportedRequestReceived} diagnostic event, which
+ * the {@code CommandBus} posts for a command that no handler of the context serves.
  * It does not subscribe to external events.
  */
 final class UnsupportedCommandGuard extends AbstractEventSubscriber {
-
-    private static final String COMMAND_VALIDATION_ERROR_TYPE =
-            CommandValidationError.getDescriptor()
-                                  .getFullName();
 
     /** The name of the guarded Bounded Context. */
     private final String context;
@@ -64,7 +47,7 @@ final class UnsupportedCommandGuard extends AbstractEventSubscriber {
     /**
      * A name of the command type for which the violation occurs in printable form.
      *
-     * @see #checkAndRemember(CommandErrored)
+     * @see #checkAndRemember(UnsupportedRequestReceived)
      */
     private @Nullable String commandType;
 
@@ -75,38 +58,32 @@ final class UnsupportedCommandGuard extends AbstractEventSubscriber {
 
     @Override
     public ImmutableSet<EventClass> messageClasses() {
-        return EventClass.setOf(CommandErrored.class);
+        return EventClass.setOf(UnsupportedRequestReceived.class);
     }
 
     /**
-     * Checks if the given {@link CommandErrored} message represents an unsupported command
-     * {@linkplain io.spine.server.commandbus.UnsupportedCommandException error}.
+     * Checks if the given {@link UnsupportedRequestReceived} event tells about a command that
+     * has no handler.
      */
     @Override
     public boolean canDispatch(EventEnvelope eventEnvelope) {
-        var event = (CommandErrored) eventEnvelope.message();
+        var event = (UnsupportedRequestReceived) eventEnvelope.message();
         return checkAndRemember(event);
     }
 
     /**
-     * Checks if the given {@link CommandErrored} event represents an "unsupported" error and,
-     * if so, remembers its data.
+     * Checks if the given {@link UnsupportedRequestReceived} event tells about a command that
+     * has no handler and, if so, remembers the type of the command.
      */
     @VisibleForTesting
-    boolean checkAndRemember(CommandErrored event) {
-        var error = event.getError();
-        if (!isUnsupportedError(error)) {
+    boolean checkAndRemember(UnsupportedRequestReceived event) {
+        if (event.getReason() != NO_RECEIVER) {
             return false;
         }
-        commandType = error.getAttributesMap()
-                           .get(ATTR_COMMAND_TYPE_NAME)
-                           .getStringValue();
+        commandType = TypeUrl.parse(event.getRequest().getTypeUrl())
+                             .typeName()
+                             .value();
         return true;
-    }
-
-    private static boolean isUnsupportedError(Error error) {
-        return COMMAND_VALIDATION_ERROR_TYPE.equals(error.getType())
-                && error.getCode() == UNSUPPORTED_COMMAND_VALUE;
     }
 
     /**
