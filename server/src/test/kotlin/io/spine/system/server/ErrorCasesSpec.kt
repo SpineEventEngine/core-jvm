@@ -27,7 +27,6 @@ import io.spine.core.ErrorCase.INTERNAL_ERROR
 import io.spine.core.ErrorCase.INVALID_REQUEST
 import io.spine.core.ErrorCase.REQUEST_DENIED
 import io.spine.core.ErrorCase.TENANT_ERROR
-import io.spine.core.ErrorCase.UNKNOWN_SUBSCRIPTION
 import io.spine.core.ErrorCase.UNSUPPORTED_REQUEST
 import io.spine.core.EventValidationError
 import org.junit.jupiter.api.DisplayName
@@ -82,7 +81,7 @@ internal class ErrorCasesSpec {
         assertCases(
             SubscriptionValidationError.UNSUPPORTED_SUBSCRIPTION_TARGET to UNSUPPORTED_REQUEST,
             SubscriptionValidationError.INVALID_SUBSCRIPTION to INVALID_REQUEST,
-            SubscriptionValidationError.UNKNOWN_SUBSCRIPTION to UNKNOWN_SUBSCRIPTION,
+            SubscriptionValidationError.UNKNOWN_SUBSCRIPTION to UNSUPPORTED_REQUEST,
             SubscriptionValidationError.SVE_UNKNOWN_REASON to INTERNAL_ERROR,
         )
     }

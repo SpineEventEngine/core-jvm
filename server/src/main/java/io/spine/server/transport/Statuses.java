@@ -71,7 +71,6 @@ public final class Statuses {
         return switch (errorCase) {
             case INVALID_REQUEST, UNSUPPORTED_REQUEST, TENANT_ERROR -> Code.INVALID_ARGUMENT;
             case REQUEST_DENIED -> Code.PERMISSION_DENIED;
-            case UNKNOWN_SUBSCRIPTION -> Code.NOT_FOUND;
             case INTERNAL_ERROR, ERROR_CASE_UNSPECIFIED, UNRECOGNIZED -> Code.INTERNAL;
         };
     }

@@ -154,7 +154,8 @@ message RequestDenied {
 
 // An event emitted when a client asks to activate or cancel a subscription unknown to the server.
 //
-// The client receives `spine.core.ErrorCase.UNKNOWN_SUBSCRIPTION`.
+// The client receives `spine.core.ErrorCase.UNSUPPORTED_REQUEST`, as for a type that is not
+// served, and this event tells the cases apart.
 //
 message UnknownSubscriptionRequested {
 

@@ -20,6 +20,7 @@ import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.spine.base.Error
 import io.spine.base.error
+import io.spine.client.SubscriptionValidationError
 import io.spine.core.ActorContext
 import io.spine.core.CommandValidationError
 import io.spine.core.ErrorCase
@@ -146,13 +147,23 @@ internal class RequestDiagnosticsSpec {
     }
 
     @Test
-    fun `tell that a subscription is unknown`() {
-        val error = frameworkError(CommandValidationError.UNKNOWN)
+    fun `tell that a subscription is unknown, while the client receives an unsupported request`() {
+        val error = subscriptionError(SubscriptionValidationError.UNKNOWN_SUBSCRIPTION)
 
-        val event = diagnosticOf(error, ErrorCase.UNKNOWN_SUBSCRIPTION)
+        val event = diagnosticOf(error, ErrorCase.UNSUPPORTED_REQUEST)
 
         event.shouldBeInstanceOf<UnknownSubscriptionRequested>()
         event.request shouldBe request
+    }
+
+    @Test
+    fun `tell that a subscription target has no receiver`() {
+        val error = subscriptionError(SubscriptionValidationError.UNSUPPORTED_SUBSCRIPTION_TARGET)
+
+        val event = diagnosticOf(error, ErrorCase.UNSUPPORTED_REQUEST)
+
+        event.shouldBeInstanceOf<UnsupportedRequestReceived>()
+        event.reason shouldBe NO_RECEIVER
     }
 
     @Test
@@ -209,6 +220,11 @@ internal class RequestDiagnosticsSpec {
             if (details != null) {
                 this.details = AnyPacker.pack(details)
             }
+        }
+
+        fun subscriptionError(code: SubscriptionValidationError): Error = error {
+            type = SubscriptionValidationError.getDescriptor().fullName
+            this.code = code.number
         }
 
         fun requestId(): @NonValidated MessageId = MessageId.newBuilder()

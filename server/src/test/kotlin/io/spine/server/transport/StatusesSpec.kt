@@ -25,7 +25,6 @@ import io.spine.core.ErrorCase.INTERNAL_ERROR
 import io.spine.core.ErrorCase.INVALID_REQUEST
 import io.spine.core.ErrorCase.REQUEST_DENIED
 import io.spine.core.ErrorCase.TENANT_ERROR
-import io.spine.core.ErrorCase.UNKNOWN_SUBSCRIPTION
 import io.spine.core.ErrorCase.UNRECOGNIZED
 import io.spine.core.ErrorCase.UNSUPPORTED_REQUEST
 import io.spine.core.Status
@@ -93,7 +92,6 @@ internal class StatusesSpec : UtilityClassTest<Statuses>(Statuses::class.java) {
     @Test
     fun `map other error cases to their gRPC codes`() {
         Statuses.codeOf(REQUEST_DENIED) shouldBe Code.PERMISSION_DENIED
-        Statuses.codeOf(UNKNOWN_SUBSCRIPTION) shouldBe Code.NOT_FOUND
         Statuses.codeOf(INTERNAL_ERROR) shouldBe Code.INTERNAL
         Statuses.codeOf(UNRECOGNIZED) shouldBe Code.INTERNAL
     }

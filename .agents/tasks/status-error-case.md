@@ -113,8 +113,8 @@ enum ErrorCase {
     // The request, its ID, or its context fails validation.
     INVALID_REQUEST = 1;
 
-    // The type of the request is not served: no Bounded Context or handler serves it,
-    // or the type is internal.
+    // The request is not served: no Bounded Context or handler serves its type, the type is
+    // internal, or the subscription to activate or cancel is not known to the server.
     UNSUPPORTED_REQUEST = 2;
 
     // The tenant is missing, not applicable to the Bounded Context, or not registered.
@@ -123,11 +123,8 @@ enum ErrorCase {
     // An application filter refused the request.
     REQUEST_DENIED = 4;
 
-    // The subscription to activate or cancel is not known to the server.
-    UNKNOWN_SUBSCRIPTION = 5;
-
     // An unexpected failure on the server side.
-    INTERNAL_ERROR = 6;
+    INTERNAL_ERROR = 5;
 }
 ```
 
@@ -165,7 +162,7 @@ core-jvm and base-libraries).
 | `ServiceDelegate`: no context | — | `UNSUPPORTED_REQUEST` | `UnsupportedRequestReceived` (`NO_CONTEXT`) | log only |
 | `QueryValidator`, `TopicValidator`, `SubscriptionValidator` | `INVALID_*` | `INVALID_REQUEST` | `RequestValidationFailed` | context's System |
 | The same | `UNSUPPORTED_*_TARGET` | `UNSUPPORTED_REQUEST` | `UnsupportedRequestReceived` (`NO_RECEIVER`) | context's System |
-| `SubscriptionValidator` | `UNKNOWN_SUBSCRIPTION` | `UNKNOWN_SUBSCRIPTION` | `UnknownSubscriptionRequested` | context's System |
+| `SubscriptionValidator` | `UNKNOWN_SUBSCRIPTION` | `UNSUPPORTED_REQUEST` | `UnknownSubscriptionRequested` | context's System |
 | Any service: unexpected exception | — | `INTERNAL_ERROR` | `RequestProcessingFailed` | log only (A1) |
 
 The mapping lives in one internal Kotlin object. It reads the framework's own enums by
@@ -207,7 +204,6 @@ it is registered in, or of the service that writes an event directly.
 | `ErrorCase` | gRPC code |
 |---|---|
 | `INVALID_REQUEST`, `UNSUPPORTED_REQUEST`, `TENANT_ERROR` | `INVALID_ARGUMENT` |
-| `UNKNOWN_SUBSCRIPTION` | `NOT_FOUND` |
 | `INTERNAL_ERROR` | `INTERNAL` |
 
 The code never tells more than the `ErrorCase`. The RPC fails with
@@ -342,3 +338,8 @@ mapped code.
   rounds); added `DiagnosticMasking` (allow-listed placeholders, errors caused by validation),
   the post-or-write fallback, `RequestIds`, and `request_diagnostic_events.proto` (event files
   must end with `events.proto`). `./gradlew build dokkaGenerate` passes (server: 2508 tests).
+- 2026-11-05 — `ErrorCase.UNKNOWN_SUBSCRIPTION` removed at the owner's request: an unknown
+  subscription answers `UNSUPPORTED_REQUEST` (gRPC `INVALID_ARGUMENT`, not `NOT_FOUND`), so
+  the error does not point the client at the subscription ID. `INTERNAL_ERROR` is now `5`,
+  since nothing with the enum is released. `UnknownSubscriptionRequested` stays: the server
+  keeps the detail.

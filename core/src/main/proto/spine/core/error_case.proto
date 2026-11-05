@@ -42,9 +42,10 @@ enum ErrorCase {
     // The request, its ID, or its context fails validation.
     INVALID_REQUEST = 1;
 
-    // The type of the request is not served.
+    // The request is not served.
     //
-    // No Bounded Context or handler serves the type, or the type is internal to the server.
+    // No Bounded Context or handler serves the type of the request, the type is internal to
+    // the server, or the subscription to activate or cancel is not known to the server.
     //
     UNSUPPORTED_REQUEST = 2;
 
@@ -58,12 +59,6 @@ enum ErrorCase {
     // A filter of the application refused the request.
     REQUEST_DENIED = 4;
 
-    // The subscription to activate or cancel is not known to the server.
-    //
-    // The client may subscribe to the topic again.
-    //
-    UNKNOWN_SUBSCRIPTION = 5;
-
     // An unexpected failure occurred on the server side.
-    INTERNAL_ERROR = 6;
+    INTERNAL_ERROR = 5;
 }

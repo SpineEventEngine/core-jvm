@@ -16,6 +16,7 @@ package io.spine.system.server
 
 import io.spine.base.Error
 import io.spine.base.Errors
+import io.spine.client.SubscriptionValidationError
 import io.spine.core.ActorContext
 import io.spine.core.CommandValidationError
 import io.spine.core.ErrorCase
@@ -35,6 +36,7 @@ import io.spine.validation.ValidationError
 internal object RequestDiagnostics {
 
     private val commandErrors = CommandValidationError.getDescriptor().fullName
+    private val subscriptionErrors = SubscriptionValidationError.getDescriptor().fullName
 
     /**
      * Creates the event for an error that the server reports with the given error case.
@@ -57,10 +59,9 @@ internal object RequestDiagnostics {
         ErrorCase.INVALID_REQUEST ->
             validationFailed(request = request, actor = actor, error = error)
         ErrorCase.UNSUPPORTED_REQUEST ->
-            unsupported(request = request, actor = actor, reason = NO_RECEIVER)
+            notServed(request = request, actor = actor, error = error)
         ErrorCase.TENANT_ERROR ->
             tenantCheckFailed(request = request, actor = actor, reason = tenantReasonOf(error))
-        ErrorCase.UNKNOWN_SUBSCRIPTION -> unknownSubscription(request, actor)
         ErrorCase.REQUEST_DENIED ->
             denied(request = request, actor = actor, error = error, filter = filter)
         ErrorCase.INTERNAL_ERROR,
@@ -132,6 +133,26 @@ internal object RequestDiagnostics {
         .setActorContext(actor)
         .setReason(reason)
         .build()
+
+    /**
+     * Creates the event for a request that the server does not serve.
+     *
+     * The client receives the same error case for an unknown subscription and for a type
+     * that is not served. The event tells them apart.
+     */
+    private fun notServed(
+        request: MessageId,
+        actor: ActorContext,
+        error: Error
+    ): DiagnosticEvent {
+        val unknownSubscription = error.type == subscriptionErrors
+                && error.code == SubscriptionValidationError.UNKNOWN_SUBSCRIPTION.number
+        return if (unknownSubscription) {
+            unknownSubscription(request, actor)
+        } else {
+            unsupported(request = request, actor = actor, reason = NO_RECEIVER)
+        }
+    }
 
     private fun unknownSubscription(
         request: MessageId,

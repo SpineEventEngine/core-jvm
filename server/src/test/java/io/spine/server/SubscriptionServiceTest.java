@@ -436,7 +436,7 @@ class SubscriptionServiceTest {
                 .isEmpty();
         assertThat(activationObserver.isCompleted())
                 .isFalse();
-        assertErrorCase(activationObserver.getError(), ErrorCase.UNKNOWN_SUBSCRIPTION);
+        assertErrorCase(activationObserver.getError(), ErrorCase.UNSUPPORTED_REQUEST);
     }
 
     @Test

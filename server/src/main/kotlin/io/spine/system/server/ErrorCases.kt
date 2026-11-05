@@ -24,7 +24,6 @@ import io.spine.core.ErrorCase.INTERNAL_ERROR
 import io.spine.core.ErrorCase.INVALID_REQUEST
 import io.spine.core.ErrorCase.REQUEST_DENIED
 import io.spine.core.ErrorCase.TENANT_ERROR
-import io.spine.core.ErrorCase.UNKNOWN_SUBSCRIPTION
 import io.spine.core.ErrorCase.UNSUPPORTED_REQUEST
 import io.spine.core.EventValidationError
 
@@ -97,9 +96,9 @@ internal object ErrorCases {
     }
 
     private fun ofSubscription(error: SubscriptionValidationError?): ErrorCase = when (error) {
-        SubscriptionValidationError.UNSUPPORTED_SUBSCRIPTION_TARGET -> UNSUPPORTED_REQUEST
+        SubscriptionValidationError.UNSUPPORTED_SUBSCRIPTION_TARGET,
+        SubscriptionValidationError.UNKNOWN_SUBSCRIPTION -> UNSUPPORTED_REQUEST
         SubscriptionValidationError.INVALID_SUBSCRIPTION -> INVALID_REQUEST
-        SubscriptionValidationError.UNKNOWN_SUBSCRIPTION -> UNKNOWN_SUBSCRIPTION
         SubscriptionValidationError.SVE_UNKNOWN_REASON,
         SubscriptionValidationError.UNRECOGNIZED,
         null -> INTERNAL_ERROR
