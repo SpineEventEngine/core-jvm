@@ -79,8 +79,8 @@ internal class DiagnosticMaskingSpec {
         val masked = DiagnosticMasking.masked(error)
 
         masked.message shouldBe DiagnosticMasking.MASK
-        masked.stacktrace shouldNotContain SECRET
-        masked.stacktrace shouldContain ValidationException::class.java.name
+        masked.stacktrace shouldBe ""
+        masked.type shouldBe ValidationException::class.java.name
         val details = masked.details.unpack(ValidationError::class.java)
         details.toCompactJson() shouldNotContain SECRET
     }
@@ -100,16 +100,14 @@ internal class DiagnosticMaskingSpec {
     }
 
     @Test
-    fun `mask every line of a message with several violations`() {
+    fun `drop the stack trace, which holds every line of a message with several violations`() {
         val exception = ValidationException(listOf(passwordViolation, pinViolation))
         val error = Errors.fromThrowable(exception)
         error.stacktrace shouldContain PIN // Ensures the second line is in the stack trace.
 
         val masked = DiagnosticMasking.masked(error)
 
-        masked.stacktrace shouldNotContain SECRET
-        masked.stacktrace shouldNotContain PIN
-        masked.stacktrace shouldContain "\tat "
+        masked.stacktrace shouldBe ""
     }
 
     @Test
@@ -127,26 +125,23 @@ internal class DiagnosticMaskingSpec {
         val masked = DiagnosticMasking.masked(error)
 
         masked.message shouldBe DiagnosticMasking.MASK
-        masked.stacktrace shouldNotContain SECRET
-        masked.stacktrace shouldContain
-                "Caused by: ${InvalidEntityStateException::class.java.name}"
+        masked.stacktrace shouldBe ""
     }
 
     @Test
-    fun `keep only real stack frames`() {
-        val injected = "\tat a forged line"
+    fun `not keep a secret written as a stack frame`() {
+        val forged = "\tat com.example.Handler.on($SECRET:42)"
         val error = error {
             type = ValidationException::class.java.name
-            message = SECRET
-            stacktrace = "${ValidationException::class.java.name}: $SECRET\n" +
-                    "$injected\n" +
+            message = "The value is invalid.\n$forged"
+            stacktrace = "${ValidationException::class.java.name}: The value is invalid.\n" +
+                    "$forged\n" +
                     "\tat io.spine.test.Handler.on(Handler.java:42)"
         }
 
         val masked = DiagnosticMasking.masked(error)
 
-        masked.stacktrace shouldNotContain injected
-        masked.stacktrace shouldContain "\tat io.spine.test.Handler.on(Handler.java:42)"
+        masked.toCompactJson() shouldNotContain SECRET
     }
 
     @Test

@@ -99,6 +99,15 @@ internal class CommandServiceErrorCaseSpec : CommandServiceTenancyTest() {
     }
 
     @Test
+    fun `answer a command of a malformed type with 'INVALID_REQUEST'`() {
+        service.post(commandOfMalformedType(), responseObserver)
+
+        val ack = responseObserver.firstResponse()
+        ack.status.statusCase shouldBe ERROR_CASE
+        ack.status.errorCase shouldBe INVALID_REQUEST
+    }
+
+    @Test
     fun `post no diagnostic event for an accepted command`() {
         val monitor = RequestDiagnosticsMonitor.of(context)
 
@@ -142,6 +151,14 @@ internal class CommandServiceErrorCaseSpec : CommandServiceTenancyTest() {
         fun commandOfUnknownType(): @NonValidated Command = Given.ACommand.createProject()
             .toBuilder()
             .setMessage(ProtoAny.newBuilder().setTypeUrl("type.spine.io/spine.test.Unknown"))
+            .buildPartial()
+
+        /**
+         * Creates a command whose message has a type URL that cannot be parsed.
+         */
+        fun commandOfMalformedType(): @NonValidated Command = Given.ACommand.createProject()
+            .toBuilder()
+            .setMessage(ProtoAny.newBuilder().setTypeUrl("not-a-type-url"))
             .buildPartial()
 
         fun Ack.text(): String = toByteString().toStringUtf8()

@@ -17,6 +17,7 @@ package io.spine.server;
 import com.google.common.collect.ImmutableSet;
 import io.grpc.BindableService;
 import io.grpc.stub.StreamObserver;
+import io.spine.base.Errors;
 import io.spine.core.ActorContext;
 import io.spine.core.ErrorCase;
 import io.spine.core.MessageId;
@@ -29,12 +30,14 @@ import io.spine.system.server.ErrorCases;
 import io.spine.system.server.RequestDiagnostics;
 import io.spine.system.server.UnsupportedRequestReceived;
 import io.spine.type.TypeUrl;
+import io.spine.type.UnknownTypeException;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.core.ErrorCase.INTERNAL_ERROR;
+import static io.spine.core.ErrorCase.INVALID_REQUEST;
 import static io.spine.core.ErrorCase.UNSUPPORTED_REQUEST;
 import static io.spine.system.server.UnsupportedRequestReceived.Reason.INTERNAL_TYPE;
 import static io.spine.system.server.UnsupportedRequestReceived.Reason.NO_CONTEXT;
@@ -89,9 +92,12 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
         try {
             internal = detectInternal(request);
             context = internal ? Optional.empty() : find(enclosedMessageType(request));
-        } catch (RuntimeException e) {
-            // The type of the request is malformed, or unknown to the server.
+        } catch (UnknownTypeException e) {
             rejectUnsupported(request, NO_CONTEXT, observer);
+            return;
+        } catch (RuntimeException e) {
+            // The type of the request is malformed.
+            rejectMalformed(request, e, observer);
             return;
         }
         if (internal) {
@@ -200,6 +206,21 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
         var event = RequestDiagnostics.unsupported(requestId(request), actorOf(request), reason);
         DiagnosticLog.write(event, serviceName());
         respondWithError(request, UNSUPPORTED_REQUEST, observer);
+    }
+
+    /**
+     * Rejects a request whose type cannot be read.
+     *
+     * <p>Writes {@link io.spine.system.server.RequestValidationFailed RequestValidationFailed}
+     * with the error to the diagnostic log and responds with
+     * {@link ErrorCase#INVALID_REQUEST INVALID_REQUEST}.
+     */
+    private void rejectMalformed(T request, RuntimeException failure, StreamObserver<R> observer) {
+        var event = RequestDiagnostics.of(
+                requestId(request), actorOf(request), Errors.fromThrowable(failure), INVALID_REQUEST
+        );
+        DiagnosticLog.write(event, serviceName());
+        respondWithError(request, INVALID_REQUEST, observer);
     }
 
     /**

@@ -87,16 +87,6 @@ internal object DiagnosticMasking {
     }
 
     /**
-     * A line of a stack trace that tells a stack frame, or how many frames are omitted.
-     */
-    private val frameLine = Regex("""^\s+(?:at [\w$.<>/@-]+\(.*\)|\.\.\. \d+ more)$""")
-
-    /**
-     * The header line of a cause or of a suppressed exception: the class and the message.
-     */
-    private val causeHeader = Regex("""^(\s*(?:Caused by: |Suppressed: )[\w.$]+)(?:: .*)?$""")
-
-    /**
      * Masks the values of the given event that may come from the messages of requests.
      */
     fun masked(event: DiagnosticEvent): DiagnosticEvent = when (event) {
@@ -151,9 +141,10 @@ internal object DiagnosticMasking {
      * Masks an error caused by a failed validation.
      *
      * The message of such an error, and the messages of the exceptions in its stack trace,
-     * contain the invalid values. The messages are masked, and only the stack frames and
-     * the classes of the exceptions remain in the stack trace. The violations in the details
-     * of the error are masked one by one.
+     * contain the invalid values. The message is masked, and the stack trace is dropped:
+     * an invalid value may hold any text, including lines that look like stack frames.
+     * The type of the error still tells the class of the exception. The violations in
+     * the details of the error are masked one by one.
      *
      * Other errors are returned as they are.
      */
@@ -162,7 +153,7 @@ internal object DiagnosticMasking {
             return error
         }
         val builder = error.toBuilder()
-            .setStacktrace(maskedTrace(error.stacktrace))
+            .clearStacktrace()
         if (error.message.isNotEmpty()) {
             builder.message = MASK
         }
@@ -192,24 +183,4 @@ internal object DiagnosticMasking {
         details.`is`(ValidationError::class.java)
                 || type in validationExceptionNames
                 || validationExceptionNames.any { stacktrace.contains(it) }
-
-    /**
-     * Keeps the stack frames and the classes of the exceptions of the given stack trace.
-     *
-     * The messages of the exceptions are masked. The lines of a message that spans several
-     * lines are dropped.
-     */
-    private fun maskedTrace(trace: String): String = trace.lineSequence()
-        .mapIndexedNotNull { index, line ->
-            when {
-                line.isBlank() -> null
-                frameLine.matches(line) -> line
-                index == 0 -> maskedHeader(line)
-                else -> causeHeader.matchEntire(line)?.let { "${it.groupValues[1]}: $MASK" }
-            }
-        }
-        .joinToString(System.lineSeparator())
-
-    private fun maskedHeader(line: String): String =
-        if (line.contains(": ")) "${line.substringBefore(": ")}: $MASK" else line
 }
