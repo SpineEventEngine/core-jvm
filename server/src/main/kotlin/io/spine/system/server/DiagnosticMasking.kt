@@ -20,6 +20,7 @@ import io.spine.protobuf.pack
 import io.spine.server.commandbus.InvalidCommandException
 import io.spine.server.entity.InvalidEntityStateException
 import io.spine.server.event.InvalidEventException
+import io.spine.server.stand.InvalidRequestException
 import io.spine.validation.ConstraintViolation
 import io.spine.validation.StandardPlaceholder.FIELD_PATH
 import io.spine.validation.StandardPlaceholder.FIELD_TYPE
@@ -72,12 +73,23 @@ internal object DiagnosticMasking {
         InvalidEntityStateException::class.java,
         InvalidCommandException::class.java,
         InvalidEventException::class.java,
-    ).mapTo(HashSet()) { it.name }
+        InvalidRequestException::class.java,
+    ).mapTo(HashSet()) { it.name } + standExceptionNames()
+
+    private fun standExceptionNames(): List<String> {
+        val pkg = InvalidRequestException::class.java.packageName
+        // `InvalidQueryException` is package-private, so all three are named by strings.
+        return listOf(
+            "InvalidQueryException",
+            "InvalidTopicException",
+            "InvalidSubscriptionException",
+        ).map { "$pkg.$it" }
+    }
 
     /**
      * A line of a stack trace that tells a stack frame, or how many frames are omitted.
      */
-    private val frameLine = Regex("""^\s+(?:at |\.\.\. \d+ more)""")
+    private val frameLine = Regex("""^\s+(?:at [\w$.<>/@-]+\(.*\)|\.\.\. \d+ more)$""")
 
     /**
      * The header line of a cause or of a suppressed exception: the class and the message.
@@ -173,6 +185,7 @@ internal object DiagnosticMasking {
             it is ValidationException
                     || it is InvalidCommandException
                     || it is InvalidEventException
+                    || it is InvalidRequestException
         }
 
     private fun Error.isCausedByValidation(): Boolean =
@@ -190,7 +203,7 @@ internal object DiagnosticMasking {
         .mapIndexedNotNull { index, line ->
             when {
                 line.isBlank() -> null
-                frameLine.containsMatchIn(line) -> line
+                frameLine.matches(line) -> line
                 index == 0 -> maskedHeader(line)
                 else -> causeHeader.matchEntire(line)?.let { "${it.groupValues[1]}: $MASK" }
             }

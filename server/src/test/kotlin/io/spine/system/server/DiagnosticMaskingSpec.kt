@@ -23,6 +23,7 @@ import io.spine.base.Errors
 import io.spine.base.error
 import io.spine.protobuf.AnyPacker
 import io.spine.server.entity.InvalidEntityStateException
+import io.spine.server.stand.InvalidTopicException
 import io.spine.string.templateString
 import io.spine.type.toCompactJson
 import io.spine.validation.ConstraintViolation
@@ -132,6 +133,23 @@ internal class DiagnosticMaskingSpec {
     }
 
     @Test
+    fun `keep only real stack frames`() {
+        val injected = "\tat a forged line"
+        val error = error {
+            type = ValidationException::class.java.name
+            message = SECRET
+            stacktrace = "${ValidationException::class.java.name}: $SECRET\n" +
+                    "$injected\n" +
+                    "\tat io.spine.test.Handler.on(Handler.java:42)"
+        }
+
+        val masked = DiagnosticMasking.masked(error)
+
+        masked.stacktrace shouldNotContain injected
+        masked.stacktrace shouldContain "\tat io.spine.test.Handler.on(Handler.java:42)"
+    }
+
+    @Test
     fun `leave an event without an error as it is`() {
         val event = HandlerFailedUnexpectedly.getDefaultInstance()
 
@@ -145,6 +163,8 @@ internal class DiagnosticMaskingSpec {
         val wrapped = IllegalStateException(ValidationException(passwordViolation))
 
         DiagnosticMasking.involvesValidation(wrapped) shouldBe true
+        val request = IllegalStateException(InvalidTopicException::class.java.name)
+        DiagnosticMasking.involvesValidation(request) shouldBe false
         val other = IllegalStateException("Storage failed.")
         DiagnosticMasking.involvesValidation(other) shouldBe false
     }

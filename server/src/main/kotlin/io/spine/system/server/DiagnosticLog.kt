@@ -131,10 +131,14 @@ internal class DiagnosticLog(private val source: String) : AbstractEventSubscrib
             try {
                 post.run()
             } catch (e: RuntimeException) {
-                val api = logger.atError()
-                val cause = if (DiagnosticMasking.involvesValidation(e)) null else e
-                api.withCause(cause)
-                    .log { "`$source` could not post a diagnostic event to the System context." }
+                val hidden = DiagnosticMasking.involvesValidation(e)
+                logger.atError()
+                    .withCause(if (hidden) null else e)
+                    .atMostEvery(1, SECONDS)
+                    .log {
+                        "`$source` could not post a diagnostic event to the System context" +
+                                " (`${e.javaClass.name}`)."
+                    }
                 write(event, source)
             }
         }
