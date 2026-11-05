@@ -113,3 +113,7 @@ in `CommandTimeline.how_handled`, a `spine.core.Status`.
 - 2026-11-05 — owner: `@VisibleForTesting` marks code more visible than production needs
   because tests also call it, so `causedError()` keeps it; removing it was a mistake, now
   reverted.
+- 2026-11-05 — Codecov on #1707 (2 patch lines missed): `CommandRequestUnexpectedStatusSpec`
+  covers the "Cannot handle ack status" message through a stub command service. The other
+  line, the `HandlerFailedUnexpectedly` subscriber of `CommandLogProjection`, stays uncovered
+  until the routing bug on `master` is fixed (follow-up).
