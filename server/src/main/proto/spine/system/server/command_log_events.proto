@@ -85,19 +85,21 @@ message CommandHandled {
     core.CommandId id = 1;
 }
 
-// An event emitted if the command cannot be handled due to a technical error.
+// An event emitted when the Command Bus does not accept a command because of an error.
+//
+// For example, the command is invalid, or a filter of the application refuses it.
+//
 message CommandErrored {
 
     // The ID of the command.
     core.CommandId id = 1;
 
-    // The runtime error.
+    // The error that stopped the command.
     //
-    // Deprecated: use `error_case`.
+    // System events stay on the server side, so the error has all the details.
+    // The client receives only `error_case`.
     //
-    // The details of the error are posted in a diagnostic event that refers to the command.
-    //
-    base.Error error = 2 [deprecated = true];
+    base.Error error = 2;
 
     // The kind of the error reported to the client.
     core.ErrorCase error_case = 3;

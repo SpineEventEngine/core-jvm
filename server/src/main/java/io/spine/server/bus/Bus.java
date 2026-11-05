@@ -20,8 +20,10 @@ import com.google.protobuf.Message;
 import io.grpc.stub.StreamObserver;
 import io.spine.annotation.Internal;
 import io.spine.annotation.VisibleForTesting;
+import io.spine.base.Error;
 import io.spine.base.Mistake;
 import io.spine.core.Ack;
+import io.spine.core.ErrorCase;
 import io.spine.core.Responses;
 import io.spine.core.Signal;
 import io.spine.core.SignalId;
@@ -165,16 +167,11 @@ public abstract class Bus<T extends Signal<?, ?, ?>,
      * <p>If the message is accepted by the bus, {@link Ack} with the
      * {@link io.spine.core.Status.StatusCase#OK OK} status is passed to the observer.
      *
-     * <p>If the message cannot be sent due to some issues, a corresponding
-     * {@link io.spine.base.Error Error} status is passed in {@code Ack} instance.
+     * <p>If the message cannot be accepted, the {@code Ack} tells the kind of the problem with
+     * the {@link io.spine.core.Status.StatusCase#ERROR_CASE ERROR_CASE} status.
      *
-     * <p>Depending on the underlying {@link MessageDispatcher}, a message that causes a business
-     * {@linkplain io.spine.base.RejectionThrowable rejection} may result in either a rejection
-     * status or an {@link io.spine.core.Status.StatusCase#OK OK} status {@link Ack} instance.
-     * The rejection status may only pop up if the {@link MessageDispatcher} processes the message
-     * sequentially and throws the rejection (wrapped in
-     * the {@linkplain io.spine.base.RejectionThrowable RejectionThrowables}) instead of
-     * handling them. Otherwise, the {@code OK} status should be expected.
+     * <p>A business {@linkplain io.spine.base.RejectionThrowable rejection} thrown by a handler
+     * does not change the {@code Ack}: the message is handled after it is acknowledged.
      *
      * <p>Note that {@linkplain StreamObserver#onError StreamObserver.onError()} is never called
      * for the passed observer, since errors are propagated as statuses of {@code Ack} responses.
@@ -476,6 +473,8 @@ public abstract class Bus<T extends Signal<?, ?, ?>,
      * by the server itself, and an event that nobody handles is not an error.
      *
      * <p>Other acknowledgements are returned as they are.
+     *
+     * @see #onFilterError(MessageEnvelope, Error, ErrorCase)
      */
     @SuppressWarnings("deprecation")
     // Reason: `Status.error` stays the carrier between a filter and its bus until the filter
@@ -491,9 +490,30 @@ public abstract class Bus<T extends Signal<?, ?, ?>,
                 envelope.messageId(), envelope.actorContext(), error, errorCase, filter.getClass()
         );
         post(envelope, diagnostic);
+        onFilterError(envelope, error, errorCase);
         return ack.toBuilder()
                   .setStatus(Responses.errorWith(errorCase))
                   .build();
+    }
+
+    /**
+     * A callback for derived classes to act on a message that a filter refused with an error.
+     *
+     * <p>The callback is invoked before the poster of the message receives
+     * the acknowledgement, which carries only the error case.
+     *
+     * <p>The default implementation does nothing.
+     *
+     * @param envelope
+     *         the message that did not pass a filter
+     * @param error
+     *         the error given by the filter, with all the details
+     * @param errorCase
+     *         the kind of the error, as the poster of the message receives it
+     */
+    @SuppressWarnings("NoopMethodInAbstractClass") // Sets a default behavior.
+    protected void onFilterError(E envelope, Error error, ErrorCase errorCase) {
+        // Do nothing.
     }
 
     /**

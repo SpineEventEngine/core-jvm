@@ -15,16 +15,13 @@
 package io.spine.server.commandbus
 
 import com.google.common.collect.ImmutableSet
-import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.assertions.throwables.shouldThrow
 import io.spine.base.Identifier.newUuid
 import io.spine.base.error
 import io.spine.core.CommandValidationError
-import io.spine.core.ErrorCase.INVALID_REQUEST
 import io.spine.core.TenantId
 import io.spine.server.bus.causedError
 import io.spine.system.server.MemoizingWriteSide
-import io.spine.system.server.event.CommandErrored
 import io.spine.test.commandbus.ProjectId
 import io.spine.test.commandbus.command.CmdBusStartProject
 import io.spine.testing.client.TestActorRequestFactory
@@ -39,15 +36,14 @@ internal class CommandAckMonitorSpec {
 
     @Test
     @Suppress("DEPRECATION") // Reason: covers an ack carrying the deprecated `Status.error`.
-    fun `tell the error case of an error given in the deprecated field`() {
-        val writeSide = MemoizingWriteSide.singleTenant()
+    fun `refuse an ack with the error that the bus did not convert to an error case`() {
         val command = TestActorRequestFactory(javaClass).command().create(
             CmdBusStartProject.newBuilder()
                 .setProjectId(ProjectId.newBuilder().setId(newUuid()))
                 .build()
         )
         val monitor = CommandAckMonitor.newBuilder()
-            .setSystemWriteSide(writeSide)
+            .setSystemWriteSide(MemoizingWriteSide.singleTenant())
             .setTenantId(TenantId.getDefaultInstance())
             .setPostedCommands(ImmutableSet.of(command))
             .build()
@@ -56,9 +52,8 @@ internal class CommandAckMonitorSpec {
             code = CommandValidationError.INVALID_COMMAND.number
         }
 
-        monitor.onNext(command.id().causedError(error))
-
-        val event = writeSide.lastSeenEvent().message().shouldBeInstanceOf<CommandErrored>()
-        event.errorCase shouldBe INVALID_REQUEST
+        shouldThrow<IllegalArgumentException> {
+            monitor.onNext(command.id().causedError(error))
+        }
     }
 }

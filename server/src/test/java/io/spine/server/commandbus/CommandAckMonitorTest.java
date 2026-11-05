@@ -16,23 +16,17 @@ package io.spine.server.commandbus;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.testing.NullPointerTester;
-import io.spine.base.Identifier;
 import io.spine.core.Ack;
 import io.spine.core.Command;
 import io.spine.core.CommandId;
 import io.spine.core.ErrorCase;
 import io.spine.core.TenantId;
-import io.spine.server.entity.rejection.CannotModifyArchivedEntity;
-import io.spine.server.event.RejectionFactory;
 import io.spine.system.server.MemoizingWriteSide;
 import io.spine.system.server.NoOpSystemWriteSide;
 import io.spine.system.server.event.CommandAcknowledged;
-import io.spine.system.server.event.CommandErrored;
-import io.spine.system.server.event.CommandRejected;
 import io.spine.test.commandbus.ProjectId;
 import io.spine.test.commandbus.command.CmdBusStartProject;
 import io.spine.testing.client.TestActorRequestFactory;
-import io.spine.testing.core.given.GivenCommandContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -41,10 +35,8 @@ import org.junit.jupiter.api.Test;
 import static com.google.common.testing.NullPointerTester.Visibility.PACKAGE;
 import static com.google.common.truth.Truth.assertThat;
 import static io.spine.base.Identifier.newUuid;
-import static io.spine.protobuf.AnyPacker.pack;
 import static io.spine.server.bus.MessageIdExtensions.acknowledge;
 import static io.spine.server.bus.MessageIdExtensions.causedError;
-import static io.spine.server.bus.MessageIdExtensions.reject;
 import static io.spine.testing.Assertions.assertIllegalState;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -145,38 +137,12 @@ class CommandAckMonitorTest {
         }
 
         @Test
-        @DisplayName("error, post `CommandErrored`")
+        @DisplayName("error case, post nothing, as the bus posts `CommandErrored` itself")
         void onError() {
             var ack = errorAck(commandId);
             monitor.onNext(ack);
 
-            var lastSeenEvent = writeSide.lastSeenEvent().message();
-
-            assertThat(lastSeenEvent)
-                    .isInstanceOf(CommandErrored.class);
-
-            var actualEvent = (CommandErrored) lastSeenEvent;
-
-            assertThat(actualEvent.getId())
-                    .isEqualTo(commandId);
-            assertThat(actualEvent.getErrorCase())
-                    .isEqualTo(ack.getStatus().getErrorCase());
-        }
-
-        @Test
-        @DisplayName("rejection, post `CommandRejected`")
-        void onRejection() {
-            var ack = rejectionAck(commandId);
-            monitor.onNext(ack);
-
-            var lastSeenEvent = writeSide.lastSeenEvent().message();
-            assertThat(lastSeenEvent).isInstanceOf(CommandRejected.class);
-
-            var actualEvent = (CommandRejected) lastSeenEvent;
-            assertThat(actualEvent.getId())
-                    .isEqualTo(commandId);
-            assertThat(actualEvent.getRejectionEvent())
-                    .isEqualTo(ack.getStatus().getRejection());
+            assertThrows(AssertionError.class, writeSide::lastSeenEvent);
         }
     }
 
@@ -202,31 +168,5 @@ class CommandAckMonitorTest {
 
     private static Ack errorAck(CommandId commandId) {
         return causedError(commandId, ErrorCase.INVALID_REQUEST);
-    }
-
-    private static Ack rejectionAck(CommandId commandId) {
-        var projectId = ProjectId.newBuilder()
-                .setId(commandId.getUuid())
-                .build();
-        var commandMessage = CmdBusStartProject.newBuilder()
-                .setProjectId(projectId)
-                .build();
-        var command = Command.newBuilder()
-                .setId(commandId)
-                .setMessage(pack(commandMessage))
-                .setContext(GivenCommandContext.withRandomActor())
-                .build();
-
-        var exception = throwableCausedByRejection();
-        var rejection = RejectionFactory.reject(command, exception);
-        return reject(commandId, rejection);
-    }
-
-    private static RuntimeException throwableCausedByRejection() {
-        var entityId = Identifier.pack(CommandAckMonitorTest.class.getSimpleName());
-        var rejection = CannotModifyArchivedEntity.newBuilder()
-                .setEntityId(entityId)
-                .build();
-        return new RuntimeException(rejection);
     }
 }

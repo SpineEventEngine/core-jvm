@@ -15,17 +15,11 @@
 package io.spine.server.bus
 
 import io.kotest.matchers.shouldBe
-import io.spine.base.Identifier.newUuid
 import io.spine.core.Ack
-import io.spine.core.Command
 import io.spine.core.CommandId
 import io.spine.core.ErrorCase
 import io.spine.core.Status.StatusCase
 import io.spine.protobuf.AnyPacker
-import io.spine.server.event.reject
-import io.spine.test.bus.command.ShareCannotBeTraded
-import io.spine.test.bus.shareId
-import io.spine.testing.client.TestActorRequestFactory
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
@@ -57,26 +51,6 @@ internal class MessageIdExtensionsSpec {
         val ack = ID.causedError(error)
         assertIdEquals(ack)
         assertStatusCase(ack, StatusCase.ERROR)
-    }
-
-    @Test
-    fun `reject() a command with REJECTION status`() {
-        val shareId = shareId { value = newUuid() }
-        val rejection = ShareCannotBeTraded.newBuilder()
-            .setShare(shareId)
-            .setReason("Ack factory test.")
-            .build()
-        val command = generateCommand()
-        val re = reject(command, rejection)
-        val ack = ID.reject(re)
-        assertIdEquals(ack)
-        assertStatusCase(ack, StatusCase.REJECTION)
-    }
-
-    private fun generateCommand(): Command {
-        val requestFactory = TestActorRequestFactory(javaClass)
-        val command = requestFactory.generateCommand()
-        return command
     }
 
     companion object {

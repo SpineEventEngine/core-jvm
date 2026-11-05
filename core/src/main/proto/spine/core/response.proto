@@ -31,9 +31,9 @@ import "spine/core/event.proto";
 
 // The result of a call returned by a service.
 //
-// A service may return `ok`, an `error_case` (the request cannot be accepted), or
-// a `rejection`. The client may expect results (returned via a separate call to the read-side
-// or via event stream) only upon receiving the `ok` status.
+// A service may return `ok` or an `error_case` (the request cannot be accepted). The client may
+// expect results (returned via a separate call to the read-side or via event stream) only upon
+// receiving the `ok` status.
 //
 message Response {
     option (is).java_type = "ResponseMixin";
@@ -61,16 +61,13 @@ message Status {
 
         // It is not possible to satisfy the request because of the business rejection.
         //
-        // A filter of a Command Bus may reject a command before the command is dispatched,
-        // for example, when the user who made the request has no permission to do it.
-        // The filter does so with `CommandFilter.reject(CommandEnvelope, RejectionThrowable)`.
-        // The rejection event is also posted to the Event Bus, so its subscribers receive it too.
+        // Deprecated: a command is rejected only by its handler, after the command is
+        // acknowledged. The client receives such a rejection as an event, through
+        // a subscription.
         //
-        // A rejection thrown by a command handler never comes in this field: the command is
-        // handled after it is acknowledged. The client receives such a rejection only as
-        // an event, through a subscription.
+        // The server does not send this field to clients. It is going to be removed.
         //
-        core.Event rejection = 3;
+        core.Event rejection = 3 [deprecated = true];
 
         // The request cannot be accepted, and no further processing would occur.
         //

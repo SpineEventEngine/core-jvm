@@ -82,7 +82,11 @@ public final class Responses {
 
     /**
      * Creates a rejection status with the passed rejection.
+     *
+     * @deprecated The server does not send rejections in acknowledgements: a command is
+     *         rejected only by its handler, and the client receives the rejection as an event.
      */
+    @Deprecated
     public static Status rejectedBecauseOf(Event rejection) {
         checkNotDefaultArg(rejection);
         var status = Status.newBuilder()

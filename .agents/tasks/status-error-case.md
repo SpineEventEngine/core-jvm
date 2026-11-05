@@ -58,7 +58,10 @@ that work resumes (see "Follow-ups").
   to `RequestValidationFailed`. No list of field paths in `Status`, no verbose mode for tests.
 - Q3 (2026-11-04): `Status.rejection` stays, not deprecated. `CommandFilter.reject(envelope,
   RejectionThrowable)` keeps filling it: a command rejected by a filter is not `ok`. Only
-  `Status.error` is deprecated.
+  `Status.error` is deprecated. **Revised 2026-11-05:** `CommandFilter.reject(…,
+  RejectionThrowable)` is removed as a confusing feature, and `Status.rejection` is
+  deprecated like `Status.error`. A filter that refuses a command uses `reject(envelope,
+  Error)`, and the client receives `REQUEST_DENIED`.
 - Q4 (2026-11-04): queries and subscriptions fail the RPC with a fixed gRPC code. The
   `ErrorCase` travels in the standard `grpc-status-details-bin` trailer as a packed
   `spine.core.Status`, with no description text. `spine-error-bin` is no longer sent.
@@ -67,7 +70,10 @@ that work resumes (see "Follow-ups").
   not posted to any bus, and nothing is stored.
 - Q6 (2026-11-04): `CommandErrored` stays the fact of the command lifecycle. It gets
   `error_case`; its `error` field is deprecated. The diagnostic event carries the details under
-  the same command ID.
+  the same command ID. **Revised 2026-11-05:** `CommandErrored.error` is not deprecated and
+  holds the full error, so that `CommandLog` keeps it: the Command Bus posts `CommandErrored`
+  where it converts the ack of a filter, and `CommandAckMonitor` posts only
+  `CommandAcknowledged`.
 - Q7 (2026-11-04): `error_case` is a member of the `status` oneof. The server never sets both
   `error` and `error_case`. Clients built before this change see `STATUS_NOT_SET` (checked with
   protoc: the old schema decodes only an unknown field `4`); acceptable while 2.0 is not
@@ -86,10 +92,9 @@ that work resumes (see "Follow-ups").
   through a System context that may be failing too is less reliable.
 - A2. `ServerErrorHandler` changes in place from `BiConsumer<Message, Error>` to
   `BiConsumer<Message, ErrorCase>`; no second handler type.
-- A3. The Java client handles a rejection `Ack`: it cancels the event subscriptions of the
-  command and passes the rejection to the consumer of its type. `AckRejectionPublisher` also
-  posts the rejection to the `EventBus`, so the same event may arrive through the subscription
-  in any order; the client delivers an event ID at most once per command.
+- A3 (dropped with the Q3 revision). The Java client handled a rejection `Ack`, passing the
+  rejection to its consumer once, while `AckRejectionPublisher` posted it to the `EventBus`.
+  Both are removed; the client treats a rejection `Ack` as an invalid status, as before.
 - A4. Diagnostic events have no `error_case` field; the event type tells the case (one event
   per value).
 - A5. One PR for core-jvm, with the steps below as separate commits.
@@ -138,7 +143,9 @@ message Status {
         // Deprecated: the server sets `error_case` instead.
         base.Error error = 2 [deprecated = true];
 
-        core.Event rejection = 3;
+        // Deprecated: a command is rejected only by its handler (Q3, revised).
+        core.Event rejection = 3 [deprecated = true];
+
         ErrorCase error_case = 4;
     }
 }
@@ -157,7 +164,6 @@ core-jvm and base-libraries).
 | `CommandValidator`, `EventValidator` | `INVALID_COMMAND`, `INVALID_EVENT` | `INVALID_REQUEST` | `RequestValidationFailed` | bus |
 | `DeadMessageFilter` | `UNSUPPORTED_COMMAND`, `UNSUPPORTED_EVENT` | `UNSUPPORTED_REQUEST` | `UnsupportedRequestReceived` (`NO_RECEIVER`) | bus |
 | An application filter | any other | `REQUEST_DENIED` | `RequestDenied` | bus |
-| `CommandFilter.reject(…, RejectionThrowable)` | — | — (`rejection`, Q3) | — (`CommandRejected`, as today) | — |
 | `ServiceDelegate`: internal type | — | `UNSUPPORTED_REQUEST` | `UnsupportedRequestReceived` (`INTERNAL_TYPE`) | log only |
 | `ServiceDelegate`: no context | — | `UNSUPPORTED_REQUEST` | `UnsupportedRequestReceived` (`NO_CONTEXT`) | log only |
 | `QueryValidator`, `TopicValidator`, `SubscriptionValidator` | `INVALID_*` | `INVALID_REQUEST` | `RequestValidationFailed` | context's System |
@@ -195,9 +201,11 @@ it is registered in, or of the service that writes an event directly.
 `Reason` enums are nested, so their values do not clash in `spine.system.server`.
 `TENANT_NOT_REGISTERED` is used only once the tenants work lands.
 
-`CommandErrored` gets `core.ErrorCase error_case = 3`; `error` is deprecated.
-`CommandAckMonitor` fills `error_case` from the ack; `CommandLogProjection` stores
-`how_handled = Status { error_case }`.
+`CommandErrored` gets `core.ErrorCase error_case = 3` and keeps the full `error` (Q6, revised).
+`CommandBus.onFilterError()`, called by `Bus.reportError()`, posts it with both.
+`CommandTimeline.how_handled` is a `HandlingStatus` (`ok`, `error`, `rejection`), no longer
+a `spine.core.Status`: it keeps the full error of the bus or of a handler, and the rejection of
+a handler, without the deprecated fields. Its field numbers are those of `Status`.
 
 ### Reads: gRPC code and trailer
 
@@ -236,7 +244,8 @@ and no message. `QueryResponse.response` and `SubscriptionUpdate.response` stay 
   - `core`: `spine/core/error_case.proto`; `error_case` in `Status`, `error` deprecated;
     the comments of `Response`, `Status`, `Ack`, and `CommandService.Post` describe the new
     statuses.
-  - `server`: the six diagnostic events; `CommandErrored.error_case`, `error` deprecated.
+  - `server`: the six diagnostic events; `CommandErrored.error_case` (`error` kept, Q6
+    revised); `HandlingStatus` in `command_log.proto`.
 - [x] **`core` API.** `Responses.errorCase(ErrorCase)`; `Responses.errorWith(Error)`
   deprecated; `ResponseMixin.errorCase()`, `isError()` true for `error_case`, `error()`
   deprecated.
@@ -261,7 +270,7 @@ and no message. `QueryResponse.response` and `SubscriptionUpdate.response` stay 
 - [x] **`DiagnosticLog`** as designed; registered in `SystemContext.newInstance()`.
 - [x] **Java client.**
   - `CommandRequest.handleStatus`: `ERROR_CASE` cancels the subscriptions and calls the
-    `ServerErrorHandler`; `REJECTION` is handled (A3) instead of throwing.
+    `ServerErrorHandler`; `REJECTION` stays an invalid status (Q3, revised).
   - `ServerErrorHandler` takes an `ErrorCase` (A2); `LoggingServerErrorHandler`, `Client`,
     `Subscriptions.CancellationObserver` follow.
   - `StreamObservers.errorCaseOf(Throwable)` reads the trailer; `fromStreamError` and
@@ -275,8 +284,7 @@ and no message. `QueryResponse.response` and `SubscriptionUpdate.response` stay 
     the details;
   - no stack trace for an internal command type;
   - `DiagnosticLog`: levels, masking of values, no payload, the rate limit;
-  - the client: an error-case ack, a rejection ack with and without the duplicate event,
-    `errorCaseOf`;
+  - the client: an error-case ack, `errorCaseOf`;
   - the existing tests below, updated.
 - [x] **Docs.** Javadoc of `CommandService.post()`, `QueryService`, `SubscriptionService`,
   `BusFilter.reject()` (what the client sees), `CommandFilter`, `ServerErrorHandler`.
@@ -284,7 +292,7 @@ and no message. `QueryResponse.response` and `SubscriptionUpdate.response` stay 
   not only the exit code; regenerate the dependency reports with the full build.
 - [x] **Review and PR.** `pre-pr`; open the PR.
 - [ ] **Follow-up issue** (the owner asked for it): once code migrates, remove `Status.error` and
-  `CommandErrored.error`, keeping their names and numbers `reserved`. First replace the
+  `Status.rejection`, keeping their names and numbers `reserved`. First replace the
   in-bus carrier (Q9) with a filter result type. Also remove the deprecated
   `Responses.errorWith`, `ResponseMixin.error()`, `causedError(Error)`,
   `StreamObservers.fromStreamError`, `MetadataConverter`.
@@ -343,3 +351,19 @@ mapped code.
   the error does not point the client at the subscription ID. `INTERNAL_ERROR` is now `5`,
   since nothing with the enum is released. `UnknownSubscriptionRequested` stays: the server
   keeps the detail.
+- 2026-11-05 — Q3 revised by the owner: `CommandFilter.reject(…, RejectionThrowable)` removed,
+  with `AckRejectionPublisher`, `CommandBus.initObservers()`, the `reject()` helpers of
+  `MessageIdExtensions`, `DistinctEventObserver`, and the rejection branch of
+  `CommandAckMonitor`. `Status.rejection`, `Responses.rejectedBecauseOf()`, and
+  `ResponseStatusSubject.isRejection()` are deprecated. `CommandLog` gets `HandlingStatus`,
+  because it recorded handler rejections in `Status.rejection`.
+- 2026-11-05 — Q6 revised by the owner: `HandlingStatus` keeps the full `Error`, not the
+  `ErrorCase`. `CommandErrored.error` is no longer deprecated; the Command Bus posts
+  `CommandErrored` from `Bus.reportError()` through the new `onFilterError()` hook, and
+  `CommandAckMonitor` keeps only `CommandAcknowledged`. The caffetteria fixtures and
+  `RejectionInFilterTest`, which existed only for filter rejections, are removed.
+- 2026-11-05 — found while testing `HandlingStatus`: `CommandLog` never received
+  `HandlerFailedUnexpectedly` (also on master): the default routing takes the first field, the
+  ID of the entity. `CommandLogRepository` now routes it to the handled command. The
+  subscriber's `@Where` filter is dropped: it compared the type URL of the packed signal ID
+  with `spine.core.Command`, so it never matched.

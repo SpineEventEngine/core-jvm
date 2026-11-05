@@ -40,9 +40,6 @@ service CommandService {
     //    2. `Status.error_case` — the command cannot be accepted. No further processing
     //        would occur. The value tells only the kind of the error; the server keeps
     //        the details, which a developer can find by the ID of the command.
-    //    3. `Status.rejection` — a filter of the Command Bus does not allow the execution of
-    //        the command because of a business rule. E.g., a user who made a request does not
-    //        have the required permission.
     //
     // A rejection thrown by a command handler is not a part of the `Ack`: the command is handled
     // after it is acknowledged. The client receives such a rejection as an event, through

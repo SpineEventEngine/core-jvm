@@ -14,14 +14,12 @@
 
 package io.spine.system.server;
 
+import com.google.protobuf.Empty;
+import io.spine.base.Error;
 import io.spine.core.Command;
 import io.spine.core.CommandContext.Schedule;
 import io.spine.core.CommandId;
-import io.spine.core.ErrorCase;
-import io.spine.core.Responses;
-import io.spine.core.Status;
 import io.spine.core.Subscribe;
-import io.spine.core.Where;
 import io.spine.server.projection.Projection;
 import io.spine.system.server.Substituted.Sequence;
 import io.spine.system.server.event.CommandAcknowledged;
@@ -79,24 +77,23 @@ final class CommandLogProjection
 
     @Subscribe
     void on(@SuppressWarnings("unused") CommandHandled event) {
-        setStatus(Responses.statusOk());
+        setStatus(HandlingStatus.newBuilder()
+                          .setOk(Empty.getDefaultInstance()));
+    }
+
+    /**
+     * Records the failure of the command handler.
+     *
+     * <p>The repository routes only the failures of command handlers to the log.
+     */
+    @Subscribe
+    void on(HandlerFailedUnexpectedly event) {
+        setError(event.getError());
     }
 
     @Subscribe
-    void on(@Where(field = "handled_signal.id.type_url",
-                   equals = "type.spine.io/spine.core.Command")
-            @SuppressWarnings("unused") HandlerFailedUnexpectedly event) {
-        // The error is kept by the event itself, which is a diagnostic event.
-        setStatus(Responses.errorWith(ErrorCase.INTERNAL_ERROR));
-    }
-
-    @Subscribe
-    @SuppressWarnings("deprecation") // Events stored before `error_case` have only the error.
     void on(CommandErrored event) {
-        var errorCase = event.getErrorCase() == ErrorCase.ERROR_CASE_UNSPECIFIED
-                        ? ErrorCases.of(event.getError())
-                        : event.getErrorCase();
-        setStatus(Responses.errorWith(errorCase));
+        setError(event.getError());
     }
 
     /**
@@ -106,10 +103,8 @@ final class CommandLogProjection
      */
     @Subscribe
     void on(CommandRejected event) {
-        var status = Status.newBuilder()
-                .setRejection(event.getRejectionEvent())
-                .build();
-        setStatus(status);
+        setStatus(HandlingStatus.newBuilder()
+                          .setRejection(event.getRejectionEvent()));
     }
 
     @Subscribe
@@ -148,9 +143,14 @@ final class CommandLogProjection
         return builder().getTimelineBuilder();
     }
 
-    private void setStatus(Status status) {
+    private void setStatus(HandlingStatus.Builder status) {
         timeline()
                 .setWhenHandled(currentTime())
                 .setHowHandled(status);
+    }
+
+    private void setError(Error error) {
+        setStatus(HandlingStatus.newBuilder()
+                          .setError(error));
     }
 }

@@ -25,6 +25,7 @@ import io.spine.core.BoundedContextName;
 import io.spine.core.Command;
 import io.spine.core.CommandContext;
 import io.spine.core.CommandId;
+import io.spine.core.CommandValidationError;
 import io.spine.core.ErrorCase;
 import io.spine.protobuf.AnyPacker;
 import io.spine.server.BoundedContext;
@@ -124,9 +125,11 @@ class CommandLogTest {
             var expectedId = invalidCommand.getId();
             assertEquals(expectedId, actualId);
 
-            var errorCase = checkErrored(actualId);
-            assertThat(errorCase)
+            var errored = checkErrored(actualId);
+            assertThat(errored.getErrorCase())
                     .isEqualTo(ErrorCase.INVALID_REQUEST);
+            assertThat(errored.getError().getType())
+                    .isEqualTo(CommandValidationError.getDescriptor().getFullName());
         }
 
         @Test
@@ -233,10 +236,10 @@ class CommandLogTest {
         }
 
         @CanIgnoreReturnValue
-        private ErrorCase checkErrored(CommandId commandId) {
+        private CommandErrored checkErrored(CommandId commandId) {
             var errored = eventAccumulator.assertReceivedEvent(CommandErrored.class);
             assertEquals(commandId, errored.getId());
-            return errored.getErrorCase();
+            return errored;
         }
 
         @CanIgnoreReturnValue

@@ -160,7 +160,6 @@ public abstract class BoundedContext
     protected final void init() {
         eventBus.registerWith(this);
         broker.registerWith(this);
-        commandBus.initObservers(eventBus);
     }
 
     /**

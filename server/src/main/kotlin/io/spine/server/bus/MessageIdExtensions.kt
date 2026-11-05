@@ -19,21 +19,15 @@ package io.spine.server.bus
 import com.google.protobuf.Message
 import io.spine.annotation.VisibleForTesting
 import io.spine.base.Error
-import io.spine.base.RejectionThrowable
 import io.spine.core.Ack
-import io.spine.core.Command
-import io.spine.core.CommandId
 import io.spine.core.ErrorCase
-import io.spine.core.Event
 import io.spine.core.MessageId
 import io.spine.core.Responses.errorWith
-import io.spine.core.Responses.rejectedBecauseOf
 import io.spine.core.Responses.statusOk
 import io.spine.core.SignalId
 import io.spine.core.Status
 import io.spine.core.ack
 import io.spine.protobuf.pack
-import io.spine.server.event.reject
 
 /**
  * Acknowledges the message with this ID (e.g. [MessageId] or [SignalId]) with the OK status.
@@ -67,24 +61,6 @@ public fun Message.causedError(cause: Error): Ack =
     // Reason: `Status.error` stays the carrier between a filter and its bus until it is removed.
     @Suppress("DEPRECATION")
     ackWithStatus(errorWith(cause))
-
-/**
- * Rejects a command with this ID with the passed rejection event.
- *
- * @receiver the ID of the rejected command
- */
-public fun CommandId.reject(rejection: Event): Ack = ackWithStatus(rejectedBecauseOf(rejection))
-
-/**
- * Creates a rejection acknowledgement with the passed cause.
- *
- * @receiver the rejected command
- */
-public fun Command.reject(cause: RejectionThrowable): Ack {
-    val rejection = reject(this, cause)
-    val commandId = id()
-    return commandId.reject(rejection)
-}
 
 /**
  * Creates an acknowledgement with the passed status.

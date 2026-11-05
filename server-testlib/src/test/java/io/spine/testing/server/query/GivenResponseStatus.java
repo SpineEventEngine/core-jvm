@@ -39,6 +39,7 @@ final class GivenResponseStatus {
         return status;
     }
 
+    @SuppressWarnings("deprecation") // Builds a status with the deprecated `rejection`.
     static Status rejection() {
         var status = Status.newBuilder()
                 .setRejection(Event.getDefaultInstance())
