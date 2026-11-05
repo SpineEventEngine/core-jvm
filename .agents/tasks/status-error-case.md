@@ -330,9 +330,9 @@ mapped code.
     `CommandBus` posts diagnostics for filter errors;
   - a subscription to a topic no context serves is not an error (the service subscribes in
     every context), so `NO_CONTEXT` applies to commands and queries only;
-  - A3 simplified: the Java client handles a rejection ack like an accepted one; the rejection
-    reaches the client through the event subscription, as one thrown by a handler does. No
-    de-duplication, no race between the two streams;
+  - A3: the Java client delivers the rejection of a filter from the ack, and the subscription
+    may bring it too; `DistinctEventObserver` passes each event once (first simplified to
+    subscription-only delivery, then restored after a review found the activation race);
   - `REQUEST_DENIED` maps to the gRPC `PERMISSION_DENIED` (not produced by reads today);
   - `CommandLog` records a handler failure as `INTERNAL_ERROR` (the details stay in
     `HandlerFailedUnexpectedly`);
