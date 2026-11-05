@@ -2,7 +2,7 @@
 slug: status-error-case
 branch: claude/error-security-hardening-060304
 owner: claude
-status: in-progress
+status: in-review
 started: 2026-11-04
 related-memories:
   - feedback_proto_one_message_per_file
@@ -272,7 +272,7 @@ and no message. `QueryResponse.response` and `SubscriptionUpdate.response` stay 
     `MetadataConverter` deprecated.
 - [x] **Test library.** `BlackboxProbe` drops its `DiagnosticLog`; `UnsupportedCommandGuard`
   checks `CommandErrored.error_case`; `ResponseStatusSubject` asserts `error_case`.
-- [ ] **Tests** (Kotlin `*Spec`, Kotest assertions):
+- [x] **Tests** (Kotlin `*Spec`, Kotest assertions):
   - the mapping, value by value;
   - every row of the mapping table: the client gets only the `ErrorCase` (no `error` in the
     ack, no description or `spine-error-bin` in read failures), and the diagnostic event has
@@ -282,11 +282,11 @@ and no message. `QueryResponse.response` and `SubscriptionUpdate.response` stay 
   - the client: an error-case ack, a rejection ack with and without the duplicate event,
     `errorCaseOf`;
   - the existing tests below, updated.
-- [ ] **Docs.** Javadoc of `CommandService.post()`, `QueryService`, `SubscriptionService`,
+- [x] **Docs.** Javadoc of `CommandService.post()`, `QueryService`, `SubscriptionService`,
   `BusFilter.reject()` (what the client sees), `CommandFilter`, `ServerErrorHandler`.
-- [ ] **Build.** `./gradlew clean build dokkaGenerate` (proto changes); read the test counts,
+- [x] **Build.** `./gradlew clean build dokkaGenerate` (proto changes); read the test counts,
   not only the exit code; regenerate the dependency reports with the full build.
-- [ ] **Review and PR.** `pre-pr`; open the PR.
+- [x] **Review and PR.** `pre-pr`; open the PR.
 - [ ] **Follow-up issue** (the owner asked for it): once code migrates, remove `Status.error` and
   `CommandErrored.error`, keeping their names and numbers `reserved`. First replace the
   in-bus carrier (Q9) with a filter result type. Also remove the deprecated
@@ -338,3 +338,7 @@ mapped code.
     `HandlerFailedUnexpectedly`);
   - the test library's `DiagnosticLog` and its test are removed; `UnsupportedCommandGuard`
     reads `UnsupportedRequestReceived`.
+- 2026-11-05 — reviewed by `spine-code-review`, `review-docs`, and `kotlin-engineer` (two
+  rounds); added `DiagnosticMasking` (allow-listed placeholders, errors caused by validation),
+  the post-or-write fallback, `RequestIds`, and `request_diagnostic_events.proto` (event files
+  must end with `events.proto`). `./gradlew build dokkaGenerate` passes (server: 2508 tests).
