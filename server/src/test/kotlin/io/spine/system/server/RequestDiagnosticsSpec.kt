@@ -127,6 +127,25 @@ internal class RequestDiagnosticsSpec {
     }
 
     @Test
+    fun `tell no filter when a denied request names none`() {
+        val error = error { type = "com.example.AccessDenied" }
+
+        val event = diagnosticOf(error, ErrorCase.REQUEST_DENIED)
+
+        event.shouldBeInstanceOf<RequestDenied>().filter shouldBe ""
+    }
+
+    @Test
+    fun `not tell the reason of a command error that is not about the tenant`() {
+        val error = frameworkError(CommandValidationError.INVALID_COMMAND)
+
+        val event = diagnosticOf(error, ErrorCase.TENANT_ERROR)
+
+        event.shouldBeInstanceOf<TenantCheckFailed>().reason shouldBe
+                TenantCheckFailed.Reason.REASON_UNSPECIFIED
+    }
+
+    @Test
     fun `tell that a subscription is unknown`() {
         val error = frameworkError(CommandValidationError.UNKNOWN)
 

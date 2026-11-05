@@ -70,6 +70,13 @@ internal class StatusesSpec : UtilityClassTest<Statuses>(Statuses::class.java) {
     }
 
     @Test
+    fun `report an unrecognized error case as an internal error`() {
+        val details = StatusProto.fromThrowable(Statuses.failure(UNRECOGNIZED)).shouldNotBeNull()
+
+        unpack(details.getDetails(0), Status::class.java).errorCase shouldBe INTERNAL_ERROR
+    }
+
+    @Test
     fun `not send the trailer with the server-side error`() {
         val trailers = Statuses.failure(INVALID_REQUEST).trailers.shouldNotBeNull()
 

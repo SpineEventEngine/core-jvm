@@ -14,6 +14,8 @@
 
 package io.spine.client
 
+import io.kotest.assertions.throwables.shouldNotThrowAny
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.spine.core.Ack
@@ -23,6 +25,7 @@ import io.spine.server.type.CommandEnvelope
 import io.spine.test.client.ClientTestContext
 import io.spine.test.client.users.command.LogInUser
 import io.spine.test.client.users.command.logInUser
+import io.spine.test.client.users.event.UserLoggedIn
 import io.spine.test.client.users.rejection.Rejections
 import io.spine.test.client.users.rejection.UserAlreadyLoggedIn
 import io.spine.testing.core.given.GivenUserId
@@ -52,6 +55,29 @@ internal class CommandRequestFilterRejectionSpec : AbstractClientTest() {
 
         rejections shouldHaveSize 1
         rejections[0].user shouldBe user
+    }
+
+    @Test
+    fun `not deliver a rejection of a filter that nobody observes`() {
+        val loggedIn = CopyOnWriteArrayList<UserLoggedIn>()
+
+        shouldNotThrowAny {
+            client().asGuest()
+                .command(logInUser { user = GivenUserId.generated() })
+                .observe(UserLoggedIn::class.java) { loggedIn += it }
+                .post()
+        }
+
+        loggedIn.shouldBeEmpty()
+    }
+
+    @Test
+    fun `accept a rejection of a filter when posting without subscriptions`() {
+        shouldNotThrowAny {
+            client().asGuest()
+                .command(logInUser { user = GivenUserId.generated() })
+                .postAndForget()
+        }
     }
 
     /**

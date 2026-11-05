@@ -23,6 +23,7 @@ import io.spine.base.Errors
 import io.spine.base.error
 import io.spine.protobuf.AnyPacker
 import io.spine.server.entity.InvalidEntityStateException
+import io.spine.server.event.InvalidEventException
 import io.spine.server.stand.InvalidTopicException
 import io.spine.string.templateString
 import io.spine.type.toCompactJson
@@ -145,12 +146,47 @@ internal class DiagnosticMaskingSpec {
     }
 
     @Test
-    fun `leave an event without an error as it is`() {
-        val event = HandlerFailedUnexpectedly.getDefaultInstance()
+    fun `leave the events without an error as they are`() {
+        listOf(
+            RequestValidationFailed.getDefaultInstance(),
+            RequestDenied.getDefaultInstance(),
+            RequestProcessingFailed.getDefaultInstance(),
+            HandlerFailedUnexpectedly.getDefaultInstance(),
+            RoutingFailed.getDefaultInstance(),
+            AggregateHistoryCorrupted.getDefaultInstance(),
+        ).forEach {
+            DiagnosticMasking.masked(it) shouldBe it
+        }
+    }
 
-        val masked = DiagnosticMasking.masked(event).shouldBeInstanceOf<HandlerFailedUnexpectedly>()
+    @Test
+    fun `mask the errors of the events that carry errors`() {
+        val error = Errors.fromThrowable(ValidationException(passwordViolation))
+        listOf(
+            requestDenied { this.error = error },
+            requestProcessingFailed { this.error = error },
+            routingFailed { this.error = error },
+            aggregateHistoryCorrupted { this.error = error },
+        ).forEach {
+            DiagnosticMasking.masked(it).toCompactJson() shouldNotContain SECRET
+        }
+    }
 
-        masked.hasError() shouldBe false
+    @Test
+    fun `keep an empty message of an error caused by validation empty`() {
+        val error = error {
+            type = "com.example.Rejected"
+            details = AnyPacker.pack(
+                ValidationError.newBuilder()
+                    .addConstraintViolation(passwordViolation)
+                    .build()
+            )
+        }
+
+        val masked = DiagnosticMasking.masked(error)
+
+        masked.message shouldBe ""
+        masked.toCompactJson() shouldNotContain SECRET
     }
 
     @Test
@@ -162,6 +198,10 @@ internal class DiagnosticMaskingSpec {
         DiagnosticMasking.involvesValidation(request) shouldBe false
         val other = IllegalStateException("Storage failed.")
         DiagnosticMasking.involvesValidation(other) shouldBe false
+        val invalidEvent = InvalidEventException.onConstraintViolations(
+            RoutingFailed.getDefaultInstance(), listOf(passwordViolation)
+        )
+        DiagnosticMasking.involvesValidation(invalidEvent) shouldBe true
     }
 
     @Test

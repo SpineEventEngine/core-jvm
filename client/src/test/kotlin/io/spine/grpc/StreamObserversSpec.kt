@@ -46,6 +46,18 @@ internal class StreamObserversSpec {
     }
 
     @Test
+    fun `return empty for a failure whose status tells no error case`() {
+        val failure = StatusProto.toStatusRuntimeException(
+            com.google.rpc.Status.newBuilder()
+                .setCode(Code.INTERNAL_VALUE)
+                .addDetails(pack(Responses.statusOk()))
+                .build()
+        )
+
+        StreamObservers.errorCaseOf(failure).isPresent shouldBe false
+    }
+
+    @Test
     fun `return empty for a failure without the details`() {
         StreamObservers.errorCaseOf(INTERNAL.asRuntimeException()).isPresent shouldBe false
     }

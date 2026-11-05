@@ -25,6 +25,7 @@ import io.spine.string.templateString
 import io.spine.testing.logging.LoggingTest
 import io.spine.testing.logging.mute.MuteLogging
 import io.spine.validation.ConstraintViolation
+import io.spine.validation.ValidationException
 import io.spine.validation.StandardPlaceholder.FIELD_PATH
 import io.spine.validation.StandardPlaceholder.FIELD_VALUE
 import io.spine.validation.constraintViolation
@@ -107,6 +108,38 @@ internal class DiagnosticLogSpec {
         }
     }
 
+    @Test
+    @MuteLogging
+    fun `write each kind of the events it subscribes to`() {
+        val log = DiagnosticLog(SOURCE)
+
+        shouldNotThrowAny {
+            log.on(RequestValidationFailed.getDefaultInstance())
+            log.on(UnsupportedRequestReceived.getDefaultInstance())
+            log.on(TenantCheckFailed.getDefaultInstance())
+            log.on(RequestDenied.getDefaultInstance())
+            log.on(UnknownSubscriptionRequested.getDefaultInstance())
+            log.on(RequestProcessingFailed.getDefaultInstance())
+            log.on(ConstraintViolated.getDefaultInstance())
+            log.on(CannotDispatchDuplicateCommand.getDefaultInstance())
+            log.on(CannotDispatchDuplicateEvent.getDefaultInstance())
+            log.on(HandlerFailedUnexpectedly.getDefaultInstance())
+            log.on(RoutingFailed.getDefaultInstance())
+            // `AggregateHistoryCorrupted` is left to the rate limit spec, which needs
+            // the first statement of its kind.
+        }
+    }
+
+    @Test
+    @MuteLogging
+    fun `not fail when posting fails because of a validation`() {
+        shouldNotThrowAny {
+            DiagnosticLog.postOrWrite(RoutingFailed.getDefaultInstance(), SOURCE) {
+                throw IllegalStateException(ValidationException(passwordViolation))
+            }
+        }
+    }
+
     @Nested inner class
     `write an event to the log` : LoggingTest(DiagnosticLog::class.java, JulLevel.ALL) {
 
@@ -121,8 +154,9 @@ internal class DiagnosticLogSpec {
             // No other code posts this kind of event, so its rate limit is not used yet.
             val event = AggregateHistoryCorrupted.getDefaultInstance()
 
-            DiagnosticLog.write(event, SOURCE)
-            DiagnosticLog.write(event, SOURCE)
+            val log = DiagnosticLog(SOURCE)
+            log.on(event)
+            log.on(event)
 
             // `textOutput()` asserts that there is exactly one record.
             assertLog().textOutput().contains("Source: `$SOURCE`.")
