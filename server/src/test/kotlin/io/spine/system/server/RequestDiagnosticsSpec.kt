@@ -20,8 +20,6 @@ import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.spine.base.Error
 import io.spine.base.error
-import io.spine.client.Query
-import io.spine.client.QueryId
 import io.spine.core.ActorContext
 import io.spine.core.CommandValidationError
 import io.spine.core.ErrorCase
@@ -51,6 +49,38 @@ internal class RequestDiagnosticsSpec {
         event.request shouldBe request
         event.actorContext shouldBe actor
         event.violationList shouldContainExactly violations.constraintViolationList
+        event.error.type shouldBe error.type
+        event.error.code shouldBe error.code
+        event.error.hasDetails() shouldBe false
+        event.error.message shouldBe ""
+    }
+
+    @Test
+    fun `keep the error of an invalid request that has no violations`() {
+        val error = error {
+            type = CommandValidationError.getDescriptor().fullName
+            code = CommandValidationError.DUPLICATE_COMMAND.number
+            message = "The command was posted before."
+        }
+
+        val event = diagnosticOf(error, ErrorCase.INVALID_REQUEST)
+
+        event.shouldBeInstanceOf<RequestValidationFailed>()
+        event.violationList shouldBe emptyList()
+        event.error shouldBe error
+    }
+
+    @Test
+    fun `not tell the reason of a tenant error of an unknown type`() {
+        val error = error {
+            type = "com.example.TenantError"
+            code = CommandValidationError.TENANT_UNKNOWN.number
+        }
+
+        val event = diagnosticOf(error, ErrorCase.TENANT_ERROR)
+
+        event.shouldBeInstanceOf<TenantCheckFailed>().reason shouldBe
+                TenantCheckFailed.Reason.REASON_UNSPECIFIED
     }
 
     @Test
@@ -84,7 +114,11 @@ internal class RequestDiagnosticsSpec {
         }
 
         val event = RequestDiagnostics.of(
-            request, actor, error, ErrorCase.REQUEST_DENIED, RequestDiagnosticsSpec::class.java
+            request = request,
+            actor = actor,
+            error = error,
+            errorCase = ErrorCase.REQUEST_DENIED,
+            filter = RequestDiagnosticsSpec::class.java
         )
 
         event.shouldBeInstanceOf<RequestDenied>()
@@ -116,23 +150,22 @@ internal class RequestDiagnosticsSpec {
     fun `keep the stack trace of an unexpected failure`() {
         val failure = IllegalStateException("The storage is unavailable.")
 
-        val event = RequestDiagnostics.processingFailed(request, actor, failure)
+        val event = RequestDiagnostics.processingFailed(
+            request = request,
+            actor = actor,
+            failure = failure
+        )
 
         event.error.stacktrace shouldContain RequestDiagnosticsSpec::class.java.name
     }
 
-    @Test
-    fun `obtain the ID of an invalid query without failing`() {
-        val query = queryWithoutTarget()
-
-        val id = RequestDiagnostics.idOf(query)
-
-        AnyPacker.unpack(id.id, QueryId::class.java) shouldBe query.id
-        id.typeUrl shouldBe ""
-    }
-
     private fun diagnosticOf(error: Error, errorCase: ErrorCase): DiagnosticEvent =
-        RequestDiagnostics.of(request, actor, error, errorCase, filter = null)
+        RequestDiagnostics.of(
+            request = request,
+            actor = actor,
+            error = error,
+            errorCase = errorCase
+        )
 
     private companion object {
 
@@ -161,10 +194,6 @@ internal class RequestDiagnosticsSpec {
 
         fun requestId(): @NonValidated MessageId = MessageId.newBuilder()
             .setTypeUrl("type.spine.io/spine.test.CreateProject")
-            .buildPartial()
-
-        fun queryWithoutTarget(): @NonValidated Query = Query.newBuilder()
-            .setId(QueryId.newBuilder().setValue("q-query-1"))
             .buildPartial()
     }
 }

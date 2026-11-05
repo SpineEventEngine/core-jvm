@@ -14,15 +14,12 @@
 
 package io.spine.system.server
 
+import io.spine.annotation.VisibleForTesting
 import io.spine.core.Subscribe
 import io.spine.logging.Level
 import io.spine.logging.LoggingFactory
 import io.spine.server.event.AbstractEventSubscriber
 import io.spine.type.toCompactJson
-import io.spine.validation.ConstraintViolation
-import io.spine.validation.StandardPlaceholder.FIELD_DUPLICATES
-import io.spine.validation.StandardPlaceholder.FIELD_PROPOSED_VALUE
-import io.spine.validation.StandardPlaceholder.FIELD_VALUE
 import kotlin.time.DurationUnit.SECONDS
 
 /**
@@ -36,15 +33,16 @@ import kotlin.time.DurationUnit.SECONDS
  * to its own output through the configuration of the logging backend.
  *
  * Each event is written as one statement: a short message, and the event in JSON.
- * The statement never contains the message of a request. The values of fields which failed
- * validation are masked, because they may be secrets, such as a password that does not
- * match a pattern.
+ * The statement never contains the message of a request. The values that failed validation
+ * are [masked][DiagnosticMasking], because they may be secrets, such as a password that does
+ * not match a pattern.
  *
  * Events of the same kind are written at most once a second, so that a client that repeats
  * an invalid request does not flood the log. The log reports how many events were skipped.
  *
- * @param source The name of the Bounded Context whose System context registers the log.
+ * @param source The name of the System context that registers the log.
  */
+@Suppress("TooManyFunctions") // One subscriber method for each type of diagnostic event.
 internal class DiagnosticLog(private val source: String) : AbstractEventSubscriber() {
 
     @Subscribe
@@ -91,28 +89,20 @@ internal class DiagnosticLog(private val source: String) : AbstractEventSubscrib
     internal fun on(event: RoutingFailed) =
         write(event, source)
 
+    @Subscribe
+    internal fun on(event: AggregateHistoryCorrupted) =
+        write(event, source)
+
     internal companion object {
 
-        /**
-         * The value written instead of a masked one.
-         */
-        internal const val MASK = "***"
-
         private val logger = LoggingFactory.loggerFor(DiagnosticLog::class)
-
-        /**
-         * Placeholders of a violation message whose values come from the invalid message.
-         */
-        private val maskedPlaceholders = setOf(FIELD_VALUE, FIELD_PROPOSED_VALUE, FIELD_DUPLICATES)
-            .map { it.value.name }
-            .toSet()
 
         /**
          * Writes the given diagnostic event to the log.
          *
          * @param event The event to write.
-         * @param source The name of the Bounded Context, or of the service, which did not
-         *   accept the request.
+         * @param source The name of the System context, or of the service, that writes
+         *   the event.
          */
         @JvmStatic
         fun write(event: DiagnosticEvent, source: String) {
@@ -126,6 +116,7 @@ internal class DiagnosticLog(private val source: String) : AbstractEventSubscrib
         /**
          * Obtains the level at which the given event is written.
          */
+        @VisibleForTesting
         internal fun levelOf(event: DiagnosticEvent): Level = Kind.of(event).level
 
         /**
@@ -135,38 +126,8 @@ internal class DiagnosticLog(private val source: String) : AbstractEventSubscrib
          * the values of invalid fields masked.
          */
         internal fun statementOf(event: DiagnosticEvent, source: String): String {
-            val masked = when (event) {
-                is RequestValidationFailed -> masked(event)
-                is ConstraintViolated -> masked(event)
-                else -> event
-            }
+            val masked = DiagnosticMasking.masked(event)
             return "${Kind.of(event).message} Source: `$source`. ${masked.toCompactJson()}"
-        }
-
-        private fun masked(event: RequestValidationFailed): RequestValidationFailed =
-            event.toBuilder()
-                .clearViolation()
-                .addAllViolation(event.violationList.map(::masked))
-                .build()
-
-        private fun masked(event: ConstraintViolated): ConstraintViolated =
-            event.toBuilder()
-                .clearViolation()
-                .addAllViolation(event.violationList.map(::masked))
-                .build()
-
-        private fun masked(violation: ConstraintViolation): ConstraintViolation {
-            val message = violation.message
-            val values = message.placeholderValueMap.mapValues { (placeholder, value) ->
-                if (placeholder in maskedPlaceholders) MASK else value
-            }
-            val maskedMessage = message.toBuilder()
-                .clearPlaceholderValue()
-                .putAllPlaceholderValue(values)
-            return violation.toBuilder()
-                .clearFieldValue()
-                .setMessage(maskedMessage)
-                .build()
         }
     }
 
@@ -185,6 +146,7 @@ internal class DiagnosticLog(private val source: String) : AbstractEventSubscrib
         DUPLICATE_EVENT(Level.WARNING, "An event was dispatched for the second time."),
         HANDLER_FAILED(Level.ERROR, "A handler failed unexpectedly."),
         ROUTING_FAILED(Level.ERROR, "A signal could not be routed."),
+        HISTORY_CORRUPTED(Level.ERROR, "The history of an aggregate could not be loaded."),
         OTHER(Level.WARNING, "A diagnostic event was posted.");
 
         companion object {
@@ -201,6 +163,7 @@ internal class DiagnosticLog(private val source: String) : AbstractEventSubscrib
                 is CannotDispatchDuplicateEvent -> DUPLICATE_EVENT
                 is HandlerFailedUnexpectedly -> HANDLER_FAILED
                 is RoutingFailed -> ROUTING_FAILED
+                is AggregateHistoryCorrupted -> HISTORY_CORRUPTED
                 else -> OTHER
             }
         }

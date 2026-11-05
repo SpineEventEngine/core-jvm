@@ -23,6 +23,7 @@ option java_package = "io.spine.system.server";
 option java_outer_classname = "RequestValidationFailedProto";
 option java_multiple_files = true;
 
+import "spine/base/error.proto";
 import "spine/core/actor_context.proto";
 import "spine/core/diagnostics.proto";
 import "spine/validation/validation_error.proto";
@@ -46,4 +47,11 @@ message RequestValidationFailed {
 
     // The violated validation constraints.
     repeated validation.ConstraintViolation violation = 3;
+
+    // The error reported on the server side.
+    //
+    // When the error has the violations in its details, they are moved to `violation`, and
+    // the error keeps neither the details nor the message, which repeats them.
+    //
+    base.Error error = 4;
 }

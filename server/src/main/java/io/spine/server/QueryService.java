@@ -22,7 +22,7 @@ import io.spine.client.grpc.QueryServiceGrpc;
 import io.spine.core.ActorContext;
 import io.spine.core.MessageId;
 import io.spine.logging.WithLogging;
-import io.spine.system.server.RequestDiagnostics;
+import io.spine.system.server.RequestIds;
 import io.spine.type.TypeUrl;
 import org.jspecify.annotations.Nullable;
 
@@ -67,7 +67,7 @@ public final class QueryService
     /**
      * Executes the passed query returning results to the passed observer.
      *
-     * <p>A query which cannot be served fails the call with a gRPC status that carries only
+     * <p>A query that cannot be served fails the call with a gRPC status that carries only
      * an {@linkplain io.spine.core.ErrorCase error case}; see
      * {@code StreamObservers.errorCaseOf(Throwable)} for reading it on the client side.
      * The details of the error go to a diagnostic event of the System context and to
@@ -93,7 +93,7 @@ public final class QueryService
 
         @Override
         protected MessageId requestId(Query query) {
-            return RequestDiagnostics.idOf(query);
+            return RequestIds.of(query);
         }
 
         @Override

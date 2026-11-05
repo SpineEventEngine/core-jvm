@@ -63,7 +63,7 @@ final class UnsupportedCommandGuard extends AbstractEventSubscriber {
 
     /**
      * Checks if the given {@link UnsupportedRequestReceived} event tells about a command that
-     * has no {@linkplain io.spine.server.commandbus.UnsupportedCommandException handler}.
+     * has no handler.
      */
     @Override
     public boolean canDispatch(EventEnvelope eventEnvelope) {

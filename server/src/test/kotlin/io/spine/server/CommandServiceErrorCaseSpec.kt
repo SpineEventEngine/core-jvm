@@ -98,7 +98,7 @@ internal class CommandServiceErrorCaseSpec : CommandServiceTenancyTest() {
     }
 
     /**
-     * A filter which denies the commands to create a project.
+     * A filter that denies the commands to create a project.
      */
     private object DenyingFilter : BusFilter<CommandEnvelope> {
 

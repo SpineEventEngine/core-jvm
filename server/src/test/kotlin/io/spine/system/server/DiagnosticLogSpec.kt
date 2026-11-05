@@ -58,6 +58,7 @@ internal class DiagnosticLogSpec {
             HandlerFailedUnexpectedly.getDefaultInstance(),
             RoutingFailed.getDefaultInstance(),
             ConstraintViolated.getDefaultInstance(),
+            AggregateHistoryCorrupted.getDefaultInstance(),
         ).forEach {
             DiagnosticLog.levelOf(it) shouldBe Level.ERROR
         }
@@ -73,7 +74,7 @@ internal class DiagnosticLogSpec {
     }
 
     @Test
-    fun `mask the values of the fields of a request which failed validation`() {
+    fun `mask the values that failed validation`() {
         val event = requestValidationFailed {
             violation += passwordViolation
         }
@@ -81,19 +82,7 @@ internal class DiagnosticLogSpec {
         val statement = DiagnosticLog.statementOf(event, SOURCE)
 
         statement shouldNotContain SECRET
-        statement shouldContain DiagnosticLog.MASK
-        statement shouldContain FIELD
-    }
-
-    @Test
-    fun `mask the values of the fields of an invalid entity state`() {
-        val event = constraintViolated {
-            violation += passwordViolation
-        }
-
-        val statement = DiagnosticLog.statementOf(event, SOURCE)
-
-        statement shouldNotContain SECRET
+        statement shouldContain DiagnosticMasking.MASK
         statement shouldContain FIELD
     }
 
@@ -108,19 +97,20 @@ internal class DiagnosticLogSpec {
 
         @Test
         fun `at most once a second for events of a kind`() {
-            // No other test writes this kind of event, so its rate limit is not used yet.
+            // No other code posts this kind of event, so its rate limit is not used yet.
             val event = AggregateHistoryCorrupted.getDefaultInstance()
 
             DiagnosticLog.write(event, SOURCE)
             DiagnosticLog.write(event, SOURCE)
 
+            // `textOutput()` asserts that there is exactly one record.
             assertLog().textOutput().contains("Source: `$SOURCE`.")
         }
     }
 
     private companion object {
 
-        const val SOURCE = "Accounts"
+        const val SOURCE = "Accounts_System"
         const val SECRET = "s3cr3t-passw0rd"
         const val FIELD = "password"
 

@@ -61,10 +61,7 @@ public fun Message.causedError(errorCase: ErrorCase): Ack = ackWithStatus(errorW
  * @param cause the error that prevented the message from being handled
  * @receiver the ID of the message that caused the error
  */
-@Deprecated(
-    "Clients receive only the kind of the error. Please use `causedError(ErrorCase)`.",
-    ReplaceWith("causedError(errorCase)")
-)
+@Deprecated("Clients receive only the kind of the error. Please use `causedError(ErrorCase)`.")
 @VisibleForTesting
 public fun Message.causedError(cause: Error): Ack =
     // Reason: `Status.error` stays the carrier between a filter and its bus until it is removed.

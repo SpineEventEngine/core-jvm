@@ -26,11 +26,12 @@ import io.spine.core.Responses;
 import io.spine.core.Signal;
 import io.spine.core.SignalId;
 import io.spine.core.Status;
-import io.spine.core.TenantId;
 import io.spine.logging.WithLogging;
 import io.spine.server.Closeable;
 import io.spine.server.type.MessageEnvelope;
 import io.spine.server.type.SignalEnvelope;
+import io.spine.system.server.DiagnosticEvent;
+import io.spine.system.server.DiagnosticLog;
 import io.spine.system.server.ErrorCases;
 import io.spine.system.server.NoOpSystemWriteSide;
 import io.spine.system.server.RequestDiagnostics;
@@ -489,13 +490,28 @@ public abstract class Bus<T extends Signal<?, ?, ?>,
         var diagnostic = RequestDiagnostics.of(
                 envelope.messageId(), envelope.actorContext(), error, errorCase, filter.getClass()
         );
-        systemOf(envelope.tenantId()).postEvent(diagnostic, envelope.asMessageOrigin());
+        post(envelope, diagnostic);
         return ack.toBuilder()
                   .setStatus(Responses.errorWith(errorCase))
                   .build();
     }
 
-    private SystemWriteSide systemOf(TenantId tenant) {
-        return delegatingTo(system).get(tenant);
+    /**
+     * Posts the diagnostic event to the System context under the tenant of the message.
+     *
+     * <p>A failure to post does not change what the poster receives: the event is written
+     * to the server log directly instead.
+     */
+    @SuppressWarnings("OverlyBroadCatchBlock") // Any failure of the System context.
+    private void post(E envelope, DiagnosticEvent diagnostic) {
+        try {
+            delegatingTo(system).get(envelope.tenantId())
+                                .postEvent(diagnostic, envelope.asMessageOrigin());
+        } catch (RuntimeException e) {
+            var busName = getClass().getSimpleName();
+            logger().atError().withCause(e).log(() -> format(
+                    "`%s` could not post a diagnostic event to the System context.", busName));
+            DiagnosticLog.write(diagnostic, busName);
+        }
     }
 }

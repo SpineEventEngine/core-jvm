@@ -16,20 +16,14 @@ package io.spine.system.server
 
 import io.spine.base.Error
 import io.spine.base.Errors
-import io.spine.client.Query
-import io.spine.client.Subscription
-import io.spine.client.Topic
 import io.spine.core.ActorContext
-import io.spine.core.Command
 import io.spine.core.CommandValidationError
 import io.spine.core.ErrorCase
 import io.spine.core.MessageId
-import io.spine.protobuf.AnyPacker
 import io.spine.system.server.TenantCheckFailed.Reason.REASON_UNSPECIFIED
 import io.spine.system.server.TenantCheckFailed.Reason.TENANT_INAPPLICABLE
 import io.spine.system.server.TenantCheckFailed.Reason.TENANT_NOT_SPECIFIED
-import io.spine.validation.ConstraintViolation
-import io.spine.validation.NonValidated
+import io.spine.system.server.UnsupportedRequestReceived.Reason.NO_RECEIVER
 import io.spine.validation.ValidationError
 
 /**
@@ -40,50 +34,42 @@ import io.spine.validation.ValidationError
  */
 internal object RequestDiagnostics {
 
+    private val commandErrors = CommandValidationError.getDescriptor().fullName
+
     /**
-     * Creates the event for an error which the server reports with the given error case.
+     * Creates the event for an error that the server reports with the given error case.
      *
      * @param request The ID and the type of the request.
      * @param actor The actor context of the request.
      * @param error The error that occurred on the server side.
      * @param errorCase The kind of the error, as the client receives it.
-     * @param filter The class of the filter which refused the request, if a filter did.
+     * @param filter The class of the filter that refused the request, if a filter did.
      */
     @JvmStatic
+    @JvmOverloads
     fun of(
         request: MessageId,
         actor: ActorContext,
         error: Error,
         errorCase: ErrorCase,
-        filter: Class<*>?
+        filter: Class<*>? = null
     ): DiagnosticEvent = when (errorCase) {
-        ErrorCase.INVALID_REQUEST -> validationFailed(request, actor, violationsOf(error))
+        ErrorCase.INVALID_REQUEST ->
+            validationFailed(request = request, actor = actor, error = error)
         ErrorCase.UNSUPPORTED_REQUEST ->
-            unsupported(request, actor, UnsupportedRequestReceived.Reason.NO_RECEIVER)
-        ErrorCase.TENANT_ERROR -> tenantCheckFailed(request, actor, tenantReasonOf(error))
+            unsupported(request = request, actor = actor, reason = NO_RECEIVER)
+        ErrorCase.TENANT_ERROR ->
+            tenantCheckFailed(request = request, actor = actor, reason = tenantReasonOf(error))
         ErrorCase.UNKNOWN_SUBSCRIPTION -> unknownSubscription(request, actor)
-        ErrorCase.REQUEST_DENIED -> denied(request, actor, error, filter)
+        ErrorCase.REQUEST_DENIED ->
+            denied(request = request, actor = actor, error = error, filter = filter)
         ErrorCase.INTERNAL_ERROR,
         ErrorCase.ERROR_CASE_UNSPECIFIED,
-        ErrorCase.UNRECOGNIZED -> processingFailed(request, actor, error)
+        ErrorCase.UNRECOGNIZED -> processingFailed(request = request, actor = actor, error = error)
     }
 
     /**
-     * Creates the event for a request that fails validation.
-     */
-    @JvmStatic
-    fun validationFailed(
-        request: MessageId,
-        actor: ActorContext,
-        violations: Iterable<ConstraintViolation>
-    ): RequestValidationFailed = RequestValidationFailed.newBuilder()
-        .setRequest(request)
-        .setActorContext(actor)
-        .addAllViolation(violations)
-        .build()
-
-    /**
-     * Creates the event for a request of a type which the server does not serve.
+     * Creates the event for a request of a type that the server does not serve.
      */
     @JvmStatic
     fun unsupported(
@@ -97,10 +83,47 @@ internal object RequestDiagnostics {
         .build()
 
     /**
-     * Creates the event for a request whose tenant is not accepted.
+     * Creates the event for an unexpected failure that occurred while serving a request.
+     *
+     * The error of the event has the stack trace of the given throwable.
      */
     @JvmStatic
-    fun tenantCheckFailed(
+    fun processingFailed(
+        request: MessageId,
+        actor: ActorContext,
+        failure: Throwable
+    ): RequestProcessingFailed = processingFailed(
+        request = request,
+        actor = actor,
+        error = Errors.fromThrowable(failure)
+    )
+
+    /**
+     * Creates the event for a request that fails validation.
+     *
+     * The violations in the details of the error go to the event, and the error keeps
+     * neither the details nor the message, which repeats them.
+     */
+    private fun validationFailed(
+        request: MessageId,
+        actor: ActorContext,
+        error: Error
+    ): RequestValidationFailed {
+        val details = error.details
+        val builder = RequestValidationFailed.newBuilder()
+            .setRequest(request)
+            .setActorContext(actor)
+        if (details.`is`(ValidationError::class.java)) {
+            val violations = details.unpack(ValidationError::class.java).constraintViolationList
+            builder.addAllViolation(violations)
+                .setError(error.toBuilder().clearDetails().clearMessage())
+        } else {
+            builder.setError(error)
+        }
+        return builder.build()
+    }
+
+    private fun tenantCheckFailed(
         request: MessageId,
         actor: ActorContext,
         reason: TenantCheckFailed.Reason
@@ -110,11 +133,7 @@ internal object RequestDiagnostics {
         .setReason(reason)
         .build()
 
-    /**
-     * Creates the event for a request to activate or cancel an unknown subscription.
-     */
-    @JvmStatic
-    fun unknownSubscription(
+    private fun unknownSubscription(
         request: MessageId,
         actor: ActorContext
     ): UnknownSubscriptionRequested = UnknownSubscriptionRequested.newBuilder()
@@ -122,11 +141,7 @@ internal object RequestDiagnostics {
         .setActorContext(actor)
         .build()
 
-    /**
-     * Creates the event for a request refused by a filter of the application.
-     */
-    @JvmStatic
-    fun denied(
+    private fun denied(
         request: MessageId,
         actor: ActorContext,
         error: Error,
@@ -138,11 +153,7 @@ internal object RequestDiagnostics {
         .setFilter(filter?.name ?: "")
         .build()
 
-    /**
-     * Creates the event for an unexpected failure that occurred while serving a request.
-     */
-    @JvmStatic
-    fun processingFailed(
+    private fun processingFailed(
         request: MessageId,
         actor: ActorContext,
         error: Error
@@ -152,73 +163,14 @@ internal object RequestDiagnostics {
         .setError(error)
         .build()
 
-    /**
-     * Creates the event for an unexpected failure that occurred while serving a request.
-     *
-     * The error of the event has the stack trace of the given throwable.
-     */
-    @JvmStatic
-    fun processingFailed(
-        request: MessageId,
-        actor: ActorContext,
-        failure: Throwable
-    ): RequestProcessingFailed = processingFailed(request, actor, Errors.fromThrowable(failure))
-
-    /**
-     * Obtains the ID of the given command and the type URL of its message.
-     *
-     * The command may be invalid, so the result is not validated.
-     */
-    @JvmStatic
-    fun idOf(command: Command): @NonValidated MessageId =
-        messageId(AnyPacker.pack(command.id), command.message.typeUrl)
-
-    /**
-     * Obtains the ID of the given query and the type of its target.
-     *
-     * The query may be invalid, so the result is not validated.
-     */
-    @JvmStatic
-    fun idOf(query: Query): @NonValidated MessageId =
-        messageId(AnyPacker.pack(query.id), query.target.type)
-
-    /**
-     * Obtains the ID of the given topic and the type of its target.
-     *
-     * The topic may be invalid, so the result is not validated.
-     */
-    @JvmStatic
-    fun idOf(topic: Topic): @NonValidated MessageId =
-        messageId(AnyPacker.pack(topic.id), topic.target.type)
-
-    /**
-     * Obtains the ID of the given subscription and the type of the target of its topic.
-     *
-     * The subscription may be invalid, so the result is not validated.
-     */
-    @JvmStatic
-    fun idOf(subscription: Subscription): @NonValidated MessageId =
-        messageId(AnyPacker.pack(subscription.id), subscription.topic.target.type)
-
-    private fun messageId(id: com.google.protobuf.Any, typeUrl: String): @NonValidated MessageId =
-        MessageId.newBuilder()
-            .setId(id)
-            .setTypeUrl(typeUrl)
-            .buildPartial()
-
-    private fun violationsOf(error: Error): List<ConstraintViolation> {
-        val details = error.details
-        return if (details.`is`(ValidationError::class.java)) {
-            details.unpack(ValidationError::class.java).constraintViolationList
-        } else {
-            emptyList()
+    private fun tenantReasonOf(error: Error): TenantCheckFailed.Reason {
+        if (error.type != commandErrors) {
+            return REASON_UNSPECIFIED
         }
-    }
-
-    private fun tenantReasonOf(error: Error): TenantCheckFailed.Reason =
-        when (CommandValidationError.forNumber(error.code)) {
+        return when (CommandValidationError.forNumber(error.code)) {
             CommandValidationError.TENANT_UNKNOWN -> TENANT_NOT_SPECIFIED
             CommandValidationError.TENANT_INAPPLICABLE -> TENANT_INAPPLICABLE
             else -> REASON_UNSPECIFIED
         }
+    }
 }

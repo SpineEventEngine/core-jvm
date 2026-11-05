@@ -24,7 +24,7 @@ import io.spine.core.ErrorCase;
 import io.spine.core.MessageId;
 import io.spine.logging.WithLogging;
 import io.spine.server.type.CommandClass;
-import io.spine.system.server.RequestDiagnostics;
+import io.spine.system.server.RequestIds;
 import io.spine.type.MessageClass;
 import io.spine.type.TypeUrl;
 import org.jspecify.annotations.Nullable;
@@ -81,7 +81,7 @@ public final class CommandService
     /**
      * Posts the command to {@code CommandBus}.
      *
-     * <p>A command which cannot be accepted is answered with an acknowledgement that
+     * <p>A command that cannot be accepted is answered with an acknowledgement that
      * carries only an {@linkplain io.spine.core.ErrorCase error case}. The details of the error
      * go to a diagnostic event of the System context and to the server log, where a developer
      * finds them by the ID of the command.
@@ -113,7 +113,7 @@ public final class CommandService
 
         @Override
         protected MessageId requestId(Command cmd) {
-            return RequestDiagnostics.idOf(cmd);
+            return RequestIds.of(cmd);
         }
 
         @Override

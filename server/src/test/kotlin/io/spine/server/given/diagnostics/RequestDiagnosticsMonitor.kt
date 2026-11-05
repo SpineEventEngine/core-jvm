@@ -26,7 +26,7 @@ import io.spine.system.server.UnknownSubscriptionRequested
 import io.spine.system.server.UnsupportedRequestReceived
 
 /**
- * Remembers the diagnostic events which the System context posts for requests
+ * Remembers the diagnostic events that the System context posts for requests
  * that the server did not accept.
  */
 internal class RequestDiagnosticsMonitor : AbstractEventSubscriber() {
@@ -72,7 +72,7 @@ internal class RequestDiagnosticsMonitor : AbstractEventSubscriber() {
     companion object {
 
         /**
-         * Creates a monitor which receives the diagnostic events of the given context.
+         * Creates a monitor that receives the diagnostic events of the given context.
          */
         fun of(context: BoundedContext): RequestDiagnosticsMonitor {
             val monitor = RequestDiagnosticsMonitor()

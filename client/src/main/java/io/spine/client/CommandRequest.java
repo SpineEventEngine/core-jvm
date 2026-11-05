@@ -250,7 +250,7 @@ public final class CommandRequest extends ClientRequestBase implements WithLoggi
          * the same way as a rejection thrown by a command handler.
          */
         @CanIgnoreReturnValue
-        @SuppressWarnings("deprecation") // Recognize the error of a server before `error_case`.
+        @SuppressWarnings("deprecation") // Handles the error of a server that predates `error_case`.
         private ImmutableSet<Subscription> handleStatus(Status status) {
             switch (status.getStatusCase()) {
                 case OK:

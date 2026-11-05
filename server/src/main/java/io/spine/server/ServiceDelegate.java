@@ -17,7 +17,6 @@ package io.spine.server;
 import com.google.common.collect.ImmutableSet;
 import io.grpc.BindableService;
 import io.grpc.stub.StreamObserver;
-import io.spine.base.Errors;
 import io.spine.core.ActorContext;
 import io.spine.core.ErrorCase;
 import io.spine.core.MessageId;
@@ -40,6 +39,7 @@ import static io.spine.core.ErrorCase.UNSUPPORTED_REQUEST;
 import static io.spine.system.server.UnsupportedRequestReceived.Reason.INTERNAL_TYPE;
 import static io.spine.system.server.WriteSideFunction.delegatingTo;
 import static io.spine.type.MessageExtsKt.isInternal;
+import static java.lang.String.format;
 
 /**
  * An abstract base for classes implementing server-side services.
@@ -55,8 +55,8 @@ import static io.spine.type.MessageExtsKt.isInternal;
  *
  * <p>The client receives only the {@linkplain ErrorCase kind} of an error. The details of
  * the error go to a diagnostic event. The event is posted to the System context of the bounded
- * context which serves the request. When there is no such context, or the request fails
- * unexpectedly, the event is written to the {@linkplain DiagnosticLog diagnostic log} directly.
+ * context that serves the request. When there is no such context, or the request fails
+ * unexpectedly, the event is written to the server log directly.
  *
  * @param <T>
  *         the type of the request handled by the service
@@ -164,7 +164,7 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
      * Handles the case of an internal message enclosed into the specified request.
      *
      * <p>The client receives {@link ErrorCase#UNSUPPORTED_REQUEST UNSUPPORTED_REQUEST}, the same
-     * as for a type which no bounded context serves, so that it cannot tell an internal type
+     * as for a type that no bounded context serves, so that it cannot tell an internal type
      * from an unknown one.
      */
     protected void handleInternal(T request, StreamObserver<R> observer) {
@@ -174,15 +174,14 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
     /**
      * Sends the error of the given kind to the client.
      *
-     * <p>By default, fails the call with the {@linkplain Statuses#failure(ErrorCase) status}
-     * of the error case.
+     * <p>By default, fails the call with a gRPC status that carries the error case.
      */
     protected void respondWithError(T request, ErrorCase errorCase, StreamObserver<R> observer) {
         observer.onError(Statuses.failure(errorCase));
     }
 
     /**
-     * Rejects a request of a type which the service does not serve.
+     * Rejects a request of a type that the service does not serve.
      *
      * <p>Writes {@link UnsupportedRequestReceived} to the diagnostic log and responds with
      * {@link ErrorCase#UNSUPPORTED_REQUEST UNSUPPORTED_REQUEST}.
@@ -205,7 +204,7 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
         var error = exception.asError();
         var errorCase = ErrorCases.of(error);
         var actor = actorOf(request);
-        var event = RequestDiagnostics.of(requestId(request), actor, error, errorCase, null);
+        var event = RequestDiagnostics.of(requestId(request), actor, error, errorCase);
         if (context == null) {
             DiagnosticLog.write(event, serviceName());
         } else {
@@ -219,7 +218,7 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
      */
     private void fail(T request, RuntimeException failure, StreamObserver<R> observer) {
         var event = RequestDiagnostics.processingFailed(
-                requestId(request), actorOf(request), Errors.fromThrowable(failure)
+                requestId(request), actorOf(request), failure
         );
         DiagnosticLog.write(event, serviceName());
         respondWithError(request, INTERNAL_ERROR, observer);
@@ -228,12 +227,23 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
     /**
      * Posts the diagnostic event to the System context of the given context,
      * under the tenant of the request.
+     *
+     * <p>A failure to post does not change what the client receives: the event is written
+     * to the server log directly instead.
      */
-    private static void post(BoundedContext context, ActorContext actor, DiagnosticEvent event) {
-        var writeSide = context.systemClient()
-                               .writeSide();
-        delegatingTo(writeSide).get(actor.getTenantId())
-                               .postEvent(event);
+    @SuppressWarnings("OverlyBroadCatchBlock") // Any failure of the System context.
+    private void post(BoundedContext context, ActorContext actor, DiagnosticEvent event) {
+        try {
+            var writeSide = context.systemClient()
+                                   .writeSide();
+            delegatingTo(writeSide).get(actor.getTenantId())
+                                   .postEvent(event);
+        } catch (RuntimeException e) {
+            logger().atError().withCause(e).log(() -> format(
+                    "`%s` could not post a diagnostic event to the System context of `%s`.",
+                    serviceName(), context.name().getValue()));
+            DiagnosticLog.write(event, serviceName());
+        }
     }
 
     /**

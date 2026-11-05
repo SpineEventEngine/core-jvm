@@ -63,8 +63,8 @@ public final class Statuses {
     /**
      * Obtains the gRPC status code for the given error case.
      *
-     * <p>The code never tells more than the error case: the request errors share
-     * {@code INVALID_ARGUMENT}.
+     * <p>Several error cases share {@code INVALID_ARGUMENT}, so the code does not reveal more
+     * than the error case does.
      */
     public static Code codeOf(ErrorCase errorCase) {
         checkNotNull(errorCase);

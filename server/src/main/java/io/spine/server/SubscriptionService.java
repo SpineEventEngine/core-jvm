@@ -35,7 +35,7 @@ import io.spine.grpc.StreamObservers;
 import io.spine.logging.WithLogging;
 import io.spine.server.stand.SubscriptionCallback;
 import io.spine.server.transport.Statuses;
-import io.spine.system.server.RequestDiagnostics;
+import io.spine.system.server.RequestIds;
 import io.spine.type.TypeUrl;
 import org.jspecify.annotations.Nullable;
 
@@ -57,7 +57,7 @@ import static java.lang.String.format;
  *
  * <p>For synchronous read-side updates please see {@link QueryService}.
  *
- * <p>A request which cannot be served fails the call with a gRPC status that carries only
+ * <p>A request that cannot be served fails the call with a gRPC status that carries only
  * an {@linkplain io.spine.core.ErrorCase error case}, as {@link QueryService} does.
  */
 public final class SubscriptionService
@@ -183,7 +183,7 @@ public final class SubscriptionService
 
         @Override
         protected MessageId requestId(Topic topic) {
-            return RequestDiagnostics.idOf(topic);
+            return RequestIds.of(topic);
         }
 
         @Override
@@ -238,7 +238,7 @@ public final class SubscriptionService
 
         @Override
         protected MessageId requestId(Subscription subscription) {
-            return RequestDiagnostics.idOf(subscription);
+            return RequestIds.of(subscription);
         }
 
         @Override

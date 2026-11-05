@@ -44,7 +44,7 @@ internal object ErrorCases {
     private val subscriptionErrors = SubscriptionValidationError.getDescriptor().fullName
 
     /**
-     * Obtains the error case which the client receives for the given error.
+     * Obtains the error case that the client receives for the given error.
      */
     @JvmStatic
     fun of(error: Error): ErrorCase {

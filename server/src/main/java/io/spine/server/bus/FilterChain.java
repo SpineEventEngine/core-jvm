@@ -47,14 +47,14 @@ final class FilterChain<E extends MessageEnvelope<?, ?, ?>> implements BusFilter
     private volatile boolean closed;
 
     /**
-     * Creates a chain which returns the acknowledgements of the filters as they are.
+     * Creates a chain that returns the acknowledgements of the filters as they are.
      */
     FilterChain(Iterable<BusFilter<E>> filters) {
         this(filters, (envelope, filter, ack) -> ack);
     }
 
     /**
-     * Creates a chain which converts the acknowledgements of the filters.
+     * Creates a chain that converts the acknowledgements of the filters.
      */
     FilterChain(Iterable<BusFilter<E>> filters, AckConverter<E> converter) {
         this.chain = ImmutableList.copyOf(filters);
@@ -131,7 +131,7 @@ final class FilterChain<E extends MessageEnvelope<?, ?, ?>> implements BusFilter
          * @param envelope
          *         the filtered message
          * @param filter
-         *         the filter which did not let the message pass
+         *         the filter that did not let the message pass
          * @param ack
          *         the acknowledgement given by the filter
          * @return the acknowledgement to return from the chain
