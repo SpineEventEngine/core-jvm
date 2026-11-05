@@ -110,3 +110,6 @@ in `CommandTimeline.how_handled`, a `spine.core.Status`.
 - 2026-11-05 — Codex review on #1707: the deprecation notes of `Status.rejection`,
   `Responses.rejectedBecauseOf()` and `ResponseStatusSubject.isRejection()` keep to their
   own scope (only that the field is going to be removed).
+- 2026-11-05 — owner: `@VisibleForTesting` marks code more visible than production needs
+  because tests also call it, so `causedError()` keeps it; removing it was a mistake, now
+  reverted.
