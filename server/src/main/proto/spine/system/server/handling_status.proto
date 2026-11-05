@@ -45,7 +45,7 @@ message HandlingStatus {
 
         // An error occurred.
         //
-        // Either the Command Bus did not accept the command, for example, because it is
+        // Either the `CommandBus` did not accept the command, for example, because it is
         // invalid, or the command was accepted, and its handler failed.
         //
         spine.base.Error error = 2;

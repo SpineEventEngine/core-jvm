@@ -61,7 +61,7 @@ in `CommandTimeline.how_handled`, a `spine.core.Status`.
 - [x] Migration note: `docs/migration/command-filter-rejection.md`.
 - [x] Build: `./gradlew clean build dokkaGenerate`; read the test counts
   (2026-11-05: core 186, client 189, server 2466 + 1 skipped, server-testlib 159, no failures).
-- [ ] Review: `pre-pr`.
+- [x] Review: `pre-pr` (PASS; PR SpineEventEngine/core-jvm#1707).
 
 ## Follow-ups
 
@@ -103,3 +103,10 @@ in `CommandTimeline.how_handled`, a `spine.core.Status`.
   answers with `INVALID_REQUEST`. `REQUEST_DENIED` kept, unused.
 - 2026-11-05 — owner: forget clients older than the server (a major version), so one function:
   `errorOfCase()` is removed; `CommandRequest` and `CommandAckMonitor` call `toError()`.
+- 2026-11-05 — PR #1707 opened. Pre-PR review fixes: `toError()` also rejects the reserved
+  `ERROR_CASE_UNSPECIFIED`; deprecation suppressions say what they cover; the
+  `causedError()` test is named after it; `CommandLogProjection` and `ServerErrorHandler`
+  docs tightened; `CommandBus` in code font in the System protos.
+- 2026-11-05 — Codex review on #1707: the deprecation notes of `Status.rejection`,
+  `Responses.rejectedBecauseOf()` and `ResponseStatusSubject.isRejection()` keep to their
+  own scope (only that the field is going to be removed).

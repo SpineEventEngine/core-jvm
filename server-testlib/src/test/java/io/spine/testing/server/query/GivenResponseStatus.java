@@ -39,7 +39,7 @@ final class GivenResponseStatus {
         return status;
     }
 
-    @SuppressWarnings("deprecation") // Tests the deprecated API until it is removed.
+    @SuppressWarnings("deprecation") // Builds the deprecated `Status.rejection` until its removal.
     static Status rejection() {
         var status = Status.newBuilder()
                 .setRejection(Event.getDefaultInstance())

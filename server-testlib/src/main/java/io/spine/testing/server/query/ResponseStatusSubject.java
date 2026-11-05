@@ -62,8 +62,7 @@ public final class ResponseStatusSubject extends ProtoSubject {
     /**
      * Verifies that the response status is {@link StatusCase#REJECTION REJECTION}.
      *
-     * @deprecated The server does not send {@code Status.rejection}. A rejection reaches
-     *         the client as an event, through a subscription.
+     * @deprecated {@code Status.rejection}, which this method checks, is going to be removed.
      */
     @Deprecated
     public void isRejection() {

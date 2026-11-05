@@ -33,7 +33,7 @@ internal class MessageIdExtensionsSpec {
     }
 
     @Test
-    fun `reject() with ERROR status`() {
+    fun `causedError() with ERROR status`() {
         val error = io.spine.base.error {
             type = MessageIdExtensionsSpec::class.java.canonicalName
             message = "A test error."

@@ -85,7 +85,7 @@ message CommandHandled {
     core.CommandId id = 1;
 }
 
-// An event emitted when the Command Bus does not accept a command because of an error,
+// An event emitted when the `CommandBus` does not accept a command because of an error,
 // for example, because the command is invalid.
 message CommandErrored {
 

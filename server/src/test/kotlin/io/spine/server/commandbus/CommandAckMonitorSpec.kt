@@ -83,7 +83,8 @@ internal class CommandAckMonitorSpec {
     }
 
     @Test
-    @Suppress("DEPRECATION") // Builds an ack with the deprecated `Status.rejection`.
+    // Reason: builds an ack with the deprecated `Status.rejection`, until the field is removed.
+    @Suppress("DEPRECATION")
     fun `refuse an acknowledgement with a rejection`() {
         val ack = ackWith { rejection = Event.getDefaultInstance() }
 

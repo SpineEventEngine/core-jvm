@@ -63,9 +63,7 @@ public final class Responses {
     /**
      * Creates a rejection status with the passed rejection.
      *
-     * @deprecated A command is rejected only by its handler, after the command is
-     *         acknowledged, so a status never carries a rejection. The client receives
-     *         the rejection as an event, through a subscription.
+     * @deprecated {@code Status.rejection}, which this method sets, is going to be removed.
      */
     @Deprecated
     public static Status rejectedBecauseOf(Event rejection) {

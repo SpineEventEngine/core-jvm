@@ -56,11 +56,7 @@ message Status {
 
         // It is not possible to satisfy the request because of the business rejection.
         //
-        // Deprecated: a command is rejected only by its handler, after the command is
-        // acknowledged. The client receives such a rejection as an event, through
-        // a subscription.
-        //
-        // The server does not send this field to clients. It is going to be removed.
+        // Deprecated: the field is going to be removed.
         //
         core.Event rejection = 3 [deprecated = true];
 

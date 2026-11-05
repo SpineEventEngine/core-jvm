@@ -27,7 +27,7 @@ import java.util.function.BiConsumer;
  * obtained from the server.
  *
  * <p>When the server answers with an {@link io.spine.core.ErrorCase ErrorCase}, the handler
- * receives an {@code Error} that tells the same: its type is the full name of
+ * receives an {@code Error} made of that error case: its type is the full name of
  * the {@code ErrorCase} enum, its code is the number of the error case, and its message
  * is the name of the error case. For example, for an invalid command, the type is
  * {@code spine.core.ErrorCase} and the message is {@code INVALID_REQUEST}.

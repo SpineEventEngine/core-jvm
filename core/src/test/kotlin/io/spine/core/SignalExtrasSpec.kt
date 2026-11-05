@@ -171,7 +171,8 @@ internal class SignalExtrasSpec {
     `Responses utility` {
 
         @Test
-        @Suppress("DEPRECATION") // Tests the deprecated API until it is removed.
+        // Reason: covers the deprecated `Responses.rejectedBecauseOf()` until it is removed.
+        @Suppress("DEPRECATION")
         fun `create rejection status containing the rejection event`() {
             val event = stubEvent()
             val status = Responses.rejectedBecauseOf(event)

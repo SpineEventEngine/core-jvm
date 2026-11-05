@@ -60,7 +60,7 @@ class ResponseStatusSubjectTest extends SubjectTest<ResponseStatusSubject, Statu
 
     @Test
     @DisplayName("check if status is `REJECTION`")
-    @SuppressWarnings("deprecation") // Tests the deprecated API until it is removed.
+    @SuppressWarnings("deprecation") // Covers the deprecated `isRejection()` until it is removed.
     void checkRejection() {
         assertWithSubjectThat(rejection())
                 .isRejection();

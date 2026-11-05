@@ -29,11 +29,12 @@ import io.spine.base.error
  * Use it where an `Error` is expected, for example, to pass an error case to a handler
  * of server errors on the client side.
  *
- * @throws IllegalArgumentException If this value is [ErrorCase.UNRECOGNIZED].
+ * @throws IllegalArgumentException If this value is the reserved
+ *   [ErrorCase.ERROR_CASE_UNSPECIFIED] or [ErrorCase.UNRECOGNIZED].
  */
 public fun ErrorCase.toError(): Error {
-    require(this != ErrorCase.UNRECOGNIZED) {
-        "An unrecognized error case cannot be converted into an error."
+    require(this != ErrorCase.ERROR_CASE_UNSPECIFIED && this != ErrorCase.UNRECOGNIZED) {
+        "The error case `$this` cannot be converted into an error."
     }
     val case = this
     return error {

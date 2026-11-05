@@ -95,9 +95,7 @@ final class CommandLogProjection
     /**
      * Imports the event {@link CommandErrored}.
      *
-     * <p>The event is generated if the Command Bus did not accept the command. The log keeps
-     * the error with all the details, even if the poster of the command received only
-     * the error case.
+     * <p>The event is generated if the {@code CommandBus} did not accept the command.
      */
     @Subscribe
     void on(CommandErrored event) {
