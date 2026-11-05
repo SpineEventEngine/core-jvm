@@ -29,7 +29,7 @@ import static io.grpc.Metadata.BINARY_BYTE_MARSHALLER;
 /**
  * Serves as a converter from {@link Error} to {@link Metadata} and vice versa.
  *
- * @deprecated The server does not send the {@code Error} to clients any more. It reports
+ * @deprecated The server does not send the {@code Error} to clients anymore. It reports
  *         the {@linkplain io.spine.core.ErrorCase error case} in the standard
  *         {@code grpc-status-details-bin} trailer, which
  *         {@link StreamObservers#errorCaseOf(Throwable)} reads.
