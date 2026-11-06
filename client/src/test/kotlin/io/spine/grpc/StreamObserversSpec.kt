@@ -81,6 +81,15 @@ internal class StreamObserversSpec {
         }
 
         @Test
+        fun `a Spine status with an unknown error case`() {
+            val failure = StatusProto.toStatusRuntimeException(
+                statusWith(io.spine.core.Status.newBuilder().setErrorCaseValue(42).build())
+            )
+
+            errorCaseOf(failure).shouldBeEmpty()
+        }
+
+        @Test
         fun `a Spine status without an error case`() {
             val failure = StatusProto.toStatusRuntimeException(statusWith(Responses.statusOk()))
 

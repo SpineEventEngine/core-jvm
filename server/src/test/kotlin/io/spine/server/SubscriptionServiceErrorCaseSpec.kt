@@ -227,6 +227,61 @@ internal class SubscriptionServiceErrorCaseSpec {
     }
 
     @Test
+    fun `record a failure to subscribe to a topic`() {
+        val topic = projectsTopic()
+        val failingObserver = object : MemoizingObserver<Subscription>() {
+            override fun onNext(value: Subscription) {
+                error("The observer fails on purpose.")
+            }
+        }
+
+        service.subscribe(topic, failingObserver)
+
+        failingObserver.error.shouldNotBeNull().errorCase() shouldBe INTERNAL_ERROR
+        val failed = monitor.single<SubscriptionServiceFailed>()
+        failed.topic shouldBe topic.id
+        failed.hasSubscription() shouldBe false
+    }
+
+    @Test
+    fun `answer the internal error on a failure with a topic that no context serves`() {
+        val failingObserver = object : MemoizingObserver<Subscription>() {
+            override fun onNext(value: Subscription) {
+                error("The observer fails on purpose.")
+            }
+        }
+
+        service.subscribe(requests.topic().allOf(CTaskCreated::class.java), failingObserver)
+
+        failingObserver.error.shouldNotBeNull().errorCase() shouldBe INTERNAL_ERROR
+        monitor.events.shouldBeEmpty()
+    }
+
+    @Test
+    fun `answer the internal error if the observer fails to take an answer`() {
+        val observer = FailingOnceObserver()
+
+        service.subscribe(requests.topic().allOf(HandlerFailedUnexpectedly::class.java), observer)
+
+        observer.error.shouldNotBeNull().errorCase() shouldBe INTERNAL_ERROR
+    }
+
+    @Test
+    fun `cancel a subscription in the contexts that have it, if no context serves its type`() {
+        val observer = memoizingObserver<Subscription>()
+        service.subscribe(requests.topic().allOf(CTaskCreated::class.java), observer)
+        val subscription = observer.firstResponse()
+        val cancellation = memoizingObserver<Response>()
+
+        service.cancel(subscription, cancellation)
+
+        cancellation.error shouldBe null
+        cancellation.firstResponse().status.hasOk() shouldBe true
+        cancellation.isCompleted shouldBe true
+        context.stand().hasSubscription(subscription.id) shouldBe false
+    }
+
+    @Test
     fun `fail a call with a status that tells only the error case`() {
         val topic = requests.topic().allOf(SecretProject::class.java)
 
@@ -276,5 +331,21 @@ internal class SubscriptionServiceErrorCaseSpec {
         service.cancel(subscription, observer)
         observer.responses().shouldBeEmpty()
         return observer.error.shouldNotBeNull()
+    }
+
+    /**
+     * An observer that fails to take the first error, and memoizes the next one.
+     */
+    private class FailingOnceObserver : MemoizingObserver<Subscription>() {
+
+        private var failed = false
+
+        override fun onError(t: Throwable) {
+            if (!failed) {
+                failed = true
+                error("The observer fails on purpose.")
+            }
+            super.onError(t)
+        }
     }
 }
