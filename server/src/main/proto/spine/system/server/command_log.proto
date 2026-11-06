@@ -29,7 +29,7 @@ import "google/protobuf/timestamp.proto";
 
 import "spine/core/command.proto";
 import "spine/client/entities.proto";
-import "spine/system/server/handling_status.proto";
+import "spine/system/server/processing_status.proto";
 
 // The current status of a command in a system.
 //
@@ -86,7 +86,7 @@ message CommandTimeline {
     google.protobuf.Timestamp when_target_assigned = 5;
 
     // The instant when the command processing is completed, successfully or otherwise.
-    google.protobuf.Timestamp when_handled = 6 [(goes).with = "how_handled"];
+    google.protobuf.Timestamp when_processed = 6 [(goes).with = "how_processed"];
 
     // The instant when the command was substituted with one or more commands to be
     // handled instead of this one.
@@ -97,7 +97,7 @@ message CommandTimeline {
     oneof outcome {
 
         // The command was handled, rejected, or errored.
-        HandlingStatus how_handled = 8 [(goes).with = "when_handled"];
+        ProcessingStatus how_processed = 8 [(goes).with = "when_processed"];
 
         // Other commands were generated instead.
         Substituted substituted = 9 [(goes).with = "when_substituted"];
