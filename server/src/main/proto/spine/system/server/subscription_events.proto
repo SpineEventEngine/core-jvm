@@ -1,0 +1,112 @@
+/*
+ * Copyright 2026 CodeMatters, Lda.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
+ */
+
+syntax = "proto3";
+
+package spine.system.server;
+
+import "spine/options.proto";
+
+option (type_url_prefix) = "type.spine.io";
+option (internal_all) = true;
+
+option java_package = "io.spine.system.server.event";
+option java_outer_classname = "SubscriptionEventsProto";
+option java_multiple_files = true;
+
+import "spine/base/error.proto";
+import "spine/core/actor_context.proto";
+import "spine/client/subscription.proto";
+import "spine/validation/validation_error.proto";
+
+// An event emitted when the `SubscriptionService` does not subscribe to a topic because
+// the topic fails validation.
+message TopicValidationFailed {
+
+    // The ID of the topic.
+    client.TopicId id = 1;
+
+    // The constraints that the topic violates.
+    validation.ValidationError validation_error = 2;
+
+    // The actor context of the topic.
+    core.ActorContext actor_context = 3;
+}
+
+// An event emitted when the `SubscriptionService` does not subscribe to a topic because
+// the Bounded Context does not expose the target type of the topic for subscription.
+message UnsupportedTopicReceived {
+
+    // The ID of the topic.
+    client.TopicId id = 1;
+
+    // The type URL of the topic target.
+    string type_url = 2;
+
+    // The actor context of the topic.
+    core.ActorContext actor_context = 3;
+}
+
+// An event emitted when the `SubscriptionService` does not activate or cancel a subscription
+// because the subscription fails validation.
+message SubscriptionValidationFailed {
+
+    // The ID of the subscription.
+    client.SubscriptionId id = 1;
+
+    // The constraints that the subscription violates.
+    validation.ValidationError validation_error = 2;
+
+    // The actor context of the topic of the subscription.
+    core.ActorContext actor_context = 3;
+}
+
+// An event emitted when the `SubscriptionService` is asked to activate a subscription
+// that the Bounded Context does not have.
+message UnknownSubscriptionActivationRequested {
+
+    // The ID of the subscription.
+    client.SubscriptionId id = 1;
+
+    // The actor context of the topic of the subscription.
+    core.ActorContext actor_context = 2;
+}
+
+// An event emitted when the `SubscriptionService` is asked to cancel a subscription
+// that the Bounded Context does not have.
+message UnknownSubscriptionCancellationRequested {
+
+    // The ID of the subscription.
+    client.SubscriptionId id = 1;
+
+    // The actor context of the topic of the subscription.
+    core.ActorContext actor_context = 2;
+}
+
+// An event emitted when the `SubscriptionService` fails to subscribe to a topic, or to
+// activate or cancel a subscription.
+message SubscriptionServiceFailed {
+
+    // The ID of the topic.
+    client.TopicId topic = 1;
+
+    // The ID of the subscription, if the request is to activate or cancel one.
+    client.SubscriptionId subscription = 2;
+
+    // The error that stopped the request.
+    base.Error error = 3;
+
+    // The actor context of the topic.
+    core.ActorContext actor_context = 4;
+}

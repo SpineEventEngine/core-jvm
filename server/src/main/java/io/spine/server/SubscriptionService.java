@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server;
@@ -32,6 +20,8 @@ import com.google.errorprone.annotations.CompileTimeConstant;
 import io.grpc.BindableService;
 import io.grpc.stub.StreamObserver;
 import io.spine.annotation.VisibleForTesting;
+import io.spine.base.Error;
+import io.spine.base.EventMessage;
 import io.spine.client.Subscription;
 import io.spine.client.SubscriptionUpdate;
 import io.spine.client.Subscriptions;
@@ -39,11 +29,22 @@ import io.spine.client.Target;
 import io.spine.client.ThreadSafeObserver;
 import io.spine.client.Topic;
 import io.spine.client.grpc.SubscriptionServiceGrpc;
+import io.spine.core.ActorContext;
 import io.spine.core.Response;
-import io.spine.grpc.MemoizingObserver;
+import io.spine.core.TenantId;
 import io.spine.grpc.StreamObservers;
 import io.spine.logging.WithLogging;
+import io.spine.server.stand.InvalidRequestException;
+import io.spine.server.stand.Stand;
 import io.spine.server.stand.SubscriptionCallback;
+import io.spine.server.stand.UnsupportedRequestException;
+import io.spine.server.transport.Statuses;
+import io.spine.system.server.event.SubscriptionServiceFailed;
+import io.spine.system.server.event.SubscriptionValidationFailed;
+import io.spine.system.server.event.TopicValidationFailed;
+import io.spine.system.server.event.UnknownSubscriptionActivationRequested;
+import io.spine.system.server.event.UnknownSubscriptionCancellationRequested;
+import io.spine.system.server.event.UnsupportedTopicReceived;
 import io.spine.type.TypeUrl;
 import org.jspecify.annotations.Nullable;
 
@@ -53,7 +54,11 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.Sets.union;
+import static io.spine.core.ErrorCase.INTERNAL_ERROR;
+import static io.spine.core.ErrorCase.INVALID_REQUEST;
+import static io.spine.core.ErrorCase.UNSUPPORTED_REQUEST;
 import static io.spine.grpc.StreamObservers.forwardErrorsOnly;
 import static io.spine.server.stand.SubscriptionCallback.forwardingTo;
 import static java.lang.String.format;
@@ -61,6 +66,11 @@ import static java.lang.String.format;
 /**
  * The {@code SubscriptionService} provides an asynchronous way to fetch read-side state
  * from the server.
+ *
+ * <p>A request that cannot be served fails the call with a status that carries only
+ * the {@linkplain io.spine.core.ErrorCase kind} of the problem, which the client obtains with
+ * {@link StreamObservers#errorCaseOf(Throwable) StreamObservers.errorCaseOf(Throwable)}.
+ * The details of the problem stay on the server side.
  *
  * <p>For synchronous read-side updates please see {@link QueryService}.
  */
@@ -121,7 +131,7 @@ public final class SubscriptionService
             consumer.accept(safeObserver);
         } catch (@SuppressWarnings("OverlyBroadCatchBlock") Exception e) {
             logger().atError().withCause(e).log(() -> errorMessage);
-            safeObserver.onError(e);
+            safeObserver.onError(Statuses.failure(INTERNAL_ERROR));
         }
     }
 
@@ -186,12 +196,35 @@ public final class SubscriptionService
         }
 
         @Override
+        protected TenantId tenantOf(Topic topic) {
+            return topic.getContext()
+                        .getTenantId();
+        }
+
+        @Override
         protected void serve(BoundedContext context,
                              Topic topic,
                              StreamObserver<Subscription> observer,
                              @Nullable Object params) {
-            var stand = context.stand();
-            stand.subscribe(topic, observer);
+            try {
+                context.stand()
+                       .subscribe(topic, observer);
+            } catch (InvalidRequestException e) {
+                var failed = TopicValidationFailed.newBuilder()
+                        .setId(topic.getId())
+                        .setValidationError(e.validationError())
+                        .setActorContext(topic.getContext())
+                        .build();
+                reject(context, topic, failed, INVALID_REQUEST, observer);
+            } catch (UnsupportedRequestException e) {
+                var unsupported = UnsupportedTopicReceived.newBuilder()
+                        .setId(topic.getId())
+                        .setTypeUrl(topic.getTarget()
+                                         .getType())
+                        .setActorContext(topic.getContext())
+                        .build();
+                reject(context, topic, unsupported, UNSUPPORTED_REQUEST, observer);
+            }
         }
 
         /**
@@ -208,7 +241,12 @@ public final class SubscriptionService
                             " Creating a subscription in contexts: %s.",
                     topic.getTarget().type(),
                     contextsAsString(contexts)));
-            var subscription = Subscriptions.from(topic);
+            // Not validated here: the `Stand` of each context validates the topic,
+            // and reports an invalid one as such.
+            var subscription = Subscription.newBuilder()
+                    .setId(Subscriptions.generateId())
+                    .setTopic(topic)
+                    .buildPartial();
             for (var context : contexts) {
                 var stand = context.stand();
                 stand.subscribe(subscription);
@@ -216,8 +254,20 @@ public final class SubscriptionService
             observer.onNext(subscription);
             observer.onCompleted();
         }
+
+        @Override
+        protected EventMessage failureEvent(Topic topic, Error error) {
+            return SubscriptionServiceFailed.newBuilder()
+                    .setTopic(topic.getId())
+                    .setError(error)
+                    .setActorContext(topic.getContext())
+                    .build();
+        }
     }
 
+    /**
+     * An abstract base for the delegates that serve requests for an existing subscription.
+     */
     private abstract static class SubscriptionDelegate
             extends ServiceDelegate<Subscription, Response> {
 
@@ -229,6 +279,66 @@ public final class SubscriptionService
         protected TypeUrl enclosedMessageType(Subscription subscription) {
             return subscription.targetType();
         }
+
+        @Override
+        protected TenantId tenantOf(Subscription subscription) {
+            return subscription.getTopic()
+                               .getContext()
+                               .getTenantId();
+        }
+
+        @Override
+        protected final void serve(BoundedContext context,
+                                   Subscription subscription,
+                                   StreamObserver<Response> observer,
+                                   @Nullable Object params) {
+            try {
+                serveBy(context.stand(), subscription, observer, params);
+            } catch (InvalidRequestException e) {
+                var failed = SubscriptionValidationFailed.newBuilder()
+                        .setId(subscription.getId())
+                        .setValidationError(e.validationError())
+                        .setActorContext(actorOf(subscription))
+                        .build();
+                reject(context, subscription, failed, INVALID_REQUEST, observer);
+            } catch (UnsupportedRequestException e) {
+                var unknown = unknownSubscriptionEvent(subscription);
+                reject(context, subscription, unknown, UNSUPPORTED_REQUEST, observer);
+            }
+        }
+
+        /**
+         * Serves the request with the given {@code Stand}.
+         */
+        abstract void serveBy(Stand stand,
+                              Subscription subscription,
+                              StreamObserver<Response> observer,
+                              @Nullable Object params);
+
+        /**
+         * Creates the event that records a request for a subscription that
+         * the bounded context does not have.
+         */
+        abstract EventMessage unknownSubscriptionEvent(Subscription subscription);
+
+        @Override
+        protected EventMessage failureEvent(Subscription subscription, Error error) {
+            return SubscriptionServiceFailed.newBuilder()
+                    .setTopic(subscription.getTopic()
+                                          .getId())
+                    .setSubscription(subscription.getId())
+                    .setError(error)
+                    .setActorContext(actorOf(subscription))
+                    .build();
+        }
+
+        /**
+         * Obtains the actor context of the topic of the given subscription.
+         */
+        static ActorContext actorOf(Subscription subscription) {
+            return subscription.getTopic()
+                               .getContext();
+        }
     }
 
     private static final class ActivationImpl extends SubscriptionDelegate {
@@ -238,20 +348,38 @@ public final class SubscriptionService
         }
 
         @Override
-        protected void serve(BoundedContext context,
-                             Subscription subscription,
-                             StreamObserver<Response> observer,
-                             @Nullable Object params) {
+        void serveBy(Stand stand,
+                     Subscription subscription,
+                     StreamObserver<Response> observer,
+                     @Nullable Object params) {
             var callback = (SubscriptionCallback) checkNotNull(params);
-            var stand = context.stand();
             stand.activate(subscription, callback, observer);
         }
 
         @Override
+        EventMessage unknownSubscriptionEvent(Subscription subscription) {
+            return UnknownSubscriptionActivationRequested.newBuilder()
+                    .setId(subscription.getId())
+                    .setActorContext(actorOf(subscription))
+                    .build();
+        }
+
+        /**
+         * Activates the subscription in each Bounded Context known to this service.
+         *
+         * <p>Such a use case means that it was not possible to detect a Bounded Context
+         * serving the message targeted in the subscription. Thus, upon subscribing,
+         * the subscription
+         * {@linkplain SubscriptionImpl#serveNoContext(Topic, StreamObserver, Object) was created}
+         * in each known Bounded Context.
+         */
+        @Override
         protected void serveNoContext(Subscription subscription,
                                       StreamObserver<Response> observer,
                                       @Nullable Object params) {
-            contexts().forEach(context -> serve(context, subscription, observer, params));
+            contexts().forEach(
+                    context -> serveBy(context.stand(), subscription, observer, params)
+            );
         }
     }
 
@@ -262,12 +390,19 @@ public final class SubscriptionService
         }
 
         @Override
-        protected void serve(BoundedContext context,
-                             Subscription subscription,
-                             StreamObserver<Response> observer,
-                             @Nullable Object params) {
-            var stand = context.stand();
+        void serveBy(Stand stand,
+                     Subscription subscription,
+                     StreamObserver<Response> observer,
+                     @Nullable Object params) {
             stand.cancel(subscription, observer);
+        }
+
+        @Override
+        EventMessage unknownSubscriptionEvent(Subscription subscription) {
+            return UnknownSubscriptionCancellationRequested.newBuilder()
+                    .setId(subscription.getId())
+                    .setActorContext(actorOf(subscription))
+                    .build();
         }
 
         /**
@@ -280,7 +415,8 @@ public final class SubscriptionService
          * in each known Bounded Context.
          *
          * <p>Therefore, the cancellation is also performed in each Bounded Context known
-         * to this service.
+         * to this service, which has the subscription. If none has it, the request is
+         * {@linkplain #refuseNotServed refused}.
          *
          * @implNote The original {@code observer} is only fed with an acknowledgement once
          *         after the subscription is cancelled in each Bounded Context.
@@ -292,36 +428,28 @@ public final class SubscriptionService
         protected void serveNoContext(Subscription subscription,
                                       StreamObserver<Response> observer,
                                       @Nullable Object params) {
-            var contexts = contexts();
-            logger().atWarning().log(() -> format(
-                    "Trying to cancel a subscription `%s` which could not be found. " +
-                            "Cancelling it in all known contexts, where it may reside: %s.",
-                    subscription.toShortString(),
-                    contextsAsString(contexts))
-            );
-            var gatheringObserver = StreamObservers.<Response>memoizingObserver();
-            for (var context : contexts) {
-                if(context.stand().hasSubscription(subscription.getId())) {
-                    serve(context, subscription, gatheringObserver, params);
-                }
-            }
-            summarizeResponses(gatheringObserver, observer);
-            observer.onCompleted();
-        }
-
-        private static void
-        summarizeResponses(MemoizingObserver<Response> summarizer,
-                           StreamObserver<Response> destination) {
-            var observedError = summarizer.getError();
-            if(observedError != null) {
-                destination.onError(observedError);
+            var holders = contexts().stream()
+                    .filter(context -> context.stand()
+                                              .hasSubscription(subscription.getId()))
+                    .collect(toImmutableList());
+            if (holders.isEmpty()) {
+                refuseNotServed(subscription, observer);
                 return;
             }
-            var responses = summarizer.responses();
-            if(!responses.isEmpty()) {
-                var response = responses.get(0);
-                destination.onNext(response);
+            logger().atDebug().log(() -> format(
+                    "Cancelling the subscription `%s` in the contexts: %s.",
+                    subscription.toShortString(),
+                    contextsAsString(holders))
+            );
+            var gatheringObserver = StreamObservers.<Response>memoizingObserver();
+            for (var context : holders) {
+                serveBy(context.stand(), subscription, gatheringObserver, params);
             }
+            var responses = gatheringObserver.responses();
+            if (!responses.isEmpty()) {
+                observer.onNext(responses.get(0));
+            }
+            observer.onCompleted();
         }
     }
 
