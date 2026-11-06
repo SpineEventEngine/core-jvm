@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.core;
@@ -64,43 +52,41 @@ interface EventContextMixin extends EventContextOrBuilder,
      *     <li>The import context if the event is imported to an aggregate.
      * </ol>
      *
-     * <p>If at some point the event origin is not set, an {@link IllegalArgumentException} is
+     * <p>If at some point the event origin is not set, an {@link IllegalStateException} is
      * thrown as it contradicts the Spine validation rules. See {@link EventContext} proto
      * declaration.
+     *
+     * @see #findActorContext()
      */
     @Override
-    @SuppressWarnings({
-            "ClassReferencesSubclass", // which is the only impl.
-            "deprecation" // For backward compatibility.
-    })
     default ActorContext actorContext() {
-        ActorContext actorContext = null;
-        var ctx = (EventContext) this;
+        return findActorContext().orElseThrow(
+                () -> newIllegalStateException(
+                        "The provided event context has no origin defined."
+                )
+        );
+    }
 
-        while (actorContext == null) {
-            switch (ctx.getOriginCase()) {
-                case COMMAND_CONTEXT:
-                    actorContext = ctx.getCommandContext()
-                                      .getActorContext();
-                    break;
-                case EVENT_CONTEXT:
-                    ctx = ctx.getEventContext();
-                    break;
-                case PAST_MESSAGE:
-                    actorContext = ctx.getPastMessage()
-                                      .getActorContext();
-                    break;
-                case IMPORT_CONTEXT:
-                    actorContext = ctx.getImportContext();
-                    break;
-                case ORIGIN_NOT_SET:
-                default:
-                    throw newIllegalStateException(
-                            "The provided event context has no origin defined."
-                    );
-            }
-        }
-        return actorContext;
+    /**
+     * Finds an actor context for the event context.
+     *
+     * <p>Traverses the event origin in the same way as {@link #actorContext()}, but does not
+     * throw if the origin is not set. Use this method for an event context that has not passed
+     * the validation yet.
+     *
+     * @return the actor context, or {@code Optional.empty()} if the origin of this context,
+     *         or of any event context in its origin chain, is not set
+     */
+    @Internal
+    @SuppressWarnings("deprecation") // For backward compatibility.
+    default Optional<ActorContext> findActorContext() {
+        return switch (getOriginCase()) {
+            case COMMAND_CONTEXT -> Optional.of(getCommandContext().getActorContext());
+            case EVENT_CONTEXT -> getEventContext().findActorContext();
+            case PAST_MESSAGE -> Optional.of(getPastMessage().getActorContext());
+            case IMPORT_CONTEXT -> Optional.of(getImportContext());
+            case ORIGIN_NOT_SET -> Optional.empty();
+        };
     }
 
     /**

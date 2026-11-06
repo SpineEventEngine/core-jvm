@@ -65,13 +65,48 @@ internal class EventBusSpec {
             .clearId()
             .buildPartial()
 
-        post(invalid).status.errorCase shouldBe INVALID_REQUEST
+        refuseAndRecord(invalid)
+    }
 
-        val failures = monitor.eventValidationFailures()
-        failures shouldHaveSize 1
-        val failure = failures.single()
-        failure.id shouldBe invalid.id
-        failure.validationError.constraintViolationList.shouldNotBeEmpty()
+    @Test
+    fun `refuse an event without a context, and record the violations`() {
+        val invalid = projectCreatedEvent().toBuilder()
+            .clearContext()
+            .buildPartial()
+
+        refuseAndRecord(invalid)
+    }
+
+    @Test
+    fun `record an invalid event whose context has no origin`() {
+        val event = projectCreatedEvent()
+        val noOrigin = event.context.toBuilder()
+            .clearOrigin()
+            .buildPartial()
+        val invalid = event.toBuilder()
+            .clearId()
+            .setContext(noOrigin)
+            .buildPartial()
+
+        refuseAndRecord(invalid)
+    }
+
+    @Suppress("DEPRECATION") // To build an origin chain of event contexts.
+    @Test
+    fun `record an invalid event whose origin chain has a context without an origin`() {
+        val event = projectCreatedEvent()
+        val noOrigin = event.context.toBuilder()
+            .clearOrigin()
+            .buildPartial()
+        val chained = event.context.toBuilder()
+            .setEventContext(noOrigin)
+            .buildPartial()
+        val invalid = event.toBuilder()
+            .clearId()
+            .setContext(chained)
+            .buildPartial()
+
+        refuseAndRecord(invalid)
     }
 
     @Test
@@ -101,6 +136,20 @@ internal class EventBusSpec {
         events.createEvent(projectCreated {
             projectId = projectId { id = newUuid() }
         })
+
+    /**
+     * Posts the given invalid event, and checks that the bus refuses it
+     * with `INVALID_REQUEST` and records its violations in the System context.
+     */
+    private fun refuseAndRecord(invalid: Event) {
+        post(invalid).status.errorCase shouldBe INVALID_REQUEST
+
+        val failures = monitor.eventValidationFailures()
+        failures shouldHaveSize 1
+        val failure = failures.single()
+        failure.id shouldBe invalid.id
+        failure.validationError.constraintViolationList.shouldNotBeEmpty()
+    }
 
     private fun post(event: Event): Ack {
         val observer = memoizingObserver<Ack>()

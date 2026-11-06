@@ -22,8 +22,10 @@ import io.grpc.stub.StreamObserver;
 import io.spine.annotation.Internal;
 import io.spine.annotation.VisibleForTesting;
 import io.spine.core.Ack;
+import io.spine.core.ActorContext;
 import io.spine.core.Event;
 import io.spine.core.EventContext;
+import io.spine.core.Origin;
 import io.spine.core.Signal;
 import io.spine.core.TenantId;
 import io.spine.server.BoundedContext;
@@ -181,6 +183,10 @@ public final class EventBus
      * {@inheritDoc}
      *
      * <p>Posts {@link EventValidationFailed} to the System context.
+     *
+     * <p>The context of an invalid event may have no origin, so the tenant and the actor of
+     * the event may be unknown. Then the failure is posted for the default tenant, and
+     * the System context assigns the actor.
      */
     @Override
     protected InvalidMessageHandler<EventEnvelope> invalidMessageHandler() {
@@ -189,7 +195,14 @@ public final class EventBus
                     .setId(event.id())
                     .setValidationError(violations)
                     .build();
-            systemFor(event.tenantId()).postEvent(failed, event.asMessageOrigin());
+            var actor = event.context()
+                             .findActorContext();
+            var tenant = actor.map(ActorContext::getTenantId)
+                              .orElse(TenantId.getDefaultInstance());
+            var origin = actor.isPresent()
+                         ? event.asMessageOrigin()
+                         : Origin.getDefaultInstance();
+            systemFor(tenant).postEvent(failed, origin);
         };
     }
 

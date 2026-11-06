@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.core
@@ -95,6 +83,64 @@ internal class EventContextMixinSpec {
                 .setTimestamp(currentTime())
                 .buildPartial()
             shouldThrow<IllegalStateException> { ctx.actorContext() }
+        }
+    }
+
+    @Nested inner class
+    `find actor context` {
+
+        @Test
+        fun `from a 'COMMAND_CONTEXT' origin`() {
+            val userId = GivenUserId.newUuid()
+            val ctx = commandContextOrigin(actor = userId)
+            ctx.findActorContext().shouldBePresent().actor shouldBe userId
+        }
+
+        @Suppress("DEPRECATION")
+        @Test
+        fun `from an 'EVENT_CONTEXT' origin by traversal`() {
+            val userId = GivenUserId.newUuid()
+            val innerCtx = commandContextOrigin(actor = userId)
+            val outerCtx = EventContext.newBuilder()
+                .setEventContext(innerCtx)
+                .setTimestamp(currentTime())
+                .buildPartial()
+            outerCtx.findActorContext().shouldBePresent().actor shouldBe userId
+        }
+
+        @Test
+        fun `from a 'PAST_MESSAGE' origin`() {
+            val userId = GivenUserId.newUuid()
+            val ctx = pastMessageOrigin(actor = userId)
+            ctx.findActorContext().shouldBePresent().actor shouldBe userId
+        }
+
+        @Test
+        fun `from an 'IMPORT_CONTEXT' origin`() {
+            val userId = GivenUserId.newUuid()
+            val ctx = importContextOrigin(actor = userId)
+            ctx.findActorContext().shouldBePresent().actor shouldBe userId
+        }
+
+        @Test
+        fun `returning empty when no origin is set`() {
+            val ctx = EventContext.newBuilder()
+                .setTimestamp(currentTime())
+                .buildPartial()
+            ctx.findActorContext().shouldBeEmpty()
+        }
+
+        @Suppress("DEPRECATION")
+        @Test
+        fun `returning empty when an origin in the chain is not set`() {
+            val innerCtx = EventContext.newBuilder()
+                .setTimestamp(currentTime())
+                .buildPartial()
+            val outerCtx = EventContext.newBuilder()
+                .setEventContext(innerCtx)
+                .setTimestamp(currentTime())
+                .buildPartial()
+            outerCtx.findActorContext().shouldBeEmpty()
         }
     }
 
