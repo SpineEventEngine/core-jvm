@@ -16,15 +16,14 @@ package io.spine.server.commandbus;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.testing.NullPointerTester;
-import io.spine.base.Error;
 import io.spine.core.Ack;
 import io.spine.core.Command;
 import io.spine.core.CommandId;
+import io.spine.core.ErrorCase;
 import io.spine.core.TenantId;
 import io.spine.system.server.MemoizingWriteSide;
 import io.spine.system.server.NoOpSystemWriteSide;
 import io.spine.system.server.event.CommandAcknowledged;
-import io.spine.system.server.event.CommandErrored;
 import io.spine.test.commandbus.ProjectId;
 import io.spine.test.commandbus.command.CmdBusStartProject;
 import io.spine.testing.client.TestActorRequestFactory;
@@ -39,6 +38,7 @@ import static io.spine.base.Identifier.newUuid;
 import static io.spine.server.bus.MessageIdExtensions.acknowledge;
 import static io.spine.server.bus.MessageIdExtensions.causedError;
 import static io.spine.testing.Assertions.assertIllegalState;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SuppressWarnings("InnerClassMayBeStatic")
@@ -138,22 +138,12 @@ class CommandAckMonitorTest {
         }
 
         @Test
-        @DisplayName("error, post `CommandErrored`")
+        @DisplayName("error case, post nothing")
         void onError() {
             var ack = errorAck(commandId);
             monitor.onNext(ack);
 
-            var lastSeenEvent = writeSide.lastSeenEvent().message();
-
-            assertThat(lastSeenEvent)
-                    .isInstanceOf(CommandErrored.class);
-
-            var actualEvent = (CommandErrored) lastSeenEvent;
-
-            assertThat(actualEvent.getId())
-                    .isEqualTo(commandId);
-            assertThat(actualEvent.getError())
-                    .isEqualTo(ack.getStatus().getError());
+            assertFalse(writeSide.hasSeenEvents());
         }
     }
 
@@ -178,10 +168,6 @@ class CommandAckMonitorTest {
     }
 
     private static Ack errorAck(CommandId commandId) {
-        var error = Error.newBuilder()
-                .setCode(42)
-                .setMessage("Wrong question")
-                .build();
-        return causedError(commandId, error);
+        return causedError(commandId, ErrorCase.INVALID_REQUEST);
     }
 }

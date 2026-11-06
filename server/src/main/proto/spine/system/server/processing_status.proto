@@ -29,6 +29,8 @@ import "google/protobuf/empty.proto";
 
 import "spine/base/error.proto";
 import "spine/core/event.proto";
+import "spine/core/tenant_id.proto";
+import "spine/validation/validation_error.proto";
 
 // The status of a command after it was processed.
 //
@@ -43,14 +45,24 @@ message ProcessingStatus {
         // The command was handled.
         google.protobuf.Empty ok = 1;
 
-        // An error occurred.
-        //
-        // Either the `CommandBus` did not accept the command, for example, because it is
-        // invalid, or the command was accepted, and its handler failed.
-        //
+        // The command was accepted, and its handler failed.
         spine.base.Error error = 2;
 
         // A handler rejected the command.
         spine.core.Event rejection = 3;
+
+        // The `CommandBus` did not accept the command because the command fails validation.
+        spine.validation.ValidationError validation_error = 4;
+
+        // The `CommandBus` did not accept the command because no handler in the Bounded
+        // Context handles commands of its type.
+        google.protobuf.Empty unsupported = 5;
+
+        // The multitenant `CommandBus` did not accept the command because the command has
+        // no tenant.
+        google.protobuf.Empty tenant_not_specified = 6;
+
+        // The tenant of the command, which the single-tenant `CommandBus` did not accept.
+        spine.core.TenantId tenant_not_expected = 7;
     }
 }

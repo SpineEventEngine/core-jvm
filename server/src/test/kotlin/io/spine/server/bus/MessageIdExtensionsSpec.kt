@@ -17,6 +17,7 @@ package io.spine.server.bus
 import io.kotest.matchers.shouldBe
 import io.spine.core.Ack
 import io.spine.core.CommandId
+import io.spine.core.ErrorCase
 import io.spine.core.Status.StatusCase
 import io.spine.protobuf.AnyPacker
 import org.junit.jupiter.api.DisplayName
@@ -41,6 +42,14 @@ internal class MessageIdExtensionsSpec {
         val ack = ID.causedError(error)
         assertIdEquals(ack)
         assertStatusCase(ack, StatusCase.ERROR)
+    }
+
+    @Test
+    fun `causedError() with ERROR_CASE status`() {
+        val ack = ID.causedError(ErrorCase.INVALID_REQUEST)
+        assertIdEquals(ack)
+        assertStatusCase(ack, StatusCase.ERROR_CASE)
+        ack.status.errorCase shouldBe ErrorCase.INVALID_REQUEST
     }
 
     companion object {

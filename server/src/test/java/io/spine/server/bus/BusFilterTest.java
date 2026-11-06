@@ -15,8 +15,8 @@
 package io.spine.server.bus;
 
 import com.google.common.testing.NullPointerTester;
-import io.spine.base.Error;
 import io.spine.core.Ack;
+import io.spine.core.ErrorCase;
 import io.spine.core.Status.StatusCase;
 import io.spine.server.bus.given.BusFilters;
 import io.spine.server.type.CommandEnvelope;
@@ -26,7 +26,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static com.google.common.truth.Truth.assertThat;
-import static io.spine.core.Status.StatusCase.ERROR;
+import static io.spine.core.Status.StatusCase.ERROR_CASE;
 import static io.spine.core.Status.StatusCase.OK;
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.testing.DisplayNames.NOT_ACCEPT_NULLS;
@@ -68,21 +68,18 @@ class BusFilterTest {
     }
 
     @Test
-    @DisplayName("reject the message with an error")
-    void rejectWithError() {
-        var error = Error.newBuilder()
-                .setType(BusFilterTest.class.getCanonicalName())
-                .setMessage("Ignore this error.")
-                .build();
-        BusFilter<CommandEnvelope> filter = new BusFilters.RejectingWithError(error);
+    @DisplayName("reject the message with an error case")
+    void rejectWithErrorCase() {
+        BusFilter<CommandEnvelope> filter =
+                new BusFilters.RejectingWithErrorCase(ErrorCase.INVALID_REQUEST);
         var ack = filter.filter(commandEnvelope);
         assertThat(ack).isPresent();
 
         var theAck = ack.get();
         assertIdEquals(theAck);
-        assertStatusEquals(theAck, ERROR);
+        assertStatusEquals(theAck, ERROR_CASE);
         assertThat(theAck.getStatus()
-                         .getError()).isEqualTo(error);
+                         .getErrorCase()).isEqualTo(ErrorCase.INVALID_REQUEST);
     }
 
     private void assertIdEquals(Ack ack) {
