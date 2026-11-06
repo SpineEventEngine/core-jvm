@@ -75,7 +75,7 @@ final class CommandLogProjection
 
     @Subscribe
     void on(@SuppressWarnings("unused") CommandHandled event) {
-        var status = HandlingStatus.newBuilder()
+        var status = ProcessingStatus.newBuilder()
                 .setOk(Empty.getDefaultInstance())
                 .build();
         setStatus(status);
@@ -83,7 +83,7 @@ final class CommandLogProjection
 
     @Subscribe
     void on(HandlerFailedUnexpectedly event) {
-        var status = HandlingStatus.newBuilder()
+        var status = ProcessingStatus.newBuilder()
                 .setError(event.getError())
                 .build();
         setStatus(status);
@@ -96,7 +96,7 @@ final class CommandLogProjection
      */
     @Subscribe
     void on(CommandErrored event) {
-        var status = HandlingStatus.newBuilder()
+        var status = ProcessingStatus.newBuilder()
                 .setError(event.getError())
                 .build();
         setStatus(status);
@@ -109,7 +109,7 @@ final class CommandLogProjection
      */
     @Subscribe
     void on(CommandRejected event) {
-        var status = HandlingStatus.newBuilder()
+        var status = ProcessingStatus.newBuilder()
                 .setRejection(event.getRejectionEvent())
                 .build();
         setStatus(status);
@@ -151,9 +151,9 @@ final class CommandLogProjection
         return builder().getTimelineBuilder();
     }
 
-    private void setStatus(HandlingStatus status) {
+    private void setStatus(ProcessingStatus status) {
         timeline()
-                .setWhenHandled(currentTime())
-                .setHowHandled(status);
+                .setWhenProcessed(currentTime())
+                .setHowProcessed(status);
     }
 }

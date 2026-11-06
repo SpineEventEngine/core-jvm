@@ -22,7 +22,7 @@ option (type_url_prefix) = "type.spine.io";
 option (internal_all) = true;
 
 option java_package = "io.spine.system.server";
-option java_outer_classname = "HandlingStatusProto";
+option java_outer_classname = "ProcessingStatusProto";
 option java_multiple_files = true;
 
 import "google/protobuf/empty.proto";
@@ -30,12 +30,12 @@ import "google/protobuf/empty.proto";
 import "spine/base/error.proto";
 import "spine/core/event.proto";
 
-// The status of a command after it was handled.
+// The status of a command after it was processed.
 //
 // The field numbers match those of `spine.core.Status`, so the stored records of
-// `CommandTimeline.how_handled`, which used to be a `spine.core.Status`, stay readable.
+// `CommandTimeline.how_processed`, which used to be a `spine.core.Status`, stay readable.
 //
-message HandlingStatus {
+message ProcessingStatus {
 
     oneof status {
         option (choice).required = true;

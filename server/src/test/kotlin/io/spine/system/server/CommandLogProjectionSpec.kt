@@ -85,7 +85,7 @@ internal class CommandLogProjectionSpec {
     fun `record a handled command`() {
         val command = post(establishing(name = "Good company name"))
 
-        val status = howHandled(command)
+        val status = howProcessed(command)
 
         status.hasOk() shouldBe true
     }
@@ -94,7 +94,7 @@ internal class CommandLogProjectionSpec {
     fun `record the rejection of a handler`() {
         val command = post(establishing(name = CompanyAggregate.TAKEN_NAME))
 
-        val status = howHandled(command)
+        val status = howProcessed(command)
 
         status.rejection.enclosedTypeUrl() shouldBe
                 TypeUrl.of(Rejections.CompanyNameAlreadyTaken::class.java)
@@ -110,7 +110,7 @@ internal class CommandLogProjectionSpec {
             name = FAULTY_NAME
         }))
 
-        howHandled(command).error.type shouldBe IllegalArgumentException::class.java.canonicalName
+        howProcessed(command).error.type shouldBe IllegalArgumentException::class.java.canonicalName
     }
 
     @Test
@@ -131,7 +131,7 @@ internal class CommandLogProjectionSpec {
             failure.handledSignal.isEvent shouldBe true
             failure.error.type shouldBe IllegalStateException::class.java.canonicalName
         }
-        howHandled(command).hasOk() shouldBe true
+        howProcessed(command).hasOk() shouldBe true
     }
 
     @Test
@@ -141,7 +141,7 @@ internal class CommandLogProjectionSpec {
             .build()
         val command = post(invalid)
 
-        val error = howHandled(command).error
+        val error = howProcessed(command).error
         error.type shouldBe CommandValidationError.getDescriptor().fullName
         error.code shouldBe CommandValidationError.INVALID_COMMAND.number
         error.details.`is`(ValidationError::class.java) shouldBe true
@@ -151,7 +151,7 @@ internal class CommandLogProjectionSpec {
     fun `record the error case when a filter answers with it`() {
         val command = post(establishing(name = AnsweringErrorCase.NAME))
 
-        howHandled(command).error shouldBe INVALID_REQUEST.toError()
+        howProcessed(command).error shouldBe INVALID_REQUEST.toError()
     }
 
     private fun establishing(name: String): Command =
@@ -165,10 +165,10 @@ internal class CommandLogProjectionSpec {
         return command
     }
 
-    private fun howHandled(command: Command): HandlingStatus {
+    private fun howProcessed(command: Command): ProcessingStatus {
         val timeline = commandLog.find(command.id).orElseThrow().state().timeline
-        timeline.hasWhenHandled() shouldBe true
-        return timeline.howHandled
+        timeline.hasWhenProcessed() shouldBe true
+        return timeline.howProcessed
     }
 }
 

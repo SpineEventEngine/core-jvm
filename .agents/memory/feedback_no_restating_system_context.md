@@ -16,4 +16,4 @@ knowledge of what system events are. This is assumed as long as we're in the
 
 **How to apply:** document what a field holds ("The error that stopped the command."), not
 the nature of the System context. The same goes for System entity states such as
-`HandlingStatus`.
+`ProcessingStatus`.
