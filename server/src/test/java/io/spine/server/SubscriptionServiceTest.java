@@ -24,13 +24,13 @@ import io.spine.client.SubscriptionUpdate;
 import io.spine.client.Targets;
 import io.spine.client.Topic;
 import io.spine.client.TopicFactory;
+import io.spine.core.ErrorCase;
 import io.spine.core.Response;
 import io.spine.grpc.MemoizingObserver;
 import io.spine.grpc.StreamObservers;
 import io.spine.server.Given.AggProjectCreatedReactor;
 import io.spine.server.Given.ProjectAggregateRepository;
 import io.spine.server.Given.ReportSender;
-import io.spine.server.stand.InvalidSubscriptionException;
 import io.spine.test.aggregate.AggProject;
 import io.spine.test.aggregate.ProjectId;
 import io.spine.test.aggregate.event.AggOwnerNotified;
@@ -43,7 +43,6 @@ import io.spine.testing.client.TestActorRequestFactory;
 import io.spine.testing.logging.LoggingTest;
 import io.spine.testing.logging.mute.MuteLogging;
 import io.spine.testing.server.model.ModelTests;
-import io.spine.type.UnpublishedLanguageException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -52,11 +51,16 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 
 import static com.google.common.truth.Truth.assertThat;
 import static io.spine.base.Identifier.newUuid;
+import static io.spine.core.ErrorCase.INTERNAL_ERROR;
+import static io.spine.core.ErrorCase.INVALID_REQUEST;
+import static io.spine.core.ErrorCase.UNSUPPORTED_REQUEST;
+import static io.spine.grpc.StreamObservers.errorCaseOf;
 import static io.spine.grpc.StreamObservers.noOpObserver;
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.server.Given.CommandMessage.createProject;
@@ -426,7 +430,7 @@ class SubscriptionServiceTest {
 
     @Test
     @MuteLogging
-    @DisplayName("receive IAE in error callback when activating non-existent subscription")
+    @DisplayName("answer `UNSUPPORTED_REQUEST` when activating non-existent subscription")
     void failOnActivatingNonExistent() {
         var invalidSubscription = invalidSubscription();
         subscriptionService.activate(invalidSubscription, activationObserver);
@@ -434,8 +438,7 @@ class SubscriptionServiceTest {
                 .isEmpty();
         assertThat(activationObserver.isCompleted())
                 .isFalse();
-        assertThat(activationObserver.getError())
-                .isInstanceOf(InvalidSubscriptionException.class);
+        assertErrorCase(activationObserver, UNSUPPORTED_REQUEST);
     }
 
     @Test
@@ -484,11 +487,11 @@ class SubscriptionServiceTest {
         }
 
         @Test
-        @DisplayName("do not return the error to the observer")
-        void observerIsEmpty() {
-            assertThat(cancellationObserver.isCompleted()).isTrue();
+        @DisplayName("answer `UNSUPPORTED_REQUEST`")
+        void unsupported() {
+            assertThat(cancellationObserver.isCompleted()).isFalse();
             assertThat(cancellationObserver.responses()).isEmpty();
-            assertThat(cancellationObserver.getError()).isNull();
+            assertErrorCase(cancellationObserver, UNSUPPORTED_REQUEST);
         }
 
         @Test
@@ -508,22 +511,22 @@ class SubscriptionServiceTest {
         @MuteLogging
         @DisplayName("subscription process")
         void subscription() {
-            // Causes NPE.
+            // The type of a missing request cannot be read.
             subscriptionService.subscribe(null, observer);
             assertThat(observer.responses()).isEmpty();
             assertThat(observer.isCompleted()).isFalse();
-            assertThat(observer.getError()).isInstanceOf(NullPointerException.class);
+            assertErrorCase(observer, INVALID_REQUEST);
         }
 
         @Test
         @MuteLogging
         @DisplayName("activation process")
         void activation() {
-            // Causes NPE.
+            // The type of a missing request cannot be read.
             subscriptionService.activate(null, activationObserver);
             assertThat(activationObserver.responses()).isEmpty();
             assertThat(activationObserver.isCompleted()).isFalse();
-            assertThat(activationObserver.getError()).isInstanceOf(NullPointerException.class);
+            assertErrorCase(activationObserver, INVALID_REQUEST);
         }
 
         @Test
@@ -544,9 +547,7 @@ class SubscriptionServiceTest {
             subscriptionService.cancel(observer.firstResponse(), faultyObserver);
             assertThat(faultyObserver.firstResponse()).isNotNull();
             assertThat(faultyObserver.isCompleted()).isFalse();
-            var error = faultyObserver.getError();
-            assertThat(error).isInstanceOf(RuntimeException.class);
-            assertThat(error.getMessage()).isEqualTo(rejectionMessage);
+            assertErrorCase(faultyObserver, INTERNAL_ERROR);
         }
     }
 
@@ -568,7 +569,7 @@ class SubscriptionServiceTest {
 
             assertThat(observer.responses()).isEmpty();
             assertThat(observer.isCompleted()).isFalse();
-            assertThat(observer.getError()).isInstanceOf(UnpublishedLanguageException.class);
+            assertErrorCase(observer, UNSUPPORTED_REQUEST);
         }
 
         @Test
@@ -580,8 +581,7 @@ class SubscriptionServiceTest {
 
             assertThat(activationObserver.responses()).isEmpty();
             assertThat(activationObserver.isCompleted()).isFalse();
-            assertThat(activationObserver.getError())
-                    .isInstanceOf(UnpublishedLanguageException.class);
+            assertErrorCase(activationObserver, UNSUPPORTED_REQUEST);
         }
 
         @Test
@@ -593,8 +593,7 @@ class SubscriptionServiceTest {
 
             assertThat(cancellationObserver.responses()).isEmpty();
             assertThat(cancellationObserver.isCompleted()).isFalse();
-            assertThat(cancellationObserver.getError())
-                    .isInstanceOf(UnpublishedLanguageException.class);
+            assertErrorCase(cancellationObserver, UNSUPPORTED_REQUEST);
         }
 
         /**
@@ -612,5 +611,11 @@ class SubscriptionServiceTest {
                     .build();
             return forgedSubscription;
         }
+    }
+
+    private static void assertErrorCase(MemoizingObserver<?> observer, ErrorCase expected) {
+        var error = observer.getError();
+        assertThat(error).isNotNull();
+        assertThat(errorCaseOf(error)).isEqualTo(Optional.of(expected));
     }
 }

@@ -25,6 +25,7 @@ option java_package = "io.spine.system.server.event";
 option java_outer_classname = "CommandLifecycleEventsProto";
 option java_multiple_files = true;
 
+import "spine/base/error.proto";
 import "spine/core/command.proto";
 import "spine/core/event.proto";
 import "spine/core/tenant_id.proto";
@@ -124,6 +125,17 @@ message CommandTenantNotExpected {
 
     // The tenant of the command.
     core.TenantId tenant = 2;
+}
+
+// An event emitted when the `CommandService` fails to post a command because of an unexpected
+// error on the server side.
+message CommandPostingFailed {
+
+    // The ID of the command.
+    core.CommandId id = 1;
+
+    // The error that stopped the posting.
+    base.Error error = 2;
 }
 
 // An event emitted if the command cannot be handled due to a business rejection.

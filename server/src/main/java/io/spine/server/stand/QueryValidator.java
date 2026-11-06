@@ -1,40 +1,29 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
+
 package io.spine.server.stand;
 
-import com.google.protobuf.ProtocolMessageEnum;
-import com.google.protobuf.Value;
-import io.spine.base.Error;
+import com.google.common.collect.ImmutableList;
+import com.google.protobuf.UInt32Value;
+import io.spine.base.FieldPath;
 import io.spine.client.Query;
-import io.spine.client.QueryValidationError;
-import org.jspecify.annotations.Nullable;
+import io.spine.string.TemplateString;
+import io.spine.type.TypeName;
+import io.spine.validation.ConstraintViolation;
 
-import static io.spine.client.QueryValidationError.INVALID_QUERY;
-import static io.spine.client.QueryValidationError.UNSUPPORTED_QUERY_TARGET;
 import static io.spine.option.EntityOption.Visibility.QUERY;
+import static io.spine.protobuf.AnyPacker.pack;
 import static java.lang.String.format;
 
 /**
@@ -46,55 +35,37 @@ final class QueryValidator extends AbstractTargetValidator<Query> {
         super(QUERY, typeRegistry);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>A query cannot have a limit without ordering.
+     */
     @Override
-    protected @Nullable Error checkOwnRules(Query request) {
+    protected ImmutableList<ConstraintViolation> checkOwnRules(Query request) {
         var format = request.getFormat();
         var limit = format.getLimit();
-        if (limit > 0) {
-            var orderByMissing = format.getOrderByCount() == 0;
-            if (orderByMissing) {
-                var limitValue = Value.newBuilder()
-                        .setNumberValue(limit)
-                        .build();
-                @SuppressWarnings("DuplicateStringLiteralInspection") // "limit" is used in tests.
-                var error = Error.newBuilder()
-                        .setType(QueryValidationError.class.getSimpleName())
-                        .setCode(INVALID_QUERY.getNumber())
-                        .setMessage("Query limit cannot be set without ordering.")
-                        .putAttributes("limit", limitValue)
-                        .build();
-                return error;
-            }
+        var orderByMissing = format.getOrderByCount() == 0;
+        if (limit <= 0 || !orderByMissing) {
+            return ImmutableList.of();
         }
-        return null;
-    }
-
-    @Override
-    protected QueryValidationError invalidMessageErrorCode() {
-        return INVALID_QUERY;
-    }
-
-    @Override
-    protected ProtocolMessageEnum unsupportedTargetErrorCode() {
-        return UNSUPPORTED_QUERY_TARGET;
-    }
-
-    @Override
-    protected InvalidQueryException
-    invalidMessageException(String exceptionMsg, Query request, Error error) {
-        return new InvalidQueryException(exceptionMsg, request, error);
+        var limitPath = FieldPath.newBuilder()
+                .addFieldName("format")
+                .addFieldName("limit");
+        var violation = ConstraintViolation.newBuilder()
+                .setMessage(TemplateString.newBuilder()
+                                    .setWithPlaceholders(
+                                            "Query limit cannot be set without ordering."))
+                .setTypeName(TypeName.of(request).value())
+                .setFieldPath(limitPath)
+                .setFieldValue(pack(UInt32Value.of(limit)))
+                .build();
+        return ImmutableList.of(violation);
     }
 
     @Override
     protected boolean isSupported(Query request) {
         var target = request.getTarget();
         return typeRegistryContains(target) && visibilitySufficient(target);
-    }
-
-    @Override
-    protected InvalidRequestException unsupportedException(Query request, Error error) {
-        var message = errorMessage(request);
-        return new InvalidQueryException(message, request, error);
     }
 
     @Override

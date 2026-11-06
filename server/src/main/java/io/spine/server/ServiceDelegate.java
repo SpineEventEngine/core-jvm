@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server;
@@ -29,15 +17,31 @@ package io.spine.server;
 import com.google.common.collect.ImmutableSet;
 import io.grpc.BindableService;
 import io.grpc.stub.StreamObserver;
+import io.spine.base.Error;
+import io.spine.base.Errors;
+import io.spine.base.EventMessage;
+import io.spine.core.ErrorCase;
+import io.spine.core.Origin;
+import io.spine.core.TenantId;
 import io.spine.logging.WithLogging;
+import io.spine.server.stand.InvalidRequestException;
+import io.spine.server.stand.UnsupportedRequestException;
+import io.spine.server.transport.Statuses;
+import io.spine.type.TypeName;
 import io.spine.type.TypeUrl;
-import io.spine.type.UnpublishedLanguageException;
+import io.spine.type.UnknownTypeException;
+import io.spine.validation.Validate;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static io.spine.core.ErrorCase.INTERNAL_ERROR;
+import static io.spine.core.ErrorCase.INVALID_REQUEST;
+import static io.spine.core.ErrorCase.UNSUPPORTED_REQUEST;
+import static io.spine.system.server.WriteSideFunction.delegatingTo;
 import static io.spine.type.MessageExtsKt.isInternal;
+import static io.spine.type.ProtoTexts.shortDebugString;
 import static java.lang.String.format;
 
 /**
@@ -45,12 +49,27 @@ import static java.lang.String.format;
  *
  * <p>This class implements a {@linkplain #serve(Object, StreamObserver, Object) common way}
  * in which services work. Initially, each request is checked not to be for an unpublished part
- * of the domain language. In such a case, an error is returned.
- *
- * <p>Then, a service attempts to find a bounded context that would handle
- * the request. If not found, an error is returned. Otherwise, the request is
+ * of the domain language. Then, a service attempts to find a bounded context that would handle
+ * the request. If found, the request is
  * {@linkplain #serve(BoundedContext, Object, StreamObserver, Object) dispatched} to
- * the bounded context.
+ * the bounded context. Otherwise, the service
+ * {@linkplain #serveNoContext(Object, StreamObserver, Object) handles} the request on its own.
+ *
+ * <p>The client receives only the {@linkplain ErrorCase kind} of a problem with the request:
+ *
+ * <ul>
+ *     <li>{@link ErrorCase#UNSUPPORTED_REQUEST UNSUPPORTED_REQUEST} for a request of a type
+ *         internal to the server, unknown to it, or not served by any bounded context;
+ *     <li>{@link ErrorCase#INVALID_REQUEST INVALID_REQUEST} for a request whose type cannot
+ *         be read;
+ *     <li>the error case chosen by a bounded context that {@linkplain #reject rejects}
+ *         the request;
+ *     <li>{@link ErrorCase#INTERNAL_ERROR INTERNAL_ERROR} for an unexpected failure.
+ * </ul>
+ *
+ * <p>A problem with a request that a bounded context serves is recorded as an event of
+ * the System context of that bounded context. A request that reaches no bounded context is
+ * only logged.
  *
  * @param <T>
  *         the type of the request handled by the service
@@ -76,17 +95,32 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
     /**
      * Handles the posted request.
      */
+    @SuppressWarnings("OverlyBroadCatchBlock") // Any type that cannot be read is reported alike.
     final void serve(T request, StreamObserver<R> observer, @Nullable Object params) {
-        if (detectInternal(request)) {
-            handleInternal(request, observer);
+        TypeUrl type;
+        boolean internal;
+        try {
+            type = enclosedMessageType(request);
+            internal = isInternal(type.getMessageClass());
+        } catch (UnknownTypeException e) {
+            refuse(request, UNSUPPORTED_REQUEST, observer, e.getMessage());
+            return;
+        } catch (RuntimeException e) {
+            refuse(request, INVALID_REQUEST, observer,
+                   format("The type of the request cannot be read: %s", e.getMessage()));
             return;
         }
-        var type = enclosedMessageType(request);
-        var boundedContext = find(type);
-        boundedContext.ifPresentOrElse(
-            ctx -> serve(ctx, request, observer, params),
-            () -> serveNoContext(request, observer, params)
-        );
+        if (internal) {
+            refuse(request, UNSUPPORTED_REQUEST, observer,
+                   format("The type `%s` is internal.", type));
+            return;
+        }
+        var context = find(type);
+        if (context.isPresent()) {
+            serveIn(context.get(), request, observer, params);
+        } else {
+            serveWithoutContext(request, observer, params);
+        }
     }
 
     /**
@@ -99,8 +133,39 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
     protected abstract TypeUrl enclosedMessageType(T request);
 
     /**
+     * Obtains the tenant of the request.
+     *
+     * <p>The events that record the problems with the request are posted for this tenant.
+     */
+    protected abstract TenantId tenantOf(T request);
+
+    /**
+     * Creates the event that records an unexpected failure to serve the request.
+     *
+     * @param request
+     *         the request that failed
+     * @param error
+     *         the error that stopped the request
+     */
+    protected abstract EventMessage failureEvent(T request, Error error);
+
+    /**
+     * Obtains the origin of the events that record the problems with the request.
+     *
+     * <p>By default, the System context is the origin. An origin that fails validation is
+     * replaced with the default one, so that the event is not refused.
+     */
+    protected Origin originOf(T request) {
+        return Origin.getDefaultInstance();
+    }
+
+    /**
      * Handles the request by passing it to the corresponding feature of
      * the specified bounded context.
+     *
+     * <p>Implementations {@linkplain #reject reject} a request that the bounded context
+     * does not accept. An exception thrown by this method is recorded as
+     * an {@linkplain #failureEvent unexpected failure}.
      *
      * @param context
      *         the bounded context which would serve the request
@@ -120,33 +185,117 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
     /**
      * Handles the case when no bounded context was found for the incoming request.
      *
-     * <p>Implementations may return an error to the given observer.
+     * <p>Implementations may {@linkplain #refuseNotServed refuse} the request. Nothing is
+     * recorded for such a request: {@link InvalidRequestException} and
+     * {@link UnsupportedRequestException} thrown by this method are answered with
+     * their error case, any other exception with {@link ErrorCase#INTERNAL_ERROR}.
      */
     protected abstract void serveNoContext(T request,
                                            StreamObserver<R> observer,
                                            @Nullable Object params);
 
     /**
-     * Verifies that the given request contains a message marked as "internal".
+     * Sends the error of the given kind to the client.
+     *
+     * <p>By default, fails the call with {@linkplain Statuses#failure(ErrorCase) a status}
+     * that carries the error case.
      */
-    protected boolean detectInternal(T request) {
-        var msgClass = enclosedMessageType(request).getMessageClass();
-        var result = isInternal(msgClass);
-        return result;
+    protected void respondWithError(T request, ErrorCase errorCase, StreamObserver<R> observer) {
+        observer.onError(Statuses.failure(errorCase));
     }
 
     /**
-     * Handles the case of an internal message enclosed into the specified request.
+     * Rejects the request that the given bounded context does not accept.
      *
-     * <p>Default implementation reports {@link UnpublishedLanguageException} to
-     * the given observer.
+     * <p>Records the given event in the System context of the bounded context, and answers
+     * with the given error case.
      */
-    protected void handleInternal(T request, StreamObserver<R> observer) {
-        var targetType = enclosedMessageType(request);
-        var unpublishedLanguage = new UnpublishedLanguageException(targetType.typeName());
-        logger().atError().withCause(unpublishedLanguage).log(() -> format(
-                "Unpublished type (`%s`) posted to `%s`.", targetType, serviceName()));
-        observer.onError(unpublishedLanguage);
+    protected final void reject(BoundedContext context,
+                                T request,
+                                EventMessage event,
+                                ErrorCase errorCase,
+                                StreamObserver<R> observer) {
+        logger().atWarning().log(() -> format(
+                "`%s` rejected a request with `%s`: `%s` %s.",
+                serviceName(), errorCase, TypeName.of(event).simpleName(),
+                shortDebugString(event)));
+        record(context, request, event);
+        respondWithError(request, errorCase, observer);
+    }
+
+    /**
+     * Refuses the request that no bounded context serves.
+     *
+     * <p>Answers with {@link ErrorCase#UNSUPPORTED_REQUEST UNSUPPORTED_REQUEST}.
+     */
+    protected final void refuseNotServed(T request, StreamObserver<R> observer) {
+        var type = enclosedMessageType(request);
+        refuse(request, UNSUPPORTED_REQUEST, observer,
+               format("No bounded context serves the type `%s`.", type));
+    }
+
+    private void serveIn(BoundedContext context,
+                         T request,
+                         StreamObserver<R> observer,
+                         @Nullable Object params) {
+        try {
+            serve(context, request, observer, params);
+        } catch (RuntimeException e) {
+            logger().atError().withCause(e).log(() -> format(
+                    "`%s` failed to serve a request in the bounded context `%s`.",
+                    serviceName(), context.name().getValue()));
+            var event = failureEvent(request, Errors.fromThrowable(e));
+            record(context, request, event);
+            respondWithError(request, INTERNAL_ERROR, observer);
+        }
+    }
+
+    @SuppressWarnings("OverlyBroadCatchBlock") // Any other failure is reported alike.
+    private void serveWithoutContext(T request,
+                                     StreamObserver<R> observer,
+                                     @Nullable Object params) {
+        try {
+            serveNoContext(request, observer, params);
+        } catch (InvalidRequestException e) {
+            refuse(request, INVALID_REQUEST, observer, e.getMessage());
+        } catch (UnsupportedRequestException e) {
+            refuse(request, UNSUPPORTED_REQUEST, observer, e.getMessage());
+        } catch (RuntimeException e) {
+            logger().atError().withCause(e).log(() -> format(
+                    "`%s` failed to serve a request in all bounded contexts.", serviceName()));
+            respondWithError(request, INTERNAL_ERROR, observer);
+        }
+    }
+
+    private void refuse(T request,
+                        ErrorCase errorCase,
+                        StreamObserver<R> observer,
+                        @Nullable String reason) {
+        logger().atWarning().log(() -> format(
+                "`%s` refused a request with `%s`. %s", serviceName(), errorCase, reason));
+        respondWithError(request, errorCase, observer);
+    }
+
+    /**
+     * Posts the given event to the System context of the given bounded context,
+     * for the tenant of the request.
+     *
+     * <p>A failure to post is logged, and does not change the answer to the client.
+     */
+    private void record(BoundedContext context, T request, EventMessage event) {
+        try {
+            var origin = originOf(request);
+            var validOrigin = Validate.violationsOf(origin).isEmpty()
+                              ? origin
+                              : Origin.getDefaultInstance();
+            var writeSide = context.systemClient().writeSide();
+            delegatingTo(writeSide).get(tenantOf(request))
+                                   .postEvent(event, validOrigin);
+        } catch (RuntimeException e) {
+            logger().atError().withCause(e).log(() -> format(
+                    "Unable to record `%s` in the bounded context `%s`.",
+                    TypeName.of(event).simpleName(), context.name().getValue()));
+        }
     }
 
     /**
