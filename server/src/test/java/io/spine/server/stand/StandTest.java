@@ -15,17 +15,14 @@
 package io.spine.server.stand;
 
 import com.google.protobuf.FieldMask;
-import io.spine.base.Identifier;
 import io.spine.client.ActorRequestFactory;
 import io.spine.client.Query;
 import io.spine.client.Subscription;
 import io.spine.client.SubscriptionUpdate;
-import io.spine.client.SubscriptionValidationError;
 import io.spine.client.Subscriptions;
 import io.spine.client.Target;
 import io.spine.client.Targets;
 import io.spine.client.Topic;
-import io.spine.client.TopicId;
 import io.spine.core.Event;
 import io.spine.protobuf.AnyPacker;
 import io.spine.server.BoundedContext;
@@ -50,7 +47,6 @@ import io.spine.test.integration.event.OrderPlaced;
 import io.spine.test.projection.Project;
 import io.spine.test.projection.ProjectId;
 import io.spine.testing.server.tenant.TenantAwareTest;
-import io.spine.validation.ValidationError;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -69,10 +65,6 @@ import java.util.Set;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.truth.Truth.assertThat;
 import static io.spine.client.EntityQueryToProto.transformWith;
-import static io.spine.client.QueryValidationError.INVALID_QUERY;
-import static io.spine.client.QueryValidationError.UNSUPPORTED_QUERY_TARGET;
-import static io.spine.client.TopicValidationError.INVALID_TOPIC;
-import static io.spine.client.TopicValidationError.UNSUPPORTED_TOPIC_TARGET;
 import static io.spine.grpc.StreamObservers.noOpObserver;
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.protobuf.Messages.isNotDefault;
@@ -542,14 +534,11 @@ class StandTest extends TenantAwareTest {
     @DisplayName("fail if cancelling non-existent subscription")
     void notCancelNonExistent() {
         var stand = createStand();
-        var topicId = TopicId.newBuilder()
-                .setValue(Identifier.newUuid())
-                .build();
         var nonExistingSubscription = Subscription.newBuilder()
                 .setId(Subscriptions.generateId())
-                .setTopic(Topic.newBuilder().setId(topicId).buildPartial())
-                .buildPartial();
-        assertThrows(InvalidSubscriptionException.class,
+                .setTopic(requestFactory.topic().allOf(Customer.class))
+                .build();
+        assertThrows(UnsupportedRequestException.class,
                      () -> stand.cancel(nonExistingSubscription, noOpObserver()));
     }
 
@@ -650,7 +639,7 @@ class StandTest extends TenantAwareTest {
     }
 
     @Nested
-    @DisplayName("throw invalid query exception packed as `IAE`")
+    @DisplayName("refuse a query")
     class ThrowInvalidQueryEx {
 
         @Test
@@ -666,13 +655,9 @@ class StandTest extends TenantAwareTest {
             var readAllCustomers = requestFactory.query()
                                                  .all(Customer.class);
             var exception =
-                    assertThrows(InvalidQueryException.class,
+                    assertThrows(UnsupportedRequestException.class,
                                  () -> stand.execute(readAllCustomers, noOpObserver()));
             assertEquals(readAllCustomers, exception.getRequest());
-
-            assertEquals(UNSUPPORTED_QUERY_TARGET.getNumber(),
-                         exception.asError()
-                                  .getCode());
         }
 
         @Test
@@ -682,21 +667,15 @@ class StandTest extends TenantAwareTest {
             var invalidQuery = Query.getDefaultInstance();
 
             var exception =
-                    assertThrows(InvalidQueryException.class,
+                    assertThrows(InvalidRequestException.class,
                                  () -> stand.execute(invalidQuery, noOpObserver()));
             assertEquals(invalidQuery, exception.getRequest());
-
-            assertEquals(INVALID_QUERY.getNumber(),
-                         exception.asError()
-                                  .getCode());
-            var validationError = AnyPacker.unpack(exception.asError().getDetails());
-            assertThat(validationError).isInstanceOf(ValidationError.class);
-            assertTrue(isNotDefault(validationError));
+            assertTrue(isNotDefault(exception.validationError()));
         }
     }
 
     @Nested
-    @DisplayName("throw invalid topic exception packed as `IAE`")
+    @DisplayName("refuse a topic")
     class ThrowInvalidTopicEx {
 
         @Test
@@ -711,13 +690,9 @@ class StandTest extends TenantAwareTest {
             // So create a topic for an unknown type.
             var allProjectsTopic = requestFactory.topic().allOf(Project.class);
             var exception =
-                    assertThrows(InvalidTopicException.class,
+                    assertThrows(UnsupportedRequestException.class,
                                  () -> stand.subscribe(allProjectsTopic, noOpObserver()));
             assertEquals(allProjectsTopic, exception.getRequest());
-
-            assertEquals(UNSUPPORTED_TOPIC_TARGET.getNumber(),
-                         exception.asError()
-                                  .getCode());
         }
 
         @Test
@@ -726,22 +701,15 @@ class StandTest extends TenantAwareTest {
             var stand = createStand();
             var invalidTopic = Topic.getDefaultInstance();
             var exception =
-                    assertThrows(InvalidTopicException.class,
+                    assertThrows(InvalidRequestException.class,
                                  () -> stand.subscribe(invalidTopic, noOpObserver()));
             assertEquals(invalidTopic, exception.getRequest());
-
-            assertEquals(INVALID_TOPIC.getNumber(),
-                         exception.asError()
-                                  .getCode());
-
-            var validationError = AnyPacker.unpack(exception.asError().getDetails());
-            assertThat(validationError).isInstanceOf(ValidationError.class);
-            assertTrue(isNotDefault(validationError));
+            assertTrue(isNotDefault(exception.validationError()));
         }
     }
 
     @Nested
-    @DisplayName("throw invalid subscription exception packed as `IAE`")
+    @DisplayName("refuse a subscription")
     class ThrowInvalidSubscriptionEx {
 
         @Test
@@ -751,7 +719,7 @@ class StandTest extends TenantAwareTest {
             var subscription = subscriptionWithUnknownTopic();
 
             var exception =
-                    assertThrows(InvalidSubscriptionException.class,
+                    assertThrows(UnsupportedRequestException.class,
                                  () -> stand.activate(subscription,
                                                       emptyUpdateCallback(),
                                                       noOpObserver()));
@@ -765,7 +733,7 @@ class StandTest extends TenantAwareTest {
             var subscription = subscriptionWithUnknownTopic();
 
             var exception =
-                    assertThrows(InvalidSubscriptionException.class,
+                    assertThrows(UnsupportedRequestException.class,
                                  () -> stand.cancel(subscription, noOpObserver()));
             verifyUnknownSubscription(subscription, exception);
         }
@@ -777,7 +745,7 @@ class StandTest extends TenantAwareTest {
             var invalidSubscription = Subscription.getDefaultInstance();
 
             var exception =
-                    assertThrows(InvalidSubscriptionException.class,
+                    assertThrows(InvalidRequestException.class,
                                  () -> stand.activate(invalidSubscription,
                                                       emptyUpdateCallback(),
                                                       noOpObserver()));
@@ -792,31 +760,20 @@ class StandTest extends TenantAwareTest {
             var invalidSubscription = Subscription.getDefaultInstance();
 
             var exception =
-                    assertThrows(InvalidSubscriptionException.class,
+                    assertThrows(InvalidRequestException.class,
                                  () -> stand.cancel(invalidSubscription, noOpObserver()));
             verifyInvalidSubscription(invalidSubscription, exception);
         }
 
         private static void verifyInvalidSubscription(Subscription invalidSubscription,
-                                                      InvalidSubscriptionException exception) {
+                                                      InvalidRequestException exception) {
             assertEquals(invalidSubscription, exception.getRequest());
-
-            assertEquals(SubscriptionValidationError.INVALID_SUBSCRIPTION.getNumber(),
-                         exception.asError()
-                                  .getCode());
-
-            var validationError = (ValidationError)
-                    AnyPacker.unpack(exception.asError().getDetails());
-            assertTrue(isNotDefault(validationError));
+            assertTrue(isNotDefault(exception.validationError()));
         }
 
         private static void verifyUnknownSubscription(Subscription subscription,
-                                                      InvalidSubscriptionException exception) {
+                                                      UnsupportedRequestException exception) {
             assertEquals(subscription, exception.getRequest());
-
-            assertEquals(SubscriptionValidationError.UNKNOWN_SUBSCRIPTION.getNumber(),
-                         exception.asError()
-                                  .getCode());
         }
 
         private Subscription subscriptionWithUnknownTopic() {

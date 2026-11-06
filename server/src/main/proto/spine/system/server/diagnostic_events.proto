@@ -19,6 +19,7 @@ package spine.system.server;
 import "spine/options.proto";
 
 option (type_url_prefix) = "type.spine.io";
+option (internal_all) = true;
 option (every_is).java_type = "DiagnosticEvent";
 option java_package = "io.spine.system.server";
 option java_outer_classname = "DiagnosticEventsProto";

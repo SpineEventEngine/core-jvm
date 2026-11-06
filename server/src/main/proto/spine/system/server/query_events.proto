@@ -1,0 +1,72 @@
+/*
+ * Copyright 2026 CodeMatters, Lda.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
+ */
+
+syntax = "proto3";
+
+package spine.system.server;
+
+import "spine/options.proto";
+
+option (type_url_prefix) = "type.spine.io";
+option (internal_all) = true;
+
+option java_package = "io.spine.system.server.event";
+option java_outer_classname = "QueryEventsProto";
+option java_multiple_files = true;
+
+import "spine/base/error.proto";
+import "spine/core/actor_context.proto";
+import "spine/client/query.proto";
+import "spine/validation/validation_error.proto";
+
+// An event emitted when the `QueryService` does not serve a query because the query fails
+// validation.
+message QueryValidationFailed {
+
+    // The ID of the query.
+    client.QueryId id = 1;
+
+    // The constraints that the query violates.
+    validation.ValidationError validation_error = 2;
+
+    // The actor context of the query.
+    core.ActorContext actor_context = 3;
+}
+
+// An event emitted when the `QueryService` does not serve a query because the Bounded Context
+// does not expose the target type of the query for querying.
+message UnsupportedQueryReceived {
+
+    // The ID of the query.
+    client.QueryId id = 1;
+
+    // The type URL of the query target.
+    string type_url = 2;
+
+    // The actor context of the query.
+    core.ActorContext actor_context = 3;
+}
+
+// An event emitted when the `QueryService` fails to execute a query.
+message QueryExecutionFailed {
+
+    // The ID of the query.
+    client.QueryId id = 1;
+
+    // The error that stopped the query.
+    base.Error error = 2;
+
+    // The actor context of the query.
+    core.ActorContext actor_context = 3;
+}

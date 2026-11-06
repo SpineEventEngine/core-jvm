@@ -25,6 +25,7 @@ import io.spine.system.server.event.CommandAcknowledged;
 import io.spine.system.server.event.CommandDispatched;
 import io.spine.system.server.event.CommandHandled;
 import io.spine.system.server.event.CommandReceived;
+import io.spine.system.server.event.CommandPostingFailed;
 import io.spine.system.server.event.CommandRejected;
 import io.spine.system.server.event.CommandScheduled;
 import io.spine.system.server.event.CommandSplit;
@@ -129,6 +130,14 @@ final class CommandLogProjection
      *
      * <p>The event is generated if the command handler rejected the command.
      */
+    @Subscribe
+    void on(CommandPostingFailed event) {
+        var status = ProcessingStatus.newBuilder()
+                .setPostingError(event.getError())
+                .build();
+        setStatus(status);
+    }
+
     @Subscribe
     void on(CommandRejected event) {
         var status = ProcessingStatus.newBuilder()

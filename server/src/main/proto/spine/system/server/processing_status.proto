@@ -64,5 +64,8 @@ message ProcessingStatus {
 
         // The tenant of the command, which the single-tenant `CommandBus` did not accept.
         spine.core.TenantId tenant_not_expected = 7;
+
+        // The `CommandService` failed to post the command because of an unexpected error.
+        spine.base.Error posting_error = 8;
     }
 }

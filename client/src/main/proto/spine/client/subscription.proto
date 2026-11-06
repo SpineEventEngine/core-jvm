@@ -178,32 +178,3 @@ message Subscription {
     // Represents the original topic for this subscription.
     Topic topic = 2 [(required) = true, (validate) = true];
 }
-
-// Enumeration of possible technical error reasons occurring in topic validation.
-enum TopicValidationError {
-
-    // Reserved value.
-    TVE_UNKNOWN_REASON = 0;
-
-    // The topic target is not supported by the server.
-    UNSUPPORTED_TOPIC_TARGET = 1;
-
-    // The topic message is invalid according to custom Protobuf options set.
-    INVALID_TOPIC = 2;
-}
-
-// Enumeration of possible technical error reasons occurring in subscription validation.
-enum SubscriptionValidationError {
-
-    // Reserved value.
-    SVE_UNKNOWN_REASON = 0;
-
-    // The target of the subscription topic is not supported by the server.
-    UNSUPPORTED_SUBSCRIPTION_TARGET = 1;
-
-    // The subscription message is invalid according to custom Protobuf options set.
-    INVALID_SUBSCRIPTION = 2;
-
-    // This subscription is unknown to this server.
-    UNKNOWN_SUBSCRIPTION = 3;
-}
