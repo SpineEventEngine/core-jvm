@@ -436,19 +436,11 @@ public final class SubscriptionService
                 refuseNotServed(subscription, observer);
                 return;
             }
-            logger().atDebug().log(() -> format(
-                    "Cancelling the subscription `%s` in the contexts: %s.",
-                    subscription.toShortString(),
-                    contextsAsString(holders))
-            );
             var gatheringObserver = StreamObservers.<Response>memoizingObserver();
             for (var context : holders) {
                 serveBy(context.stand(), subscription, gatheringObserver, params);
             }
-            var responses = gatheringObserver.responses();
-            if (!responses.isEmpty()) {
-                observer.onNext(responses.get(0));
-            }
+            observer.onNext(gatheringObserver.firstResponse());
             observer.onCompleted();
         }
     }

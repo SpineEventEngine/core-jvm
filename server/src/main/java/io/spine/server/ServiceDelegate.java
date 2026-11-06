@@ -98,19 +98,21 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
     @SuppressWarnings("OverlyBroadCatchBlock") // Any type that cannot be read is reported alike.
     final void serve(T request, StreamObserver<R> observer, @Nullable Object params) {
         TypeUrl type;
+        boolean internal;
         try {
             type = enclosedMessageType(request);
-            if (isInternal(type.getMessageClass())) {
-                refuse(request, UNSUPPORTED_REQUEST, observer,
-                       format("The type `%s` is internal.", type));
-                return;
-            }
+            internal = isInternal(type.getMessageClass());
         } catch (UnknownTypeException e) {
             refuse(request, UNSUPPORTED_REQUEST, observer, e.getMessage());
             return;
         } catch (RuntimeException e) {
             refuse(request, INVALID_REQUEST, observer,
                    format("The type of the request cannot be read: %s", e.getMessage()));
+            return;
+        }
+        if (internal) {
+            refuse(request, UNSUPPORTED_REQUEST, observer,
+                   format("The type `%s` is internal.", type));
             return;
         }
         var context = find(type);
