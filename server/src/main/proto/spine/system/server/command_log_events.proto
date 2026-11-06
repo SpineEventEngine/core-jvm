@@ -90,10 +90,13 @@ message CommandHandled {
 message CommandValidationFailed {
 
     // The ID of the command.
+    //
+    // The field is not required: the command may be refused because it has no ID.
+    //
     core.CommandId id = 1;
 
     // The constraints that the command violates.
-    validation.ValidationError validation_error = 2;
+    validation.ValidationError validation_error = 2 [(required) = true];
 }
 
 // An event emitted when the `CommandBus` does not accept a command because no handler
@@ -101,10 +104,10 @@ message CommandValidationFailed {
 message UnsupportedCommandReceived {
 
     // The ID of the command.
-    core.CommandId id = 1;
+    core.CommandId id = 1 [(required) = true];
 
     // The type URL of the command message.
-    string type_url = 2;
+    string type_url = 2 [(required) = true];
 }
 
 // An event emitted when a multitenant `CommandBus` does not accept a command because
@@ -112,6 +115,10 @@ message UnsupportedCommandReceived {
 message CommandTenantNotSpecified {
 
     // The ID of the command.
+    //
+    // The field is not required: the tenant is checked before the command is validated,
+    // so the command may have no ID.
+    //
     core.CommandId id = 1;
 }
 
@@ -120,10 +127,14 @@ message CommandTenantNotSpecified {
 message CommandTenantNotExpected {
 
     // The ID of the command.
+    //
+    // The field is not required: the tenant is checked before the command is validated,
+    // so the command may have no ID.
+    //
     core.CommandId id = 1;
 
     // The tenant of the command.
-    core.TenantId tenant = 2;
+    core.TenantId tenant = 2 [(required) = true];
 }
 
 // An event emitted if the command cannot be handled due to a business rejection.
