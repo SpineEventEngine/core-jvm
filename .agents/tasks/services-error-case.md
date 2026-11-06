@@ -83,8 +83,8 @@ context. Slice 3 of splitting #1705; stacked on #1711 (slice 2, the buses).
 - [x] Tests (Kotlin): an error-case spec per service (each row of the table, the tenant of
   the recorded event), `StatusesSpec`, `errorCaseOf()`, `CommandLogProjectionSpec`;
   the existing Java tests updated, `StatusesTest` replaced.
-- [x] Version `.640`; `clean build dokkaGenerate` (server 2502 tests); `pre-pr` on the
-  working tree. Not committed: waits for the owner.
+- [x] Version `.640`; `clean build dokkaGenerate` (server 2502 tests); `pre-pr`.
+- [x] PR #1713, stacked on #1711; to be retargeted to `master` once #1711 is merged.
 
 ## Differences from the plan
 
