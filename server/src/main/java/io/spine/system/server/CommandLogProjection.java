@@ -19,7 +19,6 @@ import io.spine.core.Command;
 import io.spine.core.CommandContext.Schedule;
 import io.spine.core.CommandId;
 import io.spine.core.Subscribe;
-import io.spine.core.Where;
 import io.spine.server.projection.Projection;
 import io.spine.system.server.Substituted.Sequence;
 import io.spine.system.server.event.CommandAcknowledged;
@@ -83,9 +82,7 @@ final class CommandLogProjection
     }
 
     @Subscribe
-    void on(@Where(field = "handled_signal.id.type_url",
-                   equals = "type.spine.io/spine.core.Command")
-            HandlerFailedUnexpectedly event) {
+    void on(HandlerFailedUnexpectedly event) {
         var status = HandlingStatus.newBuilder()
                 .setError(event.getError())
                 .build();
