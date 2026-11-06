@@ -134,7 +134,6 @@ final class CommandValidator implements EnvelopeValidator<CommandEnvelope> {
         /**
          * Validates the passed command ID.
          */
-        @Internal
         private static List<ConstraintViolation> validateId(CommandId id) {
             var violations = Validate.violationsOf(id);
             if (id.getUuid().isEmpty()) {
