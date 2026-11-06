@@ -44,8 +44,8 @@ only the kind of an error"); stacked on #1710 (`ProcessingStatus`).
   `Responses.errorWith(ErrorCase)` and `causedError(ErrorCase)`; `CommandAckMonitor` posts
   nothing for an ack with `Status.error`, which an application filter may still build;
   `MemoizingWriteSide.hasSeenEvents()`; an end-to-end case for `tenant_not_specified`.
-- [ ] Version `.630`; `clean build dokkaGenerate`; `pre-pr`.
-- [ ] PR against `claude/processing-status` (on the owner's go-ahead).
+- [x] Version `.630`; `clean build dokkaGenerate`; `pre-pr`.
+- [x] PR #1711, against `master` once #1710 merged.
 
 ## Differences from the plan
 
@@ -53,6 +53,12 @@ only the kind of an error"); stacked on #1710 (`ProcessingStatus`).
   with, not through `BoundedContextBuilder`.
 - `ResponseStatusSubject` is unchanged: it checks the statuses of queries, which slice 3
   changes.
+- The exceptions that built the `Error`s of refused messages are removed, since nothing
+  creates them any more: `InvalidCommandException` (built by `CommandValidator`),
+  `InvalidEventException` (`EventValidator`), `UnsupportedEventException` (`DeadEventTap`),
+  their base `EventException`, and the `MessageInvalid` interface.
+- The context of an invalid event may have no origin: `EventBus` finds the actor with
+  `EventContextMixin.findActorContext()`, and records such an event for the default tenant.
 
 ## Next slices
 
