@@ -1,27 +1,15 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.commandbus;
@@ -32,11 +20,10 @@ import io.spine.client.ActorRequestFactory;
 import io.spine.core.Ack;
 import io.spine.core.Command;
 import io.spine.core.CommandContext;
-import io.spine.core.CommandValidationError;
+import io.spine.core.ErrorCase;
 import io.spine.core.Status;
 import io.spine.core.TenantId;
 import io.spine.grpc.MemoizingObserver;
-import io.spine.protobuf.AnyPacker;
 import io.spine.server.BoundedContext;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.command.AbstractAssignee;
@@ -51,7 +38,6 @@ import io.spine.test.commandbus.command.CmdBusCreateProject;
 import io.spine.test.commandbus.event.CmdBusProjectCreated;
 import io.spine.testing.client.TestActorRequestFactory;
 import io.spine.testing.server.model.ModelTests;
-import io.spine.validation.ValidationError;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -63,14 +49,11 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
-import static com.google.common.truth.extensions.proto.ProtoTruth.assertThat;
-import static io.spine.core.CommandValidationError.INVALID_COMMAND;
 import static io.spine.grpc.StreamObservers.memoizingObserver;
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.server.commandbus.Given.ACommand.createProject;
 import static io.spine.testing.core.given.GivenTenantId.generate;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -110,38 +93,12 @@ abstract class AbstractCommandBusTestSuite {
         return invalidCmd;
     }
 
-    static void checkCommandError(Ack sendingResult,
-                                  CommandValidationError validationError,
-                                  Class<? extends CommandException> exceptionClass,
-                                  Command cmd) {
-        checkCommandError(sendingResult,
-                          validationError,
-                          exceptionClass.getCanonicalName(),
-                          cmd);
-    }
-
-    static void checkCommandError(Ack sendingResult,
-                                  CommandValidationError validationError,
-                                  String errorType,
-                                  Command cmd) {
+    static void checkCommandError(Ack sendingResult, ErrorCase errorCase, Command cmd) {
         var status = sendingResult.getStatus();
-        assertEquals(status.getStatusCase(), Status.StatusCase.ERROR);
+        assertEquals(Status.StatusCase.ERROR_CASE, status.getStatusCase());
+        assertEquals(errorCase, status.getErrorCase());
         var commandId = cmd.getId();
         assertEquals(commandId, unpack(sendingResult.getMessageId()));
-
-        var error = status.getError();
-        assertEquals(errorType,
-                     error.getType());
-        assertEquals(validationError.getNumber(), error.getCode());
-        assertFalse(error.getMessage()
-                         .isEmpty());
-        if (validationError == INVALID_COMMAND) {
-            assertTrue(error.hasDetails());
-            var details = AnyPacker.unpack(error.getDetails());
-            assertThat(details).isInstanceOf(ValidationError.class);
-            assertThat(((ValidationError)details).getConstraintViolationList())
-                    .isNotEmpty();
-        }
     }
 
     protected static Command newCommandWithoutTenantId() {

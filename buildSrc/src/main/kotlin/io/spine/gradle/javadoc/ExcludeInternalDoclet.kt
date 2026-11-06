@@ -89,7 +89,7 @@ private fun Project.appendCustomJavadocTask(excludeInternalDoclet: Configuration
             !it.absolutePath.contains("generated")
         }.asFileTree
 
-        classpath = javadocTask.classpath
+        classpath = javadocTask.get().classpath
 
         options {
             encoding = JavadocConfig.encoding.name

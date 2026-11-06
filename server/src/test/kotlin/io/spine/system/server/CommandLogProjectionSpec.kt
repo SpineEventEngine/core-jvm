@@ -16,16 +16,16 @@ package io.spine.system.server
 
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.shouldBe
+import io.spine.base.Identifier.newUuid
 import io.spine.core.Ack
 import io.spine.core.Command
 import io.spine.core.CommandId
-import io.spine.core.CommandValidationError
 import io.spine.core.ErrorCase.INVALID_REQUEST
 import io.spine.core.Subscribe
-import io.spine.core.ack
-import io.spine.core.status
-import io.spine.core.toError
+import io.spine.core.TenantId
+import io.spine.core.tenantId
 import io.spine.grpc.StreamObservers.noOpObserver
 import io.spine.protobuf.pack
 import io.spine.server.BoundedContext
@@ -34,15 +34,17 @@ import io.spine.server.DefaultRepository
 import io.spine.server.commandbus.CommandFilter
 import io.spine.server.entity.RecordBasedRepository
 import io.spine.server.event.AbstractEventSubscriber
+import io.spine.server.tenant.TenantAwareRunner
 import io.spine.server.type.CommandEnvelope
 import io.spine.system.server.SystemBoundedContexts.systemOf
 import io.spine.system.server.given.command.CompanyAggregate
 import io.spine.system.server.given.command.CompanyNameProcman.FAULTY_NAME
 import io.spine.system.server.given.command.CompanyNameProcmanRepo
+import io.spine.test.commandbus.command.cmdBusStartProject
+import io.spine.test.commandbus.projectId
 import io.spine.testing.client.TestActorRequestFactory
 import io.spine.testing.logging.mute.MuteLogging
 import io.spine.type.TypeUrl
-import io.spine.validation.ValidationError
 import java.util.Optional
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -61,19 +63,14 @@ internal class CommandLogProjectionSpec {
     @BeforeEach
     fun createContext() {
         val builder = BoundedContextBuilder.assumingTests()
-            .addCommandFilter(AnsweringErrorCase)
+            .addCommandFilter(RefusingFilter)
         builder.systemSettings().enableCommandLog()
         context = builder.build()
         context.internalAccess().run {
             register(DefaultRepository.of(CompanyAggregate::class.java))
             register(CompanyNameProcmanRepo())
         }
-        val repository = systemOf(context).internalAccess()
-            .findRepository(CommandLog::class.java)
-            .orElseThrow()
-        @Suppress("UNCHECKED_CAST") // The repository of `CommandLog` is known to be such.
-        val typed = repository as RecordBasedRepository<CommandId, CommandLogProjection, CommandLog>
-        commandLog = typed
+        commandLog = commandLogOf(context)
     }
 
     @AfterEach
@@ -135,23 +132,59 @@ internal class CommandLogProjectionSpec {
     }
 
     @Test
-    fun `record the error with the details when the bus does not accept a command`() {
+    fun `record the violations of a command that fails validation`() {
         val invalid = establishing(name = "Any name").toBuilder()
             .setMessage(EstablishCompany.getDefaultInstance().pack())
             .build()
         val command = post(invalid)
 
-        val error = howProcessed(command).error
-        error.type shouldBe CommandValidationError.getDescriptor().fullName
-        error.code shouldBe CommandValidationError.INVALID_COMMAND.number
-        error.details.`is`(ValidationError::class.java) shouldBe true
+        howProcessed(command).validationError.constraintViolationList.shouldNotBeEmpty()
     }
 
     @Test
-    fun `record the error case when a filter answers with it`() {
-        val command = post(establishing(name = AnsweringErrorCase.NAME))
+    fun `record a command that no handler in the context handles`() {
+        val command = post(requests.createCommand(cmdBusStartProject {
+            projectId = projectId { id = newUuid() }
+        }))
 
-        howProcessed(command).error shouldBe INVALID_REQUEST.toError()
+        howProcessed(command).hasUnsupported() shouldBe true
+    }
+
+    @Test
+    fun `record the tenant of a command posted to a single-tenant context`() {
+        val tenant = tenantId { value = "Tenant of a single-tenant context" }
+        val withTenant = TestActorRequestFactory(javaClass, tenant)
+        val command = post(withTenant.createCommand(establishCompany {
+            id = CompanyId.generate()
+            finalName = "A company of a tenant"
+        }))
+
+        howProcessed(command).tenantNotExpected shouldBe tenant
+    }
+
+    @Test
+    fun `record a command without a tenant posted to a multitenant context`() {
+        val builder = BoundedContextBuilder.assumingTests(/* multitenant = */ true)
+        builder.systemSettings().enableCommandLog()
+        builder.build().use { multitenant ->
+            // No handler is needed: the tenant is checked before the receivers of the command.
+            val log = commandLogOf(multitenant)
+            val command = establishing(name = "A company without a tenant")
+
+            multitenant.commandBus().post(command, noOpObserver())
+
+            val timeline = TenantAwareRunner.with(TenantId.getDefaultInstance()).evaluate {
+                log.find(command.id).orElseThrow().state().timeline
+            }
+            timeline.howProcessed.hasTenantNotSpecified() shouldBe true
+        }
+    }
+
+    @Test
+    fun `record nothing for a command that an application filter refuses`() {
+        val command = post(establishing(name = RefusingFilter.NAME))
+
+        timelineOf(command).hasWhenProcessed() shouldBe false
     }
 
     private fun establishing(name: String): Command =
@@ -166,31 +199,38 @@ internal class CommandLogProjectionSpec {
     }
 
     private fun howProcessed(command: Command): ProcessingStatus {
-        val timeline = commandLog.find(command.id).orElseThrow().state().timeline
+        val timeline = timelineOf(command)
         timeline.hasWhenProcessed() shouldBe true
         return timeline.howProcessed
+    }
+
+    private fun timelineOf(command: Command): CommandTimeline =
+        commandLog.find(command.id).orElseThrow().state().timeline
+
+    private fun commandLogOf(
+        context: BoundedContext
+    ): RecordBasedRepository<CommandId, CommandLogProjection, CommandLog> {
+        val repository = systemOf(context).internalAccess()
+            .findRepository(CommandLog::class.java)
+            .orElseThrow()
+        @Suppress("UNCHECKED_CAST") // The repository of `CommandLog` is known to be such.
+        return repository as RecordBasedRepository<CommandId, CommandLogProjection, CommandLog>
     }
 }
 
 /**
- * Answers establishing a company with the [NAME] with the [INVALID_REQUEST] error case.
+ * Refuses establishing a company with the [NAME] with the [INVALID_REQUEST] error case.
  */
-private object AnsweringErrorCase : CommandFilter {
+private object RefusingFilter : CommandFilter {
 
-    const val NAME = "Answered with an error case"
+    const val NAME = "Refused by a filter"
 
     override fun filter(envelope: CommandEnvelope): Optional<Ack> {
         val message = envelope.message()
         if (message !is EstablishCompany || message.finalName != NAME) {
             return letPass()
         }
-        val id = envelope.id()
-        val answerStatus = status { errorCase = INVALID_REQUEST }
-        val answer = ack {
-            messageId = id.pack()
-            status = answerStatus
-        }
-        return Optional.of(answer)
+        return reject(envelope, INVALID_REQUEST)
     }
 }
 

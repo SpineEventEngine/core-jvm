@@ -74,6 +74,29 @@ class DependencyReportOutputTest {
         reportFile.readText() shouldBe "license report"
     }
 
+    /**
+     * In a build of one project, the report to merge is that of the root project, whose
+     * task is in the same task container as the merging task.
+     */
+    @Test
+    fun `merge the license report of a single-project build`() {
+        project.pluginManager.apply(BasePlugin::class.java)
+        LicenseReporter.generateReportIn(project)
+        val sourceReport = project.layout.buildDirectory.asFile.get()
+            .resolve(Paths.relativePath)
+            .resolve(Paths.outputFilename)
+        sourceReport.parentFile.mkdirs()
+        sourceReport.writeText("license report")
+
+        LicenseReporter.mergeAllReports(project)
+
+        project.tasks.named("mergeAllLicenseReports").get()
+            .executeActions()
+
+        val reportFile = projectDir.resolve("docs/dependencies/dependencies.md")
+        reportFile.readText() shouldBe "license report"
+    }
+
     private fun subproject(name: String): Project {
         val subprojectDir = projectDir.resolve(name)
         subprojectDir.mkdirs()

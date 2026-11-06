@@ -24,7 +24,7 @@ package io.spine.dependency.local
     "unused" /* Some subprojects do not use all Logging artifacts. */,
 )
 object Logging {
-    const val version = "2.0.0-SNAPSHOT.428"
+    const val version = "2.0.0-SNAPSHOT.429"
     const val group = Spine.group
 
     const val loggingArtifact = "spine-logging"
@@ -42,7 +42,22 @@ object Logging {
     // Transitive dependencies.
     // Make `public` and use them to force a version in a particular repository, if needed.
     internal const val julBackend = "$group:spine-logging-jul-backend:$version"
+
+    /**
+     * The former `middleware` module of Spine Logging.
+     *
+     * In `2.0.0-SNAPSHOT.270`, its code moved into the `logging` module, which is
+     * published as [lib]. The last published version of this artifact is
+     * `2.0.0-SNAPSHOT.263`, so these coordinates do not resolve at [version].
+     *
+     * @deprecated Use [lib] instead.
+     */
+    @Deprecated(
+        "The module was merged into `spine-logging` and is no longer published.",
+        ReplaceWith("lib"),
+    )
     const val middleware = "$group:spine-logging-middleware:$version"
+
     internal const val platformGenerator = "$group:spine-logging-platform-generator:$version"
     internal const val jvmDefaultPlatform = "$group:spine-logging-jvm-default-platform:$version"
 }

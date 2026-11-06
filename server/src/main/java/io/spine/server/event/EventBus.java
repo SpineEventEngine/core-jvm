@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.event;
@@ -34,9 +22,12 @@ import io.grpc.stub.StreamObserver;
 import io.spine.annotation.Internal;
 import io.spine.annotation.VisibleForTesting;
 import io.spine.core.Ack;
+import io.spine.core.ActorContext;
 import io.spine.core.Event;
 import io.spine.core.EventContext;
+import io.spine.core.Origin;
 import io.spine.core.Signal;
+import io.spine.core.TenantId;
 import io.spine.server.BoundedContext;
 import io.spine.server.ContextAware;
 import io.spine.server.ServerEnvironment;
@@ -44,10 +35,14 @@ import io.spine.server.bus.BusBuilder;
 import io.spine.server.bus.DeadMessageHandler;
 import io.spine.server.bus.DispatcherRegistry;
 import io.spine.server.bus.EnvelopeValidator;
+import io.spine.server.bus.InvalidMessageHandler;
 import io.spine.server.bus.MulticastBus;
 import io.spine.server.enrich.Enricher;
 import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
+import io.spine.system.server.EventValidationFailed;
+import io.spine.system.server.NoOpSystemWriteSide;
+import io.spine.system.server.SystemWriteSide;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -57,6 +52,7 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static io.spine.grpc.StreamObservers.noOpObserver;
+import static io.spine.system.server.WriteSideFunction.delegatingTo;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -108,6 +104,13 @@ public final class EventBus
     private @MonotonicNonNull EventStore eventStore;
 
     /**
+     * The Bounded Context with which this bus is registered.
+     *
+     * @see #registerWith(BoundedContext)
+     */
+    private @MonotonicNonNull BoundedContext context;
+
+    /**
      * The handler for dead events.
      */
     private final DeadMessageHandler<EventEnvelope> deadMessageHandler;
@@ -133,7 +136,7 @@ public final class EventBus
         super(builder);
         this.enricher = builder.enricher;
         this.observer = requireNonNull(builder.observer);
-        this.deadMessageHandler = new DeadEventTap(this::eventStore);
+        this.deadMessageHandler = new DeadEventTap(this::eventStore, this::systemFor);
     }
 
     /** Creates a builder for new {@code EventBus}. */
@@ -174,6 +177,48 @@ public final class EventBus
             eventValidator = new EventValidator();
         }
         return eventValidator;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Posts {@link EventValidationFailed} to the System context.
+     *
+     * <p>The context of an invalid event may have no origin, so the tenant and the actor of
+     * the event may be unknown. Then the failure is posted for the default tenant, and
+     * the System context assigns the actor.
+     */
+    @Override
+    protected InvalidMessageHandler<EventEnvelope> invalidMessageHandler() {
+        return (event, violations) -> {
+            var failed = EventValidationFailed.newBuilder()
+                    .setId(event.id())
+                    .setValidationError(violations)
+                    .build();
+            var actor = event.context()
+                             .findActorContext();
+            var tenant = actor.map(ActorContext::getTenantId)
+                              .orElse(TenantId.getDefaultInstance());
+            var origin = actor.isPresent()
+                         ? event.asMessageOrigin()
+                         : Origin.getDefaultInstance();
+            systemFor(tenant).postEvent(failed, origin);
+        };
+    }
+
+    /**
+     * Obtains the System write side of the Bounded Context of this bus for the given tenant.
+     *
+     * <p>A bus that is not registered with a Bounded Context has no System context, so
+     * the events posted to the returned write side are dropped.
+     */
+    private SystemWriteSide systemFor(TenantId tenant) {
+        if (context == null) {
+            return NoOpSystemWriteSide.INSTANCE;
+        }
+        var writeSide = context.systemClient()
+                               .writeSide();
+        return delegatingTo(writeSide).get(tenant);
     }
 
     @Override
@@ -300,6 +345,7 @@ public final class EventBus
     @Override
     @Internal
     public void registerWith(BoundedContext context) {
+        this.context = context;
         eventStore =
                 ServerEnvironment.instance()
                                  .storageFactory()

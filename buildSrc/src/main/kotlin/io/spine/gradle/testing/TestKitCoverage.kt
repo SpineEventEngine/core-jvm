@@ -35,8 +35,8 @@ import org.gradle.kotlin.dsl.withType
  *     dedicated [AGENT_CONFIGURATION] configuration.
  *  2. Passes the agent JAR path and a per-module exec directory
  *     (`build/`[TESTKIT_COVERAGE_DIR]) to the test JVM as system properties.
- *     The `plugin-testlib` harness reads these and writes a `gradle.properties`
- *     into the worker's Gradle user home that adds `-javaagent:…` to the worker JVM.
+ *     The `plugin-testlib` harness reads these and attaches `-javaagent:…` to the
+ *     worker JVM.
  *  3. Wipes the exec directory at most once per build invocation, from the
  *     `doFirst` of the first `Test` task that actually executes, so stale worker
  *     coverage from a previous run does not accumulate. Two failure modes are
@@ -57,6 +57,11 @@ import org.gradle.kotlin.dsl.withType
  *     execution and restore no exec files, leaving Kover with no TestKit
  *     coverage. An up-to-date (non-cache) run is unaffected: the previous run's
  *     files remain on disk and the guarded `doFirst` never deletes them.
+ *
+ * The method does not choose the TestKit directory of the worker builds.
+ * The `module-testing` and `kmp-module` script plugins point the `Test` tasks
+ * of a module at a shared one (see [useSharedTestKitDir]), which a harness
+ * that passes its own directory to `withTestKitDir(...)` does not use.
  *
  * The produced `.exec` files are merged into the Kover reports by
  * [io.spine.gradle.report.coverage.KoverConfig]. The agent emits binary

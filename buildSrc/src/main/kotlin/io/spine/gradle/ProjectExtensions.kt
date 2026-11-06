@@ -59,7 +59,11 @@ fun Project.applyPlugin(cls: Class<out Plugin<*>>) {
  *
  * The task must be present. Also, a caller is responsible for using the proper value of
  * the generic parameter `T`.
+ *
+ * Gradle creates the task if it is only registered so far, even in a build that never
+ * runs it. Prefer `tasks.named<T>(name)`, which finds the task without creating it.
  */
+@Deprecated(message = "Please use `tasks.named<T>(name)`, which does not create the task.")
 @Suppress("UNCHECKED_CAST")     /* See the method docs. */
 fun <T : Task> Project.getTask(name: String): T {
     val task = this.tasks.findByName(name)

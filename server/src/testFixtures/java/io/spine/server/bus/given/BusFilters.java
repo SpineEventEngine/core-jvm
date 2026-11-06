@@ -14,8 +14,8 @@
 
 package io.spine.server.bus.given;
 
-import io.spine.base.Error;
 import io.spine.core.Ack;
+import io.spine.core.ErrorCase;
 import io.spine.server.bus.BusFilter;
 import io.spine.server.type.CommandEnvelope;
 
@@ -45,17 +45,17 @@ public final class BusFilters {
         }
     }
 
-    public static final class RejectingWithError implements BusFilter<CommandEnvelope> {
+    public static final class RejectingWithErrorCase implements BusFilter<CommandEnvelope> {
 
-        private final Error error;
+        private final ErrorCase errorCase;
 
-        public RejectingWithError(Error error) {
-            this.error = error;
+        public RejectingWithErrorCase(ErrorCase errorCase) {
+            this.errorCase = errorCase;
         }
 
         @Override
         public Optional<Ack> filter(CommandEnvelope envelope) {
-            return reject(envelope, error);
+            return reject(envelope, errorCase);
         }
     }
 }

@@ -17,9 +17,11 @@ package io.spine.gradle.publish
 import io.spine.gradle.repo.Repository
 import org.gradle.api.Project
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.publish.maven.tasks.GenerateMavenPom
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.create
+import org.gradle.kotlin.dsl.withType
 
 /**
  * A publication for a typical Java project.
@@ -57,6 +59,12 @@ class StandardJavaPublicationHandler private constructor(
          * The name of the publication created by [StandardJavaPublicationHandler].
          */
         const val PUBLICATION_NAME = "mavenJava"
+
+        /**
+         * The packaging of a POM whose main artifact is a JAR,
+         * and the extension of that artifact.
+         */
+        private const val JAR = "jar"
 
         override fun create(
             project: Project,
@@ -108,6 +116,7 @@ class StandardJavaPublicationHandler private constructor(
         val javaComponent = project.components.findByName("java")
         javaComponent?.let {
             from(it)
+            declareJarPackaging()
         }
 
         /*
@@ -116,6 +125,65 @@ class StandardJavaPublicationHandler private constructor(
          */
         jars.forEach {
             artifact(it)
+        }
+    }
+
+    /**
+     * Sets the `jar` packaging of the POM, which Gradle would calculate from
+     * the JAR of the `java` component.
+     *
+     * Until the packaging is set, reading it makes Gradle calculate it from the artifacts
+     * of the publication, which creates the tasks producing them. [PublicationSbom] reads
+     * the packaging in every build, so that the SBOM it adds does not change it.
+     *
+     * Writing the POM fails if the publication turns out to have a main artifact other
+     * than one JAR, so that a misleading POM is not published. The artifacts are checked
+     * when the POM is written, so that the check neither creates the tasks producing them
+     * nor takes the artifacts of the component into the publication before it is final.
+     * The result is an input of the task, so an up-to-date task does not hide a mismatch.
+     */
+    private fun MavenPublication.declareJarPackaging() {
+        pom.packaging = JAR
+        val publication = this
+        val pomTask = pomTaskName()
+        project.tasks.withType<GenerateMavenPom>()
+            .named { it == pomTask }
+            .configureEach {
+                val mismatch = project.provider { publication.jarPackagingMismatch() }
+                inputs.property("jarPackagingMismatch", mismatch.orElse(""))
+                doFirst {
+                    mismatch.orNull?.let { throw IllegalStateException(it) }
+                }
+            }
+    }
+
+    /**
+     * Describes how this publication contradicts the `jar` packaging, or returns `null`
+     * if it does not.
+     *
+     * The publication contradicts it if it keeps the `jar` packaging, but does not have
+     * exactly one main artifact, a JAR, the SBOM not counted. Such is the case if
+     * the build gives the `jar` task a classifier, or adds an artifact without one.
+     */
+    private fun MavenPublication.jarPackagingMismatch(): String? {
+        if (pom.packaging != JAR) {
+            // The build has set a packaging of its own.
+            return null
+        }
+        val mainArtifacts = artifacts.filter {
+            it.classifier.isNullOrEmpty() && it.extension != PublicationSbom.sbomExtension
+        }
+        return if (mainArtifacts.singleOrNull()?.extension == JAR) {
+            null
+        } else {
+            val found = if (mainArtifacts.isEmpty()) {
+                "no main artifact"
+            } else {
+                "the main artifacts ${mainArtifacts.map { it.file.name }}"
+            }
+            "The POM of the `$name` publication of `${project.path}` declares the `jar`" +
+                    " packaging, but the publication has $found. Please keep the `jar`" +
+                    " task without a classifier, or publish the module with custom publishing."
         }
     }
 }

@@ -17,23 +17,19 @@ package io.spine.server.commandbus
 import com.google.common.collect.ImmutableSet
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.shouldBeInstanceOf
 import io.spine.base.Identifier.newUuid
 import io.spine.base.error
 import io.spine.core.Ack
 import io.spine.core.Command
-import io.spine.core.ErrorCase.ERROR_CASE_UNSPECIFIED
 import io.spine.core.ErrorCase.INVALID_REQUEST
 import io.spine.core.Event
 import io.spine.core.StatusKt
 import io.spine.core.TenantId
 import io.spine.core.ack
 import io.spine.core.status
-import io.spine.core.toError
 import io.spine.protobuf.pack
 import io.spine.server.bus.causedError
 import io.spine.system.server.MemoizingWriteSide
-import io.spine.system.server.event.CommandErrored
 import io.spine.test.commandbus.ProjectId
 import io.spine.test.commandbus.command.CmdBusStartProject
 import io.spine.testing.client.TestActorRequestFactory
@@ -59,7 +55,7 @@ internal class CommandAckMonitorSpec {
         .build()
 
     @Test
-    fun `post 'CommandErrored' without an error case for an error the poster receives`() {
+    fun `post nothing for an error, which an application filter may still give`() {
         val error = error {
             type = CommandAckMonitorSpec::class.java.canonicalName
             message = "A test error."
@@ -67,19 +63,14 @@ internal class CommandAckMonitorSpec {
 
         monitor.onNext(command.id().causedError(error))
 
-        val event = lastErrored()
-        event.error shouldBe error
-        event.errorCase shouldBe ERROR_CASE_UNSPECIFIED
+        writeSide.hasSeenEvents() shouldBe false
     }
 
     @Test
-    fun `post 'CommandErrored' with an error made of the error case of an acknowledgement`() {
+    fun `post nothing for an error case, since the refusing filter recorded the reason`() {
         monitor.onNext(ackWith { errorCase = INVALID_REQUEST })
 
-        val event = lastErrored()
-        event.id shouldBe command.id()
-        event.error shouldBe INVALID_REQUEST.toError()
-        event.errorCase shouldBe INVALID_REQUEST
+        writeSide.hasSeenEvents() shouldBe false
     }
 
     @Test
@@ -101,9 +92,4 @@ internal class CommandAckMonitorSpec {
             status = ackStatus
         }
     }
-
-    private fun lastErrored(): CommandErrored =
-        writeSide.lastSeenEvent()
-            .message()
-            .shouldBeInstanceOf<CommandErrored>()
 }

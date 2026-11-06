@@ -25,11 +25,11 @@ option java_package = "io.spine.system.server.event";
 option java_outer_classname = "CommandLifecycleEventsProto";
 option java_multiple_files = true;
 
-import "spine/base/error.proto";
 import "spine/core/command.proto";
-import "spine/core/error_case.proto";
 import "spine/core/event.proto";
+import "spine/core/tenant_id.proto";
 import "spine/system/server/command_log.proto";
+import "spine/validation/validation_error.proto";
 
 // An event emitted when a new command is received by the `CommandBus`.
 message CommandReceived {
@@ -85,18 +85,45 @@ message CommandHandled {
     core.CommandId id = 1;
 }
 
-// An event emitted when the `CommandBus` does not accept a command because of an error,
-// for example, because the command is invalid.
-message CommandErrored {
+// An event emitted when the `CommandBus` does not accept a command because the command
+// fails validation.
+message CommandValidationFailed {
 
     // The ID of the command.
     core.CommandId id = 1;
 
-    // The error that stopped the command.
-    base.Error error = 2;
+    // The constraints that the command violates.
+    validation.ValidationError validation_error = 2;
+}
 
-    // The error case returned to the client.
-    core.ErrorCase error_case = 3;
+// An event emitted when the `CommandBus` does not accept a command because no handler
+// in the Bounded Context handles commands of its type.
+message UnsupportedCommandReceived {
+
+    // The ID of the command.
+    core.CommandId id = 1;
+
+    // The type URL of the command message.
+    string type_url = 2;
+}
+
+// An event emitted when a multitenant `CommandBus` does not accept a command because
+// the command has no tenant.
+message CommandTenantNotSpecified {
+
+    // The ID of the command.
+    core.CommandId id = 1;
+}
+
+// An event emitted when a single-tenant `CommandBus` does not accept a command because
+// the command has a tenant.
+message CommandTenantNotExpected {
+
+    // The ID of the command.
+    core.CommandId id = 1;
+
+    // The tenant of the command.
+    core.TenantId tenant = 2;
 }
 
 // An event emitted if the command cannot be handled due to a business rejection.

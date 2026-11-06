@@ -42,20 +42,8 @@ buildscript {
                 io.spine.dependency.lib.JacksonV2.Module.forceArtifacts(project, cfg, rs)
                 io.spine.dependency.lib.JacksonV2.DataFormat.forceArtifacts(project, cfg, rs)
 
-                // `protobuf-setup-plugins` `.422` and `.425` bundle the Protobuf 4.36.0
-                // runtime, on which the 4.36.2 gencode of the refreshed artifacts refuses
-                // to load. Use `.426`, built against 4.36.2, for those requests only.
-                // Drop this rule once `config` pins ToolBase `.426` or later.
-                eachDependency {
-                    if (requested.group == "io.spine.tools" &&
-                        requested.name == "protobuf-setup-plugins" &&
-                        requested.version in setOf("2.0.0-SNAPSHOT.422", "2.0.0-SNAPSHOT.425")
-                    ) {
-                        useVersion("2.0.0-SNAPSHOT.426")
-                        because("`.422` and `.425` bundle the Protobuf 4.36.0 runtime")
-                    }
-                }
                 val logging = io.spine.dependency.local.Logging
+                val toolBase = io.spine.dependency.local.ToolBase
                 force(
                     io.spine.dependency.lib.Jackson.annotations,
                     io.spine.dependency.lib.Caffeine.lib,
@@ -81,6 +69,19 @@ buildscript {
                     io.spine.dependency.local.Compiler.params,
                     io.spine.dependency.local.CoreJvm.server,
                     io.spine.dependency.local.Reflect.lib,
+                    // The Compiler plugin and the CoreJvm Compiler plugin request
+                    // different ToolBase versions; `failOnVersionConflict()` rejects that.
+                    toolBase.archive,
+                    toolBase.code,
+                    toolBase.fs,
+                    toolBase.javaCode,
+                    toolBase.kotlinCode,
+                    toolBase.protoCode,
+                    toolBase.pluginBase,
+                    toolBase.gradlePluginApi,
+                    toolBase.rootGradlePlugins,
+                    toolBase.jvmTools,
+                    toolBase.protobufSetupPlugins,
                     logging.lib,
                     logging.libJvm,
                     logging.grpcContext,
@@ -136,23 +137,6 @@ allprojects {
     apply(from = "$rootDir/version.gradle.kts")
     group = "io.spine"
     version = extra["versionToPublish"]!!
-
-    // Compiler CLI `2.0.0-SNAPSHOT.069` (pinned by `config`) bundles the Protobuf 4.36.0
-    // runtime, on which the 4.36.2 gencode of the Validation renderers refuses to load.
-    // Launch CLI `.074` instead. It bundles no Protobuf runtime: its POM declares one,
-    // which `spineCompilerRawArtifact` resolves transitively and the build forces to 4.36.2.
-    // Drop this rule once `config` pins Compiler `.074` or later.
-    configurations.named { it == "spineCompilerRawArtifact" }.configureEach {
-        resolutionStrategy.eachDependency {
-            if (requested.group == "io.spine.tools" &&
-                requested.name == "compiler-cli-all" &&
-                requested.version == "2.0.0-SNAPSHOT.069"
-            ) {
-                useVersion("2.0.0-SNAPSHOT.074")
-                because("Compiler CLI `.069` bundles the Protobuf 4.36.0 runtime")
-            }
-        }
-    }
 }
 
 KoverConfig.applyTo(rootProject)

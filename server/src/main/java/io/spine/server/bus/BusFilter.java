@@ -15,8 +15,8 @@
 package io.spine.server.bus;
 
 import io.spine.annotation.SPI;
-import io.spine.base.Error;
 import io.spine.core.Ack;
+import io.spine.core.ErrorCase;
 import io.spine.server.Closeable;
 import io.spine.server.type.MessageEnvelope;
 
@@ -44,8 +44,8 @@ public interface BusFilter<E extends MessageEnvelope<?, ?, ?>> extends Closeable
      * <p>A filter can:
      * <ul>
      *     <li>accept the message (by returning {@code Optional.empty()});
-     *     <li>reject the message with an {@link io.spine.base.Error Error} status, for example, if
-     *         it fails to pass the validation;
+     *     <li>reject the message with an {@link ErrorCase}, for example, if it fails to pass
+     *         the validation;
      *     <li>reject the message with an {@code OK} status. For example, a scheduled command
      *         may not pass a filter.
      * </ul>
@@ -84,22 +84,21 @@ public interface BusFilter<E extends MessageEnvelope<?, ?, ?>> extends Closeable
     }
 
     /**
-     * Rejects the message with an {@link io.spine.base.Error Error} status.
+     * Rejects the message with an error of the given kind.
      *
      * <p>This method is a shortcut that can be used in {@link #filter(MessageEnvelope)} when the
-     * message does not pass the filter due to a technical error or inconsistency in model
-     * data.
+     * message does not pass the filter, for example, because it is invalid.
      *
      * @param envelope
      *          the envelope with the message to filter
-     * @param cause
-     *         the cause of the rejection
+     * @param errorCase
+     *         the kind of the error
      * @return the {@code Optional.of(Ack)} signaling that the message does not pass the filter
      */
-    default Optional<Ack> reject(E envelope, Error cause) {
+    default Optional<Ack> reject(E envelope, ErrorCase errorCase) {
         checkNotNull(envelope);
-        checkNotNull(cause);
-        var ack = causedError(envelope.id(), cause);
+        checkNotNull(errorCase);
+        var ack = causedError(envelope.id(), errorCase);
         return Optional.of(ack);
     }
 

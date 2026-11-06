@@ -17,6 +17,7 @@ package io.spine.core;
 import com.google.protobuf.Empty;
 import io.spine.base.Error;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static io.spine.util.Preconditions2.checkNotDefaultArg;
 
 /**
@@ -49,6 +50,21 @@ public final class Responses {
      */
     public static Status statusOk() {
         return STATUS_OK;
+    }
+
+    /**
+     * Creates an error status of the passed kind.
+     *
+     * @throws IllegalArgumentException
+     *         if the error case is {@link ErrorCase#ERROR_CASE_UNSPECIFIED} or unrecognized
+     */
+    public static Status errorWith(ErrorCase errorCase) {
+        checkArgument(errorCase != ErrorCase.ERROR_CASE_UNSPECIFIED
+                              && errorCase != ErrorCase.UNRECOGNIZED,
+                      "The error case must be specified.");
+        return Status.newBuilder()
+                     .setErrorCase(errorCase)
+                     .build();
     }
 
     /**
