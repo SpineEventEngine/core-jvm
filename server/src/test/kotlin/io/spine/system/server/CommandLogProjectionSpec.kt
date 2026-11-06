@@ -14,12 +14,15 @@
 
 package io.spine.system.server
 
+import io.kotest.assertions.withClue
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.spine.core.Ack
 import io.spine.core.Command
 import io.spine.core.CommandId
 import io.spine.core.CommandValidationError
 import io.spine.core.ErrorCase.INVALID_REQUEST
+import io.spine.core.Subscribe
 import io.spine.core.ack
 import io.spine.core.status
 import io.spine.core.toError
@@ -30,11 +33,14 @@ import io.spine.server.BoundedContextBuilder
 import io.spine.server.DefaultRepository
 import io.spine.server.commandbus.CommandFilter
 import io.spine.server.entity.RecordBasedRepository
+import io.spine.server.event.AbstractEventSubscriber
 import io.spine.server.type.CommandEnvelope
 import io.spine.system.server.SystemBoundedContexts.systemOf
 import io.spine.system.server.given.command.CompanyAggregate
+import io.spine.system.server.given.command.CompanyNameProcman.FAULTY_NAME
 import io.spine.system.server.given.command.CompanyNameProcmanRepo
 import io.spine.testing.client.TestActorRequestFactory
+import io.spine.testing.logging.mute.MuteLogging
 import io.spine.type.TypeUrl
 import io.spine.validation.ValidationError
 import java.util.Optional
@@ -95,6 +101,40 @@ internal class CommandLogProjectionSpec {
     }
 
     @Test
+    @MuteLogging
+    fun `record the error when the handler of a command fails`() {
+        val company = CompanyId.generate()
+        post(requests.createCommand(startCompanyEstablishing { id = company }))
+        val command = post(requests.createCommand(proposeCompanyName {
+            id = company
+            name = FAULTY_NAME
+        }))
+
+        howHandled(command).error.type shouldBe IllegalArgumentException::class.java.canonicalName
+    }
+
+    @Test
+    @MuteLogging
+    fun `not record the failure of an event handler in the log of the originating command`() {
+        val monitor = DiagnosticMonitor()
+        context.internalAccess().run {
+            registerEventDispatcher(FailingOnEstablished())
+            registerEventDispatcher(monitor)
+        }
+
+        val command = post(establishing(name = FailingOnEstablished.NAME))
+
+        val failures = monitor.handlerFailureEvents()
+        withClue("The subscriber must fail once, on the event produced by the command.") {
+            failures shouldHaveSize 1
+            val failure = failures.single()
+            failure.handledSignal.isEvent shouldBe true
+            failure.error.type shouldBe IllegalStateException::class.java.canonicalName
+        }
+        howHandled(command).hasOk() shouldBe true
+    }
+
+    @Test
     fun `record the error with the details when the bus does not accept a command`() {
         val invalid = establishing(name = "Any name").toBuilder()
             .setMessage(EstablishCompany.getDefaultInstance().pack())
@@ -151,5 +191,20 @@ private object AnsweringErrorCase : CommandFilter {
             status = answerStatus
         }
         return Optional.of(answer)
+    }
+}
+
+/**
+ * A subscriber that fails on purpose when a company named [NAME] is established.
+ */
+private class FailingOnEstablished : AbstractEventSubscriber() {
+
+    @Subscribe
+    fun on(event: CompanyEstablished) {
+        check(event.name != NAME) { "The subscriber fails on purpose." }
+    }
+
+    companion object {
+        const val NAME = "Fails the subscriber"
     }
 }

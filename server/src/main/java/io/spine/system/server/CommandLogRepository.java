@@ -1,37 +1,52 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.system.server;
 
 import io.spine.core.CommandId;
 import io.spine.server.projection.ProjectionRepository;
+import io.spine.server.route.EventRouting;
+
+import java.util.Set;
+
+import static io.spine.server.route.EventRoute.noTargets;
+import static io.spine.server.route.EventRoute.withId;
 
 /**
  * The repository for {@link CommandLogProjection}s.
  */
 final class CommandLogRepository
         extends ProjectionRepository<CommandId, CommandLogProjection, CommandLog> {
+
+    /**
+     * Routes the unexpected failure of a handler to the log of the handled command.
+     *
+     * <p>The first field of {@link HandlerFailedUnexpectedly} is the ID of the failed entity,
+     * so the default routing cannot find the log. A failure that happened while handling
+     * an event is not routed to any log.
+     */
+    @Override
+    protected void setupEventRouting(EventRouting<CommandId> routing) {
+        super.setupEventRouting(routing);
+        routing.route(HandlerFailedUnexpectedly.class,
+                      (event, context) -> handledCommand(event));
+    }
+
+    private static Set<CommandId> handledCommand(HandlerFailedUnexpectedly event) {
+        var signal = event.getHandledSignal();
+        return signal.isCommand()
+               ? withId(signal.asCommandId())
+               : noTargets();
+    }
 }
