@@ -30,20 +30,16 @@ final class CommandLogRepository
         extends ProjectionRepository<CommandId, CommandLogProjection, CommandLog> {
 
     /**
-     * Routes the unexpected failure of a handler to the log of the handled command.
-     *
-     * <p>The first field of {@link HandlerFailedUnexpectedly} is the ID of the failed entity,
-     * so the default routing cannot find the log. A failure that happened while handling
-     * an event is not routed to any log.
+     * Routes the unexpected failure of a command handler to the log of the command.
      */
     @Override
     protected void setupEventRouting(EventRouting<CommandId> routing) {
         super.setupEventRouting(routing);
         routing.route(HandlerFailedUnexpectedly.class,
-                      (event, context) -> handledCommand(event));
+                      (event, context) -> failedCommand(event));
     }
 
-    private static Set<CommandId> handledCommand(HandlerFailedUnexpectedly event) {
+    private static Set<CommandId> failedCommand(HandlerFailedUnexpectedly event) {
         var signal = event.getHandledSignal();
         return signal.isCommand()
                ? withId(signal.asCommandId())
