@@ -30,6 +30,7 @@ import io.kotest.matchers.file.shouldNotExist
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
 import java.io.File
 import java.util.jar.JarOutputStream
@@ -197,6 +198,73 @@ internal class PublicationSbomIgTest {
     @Test
     fun `keep the packaging a build sets explicitly`() {
         packagingOf("osgi", osgiBundle) shouldBe "bundle"
+    }
+
+    /**
+     * Until the packaging of a POM is set, reading it creates the tasks that produce
+     * the artifacts of the publication. A standard publication sets its packaging
+     * as it is created, so a build that does not publish creates none of them.
+     *
+     * The init script reports the tasks created before the task graph is ready, which
+     * excludes those that the fixture creates later, to report the SBOMs.
+     */
+    @Test
+    fun `create no archive task of a standard publication in a build that does not publish`() {
+        val initScript = file("report-created-tasks.gradle")
+        initScript.writeText(
+            """
+            def graphReady = false
+            gradle.taskGraph.whenReady { graphReady = true }
+            allprojects {
+                tasks.configureEach { task ->
+                    if (!graphReady) println("$createdPrefix${'$'}{task.path}")
+                }
+            }
+            """.trimIndent()
+        )
+        val result = GradleRunner.create()
+            .withProjectDir(projectDir)
+            .withArguments("help", "--init-script", initScript.path, "--offline", "--stacktrace")
+            .build()
+
+        val created = result.output.lines()
+            .filter { it.startsWith(createdPrefix) }
+            .map { it.removePrefix(createdPrefix) }
+        created shouldContain ":help"
+        created shouldNotContainAnyOf listOf("api", "impl").flatMap { module ->
+            listOf("jar", "sourcesJar", "javadocJar", "htmlDocsJar").map { ":$module:$it" }
+        }
+    }
+
+    /**
+     * A standard publication declares the `jar` packaging before its artifacts are known,
+     * so writing its POM fails if the build gives the `jar` task a classifier,
+     * rather than publish a POM that names no main artifact.
+     *
+     * The case checks `StandardJavaPublicationHandler`, but shares the fixture of this
+     * class, whose `api` module is a standard publication with an SBOM.
+     *
+     * The build of the fixture has written the POM of `api` already. So the case also shows
+     * that the result of the check is an input of the task: without it, the task would be
+     * up to date, and skip the check.
+     */
+    @Test
+    fun `fail to write the POM of a standard publication whose JAR is classified`() {
+        val script = file("api/build.gradle.kts")
+        val original = script.readText()
+        script.appendText("\ntasks.jar { archiveClassifier.set(\"plain\") }\n")
+        try {
+            val result = GradleRunner.create()
+                .withProjectDir(projectDir)
+                .withArguments(":api:${pomTaskOf("mavenJava")}", "--offline", "--stacktrace")
+                .buildAndFail()
+
+            result.output shouldContain
+                    "The POM of the `mavenJava` publication of `:api` declares the `jar`" +
+                    " packaging, but the publication has no main artifact."
+        } finally {
+            script.writeText(original)
+        }
     }
 
     @Test
@@ -907,6 +975,9 @@ internal class PublicationSbomIgTest {
 
         /** Marks the lines in which the fixture reports the SBOMs of each publication. */
         const val reportPrefix = "SBOM-REPORT "
+
+        /** Marks the lines in which an init script reports the tasks created. */
+        const val createdPrefix = "CREATED-TASK "
 
         /** The publication of a thin JAR with a hand-written POM. */
         const val pluginJar = "pluginJar"

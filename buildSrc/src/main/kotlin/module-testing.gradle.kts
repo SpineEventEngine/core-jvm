@@ -20,9 +20,13 @@ import io.spine.dependency.test.Kotest
 import io.spine.dependency.test.Truth
 import io.spine.gradle.testing.configureLogging
 import io.spine.gradle.testing.registerTestTasks
+import io.spine.gradle.testing.useSharedTestKitDir
 
 /**
  * This convention plugin applies test dependencies and configures test-related tasks.
+ *
+ * All the `Test` tasks of the module get the TestKit directory shared by all
+ * modules (see [useSharedTestKitDir]).
  *
  * The version of the [JUnit] platform must be applied via the [BomsPlugin][io.spine.dependency.boms.BomsPlugin]:
  *
@@ -40,6 +44,7 @@ plugins {
 project.run {
     setupTests()
     forceTestDependencies()
+    useSharedTestKitDir()
 }
 
 dependencies {

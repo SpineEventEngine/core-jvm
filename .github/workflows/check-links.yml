@@ -8,16 +8,23 @@ on:
       - 'docs/**'
       - 'site/**'
       - 'lychee.toml'
+      - '.lycheeignore'
       - '.github/workflows/check-links.yml'
   workflow_dispatch:
 
 env:
-  HUGO_VERSION: 0.161.1
+  HUGO_VERSION: 0.169.0
   LYCHEE_RELEASE: "lychee-x86_64-unknown-linux-gnu.tar.gz"
   LYCHEE_VERSION_TAG: "lychee-v0.24.2"
   # SHA256 of the above tarball, pinned at download time. Update alongside
   # LYCHEE_VERSION_TAG whenever the binary is upgraded.
   LYCHEE_SHA256: "1f4e0ef7f6554a6ed33dd7ac144fb2e1bbed98598e7af973042fc5cd43951c9a"
+  # Pinned to the release the Spine sites were checked with. Newer releases
+  # add Sass deprecations, which nobody has checked against those sites yet.
+  DART_SASS_VERSION: 1.99.0
+  # SHA256 of `dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz`, from the GitHub release.
+  # Update alongside DART_SASS_VERSION.
+  DART_SASS_SHA256: "f0a32ab99bc0a1eb62ea7140a056a1bca82d534390b7c3dba4f2016eb0077753"
   # Force Hugo to write its module cache where the cache step actually
   # restores from. Hugo's default on Linux is `~/.cache/hugo_cache`
   # (or `$TMPDIR/hugo_cache_$USER`), neither of which matches the
@@ -38,6 +45,11 @@ jobs:
       # Detect the Hugo site root (`docs/` or `site/`) by looking for a Hugo
       # config file. Hugo config may live directly in the site root or in a
       # `config/` or `config/_default/` subdirectory (both layouts are valid).
+      # A repo may also keep its only Hugo config in the `_preview/` sub-tree
+      # (e.g. `docs/_preview/hugo.toml`), so the same paths count there too.
+      # Hugo finds such a config only when it runs in `$dir/_preview`, so it
+      # needs `$dir/_preview/package-lock.json`: the `$dir` fallback below
+      # is for site-root configs only.
       # Outputs `present=true|false` and `work_dir` (the directory where
       # `npm ci` / `hugo` commands should run — either `$dir/_preview` for
       # repos that use a separate preview sub-tree, or `$dir` for repos whose
@@ -51,19 +63,22 @@ jobs:
           for dir in docs site; do
             for cfg in hugo.toml hugo.yaml \
                        config/hugo.toml config/hugo.yaml \
-                       config/_default/hugo.toml config/_default/hugo.yaml; do
+                       config/_default/hugo.toml config/_default/hugo.yaml \
+                       _preview/hugo.toml _preview/hugo.yaml \
+                       _preview/config/hugo.toml _preview/config/hugo.yaml \
+                       _preview/config/_default/hugo.toml _preview/config/_default/hugo.yaml; do
               if [ -f "$dir/$cfg" ]; then
                 if [ -f "$dir/_preview/package-lock.json" ]; then
                   echo "work_dir=$dir/_preview" >> "$GITHUB_OUTPUT"
                   echo "present=true" >> "$GITHUB_OUTPUT"
                   echo "::notice::Hugo site found under $dir/ (work_dir: $dir/_preview)"
-                elif [ -f "$dir/package-lock.json" ]; then
+                elif [ -f "$dir/package-lock.json" ] && [[ $cfg != _preview/* ]]; then
                   echo "work_dir=$dir" >> "$GITHUB_OUTPUT"
                   echo "present=true" >> "$GITHUB_OUTPUT"
                   echo "::notice::Hugo site found under $dir/ (work_dir: $dir)"
                 else
                   echo "present=false" >> "$GITHUB_OUTPUT"
-                  echo "::notice::Hugo config found in $dir/ but no package-lock.json found — skipping link check."
+                  echo "::notice::Found $dir/$cfg but no package-lock.json to build it with — skipping link check."
                 fi
                 exit 0
               fi
@@ -79,13 +94,38 @@ jobs:
           hugo-version: ${{ env.HUGO_VERSION }}
           extended: true
 
-      # `actions/setup-node@v4` ships with built-in npm caching that hashes
+      # The Spine Hugo theme compiles its SCSS with Dart Sass, because Hugo
+      # deprecated LibSass in v0.153.0 and will remove it. Hugo does not
+      # bundle Dart Sass: it runs the `sass` binary it finds on `PATH`, and
+      # a site on that theme fails to build without one. The release
+      # tarball is standalone, so no Node or Dart setup is needed. The
+      # checksum guards the download, as it does for Lychee below. Sites
+      # still on LibSass ignore the binary.
+      - name: Install Dart Sass
+        if: steps.docs.outputs.present == 'true'
+        run: |
+          archive="dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
+          curl -fsSLO "https://github.com/sass/dart-sass/releases/download/${DART_SASS_VERSION}/${archive}"
+          echo "${DART_SASS_SHA256}  ${archive}" | sha256sum --check --strict
+          tar -xzf "${archive}" -C "${RUNNER_TEMP}"
+          rm "${archive}"
+          echo "${RUNNER_TEMP}/dart-sass" >> "${GITHUB_PATH}"
+
+      # Hugo finds Dart Sass on `PATH`. `hugo env` lists it when it does.
+      # `GITHUB_PATH` only takes effect from the next step on, so this check
+      # cannot live in the install step above. It fails here, rather than
+      # mid-build, if the install did not put `sass` where Hugo looks.
+      - name: Check Dart Sass
+        if: steps.docs.outputs.present == 'true'
+        run: hugo env | grep 'github.com/sass/dart-sass'
+
+      # `actions/setup-node` ships with built-in npm caching that hashes
       # the lockfile and restores `~/.npm`. We use that instead of a
-      # standalone `actions/cache@v4` block so there is only one source of
+      # standalone `actions/cache` block so there is only one source of
       # truth for the cache key (no drift between two layers).
       - name: Setup Node
         if: steps.docs.outputs.present == 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '26'
           cache: 'npm'
@@ -97,7 +137,7 @@ jobs:
       # invalidates the cache deterministically regardless of site root.
       - name: Cache Hugo Modules
         if: steps.docs.outputs.present == 'true'
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: /tmp/hugo_cache
           key: ${{ runner.os }}-hugomod-${{ hashFiles('docs/**/go.sum', 'site/**/go.sum') }}
@@ -121,7 +161,7 @@ jobs:
       # `max_cache_age` expires.
       - name: Cache Lychee results
         if: steps.docs.outputs.present == 'true'
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .lycheecache
           key: cache-lychee-${{ runner.os }}-${{ hashFiles('lychee.toml') }}
@@ -136,7 +176,7 @@ jobs:
       - name: Cache Lychee executable
         if: steps.docs.outputs.present == 'true'
         id: cache-lychee
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: lychee
           key: ${{ runner.os }}-${{ env.LYCHEE_VERSION_TAG }}-${{ env.LYCHEE_RELEASE }}
@@ -156,7 +196,7 @@ jobs:
       # string when the file is absent, so this guard runs the download iff
       # neither the exact key nor any restore-key restored the binary.
       - name: Download Lychee executable
-        uses: robinraju/release-downloader@v1.7
+        uses: robinraju/release-downloader@v1.13
         if: steps.docs.outputs.present == 'true' && hashFiles('lychee/lychee') == ''
         with:
           repository: "lycheeverse/lychee"
@@ -208,9 +248,32 @@ jobs:
             exit 1
           fi
 
+      # Lychee prints broken links to this step's log only; the run page
+      # shows just "Process completed with exit code 2". `tee` keeps the
+      # report in the log and saves a copy, which the next step adds to the
+      # run summary. (`--output` would not do: it moves the report from the
+      # log to the file.) `pipefail` keeps Lychee's exit code. Without it,
+      # the step would take `tee`'s 0 and pass despite broken links.
       - name: Check links
         if: steps.docs.outputs.present == 'true'
         run: |
+          set -o pipefail
           ./lychee/lychee --config lychee.toml --timeout 60 \
           --base-url http://localhost:1313/ \
-          '${{ steps.docs.outputs.work_dir }}/public/**/*.html'
+          '${{ steps.docs.outputs.work_dir }}/public/**/*.html' \
+          | tee lychee-report.txt
+
+      # Runs after a failed `Check links` too, which is when the report
+      # matters most. `hashFiles` skips this step when Lychee never ran.
+      # `!cancelled()` needs the `${{ }}` wrapper: a bare leading `!` is
+      # a YAML tag.
+      - name: Publish link report
+        if: ${{ !cancelled() && hashFiles('lychee-report.txt') != '' }}
+        run: |
+          {
+            echo '## Link check'
+            echo
+            echo '```text'
+            cat lychee-report.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

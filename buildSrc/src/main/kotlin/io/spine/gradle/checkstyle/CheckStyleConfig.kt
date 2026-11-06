@@ -64,7 +64,7 @@ object CheckStyleConfig {
                 "checkstyleTest",
                 "checkstyleTestFixtures"
             ).forEach {
-                task -> tasks.findByName(task)?.enabled = false
+                task -> tasks.named { it == task }.configureEach { enabled = false }
             }
         }
     }

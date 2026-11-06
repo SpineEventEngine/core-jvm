@@ -1,6 +1,23 @@
 name: Windows CI
 
-on: pull_request
+# Triggers:
+#   * push to a default or release-line branch — the same set as in
+#     `build-on-ubuntu.yml`. On the default branch, these post-merge runs seed
+#     the Gradle User Home cache that the pull request runs restore:
+#     `setup-gradle` saves entries only on the default branch, and a pull
+#     request run restores those of its base or the default branch. With
+#     `pull_request` as the only trigger, no Windows entry was ever saved, so
+#     every run downloaded the Gradle distribution, the `buildSrc` classpath,
+#     and all the dependencies from scratch — minutes on each run, and Maven
+#     Central faced cold every time. On a release-line branch the run saves
+#     nothing, but still checks the merge result on Windows.
+#   * pull_request — gates a change on its merge result, not the branch tip.
+on:
+  push:
+    branches:
+      - '**master'
+      - '**main'
+  pull_request:
 
 jobs:
   build:

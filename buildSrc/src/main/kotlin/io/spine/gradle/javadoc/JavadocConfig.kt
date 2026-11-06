@@ -19,19 +19,25 @@ import java.io.File
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.tasks.TaskContainer
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.external.javadoc.StandardJavadocDocletOptions
 import productionModules
 
 /**
- * Finds a [Javadoc] Gradle task by the passed name.
+ * Finds a [Javadoc] Gradle task by the passed name without creating it.
+ *
+ * The task must be registered.
  */
-fun TaskContainer.javadocTask(named: String) = this.getByName(named) as Javadoc
+fun TaskContainer.javadocTask(named: String): TaskProvider<Javadoc> =
+    this.named(named, Javadoc::class.java)
 
 /**
- * Finds a default [Javadoc] Gradle task.
+ * Finds a default [Javadoc] Gradle task without creating it.
+ *
+ * The task must be registered.
  */
-fun TaskContainer.javadocTask() = this.getByName("javadoc") as Javadoc
+fun TaskContainer.javadocTask(): TaskProvider<Javadoc> = javadocTask("javadoc")
 
 /**
  * Javadoc processing settings.
@@ -57,15 +63,23 @@ object JavadocConfig {
 
     val encoding = Encoding("UTF-8")
 
+    /**
+     * Applies the Javadoc settings to the `javadoc` task of the given [project],
+     * or disables the task if the project is not a production module.
+     *
+     * The task must be registered. It is configured when Gradle creates it,
+     * so calling this function does not create the task.
+     */
     fun applyTo(project: Project) {
-        val javadocTask = project.tasks.javadocTask()
-        if (!isProductionModule(project)) {
-            javadocTask.enabled = false
-            return
+        project.tasks.javadocTask().configure {
+            if (!isProductionModule(project)) {
+                enabled = false
+                return@configure
+            }
+            discardJavaModulesInLinks(this)
+            val docletOptions = options as StandardJavadocDocletOptions
+            configureDoclet(docletOptions)
         }
-        discardJavaModulesInLinks(javadocTask)
-        val docletOptions = javadocTask.options as StandardJavadocDocletOptions
-        configureDoclet(docletOptions)
     }
 
     private fun isProductionModule(project: Project) = project.run {

@@ -157,11 +157,11 @@ fun Module.setTaskDependencies(generatedDir: String) {
 }
 
 /**
- * Applies the plugin that registers the `publishApiDocs` task of this module.
+ * Registers the `publishApiDocs` task for this module.
  *
- * The `publish-api-docs.yml` workflow runs the task through `publishAllApiDocs` of
- * the root project, which depends on it for the published modules only. It is not
- * a part of `publish`.
+ * The `publish-api-docs.yml` workflow runs the task through the root project's
+ * `publishAllApiDocs`, which depends on it only when this module is published.
+ * The task is not part of `publish`.
  */
 fun Module.configureApiDocs() {
     publishApiDocs {

@@ -41,10 +41,7 @@ afterEvaluate {
             DocumentationSettings.SourceLink.url(project)
         )
     }
-    val kspKotlin = tasks.findByName("kspKotlin")
-    kspKotlin?.let {
-        tasks.withType<DokkaBaseTask>().configureEach {
-            dependsOn(kspKotlin)
-        }
+    tasks.withType<DokkaBaseTask>().configureEach {
+        dependsOn(tasks.named { it == "kspKotlin" })
     }
 }
