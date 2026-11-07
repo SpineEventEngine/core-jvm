@@ -20,6 +20,7 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.file.FileTreeElement
 import org.gradle.api.file.SourceDirectorySet
+import org.gradle.api.tasks.TaskCollection
 import org.gradle.api.tasks.bundling.Jar
 
 /**
@@ -67,15 +68,18 @@ internal fun FileTreeElement.isGoogleProtoSource(): Boolean {
 }
 
 /**
- * The reference to the `generateProto` task of a `main` source set.
+ * The `generateProto` task of a `main` source set, found without creating it.
+ *
+ * The returned collection is live: it holds the task once it is registered,
+ * and stays empty in a project without Protobuf.
  */
-internal fun Project.generateProto(): Task? = tasks.findByName("generateProto")
+internal fun Project.generateProto(): TaskCollection<Task> =
+    tasks.named { it == "generateProto" }
 
 /**
- * Makes this [Jar] task depend on the [generateProto] task, if it exists in the same project.
+ * Makes this [Jar] task depend on the [generateProto] task, once that task is registered
+ * in the same project.
  */
 internal fun Jar.dependOnGenerateProto() {
-    project.generateProto()?.let {
-        this.dependsOn(it)
-    }
+    this.dependsOn(project.generateProto())
 }

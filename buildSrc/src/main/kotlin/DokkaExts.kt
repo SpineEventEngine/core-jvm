@@ -25,6 +25,7 @@ import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.execution.TaskExecutionGraph
 import org.gradle.api.publish.maven.tasks.PublishToMavenLocal
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
+import org.gradle.api.tasks.TaskCollection
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Jar
@@ -183,14 +184,22 @@ fun DokkaExtension.configureForJava(project: Project, sourceLinkRemoteUrl: Strin
 }
 
 /**
- * Finds the `dokkaGenerateHtml` Gradle task.
+ * Finds the `dokkaGeneratePublicationHtml` Gradle task without creating it.
+ *
+ * The returned collection is live: it holds the task once Dokka registers it,
+ * and stays empty in a project without Dokka.
  */
-fun TaskContainer.dokkaHtmlTask(): Task? = this.findByName("dokkaGeneratePublicationHtml")
+fun TaskContainer.dokkaHtmlTask(): TaskCollection<Task> =
+    named { it == "dokkaGeneratePublicationHtml" }
 
 /**
- * Finds the `dokkaGeneratePublicationJavadoc` Gradle task.
+ * Finds the `dokkaGeneratePublicationJavadoc` Gradle task without creating it.
+ *
+ * The returned collection is live: it holds the task once Dokka registers it,
+ * and stays empty in a project without Dokka.
  */
-fun TaskContainer.dokkaJavadocTask(): Task? = this.findByName("dokkaGeneratePublicationJavadoc")
+fun TaskContainer.dokkaJavadocTask(): TaskCollection<Task> =
+    named { it == "dokkaGeneratePublicationJavadoc" }
 
 /**
  * Locates or creates the `htmlDocsJar` task in this [Project].
@@ -205,9 +214,7 @@ fun Project.htmlDocsJar(): TaskProvider<Jar> = tasks.getOrCreate("htmlDocsJar") 
     archiveClassifier.set("html-docs")
     from(files(dokkaHtmlOutput()))
 
-    tasks.dokkaHtmlTask()?.let { dokkaTask ->
-        this@getOrCreate.dependsOn(dokkaTask)
-    }
+    this@getOrCreate.dependsOn(tasks.dokkaHtmlTask())
 }
 
 /**

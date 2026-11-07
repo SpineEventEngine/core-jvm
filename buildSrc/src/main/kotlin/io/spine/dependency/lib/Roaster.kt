@@ -14,7 +14,23 @@
 
 package io.spine.dependency.lib
 
-// https://github.com/forge/roaster
+/**
+ * Roaster, a library for parsing and generating Java source code.
+ *
+ * The Spine SDK no longer uses Roaster. Its tools parse Java code with IntelliJ PSI.
+ *
+ * `classic-codegen`, the only `tool-base` artifact that still depended on Roaster,
+ * dropped it in `2.0.0-SNAPSHOT.441`. A build that excludes the Roaster [group]
+ * from `tool-base` artifacts can drop the exclusion once they are at that version or later.
+ *
+ * @see <a href="https://github.com/forge/roaster">Roaster on GitHub</a>
+ * @deprecated Remove the usage. To parse Java code, use
+ *   [ToolBase.psiJava][io.spine.dependency.local.ToolBase.psiJava].
+ */
+@Deprecated(
+    "The Spine SDK no longer uses Roaster and parses Java code with IntelliJ PSI" +
+            " via `ToolBase.psiJava`. Remove the usage: this object will be removed."
+)
 @Suppress("unused", "ConstPropertyName")
 object Roaster {
 

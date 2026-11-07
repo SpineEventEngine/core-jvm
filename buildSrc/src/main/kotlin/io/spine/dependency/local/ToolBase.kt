@@ -32,8 +32,8 @@ package io.spine.dependency.local
 )
 object ToolBase {
     const val group = Spine.toolsGroup
-    const val version = "2.0.0-SNAPSHOT.426"
-    const val dogfoodingVersion = "2.0.0-SNAPSHOT.426"
+    const val version = "2.0.0-SNAPSHOT.451"
+    const val dogfoodingVersion = "2.0.0-SNAPSHOT.451"
 
     const val archive = "$group:archive:$version"
     const val code = "$group:code:$version"
@@ -56,11 +56,28 @@ object ToolBase {
 
     const val rootGradlePlugins = "$group:root-gradle-plugins:$version"
     const val gradlePluginApi = "$group:gradle-plugin-api:$version"
+
+    /**
+     * Stub Gradle plugins for the tests of the `gradle-plugin-api` module.
+     *
+     * The `gradle-plugin-api-test-fixtures` module that provides them is internal
+     * to `tool-base`, which never publishes it to a remote repository. Only
+     * `publishToMavenLocal` installs it, so these coordinates resolve only from
+     * a local `~/.m2` copy.
+     *
+     * @deprecated There is no replacement. Remove the usage.
+     */
+    @Deprecated(
+        "The artifact is internal to `tool-base` and is not published remotely. Remove the usage."
+    )
     const val gradlePluginApiTestFixtures = "$group:gradle-plugin-api-test-fixtures:$version"
 
     const val jvmTools = "$group:jvm-tools:$version"
-    const val jvmToolPluginDogfooding = "$group:jvm-tool-plugins-all:$dogfoodingVersion"
-    const val jvmToolPlugins = "$group:jvm-tool-plugins-all:$version"
+
+    // The plain plugin JAR. `jvm-tool-plugins-all` is no longer published
+    // as of `2.0.0-SNAPSHOT.440`. See https://github.com/SpineEventEngine/tool-base/pull/201
+    const val jvmToolPluginDogfooding = "$group:jvm-tool-plugins:$dogfoodingVersion"
+    const val jvmToolPlugins = "$group:jvm-tool-plugins:$version"
 
     const val protobufSetupPlugins = "$group:protobuf-setup-plugins:$version"
 

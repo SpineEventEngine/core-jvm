@@ -33,10 +33,12 @@ import io.spine.server.bus.BusBuilder;
 import io.spine.server.bus.BusFilter;
 import io.spine.server.bus.DeadMessageHandler;
 import io.spine.server.bus.EnvelopeValidator;
+import io.spine.server.bus.InvalidMessageHandler;
 import io.spine.server.bus.UnicastBus;
 import io.spine.server.type.CommandClass;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.system.server.SystemWriteSide;
+import io.spine.system.server.event.CommandValidationFailed;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -71,8 +73,7 @@ public final class CommandBus
      */
     private final boolean multitenant;
 
-    @SuppressWarnings("FieldMayBeStatic") // It's better to keep instance, e.g., for tests.
-    private final DeadCommandHandler deadCommandHandler = new DeadCommandHandler();
+    private final DeadCommandHandler deadCommandHandler;
 
     /**
      * The validator for the commands posted into this bus.
@@ -96,6 +97,7 @@ public final class CommandBus
         this.systemWriteSide = builder.ensureSystem();
         this.tenantConsumer = checkNotNull(builder.tenantConsumer);
         this.watcher = checkNotNull(builder.watcher);
+        this.deadCommandHandler = new DeadCommandHandler(this::systemFor);
     }
 
     /**
@@ -111,8 +113,8 @@ public final class CommandBus
     }
 
     /**
-     * Places a {@link CommandReceivedTap} first and a {@link CommandScheduler} last
-     * in the filter chain.
+     * Places a {@link CommandReceivedTap} and a {@link TenantFilter} first, and
+     * a {@link CommandScheduler} last in the filter chain.
      */
     @Override
     @OverridingMethodsMustInvokeSuper
@@ -121,6 +123,7 @@ public final class CommandBus
         var fromSuper = super.setupFilters(filters);
         return ImmutableList.<BusFilter<CommandEnvelope>>builder()
                 .add(new CommandReceivedTap(this::systemFor))
+                .add(new TenantFilter(multitenant, this::systemFor))
                 .addAll(fromSuper)
                 .add(scheduler)
                 .build();
@@ -197,9 +200,25 @@ public final class CommandBus
     @Override
     protected EnvelopeValidator<CommandEnvelope> validator() {
         if (commandValidator == null) {
-            commandValidator = new CommandValidator(this);
+            commandValidator = new CommandValidator();
         }
         return commandValidator;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Records the violations in the System context.
+     */
+    @Override
+    protected InvalidMessageHandler<CommandEnvelope> invalidMessageHandler() {
+        return (command, violations) -> {
+            var failed = CommandValidationFailed.newBuilder()
+                    .setId(command.id())
+                    .setValidationError(violations)
+                    .build();
+            systemFor(command.tenantId()).postEvent(failed, command.asMessageOrigin());
+        };
     }
 
     /**

@@ -15,7 +15,6 @@
 package io.spine.gradle.github.pages
 
 import dokkaHtmlTask
-import dokkaJavadocTask
 import io.spine.gradle.SpineTaskGroup
 import io.spine.gradle.fs.LazyTempPath
 import io.spine.gradle.github.pages.TaskName.copyHtmlDocs
@@ -158,7 +157,8 @@ class PublishApiDocs : Plugin<Project> {
 
     private fun TaskContainer.composeJavadocInputs(): List<Any> {
         val inputs = mutableListOf<Any>()
-        inputs.add(dokkaJavadocTask()!!)
+        // Unlike the HTML docs, the Javadoc is required, so a missing task fails the build.
+        inputs.add(named("dokkaGeneratePublicationJavadoc"))
         inputs.addAll(includedInputs)
         return inputs
     }
@@ -176,10 +176,7 @@ class PublishApiDocs : Plugin<Project> {
 
     private fun TaskContainer.composeDokkaInputs(): List<Any> {
         val inputs = mutableListOf<Any>()
-
-        dokkaHtmlTask()?.let {
-            inputs.add(it)
-        }
+        inputs.add(dokkaHtmlTask())
         inputs.addAll(includedInputs)
 
         return inputs

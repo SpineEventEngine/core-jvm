@@ -332,7 +332,7 @@ private fun Project.publishedArtifacts(): Map<String, String> {
  */
 private fun Project.pomFileOf(publication: MavenPublication): File? =
     tasks.withType(GenerateMavenPom::class.java)
-        .findByName("generatePomFileFor${publication.taskSuffix()}")
+        .findByName(publication.pomTaskName())
         ?.destination
         ?.takeIf { it.exists() }
 
@@ -376,6 +376,11 @@ private fun MavenPublication.rejectMavenSnapshot() {
  */
 private fun MavenPublication.taskSuffix(): String =
     "${name.replaceFirstChar { it.titlecase(Locale.ROOT) }}Publication"
+
+/**
+ * Returns the name of the task that writes the POM of this publication.
+ */
+internal fun MavenPublication.pomTaskName(): String = "generatePomFileFor${taskSuffix()}"
 
 /**
  * Returns the SHA-256 digest of this file as a lowercase hexadecimal string.

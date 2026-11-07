@@ -39,6 +39,31 @@
 # it hands a fresh worktree, CI checkout, or cloud session hook scripts, skills,
 # and guidelines that are months out of date.
 #
+# The submodule is initialized without its own submodules. Those are initialized
+# only after the float, at the commits the HEAD it ends on pins, whether or not
+# the float succeeded. Initialized first, at the superproject's pin, they would
+# stay there: neither `git checkout` nor `git merge` touches a submodule's own
+# submodules. A floated `config` would then report its `.agents/shared` as
+# modified to every recursive check — `git status --ignore-submodules=none`, or
+# the uncommitted-changes warning Claude Code shows when a session is archived —
+# while plain `git status` says nothing, because `config`'s `.gitmodules` declares
+# `ignore = all` for it. Updating them after the float would not do either:
+# with `update = merge`, a new pin would be merged into the old one, and a pin
+# that does not descend from it, after a rollback say, would leave a merge
+# commit or a conflict. Cloned after the float, each is checked out exactly at
+# its pin, as Git checks out every submodule it has just cloned whatever `merge`
+# or `rebase` strategy it declares, and its URL and strategy come from the
+# `.gitmodules` of the HEAD the float left.
+#
+# They go to that pin even when they declare a tracked `branch` themselves, as
+# `config`'s `.agents/shared` does, rather than being floated in turn. Unlike the
+# superproject's pin, theirs is maintained: it belongs to the history just floated
+# to, and `config` bumps its `.agents/shared` in commits of its own. Floating them
+# to their tip would leave the floated submodule modified whenever that branch
+# moves past the pin — the very mismatch this step removes. Nor does a consumer
+# read anything through them: its `.agents/skills` and the other links resolve
+# through its own `.agents/shared`, which is floated directly.
+#
 # A submodule may declare `branch = .`, which gitmodules(5) defines as the branch
 # the superproject is on rather than a branch name. It is resolved before it
 # reaches a refspec, because `git fetch origin .` is a `fatal: invalid refspec`.
@@ -183,6 +208,22 @@ tracked_branch() {
     printf '%s\n' "$managed" | awk -F'\t' -v path="$1" '$1 == path { print $2; exit }'
 }
 
+# Initializes the own submodules of the submodule at `$1`, at the commits its
+# HEAD pins (see the header). `--recursive` takes each level from the
+# `.gitmodules` of the one above it as just checked out. The URLs are synced
+# first for a module directory that an earlier checkout left behind, as
+# `git submodule deinit` does: its active config can still hold an old URL, which
+# `--init` never overwrites. The sync needs no network. A failure is warned
+# about; `./config/pull` updates them again.
+init_nested() {
+    [ -f "$1/.gitmodules" ] || return 0
+    echo "init-submodules: initializing the submodules of '$1'"
+    git -C "$1" submodule sync --quiet --recursive </dev/null >/dev/null 2>&1 || true
+    git -C "$1" submodule update --quiet --init --recursive </dev/null \
+        || echo "init-submodules: WARNING — could not initialize the submodules of" \
+                "'$1'; run './config/pull' to retry." >&2
+}
+
 # `git submodule status` prefixes each uninitialized submodule with `-`; an
 # initialized one starts with a space (at the pinned commit) or `+` (ahead of it).
 # Act only on the `-` lines, taking the path from the second field, and only when
@@ -195,7 +236,9 @@ git submodule status 2>/dev/null | awk '$1 ~ /^-/ { print $2 }' | while read -r 
         continue
     fi
     echo "init-submodules: initializing '$path'"
-    git submodule update --init --recursive -- "$path" </dev/null || {
+    # Not `--recursive`: its own submodules are initialized by `init_nested`,
+    # once it is on the commit it stays on (see the header).
+    git submodule update --init -- "$path" </dev/null || {
         echo "init-submodules: WARNING — could not initialize '$path' (offline?)." >&2
         continue
     }
@@ -219,6 +262,7 @@ git submodule status 2>/dev/null | awk '$1 ~ /^-/ { print $2 }' | while read -r 
             echo "init-submodules: WARNING — '$path' tracks the superproject's" \
                  "branch ('.'), which is detached here; left at the pin. Run" \
                  "'./config/pull' from a branch to float it." >&2
+            init_nested "$path"
             continue
         fi
     fi
@@ -280,6 +324,7 @@ git submodule status 2>/dev/null | awk '$1 ~ /^-/ { print $2 }' | while read -r 
         && git merge --quiet --ff-only "refs/remotes/origin/$branch" ) </dev/null \
         || echo "init-submodules: WARNING — could not float '$path' to" \
                 "origin/$branch; run './config/pull' to retry." >&2
+    init_nested "$path"
 done
 
 # Route Git hooks to the shared hooks directory so the secret-scan `pre-commit`

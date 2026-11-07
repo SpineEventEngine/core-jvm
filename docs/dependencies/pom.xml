@@ -10,7 +10,7 @@ all modules and does not describe the project structure per-subproject.
  -->
 <groupId>io.spine</groupId>
 <artifactId>core-jvm</artifactId>
-<version>2.0.0-SNAPSHOT.622</version>
+<version>2.0.0-SNAPSHOT.630</version>
 
 <inceptionYear>2015</inceptionYear>
 
@@ -68,43 +68,43 @@ all modules and does not describe the project structure per-subproject.
   <dependency>
     <groupId>io.spine</groupId>
     <artifactId>spine-base</artifactId>
-    <version>2.0.0-SNAPSHOT.462</version>
+    <version>2.0.0-SNAPSHOT.463</version>
     <scope>compile</scope>
   </dependency>
   <dependency>
     <groupId>io.spine</groupId>
     <artifactId>spine-base-types</artifactId>
-    <version>2.0.0-SNAPSHOT.227</version>
+    <version>2.0.0-SNAPSHOT.228</version>
     <scope>compile</scope>
   </dependency>
   <dependency>
     <groupId>io.spine</groupId>
     <artifactId>spine-change</artifactId>
-    <version>2.0.0-SNAPSHOT.209</version>
+    <version>2.0.0-SNAPSHOT.210</version>
     <scope>compile</scope>
   </dependency>
   <dependency>
     <groupId>io.spine</groupId>
     <artifactId>spine-environment</artifactId>
-    <version>2.0.0-SNAPSHOT.462</version>
+    <version>2.0.0-SNAPSHOT.463</version>
     <scope>compile</scope>
   </dependency>
   <dependency>
     <groupId>io.spine</groupId>
     <artifactId>spine-logging</artifactId>
-    <version>2.0.0-SNAPSHOT.428</version>
+    <version>2.0.0-SNAPSHOT.429</version>
     <scope>compile</scope>
   </dependency>
   <dependency>
     <groupId>io.spine</groupId>
     <artifactId>spine-logging-grpc-context</artifactId>
-    <version>2.0.0-SNAPSHOT.428</version>
+    <version>2.0.0-SNAPSHOT.429</version>
     <scope>compile</scope>
   </dependency>
   <dependency>
     <groupId>io.spine</groupId>
     <artifactId>spine-reflect</artifactId>
-    <version>2.0.0-SNAPSHOT.203</version>
+    <version>2.0.0-SNAPSHOT.204</version>
     <scope>compile</scope>
   </dependency>
   <dependency>
@@ -122,13 +122,13 @@ all modules and does not describe the project structure per-subproject.
   <dependency>
     <groupId>io.spine</groupId>
     <artifactId>spine-validation-jvm-runtime</artifactId>
-    <version>2.0.0-SNAPSHOT.469</version>
+    <version>2.0.0-SNAPSHOT.470</version>
     <scope>compile</scope>
   </dependency>
   <dependency>
     <groupId>io.spine.tools</groupId>
     <artifactId>base-testlib</artifactId>
-    <version>2.0.0-SNAPSHOT.216</version>
+    <version>2.0.0-SNAPSHOT.217</version>
     <scope>compile</scope>
   </dependency>
   <dependency>
@@ -254,7 +254,7 @@ all modules and does not describe the project structure per-subproject.
   <dependency>
     <groupId>com.google.devtools.ksp</groupId>
     <artifactId>symbol-processing-api</artifactId>
-    <version>2.3.11</version>
+    <version>2.3.12</version>
   </dependency>
   <dependency>
     <groupId>com.google.errorprone</groupId>
@@ -294,37 +294,37 @@ all modules and does not describe the project structure per-subproject.
   <dependency>
     <groupId>io.spine.tools</groupId>
     <artifactId>compiler-cli-all</artifactId>
-    <version>2.0.0-SNAPSHOT.081</version>
+    <version>2.0.0-SNAPSHOT.083</version>
   </dependency>
   <dependency>
     <groupId>io.spine.tools</groupId>
     <artifactId>compiler-protoc-plugin</artifactId>
-    <version>2.0.0-SNAPSHOT.081</version>
+    <version>2.0.0-SNAPSHOT.083</version>
   </dependency>
   <dependency>
     <groupId>io.spine.tools</groupId>
     <artifactId>core-jvm-gradle-plugin</artifactId>
-    <version>2.0.0-SNAPSHOT.097</version>
+    <version>2.0.0-SNAPSHOT.104</version>
   </dependency>
   <dependency>
     <groupId>io.spine.tools</groupId>
     <artifactId>core-jvm-plugins</artifactId>
-    <version>2.0.0-SNAPSHOT.097</version>
+    <version>2.0.0-SNAPSHOT.104</version>
   </dependency>
   <dependency>
     <groupId>io.spine.tools</groupId>
     <artifactId>dokka-extensions</artifactId>
-    <version>2.0.0-SNAPSHOT.10</version>
+    <version>2.0.0-SNAPSHOT.13</version>
   </dependency>
   <dependency>
     <groupId>io.spine.tools</groupId>
     <artifactId>time-validation</artifactId>
-    <version>2.0.0-SNAPSHOT.251</version>
+    <version>2.0.0-SNAPSHOT.253</version>
   </dependency>
   <dependency>
     <groupId>io.spine.tools</groupId>
     <artifactId>validation-java-bundle</artifactId>
-    <version>2.0.0-SNAPSHOT.469</version>
+    <version>2.0.0-SNAPSHOT.470</version>
   </dependency>
   <dependency>
     <groupId>net.sourceforge.pmd</groupId>

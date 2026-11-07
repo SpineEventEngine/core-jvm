@@ -100,11 +100,9 @@ object PomGenerator {
                 writer.writeTo(pomFile)
             }
 
-            val assembleTask = project.tasks.findByName("assemble")!!
-            dependsOn(assembleTask)
+            dependsOn(project.tasks.named("assemble"))
         }
 
-        val buildTask = project.tasks.findByName("build")!!
-        buildTask.finalizedBy(task)
+        project.tasks.named("build").configure { finalizedBy(task) }
     }
 }

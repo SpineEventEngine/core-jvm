@@ -18,22 +18,18 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.grpc.stub.StreamObserver;
-import io.spine.base.EventMessage;
 import io.spine.core.Ack;
 import io.spine.core.Command;
 import io.spine.core.CommandId;
-import io.spine.core.Status;
 import io.spine.core.TenantId;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.system.server.SystemWriteSide;
 import io.spine.system.server.event.CommandAcknowledged;
-import io.spine.system.server.event.CommandErrored;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static io.spine.core.Acks.toCommandId;
-import static io.spine.core.ErrorCases.toError;
 import static io.spine.system.server.WriteSideFunction.delegatingTo;
 import static io.spine.util.Exceptions.newIllegalArgumentException;
 
@@ -41,7 +37,7 @@ import static io.spine.util.Exceptions.newIllegalArgumentException;
  * A {@link StreamObserver} for {@link io.spine.core.Command Command}
  * {@linkplain Ack acknowledgement}.
  *
- * <p>Posts a system event whenever a command is acknowledged or errored.
+ * <p>Posts a system event whenever a command is acknowledged.
  */
 final class CommandAckMonitor implements StreamObserver<Ack> {
 
@@ -59,12 +55,24 @@ final class CommandAckMonitor implements StreamObserver<Ack> {
     /**
      * {@inheritDoc}
      *
-     * <p>Posts either {@link CommandAcknowledged} or {@link CommandErrored} system event
-     * depending on the value of the given {@code Ack}.
+     * <p>Posts {@link CommandAcknowledged} for an accepted command, and nothing for a refused one.
      */
     @Override
+    @SuppressWarnings("EnumSwitchStatementWhichMissesCases") // Default values.
     public void onNext(Ack value) {
-        postSystemEvent(value);
+        var status = value.getStatus();
+        var commandId = toCommandId(value);
+        switch (status.getStatusCase()) {
+            case OK -> postAcknowledged(commandId);
+            case ERROR_CASE, ERROR -> {
+                // A refused command is not acknowledged.
+            }
+            default -> throw newIllegalArgumentException(
+                    "Command `%s` has invalid status `%s`.",
+                    commandId.getUuid(),
+                    status.getStatusCase()
+            );
+        }
     }
 
     @Override
@@ -77,47 +85,14 @@ final class CommandAckMonitor implements StreamObserver<Ack> {
         // NO-OP.
     }
 
-    private void postSystemEvent(Ack ack) {
-        var status = ack.getStatus();
-        var commandId = toCommandId(ack);
-        var systemEvent = systemEventFor(status, commandId);
+    private void postAcknowledged(CommandId commandId) {
         var command = commands.get(commandId);
         checkState(command != null, "Unknown command ID encountered: `%s`.", commandId.value());
-        var systemEventOrigin = CommandEnvelope.of(command).asMessageOrigin();
-        writeSide.postEvent(systemEvent, systemEventOrigin);
-    }
-
-    @SuppressWarnings("EnumSwitchStatementWhichMissesCases") // Default values.
-    private static EventMessage systemEventFor(Status status, CommandId commandId) {
-        return switch (status.getStatusCase()) {
-            case OK -> CommandAcknowledged.newBuilder()
-                    .setId(commandId)
-                    .build();
-            case ERROR -> CommandErrored.newBuilder()
-                    .setId(commandId)
-                    .setError(status.getError())
-                    .build();
-            case ERROR_CASE -> erroredWithCase(status, commandId);
-            default -> throw newIllegalArgumentException(
-                    "Command `%s` has invalid status `%s`.",
-                    commandId.getUuid(),
-                    status.getStatusCase()
-            );
-        };
-    }
-
-    /**
-     * Creates {@link CommandErrored} for the given status with an error case.
-     *
-     * <p>Such a status carries no error, so the event gets an error made of the error case.
-     */
-    private static CommandErrored erroredWithCase(Status status, CommandId commandId) {
-        var errorCase = status.getErrorCase();
-        return CommandErrored.newBuilder()
+        var event = CommandAcknowledged.newBuilder()
                 .setId(commandId)
-                .setError(toError(errorCase))
-                .setErrorCase(errorCase)
                 .build();
+        var origin = CommandEnvelope.of(command).asMessageOrigin();
+        writeSide.postEvent(event, origin);
     }
 
     /**

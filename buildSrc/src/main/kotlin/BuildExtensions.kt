@@ -27,7 +27,6 @@ import io.spine.dependency.test.Kotest
 import io.spine.dependency.test.Kover
 import io.spine.gradle.repo.standardToSpineSdk
 import org.gradle.api.Project
-import org.gradle.api.Task
 import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.tasks.JavaExec
@@ -168,7 +167,8 @@ fun Project.configureTaskDependencies() {
      * Creates a dependency between the Gradle task of *this* name
      * onto the task with `taskName`.
      *
-     * If either of the tasks does not exist in the enclosing `Project`,
+     * Neither task is created by this method. A task registered later is matched too.
+     * If either of the tasks never exists in the enclosing `Project`,
      * this method does nothing.
      *
      * This extension is kept local to the `configureTaskDependencies` extension
@@ -176,9 +176,8 @@ fun Project.configureTaskDependencies() {
      */
     fun String.dependOn(taskName: String) {
         val whoDepends = this
-        val dependOntoTask: Task? = tasks.findByName(taskName)
-        dependOntoTask?.let {
-            tasks.findByName(whoDepends)?.dependsOn(it)
+        tasks.named { it == whoDepends }.configureEach {
+            dependsOn(tasks.named { it == taskName })
         }
     }
 
@@ -189,9 +188,15 @@ fun Project.configureTaskDependencies() {
         compileKotlin.run {
             dependOn(generateProto)
         }
+        val kspKotlin = "kspKotlin"
+        val kspTestKotlin = "kspTestKotlin"
+        val kspTestFixturesKotlin = "kspTestFixturesKotlin"
+        // KSP reads the sources that the Protobuf tasks generate.
+        kspKotlin.dependOn(generateProto)
+        kspTestKotlin.dependOn("generateTestProto")
+        kspTestFixturesKotlin.dependOn("generateTestFixturesProto")
         val compileTestKotlin = "compileTestKotlin"
         val sourcesJar = "sourcesJar"
-        val kspKotlin = "kspKotlin"
         sourcesJar.run {
             dependOn(generateProto)
             dependOn(kspKotlin)
@@ -207,12 +212,12 @@ fun Project.configureTaskDependencies() {
         dokkaGeneratePublicationJavadoc.dependOn(kspKotlin)
         "publishPluginJar".dependOn(createVersionFile)
         compileKotlin.dependOn(kspKotlin)
-        compileTestKotlin.dependOn("kspTestKotlin")
-        "compileTestFixturesKotlin".dependOn("kspTestFixturesKotlin")
+        compileTestKotlin.dependOn(kspTestKotlin)
+        "compileTestFixturesKotlin".dependOn(kspTestFixturesKotlin)
         "javadocJar".dependOn(dokkaGeneratePublicationJavadoc)
         "htmlDocsJar".dependOn(dokkaGenerate)
 
-        "kspTestKotlin".dependOn("launchTestSpineCompiler")
+        kspTestKotlin.dependOn("launchTestSpineCompiler")
     }
 }
 
@@ -267,19 +272,20 @@ fun JavaExec.remoteDebug(enabled: Boolean = true) {
  *
  * The port number is [5566][BuildSettings.REMOTE_DEBUG_PORT].
  *
+ * The task is configured when Gradle creates it, so calling this function
+ * does not create the task.
+ *
  * @param enabled If `true` the task will be suspended.
- * @throws IllegalStateException if the task with the given name is not found, or,
- *  if the task is not of [JavaExec] type.
+ * @throws IllegalStateException if the task with the given name is not found.
+ * @throws org.gradle.api.InvalidUserDataException if the task is not of [JavaExec] type.
  */
 fun Project.setRemoteDebug(taskName: String, enabled: Boolean = true) {
-    val task = tasks.findByName(taskName)
-    check(task != null) {
+    check(taskName in tasks.names) {
         "Could not find a task named `$taskName` in the project `$name`."
     }
-    check(task is JavaExec) {
-        "The task `$taskName` is not of type `JavaExec`."
+    tasks.named(taskName, JavaExec::class.java).configure {
+        remoteDebug(enabled)
     }
-    task.remoteDebug(enabled)
 }
 
 /**

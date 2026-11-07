@@ -34,12 +34,12 @@ object CoreJvmCompiler {
     /**
      * The version used in the build classpath.
      */
-    const val dogfoodingVersion = "2.0.0-SNAPSHOT.097"
+    const val dogfoodingVersion = "2.0.0-SNAPSHOT.104"
 
     /**
      * The version to be used for integration tests.
      */
-    const val version = "2.0.0-SNAPSHOT.099"
+    const val version = "2.0.0-SNAPSHOT.104"
 
     /**
      * The ID of the Gradle plugin.

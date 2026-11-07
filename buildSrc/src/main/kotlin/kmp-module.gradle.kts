@@ -27,6 +27,7 @@ import io.spine.gradle.kotlin.setFreeCompilerArgs
 import io.spine.gradle.publish.IncrementGuard
 import io.spine.gradle.report.license.LicenseReporter
 import io.spine.gradle.testing.configureLogging
+import io.spine.gradle.testing.useSharedTestKitDir
 
 /**
  * Configures this [Project] as a Kotlin Multiplatform module.
@@ -166,6 +167,12 @@ tasks {
         configureLogging()
     }
 }
+
+/**
+ * Gives all the `Test` tasks the TestKit directory shared by all modules,
+ * as `module-testing` does (see [useSharedTestKitDir]).
+ */
+project.useSharedTestKitDir()
 
 /**
  * Overrides the default location of Kotlin sources.

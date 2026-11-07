@@ -23,14 +23,17 @@ import io.spine.server.projection.Projection;
 import io.spine.system.server.Substituted.Sequence;
 import io.spine.system.server.event.CommandAcknowledged;
 import io.spine.system.server.event.CommandDispatched;
-import io.spine.system.server.event.CommandErrored;
 import io.spine.system.server.event.CommandHandled;
 import io.spine.system.server.event.CommandReceived;
 import io.spine.system.server.event.CommandRejected;
 import io.spine.system.server.event.CommandScheduled;
 import io.spine.system.server.event.CommandSplit;
+import io.spine.system.server.event.CommandTenantNotExpected;
+import io.spine.system.server.event.CommandTenantNotSpecified;
 import io.spine.system.server.event.CommandTransformed;
+import io.spine.system.server.event.CommandValidationFailed;
 import io.spine.system.server.event.TargetAssignedToCommand;
+import io.spine.system.server.event.UnsupportedCommandReceived;
 
 import static io.spine.base.Time.currentTime;
 
@@ -89,15 +92,34 @@ final class CommandLogProjection
         setStatus(status);
     }
 
-    /**
-     * Imports the event {@link CommandErrored}.
-     *
-     * <p>The event is generated if the {@code CommandBus} did not accept the command.
-     */
     @Subscribe
-    void on(CommandErrored event) {
+    void on(CommandValidationFailed event) {
         var status = ProcessingStatus.newBuilder()
-                .setError(event.getError())
+                .setValidationError(event.getValidationError())
+                .build();
+        setStatus(status);
+    }
+
+    @Subscribe
+    void on(@SuppressWarnings("unused") UnsupportedCommandReceived event) {
+        var status = ProcessingStatus.newBuilder()
+                .setUnsupported(Empty.getDefaultInstance())
+                .build();
+        setStatus(status);
+    }
+
+    @Subscribe
+    void on(@SuppressWarnings("unused") CommandTenantNotSpecified event) {
+        var status = ProcessingStatus.newBuilder()
+                .setTenantNotSpecified(Empty.getDefaultInstance())
+                .build();
+        setStatus(status);
+    }
+
+    @Subscribe
+    void on(CommandTenantNotExpected event) {
+        var status = ProcessingStatus.newBuilder()
+                .setTenantNotExpected(event.getTenant())
                 .build();
         setStatus(status);
     }

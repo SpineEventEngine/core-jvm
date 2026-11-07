@@ -30,7 +30,7 @@ typealias CoreJava = CoreJvm
 )
 object CoreJvm {
     const val group = Spine.group
-    const val version = "2.0.0-SNAPSHOT.571"
+    const val version = "2.0.0-SNAPSHOT.611"
 
     const val coreArtifact = "spine-core"
     const val clientArtifact = "spine-client"
