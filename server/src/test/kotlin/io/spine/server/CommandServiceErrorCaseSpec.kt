@@ -15,9 +15,11 @@
 package io.spine.server
 
 import com.google.protobuf.Any
+import com.google.protobuf.ByteString
 import io.grpc.Status.Code.INTERNAL
 import io.grpc.StatusRuntimeException
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.spine.base.Identifier
@@ -34,10 +36,12 @@ import io.spine.server.given.errorCase
 import io.spine.server.type.CommandEnvelope
 import io.spine.system.server.event.CommandPostingFailed
 import io.spine.test.aggregate.ProjectId
+import io.spine.test.aggregate.command.AggCreateProject
 import io.spine.test.commandservice.CmdServDontHandle
 import io.spine.test.commandservice.command.CsSuspendProject
 import io.spine.testing.client.TestActorRequestFactory
 import io.spine.testing.logging.mute.MuteLogging
+import io.spine.type.TypeUrl
 import io.spine.validation.NonValidated
 import java.util.Optional
 import org.junit.jupiter.api.AfterEach
@@ -107,6 +111,25 @@ internal class CommandServiceErrorCaseSpec {
         }
 
         @Test
+        fun `internal, whatever the message holds`() {
+            val malformed = malformedMessageOf(TypeUrl.of(CsSuspendProject::class.java))
+
+            post(withMessage(malformed)).status.errorCase shouldBe UNSUPPORTED_REQUEST
+
+            monitor.events.shouldBeEmpty()
+        }
+
+        @Test
+        fun `unknown to the server, whatever the message holds`() {
+            val unknownType = TypeUrl.parse("type.spine.io/spine.test.NoSuchCommand")
+            val malformed = malformedMessageOf(unknownType)
+
+            post(withMessage(malformed)).status.errorCase shouldBe UNSUPPORTED_REQUEST
+
+            monitor.events.shouldBeEmpty()
+        }
+
+        @Test
         fun `not set`() {
             post(withMessage(Any.getDefaultInstance())).status.errorCase shouldBe INVALID_REQUEST
 
@@ -142,6 +165,18 @@ internal class CommandServiceErrorCaseSpec {
         failed.error.type shouldBe IllegalStateException::class.java.canonicalName
     }
 
+    @Test
+    fun `fail the call for a served command whose message cannot be read, and record it`() {
+        val command = withMessage(malformedMessageOf(TypeUrl.of(AggCreateProject::class.java)))
+        val observer = memoizingObserver<Ack>()
+
+        service.post(command, observer)
+
+        observer.error.shouldNotBeNull().errorCase() shouldBe INTERNAL_ERROR
+        val failed = monitor.single<CommandPostingFailed>()
+        failed.id shouldBe command.id
+    }
+
     /**
      * Posts the given command, expecting an acknowledgement with an error case.
      */
@@ -152,6 +187,15 @@ internal class CommandServiceErrorCaseSpec {
         observer.isCompleted shouldBe true
         return observer.firstResponse()
     }
+
+    /**
+     * Creates a packed message of the given type, which bytes cannot be parsed.
+     */
+    private fun malformedMessageOf(type: TypeUrl): Any =
+        Any.newBuilder()
+            .setTypeUrl(type.value())
+            .setValue(ByteString.copyFrom(byteArrayOf(-1)))
+            .build()
 
     private fun withMessage(message: Any): @NonValidated Command {
         val command = requests.createCommand(CmdServDontHandle.getDefaultInstance())

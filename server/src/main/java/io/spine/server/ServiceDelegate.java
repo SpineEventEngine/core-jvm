@@ -152,8 +152,8 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
     /**
      * Obtains the origin of the events that record the problems with the request.
      *
-     * <p>By default, the System context is the origin. An origin that fails validation is
-     * replaced with the default one, so that the event is not refused.
+     * <p>By default, the System context is the origin. An origin that cannot be obtained, or
+     * fails validation, is replaced with the default one, so that the event is not refused.
      */
     protected Origin originOf(T request) {
         return Origin.getDefaultInstance();
@@ -267,10 +267,15 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
         }
     }
 
-    private void refuse(T request,
-                        ErrorCase errorCase,
-                        StreamObserver<R> observer,
-                        @Nullable String reason) {
+    /**
+     * Refuses the request with the given error case, and records nothing.
+     *
+     * <p>Logs the reason of the refusal.
+     */
+    protected final void refuse(T request,
+                                ErrorCase errorCase,
+                                StreamObserver<R> observer,
+                                @Nullable String reason) {
         logger().atWarning().log(() -> format(
                 "`%s` refused a request with `%s`. %s", serviceName(), errorCase, reason));
         respondWithError(request, errorCase, observer);
@@ -284,17 +289,29 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
      */
     private void record(BoundedContext context, T request, EventMessage event) {
         try {
-            var origin = originOf(request);
-            var validOrigin = Validate.violationsOf(origin).isEmpty()
-                              ? origin
-                              : Origin.getDefaultInstance();
             var writeSide = context.systemClient().writeSide();
             delegatingTo(writeSide).get(tenantOf(request))
-                                   .postEvent(event, validOrigin);
+                                   .postEvent(event, validOriginOf(request));
         } catch (RuntimeException e) {
             logger().atError().withCause(e).log(() -> format(
                     "Unable to record `%s` in the bounded context `%s`.",
                     TypeName.of(event).simpleName(), context.name().getValue()));
+        }
+    }
+
+    /**
+     * Obtains the {@linkplain #originOf origin} of the request, or the default one if
+     * the origin cannot be obtained or fails validation.
+     */
+    @SuppressWarnings("OverlyBroadCatchBlock") // Any origin that cannot be obtained is replaced.
+    private Origin validOriginOf(T request) {
+        try {
+            var origin = originOf(request);
+            return Validate.violationsOf(origin).isEmpty()
+                   ? origin
+                   : Origin.getDefaultInstance();
+        } catch (RuntimeException e) {
+            return Origin.getDefaultInstance();
         }
     }
 

@@ -195,6 +195,18 @@ internal class SubscriptionServiceErrorCaseSpec {
         }
 
         @Test
+        fun `activating, if it fails validation`() {
+            val invalid = unknownSubscription(requests.topic().allOf(CTaskCreated::class.java))
+                .toBuilder()
+                .clearId()
+                .buildPartial()
+
+            activate(invalid).errorCase() shouldBe INVALID_REQUEST
+
+            monitor.events.shouldBeEmpty()
+        }
+
+        @Test
         fun cancelling() {
             val unknown = unknownSubscription(requests.topic().allOf(CTaskCreated::class.java))
 
@@ -279,6 +291,22 @@ internal class SubscriptionServiceErrorCaseSpec {
         cancellation.firstResponse().status.hasOk() shouldBe true
         cancellation.isCompleted shouldBe true
         context.stand().hasSubscription(subscription.id) shouldBe false
+    }
+
+    @Test
+    fun `refuse an invalid topic even if the service knows no context`() {
+        BoundedContextBuilder.assumingTests().build().use { empty ->
+            val noContexts = SubscriptionService.withSingle(empty)
+            val invalid = requests.topic().allOf(CTaskCreated::class.java).toBuilder()
+                .clearId()
+                .buildPartial()
+            val observer = memoizingObserver<Subscription>()
+
+            noContexts.subscribe(invalid, observer)
+
+            observer.responses().shouldBeEmpty()
+            observer.error.shouldNotBeNull().errorCase() shouldBe INVALID_REQUEST
+        }
     }
 
     @Test

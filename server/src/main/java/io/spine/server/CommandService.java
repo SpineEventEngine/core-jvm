@@ -25,7 +25,6 @@ import io.spine.core.ErrorCase;
 import io.spine.core.Origin;
 import io.spine.core.TenantId;
 import io.spine.logging.WithLogging;
-import io.spine.server.type.CommandClass;
 import io.spine.system.server.event.CommandPostingFailed;
 import io.spine.type.MessageClass;
 import io.spine.type.TypeUrl;
@@ -107,10 +106,18 @@ public final class CommandService
             super(service, types);
         }
 
+        /**
+         * {@inheritDoc}
+         *
+         * <p>Reads the type URL of the packed command message, and does not unpack it.
+         * So a command of a type internal to the server, or unknown to it, is refused alike,
+         * whatever its message holds.
+         */
         @Override
         protected TypeUrl enclosedMessageType(Command request) {
-            var type = CommandClass.of(request).typeUrl();
-            return type;
+            var typeUrl = request.getMessage()
+                                 .getTypeUrl();
+            return TypeUrl.parse(typeUrl);
         }
 
         @Override

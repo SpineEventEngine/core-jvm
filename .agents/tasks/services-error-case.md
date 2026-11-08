@@ -101,10 +101,15 @@ context. Slice 3 of splitting #1705; stacked on #1711 (slice 2, the buses).
 - `QueryService` reads the target type with `Target.type()`: `Query.targetType()` throws
   `IllegalStateException` for a type unknown to the server, which then could not be told
   from a malformed one.
-- A topic that no context serves is subscribed with a `Subscription` built without
-  validation, so that the `Stand` of each context reports an invalid topic as
-  `INVALID_REQUEST`. `Subscriptions.from()` threw `ValidationException`, which became
+- A topic that no context serves is validated by the service before it is subscribed in
+  every context, so an invalid one gets `INVALID_REQUEST` even if no context exposes a type
+  (Copilot review). `Subscriptions.from()` used to throw `ValidationException`, which became
   `INTERNAL_ERROR`.
+- `CommandService` reads the type of a command from the type URL of its message, without
+  unpacking it (Copilot review): a malformed message of an internal type is refused with
+  `UNSUPPORTED_REQUEST`, as one of an unknown type. For a type that a context serves, the
+  `CommandBus` fails to unpack it: the call fails with `INTERNAL_ERROR`, and
+  `CommandPostingFailed` is recorded with the System context as the origin.
 - Found while reviewing: an activation of a subscription that no context serves may
   activate it in some contexts and fail the call; and the cancellation of such a subscription
   calls `Stand.hasSubscription()` outside a tenant-aware operation. Filed as #1712 (`v2.0`),

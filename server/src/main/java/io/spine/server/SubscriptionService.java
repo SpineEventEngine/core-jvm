@@ -46,6 +46,8 @@ import io.spine.system.server.event.UnknownSubscriptionActivationRequested;
 import io.spine.system.server.event.UnknownSubscriptionCancellationRequested;
 import io.spine.system.server.event.UnsupportedTopicReceived;
 import io.spine.type.TypeUrl;
+import io.spine.validation.Validate;
+import io.spine.validation.ViolationText;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -229,11 +231,20 @@ public final class SubscriptionService
 
         /**
          * Creates a subscription in each Bounded Context known to {@code SubscriptionService}.
+         *
+         * <p>A topic that fails validation is refused with
+         * {@link io.spine.core.ErrorCase#INVALID_REQUEST INVALID_REQUEST}, even if the service
+         * knows no Bounded Context.
          */
         @Override
         protected void serveNoContext(Topic topic,
                                       StreamObserver<Subscription> observer,
                                       @Nullable Object params) {
+            var violations = Validate.violationsOf(topic);
+            if (!violations.isEmpty()) {
+                refuse(topic, INVALID_REQUEST, observer, ViolationText.ofAll(violations));
+                return;
+            }
             List<BoundedContext> contexts = new ArrayList<>(contexts());
             contexts.sort(Ordering.natural());
             logger().atWarning().log(() -> format(
@@ -241,12 +252,7 @@ public final class SubscriptionService
                             " Creating a subscription in contexts: %s.",
                     topic.getTarget().type(),
                     contextsAsString(contexts)));
-            // Not validated here: the `Stand` of each context validates the topic,
-            // and reports an invalid one as such.
-            var subscription = Subscription.newBuilder()
-                    .setId(Subscriptions.generateId())
-                    .setTopic(topic)
-                    .buildPartial();
+            var subscription = Subscriptions.from(topic);
             for (var context : contexts) {
                 var stand = context.stand();
                 stand.subscribe(subscription);
