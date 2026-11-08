@@ -35,12 +35,18 @@ import "spine/validation/validation_error.proto";
 message TopicValidationFailed {
 
     // The ID of the topic.
+    //
+    // The field is not required: the topic may be refused because it has no ID.
+    //
     client.TopicId id = 1;
 
     // The constraints that the topic violates.
-    validation.ValidationError validation_error = 2;
+    validation.ValidationError validation_error = 2 [(required) = true];
 
     // The actor context of the topic.
+    //
+    // The field is not required: the topic may be refused because it has no actor context.
+    //
     core.ActorContext actor_context = 3;
 }
 
@@ -49,13 +55,13 @@ message TopicValidationFailed {
 message UnsupportedTopicReceived {
 
     // The ID of the topic.
-    client.TopicId id = 1;
+    client.TopicId id = 1 [(required) = true];
 
     // The type URL of the topic target.
-    string type_url = 2;
+    string type_url = 2 [(required) = true];
 
     // The actor context of the topic.
-    core.ActorContext actor_context = 3;
+    core.ActorContext actor_context = 3 [(required) = true];
 }
 
 // An event emitted when the `SubscriptionService` does not activate or cancel a subscription
@@ -63,12 +69,19 @@ message UnsupportedTopicReceived {
 message SubscriptionValidationFailed {
 
     // The ID of the subscription.
+    //
+    // The field is not required: the subscription may be refused because it has no ID.
+    //
     client.SubscriptionId id = 1;
 
     // The constraints that the subscription violates.
-    validation.ValidationError validation_error = 2;
+    validation.ValidationError validation_error = 2 [(required) = true];
 
     // The actor context of the topic of the subscription.
+    //
+    // The field is not required: the subscription may be refused because its topic has
+    // no actor context.
+    //
     core.ActorContext actor_context = 3;
 }
 
@@ -77,10 +90,10 @@ message SubscriptionValidationFailed {
 message UnknownSubscriptionActivationRequested {
 
     // The ID of the subscription.
-    client.SubscriptionId id = 1;
+    client.SubscriptionId id = 1 [(required) = true];
 
     // The actor context of the topic of the subscription.
-    core.ActorContext actor_context = 2;
+    core.ActorContext actor_context = 2 [(required) = true];
 }
 
 // An event emitted when the `SubscriptionService` is asked to cancel a subscription
@@ -88,10 +101,10 @@ message UnknownSubscriptionActivationRequested {
 message UnknownSubscriptionCancellationRequested {
 
     // The ID of the subscription.
-    client.SubscriptionId id = 1;
+    client.SubscriptionId id = 1 [(required) = true];
 
     // The actor context of the topic of the subscription.
-    core.ActorContext actor_context = 2;
+    core.ActorContext actor_context = 2 [(required) = true];
 }
 
 // An event emitted when the `SubscriptionService` fails to subscribe to a topic, or to
@@ -99,14 +112,20 @@ message UnknownSubscriptionCancellationRequested {
 message SubscriptionServiceFailed {
 
     // The ID of the topic.
+    //
+    // The field is not required: the request may fail before it is validated.
+    //
     client.TopicId topic = 1;
 
     // The ID of the subscription, if the request is to activate or cancel one.
     client.SubscriptionId subscription = 2;
 
     // The error that stopped the request.
-    base.Error error = 3;
+    base.Error error = 3 [(required) = true];
 
     // The actor context of the topic.
+    //
+    // The field is not required: the request may fail before it is validated.
+    //
     core.ActorContext actor_context = 4;
 }

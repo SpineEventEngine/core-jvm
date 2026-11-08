@@ -21,6 +21,11 @@ context. Slice 3 of splitting #1705; stacked on #1711 (slice 2, the buses).
 - Read failures: a fixed gRPC status, and `grpc-status-details-bin` carries the `ErrorCase`;
   clients read it with `StreamObservers.errorCaseOf()`.
 - `Status.error` and `ServerErrorHandler` change in slice 4.
+- Validation options of the events, as in slice 2: `(required)` on each field that is
+  always set when the event is posted (`validation_error`, `error`, and every field of the
+  events posted after the request passed validation). `id` and `actor_context` stay
+  optional where the request may lack them, with the reason in the field doc. No
+  `(validate)`.
 
 ## What the client gets, and what is recorded
 

@@ -143,10 +143,13 @@ message CommandTenantNotExpected {
 message CommandPostingFailed {
 
     // The ID of the command.
+    //
+    // The field is not required: the command may fail to post before it is validated.
+    //
     core.CommandId id = 1;
 
     // The error that stopped the posting.
-    base.Error error = 2;
+    base.Error error = 2 [(required) = true];
 }
 
 // An event emitted if the command cannot be handled due to a business rejection.
