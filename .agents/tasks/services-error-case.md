@@ -89,7 +89,8 @@ context. Slice 3 of splitting #1705; stacked on #1711 (slice 2, the buses).
   the recorded event), `StatusesSpec`, `errorCaseOf()`, `CommandLogProjectionSpec`;
   the existing Java tests updated, `StatusesTest` replaced.
 - [x] Version `.640`; `clean build dokkaGenerate` (server 2502 tests); `pre-pr`.
-- [x] PR #1713, stacked on #1711; to be retargeted to `master` once #1711 is merged.
+- [x] PR #1713, against `master` since #1711 was merged. It also carries the validation
+  options of the slice-2 events (`c300eaddfe9`), pushed after #1711 was merged.
 
 ## Differences from the plan
 
