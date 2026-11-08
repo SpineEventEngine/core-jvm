@@ -143,10 +143,13 @@ message AggregateHistoryCorrupted {
 message EventValidationFailed {
 
     // The ID of the event.
+    //
+    // The field is not required: the event may be refused because it has no ID.
+    //
     core.EventId id = 1;
 
     // The constraints that the event violates.
-    validation.ValidationError validation_error = 2;
+    validation.ValidationError validation_error = 2 [(required) = true];
 }
 
 // An event emitted when the `EventBus` does not accept an event from another Bounded Context
@@ -154,8 +157,8 @@ message EventValidationFailed {
 message UnsupportedEventReceived {
 
     // The ID of the event.
-    core.EventId id = 1;
+    core.EventId id = 1 [(required) = true];
 
     // The type URL of the event message.
-    string type_url = 2;
+    string type_url = 2 [(required) = true];
 }
