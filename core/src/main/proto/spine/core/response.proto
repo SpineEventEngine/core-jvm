@@ -25,9 +25,7 @@ option java_outer_classname = "ResponseProto";
 
 import "google/protobuf/empty.proto";
 
-import "spine/base/error.proto";
 import "spine/core/error_case.proto";
-import "spine/core/event.proto";
 
 // The result of a call returned by a service.
 //
@@ -44,24 +42,15 @@ message Response {
 
 // The response status.
 message Status {
+
+    reserved 2, 3;
+    reserved "error", "rejection";
+
     oneof status {
         option (choice).required = true;
 
         // The request was accepted to execution.
         google.protobuf.Empty ok = 1;
-
-        // The technical error occurred upon receiving the request, and no further
-        // processing would occur.
-        //
-        // Deprecated: the field is going to be removed.
-        //
-        base.Error error = 2 [deprecated = true];
-
-        // It is not possible to satisfy the request because of the business rejection.
-        //
-        // Deprecated: the field is going to be removed.
-        //
-        core.Event rejection = 3 [deprecated = true];
 
         // The request cannot be accepted, and no further processing would occur.
         ErrorCase error_case = 4;

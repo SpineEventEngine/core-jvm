@@ -16,7 +16,6 @@ package io.spine.core;
 
 import com.google.errorprone.annotations.Immutable;
 import io.spine.annotation.GeneratedMixin;
-import io.spine.base.Error;
 
 /**
  * Mixin interface for the {@link Response} objects.
@@ -34,8 +33,6 @@ interface ResponseMixin extends ResponseOrBuilder {
 
     /**
      * Verifies if this response has the {@link Status.StatusCase#ERROR_CASE ERROR_CASE} status.
-     *
-     * <p>A response with the deprecated {@code Status.error} is not an error for this method.
      */
     default boolean isError() {
         return getStatus().getStatusCase() == Status.StatusCase.ERROR_CASE;
@@ -49,17 +46,5 @@ interface ResponseMixin extends ResponseOrBuilder {
      */
     default ErrorCase errorCase() {
         return getStatus().getErrorCase();
-    }
-
-    /**
-     * Obtains the error associated with the response, or the default instance if the response is
-     * not an error.
-     *
-     * @deprecated {@code Status.error}, which this method reads, is going to be removed.
-     *         Please use {@link #errorCase()}.
-     */
-    @Deprecated
-    default Error error() {
-        return getStatus().getError();
     }
 }

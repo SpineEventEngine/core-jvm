@@ -22,7 +22,6 @@ import io.grpc.stub.StreamObserver
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeInstanceOf
-import io.spine.base.Error
 import io.spine.client.grpc.SubscriptionServiceGrpc
 import io.spine.core.ErrorCase
 import io.spine.core.ErrorCase.REQUEST_DENIED
@@ -30,11 +29,11 @@ import io.spine.core.ErrorCase.UNSUPPORTED_REQUEST
 import io.spine.core.Response
 import io.spine.core.Responses.errorWith
 import io.spine.core.response
-import io.spine.core.status
 import io.spine.server.BoundedContextBuilder
 import io.spine.test.client.ClientTestContext
 import io.spine.test.client.users.event.UserLoggedIn
 import io.spine.testing.client.TestActorRequestFactory
+import io.spine.validation.NonValidated
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit.SECONDS
 import org.junit.jupiter.api.DisplayName
@@ -89,11 +88,8 @@ internal class SubscriptionCancellationErrorCaseSpec : AbstractClientTest() {
     }
 
     @Test
-    // Reason: builds the deprecated `Status.error` until the field is removed.
-    @Suppress("DEPRECATION")
-    fun `pass a response with an unexpected status to the streaming error handler`() {
-        val unexpected = status { error = Error.getDefaultInstance() }
-        val answer = response { status = unexpected }
+    fun `pass a response without a status to the streaming error handler`() {
+        val answer: @NonValidated Response = Response.newBuilder().buildPartial()
 
         cancelOnStub { observer ->
             observer.onNext(answer)
@@ -102,7 +98,7 @@ internal class SubscriptionCancellationErrorCaseSpec : AbstractClientTest() {
 
         val failure = streamingErrors.get(TIMEOUT, SECONDS)
             .shouldBeInstanceOf<IllegalStateException>()
-        failure.message shouldContain "`ERROR`"
+        failure.message shouldContain "`STATUS_NOT_SET`"
         serverErrors.isDone shouldBe false
     }
 

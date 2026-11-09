@@ -15,10 +15,8 @@
 package io.spine.core;
 
 import com.google.protobuf.Empty;
-import io.spine.base.Error;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static io.spine.util.Preconditions2.checkNotDefaultArg;
 
 /**
  * Utilities for working with {@link Response Response} objects.
@@ -65,32 +63,5 @@ public final class Responses {
         return Status.newBuilder()
                      .setErrorCase(errorCase)
                      .build();
-    }
-
-    /**
-     * Creates an error status with the passed cause.
-     *
-     * @deprecated {@code Status.error}, which this method sets, is going to be removed.
-     *         Please use {@link #errorWith(ErrorCase)}.
-     */
-    @Deprecated
-    public static Status errorWith(Error cause) {
-        return Status.newBuilder()
-                     .setError(cause)
-                     .build();
-    }
-
-    /**
-     * Creates a rejection status with the passed rejection.
-     *
-     * @deprecated {@code Status.rejection}, which this method sets, is going to be removed.
-     */
-    @Deprecated
-    public static Status rejectedBecauseOf(Event rejection) {
-        checkNotDefaultArg(rejection);
-        var status = Status.newBuilder()
-                .setRejection(rejection)
-                .build();
-        return status;
     }
 }

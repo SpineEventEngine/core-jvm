@@ -18,66 +18,38 @@ import io.grpc.inprocess.InProcessServerBuilder
 import io.grpc.stub.StreamObserver
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.string.shouldContain
-import io.spine.base.Error
 import io.spine.client.grpc.CommandServiceGrpc
 import io.spine.core.Ack
 import io.spine.core.Command
-import io.spine.core.Event
-import io.spine.core.Status
 import io.spine.protobuf.pack
 import io.spine.test.client.users.command.LogInUser
 import io.spine.testing.core.given.GivenUserId
+import io.spine.validation.NonValidated
 import java.util.concurrent.TimeUnit.SECONDS
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
 /**
- * Checks how `CommandRequest` handles an acknowledgement that a server must not send.
+ * Checks how `CommandRequest` handles an acknowledgement without a status.
  *
- * A Spine server cannot be made to send such an acknowledgement, so the specs talk to
+ * A Spine server cannot be made to send such an acknowledgement, so the spec talks to
  * a stub of the command service.
  */
 @DisplayName("`CommandRequest` should")
 internal class CommandRequestUnexpectedStatusSpec {
 
     @Test
-    // Reason: builds the deprecated `Status.rejection` until the field is removed.
-    @Suppress("DEPRECATION")
-    fun `fail naming the status of an acknowledgement with a rejection`() {
-        val rejection = Status.newBuilder()
-            .setRejection(Event.getDefaultInstance())
-            .build()
-
-        val failure = postingAnsweredWith(rejection)
-
-        failure.message shouldContain "REJECTION"
-    }
-
-    @Test
-    // Reason: builds the deprecated `Status.error` until the field is removed.
-    @Suppress("DEPRECATION")
-    fun `fail naming the status of an acknowledgement with an error`() {
-        val error = Status.newBuilder()
-            .setError(Error.getDefaultInstance())
-            .build()
-
-        val failure = postingAnsweredWith(error)
-
-        failure.message shouldContain "`ERROR`"
-    }
-
-    @Test
     fun `fail naming the status of an acknowledgement without a status`() {
-        val failure = postingAnsweredWith(status = null)
+        val failure = postingAnsweredWithoutStatus()
 
-        failure.message shouldContain "STATUS_NOT_SET"
+        failure.message shouldContain "`STATUS_NOT_SET`"
     }
 
-    private fun postingAnsweredWith(status: Status?): IllegalStateException {
+    private fun postingAnsweredWithoutStatus(): IllegalStateException {
         val serverName = InProcessServerBuilder.generateName()
         val server = InProcessServerBuilder.forName(serverName)
             .directExecutor()
-            .addService(AnsweringCommandService(status))
+            .addService(AnsweringWithoutStatus)
             .build()
             .start()
         val client = Client.inProcess(serverName)
@@ -102,18 +74,15 @@ internal class CommandRequestUnexpectedStatusSpec {
 }
 
 /**
- * Answers every command with an acknowledgement carrying the given status,
- * or no status at all if it is `null`.
+ * Answers every command with an acknowledgement without a status.
  */
-private class AnsweringCommandService(
-    private val status: Status?
-) : CommandServiceGrpc.CommandServiceImplBase() {
+private object AnsweringWithoutStatus : CommandServiceGrpc.CommandServiceImplBase() {
 
     override fun post(request: Command, responseObserver: StreamObserver<Ack>) {
-        val ack = Ack.newBuilder()
+        val ack: @NonValidated Ack = Ack.newBuilder()
             .setMessageId(request.id.pack())
-        status?.let { ack.setStatus(it) }
-        responseObserver.onNext(ack.buildPartial())
+            .buildPartial()
+        responseObserver.onNext(ack)
         responseObserver.onCompleted()
     }
 }

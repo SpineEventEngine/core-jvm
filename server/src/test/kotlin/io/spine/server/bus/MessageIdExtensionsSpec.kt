@@ -34,19 +34,6 @@ internal class MessageIdExtensionsSpec {
     }
 
     @Test
-    // Reason: covers the deprecated `causedError(Error)` until it is removed.
-    @Suppress("DEPRECATION")
-    fun `causedError() with ERROR status`() {
-        val error = io.spine.base.error {
-            type = MessageIdExtensionsSpec::class.java.canonicalName
-            message = "A test error."
-        }
-        val ack = ID.causedError(error)
-        assertIdEquals(ack)
-        assertStatusCase(ack, StatusCase.ERROR)
-    }
-
-    @Test
     fun `causedError() with ERROR_CASE status`() {
         val ack = ID.causedError(ErrorCase.INVALID_REQUEST)
         assertIdEquals(ack)

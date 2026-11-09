@@ -253,11 +253,6 @@ public final class CommandRequest extends ClientRequestBase implements WithLoggi
                     cancelVoidSubscriptions();
                     reportErrorWhenPosting(status.getErrorCase());
                     return ImmutableSet.of();
-                case ERROR:
-                    /* The server does not send errors in acknowledgements, only error cases. */
-                case REJECTION:
-                    /* The server does not send rejections in acknowledgements. A rejection
-                       comes only as an event, after the command is dispatched. */
                 case STATUS_NOT_SET:
                     /* The server sent an ack with invalid status. */
                 default:

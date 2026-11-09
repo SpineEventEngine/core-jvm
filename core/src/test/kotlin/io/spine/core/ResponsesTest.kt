@@ -17,7 +17,6 @@ package io.spine.core
 import com.google.common.truth.extensions.proto.ProtoTruth
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import io.spine.base.Error
 import io.spine.core.Responses.ok
 import io.spine.testing.UtilityClassTest
 import io.spine.validation.NonValidated
@@ -42,38 +41,22 @@ internal class ResponsesTest : UtilityClassTest<Responses>(Responses::class.java
 
     @Test
     fun `recognize a response with an error case`() {
-        val error = response {
+        val response = response {
             status = Responses.errorWith(ErrorCase.INVALID_REQUEST)
         }
 
-        error.isOk shouldBe false
-        error.isError shouldBe true
-        error.errorCase() shouldBe ErrorCase.INVALID_REQUEST
+        response.isOk shouldBe false
+        response.isError shouldBe true
+        response.errorCase() shouldBe ErrorCase.INVALID_REQUEST
     }
 
-    /**
-     * This test uses partially built values even though the [Status]
-     * does not set validation on the [Status.error][Status.getError] field.
-     * This is so because the `base` subproject is built without using the Validation SDK.
-     *
-     * We want to make it future-compatible, should we decide validating
-     * the types provided by `base`.
-     */
     @Test
-    // Reason: builds the deprecated `Status.error` until the field is removed.
-    @Suppress("DEPRECATION")
-    fun `not take a response with the deprecated error for an error`() {
-        val asIfError: @NonValidated Status = Status.newBuilder()
-            .setError(Error.getDefaultInstance())
-            .buildPartial()
+    fun `tell no error case of a response without a status`() {
+        val response: @NonValidated Response = Response.newBuilder().buildPartial()
 
-        val error: @NonValidated Response = Response.newBuilder()
-            .setStatus(asIfError)
-            .buildPartial()
-
-        error.isOk shouldBe false
-        error.isError shouldBe false
-        error.errorCase() shouldBe ErrorCase.ERROR_CASE_UNSPECIFIED
+        response.isOk shouldBe false
+        response.isError shouldBe false
+        response.errorCase() shouldBe ErrorCase.ERROR_CASE_UNSPECIFIED
     }
 
     @Test

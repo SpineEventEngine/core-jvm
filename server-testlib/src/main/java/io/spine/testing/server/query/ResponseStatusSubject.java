@@ -26,7 +26,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.truth.Truth.assertAbout;
 import static io.spine.core.Status.StatusCase.ERROR_CASE;
 import static io.spine.core.Status.StatusCase.OK;
-import static io.spine.core.Status.StatusCase.REJECTION;
 
 /**
  * A set of checks for the {@linkplain io.spine.client.QueryResponse query response} status.
@@ -57,16 +56,6 @@ public final class ResponseStatusSubject extends ProtoSubject {
      */
     public void isError() {
         hasStatusCase(ERROR_CASE);
-    }
-
-    /**
-     * Verifies that the response status is {@link StatusCase#REJECTION REJECTION}.
-     *
-     * @deprecated {@code Status.rejection}, which this method checks, is going to be removed.
-     */
-    @Deprecated
-    public void isRejection() {
-        hasStatusCase(REJECTION);
     }
 
     void hasStatusCase(StatusCase statusCase) {

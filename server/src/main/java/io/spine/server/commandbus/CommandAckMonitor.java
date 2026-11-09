@@ -64,7 +64,7 @@ final class CommandAckMonitor implements StreamObserver<Ack> {
         var commandId = toCommandId(value);
         switch (status.getStatusCase()) {
             case OK -> postAcknowledged(commandId);
-            case ERROR_CASE, ERROR -> {
+            case ERROR_CASE -> {
                 // A refused command is not acknowledged.
             }
             default -> throw newIllegalArgumentException(

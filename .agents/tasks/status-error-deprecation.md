@@ -8,9 +8,10 @@ started: 2026-11-09
 
 ## Goal
 
-`spine.core.Status.error` is deprecated with its helpers, and the Java client hands
-an `ErrorCase` to `ServerErrorHandler` (today `BiConsumer<Message, Error>`). Slice 4 of
-splitting #1705; after #1713 (slice 3, the services), which is merged.
+`spine.core.Status` loses its `error` and `rejection` fields, with their helpers, and the Java
+client hands an `ErrorCase` to `ServerErrorHandler` (today `BiConsumer<Message, Error>`).
+Slice 4 of splitting #1705; after #1713 (slice 3, the services), which is merged. It does
+the core-jvm part of #1706.
 
 ## What the server still sends
 
@@ -23,19 +24,18 @@ Nothing in production puts an `Error` into a `Status` any more:
   the answer to a cancellation.
 
 `Responses.errorWith(Error)` and `causedError(Message, Error)` are called only by tests.
-An application `BusFilter` can still build an `Ack` with `Status.error` by hand: after this
-slice that is deprecated API, and the Java client treats such an `Ack` as an invalid status.
 
 ## Decisions (2026-11-09)
 
-- `Status.error` gets `[deprecated = true]` and "Deprecated: the field is going to be
-  removed.", as `rejection`. The doc of `Response` stops listing `error`.
-- Deprecated, with "`Status.error`, which this method sets/reads, is going to be removed.":
-  `Responses.errorWith(Error)`, `ResponseMixin.error()`,
-  `MessageIdExtensions.causedError(Message, Error)`.
-- `ResponseMixin.isError()` and `ResponseStatusSubject.isError()` are not deprecated: they
-  check `ERROR_CASE` from now on, so they outlive the field. `ResponseMixin.errorCase()` is
-  added. A response with the deprecated `error` is not an error for them.
+- First `Status.error` was deprecated (as `rejection` already was); then the owner asked to
+  remove both fields in this PR. Their names and numbers are `reserved` in `Status`, and
+  `response.proto` no longer imports `spine/base/error.proto` and `spine/core/event.proto`.
+- Removed with the fields: `Responses.errorWith(Error)`, `Responses.rejectedBecauseOf(Event)`,
+  `ResponseMixin.error()`, `MessageIdExtensions.causedError(Message, Error)`, and
+  `ResponseStatusSubject.isRejection()`; `CommandAckMonitor` reads only `ok` and
+  `error_case`.
+- `ResponseMixin.isError()` and `ResponseStatusSubject.isError()` stay: they check
+  `ERROR_CASE`. `ResponseMixin.errorCase()` is added.
 - `ServerErrorHandler extends BiConsumer<Message, ErrorCase>`. Lambdas compile unchanged;
   classes that implement it change the parameter type.
 - `ErrorCase.toError()` (core, added by #1707 for the old handler) is removed with its spec:
@@ -43,13 +43,14 @@ slice that is deprecated API, and the Java client treats such an `Ack` as an inv
 - `StreamObservers.fromStreamError()` and `MetadataConverter` are removed with their tests:
   they read the `spine-error-bin` trailer, which the server stopped sending in slice 3.
   Nothing else in the Spine repositories calls them.
-- `CommandRequest`: an `ERROR_CASE` ack goes to the handler as is. An ack with
-  the deprecated `ERROR` joins `REJECTION` and `STATUS_NOT_SET`: `IllegalStateException`
-  naming the status.
+- `CommandRequest`: an `ERROR_CASE` ack goes to the handler as is. An ack without a status
+  fails with `IllegalStateException` naming the status, as before. A Codex review asked to
+  cancel the subscriptions made for the command first; the owner dismissed it.
 - `Subscriptions`, cancellation: a failed call that carries an error case
   (`StreamObservers.errorCaseOf()`) goes to the `ServerErrorHandler` with the subscription;
   other failures go to the streaming handler, as today. A `Response` with an error case
-  goes to the `ServerErrorHandler` too.
+  goes to the `ServerErrorHandler` too; one without a status goes to the streaming handler
+  as an `IllegalStateException`.
 - Not changed: other failed calls stay where they go today.
   - Posting a command that fails with `INTERNAL_ERROR` keeps throwing
     `StatusRuntimeException`: the bus may have acknowledged the command, so reporting it
@@ -63,6 +64,10 @@ slice that is deprecated API, and the Java client treats such an `Ack` as an inv
 ## Plan
 
 - [x] `response.proto`: deprecate `error`; fix the `Response` doc.
+- [x] Remove `Status.error` and `Status.rejection` (names and numbers `reserved`), the API
+  listed above, and the tests of it; rewrite `docs/migration/command-filter-rejection.md`
+  for `.620` and `.660` (new title, a section on moving off the fields).
+- [x] `LoggingServerErrorHandlerSpec` covers the line Codecov reported.
 - [x] Core: deprecate `Responses.errorWith(Error)` and `ResponseMixin.error()`;
   `ResponseMixin.isError()` checks `ERROR_CASE`; add `ResponseMixin.errorCase()`;
   `git rm` `ErrorCases.kt` and `ErrorCasesSpec.kt`.
@@ -77,8 +82,7 @@ slice that is deprecated API, and the Java client treats such an `Ack` as an inv
   the `ErrorCase` itself since `.660`.
 - [x] Tests (new ones in Kotlin):
   - `CommandRequestErrorCaseSpec`: the handler gets `INVALID_REQUEST` itself.
-  - `CommandRequestUnexpectedStatusSpec`: an ack with the deprecated `error` fails naming
-    `ERROR`.
+  - `CommandRequestUnexpectedStatusSpec`: only the ack without a status is left.
   - New `SubscriptionCancellationErrorCaseSpec`: cancelling a subscription the server
     does not know passes `UNSUPPORTED_REQUEST` and the subscription to the handler; with
     a stub service, a failure without an error case goes to the streaming handler, and
@@ -102,7 +106,5 @@ slice that is deprecated API, and the Java client treats such an `Ack` as an inv
 
 ## Not in this slice
 
-- Removing `Status.error` and `Status.rejection` (#1706).
-- spine-ts and the Dart client.
-- What the server does with an `Ack` that an application filter builds with `Status.error`
-  (today: passed to the client; `CommandAckMonitor` treats it as a refusal).
+- spine-ts and the Dart client drop the fields from their copies of `response.proto`
+  (the last step of #1706).
