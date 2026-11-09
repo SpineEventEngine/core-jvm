@@ -88,7 +88,7 @@ slice that is deprecated API, and the Java client treats such an `Ack` as an inv
     `ResponseStatusSubjectTest`, `QueryResultSubjectTest`, `GivenResponseStatus`.
 - [x] Version `.640` → `.660` (breaking: public client API). First `.650`; re-bumped because
   #1716, which takes `.650`, merges first.
-- [x] `./gradlew clean build dokkaGenerate`; read the test counts (core 190, client 196,
+- [x] `./gradlew clean build dokkaGenerate`; read the test counts (core 190, client 185,
   server 2519 + 1 skipped, server-testlib 158); `pre-pr`.
 - [x] Draft the new text of #1706 for the owner (its steps 1, 3, and 4 are out of date).
 
