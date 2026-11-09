@@ -15,7 +15,6 @@
 package io.spine.server.delivery
 
 import io.spine.annotation.Internal
-import io.spine.server.ServerEnvironment
 import io.spine.server.delivery.event.ShardProcessed
 import io.spine.server.procman.ProcessManagerRepository
 import io.spine.server.route.EventRouting
@@ -31,12 +30,25 @@ public class CatchUpRepository :
     ProcessManagerRepository<CatchUpId, CatchUpProcess, CatchUp>() {
 
     /**
-     * Returns the [CatchUpStorage] of the `Delivery` of the current environment.
+     * Returns the [CatchUpStorage] of the `Delivery` of the context.
      */
     override fun createStorage(): CatchUpStorage =
-        ServerEnvironment.instance()
+        delivery().catchUpStorage()
+
+    /**
+     * Gives the process the `Delivery` of the context.
+     */
+    override fun configure(processManager: CatchUpProcess) {
+        super.configure(processManager)
+        processManager.injectDelivery(delivery())
+    }
+
+    /**
+     * Obtains the `Delivery` of the context of this repository.
+     */
+    private fun delivery(): Delivery =
+        context().internalAccess()
             .delivery()
-            .catchUpStorage()
 
     /**
      * Routes the report that a shard is processed to the process that asked for it.

@@ -30,7 +30,6 @@ import io.spine.core.Versions;
 import io.spine.grpc.MemoizingObserver;
 import io.spine.server.Application;
 import io.spine.server.BoundedContext;
-import io.spine.server.ServerEnvironment;
 import io.spine.server.delivery.event.AllShardsFinalized;
 import io.spine.server.delivery.event.CatchUpCompleted;
 import io.spine.server.delivery.event.CatchUpRequested;
@@ -52,6 +51,7 @@ import io.spine.server.projection.ProjectionRepository;
 import io.spine.server.tuple.EitherOf2;
 import io.spine.server.tuple.EitherOf3;
 import io.spine.type.TypeUrl;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
@@ -61,6 +61,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.IntStream;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.protobuf.util.Durations.fromMillis;
 import static com.google.protobuf.util.Durations.fromNanos;
 import static com.google.protobuf.util.Timestamps.subtract;
@@ -294,10 +296,30 @@ public final class CatchUpProcess extends ProcessManager<CatchUpId, CatchUp, Cat
     private static final Turbulence TURBULENCE = Turbulence.of(fromMillis(500));
 
     /**
+     * The delivery of the messages to the projections to catch up.
+     *
+     * <p>Set by the {@linkplain CatchUpRepository repository} when it configures the process.
+     */
+    private @MonotonicNonNull Delivery delivery;
+
+    /**
      * Creates a new instance of the process with the given ID.
      */
     CatchUpProcess(CatchUpId id) {
         super(id);
+    }
+
+    /**
+     * Assigns the delivery of the messages to the projections to catch up.
+     */
+    void injectDelivery(Delivery delivery) {
+        this.delivery = checkNotNull(delivery);
+    }
+
+    private Delivery delivery() {
+        checkState(delivery != null,
+                   "The catch-up process `%s` is not configured with a `Delivery`.", id());
+        return delivery;
     }
 
     /**
@@ -653,7 +675,6 @@ public final class CatchUpProcess extends ProcessManager<CatchUpId, CatchUp, Cat
      * paused during the process finalization, are propagated from their shards to the target
      * projection instances.
      */
-    @SuppressWarnings("unused") // We just need the fact of dispatching.
     @React
     List<ShardProcessingRequested> on(CatchUpCompleted ignored) {
         var shardCount = builder().getTotalShards();
@@ -711,8 +732,7 @@ public final class CatchUpProcess extends ProcessManager<CatchUpId, CatchUp, Cat
     }
 
     private void recordAffectedShards(Set<Object> actualTargets) {
-        var delivery = ServerEnvironment.instance()
-                                        .delivery();
+        var delivery = delivery();
         var projectionType = projectionType();
 
         var affectedShards =
@@ -741,9 +761,7 @@ public final class CatchUpProcess extends ProcessManager<CatchUpId, CatchUp, Cat
      * the {@code Delivery} held back in the shard while the catch-up was finalizing.
      */
     private void recordAllShardsAsAffected() {
-        var totalShards = ServerEnvironment.instance()
-                                           .delivery()
-                                           .shardCount();
+        var totalShards = delivery().shardCount();
         var allShards = IntStream.range(0, totalShards)
                                  .boxed()
                                  .collect(toList());
@@ -829,10 +847,8 @@ public final class CatchUpProcess extends ProcessManager<CatchUpId, CatchUp, Cat
      * Returns the maximum number of the events to read from the history at a time,
      * as configured for the {@code Delivery}.
      */
-    private static Limit queryLimit() {
-        var pageSize = ServerEnvironment.instance()
-                                        .delivery()
-                                        .catchUpPageSize();
+    private Limit queryLimit() {
+        var pageSize = delivery().catchUpPageSize();
         return limitOf(pageSize);
     }
 
