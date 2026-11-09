@@ -100,6 +100,12 @@ public final class BoundedContextBuilder implements WithLogging {
     private @MonotonicNonNull Supplier<AggregateRootDirectory> rootDirectory;
     private @Nullable TenantIndex tenantIndex;
 
+    /**
+     * Tells if the tenant index was {@linkplain #setTenantIndex(TenantIndex) given} to
+     * this builder, rather than taken from the {@link Application}.
+     */
+    private boolean tenantIndexGiven;
+
     /** Repositories to be registered with the Bounded Context being built after its creation. */
     private final Collection<Repository<?, ?>> repositories = new ArrayList<>();
 
@@ -234,6 +240,21 @@ public final class BoundedContextBuilder implements WithLogging {
     }
 
     /**
+     * Tells if the context to be built closes its tenant index when the context is closed.
+     *
+     * <p>A multitenant context closes only an index {@linkplain #setTenantIndex(TenantIndex)
+     * given} to its builder. The index of the {@link Application} is closed by
+     * the application.
+     *
+     * <p>This method must be invoked only from the
+     * {@link BoundedContext#BoundedContext(BoundedContextBuilder) constructor} of
+     * the {@code BoundedContext}.
+     */
+    boolean closesTenantIndex() {
+        return isMultitenant() && tenantIndexGiven;
+    }
+
+    /**
      * Sets a custom {@link Enricher} for events posted to
      * the {@code EventBus} of the context being built.
      *
@@ -249,6 +270,18 @@ public final class BoundedContextBuilder implements WithLogging {
         return this;
     }
 
+    /**
+     * Sets the index of tenants for the context to be built.
+     *
+     * <p>By default, a multitenant context uses the {@linkplain Application#tenantIndex()
+     * index} of the {@link Application}, which it shares with the other multitenant contexts.
+     * A multitenant context given an index of its own with this method closes the index when
+     * the context is closed.
+     *
+     * @param tenantIndex
+     *         the index of tenants of the context
+     * @return this builder, for call chaining
+     */
     @CanIgnoreReturnValue
     public BoundedContextBuilder setTenantIndex(TenantIndex tenantIndex) {
         if (isMultitenant()) {
@@ -257,6 +290,7 @@ public final class BoundedContextBuilder implements WithLogging {
                          TenantIndex.class.getSimpleName());
         }
         this.tenantIndex = tenantIndex;
+        this.tenantIndexGiven = true;
         return this;
     }
 
@@ -675,8 +709,9 @@ public final class BoundedContextBuilder implements WithLogging {
 
     private SystemContext buildSystem() {
         var system = new BoundedContextBuilder(systemSpec(), systemSettings);
-        var tenantIndex = tenantIndex();
-        tenantIndex.ifPresent(system::setTenantIndex);
+        // The System context shares the index given to this builder, and does not close it.
+        // If this builder was given none, both contexts use the index of the `Application`.
+        system.tenantIndex = tenantIndex;
         var result = system.buildPartial(SystemContext::newInstance, NoOpSystemClient.INSTANCE);
         return result;
     }
@@ -708,7 +743,7 @@ public final class BoundedContextBuilder implements WithLogging {
     private void initTenantIndex() {
         if (tenantIndex == null) {
             tenantIndex = isMultitenant()
-                          ? TenantIndex.defaultMultitenant()
+                          ? Application.instance().tenantIndex()
                           : TenantIndex.singleTenant();
         }
     }
