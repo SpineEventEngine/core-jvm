@@ -36,6 +36,10 @@ import "spine/validation/validation_error.proto";
 message CommandReceived {
 
     // The ID of the command.
+    //
+    // The field is not required: the command is received before it is validated, so it may
+    // have no ID.
+    //
     core.CommandId id = 1;
 
     // The command.
@@ -46,24 +50,24 @@ message CommandReceived {
 message CommandAcknowledged {
 
     // The ID of the command.
-    core.CommandId id = 1;
+    core.CommandId id = 1 [(required) = true];
 }
 
 // An event emitted when the command is scheduled.
 message CommandScheduled {
 
     // The ID of the command.
-    core.CommandId id = 1;
+    core.CommandId id = 1 [(required) = true];
 
     // The schedule to execute the command.
-    core.CommandContext.Schedule schedule = 2 [(validate) = true];
+    core.CommandContext.Schedule schedule = 2 [(required) = true, (validate) = true];
 }
 
 // An event emitted when a command is passed to a dispatcher after being acknowledged.
 message CommandDispatched {
 
     // The ID of the command.
-    core.CommandId id = 1;
+    core.CommandId id = 1 [(required) = true];
 }
 
 // An event emitted when the command target is determined.
@@ -73,17 +77,17 @@ message CommandDispatched {
 message TargetAssignedToCommand {
 
     // The ID of the command.
-    core.CommandId id = 1;
+    core.CommandId id = 1 [(required) = true];
 
     // The target of the command.
-    CommandTarget target = 2 [(validate) = true];
+    CommandTarget target = 2 [(required) = true, (validate) = true];
 }
 
 // An event emitted when a command is successfully handled.
 message CommandHandled {
 
     // The ID of the command.
-    core.CommandId id = 1;
+    core.CommandId id = 1 [(required) = true];
 }
 
 // An event emitted when the `CommandBus` does not accept a command because the command
@@ -156,17 +160,17 @@ message CommandPostingFailed {
 message CommandRejected {
 
     // The ID of the command.
-    core.CommandId id = 1;
+    core.CommandId id = 1 [(required) = true];
 
     // The command rejection event.
-    core.Event rejection_event = 2 [(validate) = true];
+    core.Event rejection_event = 2 [(required) = true, (validate) = true];
 }
 
 // An event emitted when another command was generated in response to a received command.
 message CommandTransformed {
 
     // The ID of the command.
-    core.CommandId id = 1;
+    core.CommandId id = 1 [(required) = true];
 
     // The ID of the command generated in response to the received command.
     core.CommandId produced = 2 [(required) = true];
@@ -176,7 +180,7 @@ message CommandTransformed {
 message CommandSplit {
 
     // The ID of the command.
-    core.CommandId id = 1;
+    core.CommandId id = 1 [(required) = true];
 
     // Identifiers of the commands generated in response to the received command.
     repeated core.CommandId produced = 2 [(required) = true];

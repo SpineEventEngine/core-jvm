@@ -26,6 +26,10 @@ context. Slice 3 of splitting #1705; stacked on #1711 (slice 2, the buses).
   events posted after the request passed validation). `id` and `actor_context` stay
   optional where the request may lack them, with the reason in the field doc. No
   `(validate)`.
+- The same rule for the other events of `command_log_events.proto`: the `id` of each event
+  posted after the command passed validation is required, and so are `schedule`, `target`,
+  and `rejection_event`. `CommandReceived.id` stays optional: the event is posted by the first
+  filter of the `CommandBus`, before the command is validated.
 
 ## What the client gets, and what is recorded
 
