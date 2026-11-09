@@ -97,6 +97,7 @@ internal class ApplicationSpec : SingletonTest<Application>(
             application.close()
             application.close()
 
+            index.isOpen.shouldBeFalse()
             index.closeCount shouldBe 1
         }
 
