@@ -18,7 +18,6 @@ import com.google.protobuf.Empty
 import io.grpc.ManagedChannelBuilder
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -28,6 +27,7 @@ import io.spine.server.delivery.given.DeliveryTestEnv.CalculatorRepository
 import io.spine.server.given.service.StatusCheckService
 import io.spine.test.client.ClientTestContext.tasks
 import io.spine.test.client.ClientTestContext.users
+import io.spine.test.client.tasks.CTask
 import io.spine.test.client.users.UserAccount
 import io.spine.test.delivery.Calc
 import io.spine.test.server.ServerStatus.OK
@@ -38,15 +38,21 @@ import io.spine.type.TypeUrl
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
+/**
+ * Checks [Server].
+ *
+ * A server exposes every context of the application of the test JVM, including the contexts
+ * that earlier tests left open, and closes them when it shuts down.
+ */
 @DisplayName("`Server` should")
 internal class ServerSpec {
 
     @Test
     @MuteLogging
     fun `allow registering custom gRPC services`() {
+        users().build()
+        tasks().build()
         val server = Server.atPort(ANY_FREE_PORT)
-            .add(users())
-            .add(tasks())
             .include(StatusCheckService())
             .build()
         server.start()
@@ -66,10 +72,9 @@ internal class ServerSpec {
     @Test
     @MuteLogging
     fun `provide 'CommandService', 'QueryService', and 'SubscriptionService'`() {
-        val server = Server.atPort(ANY_FREE_PORT)
-            .add(users())
-            .add(tasks())
-            .build()
+        users().build()
+        tasks().build()
+        val server = Server.atPort(ANY_FREE_PORT).build()
         // The server is started only to be shut down, which closes its contexts.
         server.start()
         try {
@@ -82,8 +87,33 @@ internal class ServerSpec {
     }
 
     @Test
+    fun `refuse to be built if the application has no contexts`() {
+        shouldThrow<IllegalStateException> {
+            Server.atPort(ANY_FREE_PORT)
+                .exposing(Application())
+                .build()
+        }
+    }
+
+    @Test
+    @MuteLogging
+    fun `not expose a context built after the server`() {
+        users().build()
+        val server = Server.atPort(ANY_FREE_PORT).build()
+        val tasks = tasks().build()
+        server.start()
+
+        server.shutdownAndWait()
+
+        contextServing(userAccount).shouldBeNull()
+        contextServing(task).shouldNotBeNull()
+        tasks.close()
+    }
+
+    @Test
     @MuteLogging
     fun `expose the port assigned by the operating system`() {
+        users().build()
         val server = Server.atPort(ANY_FREE_PORT).build()
         server.start()
         try {
@@ -102,6 +132,7 @@ internal class ServerSpec {
     @Test
     @MuteLogging
     fun `assign a distinct port to each server started at the port 0`() {
+        users().build()
         val servers = mutableListOf<Server>()
         try {
             repeat(2) {
@@ -116,19 +147,20 @@ internal class ServerSpec {
     @Test
     @MuteLogging
     fun `prohibit obtaining the bound port before the start`() {
-        val server = Server.atPort(ANY_FREE_PORT).build()
+        users().build().use {
+            val server = Server.atPort(ANY_FREE_PORT).build()
 
-        shouldThrow<IllegalStateException> {
-            server.boundPort
+            shouldThrow<IllegalStateException> {
+                server.boundPort
+            }
         }
     }
 
     @Test
     @MuteLogging
     fun `close its contexts when shut down and awaited`() {
-        val server = Server.atPort(ANY_FREE_PORT)
-            .add(users())
-            .build()
+        users().build()
+        val server = Server.atPort(ANY_FREE_PORT).build()
         server.start()
         contextServing(userAccount).shouldNotBeNull()
 
@@ -140,9 +172,8 @@ internal class ServerSpec {
     @Test
     @MuteLogging
     fun `close its contexts when shut down and awaited, even if it was not started`() {
-        val server = Server.atPort(ANY_FREE_PORT)
-            .add(users())
-            .build()
+        users().build()
+        val server = Server.atPort(ANY_FREE_PORT).build()
         contextServing(userAccount).shouldNotBeNull()
 
         shouldThrow<IllegalStateException> {
@@ -153,27 +184,11 @@ internal class ServerSpec {
     }
 
     @Test
-    fun `close the contexts it built when building another one fails`() {
-        // Both contexts have one name, so the one built second fails to build.
-        val builder = Server.atPort(ANY_FREE_PORT)
-            .add(users())
-            .add(users())
-
-        shouldThrow<DuplicateContextNameException> {
-            // Shut down at once if the build succeeds by mistake, so that it does not leak.
-            builder.build().shutdownAndWait()
-        }
-
-        contextServing(userAccount).shouldBeNull()
-    }
-
-    @Test
     @MuteLogging
     fun `close every context when shut down, even if closing one of them fails`() {
-        val server = Server.atPort(ANY_FREE_PORT)
-            .add(BoundedContext.singleTenant("Calculators").add(FailingCalculatorRepository()))
-            .add(users())
-            .build()
+        BoundedContext.singleTenant("Calculators").add(FailingCalculatorRepository()).build()
+        users().build()
+        val server = Server.atPort(ANY_FREE_PORT).build()
         server.start()
 
         shouldNotThrowAny {
@@ -185,70 +200,19 @@ internal class ServerSpec {
     }
 
     @Test
-    fun `keep the error of closing a context it built when building another one fails`() {
-        // Both contexts serve `Calc`, so the one built second fails to build,
-        // and then closing the one built first fails too.
-        val builder = Server.atPort(ANY_FREE_PORT)
-            .add(BoundedContext.singleTenant("First").add(FailingCalculatorRepository()))
-            .add(BoundedContext.singleTenant("Second").add(FailingCalculatorRepository()))
-
-        val thrown = shouldThrow<DuplicateEntityStateException> {
-            // Shut down at once if the build succeeds by mistake, so that it does not leak.
-            builder.build().shutdownAndWait()
-        }
-
-        thrown.suppressed.map { it.message } shouldContain CLOSE_FAILURE
-        contextServing(calc).shouldBeNull()
-    }
-
-    @Test
-    fun `keep the build error and close every built context if closing one throws an 'Error'`() {
-        // Both `First` and `Second` serve `Calc`, so the one of them built second fails to build.
-        // The server builds its contexts in no particular order, so the context of users
-        // may be built before the failure, too. Closing any of the contexts throws an `Error`.
-        val builder = Server.atPort(ANY_FREE_PORT)
-            .add(
-                BoundedContext.singleTenant("First")
-                    .add(CalculatorRepository())
-                    .errorOnClose()
-            )
-            .add(
-                BoundedContext.singleTenant("Second")
-                    .add(CalculatorRepository())
-                    .errorOnClose()
-            )
-            .add(users().errorOnClose())
-
-        val thrown = shouldThrow<DuplicateEntityStateException> {
-            // Shut down at once if the build succeeds by mistake, so that it does not leak.
-            builder.build().shutdownAndWait()
-        }
-
-        thrown.suppressed.map { it.message } shouldContain HOOK_FAILURE
-        contextServing(calc).shouldBeNull()
-        contextServing(userAccount).shouldBeNull()
-    }
-
-    @Test
     @MuteLogging
     fun `prohibit obtaining the bound port of an in-process server`() {
-        val server = Server.inProcess(randomString()).build()
+        users().build().use {
+            val server = Server.inProcess(randomString()).build()
 
-        shouldThrow<IllegalStateException> {
-            server.boundPort
+            shouldThrow<IllegalStateException> {
+                server.boundPort
+            }
         }
     }
 
     private fun contextServing(type: TypeUrl): BoundedContext? =
         Application.instance().contexts.contextServing(type)
-
-    /**
-     * Makes the hook of the context throw an `Error` before the context closes.
-     *
-     * The context still closes its repositories after the hook throws.
-     */
-    private fun BoundedContextBuilder.errorOnClose(): BoundedContextBuilder =
-        setOnBeforeClose { throw AssertionError(HOOK_FAILURE) }
 
     /**
      * A repository of calculators that throws from `close()` after closing its resources.
@@ -267,9 +231,8 @@ internal class ServerSpec {
 
         const val CLOSE_FAILURE = "The repository failed to close."
 
-        const val HOOK_FAILURE = "The hook failed before closing the context."
-
         val userAccount: TypeUrl = TypeUrl.of(UserAccount::class.java)
+        val task: TypeUrl = TypeUrl.of(CTask::class.java)
         val calc: TypeUrl = TypeUrl.of(Calc::class.java)
 
         /**

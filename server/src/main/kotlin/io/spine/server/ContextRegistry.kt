@@ -135,6 +135,14 @@ internal class ContextRegistry {
         servedStateTypes.contextServing(stateType)
 
     /**
+     * Obtains the registered contexts, in the order of their registration.
+     */
+    fun all(): List<BoundedContext> =
+        synchronized(contexts) {
+            contexts.toList()
+        }
+
+    /**
      * Closes the registered contexts, in the reverse order of their registration,
      * and refuses to register new ones afterwards.
      *
@@ -144,9 +152,8 @@ internal class ContextRegistry {
     @Suppress("TooGenericExceptionCaught") // Accumulates any failure of closing a context.
     fun closeAll() {
         accepting = false
-        val registered = synchronized(contexts) { contexts.toList() }
         var failure: RuntimeException? = null
-        for (context in registered.asReversed()) {
+        for (context in all().asReversed()) {
             try {
                 context.closeIfOpen()
             } catch (e: RuntimeException) {

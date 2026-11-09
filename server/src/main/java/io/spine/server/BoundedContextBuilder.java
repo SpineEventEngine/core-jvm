@@ -500,6 +500,10 @@ public final class BoundedContextBuilder implements WithLogging {
     /**
      * Creates a new instance of {@code BoundedContext} with the set configurations.
      *
+     * <p>The new context becomes a part of the {@link Application}, which closes it when
+     * the application is closed. A {@link Server} exposes the contexts of the application,
+     * so the caller may ignore the returned instance.
+     *
      * <p>The resulting domain-specific Bounded Context has as internal System Bounded Context.
      * The entities of the System domain describe the entities of the resulting Bounded Context.
      *
@@ -531,6 +535,7 @@ public final class BoundedContextBuilder implements WithLogging {
      *         type of one of the repositories
      */
     @SuppressWarnings("ProhibitedExceptionThrown" /* Rethrowing what was caught. */)
+    @CanIgnoreReturnValue
     public BoundedContext build() {
         var registry = BoundedContext.registry();
         registry.checkNameFree(spec.name());

@@ -94,6 +94,13 @@ Decisions:
   so "open" adds nothing, and ties the type to one property. Its methods `opened()`,
   `closed()`, and `findContextServing()` become `register()`, `unregister()`, and
   `contextServing()`. The name `Contexts` is taken by the file facade of `Contexts.kt`.
+- Q21 (2026-11-09, while reviewing PR 1): `Server` serves the contexts of `Application`, and
+  `Server.Builder.add()` is removed, not deprecated. There is no `Application.add()`: building
+  a context registers it in `Application` already (Q16). See section 11.
+- Q22 (2026-11-09): `Server.shutdown()` closes the contexts the server serves, as before.
+  The application stays open, so a later server in the same JVM can serve new contexts.
+  See section 11.
+- Q23 (2026-11-09): this change goes into PR 1, not a PR of its own.
 
 ## Problem
 
@@ -811,6 +818,49 @@ public fun record(event: EventMessage, origin: Origin)
 `record()` is public with `@Internal`, not Kotlin `internal`: the services that call it are
 Java classes.
 
+### 11. `Server` serves the contexts of `Application`
+
+Decided by Q21–Q23, in PR 1. `Application` is made of the Bounded Contexts of the JVM, so the
+server serves them instead of building contexts of its own.
+
+- **Building.** `Server.Builder.add(BoundedContextBuilder)` is removed. `Server.Builder.build()`
+  takes the contexts registered in `Application` at that moment (`ContextRegistry` gets an
+  internal `all()`); a context built later is not served. `build()` throws
+  `IllegalStateException` if the application has no contexts, which is also the case once it
+  is closed: closing it closes and unregisters the contexts.
+  `BoundedContextBuilder.build()` is `@CanIgnoreReturnValue`: the application keeps the built
+  context, so the caller does not need to. A package-private
+  `Server.Builder.exposing(Application)` lets a test give the server an application of its own,
+  for example, one with no contexts.
+- **Shutting down.** `Server.shutdown()` and `shutdownAndWait()` close the contexts the server
+  serves, as before (Q22). The application stays open.
+- **What goes away.** `Server.Builder` no longer builds contexts, so its code that closed the
+  contexts built before a failed build is removed. An application whose start fails closes its
+  contexts with `Application.instance().close()`.
+- **Duplicate command types.** `CommandService.Builder.build()` throws `IllegalStateException`
+  if two contexts handle commands of one type. Before, `TypeDictionary` silently routed such
+  commands to the context added last. A server over every context of the JVM makes that more
+  likely, for example, with a context that a test left open. Query and subscription types are
+  not checked: entity state types are unique already, and one event type may be exposed by
+  several contexts.
+- **Documentation.** The doc of `Server` says it exposes the Bounded Contexts of the
+  `Application`, and that they must be built before the server. Release notes: build the
+  contexts, then `Server.atPort(port).build()` or `Server.inProcess(name).build()`.
+- **Tests.**
+  - `AbstractClientTest` builds the contexts its subclasses give before building the server;
+    its nine subclasses do not change.
+  - `ClientEndToEndTest` builds its contexts before the server.
+  - `ServerSpec`: the cases that build a server with no contexts build one context first; the
+    two cases on closing contexts after a failed build are removed; new cases: a server takes
+    the contexts of the application, and `build()` throws without contexts.
+  - A new case for the duplicate command types of `CommandService`.
+  - A server built in a test also serves the contexts that earlier tests left open, and
+    closes them when it shuts down. The duplicate-command check may surface such leaks; the
+    leaking tests are then fixed to close their contexts.
+- **Follow-ups outside core-jvm**, after PR 1 is merged: `examples/hello`, `examples/hello-kt`,
+  the copy of hello in `documentation`, and the demo servlet of `delivery` build their
+  contexts before the server.
+
 ## Expected impact on existing tests
 
 - In-process posting does not go through the gate, so most tests that use generated
@@ -854,6 +904,8 @@ the exit code.
      `getTenantIndex()`; `BoundedContext` its index and `InternalAccess.tenantIndex()`;
      `BusBuilder` its tenant-index API.
    - `CommandBus` no longer registers the tenants of the commands (Q19).
+   - `Server` serves the contexts of `Application`; `Server.Builder.add()` is removed;
+     `CommandService` refuses two contexts handling one command type (section 11).
    - Specs: `contains` (cache hit, point read, no negative caching); `Application` (lazy
      default, `use` after first use throws, `close` closes the contexts and then the index,
      `closeIndex`); a multitenant `CommandBus` does not register the tenant of a posted
@@ -1171,3 +1223,12 @@ Questions 4, 6, and 8 were superseded on 2026-11-09 by question 11.
     Decided: `ContextRegistry`, given by `Application.contexts()`. Options:
     - **`ContextRegistry`** (chosen), after `DispatcherRegistry` and `SubscriptionRegistry`.
     - Another name; `Contexts` is taken by the file facade of `Contexts.kt`.
+21. ~~Add contexts to `Application` with `add()`, and let `Server` take them from there?~~
+    Decided: `Server` takes them from `Application`, with no `add()`: building a context
+    registers it already. An `add()` would make a second list, and a context built but not
+    added would be guarded, yet served by no one.
+22. ~~What does `Server.shutdown()` do with the contexts?~~ Decided: closes them, as before.
+    Options: stop only the transport, and let `Application.close()` close the contexts; or
+    close them, as before (chosen). Closing the `Application` was not an option: it closes for
+    good, and tests start and stop servers in one JVM.
+23. ~~In PR 1, or a PR of its own?~~ Decided: PR 1.
