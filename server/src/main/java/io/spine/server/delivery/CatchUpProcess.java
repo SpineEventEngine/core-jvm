@@ -28,8 +28,8 @@ import io.spine.core.Event;
 import io.spine.core.EventContext;
 import io.spine.core.Versions;
 import io.spine.grpc.MemoizingObserver;
+import io.spine.server.Application;
 import io.spine.server.BoundedContext;
-import io.spine.server.OpenContexts;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.delivery.event.AllShardsFinalized;
 import io.spine.server.delivery.event.CatchUpCompleted;
@@ -857,7 +857,7 @@ public final class CatchUpProcess extends ProcessManager<CatchUpId, CatchUp, Cat
      */
     static BoundedContext domainContextOf(CatchUpId job) {
         var projectionType = TypeUrl.parse(job.getProjectionType());
-        var context = OpenContexts.findContextServing(projectionType);
+        var context = Application.instance().findContextServing(projectionType);
         if (context == null) {
             throw newIllegalStateException(
                     "No open Bounded Context serves the projection type `%s`" +

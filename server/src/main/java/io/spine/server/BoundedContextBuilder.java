@@ -537,6 +537,8 @@ public final class BoundedContextBuilder implements WithLogging {
      * the context before throwing.
      *
      * @return new {@code BoundedContext}
+     * @throws IllegalStateException
+     *         if the {@link Application} is closed
      * @throws DuplicateContextNameException
      *         if another open Bounded Context has the name of the new context or of its
      *         System context
@@ -546,10 +548,10 @@ public final class BoundedContextBuilder implements WithLogging {
      */
     @SuppressWarnings("ProhibitedExceptionThrown" /* Rethrowing what was caught. */)
     public BoundedContext build() {
-        OpenContexts.checkNameFree(spec.name());
+        Application.instance().checkNameFree(spec.name());
         var system = buildSystem();
         var result = buildDomain(system);
-        OpenContexts.opened(result);
+        Application.instance().contextOpened(result);
         logger().atDebug()
                 .log(() -> format("%s created.", result.nameForLogging()));
         try {

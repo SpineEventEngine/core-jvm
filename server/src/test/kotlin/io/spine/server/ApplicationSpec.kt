@@ -20,6 +20,7 @@ import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.kotest.matchers.types.shouldNotBeSameInstanceAs
+import io.spine.server.tenant.TenantIndex
 import io.spine.server.tenant.given.InMemoryTenantIndex
 import io.spine.system.server.SystemBoundedContexts.systemOf
 import io.spine.testing.SingletonTest
@@ -43,7 +44,8 @@ internal class ApplicationSpec : SingletonTest<Application>(
      *
      * Closes the index that the contexts built by the tests before this one share. JUnit runs
      * the test classes of this module one by one, so no such context is in use: it is either
-     * closed, or left open by a test that has finished.
+     * closed, or left open by a test that has finished. The cases that close the application
+     * close such contexts too.
      */
     @BeforeEach
     fun startWithNoTenantIndex() {
@@ -87,6 +89,33 @@ internal class ApplicationSpec : SingletonTest<Application>(
 
     @Nested inner class
     `when closed` {
+
+        @Test
+        fun `close the open contexts in the reverse order, and then the tenant index`() {
+            val closings = mutableListOf<String>()
+            application.use(object : TenantIndex by InMemoryTenantIndex() {
+                override fun close() {
+                    closings.add("index")
+                }
+            })
+            val first = multitenantContext { closings.add("first") }
+            val second = multitenantContext { closings.add("second") }
+
+            application.close()
+
+            closings shouldBe listOf("second", "first", "index")
+            first.isOpen.shouldBeFalse()
+            second.isOpen.shouldBeFalse()
+        }
+
+        @Test
+        fun `refuse to build a context`() {
+            application.close()
+
+            shouldThrow<IllegalStateException> {
+                BoundedContextBuilder.assumingTests().build()
+            }
+        }
 
         @Test
         fun `close the tenant index once`() {
@@ -147,6 +176,18 @@ internal class ApplicationSpec : SingletonTest<Application>(
 
             index.closeCount shouldBe 1
             application.tenantIndex() shouldNotBeSameInstanceAs index
+        }
+
+        @Test
+        fun `keep the open contexts`() {
+            val name = "ApplicationSpec-KeptOpen"
+            BoundedContext.singleTenant(name).build().use {
+                application.reset()
+
+                shouldThrow<DuplicateContextNameException> {
+                    BoundedContext.singleTenant(name).build()
+                }
+            }
         }
 
         @Test
@@ -218,6 +259,11 @@ internal class ApplicationSpec : SingletonTest<Application>(
         }
     }
 
-    private fun multitenantContext(): BoundedContext =
-        BoundedContextBuilder.assumingTests(/* multitenant = */ true).build()
+    /**
+     * Builds a multitenant context that runs the given action when it starts closing.
+     */
+    private fun multitenantContext(onClose: () -> Unit = {}): BoundedContext =
+        BoundedContextBuilder.assumingTests(/* multitenant = */ true)
+            .setOnBeforeClose { onClose() }
+            .build()
 }

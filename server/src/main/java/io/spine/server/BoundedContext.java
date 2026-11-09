@@ -219,7 +219,7 @@ public abstract class BoundedContext
             guard.register(repository);
         } catch (Throwable t) {
             if (newlyServed) {
-                OpenContexts.forget(repository.entityStateType(), this);
+                Application.instance().forget(repository.entityStateType(), this);
             }
             throw t;
         }
@@ -241,7 +241,7 @@ public abstract class BoundedContext
      */
     private boolean serveStateOf(Repository<?, ?> repository) {
         return !isSystem()
-                && OpenContexts.serve(repository.entityStateType(), this);
+                && Application.instance().serve(repository.entityStateType(), this);
     }
 
     /**
@@ -583,7 +583,7 @@ public abstract class BoundedContext
         try {
             guard.shutDownRepositories();
         } finally {
-            OpenContexts.closed(this);
+            Application.instance().contextClosed(this);
         }
     }
 
