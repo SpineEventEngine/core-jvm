@@ -18,58 +18,59 @@ import io.spine.core.BoundedContextName
 import io.spine.type.TypeUrl
 
 /**
- * The open domain Bounded Contexts of an [Application], and the guard of their creation.
+ * The registry of the domain Bounded Contexts of an [Application].
  *
- * An open domain context must have a name of its own and serve entity state types of its own.
- * The record enforces both rules in three steps:
+ * A context is registered when it is built, and unregistered when it closes. A registered
+ * context must have a name of its own, and serve entity state types of its own.
+ * The registry enforces both rules in three steps:
  *
- * - [checkNameFree] throws [DuplicateContextNameException] if an open context has the name
- *   of a context about to be built. It runs before anything is built: a System context,
- *   for example, registers the inboxes of its repositories as soon as it is built.
- * - [opened] records the new context before its repositories are registered, so that its name
- *   is taken while they register.
+ * - [checkNameFree] throws [DuplicateContextNameException] if a registered context has
+ *   the name of a context about to be built. It runs before anything is built: a System
+ *   context, for example, registers the inboxes of its repositories as soon as it is built.
+ * - [register] records the new context before its repositories are added, so that its name
+ *   is taken while they are added.
  * - [serve] records the state type of a repository added to a context. It throws
- *   [DuplicateEntityStateException] if another open context already serves the type.
+ *   [DuplicateEntityStateException] if another registered context already serves the type.
  *
- * Checking the name and recording the context are two steps. Two threads that build contexts
- * with one name at the same time may both pass the check. Building contexts is rarely that
- * concurrent, so the record does not guard against it.
+ * Checking the name and registering the context are two steps. Two threads that build
+ * contexts with one name at the same time may both pass the check. Building contexts is
+ * rarely that concurrent, so the registry does not guard against it.
  *
- * System contexts are not recorded. Their names follow the names of their domain contexts,
+ * System contexts are not registered. Their names follow the names of their domain contexts,
  * so [checkNameFree] checks them through their domain contexts. All of them serve the same
  * entity state types. A domain context closes its System context.
  *
  * Contexts are told apart by identity, not by [name][BoundedContext.equals].
  */
-internal class OpenContexts {
+internal class ContextRegistry {
 
     /**
-     * The open domain contexts, in the order in which they were opened.
+     * The registered contexts, in the order of their registration.
      *
      * A list rather than a set, because a set would compare the contexts by
-     * [name][BoundedContext.equals], and the record tells them apart by identity.
+     * [name][BoundedContext.equals], and the registry tells them apart by identity.
      */
     private val contexts = mutableListOf<BoundedContext>()
 
     /**
-     * The record of which open domain context serves which entity state type.
+     * The record of which registered context serves which entity state type.
      */
     private val servedStateTypes = ServedStateTypes()
 
     /**
-     * Tells if new contexts may be opened.
+     * Tells if new contexts may be registered.
      */
     @Volatile
     private var accepting = true
 
     /**
-     * Checks that no open context has the given name, or the name of the System context
+     * Checks that no registered context has the given name, or the name of the System context
      * that a domain context with the given name gets.
      *
-     * The System contexts of the open domain contexts count too.
+     * The System contexts of the registered contexts count too.
      *
      * @throws IllegalStateException If the application is closed.
-     * @throws DuplicateContextNameException If an open context has one of the names.
+     * @throws DuplicateContextNameException If a registered context has one of the names.
      */
     fun checkNameFree(name: BoundedContextName) {
         check(accepting) {
@@ -84,9 +85,9 @@ internal class OpenContexts {
     }
 
     /**
-     * Records that the given context, which has just been built, is open.
+     * Registers the given context, which has just been built.
      */
-    fun opened(context: BoundedContext) {
+    fun register(context: BoundedContext) {
         synchronized(contexts) {
             contexts.add(context)
         }
@@ -99,7 +100,8 @@ internal class OpenContexts {
      * @param context The context to which a repository is being added.
      * @return `true` if this call recorded the context for the type,
      *   `false` if the context had been recorded for it before.
-     * @throws DuplicateEntityStateException If another open context already serves the type.
+     * @throws DuplicateEntityStateException If another registered context already serves
+     *   the type.
      */
     fun serve(stateType: TypeUrl, context: BoundedContext): Boolean =
         servedStateTypes.serve(stateType, context)
@@ -113,12 +115,12 @@ internal class OpenContexts {
         servedStateTypes.forget(stateType, context)
 
     /**
-     * Records that the given context, which is closing, is no longer open
-     * and no longer serves any entities.
+     * Unregisters the given context, which is closing, together with the entity state types
+     * it serves.
      *
-     * Does nothing for a context that is not recorded.
+     * Does nothing for a context that is not registered.
      */
-    fun closed(context: BoundedContext) {
+    fun unregister(context: BoundedContext) {
         servedStateTypes.forget(context)
         synchronized(contexts) {
             contexts.removeAll { it === context }
@@ -126,15 +128,15 @@ internal class OpenContexts {
     }
 
     /**
-     * Obtains the open context that serves entities with the given state type,
-     * or `null` if no open context serves it.
+     * Obtains the registered context that serves entities with the given state type,
+     * or `null` if no registered context serves it.
      */
-    fun findContextServing(stateType: TypeUrl): BoundedContext? =
+    fun contextServing(stateType: TypeUrl): BoundedContext? =
         servedStateTypes.contextServing(stateType)
 
     /**
-     * Closes the open contexts, in the reverse order of their opening,
-     * and refuses to open new ones afterwards.
+     * Closes the registered contexts, in the reverse order of their registration,
+     * and refuses to register new ones afterwards.
      *
      * Closes each context even if closing another one fails; then throws the first failure,
      * with the later ones suppressed.
@@ -142,9 +144,9 @@ internal class OpenContexts {
     @Suppress("TooGenericExceptionCaught") // Accumulates any failure of closing a context.
     fun closeAll() {
         accepting = false
-        val open = synchronized(contexts) { contexts.toList() }
+        val registered = synchronized(contexts) { contexts.toList() }
         var failure: RuntimeException? = null
-        for (context in open.asReversed()) {
+        for (context in registered.asReversed()) {
             try {
                 context.closeIfOpen()
             } catch (e: RuntimeException) {

@@ -283,7 +283,7 @@ internal class DuplicateEntityStateSpec {
     }
 
     private fun contextServing(type: TypeUrl): BoundedContext? =
-        Application.instance().openContexts.findContextServing(type)
+        Application.instance().contexts.contextServing(type)
 
     /**
      * A repository of calculators that throws from `close()` after closing its resources.

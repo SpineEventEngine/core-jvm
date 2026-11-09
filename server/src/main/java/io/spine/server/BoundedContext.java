@@ -198,6 +198,13 @@ public abstract class BoundedContext
     }
 
     /**
+     * Obtains the registry of the Bounded Contexts of the {@link Application}.
+     */
+    static ContextRegistry registry() {
+        return Application.instance().contexts();
+    }
+
+    /**
      * Adds the passed repository to the context.
      *
      * @throws IllegalStateException
@@ -214,7 +221,7 @@ public abstract class BoundedContext
             guard.register(repository);
         } catch (Throwable t) {
             if (newlyServed) {
-                Application.instance().openContexts().forget(repository.entityStateType(), this);
+                registry().forget(repository.entityStateType(), this);
             }
             throw t;
         }
@@ -236,7 +243,7 @@ public abstract class BoundedContext
      */
     private boolean serveStateOf(Repository<?, ?> repository) {
         return !isSystem()
-                && Application.instance().openContexts().serve(repository.entityStateType(), this);
+                && registry().serve(repository.entityStateType(), this);
     }
 
     /**
@@ -512,7 +519,7 @@ public abstract class BoundedContext
      */
     private void closeComponents(boolean wasOpen) {
         RuntimeException failure = null;
-        for (var component : List.<Closeable>of(commandBus, eventBus, broker, stand)) {
+        for (var component : List.of(commandBus, eventBus, broker, stand)) {
             try {
                 component.closeIfOpen();
             } catch (RuntimeException e) {
@@ -578,7 +585,7 @@ public abstract class BoundedContext
         try {
             guard.shutDownRepositories();
         } finally {
-            Application.instance().openContexts().closed(this);
+            registry().unregister(this);
         }
     }
 

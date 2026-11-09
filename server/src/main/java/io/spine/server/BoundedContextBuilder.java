@@ -532,10 +532,11 @@ public final class BoundedContextBuilder implements WithLogging {
      */
     @SuppressWarnings("ProhibitedExceptionThrown" /* Rethrowing what was caught. */)
     public BoundedContext build() {
-        Application.instance().openContexts().checkNameFree(spec.name());
+        var registry = BoundedContext.registry();
+        registry.checkNameFree(spec.name());
         var system = buildSystem();
         var result = buildDomain(system);
-        Application.instance().openContexts().opened(result);
+        registry.register(result);
         logger().atDebug()
                 .log(() -> format("%s created.", result.nameForLogging()));
         try {

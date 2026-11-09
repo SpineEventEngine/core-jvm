@@ -76,9 +76,8 @@ Decisions:
 - Q16 (2026-11-09, while reviewing PR 1): `OpenContexts` is merged into `Application`, in PR 1,
   so that the application knows the contexts it is made of. It stays an internal class of its
   own, which `Application` holds, rather than a JVM-wide object: detekt limits a class to 11
-  functions. `Application.close()` closes the
-  open contexts, in the reverse order of their building, and then the tenant index; after it,
-  no context can be built. See section 8.
+  functions. `Application.close()` closes the open contexts, in the reverse order of their
+  building, and then the tenant index; after it, no context can be built. See section 8.
 - Q17 (2026-11-09, while reviewing PR 1): `Application` has no `reset()`. An application is
   closed, not reset. Tests close only the tenant index with the internal `closeIndex()`, and
   check closing on applications of their own (the constructor is internal). See section 8.
@@ -90,6 +89,11 @@ Decisions:
   commands in PR 1, not PR 4. Nothing reads the index before the gate of PR 4, so no request
   is served differently, and no test relied on it. Until PR 4, only the application
   registers tenants. See section 3.
+- Q20 (2026-11-09, while reviewing PR 1): `OpenContexts` is renamed to `ContextRegistry`, and
+  `Application` gives it with `contexts()`. The record holds only the contexts that are open,
+  so "open" adds nothing, and ties the type to one property. Its methods `opened()`,
+  `closed()`, and `findContextServing()` become `register()`, `unregister()`, and
+  `contextServing()`. The name `Contexts` is taken by the file facade of `Contexts.kt`.
 
 ## Problem
 
@@ -656,8 +660,9 @@ Changes elsewhere:
 - `Application` also holds the `UnregisteredTenantPolicy` (section 2) and the record of
   refused requests with its switch (section 10). `close()` closes the record too.
 - As implemented in PR 1, unlike the sketch above (Q16, Q17):
-  - `Application` holds the record of the open contexts and of the entity state types they
-    serve: `OpenContexts`, an internal class now, no longer a JVM-wide object.
+  - `Application` holds the registry of its contexts and of the entity state types they
+    serve: `ContextRegistry`, given by `contexts()`, the internal class that replaced the
+    JVM-wide `OpenContexts` object (Q16, Q20).
   - `close()` closes the open contexts, in the reverse order of their building, and then the
     tenant index. It closes the application for good, as the contract of
     `io.spine.server.Closeable` requires: no context can be built afterwards, and
@@ -842,7 +847,8 @@ the exit code.
 1. **Tenant index for the application.** No change in how requests are served.
    - `TenantIndex.contains()` (default method) and `TenantStorage.contains()` (section 1).
    - `Application` (Kotlin, section 8): `tenantIndex()`, `use(TenantIndex)`, `close()`, and
-     the internal `closeIndex()`. `OpenContexts` becomes a part of `Application` (Q16).
+     the internal `closeIndex()`. `OpenContexts` becomes `ContextRegistry`, a part of
+     `Application` (Q16, Q20).
    - Bounded Contexts keep no tenant index (Q18), and contexts cannot be given one (Q15):
      `BoundedContextBuilder` loses `setTenantIndex()`, `hasTenantIndex()`, and
      `getTenantIndex()`; `BoundedContext` its index and `InternalAccess.tenantIndex()`;
@@ -1161,3 +1167,7 @@ Questions 4, 6, and 8 were superseded on 2026-11-09 by question 11.
       `BusBuilder` until PR 4.
 19. ~~Stop `CommandBus` registering tenants in PR 1, or in PR 4 with the gate?~~ Decided: in PR 1.
     Nothing read the index yet, and only the spec added by PR 1 checked the registration.
+20. ~~Keep the name `OpenContexts` for the record of contexts, given by `openContexts()`?~~
+    Decided: `ContextRegistry`, given by `Application.contexts()`. Options:
+    - **`ContextRegistry`** (chosen), after `DispatcherRegistry` and `SubscriptionRegistry`.
+    - Another name; `Contexts` is taken by the file facade of `Contexts.kt`.

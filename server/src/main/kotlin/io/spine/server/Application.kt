@@ -20,24 +20,25 @@ import io.spine.server.tenant.TenantIndex
 /**
  * The application made of the Bounded Contexts that run in this JVM.
  *
- * Holds what the contexts of the application share: the record of the contexts that are open,
- * and the index of the tenants that the application serves. The technologies that the contexts
- * run on, such as storage and transport, are configured by [ServerEnvironment].
+ * Holds what the contexts of the application share: the record of its contexts, and the index
+ * of the tenants that the application serves. The technologies that the contexts run on, such
+ * as storage and transport, are configured by [ServerEnvironment].
  *
- * ## Open contexts
+ * ## Contexts
  *
  * The Bounded Contexts of a JVM work together: they share one `Delivery`, one transport,
- * and one storage factory. So an open domain context must have a name of its own, and serve
- * entity state types of its own. Building a context with the name of an open one throws
- * [DuplicateContextNameException], which also tells why names matter. Adding a repository
- * of a state type that another open context serves throws [DuplicateEntityStateException].
+ * and one storage factory. So each domain context of the application must have a name of its
+ * own, and serve entity state types of its own. Building a context with the name of another
+ * one throws [DuplicateContextNameException], which also tells why names matter. Adding
+ * a repository of a state type that another context serves throws
+ * [DuplicateEntityStateException].
  *
- * A closed context is no longer open, so another context may have its name and serve its
- * entity state types. See [BoundedContext] on what this means for tests.
+ * A context that is closed leaves the application, so another context may have its name and
+ * serve its entity state types. See [BoundedContext] on what this means for tests.
  *
  * ## Closing
  *
- * [Closing][close] the application closes its open contexts, and then its tenant index.
+ * [Closing][close] the application closes its contexts, and then its tenant index.
  * Close the application before [ServerEnvironment], whose storage factory keeps the tenants
  * of the default index.
  *
@@ -47,10 +48,10 @@ import io.spine.server.tenant.TenantIndex
 public class Application internal constructor() : Closeable {
 
     /**
-     * The open domain contexts of the application.
+     * The registry of the domain contexts of the application.
      */
-    @get:JvmName("openContexts")
-    internal val openContexts: OpenContexts = OpenContexts()
+    @get:JvmName("contexts")
+    internal val contexts: ContextRegistry = ContextRegistry()
 
     /**
      * The index of tenants of the multitenant contexts, or `null` until it is created or set.
@@ -104,7 +105,7 @@ public class Application internal constructor() : Closeable {
     override fun isOpen(): Boolean = open
 
     /**
-     * Closes the open Bounded Contexts of the application, and then its tenant index.
+     * Closes the Bounded Contexts of the application, and then its tenant index.
      *
      * The contexts are closed in the reverse order of their building. Each part is closed even
      * if closing another one fails; then the first failure is thrown, with the later ones
@@ -123,7 +124,7 @@ public class Application internal constructor() : Closeable {
         }
         var failure: RuntimeException? = null
         try {
-            openContexts.closeAll()
+            contexts.closeAll()
         } catch (e: RuntimeException) {
             failure = e
         }

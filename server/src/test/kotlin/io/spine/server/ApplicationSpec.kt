@@ -98,8 +98,8 @@ internal class ApplicationSpec {
             })
             val first = context { closings.add("first") }
             val second = context { closings.add("second") }
-            application.openContexts.opened(first)
-            application.openContexts.opened(second)
+            application.contexts.register(first)
+            application.contexts.register(second)
 
             application.close()
 
@@ -114,7 +114,7 @@ internal class ApplicationSpec {
             val name = boundedContextName { value = "ApplicationSpec" }
 
             shouldThrow<IllegalStateException> {
-                application.openContexts.checkNameFree(name)
+                application.contexts.checkNameFree(name)
             }
         }
 
