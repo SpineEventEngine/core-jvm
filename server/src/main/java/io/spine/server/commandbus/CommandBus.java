@@ -27,6 +27,7 @@ import io.spine.core.Ack;
 import io.spine.core.Command;
 import io.spine.core.TenantId;
 import io.spine.grpc.CompositeObserver;
+import io.spine.server.Application;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.bus.BusBuilder;
@@ -43,7 +44,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
-import java.util.function.Consumer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.system.server.WriteSideFunction.delegatingTo;
@@ -54,9 +54,6 @@ import static io.spine.system.server.WriteSideFunction.delegatingTo;
 @Internal
 public final class CommandBus
         extends UnicastBus<Command, CommandEnvelope, CommandClass, CommandDispatcher> {
-
-    /** Consumes tenant IDs from incoming commands. */
-    private final Consumer<TenantId> tenantConsumer;
 
     /** Consumes commands dispatched by this bus. */
     private final CommandFlowWatcher watcher;
@@ -95,7 +92,6 @@ public final class CommandBus
                            : false;
         this.scheduler = checkNotNull(builder.commandScheduler);
         this.systemWriteSide = builder.ensureSystem();
-        this.tenantConsumer = checkNotNull(builder.tenantConsumer);
         this.watcher = checkNotNull(builder.watcher);
         this.deadCommandHandler = new DeadCommandHandler(this::systemFor);
     }
@@ -229,10 +225,18 @@ public final class CommandBus
         dispatch(commandEnvelope);
     }
 
+    /**
+     * Keeps the tenant of the commands in the {@linkplain Application#tenantIndex() index}
+     * of the {@link Application}, if this bus is multitenant.
+     */
     @Override
     protected void store(Iterable<Command> commands) {
-        var tenantId = tenantOf(commands);
-        tenantConsumer.accept(tenantId);
+        if (multitenant) {
+            var tenantId = tenantOf(commands);
+            Application.instance()
+                       .tenantIndex()
+                       .keep(tenantId);
+        }
     }
 
     /**
@@ -266,7 +270,6 @@ public final class CommandBus
          */
         private @Nullable Boolean multitenant;
         private @Nullable CommandFlowWatcher watcher;
-        private @MonotonicNonNull Consumer<TenantId> tenantConsumer;
         private @MonotonicNonNull CommandScheduler commandScheduler;
 
         /** Prevents direct instantiation. */
@@ -303,7 +306,6 @@ public final class CommandBus
         @CheckReturnValue
         public CommandBus build() {
             var writeSide = ensureSystem();
-            var tenantIndex = ensureTenantIndex();
 
             commandScheduler =
                     ServerEnvironment.instance()
@@ -315,8 +317,6 @@ public final class CommandBus
                 );
             }
             commandScheduler.setWatcher(watcher);
-
-            tenantConsumer = tenantIndex::keep;
 
             var commandBus = createCommandBus();
 

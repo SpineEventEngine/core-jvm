@@ -35,7 +35,6 @@ import io.spine.server.event.EventDispatcher;
 import io.spine.server.event.EventDispatcherDelegate;
 import io.spine.server.integration.IntegrationBroker;
 import io.spine.server.stand.Stand;
-import io.spine.server.tenant.TenantIndex;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventEnvelope;
 import io.spine.system.server.SystemClient;
@@ -113,9 +112,6 @@ public abstract class BoundedContext
     @SuppressWarnings("deprecation") // The `AggregateRootDirectory` API is deprecated.
     private final AggregateRootDirectory aggregateRootDirectory;
 
-    /** The index of tenants having data in this context. */
-    private final TenantIndex tenantIndex;
-
     /** Provides access to internally used features of the context. */
     private final InternalAccess internalAccess;
 
@@ -143,7 +139,6 @@ public abstract class BoundedContext
         this.spec = builder.spec();
         this.eventBus = builder.buildEventBus(this);
         this.stand = builder.stand();
-        this.tenantIndex = builder.buildTenantIndex();
         this.broker = new IntegrationBroker();
         this.commandBus = builder.buildCommandBus();
         this.aggregateRootDirectory = builder.aggregateRootDirectory();
@@ -800,16 +795,6 @@ public abstract class BoundedContext
         /** Obtains an {@link IntegrationBroker} of this {@code BoundedContext}. */
         public IntegrationBroker broker() {
             return self().broker;
-        }
-
-        /**
-         * Obtains a tenant index of this Bounded Context.
-         *
-         * <p>If the context is single-tenant returns
-         * {@linkplain TenantIndex#singleTenant() null-object} implementation.
-         */
-        public TenantIndex tenantIndex() {
-            return tenantIndex;
         }
 
         /**

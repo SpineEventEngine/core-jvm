@@ -91,15 +91,6 @@ class BoundedContextBuilderTest {
     class CreateDefault {
 
         @Test
-        @DisplayName("`TenantIndex`")
-        void tenantIndex() {
-            assertNotNull(BoundedContextBuilder.assumingTests(/* multitenant = */ true)
-                                               .build()
-                                               .internalAccess()
-                                               .tenantIndex());
-        }
-
-        @Test
         @DisplayName("`CommandBus` and `EventBus` simultaneously")
         void commandBusAndEventBus() {
             var boundedContext = builder.build();

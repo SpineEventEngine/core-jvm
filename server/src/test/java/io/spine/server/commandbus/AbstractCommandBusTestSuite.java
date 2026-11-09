@@ -31,7 +31,6 @@ import io.spine.server.command.Assign;
 import io.spine.server.commandbus.given.DirectScheduledExecutor;
 import io.spine.server.commandbus.given.MemoizingCommandFlowWatcher;
 import io.spine.server.event.EventBus;
-import io.spine.server.tenant.TenantIndex;
 import io.spine.system.server.NoOpSystemWriteSide;
 import io.spine.system.server.SystemWriteSide;
 import io.spine.test.commandbus.command.CmdBusCreateProject;
@@ -72,7 +71,6 @@ abstract class AbstractCommandBusTestSuite {
     protected CreateProjectAssignee createProjectAssignee;
     protected MemoizingObserver<Ack> observer;
     protected MemoizingCommandFlowWatcher watcher;
-    protected TenantIndex tenantIndex;
     protected SystemWriteSide systemWriteSide;
     protected BoundedContext context;
 
@@ -131,7 +129,6 @@ abstract class AbstractCommandBusTestSuite {
         context = createContext();
 
         var contextAccess = context.internalAccess();
-        tenantIndex = contextAccess.tenantIndex();
         systemWriteSide = NoOpSystemWriteSide.INSTANCE;
 
         eventBus = context.eventBus();
@@ -140,7 +137,6 @@ abstract class AbstractCommandBusTestSuite {
                 .setMultitenant(this.multitenant)
                 .injectContext(context)
                 .injectSystem(systemWriteSide)
-                .injectTenantIndex(tenantIndex)
                 .setWatcher(watcher)
                 .build();
         requestFactory =

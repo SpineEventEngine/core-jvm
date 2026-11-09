@@ -26,6 +26,7 @@ import io.spine.core.Event;
 import io.spine.core.MessageId;
 import io.spine.core.TenantId;
 import io.spine.core.Versions;
+import io.spine.server.Application;
 import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.server.entity.RecordBasedRepository;
@@ -115,9 +116,9 @@ class ProjectionRepositoryTest
     private static void keepTenantIdFromEvent(BoundedContext context, Event event) {
         var tenantId = event.tenant();
         if (context.isMultitenant()) {
-            context.internalAccess()
-                   .tenantIndex()
-                   .keep(tenantId);
+            Application.instance()
+                       .tenantIndex()
+                       .keep(tenantId);
         }
     }
 

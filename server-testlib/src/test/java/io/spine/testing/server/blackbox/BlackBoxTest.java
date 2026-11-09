@@ -23,7 +23,6 @@ import io.spine.client.TopicFactory;
 import io.spine.core.ActorContext;
 import io.spine.core.TenantId;
 import io.spine.environment.Tests;
-import io.spine.server.Application;
 import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.server.DefaultRepository;
@@ -36,7 +35,6 @@ import io.spine.server.entity.Repository;
 import io.spine.server.event.EventBus;
 import io.spine.server.event.EventDispatcher;
 import io.spine.server.event.EventEnricher;
-import io.spine.server.tenant.TenantIndex;
 import io.spine.server.type.CommandClass;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventEnvelope;
@@ -552,7 +550,6 @@ abstract class BlackBoxTest<T extends BlackBox> {
             assertDispatchers();
             assertListeners();
             assertEnricher();
-            assertTenantIndex();
             assertDisabledPosting();
         }
 
@@ -595,20 +592,9 @@ abstract class BlackBoxTest<T extends BlackBox> {
             return context().commandBus();
         }
 
-        private TenantIndex tenantIndex() {
-            return context().internalAccess().tenantIndex();
-        }
-
         private void assertEnricher() {
             assertThat(eventBus().getEnricher())
                   .isEqualTo(enricher);
-        }
-
-        private void assertTenantIndex() {
-            if (context().isMultitenant()) {
-                assertThat(tenantIndex())
-                        .isSameInstanceAs(Application.instance().tenantIndex());
-            }
         }
 
         private boolean postsEventsInParallel() {

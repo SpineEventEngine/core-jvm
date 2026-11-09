@@ -23,7 +23,6 @@ import io.kotest.matchers.types.shouldNotBeSameInstanceAs
 import io.spine.core.boundedContextName
 import io.spine.server.tenant.TenantIndex
 import io.spine.server.tenant.given.InMemoryTenantIndex
-import io.spine.system.server.SystemBoundedContexts.systemOf
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -33,9 +32,8 @@ import org.junit.jupiter.api.Test
 /**
  * Checks [Application].
  *
- * Most cases use an application of their own, so that closing it does not close
- * the application of the test JVM. The cases about the contexts use the application
- * of the JVM, because the contexts are recorded there.
+ * The cases use applications of their own, so that closing one does not close
+ * the application of the test JVM.
  */
 @DisplayName("`Application` should")
 internal class ApplicationSpec {
@@ -195,66 +193,6 @@ internal class ApplicationSpec {
         }
     }
 
-    @Nested inner class
-    `give the tenant index of the JVM to multitenant contexts` {
-
-        private val jvmApplication = Application.instance()
-
-        @Test
-        fun `and to their System contexts`() {
-            multitenantContext().use { first ->
-                multitenantContext().use { second ->
-                    val index = jvmApplication.tenantIndex()
-                    listOf(first, second, systemOf(first), systemOf(second)).forEach {
-                        it.internalAccess().tenantIndex() shouldBeSameInstanceAs index
-                    }
-                }
-            }
-        }
-
-        @Test
-        fun `which do not close the index`() {
-            val context = multitenantContext()
-            val index = context.internalAccess().tenantIndex()
-
-            context.close()
-
-            index shouldBeSameInstanceAs jvmApplication.tenantIndex()
-            index.isOpen.shouldBeTrue()
-        }
-
-        /**
-         * Gives the application of the JVM an index of the test, and closes the index after.
-         *
-         * Closing the index also closes the one that the contexts left open by earlier tests
-         * share. JUnit runs the test classes of this module one by one, so no such context
-         * is in use.
-         */
-        @Test
-        fun `including the index that was set`() {
-            jvmApplication.closeIndex()
-            val index = InMemoryTenantIndex()
-            jvmApplication.use(index)
-            try {
-                multitenantContext().use { context ->
-                    context.internalAccess().tenantIndex() shouldBeSameInstanceAs index
-                    systemOf(context).internalAccess().tenantIndex() shouldBeSameInstanceAs index
-                }
-                index.closeCount shouldBe 0
-            } finally {
-                jvmApplication.closeIndex()
-            }
-        }
-
-        @Test
-        fun `but not to a single-tenant context`() {
-            context().use { context ->
-                context.internalAccess()
-                    .tenantIndex() shouldNotBeSameInstanceAs jvmApplication.tenantIndex()
-            }
-        }
-    }
-
     /**
      * Builds a single-tenant context that runs the given action when it starts closing.
      */
@@ -262,10 +200,4 @@ internal class ApplicationSpec {
         BoundedContextBuilder.assumingTests()
             .setOnBeforeClose { onClose() }
             .build()
-
-    /**
-     * Builds a multitenant context.
-     */
-    private fun multitenantContext(): BoundedContext =
-        BoundedContextBuilder.assumingTests(/* multitenant = */ true).build()
 }

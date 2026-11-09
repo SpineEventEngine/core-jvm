@@ -35,7 +35,6 @@ import io.spine.server.event.EventBus;
 import io.spine.server.event.EventDispatcher;
 import io.spine.server.event.EventEnricher;
 import io.spine.server.stand.Stand;
-import io.spine.server.tenant.TenantIndex;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventEnvelope;
 import io.spine.system.server.NoOpSystemClient;
@@ -97,7 +96,6 @@ public final class BoundedContextBuilder implements WithLogging {
     private @MonotonicNonNull Stand stand;
     @SuppressWarnings("deprecation") // The `AggregateRootDirectory` API is deprecated.
     private @MonotonicNonNull Supplier<AggregateRootDirectory> rootDirectory;
-    private @Nullable TenantIndex tenantIndex;
 
     /** Repositories to be registered with the Bounded Context being built after its creation. */
     private final Collection<Repository<?, ?>> repositories = new ArrayList<>();
@@ -187,20 +185,6 @@ public final class BoundedContextBuilder implements WithLogging {
      */
     Stand stand() {
         return checkNotNull(stand);
-    }
-
-    /**
-     * Obtains the instance of the {@code TenantIndex} for the context to be built.
-     *
-     * <p>A multitenant context uses the {@linkplain Application#tenantIndex() index} of
-     * the {@link Application}, which it shares with the other multitenant contexts.
-     *
-     * <p>This method must be invoked only from the
-     * {@link BoundedContext#BoundedContext(BoundedContextBuilder) constructor} of
-     * the {@code BoundedContext}.
-     */
-    TenantIndex buildTenantIndex() {
-        return checkNotNull(tenantIndex, "The tenant index is not initialized.");
     }
 
     /**
@@ -522,7 +506,7 @@ public final class BoundedContextBuilder implements WithLogging {
      * <p>The System Bounded Context shares some configuration with the Domain Bounded Context,
      * such as:
      * <ul>
-     *     <li>tenancy, and the {@linkplain Application#tenantIndex() index of tenants};
+     *     <li>tenancy;
      *     <li>{@linkplain ServerEnvironment#transportFactory()} transport facilities.
      * </ul>
      *
@@ -657,25 +641,15 @@ public final class BoundedContextBuilder implements WithLogging {
     B buildPartial(Function<BoundedContextBuilder, B> instanceFactory,
                    SystemClient client,
                    @Nullable Stand systemStand) {
-        initTenantIndex();
         initCommandBus(client.writeSide());
         this.stand = createStand(systemStand);
         var result = instanceFactory.apply(this);
         return result;
     }
 
-    private void initTenantIndex() {
-        if (tenantIndex == null) {
-            tenantIndex = isMultitenant()
-                          ? Application.instance().tenantIndex()
-                          : TenantIndex.singleTenant();
-        }
-    }
-
     private void initCommandBus(SystemWriteSide systemWriteSide) {
         commandBus.setMultitenant(isMultitenant());
-        commandBus.injectSystem(systemWriteSide)
-                  .injectTenantIndex(checkNotNull(tenantIndex, "Tenant index is not set."));
+        commandBus.injectSystem(systemWriteSide);
     }
 
     private Stand createStand(@Nullable Stand systemStand) {

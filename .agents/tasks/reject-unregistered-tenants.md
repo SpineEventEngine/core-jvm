@@ -82,6 +82,11 @@ Decisions:
 - Q17 (2026-11-09, while reviewing PR 1): `Application` has no `reset()`. An application is
   closed, not reset. Tests close only the tenant index with the internal `closeIndex()`, and
   check closing on applications of their own (the constructor is internal). See section 8.
+- Q18 (2026-11-09, while reviewing PR 1): a Bounded Context keeps no tenant index. The code
+  that needs the index asks `Application.instance().tenantIndex()`, so it always gets the
+  current one. `BoundedContext` loses its index and `InternalAccess.tenantIndex()`, and
+  `BusBuilder` its tenant-index API; `CommandBus` keeps the tenants of multitenant commands in
+  the index of `Application` until PR 4. See section 8.
 
 ## Problem
 
@@ -421,7 +426,7 @@ internal object TenantGate {
         if (!context.isMultitenant || tenant.isDefault()) {
             return true
         }
-        val index = context.internalAccess().tenantIndex()
+        val index = Application.instance().tenantIndex()
         if (index.contains(tenant)) {
             return true
         }
@@ -445,8 +450,8 @@ protected void store(Iterable<Command> commands) {
 }
 ```
 
-`tenantConsumer`, and with it `BusBuilder.injectTenantIndex()`, become unnecessary and
-can be deprecated.
+Since PR 1 (Q18), keeping the tenant is the only use of the index in `CommandBus`, so the
+bus no longer needs the index at all.
 
 Why the boundary and not the buses:
 
@@ -536,9 +541,9 @@ the `REJECT` default, since those clients go through an in-process `GrpcContaine
 @CanIgnoreReturnValue
 public MtBlackBox withTenant(TenantId tenant) {
     this.tenantId = checkNotNull(tenant);
-    context().internalAccess()
-             .tenantIndex()
-             .keep(tenant);
+    Application.instance()
+               .tenantIndex()
+               .keep(tenant);
     return this;
 }
 ```
@@ -637,11 +642,11 @@ callers write `Application.instance()`, not `Application.INSTANCE`.
 
 Changes elsewhere:
 
-- `BoundedContextBuilder.initTenantIndex()` takes `Application.instance().tenantIndex()` for a
-  multitenant context. Single-tenant contexts keep `TenantIndex.singleTenant()`.
-  `setTenantIndex()`, `hasTenantIndex()`, and `getTenantIndex()` are removed (Q15).
-- `BoundedContext.close()` no longer closes the tenant index. The index of the application is
-  closed by `Application.close()`.
+- Bounded Contexts keep no tenant index (Q18): the code that needs it asks
+  `Application.instance().tenantIndex()`. `BoundedContextBuilder` loses `setTenantIndex()`,
+  `hasTenantIndex()`, and `getTenantIndex()` (Q15), `BoundedContext` its index and
+  `InternalAccess.tenantIndex()`, and `BusBuilder` its tenant-index API. The index of the
+  application is closed by `Application.close()`.
 - Shutdown order: contexts, then `Application`, then `ServerEnvironment`. The default index
   writes through the storage factory, so it must close before the factory does.
 - An application registers a tenant once, when its own onboarding steps are done:
@@ -821,9 +826,6 @@ Java classes.
 - The `BlackBox.clients()` tests pass because `withTenant()` registers.
 - No test asserts that posting a command registers a tenant. `ProjectionRepositoryTest`
   already calls `keep` itself.
-- `BlackBoxTest.assertTenantIndex()` checks that the context returns the index of
-  `Application` (`isSameInstanceAs`). With `AnnouncingTenantIndex` (section 9), it compares
-  the wrapper that `Application.tenantIndex()` returns.
 - All multitenant contexts of a test JVM share the in-memory index of `Application`, and
   `TenantAdded` goes to every open multitenant context. No context in the tests handles
   `TenantAdded`, and it travels through the System contexts, not the domain `EventBus` that
@@ -847,14 +849,15 @@ the exit code.
    - `TenantIndex.contains()` (default method) and `TenantStorage.contains()` (section 1).
    - `Application` (Kotlin, section 8): `tenantIndex()`, `use(TenantIndex)`, `close()`, and
      the internal `closeIndex()`. `OpenContexts` becomes a part of `Application` (Q16).
-   - `BoundedContextBuilder.initTenantIndex()` takes the index of `Application` for a
-     multitenant context and for its System context. `setTenantIndex()`, `hasTenantIndex()`,
-     and `getTenantIndex()` are removed (Q15); `BoundedContext.close()` no longer closes
-     the index.
+   - Bounded Contexts keep no tenant index (Q18), and contexts cannot be given one (Q15):
+     `BoundedContextBuilder` loses `setTenantIndex()`, `hasTenantIndex()`, and
+     `getTenantIndex()`; `BoundedContext` its index and `InternalAccess.tenantIndex()`;
+     `BusBuilder` its tenant-index API. `CommandBus` keeps the tenants in the index of
+     `Application`.
    - Specs: `contains` (cache hit, point read, no negative caching); `Application` (lazy
      default, `use` after first use throws, `close` closes the contexts and then the index,
-     `closeIndex`); two multitenant contexts and their System contexts share the index;
-     closing one context leaves the index open.
+     `closeIndex`); a multitenant `CommandBus` keeps the tenant of a posted command in the
+     index of `Application`.
 2. **The record of `Application`.** Records the requests that no context serves. Independent
    of PR 1, except for `Application` itself.
    - `persistEvents()`, `forgetEvents()`, the lazily created `EventStore`, and `record()`
@@ -880,8 +883,7 @@ the exit code.
    - The events of section 4 in `tenant_events.proto`. The shape checks of queries and
      subscriptions are recorded in the serving context; `*TenantNotRegistered` and the
      failures of the index, by `Application`.
-   - `CommandBus.store()` stops registering; `tenantConsumer` and
-     `BusBuilder.injectTenantIndex()` are deprecated.
+   - `CommandBus.store()` stops keeping the tenants of commands.
    - `MtBlackBox.withTenant()` registers (section 7).
    - Tests: register tenants where the services are called with generated tenants; new specs
      from "Expected impact on existing tests".
@@ -1158,3 +1160,11 @@ Questions 4, 6, and 8 were superseded on 2026-11-09 by question 11.
 17. ~~Keep `Application.reset()` for tests?~~ Decided: no. In terms of the domain, an
     application is closed, not reset. Tests use the internal `closeIndex()`, and applications
     of their own to check closing.
+18. ~~Keep the tenant index in each Bounded Context (a copy of the index of `Application`)?~~
+    Decided: no. Nothing in production read it; its only use carried the index to `CommandBus`.
+    A copy taken when the context is built also goes stale when the index of the application
+    is closed. Options:
+    - **Ask `Application` where the index is needed** (chosen), and remove the tenant-index API
+      of `BusBuilder` too.
+    - **Remove it from the contexts only**, and let `CommandBus` get the index through
+      `BusBuilder` until PR 4.

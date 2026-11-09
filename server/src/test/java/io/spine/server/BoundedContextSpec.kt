@@ -167,11 +167,6 @@ internal class BoundedContextSpec {
         }
 
         @Test
-        fun TenantIndex() {
-            access.tenantIndex() shouldNotBe null
-        }
-
-        @Test
         fun `prohibiting access from outside of the 'server' package`() {
             assertThrows<SecurityException> {
                 ForeignClass.callInternalOf(context)
