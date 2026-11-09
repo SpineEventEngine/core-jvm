@@ -34,9 +34,11 @@ import io.spine.system.server.AggregateHistoryCorrupted;
 import io.spine.system.server.CannotDispatchDuplicateCommand;
 import io.spine.system.server.CannotDispatchDuplicateEvent;
 import io.spine.system.server.ConstraintViolated;
+import io.spine.system.server.EntityTypeName;
 import io.spine.system.server.RoutingFailed;
 import io.spine.testing.server.blackbox.command.BbCreateProject;
 import io.spine.testing.server.blackbox.event.BbProjectCreated;
+import io.spine.testing.server.blackbox.given.BbInitProcess;
 import io.spine.type.TypeUrl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -105,6 +107,9 @@ class DiagnosticLogTest extends DiagnosticLoggingTest {
                      .on(RoutingFailed.newBuilder()
                                  .setError(error)
                                  .setHandledSignal(someMessageId())
+                                 .setEntityType(EntityTypeName.newBuilder()
+                                                        .setJavaClassName(
+                                                                BbInitProcess.class.getName()))
                                  .build());
         assertLogged(error.getMessage());
     }

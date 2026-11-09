@@ -30,6 +30,7 @@ import io.spine.grpc.StreamObservers.noOpObserver
 import io.spine.protobuf.pack
 import io.spine.server.BoundedContext
 import io.spine.server.BoundedContextBuilder
+import io.spine.server.CommandService
 import io.spine.server.DefaultRepository
 import io.spine.server.commandbus.CommandFilter
 import io.spine.server.entity.RecordBasedRepository
@@ -64,6 +65,7 @@ internal class CommandLogProjectionSpec {
     fun createContext() {
         val builder = BoundedContextBuilder.assumingTests()
             .addCommandFilter(RefusingFilter)
+            .addCommandFilter(FailingFilter)
         builder.systemSettings().enableCommandLog()
         context = builder.build()
         context.internalAccess().run {
@@ -181,6 +183,17 @@ internal class CommandLogProjectionSpec {
     }
 
     @Test
+    @MuteLogging
+    fun `record the error when the 'CommandService' fails to post a command`() {
+        val command = establishing(name = FailingFilter.NAME)
+
+        CommandService.withSingle(context).post(command, noOpObserver())
+
+        howProcessed(command).postingError.type shouldBe
+                IllegalStateException::class.java.canonicalName
+    }
+
+    @Test
     fun `record nothing for a command that an application filter refuses`() {
         val command = post(establishing(name = RefusingFilter.NAME))
 
@@ -231,6 +244,23 @@ private object RefusingFilter : CommandFilter {
             return letPass()
         }
         return reject(envelope, INVALID_REQUEST)
+    }
+}
+
+/**
+ * Fails on purpose on establishing a company with the [NAME], as an unexpected failure
+ * of the bus would.
+ */
+private object FailingFilter : CommandFilter {
+
+    const val NAME = "Fails the filter"
+
+    override fun filter(envelope: CommandEnvelope): Optional<Ack> {
+        val message = envelope.message()
+        check(message !is EstablishCompany || message.finalName != NAME) {
+            "The filter fails on purpose."
+        }
+        return letPass()
     }
 }
 

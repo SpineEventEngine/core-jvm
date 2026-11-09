@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server;
@@ -29,22 +17,23 @@ package io.spine.server;
 import io.grpc.BindableService;
 import io.grpc.stub.StreamObserver;
 import io.spine.base.Error;
-import io.spine.base.Errors;
+import io.spine.base.EventMessage;
 import io.spine.client.grpc.CommandServiceGrpc;
 import io.spine.core.Ack;
 import io.spine.core.Command;
+import io.spine.core.ErrorCase;
+import io.spine.core.Origin;
+import io.spine.core.TenantId;
 import io.spine.logging.WithLogging;
-import io.spine.server.commandbus.UnsupportedCommandException;
-import io.spine.server.type.CommandClass;
+import io.spine.system.server.event.CommandPostingFailed;
 import io.spine.type.MessageClass;
 import io.spine.type.TypeUrl;
-import io.spine.type.UnpublishedLanguageException;
 import org.jspecify.annotations.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static io.spine.core.ErrorCase.INTERNAL_ERROR;
 import static io.spine.server.bus.MessageIdExtensions.causedError;
-import static java.lang.String.format;
 
 /**
  * The {@code CommandService} provides a synchronous way to post commands
@@ -93,6 +82,14 @@ public final class CommandService
     /**
      * Posts the command to {@code CommandBus}.
      *
+     * <p>A command that is not accepted is answered with an acknowledgement that carries only
+     * the {@linkplain ErrorCase kind} of the problem. The details of the problem stay on
+     * the server side.
+     *
+     * <p>An unexpected failure on the server side fails the call with
+     * the {@link ErrorCase#INTERNAL_ERROR INTERNAL_ERROR} error case instead, because
+     * the command may have been acknowledged already.
+     *
      * @param command
      *         The command to post
      * @param observer
@@ -109,10 +106,18 @@ public final class CommandService
             super(service, types);
         }
 
+        /**
+         * {@inheritDoc}
+         *
+         * <p>Reads the type URL of the packed command message, and does not unpack it.
+         * So a command of a type internal to the server, or unknown to it, is refused alike,
+         * whatever its message holds.
+         */
         @Override
         protected TypeUrl enclosedMessageType(Command request) {
-            var type = CommandClass.of(request).typeUrl();
-            return type;
+            var typeUrl = request.getMessage()
+                                 .getTypeUrl();
+            return TypeUrl.parse(typeUrl);
         }
 
         @Override
@@ -124,32 +129,49 @@ public final class CommandService
         }
 
         @Override
-        protected void handleInternal(Command cmd, StreamObserver<Ack> observer) {
-            var unpublishedLanguage = new UnpublishedLanguageException(cmd.enclosedMessage());
-            logger().atError().withCause(unpublishedLanguage).log(() -> format(
-                    "Unpublished command posted to `%s`.", serviceName()));
-            var error = Errors.fromThrowable(unpublishedLanguage);
-            respondWithError(cmd, error, observer);
+        protected TenantId tenantOf(Command cmd) {
+            return cmd.tenant();
+        }
+
+        @Override
+        protected Origin originOf(Command cmd) {
+            return cmd.asMessageOrigin();
+        }
+
+        @Override
+        protected EventMessage failureEvent(Command cmd, Error error) {
+            return CommandPostingFailed.newBuilder()
+                    .setId(cmd.getId())
+                    .setError(error)
+                    .build();
         }
 
         /**
-         * Since a command can be handled by only one bounded context, responds
-         * with the acknowledgement containing {@link UnsupportedCommandException}.
+         * Since a command can be handled by only one bounded context, responds with
+         * the acknowledgement of {@link ErrorCase#UNSUPPORTED_REQUEST UNSUPPORTED_REQUEST}.
          */
         @Override
         protected void serveNoContext(Command cmd,
                                       StreamObserver<Ack> observer,
                                       @Nullable Object params) {
-            var unsupported = new UnsupportedCommandException(cmd);
-            logger().atError().withCause(unsupported).log(() -> format(
-                    "Unsupported command posted to `%s`.", serviceName()));
-            var error = unsupported.asError();
-            respondWithError(cmd, error, observer);
+            refuseNotServed(cmd, observer);
         }
 
-        private static void respondWithError(Command cmd, Error err, StreamObserver<Ack> observer) {
-            var id = cmd.getId();
-            var response = causedError(id, err);
+        /**
+         * Responds with the acknowledgement that carries the error case.
+         *
+         * <p>{@link ErrorCase#INTERNAL_ERROR INTERNAL_ERROR} fails the call instead,
+         * because the bus may have acknowledged the command already.
+         */
+        @Override
+        protected void respondWithError(Command cmd,
+                                        ErrorCase errorCase,
+                                        StreamObserver<Ack> observer) {
+            if (errorCase == INTERNAL_ERROR) {
+                super.respondWithError(cmd, errorCase, observer);
+                return;
+            }
+            var response = causedError(cmd.getId(), errorCase);
             observer.onNext(response);
             observer.onCompleted();
         }

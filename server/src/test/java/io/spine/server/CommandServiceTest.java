@@ -1,27 +1,15 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server;
@@ -30,7 +18,6 @@ import com.google.common.collect.Sets;
 import io.spine.base.Identifier;
 import io.spine.core.Ack;
 import io.spine.core.Command;
-import io.spine.core.CommandValidationError;
 import io.spine.grpc.MemoizingObserver;
 import io.spine.server.given.transport.TestGrpcServer;
 import io.spine.test.commandservice.CmdServDontHandle;
@@ -39,7 +26,6 @@ import io.spine.testing.TestValues;
 import io.spine.testing.client.TestActorRequestFactory;
 import io.spine.testing.logging.mute.MuteLogging;
 import io.spine.testing.server.model.ModelTests;
-import io.spine.type.UnpublishedLanguageException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -50,7 +36,8 @@ import java.io.IOException;
 import java.util.Set;
 
 import static com.google.common.truth.Truth.assertThat;
-import static io.spine.core.Status.StatusCase.ERROR;
+import static io.spine.core.ErrorCase.UNSUPPORTED_REQUEST;
+import static io.spine.core.Status.StatusCase.ERROR_CASE;
 import static io.spine.grpc.StreamObservers.memoizingObserver;
 import static io.spine.protobuf.Messages.isNotDefault;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -155,10 +142,9 @@ class CommandServiceTest {
             assertTrue(isNotDefault(result));
             var status = result.getStatus();
             assertThat(status.getStatusCase())
-                    .isEqualTo(ERROR);
-            var error = status.getError();
-            assertThat(error.getType())
-                    .isEqualTo(CommandValidationError.getDescriptor().getFullName());
+                    .isEqualTo(ERROR_CASE);
+            assertThat(status.getErrorCase())
+                    .isEqualTo(UNSUPPORTED_REQUEST);
         }
 
         @Test
@@ -175,10 +161,9 @@ class CommandServiceTest {
             assertTrue(isNotDefault(result));
             var status = result.getStatus();
             assertThat(status.getStatusCase())
-                    .isEqualTo(ERROR);
-            var error = status.getError();
-            assertThat(error.getType())
-                    .isEqualTo(UnpublishedLanguageException.class.getName());
+                    .isEqualTo(ERROR_CASE);
+            assertThat(status.getErrorCase())
+                    .isEqualTo(UNSUPPORTED_REQUEST);
         }
     }
 

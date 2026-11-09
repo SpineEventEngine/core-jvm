@@ -163,16 +163,3 @@ message EntityStateWithVersion {
     // The version of the entity.
     core.Version version = 2;
 }
-
-// Enumeration of possible technical error reasons occurring in query validation.
-enum QueryValidationError {
-
-    // Reserved value.
-    QVE_UNKNOWN_REASON = 0;
-
-    // The query target is not supported by the server.
-    UNSUPPORTED_QUERY_TARGET = 1;
-
-    // The query message is invalid according to custom Protobuf options set.
-    INVALID_QUERY = 2;
-}

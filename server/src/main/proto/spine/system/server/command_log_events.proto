@@ -25,6 +25,7 @@ option java_package = "io.spine.system.server.event";
 option java_outer_classname = "CommandLifecycleEventsProto";
 option java_multiple_files = true;
 
+import "spine/base/error.proto";
 import "spine/core/command.proto";
 import "spine/core/event.proto";
 import "spine/core/tenant_id.proto";
@@ -35,6 +36,10 @@ import "spine/validation/validation_error.proto";
 message CommandReceived {
 
     // The ID of the command.
+    //
+    // The field is not required: the command is received before it is validated, so it may
+    // have no ID.
+    //
     core.CommandId id = 1;
 
     // The command.
@@ -45,24 +50,24 @@ message CommandReceived {
 message CommandAcknowledged {
 
     // The ID of the command.
-    core.CommandId id = 1;
+    core.CommandId id = 1 [(required) = true];
 }
 
 // An event emitted when the command is scheduled.
 message CommandScheduled {
 
     // The ID of the command.
-    core.CommandId id = 1;
+    core.CommandId id = 1 [(required) = true];
 
     // The schedule to execute the command.
-    core.CommandContext.Schedule schedule = 2 [(validate) = true];
+    core.CommandContext.Schedule schedule = 2 [(required) = true];
 }
 
 // An event emitted when a command is passed to a dispatcher after being acknowledged.
 message CommandDispatched {
 
     // The ID of the command.
-    core.CommandId id = 1;
+    core.CommandId id = 1 [(required) = true];
 }
 
 // An event emitted when the command target is determined.
@@ -72,17 +77,17 @@ message CommandDispatched {
 message TargetAssignedToCommand {
 
     // The ID of the command.
-    core.CommandId id = 1;
+    core.CommandId id = 1 [(required) = true];
 
     // The target of the command.
-    CommandTarget target = 2 [(validate) = true];
+    CommandTarget target = 2 [(required) = true];
 }
 
 // An event emitted when a command is successfully handled.
 message CommandHandled {
 
     // The ID of the command.
-    core.CommandId id = 1;
+    core.CommandId id = 1 [(required) = true];
 }
 
 // An event emitted when the `CommandBus` does not accept a command because the command
@@ -90,10 +95,13 @@ message CommandHandled {
 message CommandValidationFailed {
 
     // The ID of the command.
+    //
+    // The field is not required: the command may be refused because it has no ID.
+    //
     core.CommandId id = 1;
 
     // The constraints that the command violates.
-    validation.ValidationError validation_error = 2;
+    validation.ValidationError validation_error = 2 [(required) = true];
 }
 
 // An event emitted when the `CommandBus` does not accept a command because no handler
@@ -101,10 +109,10 @@ message CommandValidationFailed {
 message UnsupportedCommandReceived {
 
     // The ID of the command.
-    core.CommandId id = 1;
+    core.CommandId id = 1 [(required) = true];
 
     // The type URL of the command message.
-    string type_url = 2;
+    string type_url = 2 [(required) = true];
 }
 
 // An event emitted when a multitenant `CommandBus` does not accept a command because
@@ -112,6 +120,10 @@ message UnsupportedCommandReceived {
 message CommandTenantNotSpecified {
 
     // The ID of the command.
+    //
+    // The field is not required: the tenant is checked before the command is validated,
+    // so the command may have no ID.
+    //
     core.CommandId id = 1;
 }
 
@@ -120,27 +132,45 @@ message CommandTenantNotSpecified {
 message CommandTenantNotExpected {
 
     // The ID of the command.
+    //
+    // The field is not required: the tenant is checked before the command is validated,
+    // so the command may have no ID.
+    //
     core.CommandId id = 1;
 
     // The tenant of the command.
-    core.TenantId tenant = 2;
+    core.TenantId tenant = 2 [(required) = true];
+}
+
+// An event emitted when the `CommandService` fails to post a command because of an unexpected
+// error on the server side.
+message CommandPostingFailed {
+
+    // The ID of the command.
+    //
+    // The field is not required: the command may fail to post before it is validated.
+    //
+    core.CommandId id = 1;
+
+    // The error that stopped the posting.
+    base.Error error = 2 [(required) = true];
 }
 
 // An event emitted if the command cannot be handled due to a business rejection.
 message CommandRejected {
 
     // The ID of the command.
-    core.CommandId id = 1;
+    core.CommandId id = 1 [(required) = true];
 
     // The command rejection event.
-    core.Event rejection_event = 2 [(validate) = true];
+    core.Event rejection_event = 2 [(required) = true];
 }
 
 // An event emitted when another command was generated in response to a received command.
 message CommandTransformed {
 
     // The ID of the command.
-    core.CommandId id = 1;
+    core.CommandId id = 1 [(required) = true];
 
     // The ID of the command generated in response to the received command.
     core.CommandId produced = 2 [(required) = true];
@@ -150,7 +180,7 @@ message CommandTransformed {
 message CommandSplit {
 
     // The ID of the command.
-    core.CommandId id = 1;
+    core.CommandId id = 1 [(required) = true];
 
     // Identifiers of the commands generated in response to the received command.
     repeated core.CommandId produced = 2 [(required) = true];

@@ -182,7 +182,7 @@ public final class EventBus
     /**
      * {@inheritDoc}
      *
-     * <p>Posts {@link EventValidationFailed} to the System context.
+     * <p>Records the violations of the event in the System context.
      *
      * <p>The context of an invalid event may have no origin, so the tenant and the actor of
      * the event may be unknown. Then the failure is posted for the default tenant, and
