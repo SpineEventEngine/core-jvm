@@ -17,13 +17,15 @@ package io.spine.server.stand
 import com.google.common.collect.ImmutableList
 import com.google.protobuf.UInt32Value
 import io.spine.base.FieldPath
+import io.spine.base.fieldPath
 import io.spine.client.Query
 import io.spine.client.ResponseFormat
 import io.spine.option.EntityOption.Visibility.QUERY
 import io.spine.protobuf.pack
-import io.spine.string.TemplateString
+import io.spine.string.templateString
 import io.spine.type.TypeName
 import io.spine.validation.ConstraintViolation
+import io.spine.validation.constraintViolation
 
 /**
  * Validates the [Query] instances submitted to [Stand].
@@ -46,15 +48,14 @@ internal class QueryValidator(typeRegistry: TypeRegistry) :
         if (limit <= 0 || !orderByMissing) {
             return ImmutableList.of()
         }
-        val violation = ConstraintViolation.newBuilder()
-            .setMessage(
-                TemplateString.newBuilder()
-                    .setWithPlaceholders("Query limit cannot be set without ordering.")
-            )
-            .setTypeName(TypeName.of(request).value())
-            .setFieldPath(limitPath)
-            .setFieldValue(UInt32Value.of(limit).pack())
-            .build()
+        val violation = constraintViolation {
+            message = templateString {
+                withPlaceholders = "Query limit cannot be set without ordering."
+            }
+            typeName = TypeName.of(request).value()
+            fieldPath = limitPath
+            fieldValue = UInt32Value.of(limit).pack()
+        }
         return ImmutableList.of(violation)
     }
 
@@ -74,18 +75,14 @@ internal class QueryValidator(typeRegistry: TypeRegistry) :
          * The path to the limit of the query results, `format.limit`.
          */
         val limitPath: FieldPath by lazy {
-            FieldPath.newBuilder()
-                .addFieldName(
-                    Query.getDescriptor()
-                        .findFieldByNumber(Query.FORMAT_FIELD_NUMBER)
-                        .name
-                )
-                .addFieldName(
-                    ResponseFormat.getDescriptor()
-                        .findFieldByNumber(ResponseFormat.LIMIT_FIELD_NUMBER)
-                        .name
-                )
-                .build()
+            fieldPath {
+                fieldName += Query.getDescriptor()
+                    .findFieldByNumber(Query.FORMAT_FIELD_NUMBER)
+                    .name
+                fieldName += ResponseFormat.getDescriptor()
+                    .findFieldByNumber(ResponseFormat.LIMIT_FIELD_NUMBER)
+                    .name
+            }
         }
     }
 }
