@@ -37,7 +37,7 @@ import static io.spine.util.Exceptions.newIllegalArgumentException;
  * A {@link StreamObserver} for {@link io.spine.core.Command Command}
  * {@linkplain Ack acknowledgement}.
  *
- * <p>Posts a system event whenever a command is acknowledged.
+ * <p>Posts {@link CommandAcknowledged} for each command that the bus accepts.
  */
 final class CommandAckMonitor implements StreamObserver<Ack> {
 
@@ -55,7 +55,9 @@ final class CommandAckMonitor implements StreamObserver<Ack> {
     /**
      * {@inheritDoc}
      *
-     * <p>Posts {@link CommandAcknowledged} for an accepted command, and nothing for a refused one.
+     * <p>Posts {@link CommandAcknowledged} for a command that the bus accepted. For a command
+     * refused by a filter, posts nothing: each filter of the framework posts an event that tells
+     * why it refused the command.
      */
     @Override
     @SuppressWarnings("EnumSwitchStatementWhichMissesCases") // Default values.
@@ -65,7 +67,7 @@ final class CommandAckMonitor implements StreamObserver<Ack> {
         switch (status.getStatusCase()) {
             case OK -> postAcknowledged(commandId);
             case ERROR_CASE -> {
-                // A refused command is not acknowledged.
+                // The filter that refused the command records the reason.
             }
             default -> throw newIllegalArgumentException(
                     "Command `%s` has invalid status `%s`.",
