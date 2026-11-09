@@ -257,7 +257,7 @@ public abstract class AbstractEntityRepository<I : Any,
      * Creates the storage of the recent state history of the entities of this repository.
      *
      * Mirrors [createStorage]: the default implementation uses the
-     * [default storage factory][Repository.defaultStorageFactory] — the same one the default
+     * [storage factory][Repository.storageFactory] of the context — the same one the default
      * `createStorage()` uses for the entity state. A repository that overrides
      * `createStorage()` to serve the entity state from a custom
      * [io.spine.server.storage.StorageFactory] or backend should override this method as
@@ -267,7 +267,7 @@ public abstract class AbstractEntityRepository<I : Any,
      * @return A new state history storage.
      */
     protected open fun createStateHistoryStorage(): EntityStateHistoryStorage<I> {
-        val factory = defaultStorageFactory()
+        val factory = storageFactory()
         return factory.createEntityStateHistoryStorage(context().spec(), entityClass())
     }
 

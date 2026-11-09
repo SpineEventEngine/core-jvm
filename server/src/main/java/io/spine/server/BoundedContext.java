@@ -35,6 +35,7 @@ import io.spine.server.event.EventDispatcher;
 import io.spine.server.event.EventDispatcherDelegate;
 import io.spine.server.integration.IntegrationBroker;
 import io.spine.server.stand.Stand;
+import io.spine.server.storage.StorageFactory;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventEnvelope;
 import io.spine.system.server.SystemClient;
@@ -802,6 +803,15 @@ public abstract class BoundedContext
         /** Obtains an {@link IntegrationBroker} of this {@code BoundedContext}. */
         public IntegrationBroker broker() {
             return self().broker;
+        }
+
+        /**
+         * Obtains the storage factory with which the repositories of this
+         * {@code BoundedContext} create their storages.
+         */
+        public StorageFactory storageFactory() {
+            return ServerEnvironment.instance()
+                                    .storageFactory();
         }
 
         /**

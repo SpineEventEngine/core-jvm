@@ -322,17 +322,20 @@ public abstract class Repository<I, E extends Entity<I, ?>>
     }
 
     /**
-     * Obtains {@code StorageFactory} associated with the {@code ServerEnvironment} for
+     * Obtains the {@code StorageFactory} of the Bounded Context of this repository for
      * {@linkplain #createStorage() creating} standard storages.
      *
      * <p>In order to create a custom storage, please override {@link #createStorage()} providing
      * a custom implementation.
      *
+     * @throws IllegalStateException
+     *         if the repository is not registered with a {@code BoundedContext}
      * @see #createStorage()
      */
     @Internal
-    protected static StorageFactory defaultStorageFactory() {
-        return ServerEnvironment.instance().storageFactory();
+    protected final StorageFactory storageFactory() {
+        return context().internalAccess()
+                        .storageFactory();
     }
 
     /**
@@ -371,7 +374,7 @@ public abstract class Repository<I, E extends Entity<I, ?>>
     /**
      * Creates the storage for this repository.
      *
-     * <p>Default implementations use {@link #defaultStorageFactory()} invoking its method
+     * <p>Default implementations use {@link #storageFactory()} invoking its method
      * that creates a storage compatible with the repository.
      *
      * <p>Override this method for creating a custom implementation of {@code Storage}.
