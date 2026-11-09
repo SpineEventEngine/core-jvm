@@ -73,6 +73,13 @@ Decisions:
   this design, and made every PR more complex: closing rules in PR 1, a second announcing
   wrapper in PR 3, and tenants that one context admits and another rejects in PR 4. gcloud-jvm
   sets the index of `Application` instead. See section 8.
+- Q16 (2026-11-09, while reviewing PR 1): `OpenContexts` is merged into `Application`, in PR 1,
+  so that the application knows the contexts it is made of. `Application.close()` closes the
+  open contexts, in the reverse order of their building, and then the tenant index; after it,
+  no context can be built. See section 8.
+- Q17 (2026-11-09, while reviewing PR 1): `Application` has no `reset()`. An application is
+  closed, not reset. Tests close only the tenant index with the internal `closeIndex()`, and
+  check closing on applications of their own (the constructor is internal). See section 8.
 
 ## Problem
 
@@ -301,8 +308,8 @@ fun registerTenantsOnFirstRequest() {
 }
 
 @AfterAll
-fun resetApplication() {
-    Application.instance().reset()
+fun restoreDefaultPolicy() {
+    Application.instance().use(UnregisteredTenantPolicy.REJECT)
 }
 ```
 
@@ -610,15 +617,6 @@ public class Application private constructor() : Closeable {
         tenantIndex = null
     }
 
-    /**
-     * Closes the tenant index and restores the default policy.
-     */
-    @VisibleForTesting
-    public fun reset() {
-        close()
-        use(UnregisteredTenantPolicy.REJECT)
-    }
-
     public companion object {
 
         private val instance = Application()
@@ -647,19 +645,24 @@ Changes elsewhere:
 - An application registers a tenant once, when its own onboarding steps are done:
   `Application.instance().tenantIndex().keep(tenantId)`. The contexts are then notified with
   `TenantAdded` (section 9).
-- Tests that switch storage factories, or set a policy, call `Application.instance().reset()`
-  along with `ServerEnvironment.instance().reset()`. In-memory storages stay usable after
-  their factory closes (`InMemoryStorageFactory.close()` only sets a flag), so tests that
-  reset only the environment keep working.
+- Tests in `server` that switch storage factories call the internal `closeIndex()`, so that
+  the next multitenant context gets an index in the new storage. Tests that set a policy set
+  the default back with `use(UnregisteredTenantPolicy.REJECT)`. In-memory storages stay usable
+  after their factory closes (`InMemoryStorageFactory.close()` only sets a flag), so tests
+  that reset only the environment keep working.
 - The System context of a multitenant context takes the index of `Application` too, instead
   of the second default index it makes today (see "Findings").
 - `Application` also holds the `UnregisteredTenantPolicy` (section 2) and the record of
-  refused requests with its switch (section 10). `close()` closes the record too, and
-  `reset()` restores the defaults.
-- As implemented in PR 1, unlike the sketch above: `close()` closes the application for good,
-  as the contract of `io.spine.server.Closeable` requires (`isOpen()` is `false` after it),
-  so `tenantIndex()` and `use()` throw afterwards. `reset()` closes the index and opens the
-  application again.
+  refused requests with its switch (section 10). `close()` closes the record too.
+- As implemented in PR 1, unlike the sketch above (Q16, Q17):
+  - `Application` keeps the record of the open contexts and of the entity state types they
+    serve, which `OpenContexts` kept before.
+  - `close()` closes the open contexts, in the reverse order of their building, and then the
+    tenant index. It closes the application for good, as the contract of
+    `io.spine.server.Closeable` requires: no context can be built afterwards, and
+    `tenantIndex()` and `use()` throw.
+  - There is no `reset()`. The internal `closeIndex()` closes only the tenant index, for tests.
+    The constructor is internal, so that tests check closing on applications of their own.
 
 ### 9. `TenantAdded` — contexts prepare for a new tenant
 
@@ -718,7 +721,7 @@ internal class AnnouncingTenantIndex(
 ```
 
 - `Application.tenantIndex()` returns the application's index in this wrapper, announcing to
-  every open multitenant context that uses it (`OpenContexts` knows the open contexts).
+  every open multitenant context (`Application` keeps the record of the open contexts).
 - Every way of adding a tenant goes through a wrapper: the application's onboarding
   (`Application.instance().tenantIndex().keep(id)`), the `REGISTER` policy in `TenantGate`,
   and `MtBlackBox.withTenant()`.
@@ -756,7 +759,7 @@ Decided by Q12–Q14. Some refused requests have no context to record them in:
   `forgetEvents()` turns it off, as in `SystemSettings`. Until storing is on, a refusal is only
   logged by `ServiceDelegate`, as today, and the store is not created.
 - **Single-tenant.** The store is created with the storage factory of `ServerEnvironment`, for
-  the reserved single-tenant spec `ContextSpec.singleTenant("__APPLICATION__")`. `OpenContexts`
+  the reserved single-tenant spec `ContextSpec.singleTenant("__APPLICATION__")`. `Application`
   refuses this name for a Bounded Context. The tenant of a request stays in its event: in the
   `tenant` field, in the `actor_context` of a read event, and in the origin of a command event.
 - **Apart from the events of the contexts.** `DefaultEventStore` groups its storage by the
@@ -823,11 +826,12 @@ Java classes.
   `TenantAdded` goes to every open multitenant context. No context in the tests handles
   `TenantAdded`, and it travels through the System contexts, not the domain `EventBus` that
   `BlackBox.assertEvents()` watches, so existing assertions are not affected.
-- Tests that set a policy or turn the record on call `Application.instance().reset()`.
+- Tests that set a policy or turn the record on set the defaults back when they finish:
+  `use(UnregisteredTenantPolicy.REJECT)`, `forgetEvents()`.
 - New specs: the gate for each service and each row of the table in section 4, with the
   event and where it is recorded; `contains` in `TenantStorage` (cache hit, point read, no
   negative caching); the record of `Application` (off by default and not created; when on,
-  each kind of refused request is stored with its tenant; `close()` and `reset()`); no
+  each kind of refused request is stored with its tenant; `close()`); no
   `CommandReceived` for a command of an unregistered tenant.
 
 ## Implementation plan
@@ -839,15 +843,17 @@ the exit code.
 
 1. **Tenant index for the application.** No change in how requests are served.
    - `TenantIndex.contains()` (default method) and `TenantStorage.contains()` (section 1).
-   - `Application` (Kotlin, section 8): `tenantIndex()`, `use(TenantIndex)`, `close()`,
-     `reset()`.
+   - `Application` (Kotlin, section 8): `tenantIndex()`, `use(TenantIndex)`, `close()`, and
+     the internal `closeIndex()`. The record of the open contexts moves in from
+     `OpenContexts` (Q16).
    - `BoundedContextBuilder.initTenantIndex()` takes the index of `Application` for a
      multitenant context and for its System context. `setTenantIndex()`, `hasTenantIndex()`,
      and `getTenantIndex()` are removed (Q15); `BoundedContext.close()` no longer closes
      the index.
    - Specs: `contains` (cache hit, point read, no negative caching); `Application` (lazy
-     default, `use` after first use throws, `close`, `reset`); two multitenant contexts and
-     their System contexts share the index; closing one context leaves the index open.
+     default, `use` after first use throws, `close` closes the contexts and then the index,
+     `closeIndex`); two multitenant contexts and their System contexts share the index;
+     closing one context leaves the index open.
 2. **The record of `Application`.** Records the requests that no context serves. Independent
    of PR 1, except for `Application` itself.
    - `persistEvents()`, `forgetEvents()`, the lazily created `EventStore`, and `record()`
@@ -857,7 +863,7 @@ the exit code.
      `(required)`; the docs of the reused events say where they are recorded.
    - `CommandValidationError` is removed (section 6).
    - Specs: off by default, nothing created; when on, each kind of request that no context
-     serves is stored with its tenant; `close()` and `reset()`.
+     serves is stored with its tenant; `close()`.
 3. **`TenantAdded`.** Needs PR 1.
    - `AnnouncingTenantIndex`, returned by `Application.tenantIndex()` (section 9). Posting
      through the System write side of each open multitenant context, under the new tenant.
@@ -878,10 +884,10 @@ the exit code.
    - `MtBlackBox.withTenant()` registers (section 7).
    - Tests: register tenants where the services are called with generated tenants; new specs
      from "Expected impact on existing tests".
-   - Check test isolation again: `ApplicationSpec` (PR 1) resets the `Application` of the test
-     JVM, so the contexts that earlier tests left open hold a closed index afterwards. No test
-     uses a context across test classes today; with the gate, such a context would fail on
-     every request.
+   - Check test isolation again: one case of `ApplicationSpec` (PR 1) closes the tenant index
+     of the `Application` of the test JVM, so the contexts that earlier tests left open hold
+     a closed index afterwards. No test uses a context across test classes today; with the
+     gate, such a context would fail on every request.
    - Documentation: the Javadoc of `CommandService.post()` and of the query and subscription
      services; release notes on `REJECT`, how to turn on `REGISTER`, the new shape checks of
      queries and subscriptions, and `Application.persistEvents()`.
@@ -898,8 +904,6 @@ is merged:
   record of `Application` gets its own kind.
 - **jdbc-storage:** honor the storage group of the event store, so that the record of
   `Application` gets its own table.
-
-Later in core-jvm: move `OpenContexts` into `Application` (item 13).
 
 ## Other aspects to discuss
 
@@ -938,10 +942,8 @@ Later in core-jvm: move `OpenContexts` into `Application` (item 13).
     `io.spine.environment.Environment` uses `public final class Application` as the example of
     an application's own class. Such applications would refer to the new type by its full name,
     `io.spine.server.Application`, in the files that use both.
-13. **`OpenContexts` belongs to `Application` too.** The internal `OpenContexts` object
-    (`server/src/main/kotlin/io/spine/server/OpenContexts.kt`) keeps the open contexts of the
-    process and the entity state types they serve. That is application-level state, so it can
-    move into `Application` later. Out of scope for this change.
+13. **`OpenContexts` belongs to `Application` too.** Resolved by Q16: the record of the open
+    contexts and of the entity state types they serve moved into `Application` in PR 1.
 14. **Floods of refused requests.** `ServiceDelegate` logs every refusal at `WARNING`, with no
     rate limit, as it does for the other refusals since #1713. With the record of `Application`
     on, every refusal is also stored. An application open to anonymous callers should
@@ -1146,3 +1148,12 @@ Questions 4, 6, and 8 were superseded on 2026-11-09 by question 11.
     - **Remove it** (chosen). Its users were gcloud-jvm's
       `DatastoreStorageFactory.configureTenantIndex()` and three test classes of core-jvm.
     - **Deprecate it**, and remove it in a later release.
+16. ~~Merge `OpenContexts` into `Application`?~~ Decided: yes, in PR 1, and `close()` closes
+    the open contexts before the tenant index. Options:
+    - **Merge, and `close()` closes the open contexts** (chosen): the shutdown order becomes
+      automatic.
+    - **Merge, and leave the contexts to the caller**: `close()` only refuses new contexts.
+    - **Later**, in a PR of its own; PR 1 only rewords the doc of `Application`.
+17. ~~Keep `Application.reset()` for tests?~~ Decided: no. In terms of the domain, an
+    application is closed, not reset. Tests use the internal `closeIndex()`, and applications
+    of their own to check closing.

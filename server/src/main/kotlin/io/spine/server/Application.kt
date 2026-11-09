@@ -15,7 +15,6 @@
 package io.spine.server
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue
-import io.spine.annotation.VisibleForTesting
 import io.spine.core.BoundedContextName
 import io.spine.server.tenant.TenantIndex
 import io.spine.type.TypeUrl
@@ -43,8 +42,11 @@ import io.spine.type.TypeUrl
  * [Closing][close] the application closes its open contexts, and then its tenant index.
  * Close the application before [ServerEnvironment], whose storage factory keeps the tenants
  * of the default index.
+ *
+ * @constructor Creates an application with no contexts and no tenant index. The framework
+ *   uses the [instance] of the JVM; tests create applications of their own.
  */
-public class Application private constructor() : Closeable {
+public class Application internal constructor() : Closeable {
 
     /**
      * The index of tenants of the multitenant contexts, or `null` until it is created or set.
@@ -140,9 +142,7 @@ public class Application private constructor() : Closeable {
             }
         }
         try {
-            synchronized(this) {
-                closeIndex()
-            }
+            closeIndex()
         } catch (e: RuntimeException) {
             failure = failure.withSuppressed(e)
         }
@@ -150,30 +150,18 @@ public class Application private constructor() : Closeable {
     }
 
     /**
-     * Closes the tenant index and opens the application again, with no index.
-     *
-     * The next multitenant context gets a new default index. Tests that change the storage
-     * factory of [ServerEnvironment] call this method, so that the index keeps the tenants
-     * with the new storage factory.
-     *
-     * The contexts that are open stay open, and keep their names and entity state types.
-     */
-    @VisibleForTesting
-    @Synchronized
-    public fun reset() {
-        try {
-            closeIndex()
-        } finally {
-            open = true
-        }
-    }
-
-    /**
      * Forgets the tenant index, and then closes it.
      *
-     * The index is forgotten even if closing it fails.
+     * The index is forgotten even if closing it fails. The application stays as it is:
+     * an open application creates a new default index on the next call to [tenantIndex].
+     *
+     * Besides [close], tests call this method, for example, to give the application
+     * an index of their own, or to make the index keep the tenants with another storage
+     * factory of [ServerEnvironment].
      */
-    private fun closeIndex() {
+    @Synchronized
+    @JvmName("closeIndex")
+    internal fun closeIndex() {
         val closing = index
         index = null
         closing?.closeIfOpen()

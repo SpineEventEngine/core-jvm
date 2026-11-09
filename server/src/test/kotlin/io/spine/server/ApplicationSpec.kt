@@ -20,41 +20,41 @@ import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.kotest.matchers.types.shouldNotBeSameInstanceAs
+import io.spine.core.boundedContextName
 import io.spine.server.tenant.TenantIndex
 import io.spine.server.tenant.given.InMemoryTenantIndex
 import io.spine.system.server.SystemBoundedContexts.systemOf
-import io.spine.testing.SingletonTest
-import java.util.function.Supplier
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
+/**
+ * Checks [Application].
+ *
+ * Most cases use an application of their own, so that closing it does not close
+ * the application of the test JVM. The cases about the contexts use the application
+ * of the JVM, because the contexts are recorded there.
+ */
 @DisplayName("`Application` should")
-internal class ApplicationSpec : SingletonTest<Application>(
-    Application::class.java,
-    Supplier { Application.instance() }
-) {
+internal class ApplicationSpec {
 
-    private val application = Application.instance()
+    private lateinit var application: Application
 
-    /**
-     * Resets the application of the test JVM.
-     *
-     * Closes the index that the contexts built by the tests before this one share. JUnit runs
-     * the test classes of this module one by one, so no such context is in use: it is either
-     * closed, or left open by a test that has finished. The cases that close the application
-     * close such contexts too.
-     */
     @BeforeEach
-    fun startWithNoTenantIndex() {
-        application.reset()
+    fun createApplication() {
+        application = Application()
     }
 
     @AfterEach
-    fun leaveNoTenantIndex() {
-        application.reset()
+    fun closeApplication() {
+        application.closeIfOpen()
+    }
+
+    @Test
+    fun `be the same for the whole JVM`() {
+        Application.instance() shouldBeSameInstanceAs Application.instance()
     }
 
     @Nested inner class
@@ -98,8 +98,10 @@ internal class ApplicationSpec : SingletonTest<Application>(
                     closings.add("index")
                 }
             })
-            val first = multitenantContext { closings.add("first") }
-            val second = multitenantContext { closings.add("second") }
+            val first = context { closings.add("first") }
+            val second = context { closings.add("second") }
+            application.contextOpened(first)
+            application.contextOpened(second)
 
             application.close()
 
@@ -113,7 +115,20 @@ internal class ApplicationSpec : SingletonTest<Application>(
             application.close()
 
             shouldThrow<IllegalStateException> {
-                BoundedContextBuilder.assumingTests().build()
+                application.checkNameFree(boundedContextName { value = "ApplicationSpec" })
+            }
+        }
+
+        @Test
+        fun `refuse to give or take the tenant index`() {
+            application.close()
+
+            application.isOpen.shouldBeFalse()
+            shouldThrow<IllegalStateException> {
+                application.tenantIndex()
+            }
+            shouldThrow<IllegalStateException> {
+                application.use(InMemoryTenantIndex())
             }
         }
 
@@ -139,87 +154,56 @@ internal class ApplicationSpec : SingletonTest<Application>(
 
             application.isOpen.shouldBeFalse()
         }
-
-        @Test
-        fun `refuse to give or take the tenant index`() {
-            application.close()
-
-            application.isOpen.shouldBeFalse()
-            shouldThrow<IllegalStateException> {
-                application.tenantIndex()
-            }
-            shouldThrow<IllegalStateException> {
-                application.use(InMemoryTenantIndex())
-            }
-        }
     }
 
     @Nested inner class
-    `when reset` {
+    `close only the tenant index` {
 
         @Test
-        fun `close the tenant index, and create a new one on the next call`() {
+        fun `creating a new one on the next call`() {
             val index = application.tenantIndex()
 
-            application.reset()
+            application.closeIndex()
 
             index.isOpen.shouldBeFalse()
+            application.isOpen.shouldBeTrue()
             application.tenantIndex() shouldNotBeSameInstanceAs index
         }
 
         @Test
-        fun `close the tenant index that was set`() {
+        fun `which was set`() {
             val index = InMemoryTenantIndex()
             application.use(index)
 
-            application.reset()
+            application.closeIndex()
 
             index.closeCount shouldBe 1
             application.tenantIndex() shouldNotBeSameInstanceAs index
         }
 
         @Test
-        fun `keep the open contexts`() {
-            val name = "ApplicationSpec-KeptOpen"
-            BoundedContext.singleTenant(name).build().use {
-                application.reset()
-
-                shouldThrow<DuplicateContextNameException> {
-                    BoundedContext.singleTenant(name).build()
-                }
-            }
-        }
-
-        @Test
-        fun `open again after being closed`() {
-            application.close()
-
-            application.reset()
-
-            application.isOpen.shouldBeTrue()
-        }
-
-        @Test
-        fun `open again even if the tenant index fails to close`() {
-            application.use(InMemoryTenantIndex(failOnClose = true))
+        fun `forgetting it even if it fails to close`() {
+            val index = InMemoryTenantIndex(failOnClose = true)
+            application.use(index)
 
             shouldThrow<IllegalStateException> {
-                application.reset()
+                application.closeIndex()
             }
 
-            application.isOpen.shouldBeTrue()
-            application.tenantIndex().isOpen.shouldBeTrue()
+            application.tenantIndex() shouldNotBeSameInstanceAs index
         }
     }
 
     @Nested inner class
-    `give its tenant index to multitenant contexts` {
+    `give the tenant index of the JVM to multitenant contexts` {
+
+        private val jvmApplication = Application.instance()
 
         @Test
         fun `and to their System contexts`() {
             multitenantContext().use { first ->
                 multitenantContext().use { second ->
-                    val index = application.tenantIndex()
+                    val index = jvmApplication.tenantIndex()
                     listOf(first, second, systemOf(first), systemOf(second)).forEach {
                         it.internalAccess().tenantIndex() shouldBeSameInstanceAs index
                     }
@@ -234,36 +218,53 @@ internal class ApplicationSpec : SingletonTest<Application>(
 
             context.close()
 
-            index shouldBeSameInstanceAs application.tenantIndex()
+            index shouldBeSameInstanceAs jvmApplication.tenantIndex()
             index.isOpen.shouldBeTrue()
         }
 
+        /**
+         * Gives the application of the JVM an index of the test, and closes the index after.
+         *
+         * Closing the index also closes the one that the contexts left open by earlier tests
+         * share. JUnit runs the test classes of this module one by one, so no such context
+         * is in use.
+         */
         @Test
         fun `including the index that was set`() {
+            jvmApplication.closeIndex()
             val index = InMemoryTenantIndex()
-            application.use(index)
-
-            multitenantContext().use { context ->
-                context.internalAccess().tenantIndex() shouldBeSameInstanceAs index
-                systemOf(context).internalAccess().tenantIndex() shouldBeSameInstanceAs index
+            jvmApplication.use(index)
+            try {
+                multitenantContext().use { context ->
+                    context.internalAccess().tenantIndex() shouldBeSameInstanceAs index
+                    systemOf(context).internalAccess().tenantIndex() shouldBeSameInstanceAs index
+                }
+                index.closeCount shouldBe 0
+            } finally {
+                jvmApplication.closeIndex()
             }
-            index.closeCount shouldBe 0
         }
-    }
 
-    @Test
-    fun `not give its tenant index to a single-tenant context`() {
-        BoundedContextBuilder.assumingTests(/* multitenant = */ false).build().use { context ->
-            context.internalAccess()
-                .tenantIndex() shouldNotBeSameInstanceAs application.tenantIndex()
+        @Test
+        fun `but not to a single-tenant context`() {
+            context().use { context ->
+                context.internalAccess()
+                    .tenantIndex() shouldNotBeSameInstanceAs jvmApplication.tenantIndex()
+            }
         }
     }
 
     /**
-     * Builds a multitenant context that runs the given action when it starts closing.
+     * Builds a single-tenant context that runs the given action when it starts closing.
      */
-    private fun multitenantContext(onClose: () -> Unit = {}): BoundedContext =
-        BoundedContextBuilder.assumingTests(/* multitenant = */ true)
+    private fun context(onClose: () -> Unit = {}): BoundedContext =
+        BoundedContextBuilder.assumingTests()
             .setOnBeforeClose { onClose() }
             .build()
+
+    /**
+     * Builds a multitenant context.
+     */
+    private fun multitenantContext(): BoundedContext =
+        BoundedContextBuilder.assumingTests(/* multitenant = */ true).build()
 }
