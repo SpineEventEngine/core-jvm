@@ -26,7 +26,6 @@ import io.spine.server.entity.storage.EntityRecordStorage;
 import io.spine.server.entity.storage.EntityStateHistoryStorage;
 import io.spine.server.event.EventStore;
 import io.spine.server.event.store.DefaultEventStore;
-import io.spine.server.migration.mirror.MirrorStorage;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -211,19 +210,5 @@ public interface StorageFactory extends Closeable {
      */
     default CatchUpStorage createCatchUpStorage(boolean multitenant) {
         return new CatchUpStorage(this, multitenant);
-    }
-
-    /**
-     * Creates a new {@link MirrorStorage}.
-     *
-     * <p>Pay attention: {@link io.spine.system.server.Mirror Mirror} was deprecated in Spine 2.0.
-     * The presence of this storage in the factory is for those who will
-     * {@linkplain io.spine.server.migration.mirror.MirrorMigration migrate mirrors} from Spine 1.x.
-     *
-     * @param context
-     *         specification of the Bounded Context, in the scope of which this storage will be used
-     */
-    default MirrorStorage createMirrorStorage(ContextSpec context) {
-        return new MirrorStorage(context, this);
     }
 }

@@ -318,9 +318,16 @@ Because the persisted state record is now the source of truth, an aggregate can 
 loaded if it **has** a materialized state record. Before this release, state was persisted
 only for aggregates that were **visible for querying** (`(entity).visibility != NONE`). An
 aggregate whose state message is `(entity).visibility = NONE` and that relied on event replay
-has **no materialized state** — no snapshot, no pre-cutover state record, and no Mirror to
-recover from. Such aggregates are a **hard break** on upgrade, and **no migration tooling is
-shipped** to close the gap (product decision — Spine 2.x is pre-GA).
+has **no materialized state** — no snapshot and no pre-cutover state record. Such aggregates
+are a **hard break** on upgrade, and **no migration tooling is shipped** to close the gap
+(product decision — Spine 2.x is pre-GA).
+
+Aggregate data written by **Spine 1.x** is in the same position. Spine 1.x kept the states of
+the aggregates visible for querying in `Mirror` projections of the System context, and the
+`MirrorMigration` assistant copied them into the state records. `2.0.0-SNAPSHOT.650` removes
+both. To keep such data, run `MirrorMigration` with an earlier `2.0.0-SNAPSHOT` version before
+you upgrade further: it writes to the same per-aggregate storage that this release reads.
+After the migration, nothing reads the storage of `Mirror` records anymore, and you can drop it.
 
 Going forward the problem cannot recur: state persistence is decoupled from visibility, so
 every aggregate's business state is now stored unconditionally. `queryingEnabled` continues
