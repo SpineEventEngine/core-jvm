@@ -46,9 +46,6 @@ public class Application private constructor() : Closeable {
      * It keeps the tenants with the storage factory of [ServerEnvironment], so the storage
      * factory must be configured before the first multitenant context is built.
      *
-     * A context given an index of its own with [BoundedContextBuilder.setTenantIndex]
-     * uses that index instead.
-     *
      * @throws IllegalStateException If the application is closed.
      */
     @Synchronized

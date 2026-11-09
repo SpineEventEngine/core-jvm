@@ -67,6 +67,12 @@ Decisions:
   `SystemSettings.persistEvents()`. Until then, a refusal is only logged, and the store is not
   created. So a flood of requests with made-up tenants does not grow the storage of an
   application that has not opted in. See section 10.
+- Q15 (2026-11-09, while reviewing PR 1): no index per context. `BoundedContextBuilder` loses
+  `setTenantIndex()`, `hasTenantIndex()`, and `getTenantIndex()`, so every multitenant context
+  and its System context use the index of `Application`. A per-context index served no need of
+  this design, and made every PR more complex: closing rules in PR 1, a second announcing
+  wrapper in PR 3, and tenants that one context admits and another rejects in PR 4. gcloud-jvm
+  sets the index of `Application` instead. See section 8.
 
 ## Problem
 
@@ -146,7 +152,7 @@ Further observations:
 | [`SingleTenantIndex`](../../server/src/main/java/io/spine/server/tenant/SingleTenantIndex.java) | Null-object for single-tenant contexts; `keep` does nothing. |
 | [`tenant.proto`](../../server/src/main/proto/spine/server/tenant/tenant.proto) | `Tenant` record (internal type). |
 | [`events.proto`](../../server/src/main/proto/spine/server/tenant/events.proto) | `TenantAdded` — never emitted. |
-| [`BoundedContextBuilder`](../../server/src/main/java/io/spine/server/BoundedContextBuilder.java) | `setTenantIndex` (:253), `initTenantIndex` (:708) creates the default per context; passes the index to the System context (:679) and to `CommandBus` (:719). |
+| [`BoundedContextBuilder`](../../server/src/main/java/io/spine/server/BoundedContextBuilder.java) | `setTenantIndex` (:253, removed by Q15), `initTenantIndex` (:708) creates the default per context; passes the index to the System context (:679) and to `CommandBus` (:719). |
 | [`BoundedContext`](../../server/src/main/java/io/spine/server/BoundedContext.java) | Holds the index (:117), closes it (:586), exposes it via `InternalAccess.tenantIndex()` (:811). |
 | [`BusBuilder`](../../server/src/main/java/io/spine/server/bus/BusBuilder.java) | `injectTenantIndex` (:184), `ensureTenantIndex` (:193). |
 | [`CommandBus`](../../server/src/main/java/io/spine/server/commandbus/CommandBus.java) | **The only writer:** `store` → `tenantIndex::keep` (:233, :319). |
@@ -438,7 +444,7 @@ Why the boundary and not the buses:
 - Only requests from outside the process are untrusted. Signals produced inside
   (commands from process managers, integration events, scheduled commands) descend from
   a request that was already admitted.
-- With per-context indexes (still possible with `setTenantIndex()`), a bus-level gate would
+- With per-context indexes (possible until Q15), a bus-level gate would
   break legitimate flows. For example, context A admits tenant T; A's event reaches context B;
   B's process manager posts a command for T, and B's index has never seen T.
 - In-process posting (`context.commandBus().post(...)`, `BlackBox.receivesCommand`) keeps
@@ -446,8 +452,8 @@ Why the boundary and not the buses:
 
 Open for PR 4: `SubscriptionService` subscribes a topic that no context serves in every
 context (`serveNoContext`). Such a topic has no serving context to check against. It can be
-checked against the index of `Application` and its policy, which covers every context that
-has no index of its own.
+checked against the index of `Application` and its policy, which every multitenant context
+uses.
 
 ### 4. What the client gets, and what is recorded
 
@@ -632,10 +638,10 @@ callers write `Application.instance()`, not `Application.INSTANCE`.
 Changes elsewhere:
 
 - `BoundedContextBuilder.initTenantIndex()` takes `Application.instance().tenantIndex()` for a
-  multitenant context unless `setTenantIndex()` was called. Single-tenant contexts keep
-  `TenantIndex.singleTenant()`.
-- `BoundedContext.close()` closes the tenant index only if it was set with `setTenantIndex()`.
-  The index of the application is closed by `Application.close()`.
+  multitenant context. Single-tenant contexts keep `TenantIndex.singleTenant()`.
+  `setTenantIndex()`, `hasTenantIndex()`, and `getTenantIndex()` are removed (Q15).
+- `BoundedContext.close()` no longer closes the tenant index. The index of the application is
+  closed by `Application.close()`.
 - Shutdown order: contexts, then `Application`, then `ServerEnvironment`. The default index
   writes through the storage factory, so it must close before the factory does.
 - An application registers a tenant once, when its own onboarding steps are done:
@@ -646,15 +652,14 @@ Changes elsewhere:
   their factory closes (`InMemoryStorageFactory.close()` only sets a flag), so tests that
   reset only the environment keep working.
 - The System context of a multitenant context takes the index of `Application` too, instead
-  of the second default index it makes today (see "Findings"), and does not close it.
+  of the second default index it makes today (see "Findings").
 - `Application` also holds the `UnregisteredTenantPolicy` (section 2) and the record of
   refused requests with its switch (section 10). `close()` closes the record too, and
   `reset()` restores the defaults.
 - As implemented in PR 1, unlike the sketch above: `close()` closes the application for good,
   as the contract of `io.spine.server.Closeable` requires (`isOpen()` is `false` after it),
   so `tenantIndex()` and `use()` throw afterwards. `reset()` closes the index and opens the
-  application again. A context closes only an index given to its own builder; the System
-  context reuses that index without closing it.
+  application again.
 
 ### 9. `TenantAdded` — contexts prepare for a new tenant
 
@@ -714,8 +719,6 @@ internal class AnnouncingTenantIndex(
 
 - `Application.tenantIndex()` returns the application's index in this wrapper, announcing to
   every open multitenant context that uses it (`OpenContexts` knows the open contexts).
-- `BoundedContextBuilder` wraps an index given with `setTenantIndex()` the same way,
-  announcing to that context only.
 - Every way of adding a tenant goes through a wrapper: the application's onboarding
   (`Application.instance().tenantIndex().keep(id)`), the `REGISTER` policy in `TenantGate`,
   and `MtBlackBox.withTenant()`.
@@ -813,9 +816,9 @@ Java classes.
 - The `BlackBox.clients()` tests pass because `withTenant()` registers.
 - No test asserts that posting a command registers a tenant. `ProjectionRepositoryTest`
   already calls `keep` itself.
-- `BlackBoxTest.assertTenantIndex()` checks that the context returns the very instance given
-  to `setTenantIndex()` (`isSameInstanceAs`). With `AnnouncingTenantIndex` (section 9), it has
-  to compare the wrapped index.
+- `BlackBoxTest.assertTenantIndex()` checks that the context returns the index of
+  `Application` (`isSameInstanceAs`). With `AnnouncingTenantIndex` (section 9), it compares
+  the wrapper that `Application.tenantIndex()` returns.
 - All multitenant contexts of a test JVM share the in-memory index of `Application`, and
   `TenantAdded` goes to every open multitenant context. No context in the tests handles
   `TenantAdded`, and it travels through the System contexts, not the domain `EventBus` that
@@ -839,12 +842,12 @@ the exit code.
    - `Application` (Kotlin, section 8): `tenantIndex()`, `use(TenantIndex)`, `close()`,
      `reset()`.
    - `BoundedContextBuilder.initTenantIndex()` takes the index of `Application` for a
-     multitenant context and for its System context. `BoundedContext.close()` closes only an
-     index set with `setTenantIndex()`, and a System context does not close the index of its
-     domain context.
+     multitenant context and for its System context. `setTenantIndex()`, `hasTenantIndex()`,
+     and `getTenantIndex()` are removed (Q15); `BoundedContext.close()` no longer closes
+     the index.
    - Specs: `contains` (cache hit, point read, no negative caching); `Application` (lazy
-     default, `use` after first use throws, `reset`); two multitenant contexts and their
-     System contexts share the index; closing one context leaves the index open.
+     default, `use` after first use throws, `close`, `reset`); two multitenant contexts and
+     their System contexts share the index; closing one context leaves the index open.
 2. **The record of `Application`.** Records the requests that no context serves. Independent
    of PR 1, except for `Application` itself.
    - `persistEvents()`, `forgetEvents()`, the lazily created `EventStore`, and `record()`
@@ -856,16 +859,14 @@ the exit code.
    - Specs: off by default, nothing created; when on, each kind of request that no context
      serves is stored with its tenant; `close()` and `reset()`.
 3. **`TenantAdded`.** Needs PR 1.
-   - `AnnouncingTenantIndex`, used by `Application.tenantIndex()` and by `BoundedContextBuilder`
-     for an index given with `setTenantIndex()` (section 9). Posting through the System write
-     side of each open multitenant context, under the new tenant.
+   - `AnnouncingTenantIndex`, returned by `Application.tenantIndex()` (section 9). Posting
+     through the System write side of each open multitenant context, under the new tenant.
    - The documentation of `TenantAdded`: a notification, may arrive after the first request,
      may arrive twice, reaches the contexts of the node that added the tenant.
    - Until PR 4 lands, `CommandBus` still registers tenants, so a command of a new tenant
      posts `TenantAdded` too. That is correct: the tenant is added.
    - Specs: a reactor or process manager in each of two contexts receives `TenantAdded` once
-     per new tenant, and not for a tenant that is already in the index; a context with its own
-     index receives only its own tenants; `BlackBoxTest.assertTenantIndex()` adjusted.
+     per new tenant, and not for a tenant that is already in the index.
 4. **Reject unregistered tenants.** The behavior change. Needs PRs 1–3.
    - `UnregisteredTenantPolicy` in `Application` (section 2); `TenantGate` and the gate in
      `ServiceDelegate` (section 3).
@@ -890,9 +891,11 @@ is merged:
 
 - **spine-ts:** drop `CommandValidationError` together with the enums that #1713 removed, when
   it adopts `ErrorCase`; revisit how it answers a command of an unregistered tenant (Q8).
-- **gcloud-jvm:** override `contains` in `NamespaceIndex`; make registration durable, so that
-  other nodes do not reject a tenant until it has data (item 5 below); honor the storage group
-  of the event store, so that the record of `Application` gets its own kind.
+- **gcloud-jvm:** set the index of `Application` instead of calling the removed
+  `setTenantIndex()` in `DatastoreStorageFactory.configureTenantIndex()`; override `contains`
+  in `NamespaceIndex`; make registration durable, so that other nodes do not reject a tenant
+  until it has data (item 5 below); honor the storage group of the event store, so that the
+  record of `Application` gets its own kind.
 - **jdbc-storage:** honor the storage group of the event store, so that the record of
   `Application` gets its own table.
 
@@ -901,8 +904,8 @@ Later in core-jvm: move `OpenContexts` into `Application` (item 13).
 ## Other aspects to discuss
 
 1. **Scope of the index.** Resolved by Q5: one index per application, held by
-   `Application` (section 8), with the existing per-context override. Unlike spine-ts, it is
-   not part of `ServerEnvironment`.
+   `Application` (section 8). The per-context override is removed (Q15). Unlike spine-ts, it
+   is not part of `ServerEnvironment`.
 2. **How applications register tenants.** Resolved by Q5:
    `Application.instance().tenantIndex().keep(tenantId)`.
 3. **`TenantAdded`.** Resolved by Q9: posted when a tenant is added (section 9).
@@ -1138,3 +1141,8 @@ Questions 4, 6, and 8 were superseded on 2026-11-09 by question 11.
       refusal is only logged, and the store is not created.
     - **On by default**: storage grows with every refused request, including floods of
       made-up tenant IDs.
+15. ~~Keep the per-context index (`BoundedContextBuilder.setTenantIndex()`) next to the index of
+    `Application`?~~ Decided: remove it, in PR 1. Options:
+    - **Remove it** (chosen). Its users were gcloud-jvm's
+      `DatastoreStorageFactory.configureTenantIndex()` and three test classes of core-jvm.
+    - **Deprecate it**, and remove it in a later release.

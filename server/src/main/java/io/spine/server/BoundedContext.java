@@ -116,9 +116,6 @@ public abstract class BoundedContext
     /** The index of tenants having data in this context. */
     private final TenantIndex tenantIndex;
 
-    /** Tells if this context closes its tenant index when the context is closed. */
-    private final boolean closeTenantIndex;
-
     /** Provides access to internally used features of the context. */
     private final InternalAccess internalAccess;
 
@@ -147,7 +144,6 @@ public abstract class BoundedContext
         this.eventBus = builder.buildEventBus(this);
         this.stand = builder.stand();
         this.tenantIndex = builder.buildTenantIndex();
-        this.closeTenantIndex = builder.closesTenantIndex();
         this.broker = new IntegrationBroker();
         this.commandBus = builder.buildCommandBus();
         this.aggregateRootDirectory = builder.aggregateRootDirectory();
@@ -486,9 +482,6 @@ public abstract class BoundedContext
      *     <li>Closes {@link IntegrationBroker}.
      *     <li>Closes {@link Stand}.
      *     <li>Closes all registered {@linkplain Repository repositories}.
-     *     <li>Closes the {@link TenantIndex}, if the context was
-     *      {@linkplain BoundedContextBuilder#setTenantIndex(TenantIndex) given} an index
-     *      of its own.
      *     <li>Removes a {@link Probe}, if it was {@linkplain #install(Probe) installed}.
      * </ol>
      *
@@ -579,11 +572,9 @@ public abstract class BoundedContext
     }
 
     /**
-     * Closes all repositories and, if the context was
-     * {@linkplain BoundedContextBuilder#setTenantIndex(TenantIndex) given} an index of its own,
-     * the {@link TenantIndex}.
+     * Closes all repositories, and records that the context is no longer open.
      *
-     * <p>Finishes closing even if closing some of the repositories fails, and then throws.
+     * <p>Records it even if closing some of the repositories fails, and then throws.
      * After that, another context may have the name of this one and serve the entity state
      * types of these repositories. This context cannot be closed again to retry, because it is
      * no longer open.
@@ -593,9 +584,6 @@ public abstract class BoundedContext
             guard.shutDownRepositories();
         } finally {
             OpenContexts.closed(this);
-            if (closeTenantIndex) {
-                tenantIndex.close();
-            }
         }
     }
 

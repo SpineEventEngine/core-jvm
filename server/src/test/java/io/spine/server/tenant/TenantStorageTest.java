@@ -14,7 +14,6 @@
 
 package io.spine.server.tenant;
 
-import io.spine.server.BoundedContextBuilder;
 import io.spine.server.ServerEnvironment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -36,10 +35,6 @@ class TenantStorageTest {
     void setUp() {
         var storageFactory = ServerEnvironment.instance().storageFactory();
         storage = new DefaultTenantStorage(storageFactory);
-        BoundedContextBuilder
-                .assumingTests(/* multitenant = */ true)
-                .setTenantIndex(storage)
-                .build();
     }
 
     @Test

@@ -20,7 +20,6 @@ import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.kotest.matchers.types.shouldNotBeSameInstanceAs
-import io.spine.server.tenant.TenantIndex
 import io.spine.server.tenant.given.InMemoryTenantIndex
 import io.spine.system.server.SystemBoundedContexts.systemOf
 import io.spine.testing.SingletonTest
@@ -197,27 +196,17 @@ internal class ApplicationSpec : SingletonTest<Application>(
             index shouldBeSameInstanceAs application.tenantIndex()
             index.isOpen.shouldBeTrue()
         }
-    }
-
-    @Nested inner class
-    `let a multitenant context use an index of its own` {
 
         @Test
-        fun `shared with its System context`() {
+        fun `including the index that was set`() {
             val index = InMemoryTenantIndex()
-            multitenantContext(index).use { context ->
+            application.use(index)
+
+            multitenantContext().use { context ->
                 context.internalAccess().tenantIndex() shouldBeSameInstanceAs index
                 systemOf(context).internalAccess().tenantIndex() shouldBeSameInstanceAs index
             }
-        }
-
-        @Test
-        fun `which the context closes once`() {
-            val index = InMemoryTenantIndex()
-
-            multitenantContext(index).close()
-
-            index.closeCount shouldBe 1
+            index.closeCount shouldBe 0
         }
     }
 
@@ -229,9 +218,6 @@ internal class ApplicationSpec : SingletonTest<Application>(
         }
     }
 
-    private fun multitenantContext(index: TenantIndex? = null): BoundedContext {
-        val builder = BoundedContextBuilder.assumingTests(/* multitenant = */ true)
-        index?.let { builder.setTenantIndex(it) }
-        return builder.build()
-    }
+    private fun multitenantContext(): BoundedContext =
+        BoundedContextBuilder.assumingTests(/* multitenant = */ true).build()
 }

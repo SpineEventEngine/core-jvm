@@ -23,6 +23,7 @@ import io.spine.client.TopicFactory;
 import io.spine.core.ActorContext;
 import io.spine.core.TenantId;
 import io.spine.environment.Tests;
+import io.spine.server.Application;
 import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.server.DefaultRepository;
@@ -61,7 +62,6 @@ import io.spine.testing.server.blackbox.given.BbProjectViewProjection;
 import io.spine.testing.server.blackbox.given.BbReportRepository;
 import io.spine.testing.server.blackbox.given.Given;
 import io.spine.testing.server.blackbox.given.RepositoryThrowingExceptionOnClose;
-import io.spine.testing.server.blackbox.given.StubTenantIndex;
 import io.spine.testing.server.blackbox.rejection.Rejections;
 import io.spine.testing.server.entity.EntitySubject;
 import io.spine.time.ZoneIds;
@@ -501,7 +501,6 @@ abstract class BlackBoxTest<T extends BlackBox> {
         private final Listener<CommandEnvelope> commandListener = commandListener();
         private final Listener<EventEnvelope> eventListener = eventListener();
         private final Set<TypeName> types = toTypes(repositories);
-        private final TenantIndex tenantIndex = new StubTenantIndex();
 
         private BlackBox blackBox;
         private EventEnricher enricher;
@@ -533,7 +532,6 @@ abstract class BlackBoxTest<T extends BlackBox> {
         @Test
         void multiTenant() {
             var builder = BoundedContextBuilder.assumingTests(/* multitenant = */ true)
-                    .setTenantIndex(tenantIndex)
                     .enrichEventsUsing(enricher);
             assertBlackBox(builder, MtBlackBox.class);
         }
@@ -609,7 +607,7 @@ abstract class BlackBoxTest<T extends BlackBox> {
         private void assertTenantIndex() {
             if (context().isMultitenant()) {
                 assertThat(tenantIndex())
-                        .isSameInstanceAs(tenantIndex);
+                        .isSameInstanceAs(Application.instance().tenantIndex());
             }
         }
 
