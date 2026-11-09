@@ -41,7 +41,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  *
  * <p>There can be multiple dispatchers per event class.
  */
-final class EventDispatcherRegistry
+public final class EventDispatcherRegistry
         extends DispatcherRegistry<EventClass, EventEnvelope, EventDispatcher> {
 
     @Override
