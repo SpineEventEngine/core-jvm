@@ -26,6 +26,7 @@ import io.spine.server.commandbus.CommandBus;
 import io.spine.server.commandbus.CommandDispatcher;
 import io.spine.server.commandbus.CommandDispatcherDelegate;
 import io.spine.server.commandbus.DelegatingCommandDispatcher;
+import io.spine.server.delivery.Delivery;
 import io.spine.server.entity.Entity;
 import io.spine.server.entity.Repository;
 import io.spine.server.entity.model.EntityClass;
@@ -213,6 +214,7 @@ public abstract class BoundedContext
      * @throws DuplicateEntityStateException
      *         if another open context already serves entities with the same state type
      */
+    @SuppressWarnings("ProhibitedExceptionThrown") // Re-throwing what was caught.
     protected final void register(Repository<?, ?> repository) {
         checkNotNull(repository);
         checkOpen();
@@ -812,6 +814,15 @@ public abstract class BoundedContext
         public StorageFactory storageFactory() {
             return ServerEnvironment.instance()
                                     .storageFactory();
+        }
+
+        /**
+         * Obtains the {@code Delivery} in which the repositories of this
+         * {@code BoundedContext} register their inboxes.
+         */
+        public Delivery delivery() {
+            return ServerEnvironment.instance()
+                                    .delivery();
         }
 
         /**

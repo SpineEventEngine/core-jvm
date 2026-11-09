@@ -733,6 +733,8 @@ public final class Delivery implements WithLogging {
     /**
      * Creates an instance of {@link Inbox.Builder} for the given entity type.
      *
+     * <p>The built inbox is registered in this {@code Delivery}.
+     *
      * @param entityType
      *         the type of the entity, to which the inbox will belong
      * @param <I>
@@ -740,7 +742,7 @@ public final class Delivery implements WithLogging {
      * @return the builder for the {@code Inbox}
      */
     public <I> Inbox.Builder<I> newInbox(TypeUrl entityType) {
-        return Inbox.newBuilder(entityType, inboxWriter());
+        return Inbox.newBuilder(entityType, this, inboxWriter());
     }
 
     /**

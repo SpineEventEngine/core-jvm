@@ -25,7 +25,6 @@ import io.spine.reflect.GenericTypeIndex;
 import io.spine.server.BoundedContext;
 import io.spine.server.Closeable;
 import io.spine.server.ContextAware;
-import io.spine.server.ServerEnvironment;
 import io.spine.server.delivery.BatchDeliveryListener;
 import io.spine.server.delivery.Inbox;
 import io.spine.server.entity.model.EntityClass;
@@ -539,12 +538,12 @@ public abstract class Repository<I, E extends Entity<I, ?>>
      * adds no endpoint.
      *
      * <p>Called after {@link #initCache()}, because the created inbox is registered with the
-     * {@code Delivery} of the current {@code ServerEnvironment} straight away, and the
-     * caching listener it carries reaches for the cache.
+     * {@code Delivery} of the Bounded Context straight away, and the caching listener it
+     * carries reaches for the cache.
      */
     private void initInbox() {
-        var delivery = ServerEnvironment.instance()
-                                        .delivery();
+        var delivery = context().internalAccess()
+                                .delivery();
         var builder = delivery.<I>newInbox(entityStateType())
                               .withContext(context().name());
         setupInbox(builder);
