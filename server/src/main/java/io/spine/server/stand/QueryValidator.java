@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.protobuf.UInt32Value;
 import io.spine.base.FieldPath;
 import io.spine.client.Query;
+import io.spine.client.ResponseFormat;
 import io.spine.string.TemplateString;
 import io.spine.type.TypeName;
 import io.spine.validation.ConstraintViolation;
@@ -30,6 +31,18 @@ import static java.lang.String.format;
  * Validates the {@link Query} instances submitted to {@link Stand}.
  */
 final class QueryValidator extends AbstractTargetValidator<Query> {
+
+    /**
+     * The path to the limit of the query results, {@code format.limit}.
+     */
+    private static final FieldPath LIMIT_PATH = FieldPath.newBuilder()
+            .addFieldName(Query.getDescriptor()
+                               .findFieldByNumber(Query.FORMAT_FIELD_NUMBER)
+                               .getName())
+            .addFieldName(ResponseFormat.getDescriptor()
+                                        .findFieldByNumber(ResponseFormat.LIMIT_FIELD_NUMBER)
+                                        .getName())
+            .build();
 
     QueryValidator(TypeRegistry typeRegistry) {
         super(QUERY, typeRegistry);
@@ -48,15 +61,12 @@ final class QueryValidator extends AbstractTargetValidator<Query> {
         if (limit <= 0 || !orderByMissing) {
             return ImmutableList.of();
         }
-        var limitPath = FieldPath.newBuilder()
-                .addFieldName("format")
-                .addFieldName("limit");
         var violation = ConstraintViolation.newBuilder()
                 .setMessage(TemplateString.newBuilder()
                                     .setWithPlaceholders(
                                             "Query limit cannot be set without ordering."))
                 .setTypeName(TypeName.of(request).value())
-                .setFieldPath(limitPath)
+                .setFieldPath(LIMIT_PATH)
                 .setFieldValue(pack(UInt32Value.of(limit)))
                 .build();
         return ImmutableList.of(violation);
