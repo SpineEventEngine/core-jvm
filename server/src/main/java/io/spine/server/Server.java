@@ -95,12 +95,12 @@ public final class Server implements WithLogging {
         grpcContainer.addShutdownHook();
         var info = logger().atInfo();
         if (grpcContainer.hasPort()) {
-            var p = grpcContainer.getBoundPort();
-            info.log(() -> format("Server started, listening to the port %d.", p));
+            var port = grpcContainer.getBoundPort();
+            info.log(() -> format("Server started, listening to the port %d.", port));
         }
         if (grpcContainer.hasServerName()) {
-            var n = grpcContainer.getServerName();
-            info.log(() -> format("In-process server started with the name `%s`.", n));
+            var name = grpcContainer.getServerName();
+            info.log(() -> format("In-process server started with the name `%s`.", name));
         }
     }
 
