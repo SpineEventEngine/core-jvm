@@ -205,7 +205,7 @@ legacy shared table / kind.
 Fixing only inside jdbc-storage by mixing `ContextSpec` into `SpecKey`/table names:
 
 - prefixing all ungrouped tables renames every entity-state table (large migration blast
-  radius) and breaks `MirrorStorage`, whose table must match the Spine 1.x layout;
+  radius);
 - special-casing `Event` in one backend leaves other SPI implementations broken.
 
 ## Related follow-up (out of scope)
