@@ -85,8 +85,11 @@ Decisions:
 - Q18 (2026-11-09, while reviewing PR 1): a Bounded Context keeps no tenant index. The code
   that needs the index asks `Application.instance().tenantIndex()`, so it always gets the
   current one. `BoundedContext` loses its index and `InternalAccess.tenantIndex()`, and
-  `BusBuilder` its tenant-index API; `CommandBus` keeps the tenants of multitenant commands in
-  the index of `Application` until PR 4. See section 8.
+  `BusBuilder` its tenant-index API. See section 8.
+- Q19 (2026-11-09, while reviewing PR 1): `CommandBus` stops registering the tenants of the
+  commands in PR 1, not PR 4. Nothing reads the index before the gate of PR 4, so no request
+  is served differently, and no test relied on it. Until PR 4, only the application
+  registers tenants. See section 3.
 
 ## Problem
 
@@ -441,17 +444,8 @@ internal object TenantGate {
 }
 ```
 
-`CommandBus` stops registering tenants:
-
-```java
-@Override
-protected void store(Iterable<Command> commands) {
-    // Commands are not stored, and tenants are admitted by the services.
-}
-```
-
-Since PR 1 (Q18), keeping the tenant is the only use of the index in `CommandBus`, so the
-bus no longer needs the index at all.
+`CommandBus` no longer registers tenants since PR 1 (Q19): `CommandBus.store()` does nothing,
+because the bus does not store commands.
 
 Why the boundary and not the buses:
 
@@ -852,12 +846,12 @@ the exit code.
    - Bounded Contexts keep no tenant index (Q18), and contexts cannot be given one (Q15):
      `BoundedContextBuilder` loses `setTenantIndex()`, `hasTenantIndex()`, and
      `getTenantIndex()`; `BoundedContext` its index and `InternalAccess.tenantIndex()`;
-     `BusBuilder` its tenant-index API. `CommandBus` keeps the tenants in the index of
-     `Application`.
+     `BusBuilder` its tenant-index API.
+   - `CommandBus` no longer registers the tenants of the commands (Q19).
    - Specs: `contains` (cache hit, point read, no negative caching); `Application` (lazy
      default, `use` after first use throws, `close` closes the contexts and then the index,
-     `closeIndex`); a multitenant `CommandBus` keeps the tenant of a posted command in the
-     index of `Application`.
+     `closeIndex`); a multitenant `CommandBus` does not register the tenant of a posted
+     command.
 2. **The record of `Application`.** Records the requests that no context serves. Independent
    of PR 1, except for `Application` itself.
    - `persistEvents()`, `forgetEvents()`, the lazily created `EventStore`, and `record()`
@@ -873,8 +867,6 @@ the exit code.
      through the System write side of each open multitenant context, under the new tenant.
    - The documentation of `TenantAdded`: a notification, may arrive after the first request,
      may arrive twice, reaches the contexts of the node that added the tenant.
-   - Until PR 4 lands, `CommandBus` still registers tenants, so a command of a new tenant
-     posts `TenantAdded` too. That is correct: the tenant is added.
    - Specs: a reactor or process manager in each of two contexts receives `TenantAdded` once
      per new tenant, and not for a tenant that is already in the index.
 4. **Reject unregistered tenants.** The behavior change. Needs PRs 1–3.
@@ -883,7 +875,6 @@ the exit code.
    - The events of section 4 in `tenant_events.proto`. The shape checks of queries and
      subscriptions are recorded in the serving context; `*TenantNotRegistered` and the
      failures of the index, by `Application`.
-   - `CommandBus.store()` stops keeping the tenants of commands.
    - `MtBlackBox.withTenant()` registers (section 7).
    - Tests: register tenants where the services are called with generated tenants; new specs
      from "Expected impact on existing tests".
@@ -1168,3 +1159,5 @@ Questions 4, 6, and 8 were superseded on 2026-11-09 by question 11.
       of `BusBuilder` too.
     - **Remove it from the contexts only**, and let `CommandBus` get the index through
       `BusBuilder` until PR 4.
+19. ~~Stop `CommandBus` registering tenants in PR 1, or in PR 4 with the gate?~~ Decided: in PR 1.
+    Nothing read the index yet, and only the spec added by PR 1 checked the registration.

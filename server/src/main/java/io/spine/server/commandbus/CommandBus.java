@@ -27,7 +27,6 @@ import io.spine.core.Ack;
 import io.spine.core.Command;
 import io.spine.core.TenantId;
 import io.spine.grpc.CompositeObserver;
-import io.spine.server.Application;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.bus.BusBuilder;
@@ -226,17 +225,11 @@ public final class CommandBus
     }
 
     /**
-     * Keeps the tenant of the commands in the {@linkplain Application#tenantIndex() index}
-     * of the {@link Application}, if this bus is multitenant.
+     * Does nothing, because the {@code CommandBus} does not store commands.
      */
     @Override
     protected void store(Iterable<Command> commands) {
-        if (multitenant) {
-            var tenantId = tenantOf(commands);
-            Application.instance()
-                       .tenantIndex()
-                       .keep(tenantId);
-        }
+        // Commands are not stored.
     }
 
     /**
