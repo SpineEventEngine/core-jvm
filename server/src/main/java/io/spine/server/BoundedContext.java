@@ -25,6 +25,7 @@ import io.spine.server.bus.Listener;
 import io.spine.server.commandbus.CommandBus;
 import io.spine.server.commandbus.CommandDispatcher;
 import io.spine.server.commandbus.CommandDispatcherDelegate;
+import io.spine.server.commandbus.CommandScheduler;
 import io.spine.server.commandbus.DelegatingCommandDispatcher;
 import io.spine.server.delivery.Delivery;
 import io.spine.server.entity.Entity;
@@ -95,6 +96,9 @@ public abstract class BoundedContext
     /** Basic features of the context. */
     private final ContextSpec spec;
 
+    /** The environment that provides the technologies of the context. */
+    private final ServerEnvironment environment = ServerEnvironment.instance();
+
     /** The Command Bus of this context. */
     private final CommandBus commandBus;
 
@@ -156,6 +160,7 @@ public abstract class BoundedContext
      */
     protected final void init() {
         eventBus.registerWith(this);
+        commandBus.registerWith(this);
         broker.registerWith(this);
     }
 
@@ -812,8 +817,7 @@ public abstract class BoundedContext
          * {@code BoundedContext} create their storages.
          */
         public StorageFactory storageFactory() {
-            return ServerEnvironment.instance()
-                                    .storageFactory();
+            return self().environment.storageFactory();
         }
 
         /**
@@ -821,8 +825,14 @@ public abstract class BoundedContext
          * {@code BoundedContext} register their inboxes.
          */
         public Delivery delivery() {
-            return ServerEnvironment.instance()
-                                    .delivery();
+            return self().environment.delivery();
+        }
+
+        /**
+         * Creates a new scheduler for the commands posted to this {@code BoundedContext}.
+         */
+        public CommandScheduler newCommandScheduler() {
+            return self().environment.newCommandScheduler();
         }
 
         /**

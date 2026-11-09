@@ -139,6 +139,7 @@ abstract class AbstractCommandBusTestSuite {
                 .injectSystem(systemWriteSide)
                 .setWatcher(watcher)
                 .build();
+        commandBus.registerWith(context);
         requestFactory =
                 multitenant
                 ? new TestActorRequestFactory(getClass(), generate())

@@ -27,8 +27,9 @@ import io.spine.core.Ack;
 import io.spine.core.Command;
 import io.spine.core.TenantId;
 import io.spine.grpc.CompositeObserver;
+import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
-import io.spine.server.ServerEnvironment;
+import io.spine.server.ContextAware;
 import io.spine.server.bus.BusBuilder;
 import io.spine.server.bus.BusFilter;
 import io.spine.server.bus.DeadMessageHandler;
@@ -45,6 +46,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static io.spine.system.server.WriteSideFunction.delegatingTo;
 
 /**
@@ -52,12 +54,18 @@ import static io.spine.system.server.WriteSideFunction.delegatingTo;
  */
 @Internal
 public final class CommandBus
-        extends UnicastBus<Command, CommandEnvelope, CommandClass, CommandDispatcher> {
+        extends UnicastBus<Command, CommandEnvelope, CommandClass, CommandDispatcher>
+        implements ContextAware {
 
     /** Consumes commands dispatched by this bus. */
     private final CommandFlowWatcher watcher;
 
-    private final CommandScheduler scheduler;
+    /**
+     * The scheduler of the commands, created when the bus is
+     * {@linkplain #registerWith(BoundedContext) registered} with a context.
+     */
+    private @MonotonicNonNull CommandScheduler scheduler;
+
     private final SystemWriteSide systemWriteSide;
 
     /**
@@ -87,7 +95,6 @@ public final class CommandBus
     private CommandBus(Builder builder) {
         super(builder);
         this.multitenant = builder.multitenant != null && builder.multitenant;
-        this.scheduler = checkNotNull(builder.commandScheduler);
         this.systemWriteSide = builder.ensureSystem();
         this.watcher = checkNotNull(builder.watcher);
         this.deadCommandHandler = new DeadCommandHandler(this::systemFor);
@@ -106,6 +113,38 @@ public final class CommandBus
     }
 
     /**
+     * {@inheritDoc}
+     *
+     * <p>Creates the {@link CommandScheduler} of this bus with the context.
+     *
+     * @throws IllegalStateException
+     *         if the bus is already registered with a context
+     */
+    @Override
+    @Internal
+    public void registerWith(BoundedContext context) {
+        checkNotNull(context);
+        checkState(!isRegistered(),
+                   "The `CommandBus` is already registered with a Bounded Context.");
+        var scheduler = context.internalAccess()
+                               .newCommandScheduler();
+        scheduler.setWatcher(watcher);
+        scheduler.setCommandBus(this);
+        this.scheduler = scheduler;
+    }
+
+    @Override
+    public boolean isRegistered() {
+        return scheduler != null;
+    }
+
+    private CommandScheduler scheduler() {
+        checkState(scheduler != null,
+                   "The `CommandBus` is not registered with a Bounded Context.");
+        return scheduler;
+    }
+
+    /**
      * Places a {@link CommandReceivedTap} and a {@link TenantFilter} first, and
      * a {@link CommandScheduler} last in the filter chain.
      */
@@ -118,7 +157,7 @@ public final class CommandBus
                 .add(new CommandReceivedTap(this::systemFor))
                 .add(new TenantFilter(multitenant, this::systemFor))
                 .addAll(fromSuper)
-                .add(scheduler)
+                .add(scheduler())
                 .build();
     }
 
@@ -261,7 +300,6 @@ public final class CommandBus
          */
         private @Nullable Boolean multitenant;
         private @Nullable CommandFlowWatcher watcher;
-        private @MonotonicNonNull CommandScheduler commandScheduler;
 
         /** Prevents direct instantiation. */
         private Builder() {
@@ -291,29 +329,19 @@ public final class CommandBus
          * Builds an instance of {@link CommandBus}.
          *
          * <p>This method is supposed to be called internally when building an enclosing
-         * {@code BoundedContext}.
+         * {@code BoundedContext}. The bus gets its {@link CommandScheduler} when it is
+         * {@linkplain CommandBus#registerWith(BoundedContext) registered} with the context.
          */
         @Override
         @CheckReturnValue
         public CommandBus build() {
             var writeSide = ensureSystem();
-
-            commandScheduler =
-                    ServerEnvironment.instance()
-                                     .newCommandScheduler();
-
             if (watcher == null) {
                 watcher = new FlightRecorder(
                         (tenantId) -> delegatingTo(writeSide).get(tenantId)
                 );
             }
-            commandScheduler.setWatcher(watcher);
-
-            var commandBus = createCommandBus();
-
-            commandScheduler.setCommandBus(commandBus);
-
-            return commandBus;
+            return createCommandBus();
         }
 
         @Override
