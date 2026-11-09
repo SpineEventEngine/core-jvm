@@ -240,7 +240,7 @@ internal class ServerSpec {
     }
 
     private fun contextServing(type: TypeUrl): BoundedContext? =
-        Application.instance().findContextServing(type)
+        Application.instance().openContexts.findContextServing(type)
 
     /**
      * Makes the hook of the context throw an `Error` before the context closes.

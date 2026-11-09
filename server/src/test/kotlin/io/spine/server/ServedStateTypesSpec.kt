@@ -25,8 +25,8 @@ import org.junit.jupiter.api.Test
 /**
  * Tests the record of served entity state types on its own.
  *
- * The record is a new instance, not the one of [Application]. The contexts have no
- * repositories, so building them adds no types to the record of [Application].
+ * The record is a new instance, not the one of the [Application]. The contexts have no
+ * repositories, so building them adds no types to the record of the [Application].
  */
 @DisplayName("`ServedStateTypes` should")
 internal class ServedStateTypesSpec {

@@ -74,7 +74,9 @@ Decisions:
   wrapper in PR 3, and tenants that one context admits and another rejects in PR 4. gcloud-jvm
   sets the index of `Application` instead. See section 8.
 - Q16 (2026-11-09, while reviewing PR 1): `OpenContexts` is merged into `Application`, in PR 1,
-  so that the application knows the contexts it is made of. `Application.close()` closes the
+  so that the application knows the contexts it is made of. It stays an internal class of its
+  own, which `Application` holds, rather than a JVM-wide object: detekt limits a class to 11
+  functions. `Application.close()` closes the
   open contexts, in the reverse order of their building, and then the tenant index; after it,
   no context can be built. See section 8.
 - Q17 (2026-11-09, while reviewing PR 1): `Application` has no `reset()`. An application is
@@ -655,8 +657,8 @@ Changes elsewhere:
 - `Application` also holds the `UnregisteredTenantPolicy` (section 2) and the record of
   refused requests with its switch (section 10). `close()` closes the record too.
 - As implemented in PR 1, unlike the sketch above (Q16, Q17):
-  - `Application` keeps the record of the open contexts and of the entity state types they
-    serve, which `OpenContexts` kept before.
+  - `Application` holds the record of the open contexts and of the entity state types they
+    serve: `OpenContexts`, an internal class now, no longer a JVM-wide object.
   - `close()` closes the open contexts, in the reverse order of their building, and then the
     tenant index. It closes the application for good, as the contract of
     `io.spine.server.Closeable` requires: no context can be built afterwards, and
@@ -844,8 +846,7 @@ the exit code.
 1. **Tenant index for the application.** No change in how requests are served.
    - `TenantIndex.contains()` (default method) and `TenantStorage.contains()` (section 1).
    - `Application` (Kotlin, section 8): `tenantIndex()`, `use(TenantIndex)`, `close()`, and
-     the internal `closeIndex()`. The record of the open contexts moves in from
-     `OpenContexts` (Q16).
+     the internal `closeIndex()`. `OpenContexts` becomes a part of `Application` (Q16).
    - `BoundedContextBuilder.initTenantIndex()` takes the index of `Application` for a
      multitenant context and for its System context. `setTenantIndex()`, `hasTenantIndex()`,
      and `getTenantIndex()` are removed (Q15); `BoundedContext.close()` no longer closes
@@ -942,8 +943,8 @@ is merged:
     `io.spine.environment.Environment` uses `public final class Application` as the example of
     an application's own class. Such applications would refer to the new type by its full name,
     `io.spine.server.Application`, in the files that use both.
-13. **`OpenContexts` belongs to `Application` too.** Resolved by Q16: the record of the open
-    contexts and of the entity state types they serve moved into `Application` in PR 1.
+13. **`OpenContexts` belongs to `Application` too.** Resolved by Q16: in PR 1, the record of
+    the open contexts and of the entity state types they serve became a part of `Application`.
 14. **Floods of refused requests.** `ServiceDelegate` logs every refusal at `WARNING`, with no
     rate limit, as it does for the other refusals since #1713. With the record of `Application`
     on, every refusal is also stored. An application open to anonymous callers should

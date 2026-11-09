@@ -100,8 +100,8 @@ internal class ApplicationSpec {
             })
             val first = context { closings.add("first") }
             val second = context { closings.add("second") }
-            application.contextOpened(first)
-            application.contextOpened(second)
+            application.openContexts.opened(first)
+            application.openContexts.opened(second)
 
             application.close()
 
@@ -113,9 +113,10 @@ internal class ApplicationSpec {
         @Test
         fun `refuse to build a context`() {
             application.close()
+            val name = boundedContextName { value = "ApplicationSpec" }
 
             shouldThrow<IllegalStateException> {
-                application.checkNameFree(boundedContextName { value = "ApplicationSpec" })
+                application.openContexts.checkNameFree(name)
             }
         }
 

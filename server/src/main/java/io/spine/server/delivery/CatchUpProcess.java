@@ -857,7 +857,7 @@ public final class CatchUpProcess extends ProcessManager<CatchUpId, CatchUp, Cat
      */
     static BoundedContext domainContextOf(CatchUpId job) {
         var projectionType = TypeUrl.parse(job.getProjectionType());
-        var context = Application.instance().findContextServing(projectionType);
+        var context = Application.instance().openContexts().findContextServing(projectionType);
         if (context == null) {
             throw newIllegalStateException(
                     "No open Bounded Context serves the projection type `%s`" +

@@ -25,7 +25,7 @@ import io.spine.type.TypeUrl
  * cannot have one name, but a closed context and a newer context can have the same name.
  * A late call for the closed context must not remove the types that the newer context serves.
  *
- * @see Application
+ * @see OpenContexts
  */
 internal class ServedStateTypes {
 
