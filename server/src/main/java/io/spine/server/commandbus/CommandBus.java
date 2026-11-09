@@ -86,9 +86,7 @@ public final class CommandBus
      */
     private CommandBus(Builder builder) {
         super(builder);
-        this.multitenant = builder.multitenant != null
-                           ? builder.multitenant
-                           : false;
+        this.multitenant = builder.multitenant != null && builder.multitenant;
         this.scheduler = checkNotNull(builder.commandScheduler);
         this.systemWriteSide = builder.ensureSystem();
         this.watcher = checkNotNull(builder.watcher);
