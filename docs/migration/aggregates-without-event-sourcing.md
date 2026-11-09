@@ -325,9 +325,10 @@ are a **hard break** on upgrade, and **no migration tooling is shipped** to clos
 Aggregate data written by **Spine 1.x** is in the same position. Spine 1.x kept the states of
 the aggregates visible for querying in `Mirror` projections of the System context, and the
 `MirrorMigration` assistant copied them into the state records. `2.0.0-SNAPSHOT.650` removes
-both. To keep such data, run `MirrorMigration` with an earlier `2.0.0-SNAPSHOT` version before
-you upgrade further: it writes to the same per-aggregate storage that this release reads.
-After the migration, nothing reads the storage of `Mirror` records anymore, and you can drop it.
+both. To keep such data, run `MirrorMigration` with `2.0.0-SNAPSHOT.640` or an earlier
+snapshot before you upgrade further: it writes to the same per-aggregate storage that this
+release reads. After the migration, nothing reads the `Mirror` record storage anymore, and you
+can drop it.
 
 Going forward the problem cannot recur: state persistence is decoupled from visibility, so
 every aggregate's business state is now stored unconditionally. `queryingEnabled` continues
