@@ -8,7 +8,7 @@ rework (#1713, merged). The work is tracked by #1709.
 
 Progress:
 
-- [ ] PR 1, the tenant index of the application: opened from branch
+- [ ] PR 1, the tenant index of the application: #1717, from branch
   `claude/application-tenant-index` (`2.0.0-SNAPSHOT.651`).
 - [ ] PR 2, the record of `Application`.
 - [ ] PR 3, `TenantAdded`.
