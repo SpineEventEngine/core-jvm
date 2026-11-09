@@ -35,6 +35,7 @@ import org.opentest4j.AssertionFailedError;
 import java.util.logging.Logger;
 
 import static io.spine.base.Errors.causeOf;
+import static io.spine.testing.server.blackbox.given.Given.someMessageId;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DisplayName("`FailedHandlerGuard` should")
@@ -55,6 +56,7 @@ final class FailedHandlerGuardTest extends DiagnosticLoggingTest {
         guard.on(
                 HandlerFailedUnexpectedly.newBuilder()
                         .setEntity(entity())
+                        .setHandledSignal(someMessageId())
                         .setError(error)
                         .build()
         );
@@ -68,6 +70,7 @@ final class FailedHandlerGuardTest extends DiagnosticLoggingTest {
         assertThrows(AssertionFailedError.class, () -> guard.on(
                 HandlerFailedUnexpectedly.newBuilder()
                         .setEntity(entity())
+                        .setHandledSignal(someMessageId())
                         .setError(error)
                         .build()
         ));
