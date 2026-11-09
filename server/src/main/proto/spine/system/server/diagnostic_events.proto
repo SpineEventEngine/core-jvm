@@ -19,6 +19,7 @@ package spine.system.server;
 import "spine/options.proto";
 
 option (type_url_prefix) = "type.spine.io";
+option (internal_all) = true;
 option (every_is).java_type = "DiagnosticEvent";
 option java_package = "io.spine.system.server";
 option java_outer_classname = "DiagnosticEventsProto";
@@ -55,7 +56,7 @@ message ConstraintViolated {
 message CannotDispatchDuplicateCommand {
     option (is).java_type = "CannotDispatchDuplicate";
 
-    core.MessageId entity = 1;
+    core.MessageId entity = 1 [(required) = true];
 
     // ID of the duplicate command.
     //
@@ -63,7 +64,7 @@ message CannotDispatchDuplicateCommand {
     //
     core.CommandId command = 2 [deprecated = true];
 
-    core.MessageId duplicate_command = 3;
+    core.MessageId duplicate_command = 3 [(required) = true];
 }
 
 // An event emitted whenever an event is dispatched to an entity for the second time.
@@ -71,7 +72,7 @@ message CannotDispatchDuplicateEvent {
     option (is).java_type = "CannotDispatchDuplicate";
 
     // The violated entity info.
-    core.MessageId entity = 1;
+    core.MessageId entity = 1 [(required) = true];
 
     // ID of the duplicate event.
     //
@@ -79,30 +80,30 @@ message CannotDispatchDuplicateEvent {
     //
     core.EventId event = 2 [deprecated = true];
 
-    core.MessageId duplicate_event = 3;
+    core.MessageId duplicate_event = 3 [(required) = true];
 }
 
 // An event emitted whenever a handler method fails with a runtime exception.
 message HandlerFailedUnexpectedly {
 
-    core.MessageId entity = 1;
+    core.MessageId entity = 1 [(required) = true];
 
     // The handled signal ID.
-    core.MessageId handled_signal = 2;
+    core.MessageId handled_signal = 2 [(required) = true];
 
     // The error that occurred during the signal handling.
-    base.Error error = 3;
+    base.Error error = 3 [(required) = true];
 }
 
 // An event emitted whenever a runtime exception occurs during message routing.
 message RoutingFailed {
 
-    core.MessageId handled_signal = 1;
+    core.MessageId handled_signal = 1 [(required) = true];
 
-    EntityTypeName entity_type = 2;
+    EntityTypeName entity_type = 2 [(required) = true];
 
     // The error that occurred during the routing.
-    base.Error error = 3;
+    base.Error error = 3 [(required) = true];
 }
 
 // Retained for wire compatibility; no longer emitted.
@@ -142,10 +143,13 @@ message AggregateHistoryCorrupted {
 message EventValidationFailed {
 
     // The ID of the event.
+    //
+    // The field is not required: the event may be refused because it has no ID.
+    //
     core.EventId id = 1;
 
     // The constraints that the event violates.
-    validation.ValidationError validation_error = 2;
+    validation.ValidationError validation_error = 2 [(required) = true];
 }
 
 // An event emitted when the `EventBus` does not accept an event from another Bounded Context
@@ -153,8 +157,8 @@ message EventValidationFailed {
 message UnsupportedEventReceived {
 
     // The ID of the event.
-    core.EventId id = 1;
+    core.EventId id = 1 [(required) = true];
 
     // The type URL of the event message.
-    string type_url = 2;
+    string type_url = 2 [(required) = true];
 }

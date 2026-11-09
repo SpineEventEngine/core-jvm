@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.stand;
@@ -171,9 +159,13 @@ public class Stand implements Closeable {
      *         defines the subscription target
      * @param responseObserver
      *         the observer for obtaining the created subscription
+     * @throws InvalidRequestException
+     *         if the topic fails validation
+     * @throws UnsupportedRequestException
+     *         if this {@code Stand} does not expose the target type of the topic
      */
     public void subscribe(Topic topic, StreamObserver<Subscription> responseObserver)
-            throws InvalidRequestException {
+            throws InvalidRequestException, UnsupportedRequestException {
         topicValidator.validate(topic);
 
         var tenantId = topic.getContext()
@@ -196,8 +188,13 @@ public class Stand implements Closeable {
      *
      * @param subscription
      *         an existing subscription
+     * @throws InvalidRequestException
+     *         if the topic fails validation
+     * @throws UnsupportedRequestException
+     *         if this {@code Stand} does not expose the target type of the topic
      */
-    public void subscribe(Subscription subscription) throws InvalidRequestException {
+    public void subscribe(Subscription subscription)
+            throws InvalidRequestException, UnsupportedRequestException {
         var topic = subscription.getTopic();
         topicValidator.validate(topic);
 
@@ -225,12 +222,16 @@ public class Stand implements Closeable {
      *         the action that notifies the subscribers about an update
      * @param responseObserver
      *         an observer to notify of a successful acknowledgement of the subscription activation
+     * @throws InvalidRequestException
+     *         if the subscription fails validation
+     * @throws UnsupportedRequestException
+     *         if this {@code Stand} does not have the subscription
      * @see #subscribe(Topic, StreamObserver)
      */
     public void activate(Subscription subscription,
                          SubscriptionCallback callback,
                          StreamObserver<Response> responseObserver)
-            throws InvalidRequestException {
+            throws InvalidRequestException, UnsupportedRequestException {
         checkNotNull(subscription);
         checkNotNull(callback);
 
@@ -259,9 +260,13 @@ public class Stand implements Closeable {
      * @param responseObserver
      *         an observer to notify of a successful acknowledgement of the subscription
      *         cancellation.
+     * @throws InvalidRequestException
+     *         if the subscription fails validation
+     * @throws UnsupportedRequestException
+     *         if this {@code Stand} does not have the subscription
      */
     public void cancel(Subscription subscription, StreamObserver<Response> responseObserver)
-            throws InvalidRequestException {
+            throws InvalidRequestException, UnsupportedRequestException {
         subscriptionValidator.validate(subscription);
 
         var op = new SubscriptionOperation(subscription) {
@@ -331,9 +336,13 @@ public class Stand implements Closeable {
      *         the instance of query
      * @param responseObserver
      *         the observer to feed the query results to
+     * @throws InvalidRequestException
+     *         if the query fails validation
+     * @throws UnsupportedRequestException
+     *         if this {@code Stand} does not expose the target type of the query
      */
     public void execute(Query query, StreamObserver<QueryResponse> responseObserver)
-            throws InvalidRequestException {
+            throws InvalidRequestException, UnsupportedRequestException {
         queryValidator.validate(query);
 
         var type = query.targetType();
