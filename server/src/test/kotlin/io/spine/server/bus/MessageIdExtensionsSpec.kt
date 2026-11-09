@@ -34,6 +34,8 @@ internal class MessageIdExtensionsSpec {
     }
 
     @Test
+    // Reason: covers the deprecated `causedError(Error)` until it is removed.
+    @Suppress("DEPRECATION")
     fun `causedError() with ERROR status`() {
         val error = io.spine.base.error {
             type = MessageIdExtensionsSpec::class.java.canonicalName

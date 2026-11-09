@@ -15,7 +15,7 @@
 package io.spine.client;
 
 import com.google.protobuf.Message;
-import io.spine.base.Error;
+import io.spine.core.ErrorCase;
 
 import java.util.function.BiConsumer;
 
@@ -23,14 +23,9 @@ import java.util.function.BiConsumer;
  * A handler for an error occurred when posting a message for asynchronous processing
  * at the server side.
  *
- * <p>The handler accepts a message that caused an error, and an {@link io.spine.base.Error Error}
- * obtained from the server.
- *
- * <p>When the server answers with an {@link io.spine.core.ErrorCase ErrorCase}, the handler
- * receives an {@code Error} made of that error case: its type is the full name of
- * the {@code ErrorCase} enum, its code is the number of the error case, and its message
- * is the name of the error case. For example, for an invalid command, the type is
- * {@code spine.core.ErrorCase} and the message is {@code INVALID_REQUEST}.
+ * <p>The handler accepts a message that caused an error, and the {@link ErrorCase} obtained
+ * from the server. For example, for an invalid command, the handler receives the command and
+ * {@link ErrorCase#INVALID_REQUEST INVALID_REQUEST}.
  */
-public interface ServerErrorHandler extends BiConsumer<Message, Error> {
+public interface ServerErrorHandler extends BiConsumer<Message, ErrorCase> {
 }

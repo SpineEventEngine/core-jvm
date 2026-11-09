@@ -31,9 +31,9 @@ import "spine/core/event.proto";
 
 // The result of a call returned by a service.
 //
-// A service may return `ok`, an `error` (technical problem), or an `error_case` (the request
-// cannot be accepted). The client may expect results (returned via a separate call to
-// the read-side or via event stream) only upon receiving the `ok` status.
+// A service may return `ok` or an `error_case` (the request cannot be accepted). The client
+// may expect results (returned via a separate call to the read-side or via event stream) only
+// upon receiving the `ok` status.
 //
 message Response {
     option (is).java_type = "ResponseMixin";
@@ -52,7 +52,10 @@ message Status {
 
         // The technical error occurred upon receiving the request, and no further
         // processing would occur.
-        base.Error error = 2;
+        //
+        // Deprecated: the field is going to be removed.
+        //
+        base.Error error = 2 [deprecated = true];
 
         // It is not possible to satisfy the request because of the business rejection.
         //

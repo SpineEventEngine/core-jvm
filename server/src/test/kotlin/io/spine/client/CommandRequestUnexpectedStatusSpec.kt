@@ -18,6 +18,7 @@ import io.grpc.inprocess.InProcessServerBuilder
 import io.grpc.stub.StreamObserver
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.string.shouldContain
+import io.spine.base.Error
 import io.spine.client.grpc.CommandServiceGrpc
 import io.spine.core.Ack
 import io.spine.core.Command
@@ -50,6 +51,19 @@ internal class CommandRequestUnexpectedStatusSpec {
         val failure = postingAnsweredWith(rejection)
 
         failure.message shouldContain "REJECTION"
+    }
+
+    @Test
+    // Reason: builds the deprecated `Status.error` until the field is removed.
+    @Suppress("DEPRECATION")
+    fun `fail naming the status of an acknowledgement with an error`() {
+        val error = Status.newBuilder()
+            .setError(Error.getDefaultInstance())
+            .build()
+
+        val failure = postingAnsweredWith(error)
+
+        failure.message shouldContain "`ERROR`"
     }
 
     @Test

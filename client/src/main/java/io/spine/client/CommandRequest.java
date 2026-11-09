@@ -19,9 +19,9 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import io.spine.annotation.VisibleForTesting;
 import io.spine.base.CommandMessage;
-import io.spine.base.Error;
 import io.spine.base.EventMessage;
 import io.spine.core.Command;
+import io.spine.core.ErrorCase;
 import io.spine.core.Status;
 import io.spine.logging.WithLogging;
 import org.jspecify.annotations.Nullable;
@@ -31,7 +31,6 @@ import java.util.function.Consumer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.client.EventsAfterCommand.subscribe;
-import static io.spine.core.ErrorCases.toError;
 import static io.spine.type.ProtoTexts.shortDebugString;
 import static io.spine.util.Exceptions.newIllegalStateException;
 
@@ -130,8 +129,8 @@ public final class CommandRequest extends ClientRequestBase implements WithLoggi
     }
 
     /**
-     * Assigns a handler for an error occurred on the server-side (such as validation error)
-     * in response to posting a command.
+     * Assigns a handler for the error case that the server returns in response to posting
+     * a command, such as {@code INVALID_REQUEST} for an invalid command.
      */
     @OverridingMethodsMustInvokeSuper
     @CanIgnoreReturnValue
@@ -152,8 +151,9 @@ public final class CommandRequest extends ClientRequestBase implements WithLoggi
      * <p>The method returns subscriptions to {@linkplain #observe(Class, EventConsumer) events}
      * that the handling of the command <em>may</em> produce. A command <em>may</em> not be accepted
      * for processing by the server, e.g. because of a validation error. In such a case, the
-     * method would report the error to the configured {@linkplain #onStreamingError(ErrorHandler)
-     * error handler}, and return an empty set.
+     * method would report the error case to the configured
+     * {@linkplain #onServerError(ServerErrorHandler) server error handler}, and return
+     * an empty set.
      *
      * @return subscription to the {@linkplain #observe(Class, EventConsumer) observed events}
      *         if the command was successfully posted, or
@@ -249,14 +249,12 @@ public final class CommandRequest extends ClientRequestBase implements WithLoggi
                 case OK:
                     return Optional.ofNullable(subscriptions)
                                    .orElse(ImmutableSet.of());
-                case ERROR:
-                    cancelVoidSubscriptions();
-                    reportErrorWhenPosting(status.getError());
-                    return ImmutableSet.of();
                 case ERROR_CASE:
                     cancelVoidSubscriptions();
-                    reportErrorWhenPosting(toError(status.getErrorCase()));
+                    reportErrorWhenPosting(status.getErrorCase());
                     return ImmutableSet.of();
+                case ERROR:
+                    /* The server does not send errors in acknowledgements, only error cases. */
                 case REJECTION:
                     /* The server does not send rejections in acknowledgements. A rejection
                        comes only as an event, after the command is dispatched. */
@@ -281,15 +279,15 @@ public final class CommandRequest extends ClientRequestBase implements WithLoggi
             }
         }
 
-        private void reportErrorWhenPosting(Error error) {
-            errorHandler().accept(command, error);
+        private void reportErrorWhenPosting(ErrorCase errorCase) {
+            errorHandler().accept(command, errorCase);
         }
 
         private ServerErrorHandler errorHandler() {
             return Optional.ofNullable(serverErrorHandler())
                            .orElse(new LoggingServerErrorHandler(
                                    CommandRequest.this.logger(),
-                                   "Unable to post the command `%s`. Returned error: `%s`.")
+                                   "Unable to post the command `%s`. Returned error case: `%s`.")
                            );
         }
     }

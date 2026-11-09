@@ -49,7 +49,7 @@ class ResponseStatusSubjectTest extends SubjectTest<ResponseStatusSubject, Statu
     }
 
     @Test
-    @DisplayName("check if status is `ERROR`")
+    @DisplayName("check if status is `ERROR_CASE`")
     void checkError() {
         assertWithSubjectThat(error())
                 .isError();

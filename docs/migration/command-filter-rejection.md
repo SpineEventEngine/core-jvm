@@ -40,7 +40,10 @@ posting the command.
 The server no longer puts a rejection into an acknowledgement. The Java client treats
 an acknowledgement with `Status.rejection` as an invalid status, as it did before.
 
-An acknowledgement may now carry `Status.error_case`. The Java client passes it to
-the `ServerErrorHandler` of the request as an `Error` of type `spine.core.ErrorCase`, with
-the number of the error case in `code` and its name in `message`. The subscriptions made for
-the command are cancelled, as for any other error.
+An acknowledgement may now carry `Status.error_case`. The Java client passes the `ErrorCase`
+to the `ServerErrorHandler` of the request. The subscriptions made for the command are
+cancelled, as for any other error.
+
+Before `2.0.0-SNAPSHOT.660`, the handler received an `Error` made of the error case, with
+the number of the error case in `code` and its name in `message`. `ErrorCase.toError()`,
+which made such an `Error`, is removed.

@@ -40,6 +40,17 @@ internal class ResponsesTest : UtilityClassTest<Responses>(Responses::class.java
         ok.isError shouldBe false
     }
 
+    @Test
+    fun `recognize a response with an error case`() {
+        val error = response {
+            status = Responses.errorWith(ErrorCase.INVALID_REQUEST)
+        }
+
+        error.isOk shouldBe false
+        error.isError shouldBe true
+        error.errorCase() shouldBe ErrorCase.INVALID_REQUEST
+    }
+
     /**
      * This test uses partially built values even though the [Status]
      * does not set validation on the [Status.error][Status.getError] field.
@@ -49,7 +60,9 @@ internal class ResponsesTest : UtilityClassTest<Responses>(Responses::class.java
      * the types provided by `base`.
      */
     @Test
-    fun `recognize not OK response`() {
+    // Reason: builds the deprecated `Status.error` until the field is removed.
+    @Suppress("DEPRECATION")
+    fun `not take a response with the deprecated error for an error`() {
         val asIfError: @NonValidated Status = Status.newBuilder()
             .setError(Error.getDefaultInstance())
             .buildPartial()
@@ -59,7 +72,8 @@ internal class ResponsesTest : UtilityClassTest<Responses>(Responses::class.java
             .buildPartial()
 
         error.isOk shouldBe false
-        error.isError shouldBe true
+        error.isError shouldBe false
+        error.errorCase() shouldBe ErrorCase.ERROR_CASE_UNSPECIFIED
     }
 
     @Test

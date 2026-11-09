@@ -155,6 +155,17 @@ internal class SignalExtrasSpec {
     `ResponseMixin` {
 
         @Test
+        fun `return the error case of an error response`() {
+            val response = response {
+                status = Responses.errorWith(ErrorCase.REQUEST_DENIED)
+            }
+            response.errorCase() shouldBe ErrorCase.REQUEST_DENIED
+        }
+
+        @Test
+        // Reason: covers the deprecated `Responses.errorWith(Error)` and `error()`
+        // until they are removed.
+        @Suppress("DEPRECATION")
         fun `return error from an error response`() {
             val error = io.spine.base.Error.newBuilder()
                 .setMessage("oops")

@@ -55,6 +55,8 @@ internal class CommandAckMonitorSpec {
         .build()
 
     @Test
+    // Reason: builds an ack with the deprecated `Status.error`, until the field is removed.
+    @Suppress("DEPRECATION")
     fun `post nothing for an error, which an application filter may still give`() {
         val error = error {
             type = CommandAckMonitorSpec::class.java.canonicalName

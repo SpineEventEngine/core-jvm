@@ -69,7 +69,11 @@ public final class Responses {
 
     /**
      * Creates an error status with the passed cause.
+     *
+     * @deprecated {@code Status.error}, which this method sets, is going to be removed.
+     *         Please use {@link #errorWith(ErrorCase)}.
      */
+    @Deprecated
     public static Status errorWith(Error cause) {
         return Status.newBuilder()
                      .setError(cause)

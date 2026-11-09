@@ -24,7 +24,7 @@ import org.jspecify.annotations.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.truth.Truth.assertAbout;
-import static io.spine.core.Status.StatusCase.ERROR;
+import static io.spine.core.Status.StatusCase.ERROR_CASE;
 import static io.spine.core.Status.StatusCase.OK;
 import static io.spine.core.Status.StatusCase.REJECTION;
 
@@ -53,10 +53,10 @@ public final class ResponseStatusSubject extends ProtoSubject {
     }
 
     /**
-     * Verifies that the response status is {@link StatusCase#ERROR ERROR}.
+     * Verifies that the response status is {@link StatusCase#ERROR_CASE ERROR_CASE}.
      */
     public void isError() {
-        hasStatusCase(ERROR);
+        hasStatusCase(ERROR_CASE);
     }
 
     /**

@@ -148,16 +148,13 @@ public abstract class Bus<T extends Signal<?, ?, ?>,
      * <p>If the message is accepted by the bus, {@link Ack} with the
      * {@link io.spine.core.Status.StatusCase#OK OK} status is passed to the observer.
      *
-     * <p>If the message cannot be sent due to some issues, a corresponding
-     * {@link io.spine.base.Error Error} status is passed in {@code Ack} instance.
+     * <p>If a {@linkplain BusFilter filter} does not let the message pass, the observer
+     * receives the {@code Ack} given by the filter, usually one with
+     * an {@linkplain io.spine.core.Status#getErrorCase() error case}.
      *
-     * <p>Depending on the underlying {@link MessageDispatcher}, a message that causes a business
-     * {@linkplain io.spine.base.RejectionThrowable rejection} may result in either a rejection
-     * status or an {@link io.spine.core.Status.StatusCase#OK OK} status {@link Ack} instance.
-     * The rejection status may only pop up if the {@link MessageDispatcher} processes the message
-     * sequentially and throws the rejection (wrapped in
-     * the {@linkplain io.spine.base.RejectionThrowable RejectionThrowables}) instead of
-     * handling them. Otherwise, the {@code OK} status should be expected.
+     * <p>A message is acknowledged before it is dispatched. So, a message that causes a business
+     * {@linkplain io.spine.base.RejectionThrowable rejection} is acknowledged with
+     * the {@code OK} status.
      *
      * <p>Note that {@linkplain StreamObserver#onError StreamObserver.onError()} is never called
      * for the passed observer, since errors are propagated as statuses of {@code Ack} responses.

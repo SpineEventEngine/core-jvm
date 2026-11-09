@@ -55,6 +55,12 @@ public fun Message.causedError(errorCase: ErrorCase): Ack =
  * @receiver the ID of the message that caused the error
  */
 @VisibleForTesting
+@Deprecated(
+    "`Status.error`, which this function sets, is going to be removed." +
+        " Please use `causedError(ErrorCase)`."
+)
+// Reason: calls the deprecated `errorWith(Error)`; both go when `Status.error` is removed.
+@Suppress("DEPRECATION")
 public fun Message.causedError(cause: Error): Ack = ackWithStatus(errorWith(cause))
 
 /**
