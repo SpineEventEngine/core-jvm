@@ -67,7 +67,7 @@ message EventDispatchedToSubscriber {
     core.MessageId receiver = 1 [(required) = true];
 
     // The dispatched event.
-    core.Event payload = 2 [(validate) = true];
+    core.Event payload = 2 [(required) = true];
 
     // The time when the event was dispatched.
     //
@@ -91,7 +91,7 @@ message EventDispatchedToReactor {
     core.MessageId receiver = 1 [(required) = true];
 
     // The dispatched event.
-    core.Event payload = 2 [(validate) = true];
+    core.Event payload = 2 [(required) = true];
 
     // The time when the event was dispatched.
     //
@@ -115,7 +115,7 @@ message CommandDispatchedToHandler {
     core.MessageId receiver = 1 [(required) = true];
 
     // The dispatched command.
-    core.Command payload = 2 [(validate) = true];
+    core.Command payload = 2 [(required) = true];
 
     // The time when the command was dispatched.
     //
@@ -140,7 +140,7 @@ message EventImported {
     core.MessageId receiver = 1 [(required) = true];
 
     // The dispatched event.
-    core.Event payload = 2 [(validate) = true];
+    core.Event payload = 2 [(required) = true];
 
     // The time when the event was imported.
     google.protobuf.Timestamp when_imported = 3 [(required) = true];
@@ -170,7 +170,7 @@ message EntityStateChanged {
     google.protobuf.Any new_state = 2 [(required) = true];
 
     // The IDs of the signals that caused the mutation.
-    repeated core.MessageId signal_id = 3 [(required) = true, (validate) = true];
+    repeated core.MessageId signal_id = 3 [(required) = true];
 
     // The instant when the entity was changed.
     google.protobuf.Timestamp when = 4;
@@ -187,7 +187,7 @@ message EntityArchived {
     core.MessageId entity = 1 [(required) = true];
 
     // The IDs of the signals that caused the mutation.
-    repeated core.MessageId signal_id = 2 [(required) = true, (validate) = true];
+    repeated core.MessageId signal_id = 2 [(required) = true];
 
     // The instant when the entity was archived.
     google.protobuf.Timestamp when = 3;
@@ -207,7 +207,7 @@ message EntityDeleted {
     core.MessageId entity = 1 [(required) = true];
 
     // The IDs of the signals that caused the mutation.
-    repeated core.MessageId signal_id = 2 [(required) = true, (validate) = true];
+    repeated core.MessageId signal_id = 2 [(required) = true];
 
     // The instant when the entity was deleted.
     google.protobuf.Timestamp when = 3;
@@ -216,6 +216,7 @@ message EntityDeleted {
     core.Version version = 4;
 
     oneof deletion {
+        option (choice).required = true;
 
         // The entity was marked as deleted.
         bool marked_as_deleted = 5;
@@ -236,7 +237,7 @@ message EntityUnarchived {
     core.MessageId entity = 1 [(required) = true];
 
     // The IDs of the signals that caused the mutation.
-    repeated core.MessageId signal_id = 2 [(required) = true, (validate) = true];
+    repeated core.MessageId signal_id = 2 [(required) = true];
 
     // The instant when the entity was unarchived.
     google.protobuf.Timestamp when = 3;
@@ -245,7 +246,7 @@ message EntityUnarchived {
     core.Version version = 4;
 
     // The state of the entity after marking it as non-archived.
-    google.protobuf.Any state = 5;
+    google.protobuf.Any state = 5 [(required) = true];
 }
 
 // An entity was marked as NOT deleted.
@@ -256,7 +257,7 @@ message EntityRestored {
     core.MessageId entity = 1 [(required) = true];
 
     // The IDs of the signals that caused the mutation.
-    repeated core.MessageId signal_id = 2 [(required) = true, (validate) = true];
+    repeated core.MessageId signal_id = 2 [(required) = true];
 
     // The instant when the entity was restored.
     google.protobuf.Timestamp when = 3;
@@ -265,7 +266,7 @@ message EntityRestored {
     core.Version version = 4;
 
     // The state of the entity after restoration.
-    google.protobuf.Any state = 5;
+    google.protobuf.Any state = 5 [(required) = true];
 }
 
 // A migration operation was applied to an entity.
@@ -276,5 +277,5 @@ message MigrationApplied {
     core.MessageId entity = 1 [(required) = true];
 
     // The instant when the migration was applied.
-    google.protobuf.Timestamp when = 2;
+    google.protobuf.Timestamp when = 2 [(required) = true];
 }

@@ -30,6 +30,10 @@ context. Slice 3 of splitting #1705; stacked on #1711 (slice 2, the buses).
   posted after the command passed validation is required, and so are `schedule`, `target`,
   and `rejection_event`. `CommandReceived.id` stays optional: the event is posted by the first
   filter of the `CommandBus`, before the command is validated.
+- `(validate)` is dropped from the fields of System events that the server builds, and so
+  validates, itself (`payload`, `target`, `schedule`, `rejection_event`, `signal_id`): it
+  validated them again on every posting. The same rule adds `(required)` to the fields of
+  `entity_log_events.proto` and `diagnostic_events.proto` that are always set.
 
 ## What the client gets, and what is recorded
 
