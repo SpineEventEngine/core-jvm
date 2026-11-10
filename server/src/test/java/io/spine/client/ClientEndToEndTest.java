@@ -16,13 +16,12 @@ package io.spine.client;
 
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
-import io.spine.server.Application;
 import io.spine.server.Server;
-import io.spine.server.ServerEnvironment;
 import io.spine.test.client.billing.PaymentReceived;
 import io.spine.test.client.tasks.event.CTaskCreated;
 import io.spine.testing.SlowTest;
 import io.spine.testing.logging.mute.MuteLogging;
+import io.spine.testing.server.TestApplications;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,8 +58,7 @@ class ClientEndToEndTest {
 
     @BeforeEach
     void startAndConnect() throws IOException {
-        var application = Application.newBuilder()
-                .setServerEnvironment(ServerEnvironment.newBuilder().build())
+        var application = TestApplications.newBuilder()
                 .add(users())
                 .add(tasks())
                 .build();

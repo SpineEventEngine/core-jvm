@@ -24,7 +24,6 @@ import io.spine.net.InternetDomain;
 import io.spine.server.Application;
 import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
-import io.spine.server.ServerEnvironment;
 import io.spine.server.integration.given.DocumentRepository;
 import io.spine.server.integration.given.EditHistoryRepository;
 import io.spine.server.tenant.TenantAwareRunner;
@@ -32,6 +31,7 @@ import io.spine.server.type.given.GivenEvent;
 import io.spine.testing.client.TestActorRequestFactory;
 import io.spine.testing.core.given.GivenTenantId;
 import io.spine.testing.core.given.GivenUserId;
+import io.spine.testing.server.TestApplications;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -263,9 +263,7 @@ class ThirdPartyContextTest {
      */
     private static Application application(BoundedContextBuilder domain,
                                            ThirdPartyContext thirdParty) {
-        return Application.newBuilder()
-                .setServerEnvironment(ServerEnvironment.newBuilder()
-                                                       .build())
+        return TestApplications.newBuilder()
                 .add(domain)
                 .add(thirdParty)
                 .build();

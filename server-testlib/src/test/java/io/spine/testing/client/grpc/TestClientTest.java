@@ -17,13 +17,12 @@ package io.spine.testing.client.grpc;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.core.Ack;
 import io.spine.core.UserId;
-import io.spine.server.Application;
 import io.spine.server.BoundedContext;
 import io.spine.server.Server;
-import io.spine.server.ServerEnvironment;
 import io.spine.testing.client.grpc.command.Ping;
 import io.spine.testing.client.grpc.given.GameRepository;
 import io.spine.testing.logging.mute.MuteLogging;
+import io.spine.testing.server.TestApplications;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,8 +52,7 @@ class TestClientTest {
 
     @BeforeEach
     void setUpAll() throws IOException {
-        var application = Application.newBuilder()
-                .setServerEnvironment(ServerEnvironment.newBuilder().build())
+        var application = TestApplications.newBuilder()
                 .add(BoundedContext.singleTenant("Tennis")
                                    .add(new GameRepository()))
                 .build();

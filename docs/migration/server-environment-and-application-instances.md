@@ -125,7 +125,9 @@ environment. An application registers a tenant with `application.tenantIndex().k
   (`TestContexts.buildForTests(builder)` in Java). The context is the only context of a new
   application over a new environment of the `Tests` type. Pass an environment to use other
   technologies: `builder.buildForTests(serverEnvironment { under<Tests> { use(delivery) } })`.
-  `applicationForTests()` gives the application itself.
+- Build an application for a test with `testApplication { add(…) }` from `server-testlib`
+  (`TestApplications.newBuilder()` in Java). Its server environment is a new one of the `Tests`
+  type, unless the block sets another.
 - `BlackBox.from(BoundedContextBuilder)` builds such an application, and closing the black box
   closes it. `BlackBox.from(BoundedContext)` closes only the context.
 - Tests no longer reset the server environment: each test builds its own.

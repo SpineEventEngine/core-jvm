@@ -22,7 +22,6 @@ import io.spine.core.MessageId;
 import io.spine.core.UserId;
 import io.spine.server.Application;
 import io.spine.server.BoundedContext;
-import io.spine.server.ServerEnvironment;
 import io.spine.server.event.model.InsufficientVisibilityError;
 import io.spine.server.given.groups.FilteredStateSubscriber;
 import io.spine.server.given.groups.Group;
@@ -38,6 +37,7 @@ import io.spine.server.model.SignalOriginMismatchError;
 import io.spine.server.type.given.GivenEvent;
 import io.spine.system.server.SystemBoundedContexts;
 import io.spine.system.server.event.EntityStateChanged;
+import io.spine.testing.server.TestApplications;
 import io.spine.type.TypeUrl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,9 +63,7 @@ class AbstractEventSubscriberTest {
      */
     @BeforeEach
     void setUp() {
-        application = Application.newBuilder()
-                .setServerEnvironment(ServerEnvironment.newBuilder()
-                                                       .build())
+        application = TestApplications.newBuilder()
                 .add(BoundedContext.singleTenant("Groups"))
                 .add(BoundedContext.singleTenant("Organizations"))
                 .build();

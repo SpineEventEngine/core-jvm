@@ -369,9 +369,13 @@ Added while implementing, within the decisions above:
   `build()` and fail only at runtime.
 - `ThirdPartyContext` is converted to Kotlin, so that it gives the application its builder and
   takes the built context through `internal` members, with no public API for it.
-- `server-testlib` has `TestContexts.kt`: `BoundedContextBuilder.buildForTests(environment)` and
-  `applicationForTests(environment)`, with a new environment of the `Tests` type by default.
+- `server-testlib` has `TestApplications.kt`: `testApplication { add(…) }`, and
+  `TestApplications.newBuilder()` for Java, whose server environment is a new one of the `Tests`
+  type unless the block sets another; and `TestContexts.kt`:
+  `BoundedContextBuilder.buildForTests(environment)`, the shortcut for one context.
   `BlackBox.from(BoundedContextBuilder)` builds such an application and closes it in `close()`.
+  An extension `applicationForTests()` on the context builder was replaced by
+  `testApplication {}` on 2026-11-10: a context builder should not produce an application.
 - The test fixtures of `server` that storage implementations reuse take the storage factory from
   an overridable `storageFactory()` of `AbstractStorageTest` and `AbstractDeliveryTest`, instead
   of `ServerEnvironment.instance()`. `AbstractDeliveryTest` also has `nodeId()`, `use(Delivery)`,

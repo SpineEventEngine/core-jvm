@@ -32,16 +32,16 @@ import io.spine.server.serverEnvironment
  * and a local `Delivery`.
  *
  * Closing the context does not close the application or its environment. A test that needs
- * them closed builds the [Application] itself.
+ * them closed builds the application itself, with [testApplication].
  *
  * In Kotlin:
- * ```
+ * ```kotlin
  * val context = BoundedContext.singleTenant("Tasks")
  *     .add(TaskRepository())
  *     .buildForTests()
  * ```
  * In Java:
- * ```
+ * ```java
  * var context = TestContexts.buildForTests(
  *         BoundedContext.singleTenant("Tasks").add(new TaskRepository())
  * );
@@ -54,23 +54,10 @@ import io.spine.server.serverEnvironment
 @JvmOverloads
 public fun BoundedContextBuilder.buildForTests(
     environment: ServerEnvironment = serverEnvironment {}
-): BoundedContext = applicationForTests(environment).contexts()
-    .single()
-
-/**
- * Creates a new [Application] with the Bounded Context of this builder as its only context.
- *
- * Unlike [buildForTests], gives the application, which the test closes together with
- * its context and its environment.
- *
- * @param environment The environment that provides the technologies to the context.
- *   The new application owns it, and closes it when the application is closed.
- * @return The built application.
- */
-@JvmOverloads
-public fun BoundedContextBuilder.applicationForTests(
-    environment: ServerEnvironment = serverEnvironment {}
-): Application = application {
-    serverEnvironment = environment
-    add(this@applicationForTests)
+): BoundedContext {
+    val context = this
+    return application {
+        serverEnvironment = environment
+        add(context)
+    }.contexts().single()
 }

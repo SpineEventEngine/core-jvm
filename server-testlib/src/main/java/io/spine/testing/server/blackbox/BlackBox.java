@@ -44,6 +44,7 @@ import io.spine.server.event.EventBus;
 import io.spine.testing.client.TestActorRequestFactory;
 import io.spine.testing.server.CommandSubject;
 import io.spine.testing.server.EventSubject;
+import io.spine.testing.server.TestApplications;
 import io.spine.testing.server.blackbox.probe.BlackboxProbe;
 import io.spine.testing.server.blackbox.probe.CommandCollector;
 import io.spine.testing.server.blackbox.probe.EventCollector;
@@ -65,7 +66,6 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.Lists.asList;
 import static io.spine.grpc.StreamObservers.memoizingObserver;
 import static io.spine.server.entity.model.EntityClass.stateClassOf;
-import static io.spine.testing.server.TestContexts.applicationForTests;
 import static io.spine.testing.server.blackbox.Actor.defaultActor;
 import static io.spine.util.Exceptions.newIllegalArgumentException;
 import static java.util.Collections.singletonList;
@@ -143,7 +143,9 @@ public abstract class BlackBox implements WithLogging, Closeable {
      * environment. Closing the black box closes the application.
      */
     public static BlackBox from(BoundedContextBuilder builder) {
-        var application = applicationForTests(builder);
+        var application = TestApplications.newBuilder()
+                                          .add(builder)
+                                          .build();
         var box = from(application.contexts().get(0));
         box.application = application;
         return box;

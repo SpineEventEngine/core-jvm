@@ -23,10 +23,8 @@ import io.spine.core.Events;
 import io.spine.core.MessageId;
 import io.spine.core.UserId;
 import io.spine.protobuf.TypeConverter;
-import io.spine.server.Application;
 import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
-import io.spine.server.ServerEnvironment;
 import io.spine.server.given.groups.GroupId;
 import io.spine.server.given.groups.GroupName;
 import io.spine.server.given.groups.GroupNameProjection;
@@ -41,6 +39,7 @@ import io.spine.server.type.EventEnvelope;
 import io.spine.system.server.event.EntityStateChanged;
 import io.spine.test.projection.ProjectTaskNames;
 import io.spine.testing.core.given.GivenUserId;
+import io.spine.testing.server.TestApplications;
 import io.spine.testing.server.blackbox.BlackBox;
 import io.spine.type.TypeUrl;
 import org.junit.jupiter.api.DisplayName;
@@ -94,9 +93,7 @@ public class ProjectionEndToEndTest {
         var established = GivenEventMessage.organizationEstablished();
 
         // The contexts exchange external messages through the transport of their application.
-        try (var application = Application.newBuilder()
-                .setServerEnvironment(ServerEnvironment.newBuilder()
-                                                       .build())
+        try (var application = TestApplications.newBuilder()
                 .add(BoundedContext.singleTenant("Organizations")
                                    .add(new OrganizationProjection.Repository()))
                 .add(BoundedContext.singleTenant("Groups")

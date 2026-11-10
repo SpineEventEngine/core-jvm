@@ -14,9 +14,7 @@
 
 package io.spine.testing.server
 
-import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
-import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.spine.server.BoundedContextBuilder
@@ -62,17 +60,5 @@ internal class TestContextsSpec {
         context.close()
 
         environment.isOpen.shouldBeTrue()
-    }
-
-    @Test
-    fun `give the application of the context, which closes the environment`() {
-        val environment = serverEnvironment {}
-        val builder = BoundedContextBuilder.assumingTests()
-
-        val application = builder.applicationForTests(environment)
-
-        application.contexts().single().name() shouldBe builder.name()
-        application.close()
-        environment.isOpen.shouldBeFalse()
     }
 }
