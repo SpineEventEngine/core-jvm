@@ -29,6 +29,7 @@ import io.spine.grpc.StreamObservers.memoizingObserver
 import io.spine.server.given.errorCase
 import io.spine.system.server.event.QueryExecutionFailed
 import io.spine.testing.logging.mute.MuteLogging
+import io.spine.testing.server.buildForTests
 import io.spine.type.TypeUrl
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -42,7 +43,7 @@ internal class ServiceDelegateSpec {
 
     @BeforeEach
     fun createContext() {
-        context = BoundedContextBuilder.assumingTests().build()
+        context = BoundedContextBuilder.assumingTests().buildForTests()
     }
 
     @AfterEach

@@ -40,6 +40,7 @@ import static io.spine.core.ErrorCase.UNSUPPORTED_REQUEST;
 import static io.spine.core.Status.StatusCase.ERROR_CASE;
 import static io.spine.grpc.StreamObservers.memoizingObserver;
 import static io.spine.protobuf.Messages.isNotDefault;
+import static io.spine.testing.server.TestContexts.buildForTests;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -61,13 +62,13 @@ class CommandServiceTest {
         ModelTests.dropAllModels();
         responseObserver = memoizingObserver();
         // Create Projects Bounded Context with one repository.
-        projectsContext = BoundedContext.multitenant("Projects").build();
+        projectsContext = buildForTests(BoundedContext.multitenant("Projects"));
         var projectRepo = new Given.ProjectAggregateRepository();
         projectsContext.register(projectRepo);
         boundedContexts.add(projectsContext);
 
         // Create Customers Bounded Context with one repository.
-        customersContext = BoundedContext.multitenant("Customers").build();
+        customersContext = buildForTests(BoundedContext.multitenant("Customers"));
         var customerRepo = new Given.CustomerAggregateRepository();
         customersContext.register(customerRepo);
         boundedContexts.add(customersContext);

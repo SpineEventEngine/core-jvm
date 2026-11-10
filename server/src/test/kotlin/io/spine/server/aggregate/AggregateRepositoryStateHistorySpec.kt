@@ -35,20 +35,20 @@ import io.spine.protobuf.AnyPacker
 import io.spine.environment.Tests
 import io.spine.server.BoundedContext
 import io.spine.server.BoundedContextBuilder
-import io.spine.server.ServerEnvironment
 import io.spine.server.aggregate.given.Given
 import io.spine.server.aggregate.given.history.FailingHistoryFactory
 import io.spine.server.aggregate.given.history.HistoryReadingAggregate
 import io.spine.server.aggregate.given.history.StateHistoryTestRepository
 import io.spine.server.event.AbstractEventSubscriber
 import io.spine.server.entity.EntityRecord
+import io.spine.server.serverEnvironment
 import io.spine.server.tenant.TenantAwareRunner
-import io.spine.server.under
 import io.spine.test.aggregate.ProjectId
 import io.spine.test.aggregate.event.AggProjectCreated
 import io.spine.test.aggregate.event.aggProjectArchived
 import io.spine.testing.client.TestActorRequestFactory
 import io.spine.testing.server.TestEventFactory
+import io.spine.testing.server.buildForTests
 import io.spine.testing.server.model.ModelTests
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -65,7 +65,7 @@ internal class AggregateRepositoryStateHistorySpec {
     @BeforeEach
     fun setUp() {
         ModelTests.dropAllModels()
-        context = BoundedContextBuilder.assumingTests().build()
+        context = BoundedContextBuilder.assumingTests().buildForTests()
         repository = StateHistoryTestRepository()
         context.internalAccess()
             .register(repository)
@@ -179,7 +179,7 @@ internal class AggregateRepositoryStateHistorySpec {
         // Close `context` first: it serves the entity state type of `StateHistoryTestRepository`.
         context.close()
         BoundedContextBuilder.assumingTests(/* multitenant = */ true)
-            .build().use { mtContext ->
+            .buildForTests().use { mtContext ->
                 val mtRepository = StateHistoryTestRepository()
                 mtContext.internalAccess()
                     .register(mtRepository)
@@ -236,14 +236,12 @@ internal class AggregateRepositoryStateHistorySpec {
 
     @Test
     fun `fail the dispatch when the history append fails`() {
-        under<Tests> {
-            use(FailingHistoryFactory())
+        val environment = serverEnvironment {
+            under<Tests> {
+                use(FailingHistoryFactory())
+            }
         }
-        try {
-            // Close `context` first: it serves the entity state type of
-            // `StateHistoryTestRepository`.
-            context.close()
-            BoundedContextBuilder.assumingTests().build().use { failingContext ->
+        BoundedContextBuilder.assumingTests().buildForTests(environment).use { failingContext ->
                 val failingRepository = StateHistoryTestRepository()
                 failingContext.internalAccess()
                     .register(failingRepository)
@@ -264,9 +262,6 @@ internal class AggregateRepositoryStateHistorySpec {
                 // published it.
                 observer.seen shouldBe 0
             }
-        } finally {
-            ServerEnvironment.instance().reset()
-        }
     }
 
     @Test

@@ -24,12 +24,12 @@ import io.spine.base.CommandMessage
 import io.spine.environment.Tests
 import io.spine.grpc.StreamObservers.noOpObserver
 import io.spine.server.BoundedContext
-import io.spine.server.ServerEnvironment
+import io.spine.server.application
+import io.spine.server.serverEnvironment
 import io.spine.server.trace.given.TracingTestEnv.scheduleFlight
 import io.spine.server.trace.given.airport.AirportContext
 import io.spine.server.trace.otel.given.RecordingSpanProcessor
 import io.spine.server.trace.otel.given.recordingOpenTelemetry
-import io.spine.server.under
 import io.spine.testing.client.TestActorRequestFactory
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -48,20 +48,21 @@ internal class OtelTracingSpec {
     fun setUp() {
         spans = RecordingSpanProcessor()
         val factory = OtelTracerFactory(recordingOpenTelemetry(spans))
-        under<Tests> {
-            use(factory)
+        val environment = serverEnvironment {
+            under<Tests> {
+                use(factory)
+            }
         }
-        context = AirportContext.builder().build()
+        context = application {
+            serverEnvironment = environment
+            add(AirportContext.builder())
+        }.contexts().single()
     }
 
     @AfterEach
     fun tearDown() {
-        try {
-            if (::context.isInitialized) {
-                context.close()
-            }
-        } finally {
-            ServerEnvironment.instance().reset()
+        if (::context.isInitialized) {
+            context.close()
         }
     }
 

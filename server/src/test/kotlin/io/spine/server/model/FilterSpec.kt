@@ -32,11 +32,13 @@ import io.spine.server.model.given.filter.ProjectCreatedSubscriber
 import io.spine.server.model.given.filter.ProjectTasksRepository
 import io.spine.server.model.given.filter.ProjectTasksSubscriber
 import io.spine.server.model.given.storage.ModelTestStorageFactory
+import io.spine.server.nodeId
+import io.spine.server.serverEnvironment
 import io.spine.server.storage.StorageFactory
 import io.spine.server.storage.memory.InMemoryStorageFactory
-import io.spine.server.under
 import io.spine.test.model.modProjectCreated
 import io.spine.testing.server.blackbox.BlackBox
+import io.spine.testing.server.buildForTests
 import io.spine.testing.server.model.ModelTests.dropAllModels
 import java.lang.reflect.InvocationTargetException
 import org.junit.jupiter.api.AfterEach
@@ -96,24 +98,25 @@ internal class FilterSpec {
 
         private lateinit var storageFactory: StorageFactory
         private lateinit var inboxStorage: InboxStorage
+        private lateinit var environment: ServerEnvironment
 
         @BeforeEach
         fun prepareEnv() {
             storageFactory = ModelTestStorageFactory(InMemoryStorageFactory.newInstance())
             inboxStorage = storageFactory.createInboxStorage(false)
-            val environment = ServerEnvironment.instance()
-            val delivery = Delivery.newBuilder(environment.nodeId(), environment.storageFactory())
+            val delivery = Delivery.newBuilder(nodeId { value = newUuid() }, storageFactory)
                 .setInboxStorage(inboxStorage)
                 .build()
-            under<Tests> {
-                use(delivery)
+            environment = serverEnvironment {
+                under<Tests> {
+                    use(delivery)
+                }
             }
         }
 
         @AfterEach
         fun closeEnv() {
             storageFactory.close()
-            ServerEnvironment.instance().reset()
             dropAllModels()
         }
 
@@ -126,7 +129,7 @@ internal class FilterSpec {
                 // Not the value expected in `ProjectTasksProjection`.
                 id = newUuid()
             }
-            BlackBox.from(context).use {
+            BlackBox.from(context.buildForTests(environment)).use {
                 it.receivesEvent(event)
                 inboxStorage.index().hasNext() shouldBe false
             }

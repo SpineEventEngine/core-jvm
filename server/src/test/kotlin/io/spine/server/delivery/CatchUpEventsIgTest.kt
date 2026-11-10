@@ -63,7 +63,7 @@ internal class CatchUpEventsIgTest : AbstractCatchUpIgTest() {
         useDelivery(UniformAcrossAllShards.forNumber(1))
         val context = BoundedContextBuilder.assumingTests()
             .add(repository)
-            .build()
+            .let { build(it) }
         BlackBox.from(context).use { box ->
             val since = emitHistory(box, EVENTS_PER_TARGET, FIRST, SECOND)
             repository.catchUpAll(since)
@@ -86,7 +86,7 @@ internal class CatchUpEventsIgTest : AbstractCatchUpIgTest() {
         useDelivery(UniformAcrossAllShards.forNumber(1))
         val builder = BoundedContextBuilder.assumingTests().add(repository)
         builder.systemSettings().persistEvents()
-        val context = builder.build()
+        val context = build(builder)
         BlackBox.from(context).use { box ->
             val since = emitHistory(box, EVENTS_PER_TARGET, FIRST, SECOND)
             repository.catchUpAll(since)
@@ -112,7 +112,7 @@ internal class CatchUpEventsIgTest : AbstractCatchUpIgTest() {
         val context = BoundedContext.singleTenant("CatchUpCompletion")
             .add(repository)
             .addEventDispatcher(subscriber)
-            .build()
+            .let { build(it) }
         BlackBox.from(context).use { box ->
             val since = emitHistory(box, EVENTS_PER_TARGET, FIRST, SECOND)
             val job = repository.catchUpAll(since)

@@ -53,6 +53,7 @@ import static io.spine.option.EntityOption.Kind.PROCESS_MANAGER;
 import static io.spine.option.EntityOption.Kind.PROJECTION;
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.system.server.SystemBoundedContexts.systemOf;
+import static io.spine.testing.server.TestContexts.buildForTests;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -69,8 +70,7 @@ class EntityEventsTest {
 
     @BeforeEach
     void setUp() {
-        context = BoundedContextBuilder.assumingTests(/* multitenant = */ false)
-                                       .build();
+        context = buildForTests(BoundedContextBuilder.assumingTests(/* multitenant = */ false));
         var system = systemOf(context);
 
         var ctx = context.internalAccess();

@@ -41,21 +41,26 @@ import static java.lang.String.format;
  *     <li>{@link SubscriptionService}.
  * </ul>
  *
- * <p>The server exposes the contexts that are built when the server is
- * {@linkplain Builder#build() built}, so build the contexts first:
+ * <p>The server exposes the contexts of the application given to its builder:
  * <pre>{@code
- * BoundedContext.singleTenant("Users").add(new UserRepository()).build();
- * BoundedContext.singleTenant("Tasks").add(new TaskRepository()).build();
- * var server = Server.atPort(8484).build();
+ * var application = Application.newBuilder()
+ *         .setServerEnvironment(environment)
+ *         .add(BoundedContext.singleTenant("Users").add(new UserRepository()))
+ *         .add(BoundedContext.singleTenant("Tasks").add(new TaskRepository()))
+ *         .build();
+ * var server = Server.atPort(8484)
+ *                    .setApplication(application)
+ *                    .build();
  * server.start();
  * }</pre>
  *
- * <p>{@linkplain #shutdown() Shutting down} the server closes the contexts it exposes.
+ * <p>{@linkplain #shutdown() Shutting down} the server closes the application it serves:
+ * the contexts, the tenant index, and the server environment of the application.
  */
 public final class Server implements WithLogging {
 
-    /** Bounded Contexts exposed by the server. */
-    private final ImmutableSet<BoundedContext> contexts;
+    /** The application whose Bounded Contexts the server exposes. */
+    private final Application application;
 
     /** The container for Command- and Query- services. */
     private final GrpcContainer grpcContainer;
@@ -86,8 +91,8 @@ public final class Server implements WithLogging {
     }
 
     private Server(Builder builder) {
-        this.contexts = builder.contexts();
         this.grpcContainer = builder.createContainer();
+        this.application = checkNotNull(builder.application);
         this.queryService = checkNotNull(builder.queryService);
         this.subscriptionService = checkNotNull(builder.subscriptionService);
         this.commandService = checkNotNull(builder.commandService);
@@ -123,21 +128,21 @@ public final class Server implements WithLogging {
     /**
      * Initiates an orderly shutdown in which existing calls continue but new calls are rejected.
      *
-     * <p>Also closes the Bounded Contexts of the server, logging an error for each one
-     * that fails to close.
+     * <p>Also closes the {@link Application} of the server, logging an error if closing
+     * it fails.
      */
     public void shutdown() {
         logger().atInfo().log(() -> "Shutting down the server...");
         grpcContainer.shutdown();
-        closeContexts();
+        closeApplication();
         logger().atInfo().log(() -> "Server shut down.");
     }
 
     /**
      * Initiates a forceful shutdown in which preexisting and new calls are rejected.
      *
-     * <p>The method returns when the server becomes terminated and its Bounded Contexts
-     * are closed, as {@link #shutdown()} closes them.
+     * <p>The method returns when the server becomes terminated and its {@link Application}
+     * is closed, as {@link #shutdown()} closes it.
      *
      * <p>The most common usage scenario for this method is clean-up in unit tests
      * (e.g. {@literal @}{@code AfterEach} in JUnit5) that involve client-server communications.
@@ -147,25 +152,20 @@ public final class Server implements WithLogging {
         try {
             grpcContainer.shutdownNowAndWait();
         } finally {
-            closeContexts();
+            closeApplication();
         }
     }
 
     /**
-     * Closes the Bounded Contexts of the server, logging an error for each one that fails
-     * to close.
+     * Closes the application of the server, logging an error if closing it fails.
      */
-    private void closeContexts() {
-        contexts.forEach(context -> {
-            try {
-                context.close();
-            } catch (Exception e) {
-                var contextName = context.name()
-                                         .getValue();
-                logger().atError().withCause(e).log(() -> format(
-                        "Unable to close the `%s` Context.", contextName));
-            }
-        });
+    private void closeApplication() {
+        try {
+            application.close();
+        } catch (Exception e) {
+            logger().atError().withCause(e).log(() -> format(
+                    "Unable to close the application of the server: %s.", application));
+        }
     }
 
     /**
@@ -213,7 +213,7 @@ public final class Server implements WithLogging {
         private final Set<BindableService> extraServices = new HashSet<>();
 
         /** The application whose contexts the server serves. */
-        private Application application = Application.instance();
+        private @MonotonicNonNull Application application;
 
         private @MonotonicNonNull ImmutableSet<BoundedContext> contexts;
         private @MonotonicNonNull QueryService queryService;
@@ -225,12 +225,12 @@ public final class Server implements WithLogging {
         }
 
         /**
-         * Makes the server serve the contexts of the given application, instead of
-         * the {@linkplain Application#instance() application} of the JVM.
+         * Sets the application whose Bounded Contexts the server exposes.
+         *
+         * <p>The server closes the application when it shuts down.
          */
-        @VisibleForTesting
         @CanIgnoreReturnValue
-        Builder serving(Application application) {
+        public Builder setApplication(Application application) {
             this.application = checkNotNull(application);
             return this;
         }
@@ -252,13 +252,10 @@ public final class Server implements WithLogging {
 
         /**
          * Creates a new instance of the server, which exposes the Bounded Contexts
-         * of the {@link Application} built so far.
-         *
-         * <p>A context built after this call is not exposed by the server.
+         * of the {@linkplain #setApplication(Application) application}.
          *
          * @throws IllegalStateException
-         *         if the application has no Bounded Contexts, for example, because they are
-         *         not built yet, or because the application is closed
+         *         if the application is not set, or is closed
          */
         public Server build() {
             var result = new Server(this);
@@ -267,11 +264,12 @@ public final class Server implements WithLogging {
 
         private ImmutableSet<BoundedContext> contexts() {
             if (contexts == null) {
-                var built = application.contexts().all();
-                checkState(!built.isEmpty(),
-                           "The application has no Bounded Contexts for the server to expose." +
-                                   " Please build the contexts before the server.");
-                contexts = ImmutableSet.copyOf(built);
+                checkState(application != null,
+                           "The application of the server is not set." +
+                                   " Please call `setApplication()`.");
+                checkState(application.isOpen(),
+                           "The application of the server is closed.");
+                contexts = ImmutableSet.copyOf(application.contexts());
             }
             return contexts;
         }

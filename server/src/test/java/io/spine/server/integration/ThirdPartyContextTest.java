@@ -21,6 +21,7 @@ import io.spine.core.ActorContext;
 import io.spine.core.TenantId;
 import io.spine.core.UserId;
 import io.spine.net.InternetDomain;
+import io.spine.server.Application;
 import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.server.ServerEnvironment;
@@ -47,7 +48,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 @DisplayName("`ThirdPartyContext` should")
 class ThirdPartyContextTest {
 
+    private Application application;
     private BoundedContext context;
+    private ThirdPartyContext imports;
     private DocumentRepository documentRepository;
     private EditHistoryRepository editHistoryRepository;
 
@@ -55,17 +58,18 @@ class ThirdPartyContextTest {
     void prepareContext() {
         documentRepository = new DocumentRepository();
         editHistoryRepository = new EditHistoryRepository();
-        context = BoundedContextBuilder
-                .assumingTests()
-                .add(documentRepository)
-                .add(editHistoryRepository)
-                .build();
+        imports = ThirdPartyContext.singleTenant("Imports");
+        application = application(BoundedContextBuilder.assumingTests()
+                                                       .add(documentRepository)
+                                                       .add(editHistoryRepository),
+                                  imports);
+        context = application.contexts()
+                             .get(0);
     }
 
     @AfterEach
-    void closeContext() throws Exception {
-        context.close();
-        resetServerEnvironment();
+    void closeApplication() {
+        application.close();
     }
 
     @Test
@@ -85,6 +89,16 @@ class ThirdPartyContextTest {
     }
 
     @Test
+    @DisplayName("refuse to emit an event until its application is built")
+    void notBuilt() {
+        var agenda = ThirdPartyContext.singleTenant("Agenda");
+
+        assertThat(agenda.isOpen()).isFalse();
+        assertThrows(IllegalStateException.class,
+                     () -> agenda.emittedEvent(GivenEvent.message(), GivenUserId.newUuid()));
+    }
+
+    @Test
     @DisplayName("if multitenant, require a tenant ID for each event")
     void requireTenant() {
         var noTenantContext = ActorContext.newBuilder()
@@ -92,8 +106,10 @@ class ThirdPartyContextTest {
                 .setTimestamp(currentTime())
                 .build();
         var calendar = ThirdPartyContext.multitenant("Calendar");
-        assertThrows(IllegalArgumentException.class,
-                     () -> calendar.emittedEvent(GivenEvent.message(), noTenantContext));
+        try (var ignored = application(BoundedContextBuilder.assumingTests(true), calendar)) {
+            assertThrows(IllegalArgumentException.class,
+                         () -> calendar.emittedEvent(GivenEvent.message(), noTenantContext));
+        }
     }
 
     @Test
@@ -104,9 +120,11 @@ class ThirdPartyContextTest {
                 .setTimestamp(currentTime())
                 .setTenantId(GivenTenantId.of("AcmeCorp"))
                 .build();
-        var calendar = ThirdPartyContext.singleTenant("Notes");
-        assertThrows(IllegalArgumentException.class,
-                     () -> calendar.emittedEvent(GivenEvent.message(), actorWithTenant));
+        var notes = ThirdPartyContext.singleTenant("Notes");
+        try (var ignored = application(BoundedContextBuilder.assumingTests(), notes)) {
+            assertThrows(IllegalArgumentException.class,
+                         () -> notes.emittedEvent(GivenEvent.message(), actorWithTenant));
+        }
     }
 
     @Test
@@ -186,15 +204,16 @@ class ThirdPartyContextTest {
     @DisplayName("in a multitenant environment")
     void multitenant() {
         /* Getting rid of the class-level repositories and bounded contexts. */
-        context.close();
-        resetServerEnvironment();
+        application.close();
 
         var documentRepository = new DocumentRepository();
-        // Assigned to the field that `closeContext()` closes after each test.
-        context = BoundedContextBuilder
-                .assumingTests(/* multitenant = */ true)
-                .add(documentRepository)
-                .build();
+        var exports = ThirdPartyContext.multitenant("Exports");
+        // Assigned to the field that `closeApplication()` closes after each test.
+        application = application(BoundedContextBuilder.assumingTests(/* multitenant = */ true)
+                                                       .add(documentRepository),
+                                  exports);
+        context = application.contexts()
+                             .get(0);
         assertThat(context.isMultitenant())
                 .isTrue();
 
@@ -210,7 +229,7 @@ class ThirdPartyContextTest {
                 .setId(documentId)
                 .setText("Daily report")
                 .build();
-        postForTenant(acmeCorp, johnDoe, importEvent);
+        postForTenant(exports, acmeCorp, johnDoe, importEvent);
 
         var acmeDailyReport = TenantAwareRunner
                 .with(acmeCorp)
@@ -223,35 +242,37 @@ class ThirdPartyContextTest {
         assertThat(cyberdyneDailyReport).isEmpty();
     }
 
-    private static void postForSingleTenant(UserId actor, EventMessage event) {
-        try (var uploads = ThirdPartyContext.singleTenant("Imports")) {
-            uploads.emittedEvent(event, actor);
-        } catch (Exception e) {
-            fail(e);
-        }
+    private void postForSingleTenant(UserId actor, EventMessage event) {
+        imports.emittedEvent(event, actor);
     }
 
-    private static void postForTenant(TenantId tenantId, UserId actor, EventMessage event) {
-        try (var uploads = ThirdPartyContext.multitenant("Exports")) {
-            var actorContext = ActorContext.newBuilder()
-                    .setActor(actor)
-                    .setTenantId(tenantId)
-                    .setTimestamp(currentTime())
-                    .build();
-            uploads.emittedEvent(event, actorContext);
-        } catch (Exception e) {
-            fail(e);
-        }
+    private static void postForTenant(ThirdPartyContext exports,
+                                      TenantId tenantId,
+                                      UserId actor,
+                                      EventMessage event) {
+        var actorContext = ActorContext.newBuilder()
+                .setActor(actor)
+                .setTenantId(tenantId)
+                .setTimestamp(currentTime())
+                .build();
+        exports.emittedEvent(event, actorContext);
+    }
+
+    /**
+     * Builds an application of the given domain context and the given third-party context.
+     */
+    private static Application application(BoundedContextBuilder domain,
+                                           ThirdPartyContext thirdParty) {
+        return Application.newBuilder()
+                .setServerEnvironment(ServerEnvironment.newBuilder()
+                                                       .build())
+                .add(domain)
+                .add(thirdParty)
+                .build();
     }
 
     private static InternetDomain.Builder internetDomain(String value) {
         return InternetDomain.newBuilder()
                 .setValue(value);
-    }
-
-    private static void resetServerEnvironment() {
-        ServerEnvironment
-                .instance()
-                .reset();
     }
 }

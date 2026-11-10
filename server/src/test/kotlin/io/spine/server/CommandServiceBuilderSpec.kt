@@ -17,6 +17,7 @@ package io.spine.server
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldNotBe
 import io.spine.server.commandbus.given.CommandDispatcherRegistryTestEnv.CreateProjectAssignee
+import io.spine.testing.server.buildForTests
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
@@ -52,5 +53,5 @@ internal class CommandServiceBuilderSpec {
     private fun contextHandlingCreateProject(): BoundedContext =
         BoundedContextBuilder.assumingTests()
             .addCommandDispatcher(CreateProjectAssignee())
-            .build()
+            .buildForTests()
 }

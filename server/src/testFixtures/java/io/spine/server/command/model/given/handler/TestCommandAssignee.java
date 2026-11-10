@@ -25,6 +25,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newLinkedList;
+import static io.spine.testing.server.TestContexts.buildForTests;
 
 /**
  * Abstract base for test environment command assignees.
@@ -40,7 +41,7 @@ public abstract class TestCommandAssignee extends AbstractAssignee {
 
     protected TestCommandAssignee() {
         super();
-        var context = BoundedContextBuilder.assumingTests(/* multitenant = */ true).build();
+        var context = buildForTests(BoundedContextBuilder.assumingTests(/* multitenant = */ true));
         registerWith(context);
     }
 

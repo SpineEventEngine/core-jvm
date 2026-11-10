@@ -22,7 +22,6 @@ import io.spine.base.Identifier;
 import io.spine.client.ArchivedColumn;
 import io.spine.client.DeletedColumn;
 import io.spine.core.Version;
-import io.spine.server.ServerEnvironment;
 import io.spine.server.entity.Entity;
 import io.spine.server.entity.EntityRecord;
 import io.spine.server.entity.TransactionalEntity;
@@ -86,8 +85,7 @@ public class EntityRecordStorageTest
 
     @Override
     protected EntityRecordStorage<StgProjectId, StgProject> newStorage() {
-        var factory = ServerEnvironment.instance()
-                                       .storageFactory();
+        var factory = storageFactory();
         var ctxSpec = singleTenant(EntityRecordStorageTest.class.getName());
         return new EntityRecordStorage<>(ctxSpec, factory, TestCounterEntity.class);
     }

@@ -17,9 +17,7 @@ package io.spine.server.delivery;
 import com.google.common.collect.ImmutableList;
 import com.google.protobuf.util.Durations;
 import io.spine.base.Identifier;
-import io.spine.environment.Tests;
 import io.spine.protobuf.Messages;
-import io.spine.server.ServerEnvironment;
 import io.spine.server.delivery.given.DeliveryTestEnv.RawMessageMemoizer;
 import io.spine.server.delivery.given.DeliveryTestEnv.ShardIndexMemoizer;
 import io.spine.server.delivery.given.FixedShardStrategy;
@@ -33,7 +31,6 @@ import io.spine.server.tenant.TenantAwareRunner;
 import io.spine.test.delivery.DCreateTask;
 import io.spine.testing.SlowTest;
 import io.spine.testing.core.given.GivenTenantId;
-import io.spine.testing.server.blackbox.BlackBox;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -70,7 +67,7 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
     public void singleTarget_singleShard_manyThreads() {
         changeShardCountTo(1);
         var aTarget = singleTarget();
-        new NastyClient(42).runWith(aTarget);
+        new NastyClient(this, 42).runWith(aTarget);
     }
 
     @Test
@@ -78,7 +75,7 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
     public void manyTargets_singleShard_manyThreads() {
         changeShardCountTo(1);
         var targets = manyTargets(7);
-        new NastyClient(10).runWith(targets);
+        new NastyClient(this, 10).runWith(targets);
     }
 
     @Test
@@ -86,7 +83,7 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
     public void singleTarget_manyShards_manyThreads() {
         changeShardCountTo(1986);
         var targets = singleTarget();
-        new NastyClient(15).runWith(targets);
+        new NastyClient(this, 15).runWith(targets);
     }
 
     @Test
@@ -94,7 +91,7 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
     public void manyTargets_manyShards_manyThreads() {
         changeShardCountTo(2004);
         var targets = manyTargets(13);
-        new NastyClient(19).runWith(targets);
+        new NastyClient(this, 19).runWith(targets);
     }
 
     @Test
@@ -102,7 +99,7 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
     public void singleTarget_manyShards_singleThread() {
         changeShardCountTo(12);
         var aTarget = singleTarget();
-        new NastyClient(1).runWith(aTarget);
+        new NastyClient(this, 1).runWith(aTarget);
     }
 
     @Test
@@ -110,7 +107,7 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
     public void singleTarget_singleShard_singleThread() {
         changeShardCountTo(1);
         var aTarget = singleTarget();
-        new NastyClient(1).runWith(aTarget);
+        new NastyClient(this, 1).runWith(aTarget);
     }
 
     @Test
@@ -118,7 +115,7 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
     public void manyTargets_singleShard_singleThread() {
         changeShardCountTo(1);
         var targets = manyTargets(11);
-        new NastyClient(1).runWith(targets);
+        new NastyClient(this, 1).runWith(targets);
     }
 
     @Test
@@ -126,7 +123,7 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
     public void manyTargets_manyShards_singleThread() {
         changeShardCountTo(2019);
         var targets = manyTargets(13);
-        new NastyClient(1).runWith(targets);
+        new NastyClient(this, 1).runWith(targets);
     }
 
     @Test
@@ -134,17 +131,15 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
             "in a multi-threaded env with the custom strategy")
     public void withCustomStrategy() {
         var strategy = new FixedShardStrategy(13);
-        var environment = ServerEnvironment.instance();
-        var newDelivery = Delivery.localWithStrategyAndWindow(environment.nodeId(),
-                                                              environment.storageFactory(),
+        var newDelivery = Delivery.localWithStrategyAndWindow(nodeId(),
+                                                              storageFactory(),
                                                               strategy, Durations.ZERO);
         var memoizer = new ShardIndexMemoizer();
         newDelivery.subscribe(memoizer);
-        ServerEnvironment.under(Tests.class)
-                         .use(newDelivery);
+        use(newDelivery);
 
         var targets = manyTargets(7);
-        new NastyClient(5, false).runWith(targets);
+        new NastyClient(this, 5, false).runWith(targets);
 
         var shards = memoizer.shards();
         assertThat(shards.size()).isEqualTo(1);
@@ -157,12 +152,10 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
     @DisplayName("multiple shards to multiple targets in a single-threaded env " +
             "and calculate the statistics properly")
     public void calculateStats() {
-        var environment = ServerEnvironment.instance();
-        var delivery = Delivery.newBuilder(environment.nodeId(), environment.storageFactory())
+        var delivery = Delivery.newBuilder(nodeId(), storageFactory())
                                     .setStrategy(UniformAcrossAllShards.forNumber(7))
                                     .build();
-        ServerEnvironment.under(Tests.class)
-                         .use(delivery);
+        use(delivery);
         List<DeliveryStats> deliveryStats = synchronizedList(new ArrayList<>());
         delivery.subscribe(msg -> {
             var stats = delivery.deliverMessagesFrom(msg.shardIndex());
@@ -173,7 +166,7 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
         delivery.subscribe(rawMessageMemoizer);
 
         var targets = manyTargets(7);
-        new NastyClient(1).runWith(targets);
+        new NastyClient(this, 1).runWith(targets);
         var totalMsgsInStats = deliveryStats.stream()
                                             .mapToInt(DeliveryStats::deliveredCount)
                                             .sum();
@@ -189,22 +182,19 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
         ShardedWorkRegistry registry = new InMemoryShardedWorkRegistry();
         var strategy = new FixedShardStrategy(shardCount);
         var monitor = new MonitorUnderTest();
-        var environment = ServerEnvironment.instance();
-        var delivery = Delivery.newBuilder(environment.nodeId(), environment.storageFactory())
+        var delivery = Delivery.newBuilder(nodeId(), storageFactory())
                 .setStrategy(strategy)
                 .setWorkRegistry(registry)
                 .setMonitor(monitor)
                 .build();
-        ServerEnvironment.under(Tests.class)
-                         .use(delivery);
+        use(delivery);
 
         var index = strategy.nonEmptyShard();
         var tenantId = GivenTenantId.generate();
         TenantAwareRunner.with(tenantId)
                          .run(() -> assertPickedAndDelivered(delivery, index, monitor));
 
-        var outcome = registry.pickUp(index, ServerEnvironment.instance()
-                                                              .nodeId());
+        var outcome = registry.pickUp(index, nodeId());
         assertThat(outcome.hasSession()).isTrue();
         TenantAwareRunner.with(tenantId)
                          .run(() -> assertAlreadyPicked(delivery, index, monitor));
@@ -217,14 +207,12 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
         var registry = new ThrowingWorkRegistry();
         var strategy = new FixedShardStrategy(shardCount);
         var monitor = new MonitorUnderTest();
-        var environment = ServerEnvironment.instance();
-        var delivery = Delivery.newBuilder(environment.nodeId(), environment.storageFactory())
+        var delivery = Delivery.newBuilder(nodeId(), storageFactory())
                 .setStrategy(strategy)
                 .setWorkRegistry(registry)
                 .setMonitor(monitor)
                 .build();
-        ServerEnvironment.under(Tests.class)
-                         .use(delivery);
+        use(delivery);
 
         var index = strategy.nonEmptyShard();
         var tenantId = GivenTenantId.generate();
@@ -242,20 +230,18 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
         var shardCount = 1;
         var strategy = new FixedShardStrategy(shardCount);
         var theOnlyIndex = strategy.nonEmptyShard();
-        var environment = ServerEnvironment.instance();
-        var delivery = Delivery.newBuilder(environment.nodeId(), environment.storageFactory())
+        var delivery = Delivery.newBuilder(nodeId(), storageFactory())
                 .setStrategy(strategy)
                 .setMonitor(monitor)
                 .build();
         var rawMessageMemoizer = new RawMessageMemoizer();
         delivery.subscribe(rawMessageMemoizer);
         delivery.subscribe(new LocalDispatchingObserver(delivery));
-        ServerEnvironment.under(Tests.class)
-                         .use(delivery);
+        use(delivery);
 
         var aTarget = singleTarget();
         assertThat(monitor.stats()).isEmpty();
-        new NastyClient(1).runWith(aTarget);
+        new NastyClient(this, 1).runWith(aTarget);
 
         for (var singleRunStats : monitor.stats()) {
             assertThat(singleRunStats.shardIndex()).isEqualTo(theOnlyIndex);
@@ -281,17 +267,15 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
         var strategy = new FixedShardStrategy(3);
 
         // Set a very long window to keep the messages non-deleted from the `InboxStorage`.
-        var environment = ServerEnvironment.instance();
-        var newDelivery = Delivery.localWithStrategyAndWindow(environment.nodeId(),
-                                                              environment.storageFactory(),
+        var newDelivery = Delivery.localWithStrategyAndWindow(nodeId(),
+                                                              storageFactory(),
                                                               strategy, Durations.fromDays(1));
         var memoizer = new RawMessageMemoizer();
         newDelivery.subscribe(memoizer);
-        ServerEnvironment.under(Tests.class)
-                         .use(newDelivery);
+        use(newDelivery);
 
         var targets = manyTargets(6);
-        new NastyClient(3, false).runWith(targets);
+        new NastyClient(this, 3, false).runWith(targets);
 
         // Check that each message was in `TO_DELIVER` status upon writing to the storage.
         var rawMessages = memoizer.messages();
@@ -299,7 +283,7 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
             assertThat(message.getStatus()).isEqualTo(InboxMessageStatus.TO_DELIVER);
         }
 
-        var contents = InboxContents.get();
+        var contents = InboxContents.of(delivery());
         for (var messages : contents.values()) {
             for (var message : messages) {
                 assertThat(message.getStatus()).isEqualTo(InboxMessageStatus.DELIVERED);
@@ -313,8 +297,7 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
         var strategy = new FixedShardStrategy(1);
         var monitor = new MemoizingDeliveryMonitor();
         var pageSize = 20;
-        var environment = ServerEnvironment.instance();
-        var delivery = Delivery.newBuilder(environment.nodeId(), environment.storageFactory())
+        var delivery = Delivery.newBuilder(nodeId(), storageFactory())
                 .setStrategy(strategy)
                 .setDeduplicationWindow(Durations.ZERO)
                 .setMonitor(monitor)
@@ -322,10 +305,9 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
                 .build();
         deliverAfterPause(delivery);
 
-        ServerEnvironment.under(Tests.class)
-                         .use(delivery);
+        use(delivery);
         var targets = singleTarget();
-        var simulator = new NastyClient(7, false);
+        var simulator = new NastyClient(this, 7, false);
         simulator.runWith(targets);
 
         var theTarget = targets.iterator().next();
@@ -344,7 +326,7 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
         changeShardCountTo(20);
         TaskView.enableStrictMode();
 
-        try (var context = BlackBox.singleTenantWith(
+        try (var context = blackBoxWith(
                 TaskAggregate.class,
                 new TaskAssignment.Repository(),
                 new TaskView.Repository())
@@ -380,11 +362,9 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
 
         TaskView.disableStrictMode();
         TaskView.clearCache();
-        var environment = ServerEnvironment.instance();
-        var directDelivery = Delivery.direct(environment.nodeId(), environment.storageFactory());
-        ServerEnvironment.under(Tests.class)
-                         .use(directDelivery);
-        try (var context = BlackBox.singleTenantWith(
+        var directDelivery = Delivery.direct(nodeId(), storageFactory());
+        use(directDelivery);
+        try (var context = blackBoxWith(
                 TaskAggregate.class,
                 new TaskAssignment.Repository(),
                 new TaskView.Repository())

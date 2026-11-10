@@ -52,6 +52,7 @@ import static io.spine.grpc.StreamObservers.memoizingObserver;
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.server.commandbus.Given.ACommand.createProject;
 import static io.spine.testing.core.given.GivenTenantId.generate;
+import static io.spine.testing.server.TestContexts.buildForTests;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -123,10 +124,11 @@ abstract class AbstractCommandBusTestSuite {
 
         ScheduledExecutorService executorService = new DirectScheduledExecutor();
         CommandScheduler scheduler = new ExecutorCommandScheduler(executorService);
-        ServerEnvironment.instance()
-                         .scheduleCommandsUsing(() -> scheduler);
+        var environment = ServerEnvironment.newBuilder()
+                .scheduleCommandsUsing(() -> scheduler)
+                .build();
 
-        context = createContext();
+        context = createContext(environment);
 
         var contextAccess = context.internalAccess();
         systemWriteSide = NoOpSystemWriteSide.INSTANCE;
@@ -149,13 +151,13 @@ abstract class AbstractCommandBusTestSuite {
         observer = memoizingObserver();
     }
 
-    private BoundedContext createContext() {
+    private BoundedContext createContext(ServerEnvironment environment) {
         var cls = getClass();
         var name = cls.getSimpleName();
         var builder = multitenant
                       ? BoundedContext.multitenant(name)
                       : BoundedContext.singleTenant(name);
-        return builder.build();
+        return buildForTests(builder, environment);
     }
 
     @AfterEach

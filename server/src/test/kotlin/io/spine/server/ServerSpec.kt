@@ -18,31 +18,23 @@ import com.google.protobuf.Empty
 import io.grpc.ManagedChannelBuilder
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.ints.shouldBeGreaterThan
-import io.kotest.matchers.nulls.shouldBeNull
-import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.spine.server.delivery.given.DeliveryTestEnv.CalculatorRepository
 import io.spine.server.given.service.StatusCheckService
 import io.spine.test.client.ClientTestContext.tasks
 import io.spine.test.client.ClientTestContext.users
-import io.spine.test.client.tasks.CTask
-import io.spine.test.client.users.UserAccount
-import io.spine.test.delivery.Calc
 import io.spine.test.server.ServerStatus.OK
 import io.spine.test.server.StatusCheckGrpc
 import io.spine.testing.TestValues.randomString
 import io.spine.testing.logging.mute.MuteLogging
-import io.spine.type.TypeUrl
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
 /**
  * Checks [Server].
- *
- * A server exposes every context of the application of the test JVM, including the contexts
- * that earlier tests left open, and closes them when it shuts down.
  */
 @DisplayName("`Server` should")
 internal class ServerSpec {
@@ -50,9 +42,8 @@ internal class ServerSpec {
     @Test
     @MuteLogging
     fun `allow registering custom gRPC services`() {
-        users().build()
-        tasks().build()
         val server = Server.atPort(ANY_FREE_PORT)
+            .setApplication(applicationOf(users(), tasks()))
             .include(StatusCheckService())
             .build()
         server.start()
@@ -72,10 +63,8 @@ internal class ServerSpec {
     @Test
     @MuteLogging
     fun `provide 'CommandService', 'QueryService', and 'SubscriptionService'`() {
-        users().build()
-        tasks().build()
-        val server = Server.atPort(ANY_FREE_PORT).build()
-        // The server is started only to be shut down, which closes its contexts.
+        val server = server(applicationOf(users(), tasks()))
+        // The server is started only to be shut down, which closes its application.
         server.start()
         try {
             server.subscriptionService() shouldNotBe null
@@ -87,34 +76,26 @@ internal class ServerSpec {
     }
 
     @Test
-    fun `refuse to be built if the application has no contexts`() {
+    fun `refuse to be built without an application`() {
         shouldThrow<IllegalStateException> {
-            Server.atPort(ANY_FREE_PORT)
-                .serving(Application())
-                .build()
+            Server.atPort(ANY_FREE_PORT).build()
+        }
+    }
+
+    @Test
+    fun `refuse to be built for a closed application`() {
+        val application = applicationOf(users())
+        application.close()
+
+        shouldThrow<IllegalStateException> {
+            server(application)
         }
     }
 
     @Test
     @MuteLogging
-    fun `not expose a context built after the server`() {
-        users().build()
-        val server = Server.atPort(ANY_FREE_PORT).build()
-        val tasks = tasks().build()
-        server.start()
-
-        server.shutdownAndWait()
-
-        contextServing(userAccount).shouldBeNull()
-        contextServing(task).shouldNotBeNull()
-        tasks.close()
-    }
-
-    @Test
-    @MuteLogging
     fun `expose the port assigned by the operating system`() {
-        users().build()
-        val server = Server.atPort(ANY_FREE_PORT).build()
+        val server = server(applicationOf(users()))
         server.start()
         try {
             server.boundPort shouldBeGreaterThan 0
@@ -132,11 +113,10 @@ internal class ServerSpec {
     @Test
     @MuteLogging
     fun `assign a distinct port to each server started at the port 0`() {
-        users().build()
         val servers = mutableListOf<Server>()
         try {
             repeat(2) {
-                servers.add(Server.atPort(ANY_FREE_PORT).build().apply { start() })
+                servers.add(server(applicationOf(users())).apply { start() })
             }
             servers[0].boundPort shouldNotBe servers[1].boundPort
         } finally {
@@ -147,8 +127,8 @@ internal class ServerSpec {
     @Test
     @MuteLogging
     fun `prohibit obtaining the bound port before the start`() {
-        users().build().use {
-            val server = Server.atPort(ANY_FREE_PORT).build()
+        applicationOf(users()).use {
+            val server = server(it)
 
             shouldThrow<IllegalStateException> {
                 server.boundPort
@@ -158,52 +138,54 @@ internal class ServerSpec {
 
     @Test
     @MuteLogging
-    fun `close its contexts when shut down and awaited`() {
-        users().build()
-        val server = Server.atPort(ANY_FREE_PORT).build()
+    fun `close its application when shut down and awaited`() {
+        val application = applicationOf(users())
+        val server = server(application)
         server.start()
-        contextServing(userAccount).shouldNotBeNull()
 
         server.shutdownAndWait()
 
-        contextServing(userAccount).shouldBeNull()
+        application.isOpen.shouldBeFalse()
+        application.contexts().single().isOpen.shouldBeFalse()
     }
 
     @Test
     @MuteLogging
-    fun `close its contexts when shut down and awaited, even if it was not started`() {
-        users().build()
-        val server = Server.atPort(ANY_FREE_PORT).build()
-        contextServing(userAccount).shouldNotBeNull()
+    fun `close its application when shut down and awaited, even if it was not started`() {
+        val application = applicationOf(users())
+        val server = server(application)
 
         shouldThrow<IllegalStateException> {
             server.shutdownAndWait()
         }
 
-        contextServing(userAccount).shouldBeNull()
+        application.isOpen.shouldBeFalse()
     }
 
     @Test
     @MuteLogging
     fun `close every context when shut down, even if closing one of them fails`() {
-        BoundedContext.singleTenant("Calculators").add(FailingCalculatorRepository()).build()
-        users().build()
-        val server = Server.atPort(ANY_FREE_PORT).build()
+        val application = applicationOf(
+            BoundedContext.singleTenant("Calculators").add(FailingCalculatorRepository()),
+            users()
+        )
+        val server = server(application)
         server.start()
 
         shouldNotThrowAny {
             server.shutdown()
         }
 
-        contextServing(calc).shouldBeNull()
-        contextServing(userAccount).shouldBeNull()
+        application.contexts().forEach { it.isOpen.shouldBeFalse() }
     }
 
     @Test
     @MuteLogging
     fun `prohibit obtaining the bound port of an in-process server`() {
-        users().build().use {
-            val server = Server.inProcess(randomString()).build()
+        applicationOf(users()).use {
+            val server = Server.inProcess(randomString())
+                .setApplication(it)
+                .build()
 
             shouldThrow<IllegalStateException> {
                 server.boundPort
@@ -211,8 +193,16 @@ internal class ServerSpec {
         }
     }
 
-    private fun contextServing(type: TypeUrl): BoundedContext? =
-        Application.instance().contexts.contextServing(type)
+    private fun applicationOf(vararg contexts: BoundedContextBuilder): Application =
+        application {
+            serverEnvironment = serverEnvironment {}
+            contexts.forEach { add(it) }
+        }
+
+    private fun server(application: Application): Server =
+        Server.atPort(ANY_FREE_PORT)
+            .setApplication(application)
+            .build()
 
     /**
      * A repository of calculators that throws from `close()` after closing its resources.
@@ -230,10 +220,6 @@ internal class ServerSpec {
         const val ADDRESS = "localhost"
 
         const val CLOSE_FAILURE = "The repository failed to close."
-
-        val userAccount: TypeUrl = TypeUrl.of(UserAccount::class.java)
-        val task: TypeUrl = TypeUrl.of(CTask::class.java)
-        val calc: TypeUrl = TypeUrl.of(Calc::class.java)
 
         /**
          * Tells the operating system to pick a free port when the server binds.

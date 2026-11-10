@@ -80,6 +80,7 @@ import static io.spine.server.projection.given.SetTestProjectionName.NEW_NAME;
 import static io.spine.server.projection.given.dispatch.ProjectionEventDispatcher.dispatch;
 import static io.spine.testing.TestValues.randomString;
 import static io.spine.testing.server.Assertions.assertEventClasses;
+import static io.spine.testing.server.TestContexts.buildForTests;
 import static java.lang.String.format;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
@@ -198,9 +199,8 @@ class ProjectionRepositoryTest
     @Override
     @BeforeEach
     protected void setUp() {
-        context = BoundedContext
-                .multitenant(getClass().getSimpleName())
-                .build();
+        context = buildForTests(BoundedContext
+                .multitenant(getClass().getSimpleName()));
         super.setUp();
         context.internalAccess()
                .register(this.repository());
@@ -330,7 +330,7 @@ class ProjectionRepositoryTest
                     .addSignalId(dispatchedEventId())
                     .build();
             var repository = new EntitySubscriberProjection.Repository();
-            try (var context = BoundedContextBuilder.assumingTests().build()) {
+            try (var context = buildForTests(BoundedContextBuilder.assumingTests())) {
                 context.internalAccess()
                        .register(repository);
                 var envelope = EventEnvelope.of(eventFactory.createEvent(changedEvent));
@@ -506,7 +506,7 @@ class ProjectionRepositoryTest
     @DisplayName("check that its `Projection` class is subscribed to at least one message")
     void notRegisterIfSubscribedToNothing() {
         var repo = new SensoryDeprivedProjectionRepository();
-        var context = BoundedContextBuilder.assumingTests().build();
+        var context = buildForTests(BoundedContextBuilder.assumingTests());
 
         assertThrows(IllegalStateException.class, () ->
                 repo.registerWith(context));

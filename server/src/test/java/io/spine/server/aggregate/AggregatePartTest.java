@@ -51,6 +51,7 @@ import static io.spine.server.aggregate.given.aggregate.AggregatePartTestEnv.ID;
 import static io.spine.server.aggregate.given.aggregate.AggregatePartTestEnv.commentTask;
 import static io.spine.server.aggregate.given.aggregate.AggregatePartTestEnv.createTask;
 import static io.spine.testing.DisplayNames.NOT_ACCEPT_NULLS;
+import static io.spine.testing.server.TestContexts.buildForTests;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -71,7 +72,7 @@ class AggregatePartTest {
     @BeforeEach
     void setUp() {
         ModelTests.dropAllModels();
-        context = BoundedContextBuilder.assumingTests().build();
+        context = buildForTests(BoundedContextBuilder.assumingTests());
         root = new TaskRoot(context, ID);
         taskPart = new TaskPart(root);
         taskCommentsPart = new TaskCommentsPart(root);

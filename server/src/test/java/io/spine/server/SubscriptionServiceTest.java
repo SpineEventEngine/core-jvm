@@ -65,6 +65,7 @@ import static io.spine.grpc.StreamObservers.noOpObserver;
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.server.Given.CommandMessage.createProject;
 import static io.spine.server.Given.CommandMessage.sendReport;
+import static io.spine.testing.server.TestContexts.buildForTests;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -99,14 +100,11 @@ class SubscriptionServiceTest {
     @SuppressWarnings("resource")  /* Fine for tests. */
     void setUp() {
         ModelTests.dropAllModels();
-        ServerEnvironment.instance()
-                         .reset();
-        context = BoundedContextBuilder
+        context = buildForTests(BoundedContextBuilder
                 .assumingTests()
                 .add(new ProjectAggregateRepository())
                 .addEventDispatcher(new AggProjectCreatedReactor())
-                .addCommandDispatcher(new ReportSender())
-                .build();
+                .addCommandDispatcher(new ReportSender()));
         subscriptionService = SubscriptionService.newBuilder()
                 .add(context)
                 .add(randomCtx())
@@ -118,8 +116,7 @@ class SubscriptionServiceTest {
     }
 
     private BoundedContext randomCtx() {
-        return remember(BoundedContext.singleTenant(newUuid())
-                                      .build());
+        return remember(buildForTests(BoundedContext.singleTenant(newUuid())));
     }
 
     @AfterEach
@@ -139,8 +136,7 @@ class SubscriptionServiceTest {
 
     /** Creates a new multi-tenant BoundedContext with the passed name. */
     private BoundedContext ctx(String name) {
-        return remember(BoundedContext.multitenant(name)
-                                      .build());
+        return remember(buildForTests(BoundedContext.multitenant(name)));
     }
 
     /** Adds the passed context to those closed after the current test. */

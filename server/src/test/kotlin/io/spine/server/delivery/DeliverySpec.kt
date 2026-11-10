@@ -16,15 +16,19 @@ package io.spine.server.delivery
 
 import io.kotest.matchers.optional.shouldBePresent
 import io.kotest.matchers.shouldBe
+import io.spine.base.Identifier.newUuid
 import io.spine.core.TenantId
 import io.spine.environment.Tests
-import io.spine.server.ServerEnvironment
+import io.spine.server.BoundedContextBuilder
 import io.spine.server.delivery.InboxMessageStatus.TO_DELIVER
 import io.spine.server.delivery.given.CounterView
+import io.spine.server.nodeId
+import io.spine.server.serverEnvironment
+import io.spine.server.storage.memory.InMemoryStorageFactory
 import io.spine.server.tenant.TenantAwareRunner
-import io.spine.server.under
 import io.spine.test.delivery.numberAdded
 import io.spine.testing.server.blackbox.BlackBox
+import io.spine.testing.server.buildForTests
 import kotlin.jvm.optionals.getOrNull
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.DisplayName
@@ -41,17 +45,25 @@ internal class DeliverySpec : AbstractDeliveryTest() {
     @Test
     fun `stop delivering a shard once the monitor tells to`() {
         // No shard observer, so the messages wait in the shard until delivered below.
-        val environment = ServerEnvironment.instance()
-        val delivery = Delivery.newBuilder(environment.nodeId(), environment.storageFactory())
+        val storage = InMemoryStorageFactory.newInstance()
+        val delivery = Delivery.newBuilder(nodeId { value = newUuid() }, storage)
             .setStrategy(UniformAcrossAllShards.singleShard())
             .setPageSize(1)
             .setMonitor(StopAfterEachPage())
             .build()
-        under<Tests> { use(delivery) }
+        val environment = serverEnvironment {
+            under<Tests> {
+                use(storage)
+                use(delivery)
+            }
+        }
         // The weight is static, and `CatchUpTest` leaves it at 100.
         CounterView.changeWeightTo(1)
         val repository = CounterView.Repository()
-        BlackBox.singleTenantWith(repository).use { box ->
+        val context = BoundedContextBuilder.assumingTests()
+            .add(repository)
+            .buildForTests(environment)
+        BlackBox.from(context).use { box ->
             repeat(MESSAGES) {
                 box.receivesEvent(numberAdded { calculatorId = TARGET; value = 0 })
             }
@@ -62,7 +74,7 @@ internal class DeliverySpec : AbstractDeliveryTest() {
 
             stats.shouldBePresent().deliveredCount() shouldBe 1
             repository.find(TARGET).getOrNull()?.state()?.total shouldBe 1
-            InboxContents.get().values.flatten().count { it.status == TO_DELIVER } shouldBe
+            InboxContents.of(delivery).values.flatten().count { it.status == TO_DELIVER } shouldBe
                     MESSAGES - 1
         }
     }

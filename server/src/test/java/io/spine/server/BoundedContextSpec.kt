@@ -61,6 +61,7 @@ import io.spine.test.shared.event.SomethingElseHappened
 import io.spine.test.shared.event.SomethingHappened
 import io.spine.testing.TestValues
 import io.spine.testing.logging.Interceptor
+import io.spine.testing.server.buildForTests
 import io.spine.testing.server.model.ModelTests
 import java.util.function.BooleanSupplier
 import java.util.logging.Level
@@ -97,7 +98,7 @@ internal class BoundedContextSpec {
     fun setUp() {
         ModelTests.dropAllModels()
         context = assumingTests(/* multitenant = */ true)
-            .build()
+            .buildForTests()
     }
 
     @AfterEach
@@ -139,7 +140,7 @@ internal class BoundedContextSpec {
         @Test
         fun `multitenancy state`() {
             assumingTests(/* multitenant = */ true)
-                .build().use {
+                .buildForTests().use {
                     it.isMultitenant shouldBe true
                 }
         }
@@ -250,7 +251,7 @@ internal class BoundedContextSpec {
 
     @Test
     fun `propagate registered repositories to 'Stand'`() {
-        assumingTests().build().use { context ->
+        assumingTests().buildForTests().use { context ->
             val stand = context.stand()
 
             val repo = DefaultRepository.of(ProjectAggregate::class.java)
@@ -328,11 +329,11 @@ internal class BoundedContextSpec {
 
         private fun multiTenant(): BoundedContext =
             assumingTests(/* multitenant = */ true)
-                .build()
+                .buildForTests()
 
         private fun singleTenant(): BoundedContext =
             assumingTests(/* multitenant = */ false)
-                .build()
+                .buildForTests()
     }
 
     /**
@@ -389,7 +390,7 @@ internal class BoundedContextSpec {
 
         @BeforeEach
         fun closeContext() {
-            val context = singleTenant(contextName.value).build()
+            val context = singleTenant(contextName.value).buildForTests()
             domainInterceptor = Interceptor(DomainContext::class.java, debugLevel)
             domainInterceptor.intercept()
             systemInterceptor = Interceptor(SystemContext::class.java, debugLevel)
@@ -424,7 +425,7 @@ internal class BoundedContextSpec {
     @Test
     fun `return its name in 'toString()'`() {
         val name = TestValues.randomString()
-        singleTenant(name).build().use {
+        singleTenant(name).buildForTests().use {
             it.toString() shouldBe name
         }
     }
@@ -481,7 +482,7 @@ internal class BoundedContextSpec {
      * So the closed contexts compared here can have equal names.
      */
     private fun closedAfterBuild(builder: BoundedContextBuilder): BoundedContext =
-        builder.build().also { it.close() }
+        builder.buildForTests().also { it.close() }
 
     @Nested
     @DisplayName("support diagnostics via `Probe`")
@@ -542,7 +543,7 @@ internal class BoundedContextSpec {
         var called = false
         val context = assumingTests()
             .setOnBeforeClose { called = true }
-            .build()
+            .buildForTests()
         context.use {
             it.close()
         }

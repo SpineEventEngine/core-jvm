@@ -53,7 +53,7 @@ internal class EmptyRepositoryCatchUpIgTest : AbstractCatchUpIgTest() {
     @ValueSource(ints = [1, 3])
     fun `build the instances from the history`(shards: Int) {
         useDelivery(UniformAcrossAllShards.forNumber(shards))
-        BlackBox.singleTenantWith(repository).use { context ->
+        blackBoxWith(repository).use { context ->
             appendHistory(context)
 
             repository.catchUpAll(anHourAgo())
@@ -77,7 +77,7 @@ internal class EmptyRepositoryCatchUpIgTest : AbstractCatchUpIgTest() {
     @ValueSource(ints = [1, 3])
     fun `complete when there is no history`(shards: Int) {
         useDelivery(UniformAcrossAllShards.forNumber(shards))
-        BlackBox.singleTenantWith(repository).use { context ->
+        blackBoxWith(repository).use { context ->
             repository.catchUpAll(anHourAgo())
             context.receivesEvent(numberAdded { calculatorId = THIRD })
 
@@ -97,7 +97,7 @@ internal class EmptyRepositoryCatchUpIgTest : AbstractCatchUpIgTest() {
         val builder = BoundedContextBuilder.assumingTests()
             .add(repository)
             .addEventDispatcher(EmitLiveEventWhenFinalizing())
-        BlackBox.from(builder).use { context ->
+        blackBox(builder).use { context ->
             appendHistory(context)
 
             repository.catchUpAll(anHourAgo())

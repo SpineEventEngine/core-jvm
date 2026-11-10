@@ -16,7 +16,9 @@ package io.spine.client;
 
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
+import io.spine.server.Application;
 import io.spine.server.Server;
+import io.spine.server.ServerEnvironment;
 import io.spine.test.client.billing.PaymentReceived;
 import io.spine.test.client.tasks.event.CTaskCreated;
 import io.spine.testing.SlowTest;
@@ -57,12 +59,16 @@ class ClientEndToEndTest {
 
     @BeforeEach
     void startAndConnect() throws IOException {
+        var application = Application.newBuilder()
+                .setServerEnvironment(ServerEnvironment.newBuilder().build())
+                .add(users())
+                .add(tasks())
+                .build();
         // Bind to the port `0` so that the OS assigns a free one, and connect to the port
         // the server actually got. A fixed port makes the test fail intermittently when
         // the port is taken by another process on the CI runner.
-        users().build();
-        tasks().build();
-        server = atPort(0).build();
+        server = atPort(0).setApplication(application)
+                          .build();
         server.start();
         channel = forAddress(ADDRESS, server.getBoundPort())
                 .usePlaintext()

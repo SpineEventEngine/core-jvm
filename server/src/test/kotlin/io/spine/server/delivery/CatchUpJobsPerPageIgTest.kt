@@ -95,7 +95,7 @@ internal class CatchUpJobsPerPageIgTest : AbstractCatchUpIgTest() {
     @Test
     fun `complete a catch-up, if each page holds a single message`() {
         useSingleShard(pageSize = 1)
-        BlackBox.singleTenantWith(repository).use { box ->
+        blackBoxWith(repository).use { box ->
             val since = emitHistory(box, EVENTS_PER_TARGET, FIRST)
             CounterView.changeWeightTo(10)
 
@@ -113,7 +113,7 @@ internal class CatchUpJobsPerPageIgTest : AbstractCatchUpIgTest() {
     @Test
     fun `apply a live event once, if it arrives as a repeated catch-up starts`() {
         useSingleShard(pageSize = PAGE_SIZE, window = KEEP_DELIVERED)
-        BlackBox.singleTenantWith(repository).use { box ->
+        blackBoxWith(repository).use { box ->
             val since = emitHistory(box, EVENTS_PER_TARGET, FIRST, SECOND)
             CounterView.changeWeightTo(10)
             val firstJob = repository.catchUpAll(since)
@@ -141,7 +141,7 @@ internal class CatchUpJobsPerPageIgTest : AbstractCatchUpIgTest() {
     @Test
     fun `deliver a live event that arrives after the history is read to the end`() {
         useSingleShard(pageSize = PAGE_SIZE, window = KEEP_DELIVERED)
-        BlackBox.singleTenantWith(repository).use { box ->
+        blackBoxWith(repository).use { box ->
             val since = emitHistory(box, EVENTS_PER_TARGET, FIRST, SECOND)
             CounterView.changeWeightTo(10)
             // Live events to another instance fill the page of `HistoryFullyRecalled`.
@@ -173,7 +173,7 @@ internal class CatchUpJobsPerPageIgTest : AbstractCatchUpIgTest() {
         // The mode is static, and `CatchUpTest` leaves it at negatives.
         ConsecutiveProjection.usePositives()
         val consecutive = ConsecutiveProjection.Repo()
-        BlackBox.singleTenantWith(consecutive).use { box ->
+        blackBoxWith(consecutive).use { box ->
             val since = subtract(currentTime(), Durations.fromMinutes(1))
             (1..5).forEach { box.receivesEvent(numberFor(FIRST, it)) }
             waitPastTurbulence()
@@ -202,7 +202,7 @@ internal class CatchUpJobsPerPageIgTest : AbstractCatchUpIgTest() {
     fun `deliver each page according to the jobs read after the page`() {
         val storage = HookedCatchUpStorage()
         useSingleShard(pageSize = PAGE_SIZE, catchUpStorage = storage)
-        BlackBox.singleTenantWith(repository).use { box ->
+        blackBoxWith(repository).use { box ->
             val job = inProgressJobFor(FIRST)
             writeJob(storage, job)
             // The job moves on and a live event arrives right after the jobs are read.
@@ -225,7 +225,7 @@ internal class CatchUpJobsPerPageIgTest : AbstractCatchUpIgTest() {
     fun `read no jobs for a page of the delivered messages kept for deduplication`() {
         val storage = HookedCatchUpStorage()
         useSingleShard(pageSize = PAGE_SIZE, window = KEEP_DELIVERED, catchUpStorage = storage)
-        BlackBox.singleTenantWith(repository).use { box ->
+        blackBoxWith(repository).use { box ->
             box.receivesEvent(numberAdded { calculatorId = FIRST; value = 0 })
             withClue("The live event, delivered and kept") {
                 inboxContents().map { it.status } shouldBe listOf(DELIVERED)

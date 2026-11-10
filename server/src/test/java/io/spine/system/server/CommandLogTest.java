@@ -54,6 +54,7 @@ import static io.spine.grpc.StreamObservers.noOpObserver;
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.system.server.SystemBoundedContexts.systemOf;
 import static io.spine.system.server.given.command.CompanyNameProcman.FAULTY_NAME;
+import static io.spine.testing.server.TestContexts.buildForTests;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -71,7 +72,7 @@ class CommandLogTest {
         var contextName = BoundedContextName.newBuilder()
                 .setValue(EntityEventsTest.class.getSimpleName())
                 .build();
-        context = BoundedContext.singleTenant(contextName.getValue()).build();
+        context = buildForTests(BoundedContext.singleTenant(contextName.getValue()));
         system = systemOf(context);
 
         var ctx = context.internalAccess();

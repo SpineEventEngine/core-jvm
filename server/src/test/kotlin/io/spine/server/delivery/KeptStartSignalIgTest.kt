@@ -123,7 +123,7 @@ internal class KeptStartSignalIgTest : AbstractCatchUpIgTest() {
         builder.systemSettings()
             .enableParallelPosting()
             .useCustomPostingExecutor(systemEvents)
-        return BlackBox.from(builder)
+        return blackBox(builder)
     }
 
     /**

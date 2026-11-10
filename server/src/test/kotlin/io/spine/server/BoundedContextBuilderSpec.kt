@@ -45,6 +45,7 @@ import io.spine.test.trace.ScheduleFlight
 import io.spine.testing.Assertions.assertNpe
 import io.spine.testing.TestValues.nullRef
 import io.spine.testing.client.TestActorRequestFactory
+import io.spine.testing.server.buildForTests
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CopyOnWriteArraySet
 import java.util.function.Supplier
@@ -65,20 +66,13 @@ internal class BoundedContextBuilderSpec {
 
     private val requests = TestActorRequestFactory(BoundedContextBuilderSpec::class.java)
     private var context: BoundedContext? = null
-    private var environmentChanged = false
 
     /**
-     * Closes the built context, and then resets the server environment if the test changed it.
+     * Closes the built context.
      */
     @AfterEach
     fun closeContext() {
-        try {
-            context?.close()
-        } finally {
-            if (environmentChanged) {
-                ServerEnvironment.instance().reset()
-            }
-        }
+        context?.close()
     }
 
     @Nested inner class
@@ -117,10 +111,11 @@ internal class BoundedContextBuilderSpec {
         @Test
         fun `is used instead of the one of the server environment`() {
             val ofEnvironment = MemoizingTracerFactory()
-            environmentChanged = true
-            under<Tests> { use(ofEnvironment) }
+            val environment = serverEnvironment {
+                under<Tests> { use(ofEnvironment) }
+            }
             val tracing = MemoizingTracerFactory()
-            val built = buildWith(tracing)
+            val built = build(AirportContext.builder().setTracerFactory(tracing), environment)
 
             post(built, scheduleFlight())
 
@@ -160,8 +155,8 @@ internal class BoundedContextBuilderSpec {
         @Test
         fun `are used by the built context once set`() {
             val storageFactory = InMemoryStorageFactory.newInstance()
-            val environment = ServerEnvironment.instance()
-            val delivery = Delivery.local(environment.nodeId(), environment.storageFactory())
+            val environment = serverEnvironment {}
+            val delivery = Delivery.local(environment.nodeId, storageFactory)
             val schedulers = RecordingSchedulerFactory()
             val transportFactory = InMemoryTransportFactory.newInstance()
             val builder = BoundedContextBuilder.assumingTests()
@@ -170,7 +165,7 @@ internal class BoundedContextBuilderSpec {
                 .setCommandSchedulerFactory(schedulers)
                 .setTransportFactory(transportFactory)
 
-            val access = build(builder).internalAccess()
+            val access = build(builder, environment).internalAccess()
 
             access.storageFactory() shouldBeSameInstanceAs storageFactory
             access.delivery() shouldBeSameInstanceAs delivery
@@ -182,10 +177,10 @@ internal class BoundedContextBuilderSpec {
         @Test
         fun `are taken from the server environment, if not set`() {
             val builder = BoundedContextBuilder.assumingTests()
+            val environment = serverEnvironment {}
 
-            val access = build(builder).internalAccess()
+            val access = build(builder, environment).internalAccess()
 
-            val environment = ServerEnvironment.instance()
             access.storageFactory() shouldBeSameInstanceAs environment.storageFactory()
             access.delivery() shouldBeSameInstanceAs environment.delivery()
             access.transportFactory() shouldBeSameInstanceAs environment.transportFactory()
@@ -224,8 +219,11 @@ internal class BoundedContextBuilderSpec {
     private fun buildWith(tracing: MemoizingTracerFactory): BoundedContext =
         build(AirportContext.builder().setTracerFactory(tracing))
 
-    private fun build(builder: BoundedContextBuilder): BoundedContext {
-        val built = builder.build()
+    private fun build(
+        builder: BoundedContextBuilder,
+        environment: ServerEnvironment = serverEnvironment {}
+    ): BoundedContext {
+        val built = builder.buildForTests(environment)
         context = built
         return built
     }

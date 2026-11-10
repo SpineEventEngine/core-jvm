@@ -22,15 +22,12 @@ import io.spine.base.Identifier;
 import io.spine.client.TopicFactory;
 import io.spine.core.ActorContext;
 import io.spine.core.TenantId;
-import io.spine.environment.Tests;
 import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.server.DefaultRepository;
-import io.spine.server.ServerEnvironment;
 import io.spine.server.bus.Listener;
 import io.spine.server.commandbus.CommandBus;
 import io.spine.server.commandbus.CommandDispatcher;
-import io.spine.server.delivery.Delivery;
 import io.spine.server.entity.Repository;
 import io.spine.server.event.EventBus;
 import io.spine.server.event.EventDispatcher;
@@ -257,18 +254,6 @@ abstract class BlackBoxTest<T extends BlackBox> {
     @DisplayName("throw `AssertionError` if any signal handler fails")
     class FailOnHandlerFailures {
 
-        /**
-         * Cleans the inbox so the erroneous commands sent in tests are not persisted and do not
-         * fail the other tests.
-         */
-        @AfterEach
-        void cleanInbox() {
-            var environment = ServerEnvironment.instance();
-            var delivery = Delivery.local(environment.nodeId(), environment.storageFactory());
-            ServerEnvironment.under(Tests.class)
-                             .use(delivery);
-        }
-
         @Test
         @MuteLogging
         @DisplayName("directly from the caller")
@@ -297,18 +282,6 @@ abstract class BlackBoxTest<T extends BlackBox> {
             context().tolerateFailures();
         }
 
-        /**
-         * Cleans the inbox so the erroneous commands sent in tests are not persisted and do not
-         * fail the other tests.
-         */
-        @AfterEach
-        void cleanInbox() {
-            var environment = ServerEnvironment.instance();
-            var delivery = Delivery.local(environment.nodeId(), environment.storageFactory());
-            ServerEnvironment.under(Tests.class)
-                             .use(delivery);
-        }
-
         @Test
         @MuteLogging
         @DisplayName("directly from the caller")
@@ -331,18 +304,6 @@ abstract class BlackBoxTest<T extends BlackBox> {
     @Nested
     @DisplayName("throw `AssertionError` on receiving an unsupported command")
     class FailOnUnsupportedCommand {
-
-        /**
-         * Cleans the inbox so the erroneous commands sent in tests are not persisted and do not
-         * fail the other tests.
-         */
-        @AfterEach
-        void cleanInbox() {
-            var environment = ServerEnvironment.instance();
-            var delivery = Delivery.local(environment.nodeId(), environment.storageFactory());
-            ServerEnvironment.under(Tests.class)
-                             .use(delivery);
-        }
 
         @Test
         @MuteLogging

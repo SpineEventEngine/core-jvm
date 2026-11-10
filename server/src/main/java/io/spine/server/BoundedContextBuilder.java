@@ -65,6 +65,10 @@ import static java.lang.String.format;
 
 /**
  * A builder for producing {@code BoundedContext} instances.
+ *
+ * <p>The contexts are built by the {@link Application} to which the builders are
+ * {@linkplain Application.Builder#add(BoundedContextBuilder) added}. The application gives
+ * each context the technologies of its {@link ServerEnvironment}.
  */
 @SuppressWarnings("ClassWithTooManyMethods" /* OK for this central piece. */)
 public final class BoundedContextBuilder implements WithLogging {
@@ -72,8 +76,8 @@ public final class BoundedContextBuilder implements WithLogging {
     /**
      * Counts the builders of test-only Bounded Contexts created in this JVM.
      *
-     * <p>Gives each of these contexts a name of its own, because two open contexts
-     * cannot have one name.
+     * <p>Gives each of these contexts a name of its own, because two contexts of one
+     * application cannot have one name.
      */
     private static final AtomicLong testContextCounter = new AtomicLong();
 
@@ -102,7 +106,7 @@ public final class BoundedContextBuilder implements WithLogging {
      * The factory with which the repositories of the built context create their storages.
      *
      * <p>If not set, the factory {@linkplain ServerEnvironment#storageFactory() configured} in
-     * the server environment is used.
+     * the server environment of the application is used.
      */
     private @Nullable StorageFactory storageFactory;
 
@@ -118,7 +122,8 @@ public final class BoundedContextBuilder implements WithLogging {
      * Creates the scheduler of the commands posted to the built context.
      *
      * <p>If not set, the context obtains its scheduler
-     * {@linkplain ServerEnvironment#newCommandScheduler() from} the server environment.
+     * {@linkplain ServerEnvironment#newCommandScheduler() from} the server environment
+     * of the application.
      */
     private @Nullable Supplier<CommandScheduler> commandSchedulerFactory;
 
@@ -126,7 +131,7 @@ public final class BoundedContextBuilder implements WithLogging {
      * The transport through which the built context exchanges messages with other contexts.
      *
      * <p>If not set, the factory {@linkplain ServerEnvironment#transportFactory() configured} in
-     * the server environment is used.
+     * the server environment of the application is used.
      */
     private @Nullable TransportFactory transportFactory;
 
@@ -134,7 +139,7 @@ public final class BoundedContextBuilder implements WithLogging {
      * The factory of the tracers for the messages of the built context.
      *
      * <p>If not set, the factory {@linkplain ServerEnvironment#tracing() configured} in
-     * the server environment is used, if any.
+     * the server environment of the application is used, if any.
      */
     private @Nullable TracerFactory tracerFactory;
 
@@ -546,7 +551,7 @@ public final class BoundedContextBuilder implements WithLogging {
      * Sets the factory with which the repositories of the built context create their storages.
      *
      * <p>If not set, the factory {@linkplain ServerEnvironment#storageFactory() configured} in
-     * the server environment is used.
+     * the server environment of the application is used.
      *
      * <p>The System context of the built context uses the same factory.
      *
@@ -554,7 +559,7 @@ public final class BoundedContextBuilder implements WithLogging {
      *         the factory of the storages
      */
     @CanIgnoreReturnValue
-    public BoundedContextBuilder setStorageFactory(StorageFactory factory) {
+    BoundedContextBuilder setStorageFactory(StorageFactory factory) {
         this.storageFactory = checkNotNull(factory);
         return this;
     }
@@ -567,7 +572,7 @@ public final class BoundedContextBuilder implements WithLogging {
      *         {@linkplain #setStorageFactory(StorageFactory) set} and the context
      *         was not built yet
      */
-    public @Nullable StorageFactory getStorageFactory() {
+    @Nullable StorageFactory getStorageFactory() {
         return storageFactory;
     }
 
@@ -583,7 +588,7 @@ public final class BoundedContextBuilder implements WithLogging {
      *         the delivery of the messages to the entities of the context
      */
     @CanIgnoreReturnValue
-    public BoundedContextBuilder setDelivery(Delivery delivery) {
+    BoundedContextBuilder setDelivery(Delivery delivery) {
         this.delivery = checkNotNull(delivery);
         return this;
     }
@@ -595,7 +600,7 @@ public final class BoundedContextBuilder implements WithLogging {
      * @return the delivery, or {@code null} if it was not
      *         {@linkplain #setDelivery(Delivery) set} and the context was not built yet
      */
-    public @Nullable Delivery getDelivery() {
+    @Nullable Delivery getDelivery() {
         return delivery;
     }
 
@@ -607,13 +612,14 @@ public final class BoundedContextBuilder implements WithLogging {
      * the factory.
      *
      * <p>If not set, the contexts obtain their schedulers
-     * {@linkplain ServerEnvironment#newCommandScheduler() from} the server environment.
+     * {@linkplain ServerEnvironment#newCommandScheduler() from} the server environment
+     * of the application.
      *
      * @param factory
      *         creates a new scheduler on each call
      */
     @CanIgnoreReturnValue
-    public BoundedContextBuilder setCommandSchedulerFactory(Supplier<CommandScheduler> factory) {
+    BoundedContextBuilder setCommandSchedulerFactory(Supplier<CommandScheduler> factory) {
         this.commandSchedulerFactory = checkNotNull(factory);
         return this;
     }
@@ -625,7 +631,7 @@ public final class BoundedContextBuilder implements WithLogging {
      *         {@linkplain #setCommandSchedulerFactory(Supplier) set} and the context
      *         was not built yet
      */
-    public @Nullable Supplier<CommandScheduler> getCommandSchedulerFactory() {
+    @Nullable Supplier<CommandScheduler> getCommandSchedulerFactory() {
         return commandSchedulerFactory;
     }
 
@@ -634,7 +640,7 @@ public final class BoundedContextBuilder implements WithLogging {
      * other contexts.
      *
      * <p>If not set, the factory {@linkplain ServerEnvironment#transportFactory() configured} in
-     * the server environment is used.
+     * the server environment of the application is used.
      *
      * <p>The System context of the built context uses the same factory.
      *
@@ -642,7 +648,7 @@ public final class BoundedContextBuilder implements WithLogging {
      *         the factory of the transport
      */
     @CanIgnoreReturnValue
-    public BoundedContextBuilder setTransportFactory(TransportFactory factory) {
+    BoundedContextBuilder setTransportFactory(TransportFactory factory) {
         this.transportFactory = checkNotNull(factory);
         return this;
     }
@@ -655,7 +661,7 @@ public final class BoundedContextBuilder implements WithLogging {
      *         {@linkplain #setTransportFactory(TransportFactory) set} and the context
      *         was not built yet
      */
-    public @Nullable TransportFactory getTransportFactory() {
+    @Nullable TransportFactory getTransportFactory() {
         return transportFactory;
     }
 
@@ -663,7 +669,7 @@ public final class BoundedContextBuilder implements WithLogging {
      * Sets the factory of the tracers for the messages of the built context.
      *
      * <p>If not set, the factory {@linkplain ServerEnvironment#tracing() configured} in
-     * the server environment is used, if any.
+     * the server environment of the application is used, if any.
      *
      * <p>The System context of the built context, which traces the messages, uses
      * this factory.
@@ -672,7 +678,7 @@ public final class BoundedContextBuilder implements WithLogging {
      *         the factory of the tracers
      */
     @CanIgnoreReturnValue
-    public BoundedContextBuilder setTracerFactory(TracerFactory factory) {
+    BoundedContextBuilder setTracerFactory(TracerFactory factory) {
         this.tracerFactory = checkNotNull(factory);
         return this;
     }
@@ -682,8 +688,10 @@ public final class BoundedContextBuilder implements WithLogging {
      *
      * @return the factory, or {@code null} if it was not
      *         {@linkplain #setTracerFactory(TracerFactory) set} and the context was not
-     *         built yet, or if the server environment has no tracing configured
+     *         built yet, or if the server environment of the application has no tracing
+     *         configured
      */
+    @Internal
     public @Nullable TracerFactory getTracerFactory() {
         return tracerFactory;
     }
@@ -691,9 +699,8 @@ public final class BoundedContextBuilder implements WithLogging {
     /**
      * Creates a new instance of {@code BoundedContext} with the set configurations.
      *
-     * <p>The new context becomes a part of the {@link Application}, which closes it when
-     * the application is closed. A {@link Server} exposes the contexts of the application,
-     * so the caller may ignore the returned instance.
+     * <p>The {@link Application} calls this method when it is built. The technologies not set
+     * on this builder are taken from the {@link ServerEnvironment} of the application.
      *
      * <p>The resulting domain-specific Bounded Context has as internal System Bounded Context.
      * The entities of the System domain describe the entities of the resulting Bounded Context.
@@ -712,36 +719,22 @@ public final class BoundedContextBuilder implements WithLogging {
      *
      * <p>All the other configuration is NOT shared.
      *
-     * <p>The technologies not set on this builder are taken from the {@link ServerEnvironment}.
-     *
      * <p>The name of the System Bounded Context is derived from the name of the Domain Bounded
      * Context.
      *
-     * <p>If another open Bounded Context has the name of the new context or of its System
-     * context, the method throws before building anything. If registering the repositories
-     * or the dispatchers fails, or if the {@link Application} starts closing while the context
-     * is being built, the method closes the context before throwing.
+     * <p>If registering the repositories or the dispatchers fails, the method closes
+     * the context before throwing.
      *
+     * @param environment
+     *         the environment of the application of the context
      * @return new {@code BoundedContext}
-     * @throws IllegalStateException
-     *         if the {@link Application} is closed, or starts closing while the context
-     *         is being built
-     * @throws DuplicateContextNameException
-     *         if another open Bounded Context has the name of the new context or of its
-     *         System context
-     * @throws DuplicateEntityStateException
-     *         if another open Bounded Context already serves entities with the state
-     *         type of one of the repositories
      */
     @SuppressWarnings("ProhibitedExceptionThrown" /* Rethrowing what was caught. */)
-    @CanIgnoreReturnValue
-    public BoundedContext build() {
-        var registry = BoundedContext.registry();
-        registry.checkNameFree(spec.name());
+    BoundedContext build(ServerEnvironment environment) {
+        useTechnologiesOf(environment);
         var system = buildSystem();
         var result = buildDomain(system);
         try {
-            registry.register(result);
             logger().atDebug()
                     .log(() -> format("%s created.", result.nameForLogging()));
             registerRepositories(result);
@@ -757,7 +750,7 @@ public final class BoundedContextBuilder implements WithLogging {
      * Closes the context that failed to build.
      *
      * <p>The caller never gets the context, so nobody else can close it. Left open, it would
-     * keep its repositories, and the entity state types they serve.
+     * keep its repositories, and their inboxes in the {@code Delivery}.
      *
      * @param context
      *         the context to close
@@ -824,6 +817,7 @@ public final class BoundedContextBuilder implements WithLogging {
         Function<BoundedContextBuilder, DomainContext> instanceFactory =
                 builder -> DomainContext.newInstance(builder, systemClient);
         BoundedContext result = doBuild(instanceFactory, systemClient, system.stand());
+        ((BoundedContext) system).attachDomain(result);
         return result;
     }
 
@@ -846,10 +840,10 @@ public final class BoundedContextBuilder implements WithLogging {
     }
 
     /**
-     * Takes the technologies not set on this builder from the {@link ServerEnvironment}.
+     * Takes the technologies not set on this builder from the given environment.
      */
-    private void useEnvironmentForUnset() {
-        var environment = ServerEnvironment.instance();
+    private void useTechnologiesOf(ServerEnvironment environment) {
+        checkNotNull(environment);
         if (storageFactory == null) {
             storageFactory = environment.storageFactory();
         }
@@ -885,7 +879,6 @@ public final class BoundedContextBuilder implements WithLogging {
     B doBuild(Function<BoundedContextBuilder, B> instanceFactory,
               SystemClient client,
               @Nullable Stand systemStand) {
-        useEnvironmentForUnset();
         initCommandBus(client.writeSide());
         this.stand = createStand(systemStand);
         var result = instanceFactory.apply(this);

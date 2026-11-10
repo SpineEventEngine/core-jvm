@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
+import static io.spine.testing.server.TestContexts.buildForTests;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -48,9 +49,8 @@ class AggregateRepositoryViewsTest {
 
     @BeforeEach
     void setUp() {
-        context = BoundedContextBuilder
-                .assumingTests()
-                .build();
+        context = buildForTests(BoundedContextBuilder
+                .assumingTests());
         repository = new RepoOfAggregateWithLifecycle();
         context.internalAccess()
                .register(repository);

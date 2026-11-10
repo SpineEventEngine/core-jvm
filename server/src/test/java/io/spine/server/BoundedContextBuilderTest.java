@@ -41,6 +41,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
+import static io.spine.testing.server.TestContexts.buildForTests;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -93,7 +94,7 @@ class BoundedContextBuilderTest {
         @Test
         @DisplayName("`CommandBus` and `EventBus` simultaneously")
         void commandBusAndEventBus() {
-            var boundedContext = builder.build();
+            var boundedContext = buildForTests(builder);
             assertNotNull(boundedContext.commandBus());
             assertNotNull(boundedContext.eventBus());
         }
@@ -101,7 +102,7 @@ class BoundedContextBuilderTest {
         @Test
         @DisplayName("`AggregateRootDirectory`")
         void aggregateRootDirectory() {
-            var context = builder.build();
+            var context = buildForTests(builder);
             assertNotNull(context.internalAccess()
                                  .aggregateRootDirectory());
         }
@@ -314,7 +315,7 @@ class BoundedContextBuilderTest {
 
             builder.addCommandFilter(filter);
 
-            assertTrue(builder.build()
+            assertTrue(buildForTests(builder)
                               .commandBus()
                               .hasFilter(filter));
         }
@@ -326,7 +327,7 @@ class BoundedContextBuilderTest {
 
             builder.addEventFilter(filter);
 
-            assertTrue(builder.build()
+            assertTrue(buildForTests(builder)
                               .eventBus()
                               .hasFilter(filter));
         }
@@ -343,7 +344,7 @@ class BoundedContextBuilderTest {
 
             builder.addCommandListener(listener);
 
-            assertTrue(builder.build()
+            assertTrue(buildForTests(builder)
                               .commandBus()
                               .hasListener(listener));
         }
@@ -355,7 +356,7 @@ class BoundedContextBuilderTest {
 
             builder.addEventListener(listener);
 
-            assertTrue(builder.build()
+            assertTrue(buildForTests(builder)
                               .eventBus()
                               .hasListener(listener));
         }

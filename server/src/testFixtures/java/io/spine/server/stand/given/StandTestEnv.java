@@ -76,6 +76,7 @@ import static io.spine.grpc.StreamObservers.noOpObserver;
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.server.entity.given.Given.projectionOfClass;
 import static io.spine.test.projection.Project.Status.STARTED;
+import static io.spine.testing.server.TestContexts.buildForTests;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -119,7 +120,7 @@ public final class StandTestEnv {
         for (var repository : repositories) {
             builder.add(repository);
         }
-        return builder.build();
+        return buildForTests(builder);
     }
 
     public static ActorRequestFactory createRequestFactory(@Nullable TenantId tenant) {

@@ -39,7 +39,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  *
  * <ol>
  *     <li>the job tells the type of the projection it catches up;
- *     <li>the type tells the domain context that serves it;
+ *     <li>the inbox of the type tells the domain context that serves it;
  *     <li>the domain context tells its System context.
  * </ol>
  */
@@ -137,13 +137,20 @@ final class InboxDeliveries {
      * Finds the System context, to which the catch-up message with the passed address goes.
      *
      * @throws IllegalStateException
-     *         if no open context serves the projection type of the job
+     *         if no inbox is registered for the projection type of the job
      */
-    private static BoundedContextName systemContextOf(InboxId inboxId) {
+    private BoundedContextName systemContextOf(InboxId inboxId) {
         var job = jobOf(inboxId);
-        return CatchUpProcess.domainContextOf(job)
-                             .name()
-                             .toSystem();
+        var projectionType = TypeUrl.parse(job.getProjectionType());
+        var registered = byType.get(projectionType);
+        checkState(registered != null,
+                   "No open Bounded Context serves the projection type `%s`" +
+                           " of the catch-up job `%s`.",
+                   projectionType, job.getUuid());
+        var context = registered.inbox.contextName();
+        checkState(context != null,
+                   "The inbox of `%s` does not tell its Bounded Context.", projectionType);
+        return context.toSystem();
     }
 
     /**

@@ -20,162 +20,36 @@ import io.spine.type.TypeUrl
 /**
  * The registry of the domain Bounded Contexts of an [Application].
  *
- * A context is registered when it is built, and unregistered when it closes. A registered
- * context must have a name of its own, and serve entity state types of its own.
- * The registry enforces both rules in three steps:
+ * Holds the contexts of the application, in the order of their building, and closes them.
+ * The contexts are given when the application is built, and stay in the registry when
+ * they close.
  *
- * - [checkNameFree] throws [DuplicateContextNameException] if a registered context has
- *   the name of a context about to be built. It runs before anything is built: a System
- *   context, for example, registers the inboxes of its repositories as soon as it is built.
- * - [register] records the new context before its repositories are added, so that its name
- *   is taken while they are added.
- * - [serve] records the state type of a repository added to a context. It throws
- *   [DuplicateEntityStateException] if another registered context already serves the type.
+ * System contexts are not registered: a domain context closes its System context.
  *
- * Checking the name and registering the context are two steps. Two threads that build
- * contexts with one name at the same time may both pass the check. Building contexts is
- * rarely that concurrent, so the registry does not guard against it.
- *
- * System contexts are not registered. Their names follow the names of their domain contexts,
- * so [checkNameFree] checks them through their domain contexts. All of them serve the same
- * entity state types. A domain context closes its System context.
- *
- * Contexts are told apart by identity, not by [name][BoundedContext.equals].
+ * @param contexts The contexts of the application, in the order of their building.
  */
-internal class ContextRegistry {
+internal class ContextRegistry(contexts: List<BoundedContext>) {
 
     /**
-     * The registered contexts, in the order of their registration.
-     *
-     * A list rather than a set, because a set would compare the contexts by
-     * [name][BoundedContext.equals], and the registry tells them apart by identity.
+     * The registered contexts, in the order of their building.
      */
-    private val contexts = mutableListOf<BoundedContext>()
+    private val contexts: List<BoundedContext> = contexts.toList()
 
     /**
-     * The record of which registered context serves which entity state type.
+     * Obtains the registered contexts, in the order of their building.
      */
-    private val servedStateTypes = ServedStateTypes()
+    fun all(): List<BoundedContext> = contexts
 
     /**
-     * Tells if new contexts may be registered.
-     *
-     * Guarded by the lock of [contexts], so that no context is registered after
-     * [closeAll] takes the contexts to close.
-     */
-    private var accepting = true
-
-    /**
-     * Checks that no registered context has the given name, or the name of the System context
-     * that a domain context with the given name gets.
-     *
-     * The System contexts of the registered contexts count too.
-     *
-     * @throws IllegalStateException If the application is closed.
-     * @throws DuplicateContextNameException If a registered context has one of the names.
-     */
-    fun checkNameFree(name: BoundedContextName) {
-        synchronized(contexts) {
-            checkAccepting(name)
-            val taken = contexts.flatMap { listOf(it.name(), it.name().toSystem()) }
-            listOf(name, name.toSystem())
-                .firstOrNull { it in taken }
-                ?.let { throw DuplicateContextNameException(it) }
-        }
-    }
-
-    /**
-     * Registers the given context, which has just been built.
-     *
-     * @throws IllegalStateException If the application started closing after the context
-     *   passed [checkNameFree]. The builder of the context then closes it.
-     */
-    fun register(context: BoundedContext) {
-        synchronized(contexts) {
-            checkAccepting(context.name())
-            contexts.add(context)
-        }
-    }
-
-    /**
-     * Throws if the application is closed, so that the context with the given name
-     * cannot be built.
-     *
-     * Must be called holding the lock of [contexts].
-     */
-    private fun checkAccepting(name: BoundedContextName) {
-        check(accepting) {
-            "The application is closed, so the context `${name.value}` cannot be built."
-        }
-    }
-
-    /**
-     * Records that the given context serves entities with the given state type.
-     *
-     * @param stateType The state type of the entities of the repository.
-     * @param context The context to which a repository is being added.
-     * @return `true` if this call recorded the context for the type,
-     *   `false` if the context had been recorded for it before.
-     * @throws DuplicateEntityStateException If another registered context already serves
-     *   the type.
-     */
-    fun serve(stateType: TypeUrl, context: BoundedContext): Boolean =
-        servedStateTypes.serve(stateType, context)
-
-    /**
-     * Records that the given context no longer serves entities with the given state type.
-     *
-     * Does nothing if the context is not recorded for the type.
-     */
-    fun forget(stateType: TypeUrl, context: BoundedContext) =
-        servedStateTypes.forget(stateType, context)
-
-    /**
-     * Unregisters the given context, which is closing, together with the entity state types
-     * it serves.
-     *
-     * Does nothing for a context that is not registered.
-     */
-    fun unregister(context: BoundedContext) {
-        servedStateTypes.forget(context)
-        synchronized(contexts) {
-            contexts.removeAll { it === context }
-        }
-    }
-
-    /**
-     * Obtains the registered context that serves entities with the given state type,
-     * or `null` if no registered context serves it.
-     */
-    fun contextServing(stateType: TypeUrl): BoundedContext? =
-        servedStateTypes.contextServing(stateType)
-
-    /**
-     * Obtains the registered contexts, in the order of their registration.
-     */
-    fun all(): List<BoundedContext> =
-        synchronized(contexts) {
-            contexts.toList()
-        }
-
-    /**
-     * Closes the registered contexts, in the reverse order of their registration,
-     * and refuses to register new ones afterwards.
-     *
-     * Stops accepting contexts and takes the contexts to close at once, so a context
-     * built meanwhile is either closed here, or refused by [register].
+     * Closes the registered contexts that are open, in the reverse order of their building.
      *
      * Closes each context even if closing another one fails, even with an [Error];
      * then throws the first failure, with the later ones suppressed.
      */
     @Suppress("TooGenericExceptionCaught") // Closes the other contexts, then rethrows.
     fun closeAll() {
-        val closing = synchronized(contexts) {
-            accepting = false
-            contexts.toList()
-        }
         var failure: Throwable? = null
-        for (context in closing.asReversed()) {
+        for (context in contexts.asReversed()) {
             try {
                 context.closeIfOpen()
             } catch (e: Throwable) {
@@ -183,6 +57,44 @@ internal class ContextRegistry {
             }
         }
         failure?.let { throw it }
+    }
+}
+
+/**
+ * Checks that the contexts of the given builders can work together in one application.
+ *
+ * The contexts share one `Delivery`, one transport, and one storage factory, so:
+ *
+ * - no two contexts may have one name, and no context may have the name of the System
+ *   context of another one;
+ * - no two contexts may have repositories of one entity state type.
+ *
+ * @throws DuplicateContextNameException If two contexts have one name, or a context has
+ *   the name of the System context of another one.
+ * @throws DuplicateEntityStateException If two contexts have repositories of one entity
+ *   state type.
+ */
+internal fun checkUnique(builders: List<BoundedContextBuilder>) {
+    val names = mutableSetOf<BoundedContextName>()
+    builders.forEach { builder ->
+        val name = builder.name()
+        listOf(name, name.toSystem())
+            .firstOrNull { it in names }
+            ?.let { throw DuplicateContextNameException(it) }
+        names.add(name)
+        names.add(name.toSystem())
+    }
+    val serving = mutableMapOf<TypeUrl, BoundedContextName>()
+    builders.forEach { builder ->
+        val name = builder.name()
+        builder.repositories()
+            .map { it.entityStateType() }
+            .forEach { type ->
+                val other = serving.putIfAbsent(type, name)
+                if (other != null && other != name) {
+                    throw DuplicateEntityStateException(type, listOf(other, name))
+                }
+            }
     }
 }
 

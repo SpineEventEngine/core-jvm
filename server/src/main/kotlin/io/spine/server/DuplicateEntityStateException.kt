@@ -21,16 +21,16 @@ import io.spine.type.TypeUrl
 import java.io.Serial
 
 /**
- * An exception thrown when a Bounded Context is given a repository for an entity state type
- * that another open Bounded Context of the JVM already serves.
+ * An exception thrown when an [Application] is built with two Bounded Contexts that have
+ * repositories for one entity state type.
  *
- * All Bounded Contexts of a JVM share one [Delivery][io.spine.server.delivery.Delivery],
+ * All Bounded Contexts of an application share one [Delivery][io.spine.server.delivery.Delivery],
  * which finds the entities that receive a message by their state type only. So two contexts
  * serving one state type would receive the messages of each other.
  *
  * @param stateType The state type of the entities.
- * @param contexts The names of the contexts that serve the type, or are about to serve it.
- * @see BoundedContext
+ * @param contexts The names of the contexts that serve the type.
+ * @see Application.Builder.build
  */
 public class DuplicateEntityStateException internal constructor(
     stateType: TypeUrl,

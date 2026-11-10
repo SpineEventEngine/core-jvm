@@ -54,7 +54,7 @@ import org.junit.jupiter.api.Test
 internal class CatchUpRoutingIgTest : AbstractCatchUpIgTest() {
 
     private val inboxStorage = RecordingInboxStorage()
-    private val contexts = TallyContexts()
+    private val contexts = TallyContexts { blackBox(it) }
 
     @BeforeEach
     @AfterEach

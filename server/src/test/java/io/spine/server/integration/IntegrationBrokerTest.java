@@ -1,32 +1,19 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.integration;
 
-import io.spine.server.ServerEnvironment;
 import io.spine.server.integration.broker.ArchivePhotos;
 import io.spine.server.integration.broker.CreditsHeld;
 import io.spine.server.integration.broker.PhotosMovedToWarehouse;
@@ -35,8 +22,10 @@ import io.spine.server.integration.broker.PhotosProcessed;
 import io.spine.server.integration.broker.PhotosUploaded;
 import io.spine.server.integration.broker.TotalPhotosUploadedIncreased;
 import io.spine.server.integration.broker.UploadPhotos;
+import io.spine.server.transport.memory.InMemoryTransportFactory;
 import io.spine.testing.server.model.ModelTests;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -53,18 +42,25 @@ import static io.spine.server.integration.given.broker.IntegrationBrokerTestEnv.
 @DisplayName("`IntegrationBroker` should")
 class IntegrationBrokerTest {
 
+    /**
+     * The transport through which the contexts of a test exchange their external events.
+     */
+    private InMemoryTransportFactory transport;
+
     @BeforeEach
     void setUp() {
         ModelTests.dropAllModels();
-        ServerEnvironment.instance()
-                         .reset();
+        transport = InMemoryTransportFactory.newInstance();
+    }
+
+    @AfterEach
+    void closeTransport() {
+        transport.close();
     }
 
     @AfterAll
     static void cleanUpSuite() {
         ModelTests.dropAllModels();
-        ServerEnvironment.instance()
-                         .reset();
     }
 
     @Nested
@@ -78,8 +74,8 @@ class IntegrationBrokerTest {
             @Test
             @DisplayName("another BC")
             void toAnotherBc() {
-                try (var publishingPhotosBc = photosBc();
-                     var subscribedBillingBc = subscribedBillingBc()
+                try (var publishingPhotosBc = photosBc(transport);
+                     var subscribedBillingBc = subscribedBillingBc(transport)
                 ) {
                     publishingPhotosBc.receivesCommand(UploadPhotos.generate());
                     publishingPhotosBc.assertEvent(PhotosUploaded.class);
@@ -91,9 +87,9 @@ class IntegrationBrokerTest {
             @Test
             @DisplayName("multiple other BCs")
             void toMultipleOtherBc() {
-                try (var publishingPhotosBc = photosBc();
-                     var subscribedBillingBc = subscribedBillingBc();
-                     var subscribedStatisticsBc = subscribedStatisticsBc()
+                try (var publishingPhotosBc = photosBc(transport);
+                     var subscribedBillingBc = subscribedBillingBc(transport);
+                     var subscribedStatisticsBc = subscribedStatisticsBc(transport)
                 ) {
                     publishingPhotosBc.receivesCommand(UploadPhotos.generate());
                     publishingPhotosBc.assertEvent(PhotosUploaded.class);
@@ -106,9 +102,9 @@ class IntegrationBrokerTest {
             @Test
             @DisplayName("multiple other BCs with different needs")
             void toMultipleOtherBcWithDifferentNeeds() {
-                try (var publishingPhotosBc = photosBc();
-                     var subscribedBillingBc = subscribedBillingBc();
-                     var subscribedWarehouseBc = subscribedWarehouseBc()
+                try (var publishingPhotosBc = photosBc(transport);
+                     var subscribedBillingBc = subscribedBillingBc(transport);
+                     var subscribedWarehouseBc = subscribedWarehouseBc(transport)
                 ) {
                     publishingPhotosBc.receivesCommand(UploadPhotos.generate());
                     publishingPhotosBc.assertEvent(PhotosUploaded.class);
@@ -128,8 +124,8 @@ class IntegrationBrokerTest {
             @Test
             @DisplayName("the subscribed BC is registered before the publishing one")
             void whenSubscribedBcRegisteredBeforePublishing() {
-                try (var subscribedBillingBc = subscribedBillingBc();
-                     var publishingPhotosBc = photosBc()
+                try (var subscribedBillingBc = subscribedBillingBc(transport);
+                     var publishingPhotosBc = photosBc(transport)
                 ) {
                     publishingPhotosBc.receivesCommand(UploadPhotos.generate());
                     publishingPhotosBc.assertEvent(PhotosUploaded.class);
@@ -141,8 +137,8 @@ class IntegrationBrokerTest {
             @Test
             @DisplayName("they are subscribed to each other")
             void whenSubscribedToEachOther() {
-                try (var subscribedPhotosBc = subscribedPhotosBc();
-                     var subscribedBillingBc = subscribedBillingBc()
+                try (var subscribedPhotosBc = subscribedPhotosBc(transport);
+                     var subscribedBillingBc = subscribedBillingBc(transport)
                 ) {
                     subscribedPhotosBc.receivesCommand(UploadPhotos.generate());
                     subscribedPhotosBc.assertEvent(PhotosUploaded.class);
@@ -161,8 +157,8 @@ class IntegrationBrokerTest {
         @Test
         @DisplayName("internal events in another BC")
         void ofInternalEventsInAnotherBc() {
-            try (var projectsBc = photosBc();
-                 var billingBc = billingBc()
+            try (var projectsBc = photosBc(transport);
+                 var billingBc = billingBc(transport)
             ) {
                 projectsBc.receivesCommand(UploadPhotos.generate());
 
@@ -175,7 +171,7 @@ class IntegrationBrokerTest {
         @Test
         @DisplayName("external events in the same BC")
         void ofExternalEventInTheSameBc() {
-            try (var photosBcAndBillingBc = photosBcAndSubscribedBillingBc()) {
+            try (var photosBcAndBillingBc = photosBcAndSubscribedBillingBc(transport)) {
 
                 photosBcAndBillingBc.receivesCommand(UploadPhotos.generate());
                 photosBcAndBillingBc.assertEvent(PhotosUploaded.class);

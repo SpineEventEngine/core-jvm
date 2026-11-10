@@ -16,7 +16,6 @@ package io.spine.server
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue
 import io.spine.annotation.Internal
-import io.spine.annotation.VisibleForTesting
 import io.spine.base.Identifier
 import io.spine.environment.CustomEnvironmentType
 import io.spine.environment.Environment
@@ -33,62 +32,76 @@ import io.spine.server.transport.TransportFactory
 import io.spine.server.transport.memory.InMemoryTransportFactory
 import io.spine.util.Exceptions.newIllegalStateException
 import java.util.Optional
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.function.Consumer
 import java.util.function.Function
 import java.util.function.Supplier
 
 /**
- * The server conditions and configuration under which the application operates.
+ * The technologies on which the Bounded Contexts of an [Application] run: storage,
+ * transport, delivery, command scheduling, and tracing.
  *
  * ## Configuration
  *
- * Some parts of the `ServerEnvironment` can be customized based on the `EnvironmentType`.
- * To do so, one of the overloads of the `use` method can be called.
- * Two environment types exist out of the box: [Tests] and
- * [DefaultMode][io.spine.environment.DefaultMode]. For example:
+ * An environment is built with a [Builder], which takes the technologies for each
+ * [type of environment][EnvironmentType]. When a technology is requested, the environment
+ * gives the one configured for the [current type][Environment.type]. Two environment types
+ * exist out of the box: [Tests] and [DefaultMode][io.spine.environment.DefaultMode].
+ * For example, in Java:
  * ```
- * ServerEnvironment.under(Production.class)
- *                  .use(productionStorageFactory)
- *                  .use(memoizingTracerFactory);
- * ServerEnvironment.under(Tests.class)
- *                  .use(testingStorageFactory);
+ * var environment = ServerEnvironment.newBuilder()
+ *         .under(Production.class, env -> {
+ *             env.use(productionStorageFactory);
+ *             env.use(memoizingTracerFactory);
+ *         })
+ *         .under(Tests.class, env -> env.use(testingStorageFactory))
+ *         .build();
+ * ```
+ * In Kotlin:
+ * ```
+ * val environment = serverEnvironment {
+ *     under<Production> {
+ *         use(productionStorageFactory)
+ *         use(memoizingTracerFactory)
+ *     }
+ *     under<Tests> {
+ *         use(testingStorageFactory)
+ *     }
+ * }
  * ```
  * A custom environment type may also be used:
  * ```
- * final class StagingEnvironment extends EnvironmentType {
+ * final class Staging extends CustomEnvironmentType<Staging> {
  *     ...
  * }
  *
- * ServerEnvironment.under(Staging.class)
- *                  .use(inMemoryStorageFactory);
+ * var environment = ServerEnvironment.newBuilder()
+ *         .under(Staging.class, env -> env.use(inMemoryStorageFactory))
+ *         .build();
  * ```
  *
  * If `Staging` is [enabled][Environment.type], the specified value is going to be
  * returned on [storageFactory].
  *
- * ### Relation to Bounded Contexts
+ * ## Relation to Bounded Contexts
  *
- * A `ServerEnvironment` instance is a singleton. It means that all Bounded Contexts
- * that are deployed within the same JVM share the configuration of the server environment.
- * Namely, under the same environment type, all Bounded Contexts will share the same storage
- * factory, transport factory, delivery and tracing tools.
+ * An environment belongs to the [Application] built with it. The Bounded Contexts of the
+ * application share the technologies of the environment. The application closes
+ * the environment when the application is closed.
  *
- * If one decides that some of the Bounded Contexts of an application require custom
- * settings, they should arrange a separate deployable artifact and distinct configuration
- * of the respective `ServerEnvironment` for those Bounded Contexts. In this way,
- * the Contexts would reside in their own JVMs and not overlap on interacting with this singleton.
- *
- * Within a JVM, each open Bounded Context has a name of its own and serves entity state
- * types of its own, as described in [BoundedContext].
+ * Bounded Contexts that need other technologies form another application, with another
+ * environment. Applications with environments of their own may run in one JVM.
  */
-public class ServerEnvironment private constructor() : Closeable {
+public class ServerEnvironment private constructor(builder: Builder) : Closeable {
 
     /**
-     * The identifier of the server instance running in scope of this application.
+     * The identifier of the server node, on which this environment runs.
      *
-     * It is currently impossible to set the node identifier directly.
-     * This is subject to change in the future framework versions.
+     * At the moment, the node identifier is always UUID-generated. In future versions of the
+     * framework it is expected to become configurable.
      */
-    private val nodeId: NodeId = NodeId.newBuilder()
+    @get:JvmName("nodeId")
+    public val nodeId: NodeId = NodeId.newBuilder()
         .setValue(Identifier.newUuid())
         .build()
 
@@ -101,36 +114,38 @@ public class ServerEnvironment private constructor() : Closeable {
      *
      * Differs between [environment types][EnvironmentType].
      */
-    private val delivery = EnvSetting<Delivery>()
+    private val delivery: EnvSetting<Delivery> = builder.delivery
 
     /**
      * Storage factory setting.
      *
      * Defaults to an `InMemoryStorageFactory` for tests.
      */
-    private val storageFactory = EnvSetting<StorageFactory>(Tests::class.java) {
-        wrap(InMemoryStorageFactory.newInstance())
-    }
+    private val storageFactory: EnvSetting<StorageFactory> = builder.storageFactory
 
     /**
      * The setting for the factory of `Tracer`s.
      */
-    private val tracerFactory = EnvSetting<TracerFactory>()
+    private val tracerFactory: EnvSetting<TracerFactory> = builder.tracerFactory
 
     /**
      * The setting for the factory for channel-based transport.
      *
      * Defaults to an `InMemoryTransportFactory` for tests.
      */
-    private val transportFactory = EnvSetting<TransportFactory>(Tests::class.java) {
-        InMemoryTransportFactory.newInstance()
-    }
+    private val transportFactory: EnvSetting<TransportFactory> = builder.transportFactory
 
     /**
      * Provides schedulers used by all `CommandBus` instances of this environment.
      */
-    private var commandScheduler: Supplier<CommandScheduler> =
-        Supplier { ExecutorCommandScheduler() }
+    private val commandScheduler: Supplier<CommandScheduler> = builder.commandScheduler
+
+    /**
+     * Tells if an [Application] owns this environment.
+     *
+     * An environment belongs to one application, which closes it.
+     */
+    internal val owned = AtomicBoolean(false)
 
     /**
      * Flag indicating whether this environment has been closed.
@@ -139,38 +154,33 @@ public class ServerEnvironment private constructor() : Closeable {
     private var closed = false
 
     /**
-     * Obtains the type of the current server environment.
+     * The type of the current server environment.
      *
-     * This is a convenience method for server-side configuration code, which
+     * This is a convenience property for server-side configuration code, which
      * simply delegates to [Environment.type].
      */
-    public fun type(): Class<out EnvironmentType<*>> = environment().type()
+    @get:JvmName("type")
+    public val type: Class<out EnvironmentType<*>>
+        get() = Environment.instance().type()
 
     /**
      * Returns the delivery mechanism specific to this environment.
      *
-     * Unless [updated manually][TypeConfigurator.use], returns
-     * a [local implementation][Delivery.local] of `Delivery`.
+     * Unless [configured][TypeConfigurator.use], returns a [local][Delivery.local]
+     * `Delivery`, which runs on this node, and creates its storages with the storage factory
+     * of the current environment type, if it is configured.
      */
     @Synchronized
     public fun delivery(): Delivery {
-        val currentEnv = environment().type()
-        val currentDelivery = delivery.optionalValue(currentEnv)
-        if (currentDelivery.isPresent) {
-            return currentDelivery.get()
+        val currentType = type
+        val configured = delivery.optionalValue(currentType)
+        if (configured.isPresent) {
+            return configured.get()
         }
-        val localDelivery = newLocalDelivery()
-        delivery.use(localDelivery, currentEnv)
-        return localDelivery
-    }
-
-    /**
-     * Creates a local `Delivery` that runs on this node and creates its storages with
-     * the storage factory of the current environment, if it is configured.
-     */
-    private fun newLocalDelivery(): Delivery {
         val factory = optionalStorageFactory().orElse(null)
-        return Delivery.local(nodeId, factory)
+        val localDelivery = Delivery.local(nodeId, factory)
+        delivery.use(localDelivery, currentType)
+        return localDelivery
     }
 
     /**
@@ -179,30 +189,9 @@ public class ServerEnvironment private constructor() : Closeable {
     public fun newCommandScheduler(): CommandScheduler = commandScheduler.get()
 
     /**
-     * Assigns command scheduling mechanism used at this environment by all
-     * `CommandBus` instances.
-     *
-     * If not configured, [ExecutorCommandScheduler] is used.
-     */
-    public fun scheduleCommandsUsing(commandScheduler: Supplier<CommandScheduler>) {
-        this.commandScheduler = commandScheduler
-    }
-
-    /**
-     * Obtains the identifier of the server node, on which this code is running at the moment.
-     *
-     * At the moment, the node identifier is always UUID-generated. In future versions of the
-     * framework it is expected to become configurable.
-     */
-    public fun nodeId(): NodeId = nodeId
-
-    /**
      * Obtains the [TracerFactory] associated with the current environment, if it was set.
      */
-    public fun tracing(): Optional<TracerFactory> {
-        val currentType = environment().type()
-        return tracerFactory.optionalValue(currentType)
-    }
+    public fun tracing(): Optional<TracerFactory> = tracerFactory.optionalValue(type)
 
     /**
      * Obtains the storage factory for the current environment.
@@ -213,13 +202,12 @@ public class ServerEnvironment private constructor() : Closeable {
      *
      * @return `StorageFactory` instance for the storage for the current environment.
      * @throws IllegalStateException If the value `StorageFactory` was not
-     *   [configured][TypeConfigurator.use] prior to the call.
+     *   [configured][TypeConfigurator.use] for the current environment.
      */
     public fun storageFactory(): StorageFactory {
-        val type = environment().type()
-        val result = storageFactory.optionalValue(type)
-            .orElseThrow { SuggestConfiguring.storageFactory(type) }
-        return result
+        val currentType = type
+        return storageFactory.optionalValue(currentType)
+            .orElseThrow { SuggestConfiguring.storageFactory(currentType) }
     }
 
     /**
@@ -227,40 +215,23 @@ public class ServerEnvironment private constructor() : Closeable {
      * was not configured.
      */
     @Internal
-    public fun optionalStorageFactory(): Optional<StorageFactory> {
-        val type = environment().type()
-        return storageFactory.optionalValue(type)
-    }
+    public fun optionalStorageFactory(): Optional<StorageFactory> =
+        storageFactory.optionalValue(type)
 
     /**
      * Obtains the transport factory for the current environment.
      *
-     * In the [testing environment][Tests], if the factory was not assigned, assigns
-     * a new `InMemoryTransportFactory` and returns it.
+     * For tests, if the value was not set, defaults to a new `InMemoryTransportFactory`.
      *
-     * For all other environment types, throws an `IllegalStateException`.
+     * For other environments, if the value was not set, throws an `IllegalStateException`.
      *
-     * If the factory is not assigned in the Tests mode, assigns the instance of
-     * [InMemoryTransportFactory] and returns it.
+     * @throws IllegalStateException If the `TransportFactory` was not
+     *   [configured][TypeConfigurator.use] for the current environment.
      */
     public fun transportFactory(): TransportFactory {
-        val type = environment().type()
-        val result = transportFactory.optionalValue(type)
-            .orElseThrow { SuggestConfiguring.transportFactory(type) }
-        return result
-    }
-
-    /**
-     * This is test-only method required for cleaning of the server environment instance in tests.
-     */
-    @VisibleForTesting
-    public fun reset() {
-        transportFactory.reset()
-        tracerFactory.reset()
-        storageFactory.reset()
-        delivery.reset()
-        val currentEnv = environment().type()
-        delivery.use(newLocalDelivery(), currentEnv)
+        val currentType = type
+        return transportFactory.optionalValue(currentType)
+            .orElseThrow { SuggestConfiguring.transportFactory(currentType) }
     }
 
     /**
@@ -270,6 +241,9 @@ public class ServerEnvironment private constructor() : Closeable {
 
     /**
      * Releases resources associated with this instance.
+     *
+     * Closes the tracer factories, the transport factories, and the storage factories
+     * that were created for the environment types.
      */
     override fun close() {
         if (closed) {
@@ -282,24 +256,123 @@ public class ServerEnvironment private constructor() : Closeable {
     }
 
     /**
-     * Allows configuring values used by the `ServerEnvironment` for the given type.
+     * The builder of a [ServerEnvironment].
+     *
+     * Takes the technologies for each [type of environment][EnvironmentType] with [under].
+     * A builder builds one environment.
      */
-    public class TypeConfigurator internal constructor(
-        type: Class<out EnvironmentType<*>>
-    ) {
+    public class Builder internal constructor() {
 
-        private val se: ServerEnvironment = instance()
+        internal val delivery = EnvSetting<Delivery>()
+
+        internal val storageFactory = EnvSetting<StorageFactory>(Tests::class.java) {
+            wrap(InMemoryStorageFactory.newInstance())
+        }
+
+        internal val tracerFactory = EnvSetting<TracerFactory>()
+
+        internal val transportFactory = EnvSetting<TransportFactory>(Tests::class.java) {
+            InMemoryTransportFactory.newInstance()
+        }
+
+        internal var commandScheduler: Supplier<CommandScheduler> =
+            Supplier { ExecutorCommandScheduler() }
+            private set
 
         /**
-         * Obtains the type of the environment being currently configured.
+         * Tells if this builder has built its environment.
          */
-        @get:VisibleForTesting
+        private var built = false
+
+        /**
+         * Configures the technologies for the given type of environment.
+         *
+         * @param type The type of environment to configure.
+         * @param configure The function that sets the technologies with the given configurator.
+         * @return This builder, for call chaining.
+         */
+        @CanIgnoreReturnValue
+        public fun under(
+            type: Class<out EnvironmentType<*>>,
+            configure: Consumer<TypeConfigurator>
+        ): Builder {
+            checkNotBuilt()
+            configure.accept(TypeConfigurator(this, type))
+            return this
+        }
+
+        /**
+         * Configures the technologies for the type of environment [E].
+         *
+         * This is the Kotlin counterpart of [under]. The reified type parameter spares
+         * the caller a `::class.java` literal, and the block, having the configurator
+         * as its receiver, groups several `use()` calls without repeating the receiver
+         * on each of them.
+         *
+         * @param E The type of environment to configure.
+         * @param block The function that sets the technologies.
+         * @return This builder, for call chaining.
+         */
+        @CanIgnoreReturnValue
+        public inline fun <reified E : EnvironmentType<*>> under(
+            noinline block: TypeConfigurator.() -> Unit
+        ): Builder = under(E::class.java) { it.block() }
+
+        /**
+         * Sets the factory of the schedulers of commands for the `CommandBus` of each
+         * Bounded Context.
+         *
+         * A scheduler serves one `CommandBus`, and is closed with it, so each context obtains
+         * a scheduler of its own from the factory.
+         *
+         * If not set, a new [ExecutorCommandScheduler] is created for each context.
+         *
+         * @return This builder, for call chaining.
+         */
+        @CanIgnoreReturnValue
+        public fun scheduleCommandsUsing(factory: Supplier<CommandScheduler>): Builder {
+            checkNotBuilt()
+            commandScheduler = factory
+            return this
+        }
+
+        /**
+         * Creates a new environment with the configured technologies.
+         *
+         * @throws IllegalStateException If this builder has already built an environment.
+         */
+        public fun build(): ServerEnvironment {
+            checkNotBuilt()
+            built = true
+            return ServerEnvironment(this)
+        }
+
+        /**
+         * Throws if this builder has built its environment, which now holds the settings
+         * of the builder.
+         */
+        internal fun checkNotBuilt() {
+            check(!built) {
+                "The server environment is already built. Please use another builder."
+            }
+        }
+    }
+
+    /**
+     * Allows configuring the technologies of a [ServerEnvironment] for the given type
+     * of environment.
+     */
+    public class TypeConfigurator internal constructor(
+        private val builder: Builder,
+
+        /**
+         * The type of environment being configured.
+         */
         @get:JvmName("type")
-        public val type: Class<out EnvironmentType<*>> = type
+        public val type: Class<out EnvironmentType<*>>
+    ) {
 
         init {
-            // Clear the flag for the case of unit tests that closed the singleton before.
-            se.closed = false
             if (CustomEnvironmentType::class.java.isAssignableFrom(type)) {
                 registerCustomType(type)
             }
@@ -312,7 +385,8 @@ public class ServerEnvironment private constructor() : Closeable {
          */
         @CanIgnoreReturnValue
         public fun use(delivery: Delivery): TypeConfigurator {
-            se.delivery.use(delivery, type)
+            builder.checkNotBuilt()
+            builder.delivery.use(delivery, type)
             return this
         }
 
@@ -328,7 +402,8 @@ public class ServerEnvironment private constructor() : Closeable {
          */
         @CanIgnoreReturnValue
         public fun useDelivery(fn: Fn<Delivery>): TypeConfigurator {
-            se.delivery.lazyUse({ fn.apply(type) }, type)
+            builder.checkNotBuilt()
+            builder.delivery.lazyUse({ fn.apply(type) }, type)
             return this
         }
 
@@ -339,7 +414,8 @@ public class ServerEnvironment private constructor() : Closeable {
          */
         @CanIgnoreReturnValue
         public fun use(factory: TracerFactory): TypeConfigurator {
-            se.tracerFactory.use(factory, type)
+            builder.checkNotBuilt()
+            builder.tracerFactory.use(factory, type)
             return this
         }
 
@@ -355,7 +431,8 @@ public class ServerEnvironment private constructor() : Closeable {
          */
         @CanIgnoreReturnValue
         public fun useTracerFactory(fn: Fn<TracerFactory>): TypeConfigurator {
-            se.tracerFactory.lazyUse({ fn.apply(type) }, type)
+            builder.checkNotBuilt()
+            builder.tracerFactory.lazyUse({ fn.apply(type) }, type)
             return this
         }
 
@@ -366,7 +443,8 @@ public class ServerEnvironment private constructor() : Closeable {
          */
         @CanIgnoreReturnValue
         public fun use(factory: TransportFactory): TypeConfigurator {
-            se.transportFactory.use(factory, type)
+            builder.checkNotBuilt()
+            builder.transportFactory.use(factory, type)
             return this
         }
 
@@ -382,7 +460,8 @@ public class ServerEnvironment private constructor() : Closeable {
          */
         @CanIgnoreReturnValue
         public fun useTransportFactory(fn: Fn<TransportFactory>): TypeConfigurator {
-            se.transportFactory.lazyUse({ fn.apply(type) }, type)
+            builder.checkNotBuilt()
+            builder.transportFactory.lazyUse({ fn.apply(type) }, type)
             return this
         }
 
@@ -393,8 +472,8 @@ public class ServerEnvironment private constructor() : Closeable {
          */
         @CanIgnoreReturnValue
         public fun use(factory: StorageFactory): TypeConfigurator {
-            val wrapped = wrap(factory)
-            se.storageFactory.use(wrapped, type)
+            builder.checkNotBuilt()
+            builder.storageFactory.use(wrap(factory), type)
             return this
         }
 
@@ -410,11 +489,8 @@ public class ServerEnvironment private constructor() : Closeable {
          */
         @CanIgnoreReturnValue
         public fun useStorageFactory(fn: Fn<StorageFactory>): TypeConfigurator {
-            se.storageFactory.lazyUse({
-                val factory = fn.apply(type)
-                val wrapped = wrap(factory)
-                wrapped
-            }, type)
+            builder.checkNotBuilt()
+            builder.storageFactory.lazyUse({ wrap(fn.apply(type)) }, type)
             return this
         }
 
@@ -431,7 +507,7 @@ public class ServerEnvironment private constructor() : Closeable {
 
     /**
      * A function that accepts a class of [EnvironmentType] and returns
-     * a value [configured][ServerEnvironment.under] in a `ServerEnvironment`.
+     * a value [configured][Builder.under] in a `ServerEnvironment`.
      *
      * @param R The type of the configured value.
      */
@@ -471,56 +547,31 @@ public class ServerEnvironment private constructor() : Closeable {
             featureParamName: String
         ): IllegalStateException {
             val typeName = type.simpleName
-            val fmt = "$prefixFmt Please call `ServerEnvironment.under(%s.class).use(%s);`."
+            val fmt = "$prefixFmt Please configure it with" +
+                    " `ServerEnvironment.newBuilder().under(%s.class, env -> env.use(%s))`."
             return newIllegalStateException(fmt, typeName, typeName, featureParamName)
         }
     }
 
     public companion object {
 
-        private val INSTANCE = ServerEnvironment()
-
         /**
-         * Returns a singleton instance.
+         * Creates a new builder of a server environment.
          */
         @JvmStatic
-        public fun instance(): ServerEnvironment = INSTANCE
-
-        private fun environment(): Environment = Environment.instance()
+        public fun newBuilder(): Builder = Builder()
 
         /**
          * Closes a factory from an environment setting, wrapping any exceptions.
          */
         @Suppress("TooGenericExceptionCaught") // Wraps whatever closing throws.
-        private fun <T : AutoCloseable> closeFactory(
-            factoryName: String,
-            setting: EnvSetting<T>
-        ) {
+        private fun <T : Closeable> closeFactory(factoryName: String, setting: EnvSetting<T>) {
             try {
                 setting.apply(EnvSetting.SettingOperation { it.close() })
             } catch (e: RuntimeException) {
                 throw newIllegalStateException(e, "Failed to close `%s`.", factoryName)
             }
         }
-
-        /**
-         * Starts a flowing API chain for configuring `ServerEnvironment` for the passed type.
-         */
-        @JvmStatic
-        public fun under(type: Class<out EnvironmentType<*>>): TypeConfigurator =
-            TypeConfigurator(type)
-
-        /**
-         * Starts a flowing API chain for configuring `ServerEnvironment` for the passed type.
-         *
-         * @deprecated Use [under] instead. Unlike this method, `under()` does not
-         *   require backticks when called from Kotlin, where `when` is a keyword.
-         */
-        @Deprecated(
-            "Use `under()` instead.",
-            ReplaceWith("ServerEnvironment.under(type)", "io.spine.server.ServerEnvironment")
-        )
-        @JvmStatic
-        public fun `when`(type: Class<out EnvironmentType<*>>): TypeConfigurator = under(type)
     }
 }
+

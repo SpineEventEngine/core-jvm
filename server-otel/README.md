@@ -43,22 +43,24 @@ dependencies {
 
 ## Usage
 
-Tracing is configured once, when the server starts. Because the API is experimental, opt in
-explicitly with `@OptIn(ExperimentalOtelTracing::class)`:
+Tracing is configured once, in the `ServerEnvironment` of the application. Because the API is
+experimental, opt in explicitly with `@OptIn(ExperimentalOtelTracing::class)`:
 
 ```kotlin
 import io.opentelemetry.kotlin.OpenTelemetry
 import io.spine.environment.Production
 import io.spine.server.ServerEnvironment
+import io.spine.server.serverEnvironment
 import io.spine.server.trace.otel.ExperimentalOtelTracing
 import io.spine.server.trace.otel.OtelTracerFactory
-import io.spine.server.under
 
 @OptIn(ExperimentalOtelTracing::class)
-fun configureTracing(openTelemetry: OpenTelemetry) {
+fun tracedEnvironment(openTelemetry: OpenTelemetry): ServerEnvironment {
     val factory = OtelTracerFactory(openTelemetry)
-    under<Production> {
-        use(factory)
+    return serverEnvironment {
+        under<Production> {
+            use(factory)
+        }
     }
 }
 ```

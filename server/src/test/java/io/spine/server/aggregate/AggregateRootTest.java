@@ -33,6 +33,7 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Constructor;
 
 import static io.spine.testing.DisplayNames.NOT_ACCEPT_NULLS;
+import static io.spine.testing.server.TestContexts.buildForTests;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DisplayName("`AggregateRoot` should")
@@ -45,7 +46,7 @@ class AggregateRootTest {
     @BeforeEach
     void setUp() {
         ModelTests.dropAllModels();
-        context = BoundedContextBuilder.assumingTests().build();
+        context = buildForTests(BoundedContextBuilder.assumingTests());
         var projectId = ProjectId.generate();
         aggregateRoot = new AggregateRootTestEnv.ProjectRoot(context, projectId);
         var contextAccess = context.internalAccess();

@@ -53,7 +53,7 @@ import org.junit.jupiter.params.provider.ValueSource
 @DisplayName("Catch-up of a projection that shares the `Delivery` with others should")
 internal class SeveralRepositoriesCatchUpIgTest : AbstractCatchUpIgTest() {
 
-    private val contexts = TallyContexts()
+    private val contexts = TallyContexts { blackBox(it) }
 
     @BeforeEach
     @AfterEach

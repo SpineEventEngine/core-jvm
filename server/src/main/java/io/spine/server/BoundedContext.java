@@ -44,6 +44,7 @@ import io.spine.server.type.EventEnvelope;
 import io.spine.system.server.SystemClient;
 import io.spine.system.server.SystemContext;
 import io.spine.type.TypeName;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -75,15 +76,12 @@ import static java.lang.String.format;
  * <p>An instance of {@code BoundedContext} acts as a major point of configuration for all
  * the model elements that belong to it.
  *
- * <p>Within a JVM, an open Bounded Context has a name of its own and serves entity state types
- * of its own. {@linkplain BoundedContextBuilder#build() Building} a context fails with
- * {@link DuplicateContextNameException} if another open context has the same name. Adding
- * a repository fails with {@link DuplicateEntityStateException} if another open context already
- * serves its entity state type. This holds in tests too.
- *
- * <p>A closed context is no longer open, so another context may have its name and serve its
- * entity state types. A test should therefore close the contexts it builds. Otherwise,
- * the contexts that later tests build cannot have those names or serve those types.
+ * <p>Bounded Contexts are built by an {@link Application}, which gives them the technologies of
+ * its {@link ServerEnvironment}. Within an application, a Bounded Context has a name of its own
+ * and serves entity state types of its own. {@linkplain Application.Builder#build() Building}
+ * the application fails with {@link DuplicateContextNameException} if two of its contexts have
+ * the same name, and with {@link DuplicateEntityStateException} if two of its contexts serve
+ * one entity state type.
  *
  * @see <a href="https://martinfowler.com/bliki/BoundedContext.html">
  *         Martin Fowler on Bounded Contexts</a>
@@ -132,6 +130,13 @@ public abstract class BoundedContext
     private final InternalAccess internalAccess;
 
     private final @Nullable Consumer<BoundedContext> onBeforeClose;
+
+    /**
+     * The domain context of this System context.
+     *
+     * <p>Remains {@code null} for a domain context.
+     */
+    private @MonotonicNonNull BoundedContext domain;
 
     /**
      * The currently installed probe.
@@ -219,53 +224,19 @@ public abstract class BoundedContext
     }
 
     /**
-     * Obtains the registry of the Bounded Contexts of the {@link Application}.
-     */
-    static ContextRegistry registry() {
-        return Application.instance().contexts();
-    }
-
-    /**
      * Adds the passed repository to the context.
      *
      * @throws IllegalStateException
      *         if this context is closed
-     * @throws DuplicateEntityStateException
-     *         if another open context already serves entities with the same state type
      */
-    @SuppressWarnings("ProhibitedExceptionThrown") // Re-throwing what was caught.
     protected final void register(Repository<?, ?> repository) {
         checkNotNull(repository);
         checkOpen();
-        var newlyServed = serveStateOf(repository);
-        try {
-            registerIfAware(repository);
-            guard.register(repository);
-        } catch (Throwable t) {
-            if (newlyServed) {
-                registry().forget(repository.entityStateType(), this);
-            }
-            throw t;
-        }
+        registerIfAware(repository);
+        guard.register(repository);
         // The guard holds the repository now, so this context serves its entities
         // even if the callback fails.
         repository.onRegistered();
-    }
-
-    /**
-     * Records that this context serves the entities of the passed repository,
-     * unless this is a System context.
-     *
-     * <p>Must run before the repository is registered with this context, because registering
-     * it also adds its inbox to the {@code Delivery} shared by all contexts. If the check
-     * fails, the inbox of the context that already serves the type stays in place.
-     *
-     * @return {@code true} if this call recorded that this context serves the type,
-     *         {@code false} if this is a System context, or if the type was recorded before
-     */
-    private boolean serveStateOf(Repository<?, ?> repository) {
-        return !isSystem()
-                && registry().serve(repository.entityStateType(), this);
     }
 
     /**
@@ -589,6 +560,22 @@ public abstract class BoundedContext
         return commandBus.isOpen();
     }
 
+    /**
+     * Tells this System context which domain context it serves.
+     *
+     * <p>The builder of the domain context calls this method once the domain context is built.
+     *
+     * @throws IllegalStateException
+     *         if this is a domain context, or if the domain context is already set
+     */
+    final void attachDomain(BoundedContext domain) {
+        checkNotNull(domain);
+        checkState(isSystem(), "The context `%s` is not a System context.", this);
+        checkState(this.domain == null,
+                   "The System context `%s` already serves a domain context.", this);
+        this.domain = domain;
+    }
+
     final String nameForLogging() {
         return BoundedContext.class.getSimpleName() + ' ' + name().getValue();
     }
@@ -601,19 +588,10 @@ public abstract class BoundedContext
     }
 
     /**
-     * Closes all repositories, and records that the context is no longer open.
-     *
-     * <p>Records it even if closing some of the repositories fails, and then throws.
-     * After that, another context may have the name of this one and serve the entity state
-     * types of these repositories. This context cannot be closed again to retry, because it is
-     * no longer open.
+     * Closes all repositories.
      */
     private void shutDownRepositories() {
-        try {
-            guard.shutDownRepositories();
-        } finally {
-            registry().unregister(this);
-        }
+        guard.shutDownRepositories();
     }
 
     /**
@@ -837,6 +815,23 @@ public abstract class BoundedContext
          */
         public StorageFactory storageFactory() {
             return self().storageFactory;
+        }
+
+        /**
+         * Obtains the domain context: this context, if it is a domain context,
+         * or the domain context of this System context.
+         *
+         * @throws IllegalStateException
+         *         if this System context does not know its domain context yet
+         */
+        public BoundedContext domainContext() {
+            var self = self();
+            if (!self.isSystem()) {
+                return self;
+            }
+            checkState(self.domain != null,
+                       "The System context `%s` does not know its domain context yet.", self);
+            return self.domain;
         }
 
         /**

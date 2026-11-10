@@ -18,9 +18,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
 import com.google.protobuf.Timestamp;
-import io.spine.environment.Tests;
 import io.spine.server.Closeable;
-import io.spine.server.ServerEnvironment;
+import io.spine.server.delivery.AbstractDeliveryTest;
 import io.spine.server.delivery.CatchUpStatus;
 import io.spine.server.delivery.CatchUpStorage;
 import io.spine.server.delivery.Delivery;
@@ -52,10 +51,18 @@ public class CounterCatchUp implements Closeable {
     private final BlackBox ctx;
     private final String[] ids;
 
-    public CounterCatchUp(String... ids) {
+    /**
+     * Creates a new instance over a black box of the given test.
+     *
+     * @param test
+     *         the test that builds the black box with its environment
+     * @param ids
+     *         the identifiers of the counters
+     */
+    public CounterCatchUp(AbstractDeliveryTest test, String... ids) {
         this.ids = ids.clone();
         this.repo = new CounterView.Repository();
-        this.ctx = BlackBox.singleTenantWith(repo);
+        this.ctx = test.blackBoxWith(repo);
     }
 
     public void addHistory(Timestamp when, List<NumberAdded> events) {
@@ -141,13 +148,18 @@ public class CounterCatchUp implements Closeable {
                      .collect(toList());
     }
 
-    public static void addOngoingCatchUpRecord(WhatToCatchUp target) {
-        addOngoingCatchUpRecord(target, CatchUpStatus.IN_PROGRESS);
+    public static void addOngoingCatchUpRecord(AbstractDeliveryTest test, WhatToCatchUp target) {
+        addOngoingCatchUpRecord(test, target, CatchUpStatus.IN_PROGRESS);
     }
 
-    public static void addOngoingCatchUpRecord(WhatToCatchUp target, CatchUpStatus status) {
-        var factory = ServerEnvironment.instance()
-                                       .storageFactory();
+    /**
+     * Writes the record of a catch-up job with the given status, and makes the given test
+     * deliver through a {@code Delivery} with the storage of this record.
+     */
+    public static void addOngoingCatchUpRecord(AbstractDeliveryTest test,
+                                               WhatToCatchUp target,
+                                               CatchUpStatus status) {
+        var factory = test.storageFactory();
         var storage = new CatchUpStorage(factory, false);
         Collection<Object> ids = null;
         if (!target.shouldCatchUpAll()) {
@@ -157,13 +169,11 @@ public class CounterCatchUp implements Closeable {
         var record = TestCatchUpJobs.catchUpJob(
                 CounterView.projectionType(), status, target.sinceWhen(), ids);
         TestCatchUpJobs.writeJob(storage, record);
-        var environment = ServerEnvironment.instance();
-        var delivery = Delivery.newBuilder(environment.nodeId(), environment.storageFactory())
+        var delivery = Delivery.newBuilder(test.nodeId(), factory)
                 .setCatchUpStorage(storage)
                 .build();
         delivery.subscribe(new LocalDispatchingObserver(delivery));
-        ServerEnvironment.under(Tests.class)
-                         .use(delivery);
+        test.use(delivery);
     }
 
     @Override

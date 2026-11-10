@@ -44,12 +44,12 @@ import static io.spine.server.trace.given.TracingTestEnv.FROM;
 import static io.spine.server.trace.given.TracingTestEnv.TIMETABLE_TYPE;
 import static io.spine.server.trace.given.TracingTestEnv.cancelFlight;
 import static io.spine.server.trace.given.TracingTestEnv.scheduleFlight;
+import static io.spine.testing.server.TestContexts.buildForTests;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayName("Message tracing should")
 class TracingTest {
 
-    private static final ServerEnvironment serverEnvironment = ServerEnvironment.instance();
     private static final TestActorRequestFactory requests =
             new TestActorRequestFactory(TracingTest.class);
 
@@ -60,20 +60,17 @@ class TracingTest {
     @BeforeEach
     void setUp() {
         tracing = new MemoizingTracerFactory();
-        ServerEnvironment.under(Tests.class)
-                         .use(tracing);
-        context = AirportContext.builder().build();
+        var environment = ServerEnvironment.newBuilder()
+                .under(Tests.class, env -> env.use(tracing))
+                .build();
+        context = buildForTests(AirportContext.builder(), environment);
         spec = context.spec();
     }
 
     @AfterEach
     void tearDown() {
-        try {
-            if (context != null) {
-                context.close();
-            }
-        } finally {
-            serverEnvironment.reset();
+        if (context != null) {
+            context.close();
         }
     }
 

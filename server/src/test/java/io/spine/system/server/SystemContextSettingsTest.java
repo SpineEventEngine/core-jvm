@@ -1,27 +1,15 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.system.server;
@@ -42,6 +30,7 @@ import static io.spine.system.server.SystemBoundedContexts.systemOf;
 import static io.spine.system.server.given.SystemContextSettingsTestEnv.entityCreated;
 import static io.spine.system.server.given.SystemContextSettingsTestEnv.entityStateChanged;
 import static io.spine.system.server.given.SystemContextSettingsTestEnv.postSystemEvent;
+import static io.spine.testing.server.TestContexts.buildForTests;
 import static java.time.Duration.ofSeconds;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -56,7 +45,7 @@ class SystemContextSettingsTest {
         @Test
         @DisplayName("not store events")
         void notStoreEvents() {
-            var domain = BoundedContextBuilder.assumingTests().build();
+            var domain = buildForTests(BoundedContextBuilder.assumingTests());
             var system = systemOf(domain);
             var event = entityStateChanged();
             var observer = postSystemEvent(system.eventBus(), event);
@@ -67,7 +56,7 @@ class SystemContextSettingsTest {
         @Test
         @DisplayName("not store domain commands")
         void notStoreDomainCommands() {
-            var domain = BoundedContextBuilder.assumingTests().build();
+            var domain = buildForTests(BoundedContextBuilder.assumingTests());
             var system = systemOf(domain);
             assertFalse(system.hasEntitiesWithState(CommandLog.class));
         }
@@ -75,7 +64,7 @@ class SystemContextSettingsTest {
         @Test
         @DisplayName("post system events in parallel")
         void postEventsInParallel() {
-            var domain = BoundedContextBuilder.assumingTests().build();
+            var domain = buildForTests(BoundedContextBuilder.assumingTests());
             var system = systemOf(domain);
             var watcher = new HistoryEventWatcher();
             system.eventBus().register(watcher);
@@ -100,7 +89,7 @@ class SystemContextSettingsTest {
             var contextBuilder = BoundedContextBuilder.assumingTests();
             contextBuilder.systemSettings()
                           .persistEvents();
-            var domain = contextBuilder.build();
+            var domain = buildForTests(contextBuilder);
             var system = systemOf(domain);
             var event = entityStateChanged();
             var observer = postSystemEvent(system.eventBus(), event);
@@ -114,7 +103,7 @@ class SystemContextSettingsTest {
             var contextBuilder = BoundedContextBuilder.assumingTests();
             contextBuilder.systemSettings()
                           .enableCommandLog();
-            var domain = contextBuilder.build();
+            var domain = buildForTests(contextBuilder);
             var system = systemOf(domain);
             assertTrue(system.hasEntitiesWithState(CommandLog.class));
         }
@@ -124,7 +113,7 @@ class SystemContextSettingsTest {
         void postEventsInCurrentThread() {
             var contextBuilder = BoundedContextBuilder.assumingTests();
             contextBuilder.systemSettings().disableParallelPosting();
-            var domain = contextBuilder.build();
+            var domain = buildForTests(contextBuilder);
             var system = systemOf(domain);
             var watcher = new HistoryEventWatcher();
             system.eventBus().register(watcher);
@@ -151,7 +140,7 @@ class SystemContextSettingsTest {
                           .enableParallelPosting()
                           .useCustomPostingExecutor(executor);
 
-            var domain = contextBuilder.build();
+            var domain = buildForTests(contextBuilder);
             var system = systemOf(domain);
             var watcher = new HistoryEventWatcher();
             system.eventBus().register(watcher);

@@ -349,7 +349,7 @@ internal class RepeatedCatchUpSignalIgTest : AbstractCatchUpIgTest() {
         builder.systemSettings()
             .enableParallelPosting()
             .useCustomPostingExecutor(systemEvents)
-        context = builder.build()
+        context = build(builder)
         return BlackBox.from(context)
     }
 

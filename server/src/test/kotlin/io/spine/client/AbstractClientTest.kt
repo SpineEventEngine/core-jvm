@@ -17,6 +17,8 @@ package io.spine.client
 import io.grpc.inprocess.InProcessServerBuilder
 import io.spine.server.BoundedContextBuilder
 import io.spine.server.Server
+import io.spine.server.application
+import io.spine.server.serverEnvironment
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import org.junit.jupiter.api.AfterEach
@@ -51,14 +53,19 @@ internal abstract class AbstractClientTest {
     protected abstract fun contexts(): List<BoundedContextBuilder>
 
     /**
-     * Builds the contexts, and then the server that exposes them.
+     * Builds an application of the contexts, and then the server that exposes them.
      */
     @BeforeEach
     @Throws(IOException::class)
     fun createServerAndClient() {
         val serverName = generateServerName()
-        contexts().forEach { it.build() }
-        server = Server.inProcess(serverName).build()
+        val application = application {
+            serverEnvironment = serverEnvironment {}
+            contexts().forEach { add(it) }
+        }
+        server = Server.inProcess(serverName)
+            .setApplication(application)
+            .build()
         server.start()
 
         client = newClientBuilder(serverName).build()

@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.delivery;
@@ -29,7 +17,6 @@ package io.spine.server.delivery;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
-import io.spine.server.ServerEnvironment;
 import io.spine.server.delivery.given.CalcAggregate;
 import io.spine.server.delivery.given.CalculatorSignal;
 import io.spine.server.delivery.given.DeliveryTestEnv;
@@ -63,6 +50,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class NastyClient {
 
+    private final AbstractDeliveryTest test;
     private final int threadCount;
     private final boolean shouldInboxBeEmpty;
     private final DeliveryTestEnv.CalculatorRepository repository;
@@ -76,8 +64,8 @@ public class NastyClient {
      * <p>Also, the client is going to assume that all inboxes should be empty, once all
      * the messages posted by the client are propagated.
      */
-    NastyClient(int threadCount) {
-        this(threadCount, true);
+    NastyClient(AbstractDeliveryTest test, int threadCount) {
+        this(test, threadCount, true);
     }
 
     /**
@@ -86,7 +74,8 @@ public class NastyClient {
      * <p>This constructor allows to tell weather the system inboxes should be empty after
      * all the messages posted by the client are propagated.
      */
-    NastyClient(int threadCount, boolean shouldInboxBeEmpty) {
+    NastyClient(AbstractDeliveryTest test, int threadCount, boolean shouldInboxBeEmpty) {
+        this.test = test;
         this.threadCount = threadCount;
         this.shouldInboxBeEmpty = shouldInboxBeEmpty;
         this.repository = new DeliveryTestEnv.CalculatorRepository();
@@ -100,7 +89,7 @@ public class NastyClient {
      *         the identifiers of target entities
      */
     void runWith(Set<String> targets) {
-        try (var context = BlackBox.singleTenantWith(repository)) {
+        try (var context = test.blackBoxWith(repository)) {
             var memoizer = subscribeToDelivered();
 
             var streamSize = targets.size() * 30;
@@ -192,17 +181,16 @@ public class NastyClient {
                    .collect(toList());
     }
 
-    private static DeliveryTestEnv.SignalMemoizer subscribeToDelivered() {
+    private DeliveryTestEnv.SignalMemoizer subscribeToDelivered() {
         var observer = new DeliveryTestEnv.SignalMemoizer();
-        ServerEnvironment.instance()
-                         .delivery()
-                         .subscribe(observer);
+        test.delivery()
+            .subscribe(observer);
         return observer;
     }
 
     private void ensureInboxesEmpty() {
         if (shouldInboxBeEmpty) {
-            var shardedItems = InboxContents.get();
+            var shardedItems = InboxContents.of(test.delivery());
 
             for (var index : shardedItems.keySet()) {
                 var page = shardedItems.get(index);

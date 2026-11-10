@@ -351,7 +351,7 @@ internal class ParallelCatchUpsIgTest : AbstractCatchUpIgTest() {
                     .enableParallelPosting()
                     .useCustomPostingExecutor(systemEvents)
             }
-            box = BlackBox.from(builder)
+            box = blackBox(builder)
         }
 
         /**

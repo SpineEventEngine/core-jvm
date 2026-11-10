@@ -19,6 +19,7 @@ import io.kotest.matchers.shouldNotBe
 import io.spine.core.ErrorCase.TENANT_ERROR
 import io.spine.core.Status.StatusCase.ERROR_CASE
 import io.spine.protobuf.isNotDefault
+import io.spine.testing.server.buildForTests
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
@@ -26,7 +27,7 @@ import org.junit.jupiter.api.Test
 internal class CommandServiceSingleTenancySpec : CommandServiceTenancyTest() {
 
     override fun createContext(): BoundedContext {
-        val ctx = BoundedContext.singleTenant("Projects").build()
+        val ctx = BoundedContext.singleTenant("Projects").buildForTests()
         ctx.register(Given.ProjectAggregateRepository())
         return ctx
     }

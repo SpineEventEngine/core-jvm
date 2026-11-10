@@ -15,6 +15,7 @@
 package io.spine.server.delivery.given
 
 import io.spine.server.BoundedContext
+import io.spine.server.BoundedContextBuilder
 import io.spine.server.entity.Repository
 import io.spine.server.event.EventDispatcher
 import io.spine.test.delivery.numberAdded
@@ -26,8 +27,13 @@ import io.spine.testing.server.blackbox.BlackBox
  *
  * Each value posted is new, so a tally that applies a value twice, or misses one,
  * holds other values than [caughtUp] or [notCaughtUp] tell.
+ *
+ * @param blackBox Creates a black box over the context of the given builder, with
+ *   the `Delivery` of the test.
  */
-internal class TallyContexts : AutoCloseable {
+internal class TallyContexts(
+    private val blackBox: (BoundedContextBuilder) -> BlackBox
+) : AutoCloseable {
 
     private val boxes = mutableMapOf<String, BlackBox>()
     private val posted = mutableMapOf<Pair<String, String>, MutableList<Posted>>()
@@ -44,7 +50,7 @@ internal class TallyContexts : AutoCloseable {
         val builder = BoundedContext.singleTenant(name)
         repositories.forEach { builder.add(it) }
         dispatcher?.let { builder.addEventDispatcher(it) }
-        return add(name, BlackBox.from(builder))
+        return add(name, blackBox(builder))
     }
 
     /**

@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.storage.system;
@@ -46,6 +34,7 @@ import org.junit.jupiter.api.Test;
 import static com.google.common.truth.Truth.assertThat;
 import static io.spine.system.server.SystemBoundedContexts.systemOf;
 import static io.spine.testing.DisplayNames.NOT_ACCEPT_NULLS;
+import static io.spine.testing.server.TestContexts.buildForTests;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -67,10 +56,10 @@ class SystemAwareStorageFactoryTest {
         Environment.instance()
                    .setTo(DefaultMode.class);
 
-        var serverEnv = ServerEnvironment.instance();
         StorageFactory productionStorage = new MemoizingStorageFactory();
-        ServerEnvironment.under(DefaultMode.class)
-                         .use(productionStorage);
+        var serverEnv = ServerEnvironment.newBuilder()
+                .under(DefaultMode.class, env -> env.use(productionStorage))
+                .build();
         var storageFactory = serverEnv.storageFactory();
         assertThat(storageFactory)
                 .isInstanceOf(SystemAwareStorageFactory.class);
@@ -85,10 +74,10 @@ class SystemAwareStorageFactoryTest {
     @Test
     @DisplayName("wrap test storage")
     void wrapTestStorage() {
-        var serverEnv = ServerEnvironment.instance();
         StorageFactory testStorage = InMemoryStorageFactory.newInstance();
-        ServerEnvironment.under(Tests.class)
-                         .use(testStorage);
+        var serverEnv = ServerEnvironment.newBuilder()
+                .under(Tests.class, env -> env.use(testStorage))
+                .build();
         var storageFactory = serverEnv.storageFactory();
         assertThat(storageFactory).isInstanceOf(SystemAwareStorageFactory.class);
         var systemAware = (SystemAwareStorageFactory) storageFactory;
@@ -146,7 +135,7 @@ class SystemAwareStorageFactoryTest {
         var factory = new MemoizingStorageFactory();
         var systemAware = SystemAwareStorageFactory.wrap(factory);
         var contextBuilder = BoundedContext.multitenant(CONTEXT.name().getValue());
-        var context = contextBuilder.build();
+        var context = buildForTests(contextBuilder);
         var systemContext = systemOf(context);
         var systemSpec = systemContext.spec();
         assertFalse(systemSpec.storesEvents());

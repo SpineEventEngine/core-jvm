@@ -17,8 +17,10 @@ package io.spine.testing.client.grpc;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.core.Ack;
 import io.spine.core.UserId;
+import io.spine.server.Application;
 import io.spine.server.BoundedContext;
 import io.spine.server.Server;
+import io.spine.server.ServerEnvironment;
 import io.spine.testing.client.grpc.command.Ping;
 import io.spine.testing.client.grpc.given.GameRepository;
 import io.spine.testing.logging.mute.MuteLogging;
@@ -51,14 +53,17 @@ class TestClientTest {
 
     @BeforeEach
     void setUpAll() throws IOException {
-        BoundedContext.singleTenant("Tennis")
-                      .add(new GameRepository())
-                      .build();
+        var application = Application.newBuilder()
+                .setServerEnvironment(ServerEnvironment.newBuilder().build())
+                .add(BoundedContext.singleTenant("Tennis")
+                                   .add(new GameRepository()))
+                .build();
         // Bind to the port `0` so that the OS assigns a free port at the time of binding.
         // Unlike a fixed or randomly guessed port, this cannot fail with "address already
         // in use" (notably under Windows).
         server = Server
                 .atPort(0)
+                .setApplication(application)
                 .build();
         server.start();
         var userId = UserId.newBuilder()

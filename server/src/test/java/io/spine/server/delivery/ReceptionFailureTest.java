@@ -25,10 +25,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.google.common.truth.Truth.assertThat;
 import static io.spine.base.Identifier.newUuid;
-import static io.spine.server.delivery.given.ReceptionFailureTestEnv.blackBox;
 import static io.spine.server.delivery.given.ReceptionFailureTestEnv.configureDelivery;
 import static io.spine.server.delivery.given.ReceptionFailureTestEnv.inboxMessages;
 import static io.spine.server.delivery.given.ReceptionFailureTestEnv.receptionist;
+import static io.spine.server.delivery.given.ReceptionFailureTestEnv.receptionistContext;
 import static io.spine.server.delivery.given.ReceptionFailureTestEnv.sleep;
 import static io.spine.server.delivery.given.ReceptionFailureTestEnv.tellToTurnConditioner;
 import static io.spine.server.delivery.given.ReceptionistAggregate.FAILURE_MESSAGE;
@@ -44,8 +44,8 @@ final class ReceptionFailureTest extends AbstractDeliveryTest {
     @MuteLogging
     void allowFailureRethrow() {
         var monitor = new ObservingMonitor();
-        configureDelivery(monitor);
-        try (var context = blackBox().tolerateFailures()) {
+        configureDelivery(this, monitor);
+        try (var context = receptionistContext(this).tolerateFailures()) {
             var receptionistId = newUuid();
             var command = tellToTurnConditioner(receptionistId);
             makeApplierPass();
@@ -79,8 +79,8 @@ final class ReceptionFailureTest extends AbstractDeliveryTest {
     @MuteLogging
     void allowMarkingFailedMessageAsDelivered() {
         var monitor = new MarkFailureDeliveredMonitor();
-        configureDelivery(monitor);
-        try (var context = blackBox().tolerateFailures()) {
+        configureDelivery(this, monitor);
+        try (var context = receptionistContext(this).tolerateFailures()) {
             var receptionistId = newUuid();
             var command = tellToTurnConditioner(receptionistId);
             makeApplierFail();
@@ -92,8 +92,8 @@ final class ReceptionFailureTest extends AbstractDeliveryTest {
         }
     }
 
-    private static void assertInboxEmpty() {
-        var messages = inboxMessages();
+    private void assertInboxEmpty() {
+        var messages = inboxMessages(this);
         assertThat(messages.size()).isEqualTo(0);
     }
 }

@@ -75,6 +75,7 @@ import io.spine.testing.logging.mute.MuteLogging
 import io.spine.testing.server.Assertions.assertCommandClasses
 import io.spine.testing.server.Assertions.assertEventClasses
 import io.spine.testing.server.blackbox.ContextAwareTest
+import io.spine.testing.server.buildForTests
 import io.spine.testing.server.model.ModelTests
 import io.spine.testing.time.BackToTheFuture
 import io.spine.testing.time.FrozenMadHatterParty
@@ -98,7 +99,7 @@ internal class AggregateSpec {
         aggregate = TestAggregate(ID)
         amishAggregate = AmishAggregate(ID)
         context = BoundedContextBuilder.assumingTests(/* multitenant = */ true)
-            .build()
+            .buildForTests()
         repository = TestAggregateRepository()
         context.internalAccess()
             .register(repository)
