@@ -19,6 +19,7 @@ import io.spine.base.EventMessage
 import io.spine.base.Time.currentTime
 import io.spine.core.ActorContext
 import io.spine.core.UserId
+import io.spine.core.actorContext
 import io.spine.protobuf.AnyPacker.pack
 import io.spine.server.Application
 import io.spine.server.BoundedContext
@@ -135,10 +136,10 @@ public class ThirdPartyContext private constructor(
      * @throws IllegalStateException If the application of this context is not built yet.
      */
     public fun emittedEvent(eventMessage: EventMessage, userId: UserId) {
-        val actorContext = ActorContext.newBuilder()
-            .setActor(userId)
-            .setTimestamp(currentTime())
-            .build()
+        val actorContext = actorContext {
+            actor = userId
+            timestamp = currentTime()
+        }
         emittedEvent(eventMessage, actorContext)
     }
 
