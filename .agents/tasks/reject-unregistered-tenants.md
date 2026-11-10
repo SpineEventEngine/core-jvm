@@ -9,10 +9,9 @@ rework (#1713, merged). The work is tracked by #1709.
 Progress:
 
 - [ ] PR 1, the tenant index of the application: #1717, from branch
-  `claude/application-tenant-index` (`2.0.0-SNAPSHOT.651`).
-- [ ] PR 2, the record of `Application`.
-- [ ] PR 3, `TenantAdded`.
-- [ ] PR 4, rejecting unregistered tenants.
+  `claude/application-tenant-index` (`2.0.0-SNAPSHOT.670`).
+- [ ] PR 2, rejecting unregistered tenants: the record of `Application`, `TenantAdded`, and
+  the gate (Q24).
 
 Since the rework, the client learns only the kind of a problem: `ErrorCase.TENANT_ERROR` for
 every tenant problem. The server records the details as System events. Sections 3–6 are
@@ -70,8 +69,8 @@ Decisions:
 - Q15 (2026-11-09, while reviewing PR 1): no index per context. `BoundedContextBuilder` loses
   `setTenantIndex()`, `hasTenantIndex()`, and `getTenantIndex()`, so every multitenant context
   and its System context use the index of `Application`. A per-context index served no need of
-  this design, and made every PR more complex: closing rules in PR 1, a second announcing
-  wrapper in PR 3, and tenants that one context admits and another rejects in PR 4. gcloud-jvm
+  this design, and made every PR more complex: closing rules in PR 1, and in PR 2 a second
+  announcing wrapper and tenants that one context admits and another rejects. gcloud-jvm
   sets the index of `Application` instead. See section 8.
 - Q16 (2026-11-09, while reviewing PR 1): `OpenContexts` is merged into `Application`, in PR 1,
   so that the application knows the contexts it is made of. It stays an internal class of its
@@ -86,8 +85,8 @@ Decisions:
   current one. `BoundedContext` loses its index and `InternalAccess.tenantIndex()`, and
   `BusBuilder` its tenant-index API. See section 8.
 - Q19 (2026-11-09, while reviewing PR 1): `CommandBus` stops registering the tenants of the
-  commands in PR 1, not PR 4. Nothing reads the index before the gate of PR 4, so no request
-  is served differently, and no test relied on it. Until PR 4, only the application
+  commands in PR 1, not PR 2. Nothing reads the index before the gate of PR 2, so no request
+  is served differently, and no test relied on it. Until PR 2, only the application
   registers tenants. See section 3.
 - Q20 (2026-11-09, while reviewing PR 1): `OpenContexts` is renamed to `ContextRegistry`, and
   `Application` gives it with `contexts()`. The record holds only the contexts that are open,
@@ -101,6 +100,8 @@ Decisions:
   The application stays open, so a later server in the same JVM can serve new contexts.
   See section 11.
 - Q23 (2026-11-09): this change goes into PR 1, not a PR of its own.
+- Q24 (2026-11-10): the former PRs 2–4 become one PR, PR 2: the record of `Application`,
+  `TenantAdded`, and rejecting unregistered tenants. See "Implementation plan".
 
 ## Problem
 
@@ -469,7 +470,7 @@ Why the boundary and not the buses:
 - In-process posting (`context.commandBus().post(...)`, `BlackBox.receivesCommand`) keeps
   working unchanged, so most tests are unaffected.
 
-Open for PR 4: `SubscriptionService` subscribes a topic that no context serves in every
+Open for PR 2: `SubscriptionService` subscribes a topic that no context serves in every
 context (`serveNoContext`). Such a topic has no serving context to check against. It can be
 checked against the index of `Application` and its policy, which every multitenant context
 uses.
@@ -868,10 +869,10 @@ server serves them instead of building contexts of its own.
 - Tests that post through the services with generated tenants must register them first:
   `CommandServiceTest`, `CommandServiceTenancyTest`, `CommandServiceMultiTenancySpec`, and the
   multitenant cases of `QueryServiceTest`, `SubscriptionServiceTest`, and the
-  `*ErrorCaseSpec` classes. To be confirmed by a run in PR 4.
+  `*ErrorCaseSpec` classes. To be confirmed by a run in PR 2.
 - The shape checks of queries and subscriptions are new. A query or a subscription without
   a tenant in a multitenant context was served from the `SINGLE_TENANT` partition; now it is
-  refused with `TENANT_ERROR`. Tests that rely on it are found by the run in PR 4.
+  refused with `TENANT_ERROR`. Tests that rely on it are found by the run in PR 2.
 - The `BlackBox.clients()` tests pass because `withTenant()` registers.
 - No test asserts that posting a command registers a tenant. `ProjectionRepositoryTest`
   already calls `keep` itself.
@@ -889,7 +890,7 @@ server serves them instead of building contexts of its own.
 
 ## Implementation plan
 
-Four PRs in core-jvm, in this order, stacked on #1713 until it is merged. Each one bumps the
+Two PRs in core-jvm, in this order (Q24). Each one bumps the
 version (`bump-version`), regenerates the dependency reports with a full build, and passes
 `./gradlew clean build dokkaGenerate`. After every test run, read the test count, not only
 the exit code.
@@ -910,42 +911,42 @@ the exit code.
      default, `use` after first use throws, `close` closes the contexts and then the index,
      `closeIndex`); a multitenant `CommandBus` does not register the tenant of a posted
      command.
-2. **The record of `Application`.** Records the requests that no context serves. Independent
-   of PR 1, except for `Application` itself.
-   - `persistEvents()`, `forgetEvents()`, the lazily created `EventStore`, and `record()`
-     (section 10).
-   - `ServiceDelegate` records the requests that no context serves, and those of a type
-     internal or unknown to the server, by `Application`. `UnsupportedCommandReceived.id` loses
-     `(required)`; the docs of the reused events say where they are recorded.
-   - `CommandValidationError` is removed (section 6).
-   - Specs: off by default, nothing created; when on, each kind of request that no context
-     serves is stored with its tenant; `close()`.
-3. **`TenantAdded`.** Needs PR 1.
-   - `AnnouncingTenantIndex`, returned by `Application.tenantIndex()` (section 9). Posting
-     through the System write side of each open multitenant context, under the new tenant.
-   - The documentation of `TenantAdded`: a notification, may arrive after the first request,
-     may arrive twice, reaches the contexts of the node that added the tenant.
-   - Specs: a reactor or process manager in each of two contexts receives `TenantAdded` once
-     per new tenant, and not for a tenant that is already in the index.
-4. **Reject unregistered tenants.** The behavior change. Needs PRs 1–3.
-   - `UnregisteredTenantPolicy` in `Application` (section 2); `TenantGate` and the gate in
-     `ServiceDelegate` (section 3).
-   - The events of section 4 in `tenant_events.proto`. The shape checks of queries and
-     subscriptions are recorded in the serving context; `*TenantNotRegistered` and the
-     failures of the index, by `Application`.
-   - `MtBlackBox.withTenant()` registers (section 7).
-   - Tests: register tenants where the services are called with generated tenants; new specs
-     from "Expected impact on existing tests".
-   - Check test isolation again: one case of `ApplicationSpec` (PR 1) closes the tenant index
-     of the `Application` of the test JVM, so the contexts that earlier tests left open hold
-     a closed index afterwards. No test uses a context across test classes today; with the
-     gate, such a context would fail on every request.
-   - Documentation: the Javadoc of `CommandService.post()` and of the query and subscription
-     services; release notes on `REJECT`, how to turn on `REGISTER`, the new shape checks of
-     queries and subscriptions, and `Application.persistEvents()`.
+2. **Reject unregistered tenants.** The record of `Application`, `TenantAdded`, and
+   the behavior change, in one PR (Q24). Needs PR 1.
+   - **The record of `Application`.** Records the requests that no context serves.
+     - `persistEvents()`, `forgetEvents()`, the lazily created `EventStore`, and `record()`
+       (section 10).
+     - `ServiceDelegate` records the requests that no context serves, and those of a type
+       internal or unknown to the server, by `Application`. `UnsupportedCommandReceived.id`
+       loses `(required)`; the docs of the reused events say where they are recorded.
+     - `CommandValidationError` is removed (section 6).
+     - Specs: off by default, nothing created; when on, each kind of request that no context
+       serves is stored with its tenant; `close()`.
+   - **`TenantAdded`.**
+     - `AnnouncingTenantIndex`, returned by `Application.tenantIndex()` (section 9). Posting
+       through the System write side of each open multitenant context, under the new tenant.
+     - The documentation of `TenantAdded`: a notification, may arrive after the first
+       request, may arrive twice, reaches the contexts of the node that added the tenant.
+     - Specs: a reactor or process manager in each of two contexts receives `TenantAdded`
+       once per new tenant, and not for a tenant that is already in the index.
+   - **The gate.** The behavior change.
+     - `UnregisteredTenantPolicy` in `Application` (section 2); `TenantGate` and the gate in
+       `ServiceDelegate` (section 3).
+     - The events of section 4 in `tenant_events.proto`. The shape checks of queries and
+       subscriptions are recorded in the serving context; `*TenantNotRegistered` and the
+       failures of the index, by `Application`.
+     - `MtBlackBox.withTenant()` registers (section 7).
+     - Tests: register tenants where the services are called with generated tenants; new
+       specs from "Expected impact on existing tests".
+     - Check test isolation again: one case of `ApplicationSpec` (PR 1) closes the tenant
+       index of the `Application` of the test JVM, so the contexts that earlier tests left
+       open hold a closed index afterwards. No test uses a context across test classes today;
+       with the gate, such a context would fail on every request.
+     - Documentation: the Javadoc of `CommandService.post()` and of the query and subscription
+       services; release notes on `REJECT`, how to turn on `REGISTER`, the new shape checks
+       of queries and subscriptions, and `Application.persistEvents()`.
 
-Follow-ups in other repositories, once PR 2 (for the removed enum) or PR 4 (for the behavior)
-is merged:
+Follow-ups in other repositories, once PR 2 is merged:
 
 - **spine-ts:** drop `CommandValidationError` together with the enums that #1713 removed, when
   it adopts `ErrorCase`; revisit how it answers a command of an unregistered tenant (Q8).
@@ -1216,8 +1217,8 @@ Questions 4, 6, and 8 were superseded on 2026-11-09 by question 11.
     - **Ask `Application` where the index is needed** (chosen), and remove the tenant-index API
       of `BusBuilder` too.
     - **Remove it from the contexts only**, and let `CommandBus` get the index through
-      `BusBuilder` until PR 4.
-19. ~~Stop `CommandBus` registering tenants in PR 1, or in PR 4 with the gate?~~ Decided: in PR 1.
+      `BusBuilder` until PR 2.
+19. ~~Stop `CommandBus` registering tenants in PR 1, or in PR 2 with the gate?~~ Decided: in PR 1.
     Nothing read the index yet, and only the spec added by PR 1 checked the registration.
 20. ~~Keep the name `OpenContexts` for the record of contexts, given by `openContexts()`?~~
     Decided: `ContextRegistry`, given by `Application.contexts()`. Options:
@@ -1232,3 +1233,5 @@ Questions 4, 6, and 8 were superseded on 2026-11-09 by question 11.
     close them, as before (chosen). Closing the `Application` was not an option: it closes for
     good, and tests start and stop servers in one JVM.
 23. ~~In PR 1, or a PR of its own?~~ Decided: PR 1.
+24. ~~Keep the record of `Application`, `TenantAdded`, and the gate in three PRs?~~ Decided: one
+    PR, PR 2, after PR 1. So the plan has two PRs.
