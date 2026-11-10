@@ -53,8 +53,8 @@ import static java.util.Collections.synchronizedList;
  * any concurrent modifications of entity state.
  *
  * <p>Delegates the message dispatching and low-level handling of message duplicates to
- * {@link #newInbox(TypeUrl) Inbox}es of each target entity. The respective {@code Inbox} instances
- * should be created in each of {@code Entity} repositories.
+ * {@linkplain #newInbox(TypeUrl, BoundedContextName) inboxes} of each target entity.
+ * The respective inboxes should be created in each of {@code Entity} repositories.
  *
  * <h2>Configuration</h2>
  *
@@ -759,18 +759,25 @@ public final class Delivery implements WithLogging {
     }
 
     /**
-     * Creates an instance of {@link Inbox.Builder} for the given entity type.
+     * Creates an instance of {@link Inbox.Builder} for the given entity type
+     * in the given Bounded Context.
      *
      * <p>The built inbox is registered in this {@code Delivery}.
      *
+     * <p>A message sent through the built inbox is delivered to the inbox of the same
+     * entity type in the same context. When several contexts have entities of one type,
+     * as the System contexts do, each context receives only its own messages.
+     *
      * @param entityType
      *         the type of the entity, to which the inbox will belong
+     * @param context
+     *         the name of the Bounded Context, to which the entity belongs
      * @param <I>
      *         the type of entity identifiers
      * @return the builder for the {@code Inbox}
      */
-    public <I> Inbox.Builder<I> newInbox(TypeUrl entityType) {
-        return Inbox.newBuilder(entityType, this, inboxWriter());
+    public <I> Inbox.Builder<I> newInbox(TypeUrl entityType, BoundedContextName context) {
+        return Inbox.newBuilder(entityType, context, this, inboxWriter());
     }
 
     /**

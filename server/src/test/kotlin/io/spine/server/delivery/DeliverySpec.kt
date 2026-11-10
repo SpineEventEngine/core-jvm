@@ -14,10 +14,12 @@
 
 package io.spine.server.delivery
 
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.optional.shouldBePresent
 import io.kotest.matchers.shouldBe
 import io.spine.core.TenantId
 import io.spine.environment.Tests
+import io.spine.server.BoundedContext
 import io.spine.server.ServerEnvironment
 import io.spine.server.delivery.InboxMessageStatus.TO_DELIVER
 import io.spine.server.delivery.given.CounterView
@@ -67,6 +69,24 @@ internal class DeliverySpec : AbstractDeliveryTest() {
         }
     }
 
+    @Test
+    fun `store a message with the context of the inbox that received it`() {
+        // No shard observer, so the message waits in the shard.
+        val environment = ServerEnvironment.instance()
+        val delivery = Delivery.newBuilder(environment.nodeId(), environment.storageFactory())
+            .setStrategy(UniformAcrossAllShards.singleShard())
+            .build()
+        under<Tests> { use(delivery) }
+        val builder = BoundedContext.singleTenant(COUNTERS).add(CounterView.Repository())
+        BlackBox.from(builder).use { box ->
+            box.receivesEvent(numberAdded { calculatorId = TARGET; value = 0 })
+
+            val stored = InboxContents.get().values.flatten()
+                .filter { it.inboxId.typeUrl == CounterView.projectionType().value() }
+            stored.map { it.context.value } shouldContainExactly listOf(COUNTERS)
+        }
+    }
+
     /**
      * Stops a delivery run after its first page.
      */
@@ -77,6 +97,7 @@ internal class DeliverySpec : AbstractDeliveryTest() {
 
     private companion object {
         const val TARGET = "target"
+        const val COUNTERS = "Counters"
         const val MESSAGES = 3
         val SHARD: ShardIndex = DeliveryStrategy.newIndex(0, 1)
     }

@@ -23,6 +23,8 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.spine.base.Time.currentTime
+import io.spine.core.BoundedContextName
+import io.spine.core.BoundedContextNames
 import io.spine.core.Event
 import io.spine.server.BoundedContext
 import io.spine.server.delivery.CatchUpStatus.COMPLETED
@@ -74,7 +76,7 @@ internal class HeldCatchUpMessagesIgTest : AbstractCatchUpIgTest() {
         val delivery = useDelivery(UniformAcrossAllShards.singleShard(), observer = { }) {
             it.setPageSize(pageSize)
         }
-        BlackBox.from(BoundedContext.singleTenant("Tallies").add(tallies)).use {
+        BlackBox.from(BoundedContext.singleTenant(CONTEXT.value).add(tallies)).use {
             writeJob(delivery.catchUpStorage(), completedJob())
             writeHeld(delivery)
 
@@ -108,7 +110,7 @@ internal class HeldCatchUpMessagesIgTest : AbstractCatchUpIgTest() {
             it.setPageSize(2)
                 .setCatchUpStorage(storage)
         }
-        BlackBox.from(BoundedContext.singleTenant("Tallies").add(tallies)).use {
+        BlackBox.from(BoundedContext.singleTenant(CONTEXT.value).add(tallies)).use {
             writeJob(storage, completedJob())
             val newJob = startedJob()
             val held = writeHeld(delivery)
@@ -169,6 +171,7 @@ internal class HeldCatchUpMessagesIgTest : AbstractCatchUpIgTest() {
         id = InboxMessageMixin.generateIdWith(SHARD)
         signalId = inboxSignalId { value = event.id.value }
         inboxId = InboxIds.wrap(TALLY, TYPE)
+        context = CONTEXT
         this.label = label
         status = TO_CATCH_UP
         whenReceived = currentTime()
@@ -195,6 +198,7 @@ internal class HeldCatchUpMessagesIgTest : AbstractCatchUpIgTest() {
         const val ANOTHER_TALLY = "another-tally"
         val TYPE: TypeUrl = TypeUrl.of(TallyA1::class.java)
         val SHARD: ShardIndex = DeliveryStrategy.newIndex(0, 1)
+        val CONTEXT: BoundedContextName = BoundedContextNames.newName("Tallies")
     }
 }
 

@@ -47,7 +47,7 @@ public final class Inbox<I> {
     private final InboxOfEvents<I> eventPart;
     private final Delivery delivery;
     private final @Nullable BatchDeliveryListener<I> batchDispatcher;
-    private final @Nullable BoundedContextName contextName;
+    private final BoundedContextName contextName;
 
     private Inbox(Builder<I> builder) {
         this.entityStateType = builder.entityStateType;
@@ -63,13 +63,18 @@ public final class Inbox<I> {
      *
      * @param typeUrl
      *         the type URL of a consumer
+     * @param contextName
+     *         the name of the Bounded Context, to which the consumer belongs
      * @param delivery
      *         the delivery in which the built inbox is registered
      * @param writer
      *         the writer to use when messages are sent via the inbox being built
      */
-    static <I> Builder<I> newBuilder(TypeUrl typeUrl, Delivery delivery, InboxWriter writer) {
-        return new Builder<>(typeUrl, delivery, writer);
+    static <I> Builder<I> newBuilder(TypeUrl typeUrl,
+                                     BoundedContextName contextName,
+                                     Delivery delivery,
+                                     InboxWriter writer) {
+        return new Builder<>(typeUrl, contextName, delivery, writer);
     }
 
     /**
@@ -106,10 +111,9 @@ public final class Inbox<I> {
     }
 
     /**
-     * Returns the name of the Bounded Context, to which this {@code Inbox} belongs,
-     * or {@code null} if it was not {@linkplain Builder#withContext(BoundedContextName) set}.
+     * Returns the name of the Bounded Context, to which this {@code Inbox} belongs.
      */
-    @Nullable BoundedContextName contextName() {
+    BoundedContextName contextName() {
         return contextName;
     }
 
@@ -140,25 +144,31 @@ public final class Inbox<I> {
     public static final class Builder<I> {
 
         private final TypeUrl entityStateType;
+        private final BoundedContextName contextName;
         private final Delivery delivery;
         private final InboxWriter writer;
         private final Endpoints<I, EventEnvelope> eventEndpoints = new Endpoints<>();
         private final Endpoints<I, CommandEnvelope> commandEndpoints = new Endpoints<>();
         private @Nullable BatchDeliveryListener<I> batchDispatcher;
-        private @Nullable BoundedContextName contextName;
 
         /**
          * Creates an instance of {@code Builder} for the given {@code Inbox} consumer entity type.
          *
          * @param type
          *         the type URL of the entity, to which belongs the {@code Inbox} being built
+         * @param contextName
+         *         the name of the Bounded Context, to which the entity belongs
          * @param delivery
          *         the delivery in which the built inbox is registered
          * @param writer
          *         the writer to use when messages are sent via the inbox being built
          */
-        private Builder(TypeUrl type, Delivery delivery, InboxWriter writer) {
+        private Builder(TypeUrl type,
+                        BoundedContextName contextName,
+                        Delivery delivery,
+                        InboxWriter writer) {
             this.entityStateType = type;
+            this.contextName = checkNotNull(contextName);
             this.delivery = delivery;
             this.writer = writer;
         }
@@ -196,18 +206,6 @@ public final class Inbox<I> {
         @CanIgnoreReturnValue
         public Builder<I> withBatchListener(BatchDeliveryListener<I> dispatcher) {
             this.batchDispatcher = checkNotNull(dispatcher);
-            return this;
-        }
-
-        /**
-         * Sets the name of the Bounded Context, to which the {@code Inbox} belongs.
-         *
-         * <p>The {@code Delivery} needs it for the inboxes of the catch-up machinery, because
-         * every System context has inboxes of these types.
-         */
-        @CanIgnoreReturnValue
-        public Builder<I> withContext(BoundedContextName name) {
-            this.contextName = checkNotNull(name);
             return this;
         }
 
@@ -256,6 +254,10 @@ public final class Inbox<I> {
 
         TypeUrl entityStateType() {
             return entityStateType;
+        }
+
+        BoundedContextName contextName() {
+            return contextName;
         }
     }
 
